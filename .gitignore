@@ -1,0 +1,17 @@
+deploy
+deploy_core_packages
+deploy_from_secondary
+todo.txt
+/bin
+/core
+/etc/.bash_aliases_bundle
+/shell/.bash_staging
+/shell/.bash_temp
+.trash
+/packages
+/playground
+/snippets
+/user
+/state
+/archive
+

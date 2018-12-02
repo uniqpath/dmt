@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+NC='\033[0m' # No Color
+
+if [ "$EUID" -ne 0 ]
+  then printf "${RED}Must be root${NC}\n"
+  exit
+fi
+
+if [ "$1" == "--main" ]; then
+
+  printf "${GREEN}Please wait a minute or two for process to finish...${NC}\n\n"
+
+  parted -s /dev/mmcblk0 rm 2
+  parted -s /dev/mmcblk0 mkpart primary 98304s 20000767s
+  # 20000768 divisible by 4096 -> optimal alignment
+
+  parted /dev/mmcblk0 unit s print
+
+  printf "${GREEN}Please reboot and enter:${NC}\n"
+  printf "${MAGENTA}resize2fs /dev/mmcblk0p2${NC}\n"
+
+elif [ "$1" == "--create" ]; then
+
+  if [ -d /home/pi/Music ]; then
+    printf "${RED}target mount directory /home/pi/Music already exists${NC}\n"
+    exit
+  fi
+
+  printf "${GREEN}Please wait a minute or two for process to finish...${NC}\n\n"
+
+  parted -s /dev/mmcblk0 mkpart primary 20000768s 100%
+  # 20000768 divisible by 4096 -> optimal alignment
+
+  mkfs.ext4 -L media /dev/mmcblk0p3
+
+  parted /dev/mmcblk0 unit s print
+
+  mkdir /home/pi/Music
+  mount /dev/mmcblk0p3 /home/pi/Music
+  chown -R pi:pi /home/pi/Music
+
+  if grep -Fxq "LABEL=media" /etc/fstab
+  then
+    printf "${YELLOW}Did not add automount because LABEL=media already exists in /etc/fstab${NC}\n"
+    printf "${RED}Verify the contents of /etc/fstab, it should contain:{NC}\n"
+    printf "${WHITE}LABEL=media /home/pi/Music ext4 defaults 0 2${NC}\n"
+  else
+    echo >> /etc/fstab
+    echo "LABEL=media /home/pi/Music ext4 defaults 0 2" >> /etc/fstab
+  fi
+
+else
+
+  printf "${YELLOW}Usage:${NC}\n"
+  printf "${GREEN}part --create ${GRAY}creates Music partition after 9.5GB to the end of sd card${NC}\n"
+
+  echo
+
+  printf "${YELLOW}Current partitions on ${CYAN}/dev/mmcblk0:${NC}\n"
+  parted /dev/mmcblk0 unit s print
+
+fi

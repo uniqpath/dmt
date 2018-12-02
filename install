@@ -1,0 +1,136 @@
+#!/bin/bash
+
+source "./shell/.bash_util"
+source "./shell/.bash_general"
+source "./shell/.bash_networking"
+source "./shell/.bash_devices"
+source "./shell/.bash_dep"
+source "./shell/.bash_update"
+
+FROM_DMT_INSTALL=false
+if [ "$1" == "from-dmt-install" ]; then
+  FROM_DMT_INSTALL=true
+  shift
+fi
+
+# deploy including user and .bash_staging
+#with_user=false
+with_user=true
+# decided that this is the dedault option!! will display warning instead of sometimes not deploying with user (for "known" devices)
+
+# if [ "$1" == "--with-user" ] || [ "$1" == "--user" ]; then
+#   with_user=true
+#   shift
+# fi
+
+only_shell=false
+if [ "$1" == "--only-shell" ]; then
+  only_shell=true
+  shift
+fi
+
+arg="$1"
+
+if [ "$arg" == "--help" ] || [  "$arg" == "-h" ]; then
+  printf "${MAGENTA}∞ DMT ∞ ${CYAN}v$(cat "$DMT_PATH/.version")${NC}\n"
+  echo
+  printf "${WHITE}Install or update ${MAGENTA}.dmt${NC} scripts and shortcuts on this or any remote ${CYAN}Linux / macOS ${NC}machine (by using ssh).\n"
+  echo
+  printf "${YELLOW}Usage:${NC}\n"
+
+  if $FROM_DMT_INSTALL; then
+    printf "${GREEN}dmt install user@host ${GRAY}installs on user@host${NC}\n"
+  else
+    printf "${GREEN}$0${GRAY} link-installs current directory on this device${NC}\n"
+    printf "${GREEN}$0 user@host ${GRAY}installs on user@host, shortcut ${GREEN}$0 ap ${GRAY}installs on ${DMT_AP_DEFAULT_HOST}${NC}\n"
+    # printf "${GREEN}$0 --with-user user@host ${GRAY}includes user directory${NC}\n"
+  fi
+
+  exit
+fi
+
+DMT_BASH_PATH="$HOME/.dmt/shell"
+
+function compile {
+  local cwd="`pwd`"
+  cd "$DMT_BASH_PATH"
+  ./compile
+  cd "$cwd"
+}
+
+if [ -z "$arg" ]; then # install here
+
+    COMPILED_BASH_ALIASES="$HOME/.dmt/etc/.bash_aliases_bundle"
+
+    compile
+
+    if [ ! -f "$COMPILED_BASH_ALIASES" ]; then
+      printf "${RED}Error: compilation was supposed to produce $COMPILED_BASH_ALIASES${NC}\n"
+      exit
+    fi
+
+    echo $HOME
+
+    if [ -f "$HOME/.bash_aliases" ] || [ -L "$HOME/.bash_aliases" ]; then # -L : we check for broken symlink (-f would return true for working symlink but not for a broken one)
+      if [ -f "$HOME/.bash_aliases" ] && [ "$(head -3 "$HOME/.bash_aliases" | tail -1)" == "# DMT ALIASES" ]; then
+        rm "$HOME/.bash_aliases"
+      else
+        mv "$HOME/.bash_aliases" "$HOME/.bash_aliases-backup-by-dmt"
+        printf "\n${GRAY}Backed up $HOME/.bash_aliases → $HOME/.bash_aliases-backup-by-dmt${NC}\n\n"
+      fi
+    fi
+
+    ln -s "$COMPILED_BASH_ALIASES" "$HOME/.bash_aliases"
+
+    # run after-install (=after-update) hooks
+    after_update_hook="$HOME/.dmt/user/devices/this/after-update"
+    if [ -f "$after_update_hook" ]; then
+      "$after_update_hook"
+    fi
+
+    printf "\n${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname)${NC}\n\n"
+    printf "Enter ${GREEN}dmt help${NC} to start.\n"
+
+    . "$HOME/.bash_aliases"
+
+else # install on device
+
+    host="$arg"
+
+    if [ "$host" == "ap" ]; then
+      host="$DMT_AP_DEFAULT_HOST"
+    else
+      matching_host=''
+      get_full_host matching_host "$host"
+      if [ $? -ne 1 ]; then # not error
+        host="$matching_host"
+      fi
+    fi
+
+    if [ -z "$host" ]; then
+      printf "${RED}Host not known${NC}\n"
+      return
+    fi
+
+    target="${host}:.dmt"
+
+    printf "${CYAN}Installing on ${YELLOW}$host${NC}\n"
+
+    compile
+
+    if $only_shell; then
+      dirsync ~/.dmt/shell "${target}/shell"
+    else
+      if $with_user || [ -n "$matching_host" ] || [ "$host" == "$DMT_AP_DEFAULT_HOST" ]; then
+        if [ "$host" == "$DMT_AP_DEFAULT_HOST" ]; then
+          printf "${RED}Warning: ${CYAN}copying with user directory to potentially untrusted device${NC}\n"
+        fi
+        dirsync --dmt_with_user ~/.dmt "$target"
+      else
+        dirsync ~/.dmt "$target"
+      fi
+    fi
+
+    remote --silent -h "$host" "cd ~/.dmt; ./install"
+
+fi

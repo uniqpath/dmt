@@ -1,0 +1,558 @@
+#!/bin/bash
+
+function rpio_set {
+  local pin="$1"
+  local direction="$2"
+  sudo echo "$pin" > /sys/class/gpio/unexport
+  sudo echo "$pin" > /sys/class/gpio/export
+  sudo echo "$direction" > "/sys/class/gpio/gpio${pin}/direction"
+}
+
+function rpio {
+  local pin="$1"
+  local value="$2"
+  if [ -n "$value" ]; then
+    sudo echo "$value" > /sys/class/gpio/gpio${pin}/value
+  else
+    sudo cat "/sys/class/gpio/gpio${pin}/value"
+  fi
+}
+
+# searches device names (host1, host2, ...) and returns the full host (user@host.local) of the matching device
+function get_matching_device_full_host() {
+
+  local pattern="$2"
+
+  if [ -z "$pattern" ]; then
+    return 1
+  fi
+
+  local device_list=''
+  get_devices_list device_list
+  IFS=', ' read -r -a devices <<< "$device_list"
+
+  local lines=()
+
+  for full_host in "${devices[@]}"
+  do
+    if [[ $full_host =~ @ ]]; then
+      local arr=($(echo "$full_host" | tr "@" "\n"))
+      local host=$(echo "${arr[1]}" | xargs) # trim whitespace
+    else
+      local host="$full_host"
+    fi
+
+    if [[ $host =~ \. ]]; then
+      local arr=($(echo "$host" | tr "." "\n"))
+      local hostname=$(echo "${arr[0]}" | xargs) # trim whitespace
+    else
+      local hostname="$host"
+    fi
+
+    lines+=($hostname)
+  done
+
+  local min_size=1000
+  local match
+  local matching_index
+
+  IFS=$'\n'
+
+  # start with case sensitive
+  #for extension in "${extensions_arr[@]}"
+  for index in ${!lines[@]}
+  do
+    local line=${lines[$index]}
+    if [[ $line == "$pattern"* ]] && [[ $line != "#"* ]]; then
+      local size=${#line}
+      if [[ $size -lt $min_size ]]; then
+        match=$line
+        min_size=$size
+        matching_index=$index
+      fi
+    fi
+  done
+
+  # case insensitive
+  if [ -z "$match" ]; then
+    shopt -s nocasematch # case insensitive regex
+
+    for index in ${!lines[@]}
+    do
+      local line=${lines[$index]}
+      if [[ $line == "$pattern"* ]] && [[ $line != "#"* ]]; then
+        local size=${#line}
+        if [[ $size -lt $min_size ]]; then
+          match=$line
+          min_size=$size
+          matching_index=$index
+        fi
+      fi
+    done
+
+    shopt -u nocasematch
+  fi
+
+  # anywhere case sensitive
+  if [ -z "$match" ]; then
+    for index in ${!lines[@]}
+    do
+      local line=${lines[$index]}
+      if [[ $line == *"$pattern"* ]] && [[ $line != "#"* ]]; then
+        local size=${#line}
+        if [[ $size -lt $min_size ]]; then
+          match=$line
+          min_size=$size
+          matching_index=$index
+        fi
+      fi
+    done
+  fi
+
+  # anywhere case insensitive
+  if [ -z "$match" ]; then
+    shopt -s nocasematch # case insensitive regex
+
+    for index in ${!lines[@]}
+    do
+      local line=${lines[$index]}
+      if [[ $line == *"$pattern"* ]] && [[ $line != "#"* ]]; then
+        local size=${#line}
+        if [[ $size -lt $min_size ]]; then
+          match=$line
+          min_size=$size
+          matching_index=$index
+        fi
+      fi
+    done
+
+    shopt -u nocasematch
+  fi
+
+  unset IFS
+
+  if [ -n "$match" ]; then
+    eval "$1='${devices[$matching_index]}'"
+  else
+    return 1
+  fi
+}
+
+function build_essential {
+  sudo apt-get update
+  sudo apt-get -y install build-essential tar unzip curl git screen ntp zip tree lsof colordiff rsync
+}
+
+function build_essential_full {
+  sudo apt-get update
+  sudo apt-get -y install build-essential zlib1g-dev libpcre3 libpcre3-dev libbz2-dev libssl-dev libreadline-dev tar unzip curl git screen dh-autoreconf make pkg-config cmake lsof ntp highlight net-tools zip tree lsof colordiff rsync
+}
+
+# tries to match a host listed in networks.def file
+function get_full_host() {
+
+  # stuff in .ssh/config has priority!
+  local userAndIp=''
+  sshNameToIP userAndIp "$2"
+
+  if [ -n "$userAndIp" ]; then
+    eval "$1='${userAndIp}'"
+    return
+  fi
+
+  local matching_full_host=''
+  get_matching_device_full_host matching_full_host "$2"
+  if [ $? -ne 0 ]; then # error
+    return 1 # no match
+  fi
+
+  eval "$1='${matching_full_host}'"
+}
+
+function q {
+  if [ -z "$1" ]; then
+    exit
+    # printf "${YELLOW}Usage:${NC}\n"
+    # printf "${GREEN}<todo>${NC}\n"
+    return
+  fi
+
+  if [ "$1" == "reset" ]; then
+    local host="dmt.local"
+
+    if [ -n "$2" ]; then
+      host="$2"
+    fi
+
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "$host"
+    return
+  fi
+
+  # only digits
+  # for easy using of ssh tunnels to elsewhere
+  if [[ $1 =~ ^[0-9]+$ ]]; then
+    ssh localhost -p "$1"
+    return
+  fi
+
+  local userAndIp=''
+  sshNameToIP userAndIp "$1"
+
+  if [ $? -ne 0 ]; then # error
+    local host=''
+
+    printf "${GRAY}No host found in lastScan file, trying with definition list...${NC}\n"
+    get_full_host host "$1"
+    if [ $? -ne 0 ]; then # no match
+      printf "${GRAY}Device not found, rescanning network and trying via lastScan file again...${NC}\n"
+      net
+      userAndIp=''
+      sshNameToIP userAndIp "$1"
+      if [ $? -ne 0 ]; then # error
+        printf "\n${RED}Unknown host \"$1\", tried everything, sorry${NC}\n"
+        return
+      else
+        userAndIp=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$userAndIp")
+        host="$userAndIp"
+      fi
+    else
+      printf "${CYAN}${host} ${GRAY}(via networks.def)${NC}\n"
+    fi
+  else
+    userAndIp=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$userAndIp")
+    host="$userAndIp"
+  fi
+
+  ssh "$host" #| grep -v "Warning: Permanently added" | grep -v "The programs included with the Debian" | grep -v "the exact distribution terms for each program are described" | grep -v "individual files in /usr/share/doc" | grep -v "Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY" | grep -v "permitted by applicable law"
+}
+
+function getLastScanFilePath {
+  local result=''
+  local network_id=''
+  network_def_reader result network_id ""
+  network_id=$(echo "$network_id" | tr '[:upper:]' '[:lower:]')
+
+  if [ -n "$network_id" ]; then
+    local _lastScanFilePath="$DMT_STATE/$network_id/lastScan.json"
+  else
+    local _lastScanFilePath="$DMT_STATE/lastScan.json"
+  fi
+  eval "$1='$_lastScanFilePath'"
+}
+
+function getLastScanSearchScriptPath {
+  local _lastScanSearchPath="${DMT_NODE_CORE}/dmt-net/lib/net-scanner/lastScanSearch.js"
+  eval "$1='$_lastScanSearchPath'"
+}
+
+function getIpFromLastScan {
+  local lastScan
+  getLastScanSearchScriptPath lastScan
+
+  local line=$(node "$lastScan" "$2" | grep "ip:")
+  local arr=(${line/\:/ })
+  local _ip=${arr[1]}
+
+  eval "$1='$_ip'"
+}
+
+function getNameFromLastScan {
+  local lastScan
+  getLastScanSearchScriptPath lastScan
+
+  local line=$(node "$lastScan" "$2" | grep "name:")
+  local arr=(${line/\:/ })
+
+  local _name="${arr[@]:1}"
+
+  eval "$1='$_name'"
+}
+
+function getUserFromLastScan {
+  local lastScan
+  getLastScanSearchScriptPath lastScan
+
+  local line=$(node "$lastScan" "$2" | grep "user:")
+  local arr=(${line/\:/ })
+  local _user=${arr[1]}
+
+  eval "$1='$_user'"
+}
+
+#
+#
+#
+#
+function sshNameToIP {
+  if [ -z "$2" ]; then
+    cat ~/.ssh/config | grep "Host"
+  else
+    local host
+
+    if [ -f ~/.ssh/config ]; then
+      local parserScript="${DMT_PLATFORM_BIN}/ssh_parse_host"
+
+      # if [ ! -f "$parserScript" ] && [ -n "$DMT_PLATFORM" ]; then
+      #   parserScript="${DMT_SCRIPTS}/bin/${DMT_PLATFORM}/ssh_parse_host"
+      # fi
+
+      if [ -f "$parserScript" ]; then
+        host=$("$parserScript" "$2") # this will match by prefix (for example "a" would match if "ap" was defined in .ssh/config)
+        if [ $host ] && [ $host == "$2" ]; then # we want strict match
+          printf "${YELLOW}${host} ${GRAY}(found in ~/.ssh/config)${NC}\n"
+        else
+          host=""
+        fi
+      else
+        printf "${YELLOW}Warning: ~/.ssh/config exists but cannot parse it because ssh_parse_host go script is missing...${NC}\n"
+      fi
+    fi
+
+    if [ ! $host ]; then
+      local alreadyScanned=''
+      local lastScan
+      getLastScanFilePath lastScan
+      if [ ! -f "${lastScan}" ]; then
+        printf "${GRAY}lastScan file not found, rescanning network...${NC}\n"
+        net
+        echo
+        alreadyScanned="true"
+      fi
+
+      host=''
+      getIpFromLastScan host "$2"
+
+      if [ $host ]; then
+        local name=''
+        getNameFromLastScan name "$2"
+
+        local user=''
+        getUserFromLastScan user "$2"
+        if [ -z "$user" ]; then
+          user='root'
+        fi
+
+        host="${user}@${host}"
+
+        printf "${YELLOW}${host}${NC} ${CYAN}(${name}) ${GRAY}(via lastScan)${NC}\n"
+      fi
+    fi
+
+    if [ $host ]; then
+      host=$(sed "s/'/111SINGLE___QUOTE111/g" <<< "$host") # quotes bash problem workaround
+      eval "$1='${host}'"
+    else
+      return 1
+    fi
+  fi
+}
+
+function get_devices_list {
+  local _gatewayMac=''
+  get_gatewayMac _gatewayMac
+
+  if [ -z "$_gatewayMac" ]; then
+    #printf "${RED}Cannot get gateway mac address${NC}\n\n"
+    return
+  fi
+
+  local gateway_matched=false
+
+  local DMT_NETWORKS_FILE="$DMT_PATH/user/networks.def"
+
+  IFS=$'\n' read -d '' -r -a lines < "$DMT_NETWORKS_FILE"
+
+  local _result=''
+
+  IFS=$'\n'
+
+  local user=""
+  local domain=""
+
+  for line in ${lines[@]}; do
+    unset IFS
+
+    line=$(echo "${line}" | xargs) # trim whitespace
+
+    if [[ $line =~ ^\s*"#" ]]; then
+      continue
+    fi
+
+    if [[ $line =~ ^network\: ]]; then
+      gateway_matched=false # we reset the match on next record
+    fi
+
+    if [[ $line =~ ^gatewayMac\: ]]; then
+      local arr=($(echo $line | sed "s/gatewayMac:/gatewayMac@/" | tr "@" "\n")) # replace ":" with "@" because ":" appears all over mac address defined in gatewayMac
+      local gatewayMac=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+
+      local normalized_mac=''
+      normalize_mac normalized_mac "$gatewayMac"
+
+      if [ "$normalized_mac" == "$_gatewayMac" ]; then
+        gateway_matched=true
+      fi
+    elif $gateway_matched; then
+      if [[ $line =~ ^domain\: ]]; then
+        local arr=($(echo $line | tr ":" "\n"))
+        domain=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+      elif [[ $line =~ ^user\: ]]; then
+        # split on colon, example: user@server:/home/dir
+        local arr=($(echo $line | tr ":" "\n"))
+        user=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+      elif [[ $line =~ ^devices\: ]]; then
+
+        local arr=($(echo "$line" | tr ":" "\n"))
+        local _device_list=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+
+        if [ -n "$_device_list" ]; then
+          #declare -a devices
+          IFS=', ' read -r -a devices <<< "$_device_list"
+
+          local user_with_at=""
+          if [ -n "$user" ]; then
+            user_with_at="${user}@"
+          fi
+
+          for device in "${devices[@]}"
+          do
+            local host="${device}${domain}"
+            local full_host="${user_with_at}${host}"
+            if [ -z "$_result" ]; then
+              _result="$full_host"
+            else
+              _result="${_result}, ${full_host}"
+            fi
+          done
+        fi
+      fi
+    fi
+  done
+
+  unset IFS
+
+  eval "$1='$_result'"
+}
+
+# updates/installs local ~/.dmt directory to all devices specified in devices.def
+# $1 => update
+#       exec [command]
+function for_all_devices {
+  local user=""
+  local domain=""
+
+  IFS=$'\n'
+
+  local cwd="`pwd`"
+  cd "$DMT_PATH"
+
+  local device_list=''
+  get_devices_list device_list
+  IFS=', ' read -r -a devices <<< "$device_list"
+
+  for full_host in "${devices[@]}"
+  do
+    if [[ $full_host =~ @ ]]; then
+      local arr=($(echo "$full_host" | tr "@" "\n"))
+      local host=$(echo "${arr[1]}" | xargs) # trim whitespace
+    else
+      local host="$full_host"
+    fi
+
+    printf "${MAGENTA}Trying ${full_host}...${NC}"
+    if [[ $(ping -c 1 "${host}" 2>&1) == *"0% packet loss"* ]]; then
+      echo
+      case "$1" in
+        update)
+          #./install --with-user "$full_host"
+          ./install "$full_host"
+          ;;
+
+        update_pkg)
+          dmt pkg update "$full_host"
+          ;;
+
+        list)
+          echo "$full_host"
+          ;;
+
+        exec)
+          if [ -z "$2" ]; then
+            printf "${RED}Missing command${NC}\n"
+          else
+            remote -h "$full_host" "$2"
+          fi
+      esac
+    else
+      printf " → ${RED}currently inaccessible${NC}\n"
+    fi
+  done
+
+  unset IFS
+
+  cd "$cwd"
+}
+
+
+function dev {
+  devices "$@"
+}
+
+function devices {
+
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}edit${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}list${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}ping${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}exec${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}update${NC} ${GRAY}${NC}\n"
+  else
+    declare -a opts=(
+      "edit"
+      "list"
+      "ping"
+      "exec"
+      "update"
+    )
+
+    local matching_opt=''
+    opts_matcher matching_opt "$1" "${opts[@]}"
+    if [ $? -ne 0 ]; then # error
+      printf "${YELLOW}Use ${GREEN}help ${YELLOW}for more options${NC}\n\n"
+      #matching_opt="aaa" # default
+    fi
+
+    shift
+
+    case "$matching_opt" in
+      edit) # warning update $opts upon change
+        local file="${DMT_USER_PATH}/devices.json"
+        echo $file
+        if [ -f "$file" ]; then
+          s "$file"
+        else
+          printf "${RED}File not found${NC}\n"
+        fi
+        ;;
+
+      list)
+        for_all_devices "list"
+        ;;
+
+      ping) # warning update $opts upon change
+        for_all_devices
+        ;;
+
+      exec)
+        for_all_devices "exec" "$@"
+        ;;
+
+      update)
+        for_all_devices "update"
+        ;;
+    esac
+  fi
+
+
+}

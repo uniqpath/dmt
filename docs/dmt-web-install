@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ -f ~/dmt.zip ]; then
+  rm ~/dmt.zip
+fi
+
+curl -o ~/dmt.zip https://uniqpath.com/repo/dmt.zip
+
+if [ -f ~/dmt.zip ]; then
+  cwd="`pwd`"
+
+  if [ -d ~/.dmt ]; then
+    if [ -d ~/.dmt-backup ]; then
+      rm -rf ~/.dmt-backup
+    fi
+    mv ~/.dmt ~/.dmt-backup
+  fi
+
+  cd ~
+  unzip dmt.zip
+  rm dmt.zip
+  cd .dmt
+  . ./install
+
+  cd "$cwd"
+
+else
+  printf "${RED}Failed to download update (is the device in AP mode?)${NC}\n"
+fi

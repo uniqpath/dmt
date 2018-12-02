@@ -1,0 +1,260 @@
+#!/bin/bash
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+#BLUE='\033[0;34m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+# http://stackoverflow.com/a/17805088/458177
+# Ultimate bash debugging
+# just "set -x" and you will get all this additional info printed:
+export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+
+function macos {
+  if [[ $OSTYPE == darwin* ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+function is_rpi {
+  if [ -f /etc/issue ] && [[ $(cat /etc/issue) =~ Raspbian ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+function dev_machine {
+
+  #echo "$LOGNAME_HOME/.dmt-dev-machine"
+
+  #if [ $(hostname | grep -i "eclipse" | wc -l) = 1 ]; then
+  if [ -f ~/.dmt-dev-machine ]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+# info: https://mharrison.org/post/bashfunctionoverride/
+save_function() {
+  local ORIG_FUNC=$(declare -f $1)
+  local NEWNAME_FUNC="$2${ORIG_FUNC#$1}"
+  eval "$NEWNAME_FUNC"
+}
+
+function debug_info {
+  if dev_machine; then
+    printf "${MAGENTA}>>> DEBUG:${NC} ${GRAY}$@ ${MAGENTA}<<<${NC}\n"
+  fi
+}
+
+# function is_setting {
+#   ls "$DMT_PATH"
+# }
+
+# function read_setting {
+#   ls "$DMT_PATH"
+# }
+
+function opts_matcher_helper {
+  local pattern="$2"
+  local ARGS=("$@")
+  local opts=("${ARGS[@]:2}")
+
+  local min_size=1000
+  local match
+
+  #should be like this:
+  #unset IFS
+  #if it's not, find where we forgot to unset after IFS=$'\n'
+
+  for entry in "${opts[@]}"
+  do
+    #echo $entry
+    shopt -s nocasematch # case insensitive regex
+    if [[ "$entry" == "$pattern"* ]] && [ -n "$pattern" ]; then
+      local size=${#entry}
+      if [[ $size -lt $min_size ]]; then
+        match=$entry
+        min_size=$size
+      fi
+    fi
+    shopt -u nocasematch
+  done
+
+  if [ -n "$match" ]; then
+    eval "$1='${match}'"
+  else
+    return 1
+  fi
+}
+
+function opts_matcher {
+  local __matching_opt=''
+  local pattern="$2"
+  local ARGS=("$@")
+  local opts=("${ARGS[@]:2}")
+
+  opts_matcher_helper __matching_opt "$pattern" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    if [ -n "$pattern" ]; then
+      printf "${RED}Unknown option:${NC} ${pattern}\n\n"
+    fi
+    return 1
+  elif [ "$pattern" != "$__matching_opt" ]; then
+    printf "${MAGENTA}Matched: ${GREEN}${__matching_opt}${NC}\n\n"
+  fi
+
+  eval "$1='${__matching_opt}'"
+}
+
+# Priority for executable binary scripts:
+#
+# ~/.dmt/bin
+# ~/.dmt/user/bin
+# ~/.dmt/user/devices/this/bin
+#
+# To force back the framework version and don't override with user or device binary, use:
+# CORE_BIN=true [command] [args]
+function platform_bin_command {
+  local __result=''
+
+  shift
+
+  local _device_script="${DMT_DEVICE_PLATFORM_BIN}/$@"
+  local _user_script="${DMT_USER_PLATFORM_BIN}/$@"
+  local _fw_script="${DMT_PLATFORM_BIN}/$@"
+
+  if [ -f "$_device_script" ] && [ ! $CORE_BIN ]; then
+    __result="$_device_script"
+  elif [ -f "$_user_script" ] && [ ! $CORE_BIN ]; then
+    __result="$_user_script"
+  elif [ -f "$_fw_script" ]; then
+    __result="$_fw_script"
+  else
+    printf "${GRAY}Script $@ not found among device, user or fw scripts.${NC}\n"
+    return 1
+  fi
+
+  eval "$1='${__result}'"
+}
+
+# very simple parsing... scan all the lines until "parent_key" is found,
+# then search for the first occurence of "key" and return its "value"
+function def_reader {
+  local file="$2"
+  local parent_key="$3"
+  local key="$4"
+
+  local parent_key_matched=false
+
+  IFS=$'\n' read -d '' -r -a lines < "$file"
+
+  local _result=''
+
+  IFS=$'\n'
+
+  for line in ${lines[@]}; do
+    unset IFS
+
+    line=$(echo "${line}" | xargs) # trim whitespace
+
+    if [[ $line =~ ^\s*"#" ]]; then
+      continue
+    fi
+
+    if [[ $line =~ ^${parent_key}\: ]]; then
+      #local arr=($(echo $line | sed "s/gatewayMac:/gatewayMac@/" | tr "@" "\n")) # replace ":" with "@" because ":" appears all over mac address defined in gatewayMac
+      #local gatewayMac=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+      parent_key_matched=true
+
+      if [ -z "$key" ]; then
+        local arr=($(echo "$line" | tr ":" "\n"))
+        _result=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+        break
+      fi
+    elif [[ $line =~ ^${key}\: ]] && $parent_key_matched; then
+      local arr=($(echo "$line" | tr ":" "\n"))
+      _result=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+      break
+    # elif [[ $line =~ ^network\: ]]; then
+    #   parent_key_matched=false # we reset the match on next record
+    fi
+  done
+
+  eval "$1='$_result'"
+}
+
+# calls nodejs parser and outputs nicely formatted json --
+# good for testing the correctness .def files syntax
+function parsedef {
+
+  # for runtime in "${DMT_RUNTIMES[@]}"
+  # do
+  #   echo "$runtime"
+  # done
+
+  # return
+
+  which node > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then
+    printf "${MAGENTA}nodejs not installed, please install it and try again${NC}\n"
+    return
+  fi
+
+  local DEF_PARSER_PATH="$DMT_NODE_CORE/dmt-bridge/lib/defParser.js"
+
+  if [ ! -f "$DEF_PARSER_PATH" ]; then
+    printf "${RED}Missing dmt-bridge nodejs package${NC}\n"
+    return
+  fi
+
+  local pattern="$1"
+
+  if [ -z "$pattern" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}parsedef [file.def]${NC} ${GRAY}converts .def file to json and shows the parsed results if successful${NC}\n"
+    return
+  fi
+
+  # if [ ! -f "$1" ]; then
+  #   printf "${RED}File $1 doesn't exist${NC}\n"
+  #   return
+  # fi
+
+  local matching_file=''
+  get_matching_file matching_file "$pattern" "*.def"
+  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+  if [ ! -f "$matching_file" ]; then
+    printf "${RED}No matching file for pattern $1${NC}\n"
+    return
+  fi
+
+  #printf "${BLUE}$(echo $matching_file | sed "s/\.def//")${WHITE}:${NC}\n"
+
+  #which jq > /dev/null 2>&1
+
+  node "$DEF_PARSER_PATH" "$matching_file"
+
+  # if [ $? -eq 0 ]; then
+  #   node "$DEF_PARSER_PATH" "$matching_file" #| jq
+  # else
+  #   node "$DEF_PARSER_PATH" "$matching_file"
+  # fi
+}
+
+function def {
+  parsedef "$@"
+}

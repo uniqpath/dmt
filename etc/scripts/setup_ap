@@ -1,0 +1,241 @@
+#!/bin/bash
+#
+# based on: https://gist.github.com/Lewiscowles1986/fecd4de0b45b2029c390
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+NC='\033[0m' # No Color
+
+function macos {
+  if [[ $OSTYPE == darwin* ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+function install_warning {
+  printf "${RED}AP switching functionality not installed${NC}\n"
+  printf "Run: ${YELLOW}ap install [SSID] [PASS]${NC}\n"
+}
+
+if [ "$1" == "-h" ] || [ -z "$1" ]; then
+  printf "${YELLOW}Usage:${NC}\n"
+  #echo "sudo $0 install [SSID] [PASS]"
+  #echo "ap install [SSID] [PASS]"
+  printf "${GREEN}ap enable | on${NC}\n"
+  printf "${GREEN}ap disable | off | wifi${NC}\n"
+  printf "${GREEN}ap wifi_once ${GRAY}(enables wifi only for next reboot)${NC}\n"
+  echo
+  printf "${YELLOW}More:${NC}\n"
+  printf "To change hotspot SSID/PASS: ${GREEN}conf hostapd${NC}\n"
+  printf "To update known external wifi networks: ${GREEN}conf wifi${NC}\n"
+  echo
+
+  if macos; then
+    printf "${RED}Can't run on macOS${NC}\n"
+    exit
+  fi
+
+  if [ -d /etc/network/interfaces ]; then
+    printf "${RED}/etc/network/interfaces directory is missing${NC}\n"
+    exit
+  fi
+
+  if grep -Fq "hostapd" /etc/network/interfaces
+  then
+    printf "${GRAY}Current mode: ${MAGENTA}Access Point${NC}\n"
+  else
+    printf "${GRAY}Current mode: ${MAGENTA}Wifi client${NC}\n"
+  fi
+
+  if [ -f /etc/systemd/system/hostapd-enable.service ]; then
+    echo "on second-to-next boot back to AP mode via hostapd-enable.service"
+  fi
+
+  exit
+fi
+
+if [ "$EUID" -ne 0 ]
+  then printf "${RED}Must be root${NC}\n"
+  exit
+fi
+
+# ENABLE AP
+
+if [ "$1" == "enable" ] || [ "$1" == "on" ]; then
+  if [ ! -f "/etc/network/interfaces-hostapd" ]; then
+    install_warning
+    exit
+  fi
+  cp /etc/network/interfaces-hostapd /etc/network/interfaces
+
+  if [ -f "/etc/network/if-up.d/off-power-manager" ]; then
+    rm /etc/network/if-up.d/off-power-manager
+  fi
+
+  if [ -f "/etc/systemd/system/hostapd-enable.service" ]; then
+    systemctl disable hostapd-enable
+    rm /etc/systemd/system/hostapd-enable.service
+  fi
+
+  # systemctl enable hostapd
+  systemctl enable dnsmasq
+
+  printf "${CYAN}Wifi mode disabled${NC}\n"
+  printf "${GREEN}AP mode enabled${NC}\n"
+
+  if [ "$2" == "r" ]; then
+    printf "${MAGENTA}Rebooting...${NC}\n"
+    reboot
+  else
+    printf "${GREEN}Please reboot now...${NC}\n"
+  fi
+
+  exit
+fi
+
+# WIFI - ONCE
+
+if [ "$1" == "wifi_once" ]; then
+  $0 disable
+
+  if [ -f "/etc/systemd/system/hostapd-enable.service" ]; then
+    rm /etc/systemd/system/hostapd-enable.service
+  fi
+
+cat > /etc/systemd/system/hostapd-enable.service <<EOF
+[Unit]
+Description=AP
+Documentation=man:forked-daapd(8)
+After=network.target remote-fs.target
+
+[Service]
+ExecStart=/home/pi/scripts/setup_ap enable
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  systemctl enable hostapd-enable
+
+  echo "on second-to-next boot back to AP mode"
+
+  if [ "$2" == "r" ]; then
+    printf "${MAGENTA}Rebooting...${NC}\n"
+    reboot
+  fi
+
+  exit
+fi
+
+# WIFI (DISABLE AP)
+
+if [ "$1" == "disable" ] || [ "$1" == "off" ] || [ "$1" == "wifi" ]; then
+  if [ ! -f "/etc/network/interfaces-wifi" ]; then
+    install_warning
+    exit
+  fi
+
+  # systemctl disable hostapd
+  systemctl disable dnsmasq
+
+  cp /etc/network/interfaces-wifi /etc/network/interfaces
+
+# check:
+# We get this:
+# Error for wireless request "Set Power Management" (8B2C) :
+#    SET failed on device wlan0 ; Invalid argument.
+#
+# with hostapd setup, so we have to turn it off
+cat > /etc/network/if-up.d/off-power-manager <<EOF
+#!/bin/sh
+/sbin/iwconfig wlan0 power off
+/sbin/iwconfig wlan1 power off
+EOF
+
+  chmod +x /etc/network/if-up.d/off-power-manager
+
+  printf "${CYAN}AP mode disabled${NC}\n"
+  printf "${GREEN}Wifi mode enabled${NC}\n"
+
+  if [ "$2" == "r" ]; then
+    printf "${MAGENTA}Rebooting...${NC}\n"
+    reboot
+  else
+    printf "${GREEN}Please reboot now...${NC}\n"
+  fi
+  exit
+fi
+
+if [ "$1" == "install" ]; then
+
+  shift
+
+  APSSID="RPi-NETWORK"
+  APPASS="password"
+
+  shift
+
+  if [ -n "$1" ]; then
+    APSSID=$1
+  fi
+
+  if [ -n "$2" ]; then
+    APPASS=$2
+  fi
+
+  apt-get install hostapd dnsmasq -y
+
+  systemctl stop dnsmasq
+
+# country_code=SI -->> change country if needed and add below
+cat > /etc/hostapd/hostapd.conf <<EOF
+interface=wlan0
+ssid=$APSSID
+wpa_passphrase=$APPASS
+hw_mode=g
+channel=1
+country_code=SI
+ieee80211d=1
+wmm_enabled=1
+auth_algs=1
+wpa=2
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+EOF
+
+  cp /etc/network/interfaces /etc/network/interfaces-wifi
+
+cat > /etc/network/interfaces-hostapd <<EOF
+auto lo
+iface lo inet loopback
+
+auto wlan0
+iface wlan0 inet static
+hostapd /etc/hostapd/hostapd.conf
+address 192.168.1.1
+netmask 255.255.255.0
+EOF
+
+  if [ ! -f "/etc/dnsmasq.conf.orig" ]; then
+    mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
+  fi
+
+cat > /etc/dnsmasq.conf <<EOF
+interface=wlan0
+dhcp-range=192.168.1.20,192.168.1.100,255.255.255.0,24h
+EOF
+
+  echo
+  echo "ssid: $APSSID"
+  echo "pass: $APPASS"
+  echo "To change: conf hostapd"
+
+fi

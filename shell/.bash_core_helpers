@@ -1,0 +1,45 @@
+#!/bin/bash
+
+function make_index {
+  node "$DMT_NODE_CORE/dmt-make-index/index.js" "$@"
+}
+
+# can also do:
+# [some long process_with_text_result] | push_notify
+# in background: se "space|push_notify"
+function push_notify {
+  local push_notifier="$DMT_NODE_CORE/dmt-notify/lib/apn.js"
+
+  if [ -f "$push_notifier" ]; then
+    # if stdin is passed to nodejs script (happens automaticall),
+    #it is considered as a message, given argument is ignored
+    if [ -z "$1" ]; then
+      node "$push_notifier"
+    else
+      node "$push_notifier" "$1"
+    fi
+    # local msg="$1"
+    # if [ -n "$msg" ]; then
+    #   node "$push_notifier" "$msg"
+    # else
+    #   # expects stdin!
+    #   node "$push_notifier"
+    # fi
+  else
+    printf "${RED}Cannot push message${NC}\n"
+  fi
+}
+
+function magic {
+  node "$DMT_NODE_CORE/magic-window/index.js" "$@"
+}
+
+function net_scan {
+  local cmd="${DMT_NODE_CORE}/dmt-net/index.js"
+
+  if [ -f "$cmd" ]; then
+    node "$cmd" "$@"
+  else
+    printf "${RED}dmt-net package not installed, please install${NC}\n"
+  fi
+}

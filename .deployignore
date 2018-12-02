@@ -1,0 +1,14 @@
+deploy
+deploy_from_secondary
+todo.txt
+/etc/.bash_aliases_bundle
+/shell/.bash_staging
+/playground
+/archive
+.trash
+/user
+/user/data
+/user/devices/this
+/state
+target/debug
+target/release

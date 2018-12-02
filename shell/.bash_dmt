@@ -1,0 +1,539 @@
+#!/bin/bash
+
+function dmt {
+  if [ -z "$1" ] || [ "$1" == "help" ] || [ "$1" == "version" ]; then
+    printf "${MAGENTA}     ∞ DMT ∞${NC}\n"
+    printf "${CYAN}Liberate yourself.${NC}\n"
+    if [ "$1" != "version" ]; then
+      # printf "\n${GRAY}Remember your MS-DOS c:/util directory?\nWell .dmt is not like that.${NC}\n"
+      # printf "\n${GRAY}Don't remember anything? Even better!${NC}\n"
+      echo
+    fi
+  fi
+
+  declare -a opts=(
+    "help"
+    "docs"
+    #"music"
+    "status"
+    "version"
+    "level"
+    "devices"
+    "update"
+    "shell_update"
+    "renew"
+    "restart"
+    "log"
+    "install"
+    "uninstall"
+    "bin"
+  )
+
+  if dev_machine; then
+    declare -a opts_admin=(
+      "flash"
+      "publish"
+      "cd"
+    )
+
+    opts=("${opts[@]}" "${opts_admin[@]}")
+  fi
+
+  local matching_opt=''
+  opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    matching_opt="help" # default
+  fi
+
+  shift
+
+  case "$matching_opt" in
+    help) # warning update $opts upon change
+      dmt_help
+      ;;
+
+    docs) # warning update $opts upon change
+      dmt_docs
+      ;;
+
+    music) # warning update $opts upon change
+      dmt_music
+      ;;
+
+    status) # warning update $opts upon change
+      dmt_status
+      ;;
+
+    level) # warning update $opts upon change
+      dmt_level
+      ;;
+
+    version) # warning update $opts upon change
+      dmt_version
+      ;;
+
+    devices) # warning update $opts upon change
+      dmt_devices "$@"
+      ;;
+
+    update) # updates the whole folder, doesn't restart the service
+      dmt_update "$@"
+      ;;
+
+    shell_update) # updates only shell subfolder
+      dmt_install --only-shell "$@"
+      ;;
+
+    renew) # updates the whole folder and restarts the service
+      if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
+        dmt_update all
+        dmt_restart all
+      else
+        dmt_update "$@"
+        dmt_restart "$@"
+      fi
+      ;;
+
+    log) # warning update $opts upon change
+      dmt_log "$@"
+      ;;
+
+    install) # warning update $opts upon change
+      dmt_install "$@"
+      # if [ "$1" == "to" ]; then
+      #   shift
+      #   dmt_install "$@"
+      # else
+      #   dmt_package "install" "$@"
+      # fi
+      ;;
+
+    uninstall) # warning update $opts upon change
+      dmt_uninstall
+      ;;
+
+    restart)
+      dmt_restart "$@"
+      ;;
+
+    # undocumented:
+    flash) # warning update $opts upon change
+      dmt_flash "$@"
+      ;;
+
+    publish) # warning update $opts upon change
+      dmt_publish "$@"
+      ;;
+
+    bin) # warning update $opts upon change
+      dmt_bin "$@"
+      ;;
+
+    cd) # warning update $opts upon change
+      dmt_cd
+      ;;
+  esac
+}
+
+function dmt_help {
+  printf "${YELLOW}Info:${NC}\n\n"
+  printf "${GREEN}dmt help ${GRAY}shows this help${NC}\n"
+  printf "${GREEN}dmt docs ${GRAY}shows documentation in a browser${NC}\n"
+  printf "${GREEN}dmt version ${GRAY}shows dmt version${NC}\n"
+  # printf "${GREEN}dmt music ${GRAY}interact with music${NC}\n"
+  printf "${GREEN}dmt status ${GRAY}a quick glance into the state of the World${NC}\n"
+  printf "${GREEN}dmt level ${GRAY}do you have the entire system? It's easy to get!${NC}\n"
+  echo
+  printf "${YELLOW}Management:${NC}\n\n"
+  if dev_machine; then
+    printf "${GREEN}dmt publish ${GRAY}publish update${NC}\n"
+    # printf "${GREEN}dmt publish packages ${GRAY}publish core packages update${NC}\n"
+    echo
+  fi
+  printf "${GREEN}dmt update ${GRAY}or just ${GREEN}update${GRAY} gets the latest version${NC}\n"
+  printf "${GREEN}dmt install ${GRAY}spreads dmt to another machine, use ${NC}${WHITE}dmt install --with-user ${GRAY}to include user dir${NC}\n"
+  printf "${GREEN}dmt uninstall ${GRAY}disables the package${NC}\n"
+
+  # printf "${YELLOW}Player:${NC}\n"
+  # printf "${GREEN}dmt player search [search_term] ${GRAY}searches for songs in local mpd library${NC}\n"
+  # printf "${GREEN}dmt player search_and_play [search_term] ${GRAY}searches for songs in local mpd library and plays them in order${NC}\n"
+  # printf "${GREEN}dmt player play ${GRAY}continues play${NC}\n"
+  # printf "${GREEN}dmt player pause ${GRAY}pauses payer${NC}\n"
+  # echo
+  # printf "${YELLOW}Devices:${NC}\n"
+  # printf "${GREEN}dmt devices list ${GRAY}${NC}\n"
+  # printf "${GREEN}dmt devices exec [cmd] ${GRAY}${NC}\n"
+  # printf "${GREEN}dmt devices update ${GRAY}${NC}\n"
+  # if dev_machine; then
+  #   echo
+  #   printf "${CYAN}Undocumented:${NC}\n"
+  #   printf "${GREEN}dmt flash ${GRAY}flashes latest version of dmt-os on a sd card${NC}\n"
+  #   printf "${GREEN}dmt publish ${GRAY}uploads to web server for remote installs${NC}\n"
+  #   printf "${GREEN}dmt missing ${GRAY}opens document with missing features for next master image${NC}\n"
+  # fi
+}
+
+function dmt_docs {
+  open "$DMT_PATH/docs/index.html"
+}
+
+function dmt_music {
+  m "$@"
+}
+
+function m_help {
+  printf "${YELLOW}Usage:${NC}\n"
+  # printf "${GREEN}play${NC} ${GRAY}${NC}\n"
+  # printf "${GREEN}shuffle${NC} ${GRAY}${NC}\n"
+  # printf "${GREEN}pause${NC} ${GRAY}${NC}\n"
+  # printf "${GREEN}vol${NC} ${GRAY}${NC}\n"
+  # printf "${GREEN}list${NC} ${GRAY}${NC}\n"
+  # printf "${GREEN}status${NC} ${GRAY}${NC}\n"
+  # printf "${GREEN}playlist${NC} ${GRAY}${NC}\n"
+  # printf "${GREEN}select${NC} ${GRAY}${NC}\n"
+  # printf "${GREEN}scan${NC} ${GRAY}${NC}\n"
+  # printf "${GREEN}update${NC} ${GRAY}${NC}\n"
+}
+
+function e {
+
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}e [command_shortcut] [args]${NC} ${GRAY}executes some of the common .dmt functions by refering to them with only part of the name${NC}\n"
+    return
+  fi
+
+  declare -a opts=(
+    "dmt"
+    "esp"
+    "devices"
+    "gateway_ip"
+    "gatewayMac"
+    "mac_ping"
+    "timer"
+    "count"
+    "freespace"
+    "space"
+    "usage"
+    "conf"
+    "speed"
+    "flash"
+    "serve"
+    "push_notify"
+  )
+
+  local matching_opt=''
+  opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    return
+  fi
+
+  shift
+  $matching_opt "$@"
+}
+
+function dmt_status {
+  printf "${MAGENTA}Info:${NC}\n"
+
+  if macos; then
+    printf "macOS: ${GREEN}true${NC}\n"
+  fi
+
+  if dev_machine; then
+    printf "dev machine: ${GREEN}true${NC}\n"
+  fi
+
+  echo
+
+  printf "${YELLOW}Services:${NC}\n"
+
+  if [ -f "/etc/lighttpd/lighttpd.conf" ]; then
+    printf "${CYAN}lighttpd${NC}\n"
+  fi
+
+  if [ -f "/etc/haproxy/haproxy.cfg" ]; then
+    printf "${CYAN}haproxy${NC}\n"
+  fi
+
+  if [ -f "/etc/dnsmasq.conf" ]; then
+    printf "${CYAN}dnsmasq${NC}\n"
+  fi
+
+  if [ -f "/etc/hostapd/hostapd.conf" ]; then
+    printf "${CYAN}hostapd${NC}\n"
+  fi
+
+  if [ -f "/etc/mpd.conf" ]; then
+    printf "${CYAN}mpd${NC}\n"
+  fi
+
+  if [ -f "/etc/forked-daapd.conf" ]; then
+    printf "${CYAN}forked-daapd${NC}\n"
+  fi
+
+  if [ -f "/etc/shairport-sync.conf" ]; then
+    printf "${CYAN}shairport-sync${NC}\n"
+  fi
+
+  # if [ -f "/etc/samba/smb.conf" ]; then
+  #   printf "${CYAN}samba${NC}\n"
+  # fi
+
+  if [ -f "/etc/mosquitto/mosquitto.conf" ]; then
+    printf "${CYAN}mosquitto${NC}\n"
+  fi
+
+  echo
+  printf "Type ${GREEN}srv${NC} to learn how to interact with these services.\n"
+}
+
+function dmt_version {
+  printf "${MAGENTA}v$(cat "$DMT_PATH/.version")${NC}\n\n"
+  local NUM=$(cat $HOME/.bash_aliases | grep function | wc -l | xargs)
+  printf "${WHITE}${NUM} bash functions ${GRAY}\nin ~/.bash_aliases${NC}\n"
+}
+
+function dmt_level {
+  echo "LEVEL"
+}
+
+function dmt_devices {
+  devices "$@"
+
+  # if [ -z "$1" ]; then
+  #   if [ -z "$1" ]; then
+  #     printf "${YELLOW}Usage:${NC}\n"
+  #     printf "${GREEN}list${NC} ${GRAY}${NC}\n"
+  #     printf "${GREEN}exec${NC} ${GRAY}${NC}\n"
+  #     printf "${GREEN}update${NC} ${GRAY}${NC}\n"
+  #     return
+  #   fi
+  # fi
+
+  # case "$1" in
+  #   list)
+  #     for_all_devices "list"
+  #     ;;
+  #   exec)
+  #     shift
+  #     for_all_devices "exec" "$@"
+  #     ;;
+  #   update)
+  #     for_all_devices "update"
+  #     ;;
+  #   # restart)
+  #   #   for_all_devices "forever restartall"
+  #   #   ;;
+  # esac
+}
+
+function dmt_install {
+  local cwd="`pwd`"
+  cd "$DMT_PATH"
+  . ./install "from-dmt-install" "$@" # calling with . preserves the newly loaded env
+  cd "$cwd"
+}
+
+function dmt_update {
+  if [ -z "$1" ] || [ "$1" == "--with-temp" ]; then
+    if dev_machine; then
+      printf "${RED}Prevented on dev machine${NC}\n"
+    else
+      if [ -f ~/dmt.zip ]; then
+        rm ~/dmt.zip
+      fi
+
+      curl -o ~/dmt.zip https://uniqpath.com/repo/dmt.zip
+
+      if [ -f ~/dmt.zip ]; then
+        local cwd="`pwd`"
+        cd ~
+        unzip -o dmt.zip
+
+        if [ $? -eq 0 ]; then
+          rm dmt.zip
+          cd .dmt
+
+          if [ "$1" != "--with-temp" ] && [ -f "shell/.bash_temp" ]; then
+            rm "shell/.bash_temp"
+          fi
+
+          . ./install # calling with . preserves the newly loaded env
+
+          cd "$cwd"
+        else
+          if [ -f ~/dmt.zip ]; then
+            rm ~/dmt.zip
+          fi
+          printf "${RED}Failed to install update - probably server error${NC}\n"
+        fi
+
+      else
+        printf "${RED}Failed to download update (is the device in AP mode?)${NC}\n"
+      fi
+    fi
+  elif [ "$1" == "devices" ] || [ "$1" == "all" ]; then
+    for_all_devices "update"
+  else
+    dmt_install "$@"
+  fi
+}
+
+function dmt_restart {
+  if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
+    for_all_devices exec "~/.dmt/core/node/.common-deps/node_modules/forever/bin/forever restartall"
+  else
+    local host="$1"
+
+    if [ "$host" == "ap" ]; then
+      host="$DMT_AP_DEFAULT_HOST"
+    else
+      local matching_host=''
+      get_full_host matching_host "$host"
+      if [ $? -ne 1 ]; then # not error
+        host="$matching_host"
+      fi
+    fi
+
+    if [ -n "$host" ]; then
+      remote -h "$host" "~/.dmt/core/node/.common-deps/node_modules/forever/bin/forever restartall"
+    else
+      printf "${RED}Unknown host${NC}\n"
+    fi
+  fi
+}
+
+function dmt_uninstall {
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  local backup_file="$HOME/.bash_aliases-backup-by-dmt"
+
+  if [ -L "$LOGNAME_HOME/.bash_aliases" ] && [ "$(head -3 $LOGNAME_HOME/.bash_aliases | tail -1)" == "# DMT ALIASES" ]; then
+    rm ~/.bash_aliases
+
+    if [ -f "$backup_file" ]; then
+      mv "$backup_file" ~/.bash_aliases
+    fi
+
+    printf "${MAGENTA}dmt${NC} ${CYAN}was unlinked${NC}, only the folder ${CYAN}~/.dmt${NC} remains and is not active in any way.\n"
+    echo
+    printf "${CYAN}To reinstall${NC}\n"
+    printf "${GREEN}cd $HOME/.dmt${NC}\n"
+    printf "${GREEN}./install here${NC}\n"
+    echo
+    printf "${CYAN}To remove the unused directory${NC}\n"
+    printf "${GREEN}rm -rf $HOME/.dmt${NC}\n"
+    echo
+    printf "${CYAN}To install on a fresh system${NC}\n"
+    printf "${GREEN}curl -L https://uniqpath.com/dmt_install | bash${NC}\n"
+    echo
+    printf "${WHITE}If you want to confirm that dmt is uninstalled you have to first reload the shell.${NC}\n"
+  else
+    printf "${RED}dmt is not installed${NC}\n"
+  fi
+}
+
+function dmt_log {
+  printf "${YELLOW}~/.forever/dmt-controller.log :${NC}\n"
+  tail -f "$HOME/.forever/dmt-controller.log"
+}
+
+
+function dmt_cd {
+  cd "$DMT_PATH"
+}
+
+function dmt_bin {
+  declare -a opts=(
+    "compile"
+    "download"
+  )
+
+  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    echo "${opts[@]}"
+    return
+  fi
+
+  local matching_opt=''
+  opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    printf "Use -h to see valid options\n\n"
+    #matching_opt="aaa" # default
+    return
+  fi
+
+  shift
+
+  case "$matching_opt" in
+    compile)
+      if [ -d $DMT_RUST_CORE ]; then
+        dmt_compile_bin
+      else
+        echo "rust core doesn't exists"
+      fi
+      ;;
+
+    download)
+      ;;
+  esac
+}
+
+function dmt_compile_bin {
+  local cwd="`pwd`"
+
+  # todo: ... + generalize the process somehow....
+
+  printf "${MAGENTA}$DMT_RUST_CORE/walkdir${NC}\n"
+  if [ -d "$DMT_RUST_CORE/walkdir" ]; then
+    cd "$DMT_RUST_CORE/walkdir"
+    cargo build --release --example walkdir
+    if [ "$?" -eq 0 ]; then
+      mkdir -p "${DMT_PLATFORM_BIN}"
+      # https://stackoverflow.com/questions/8139885/shellscript-action-if-two-files-are-different
+      if ! cmp target/release/examples/walkdir "${DMT_PLATFORM_BIN}/walkdir" >/dev/null 2>&1; then
+        printf "${GREEN}✓ Build successful, copying executable to ${DMT_PLATFORM_BIN}${NC}\n"
+        cp target/release/examples/walkdir "${DMT_PLATFORM_BIN}"
+      else
+        printf "${CYAN}✓ Build successful but executable in ${DMT_PLATFORM_BIN} is already the newest version${NC}\n"
+      fi
+    fi
+  fi
+
+  echo
+
+  printf "${MAGENTA}$DMT_RUST_CORE/walksearch${NC}\n"
+  if [ -d "$DMT_RUST_CORE/walksearch" ]; then
+    cd "$DMT_RUST_CORE/walksearch"
+    cargo build --release
+    if [ "$?" -eq 0 ]; then
+      mkdir -p "${DMT_PLATFORM_BIN}"
+      # https://stackoverflow.com/questions/8139885/shellscript-action-if-two-files-are-different
+      if ! cmp target/release/walksearch "${DMT_PLATFORM_BIN}/walksearch" >/dev/null 2>&1; then
+        printf "${GREEN}✓ Build successful, copying executable to ${DMT_PLATFORM_BIN}${NC}\n"
+        cp target/release/walksearch "${DMT_PLATFORM_BIN}"
+      else
+        printf "${CYAN}✓ Build successful but executable in ${DMT_PLATFORM_BIN} is already the newest version${NC}\n"
+      fi
+    fi
+  fi
+
+  cd "$cwd"
+}
+
+# UNDOCUMENTED:
+
+function dmt_flash {
+  flash ~/Misc/dmt-os/dmt-os-gui.img "$@"
+}
+
+function dmt_publish {
+  local cwd="`pwd`"
+  cd "$DMT_PATH"
+  cd ..
+  ./deploy
+  cd "$cwd"
+}

@@ -1,0 +1,100 @@
+<html>
+<pre>
+
+.dmt is a suite of command-line tools for Unix based systems like Linux and macOS.
+
+-= THEY MAKE LIFE SIMPLER =-
+
+You can try this for start:
+
+  mkdir ~/dmt-test
+  cd ~/dmt-test
+  mkdir Alice
+  mkdir Bob
+  mkdir Charlie
+
+Now for .dmt magic:
+
+  c a
+  ..      [this is an actual command, short for "cd .."]
+  c b
+  ..
+  c li
+
+What do you think?
+
+Now try:
+
+  cd ~/dmt-test
+  mkdir Alice/in_woderland
+  mkdir Alice/on_the_roof
+
+Just to make sure, the whole tree structure now looks like this:
+
+.
+├── Alice
+│   ├── in_woderland
+│   └── on_the_roof
+├── Bob
+└── Charlie
+
+Try a few more .dmt commands:
+
+  l a
+  c a/i
+  ...
+  c a/o
+
+Now check out the "t" command (short for "better caT"), preparation:
+
+  cd ~/dmt-test
+  echo "Claude Shannon" > information.txt
+  echo "John von Neumann" > game_theory.txt
+  echo "Murray Gell-Mann" > complex_systems.txt
+
+See how to read files quickly:
+
+  t info
+  t the
+  t co
+
+Now install `highlight` for even better capabilities:
+
+  brew install highlight (macOS)
+  sudo apt-get install highlight (macOS)
+
+do this:
+
+  echo "console.log('mooo')" > index.js
+
+Confirm that syntax highlighting works now:
+
+  t in
+
+Run the code (it is assumed that you have node.js installed):
+
+  r in
+
+Or just:
+
+  r
+
+Create another file:
+
+  echo "console.log('hello world')" > output.js
+
+Run this program:
+
+  r o
+  r out
+  ...
+
+Clean up:
+
+  rm -rf ~/dmt-test
+
+What you saw here are just four commands ("c", "l", "t" and "r"), to learn about much more do this:
+
+</pre>
+</html>
+
