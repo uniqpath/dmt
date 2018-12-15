@@ -1,0 +1,54 @@
+#!/bin/bash
+
+function manage_daemon {
+  local command="$1"
+  local daemon_process="$2"
+
+  local DAEMONS_PATH="$HOME/.dmt/core/node/dmt-controller/daemons"
+  local DAEMON_MANAGER="${DAEMONS_PATH}/manager.js"
+
+  if [ ! -f "$DAEMON_MANAGER" ]; then
+    echo "Error: missing ${DAEMON_MANAGER}"
+    exit
+  fi
+
+  local cwd=`pwd`
+  cd "$DAEMONS_PATH"
+
+  node "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
+
+  cd "$cwd"
+}
+
+function manage_daemons {
+  local command="$1"
+  manage_daemon "$command" dmt-controller
+  manage_daemon "$command" search-and-play
+}
+
+if [ -z "$1" ]; then
+  printf "${YELLOW}Usage:${NC}\n"
+  printf "${GREEN}daemons start${NC} ${GRAY}starts or restarts daemons if already running${NC}\n"
+  printf "${GREEN}daemons stop${NC} ${GRAY}stops deamons${NC}\n"
+  return
+fi
+
+case "$1" in
+
+  start )
+    manage_daemons start
+    ;;
+
+  restart )
+    manage_daemons restart
+    ;;
+
+  start_or_restart ) # for clarity
+    manage_daemons restart
+    ;;
+
+  stop )
+    manage_daemons stop
+    ;;
+
+esac

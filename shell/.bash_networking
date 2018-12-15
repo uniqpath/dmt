@@ -217,7 +217,7 @@ function network_def_reader {
 
   local gateway_matched=false
 
-  local DMT_NETWORKS_FILE="$DMT_PATH/user/networks.def"
+  local DMT_NETWORKS_FILE="$DMT_PATH/user/def/networks.def"
 
   IFS=$'\n' read -d '' -r -a lines < "$DMT_NETWORKS_FILE"
 

@@ -9,32 +9,9 @@
 # macOS:
 # cp ~/.dmt/etc/onboot/macos-launchagent-script/dmt-controller.plist ~/Library/LaunchAgents
 
-function forever_start {
-  local cwd=`pwd`
-  cd "$1"
+source ~/.dmt/shell/.bash_custom
 
-  local loc1="$HOME/.dmt/core/node/dmt-controller/node_modules/forever/bin/forever"
-  local loc2="$HOME/n/bin/forever"
-  local loc3="/usr/local/bin/forever"
-
-  local forever_cmd
-
-  if [ -f "$loc1" ]; then
-    forever_cmd="$loc1"
-  elif [ -f "$loc2" ]; then
-    forever_cmd="$loc2"
-  elif [ -f "$loc3" ]; then
-    forever_cmd="$loc3"
-  else
-    echo "ERROR: npm package forever not found"
-    return
-  fi
-
-  NODE_ENV=production "$forever_cmd" start forever/production.json
-  cd "$cwd"
-}
-
-forever_start ~/.dmt/core/node/dmt-controller
+~/.dmt/etc/onboot/daemons start_or_restart
 
 if [ -f ~/.dmt/user/devices/this/onboot ]; then
   ~/.dmt/user/devices/this/onboot

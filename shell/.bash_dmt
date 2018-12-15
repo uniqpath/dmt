@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DMT_CLI="$DMT_NODE_CORE/dmt-controller/cli/dmt.js"
+
 function dmt {
   if [ -z "$1" ] || [ "$1" == "help" ] || [ "$1" == "version" ]; then
     printf "${MAGENTA}     ∞ DMT ∞${NC}\n"
@@ -11,6 +13,12 @@ function dmt {
     fi
   fi
 
+  local host=""
+  if [[ "$1" == @* ]]; then
+    host="$1"
+    shift
+  fi
+
   declare -a opts=(
     "help"
     "docs"
@@ -20,11 +28,13 @@ function dmt {
     "level"
     "devices"
     "update"
-    "shell_update"
     "renew"
-    "restart"
     "log"
     "install"
+    "start"
+    "restart"
+    "stop"
+    "check"
     "uninstall"
     "bin"
   )
@@ -61,7 +71,7 @@ function dmt {
       ;;
 
     status) # warning update $opts upon change
-      dmt_status
+      dmt_status "$host" "$@"
       ;;
 
     level) # warning update $opts upon change
@@ -80,18 +90,12 @@ function dmt {
       dmt_update "$@"
       ;;
 
-    shell_update) # updates only shell subfolder
-      dmt_install --only-shell "$@"
-      ;;
+    # shell_update) # updates only shell subfolder
+    #   dmt_install --only-shell "$@"
+    #   ;;
 
     renew) # updates the whole folder and restarts the service
-      if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
-        dmt_update all
-        dmt_restart all
-      else
-        dmt_update "$@"
-        dmt_restart "$@"
-      fi
+      dmt_renew "$@"
       ;;
 
     log) # warning update $opts upon change
@@ -112,8 +116,26 @@ function dmt {
       dmt_uninstall
       ;;
 
+    # restart)
+    #   dmt_restart "$@"
+    #   ;;
+
+    start)
+      printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is starting...${NC}\n\n"
+      "${DMT_PATH}/etc/onboot/daemons" start
+      printf "\n${GREEN}Daemons should now be running, use ${MAGENTA}dmt check${NC} ${GREEN}for quick self-test.${NC}\n"
+      ;;
+
     restart)
-      dmt_restart "$@"
+      printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is restarting...${NC}\n\n"
+      "${DMT_PATH}/etc/onboot/daemons" restart
+      printf "\n${GREEN}Daemons restarted, use ${MAGENTA}dmt check${NC} ${GREEN}for quick self-test.${NC}\n"
+      ;;
+
+    stop)
+      printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is stopping...${NC}\n\n"
+      "${DMT_PATH}/etc/onboot/daemons" stop
+      #printf "\n${GREEN}Daemons should now be running, use ${MAGENTA}dmt check${NC} ${GREEN}for quick self-test.${NC}\n"
       ;;
 
     # undocumented:
@@ -233,59 +255,67 @@ function e {
 }
 
 function dmt_status {
-  printf "${MAGENTA}Info:${NC}\n"
-
-  if macos; then
-    printf "macOS: ${GREEN}true${NC}\n"
+  if [ -n "$host" ]; then
+    node "$DMT_CLI" "${host}" info "$@"
+  else
+    node "$DMT_CLI" info "$@"
   fi
-
-  if dev_machine; then
-    printf "dev machine: ${GREEN}true${NC}\n"
-  fi
-
-  echo
-
-  printf "${YELLOW}Services:${NC}\n"
-
-  if [ -f "/etc/lighttpd/lighttpd.conf" ]; then
-    printf "${CYAN}lighttpd${NC}\n"
-  fi
-
-  if [ -f "/etc/haproxy/haproxy.cfg" ]; then
-    printf "${CYAN}haproxy${NC}\n"
-  fi
-
-  if [ -f "/etc/dnsmasq.conf" ]; then
-    printf "${CYAN}dnsmasq${NC}\n"
-  fi
-
-  if [ -f "/etc/hostapd/hostapd.conf" ]; then
-    printf "${CYAN}hostapd${NC}\n"
-  fi
-
-  if [ -f "/etc/mpd.conf" ]; then
-    printf "${CYAN}mpd${NC}\n"
-  fi
-
-  if [ -f "/etc/forked-daapd.conf" ]; then
-    printf "${CYAN}forked-daapd${NC}\n"
-  fi
-
-  if [ -f "/etc/shairport-sync.conf" ]; then
-    printf "${CYAN}shairport-sync${NC}\n"
-  fi
-
-  # if [ -f "/etc/samba/smb.conf" ]; then
-  #   printf "${CYAN}samba${NC}\n"
-  # fi
-
-  if [ -f "/etc/mosquitto/mosquitto.conf" ]; then
-    printf "${CYAN}mosquitto${NC}\n"
-  fi
-
-  echo
-  printf "Type ${GREEN}srv${NC} to learn how to interact with these services.\n"
 }
+
+# function dmt_status {
+#   printf "${MAGENTA}Info:${NC}\n"
+
+#   if macos; then
+#     printf "macOS: ${GREEN}true${NC}\n"
+#   fi
+
+#   if dev_machine; then
+#     printf "dev machine: ${GREEN}true${NC}\n"
+#   fi
+
+#   echo
+
+#   printf "${YELLOW}Services:${NC}\n"
+
+#   if [ -f "/etc/lighttpd/lighttpd.conf" ]; then
+#     printf "${CYAN}lighttpd${NC}\n"
+#   fi
+
+#   if [ -f "/etc/haproxy/haproxy.cfg" ]; then
+#     printf "${CYAN}haproxy${NC}\n"
+#   fi
+
+#   if [ -f "/etc/dnsmasq.conf" ]; then
+#     printf "${CYAN}dnsmasq${NC}\n"
+#   fi
+
+#   if [ -f "/etc/hostapd/hostapd.conf" ]; then
+#     printf "${CYAN}hostapd${NC}\n"
+#   fi
+
+#   if [ -f "/etc/mpd.conf" ]; then
+#     printf "${CYAN}mpd${NC}\n"
+#   fi
+
+#   if [ -f "/etc/forked-daapd.conf" ]; then
+#     printf "${CYAN}forked-daapd${NC}\n"
+#   fi
+
+#   if [ -f "/etc/shairport-sync.conf" ]; then
+#     printf "${CYAN}shairport-sync${NC}\n"
+#   fi
+
+#   # if [ -f "/etc/samba/smb.conf" ]; then
+#   #   printf "${CYAN}samba${NC}\n"
+#   # fi
+
+#   if [ -f "/etc/mosquitto/mosquitto.conf" ]; then
+#     printf "${CYAN}mosquitto${NC}\n"
+#   fi
+
+#   echo
+#   printf "Type ${GREEN}srv${NC} to learn how to interact with these services.\n"
+# }
 
 function dmt_version {
   printf "${MAGENTA}v$(cat "$DMT_PATH/.version")${NC}\n\n"
@@ -299,35 +329,19 @@ function dmt_level {
 
 function dmt_devices {
   devices "$@"
-
-  # if [ -z "$1" ]; then
-  #   if [ -z "$1" ]; then
-  #     printf "${YELLOW}Usage:${NC}\n"
-  #     printf "${GREEN}list${NC} ${GRAY}${NC}\n"
-  #     printf "${GREEN}exec${NC} ${GRAY}${NC}\n"
-  #     printf "${GREEN}update${NC} ${GRAY}${NC}\n"
-  #     return
-  #   fi
-  # fi
-
-  # case "$1" in
-  #   list)
-  #     for_all_devices "list"
-  #     ;;
-  #   exec)
-  #     shift
-  #     for_all_devices "exec" "$@"
-  #     ;;
-  #   update)
-  #     for_all_devices "update"
-  #     ;;
-  #   # restart)
-  #   #   for_all_devices "forever restartall"
-  #   #   ;;
-  # esac
 }
 
 function dmt_install {
+
+  # multi install: dmt update dev1 dev2 ... devn
+  if [ -n "$2" ]; then
+    for dev in "$@"
+    do
+      dmt_install "$dev"
+    done
+    return
+  fi
+
   local cwd="`pwd`"
   cd "$DMT_PATH"
   . ./install "from-dmt-install" "$@" # calling with . preserves the newly loaded env
@@ -338,39 +352,39 @@ function dmt_update {
   if [ -z "$1" ] || [ "$1" == "--with-temp" ]; then
     if dev_machine; then
       printf "${RED}Prevented on dev machine${NC}\n"
-    else
-      if [ -f ~/dmt.zip ]; then
-        rm ~/dmt.zip
-      fi
+    # else
+    #   if [ -f ~/dmt.zip ]; then
+    #     rm ~/dmt.zip
+    #   fi
 
-      curl -o ~/dmt.zip https://uniqpath.com/repo/dmt.zip
+    #   curl -o ~/dmt.zip https://uniqpath.com/repo/dmt.zip
 
-      if [ -f ~/dmt.zip ]; then
-        local cwd="`pwd`"
-        cd ~
-        unzip -o dmt.zip
+    #   if [ -f ~/dmt.zip ]; then
+    #     local cwd="`pwd`"
+    #     cd ~
+    #     unzip -o dmt.zip
 
-        if [ $? -eq 0 ]; then
-          rm dmt.zip
-          cd .dmt
+    #     if [ $? -eq 0 ]; then
+    #       rm dmt.zip
+    #       cd .dmt
 
-          if [ "$1" != "--with-temp" ] && [ -f "shell/.bash_temp" ]; then
-            rm "shell/.bash_temp"
-          fi
+    #       if [ "$1" != "--with-temp" ] && [ -f "shell/.bash_temp" ]; then
+    #         rm "shell/.bash_temp"
+    #       fi
 
-          . ./install # calling with . preserves the newly loaded env
+    #       . ./install # calling with . preserves the newly loaded env
 
-          cd "$cwd"
-        else
-          if [ -f ~/dmt.zip ]; then
-            rm ~/dmt.zip
-          fi
-          printf "${RED}Failed to install update - probably server error${NC}\n"
-        fi
+    #       cd "$cwd"
+    #     else
+    #       if [ -f ~/dmt.zip ]; then
+    #         rm ~/dmt.zip
+    #       fi
+    #       printf "${RED}Failed to install update - probably server error${NC}\n"
+    #     fi
 
-      else
-        printf "${RED}Failed to download update (is the device in AP mode?)${NC}\n"
-      fi
+    #   else
+    #     printf "${RED}Failed to download update (is the device in AP mode?)${NC}\n"
+    #   fi
     fi
   elif [ "$1" == "devices" ] || [ "$1" == "all" ]; then
     for_all_devices "update"
@@ -379,9 +393,41 @@ function dmt_update {
   fi
 }
 
-function dmt_restart {
+function u {
+  dmt_update "$@"
+}
+
+function re {
+  dmt_renew "$@"
+}
+
+function dmt_renew {
   if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
-    for_all_devices exec "~/.dmt/core/node/.common-deps/node_modules/forever/bin/forever restartall"
+    dmt_update all
+    dmt_restart all
+  else
+    # multi install: dmt renew dev1 dev2 ... devn
+    if [ -n "$2" ]; then
+      for dev in "$@"
+      do
+        dmt_renew "$dev"
+      done
+      return
+    fi
+
+    dmt_update "$1"
+    dmt_restart "$1"
+  fi
+}
+
+function dmt_restart {
+  #local cmd="if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/core/node/.common-deps/node_modules/forever/bin/forever restart dmt-controller"
+  #local cmd="if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; touch ~/.dmt/core/node/dmt-controller/tmp/restart.txt"
+
+  local cmd="if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/etc/onboot/daemons restart"
+
+  if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
+    for_all_devices exec "$cmd"
   else
     local host="$1"
 
@@ -396,7 +442,7 @@ function dmt_restart {
     fi
 
     if [ -n "$host" ]; then
-      remote -h "$host" "~/.dmt/core/node/.common-deps/node_modules/forever/bin/forever restartall"
+      remote -h "$host" "$cmd"
     else
       printf "${RED}Unknown host${NC}\n"
     fi
@@ -437,8 +483,20 @@ function dmt_uninstall {
 }
 
 function dmt_log {
-  printf "${YELLOW}~/.forever/dmt-controller.log :${NC}\n"
-  tail -f "$HOME/.forever/dmt-controller.log"
+  declare -a opts=(
+    "dmt-controller"
+    "search-and-play"
+  )
+
+  local matching_opt=''
+  opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    matching_opt="dmt-controller" # default
+  fi
+
+  shift
+
+  tail -f -n 200 "$DMT_PATH/log/${matching_opt}.log"
 }
 
 

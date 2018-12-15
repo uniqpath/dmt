@@ -183,10 +183,10 @@ DMT_THIS_DEVICE="$LOGNAME_HOME/.dmt/user/devices/this"
 
 DMT_DEVICE_FILE="$DMT_THIS_DEVICE/device.def"
 
-DMT_STATE="$LOGNAME_HOME/.dmt/state"
-if [ ! -f "$DMT_STATE" ]; then
-  mkdir -p "$DMT_STATE"
-fi
+DMT_STATE="$DMT_PATH/state"
+mkdir -p "$DMT_STATE"
+
+mkdir -p "$DMT_PATH/log"
 
 DMT_CORE="$LOGNAME_HOME/.dmt/core"
 DMT_NODE_CORE="$DMT_CORE/node"
@@ -225,27 +225,6 @@ DMT_AP_DEFAULT_HOST="pi@192.168.1.1"
 #   syncbox=`cat ~/.syncbox`
 # fi
 
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-
-  function ls {
-    command ls --color=auto "$@"
-  }
-
-  function grep {
-    command grep --color=auto "$@"
-  }
-
-  function fgrep {
-    command fgrep --color=auto "$@"
-  }
-
-  function egrep {
-    command egrep --color=auto "$@"
-  }
-fi
-
 # cp with progress and speed of the transfer
 alias cpp="rsync -ah --progress"
 
@@ -278,6 +257,12 @@ function rel {
 # "al [enter]" - opens Sublime editor on the ~/.dmt
 # or "al [any function name]" to see the source for the function directly in terminal without having to open source files
 function al {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}al [function]${NC} ${GRAY}show bash function source${NC}\n"
+    return
+  fi
+
   which highlight > /dev/null 2>&1
 
   if [ $? -eq 0 ]; then
@@ -287,119 +272,123 @@ function al {
   fi
 }
 
-function pull {
-  local target=~/Syncbox/_collab/_received
-  mkdir -p "$target"
+# function pull {
+#   local target=~/Syncbox/_collab/_received
+#   mkdir -p "$target"
 
-  local host="$syncbox"
-  if [ "$1" == "-h" ]; then
-    if [ -z "$2" ]; then
-      push --help
-      return
-    else
-      host="$2"
-      shift
-      shift
-    fi
-  else
-    printf "${CYAN}Hint:${NC} you can use ${CYAN}pull [pi@hostname.local]${NC}\n"
-  fi
+#   local host="$syncbox"
+#   if [ "$1" == "-h" ]; then
+#     if [ -z "$2" ]; then
+#       push --help
+#       return
+#     else
+#       host="$2"
+#       shift
+#       shift
+#     fi
+#   else
+#     printf "${CYAN}Hint:${NC} you can use ${CYAN}pull [pi@hostname.local]${NC}\n"
+#   fi
 
-  printf "Accessing ${YELLOW}${host}${NC}\n"
+#   printf "Accessing ${YELLOW}${host}${NC}\n"
 
-  mkdir -p ~/Syncbox
-  dirsync --no_ignore "$host":/home/pi/Bridge "$target"
+#   mkdir -p ~/Syncbox
+#   dirsync --no_ignore "$host":/home/pi/Bridge "$target"
 
-  bridge_destroy > /dev/null 2>&1
-  # redirecting gets rid of warning when Bridge is already empty:
-  # rm: cannot remove '/home/pi/Bridge/*': No such file or directory
+#   bridge_destroy > /dev/null 2>&1
+#   # redirecting gets rid of warning when Bridge is already empty:
+#   # rm: cannot remove '/home/pi/Bridge/*': No such file or directory
 
-  # cd "$target"
-  # echo
-  echo
-  printf "Current contents of ${YELLOW}~/Syncbox/_collab/_received${NC}:\n"
-  ls "$target"
-}
+#   # cd "$target"
+#   # echo
+#   echo
+#   printf "Current contents of ${YELLOW}~/Syncbox/_collab/_received${NC}:\n"
+#   ls "$target"
+# }
 
-function push {
-  if [ "$1" == "--help" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    echo "push -h [toHost] (pushes _self)"
-    echo "push -h [toHost] [user]"
-    echo "push -h [toHost] . (current directory)"
-  else
-    local host="$syncbox"
-    if [ "$1" == "-h" ]; then
-      if [ -z "$2" ]; then
-        push --help
-        return
-      else
-        host="$2"
-        printf "${YELLOW}Host: ${NC}$host\n"
-        shift
-        shift
-      fi
-    fi
+# function push {
+#   if [ "$1" == "--help" ]; then
+#     printf "${YELLOW}Usage:${NC}\n"
+#     echo "push -h [toHost] (pushes _self)"
+#     echo "push -h [toHost] [user]"
+#     echo "push -h [toHost] . (current directory)"
+#   else
+#     local host="$syncbox"
+#     if [ "$1" == "-h" ]; then
+#       if [ -z "$2" ]; then
+#         push --help
+#         return
+#       else
+#         host="$2"
+#         printf "${YELLOW}Host: ${NC}$host\n"
+#         shift
+#         shift
+#       fi
+#     fi
 
-    if [ "$1" == "." ]; then
-      local dir="`pwd`"
-      local outerDir="${PWD##*/}"
-      local target="/home/pi/Bridge/${outerDir}"
-    else
-      if [ -n "$1" ]; then
-        local user="$1"
-      else
-        local user="_self"
-      fi
-      local dir="$HOME/Syncbox/_collab/${user}"
+#     if [ "$1" == "." ]; then
+#       local dir="`pwd`"
+#       local outerDir="${PWD##*/}"
+#       local target="/home/pi/Bridge/${outerDir}"
+#     else
+#       if [ -n "$1" ]; then
+#         local user="$1"
+#       else
+#         local user="_self"
+#       fi
+#       local dir="$HOME/Syncbox/_collab/${user}"
 
-      # if [ ! -d "$dir" ]; then
-      #   printf "$dir ${RED}doesn't exist${NC}\n"
-      #   return
-      # fi
+#       # if [ ! -d "$dir" ]; then
+#       #   printf "$dir ${RED}doesn't exist${NC}\n"
+#       #   return
+#       # fi
 
-      local target="/home/pi/Bridge"
-    fi
+#       local target="/home/pi/Bridge"
+#     fi
 
-    if [ ! -d "$dir" ]; then
-      printf "${RED}Error:${NC} directory ${YELLOW}${dir}${NC} doesn't exist\n"
-    else
-      #remote -h "$host" "mkdir -p \"${target}\""
-      dirsync --symlinks --no_ignore "$dir" "${host}:$target"
-    fi
-  fi
-}
+#     if [ ! -d "$dir" ]; then
+#       printf "${RED}Error:${NC} directory ${YELLOW}${dir}${NC} doesn't exist\n"
+#     else
+#       #remote -h "$host" "mkdir -p \"${target}\""
+#       dirsync --symlinks --no_ignore "$dir" "${host}:$target"
+#     fi
+#   fi
+# }
 
-function bridge_destroy {
-  remote -h "$syncbox" "rm -R ~/Bridge/*"
-}
+# function bridge_destroy {
+#   remote -h "$syncbox" "rm -R ~/Bridge/*"
+# }
 
-function b {
-  if [ -z "$1" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    printf "to [user] ${GREEN}(push [user])${NC}\n"
-    printf "from ${GREEN}(pull)${NC}\n"
-    echo "destroy"
-  else
-    case "$1" in
-      to)
-        push "$2"
-        ;;
+# function b {
+#   if [ -z "$1" ]; then
+#     printf "${YELLOW}Usage:${NC}\n"
+#     printf "to [user] ${GREEN}(push [user])${NC}\n"
+#     printf "from ${GREEN}(pull)${NC}\n"
+#     echo "destroy"
+#   else
+#     case "$1" in
+#       to)
+#         push "$2"
+#         ;;
 
-      from)
-        pull
-        ;;
+#       from)
+#         pull
+#         ;;
 
-      destroy)
-        bridge_destroy
-        ;;
+#       destroy)
+#         bridge_destroy
+#         ;;
 
-      *)
-        printf "${RED}Unknown command${NC}\n"
-        ;;
+#       *)
+#         printf "${RED}Unknown command${NC}\n"
+#         ;;
 
-    esac
-  fi
+#     esac
+#   fi
+# }
+
+function loop {
+  while true; do "$@"; sleep 5; done
 }
 
 function newscript {
@@ -548,8 +537,15 @@ function proc {
     return
   fi
 
-  ps aux | grep -v "command -v openssl >/dev/null" | grep -v " grep " | grep -i "$@"
+  ps aux | grep -v "command -v openssl >/dev/null" | grep -v " grep " | grep -i --color=auto "$@"
   # grep -v "command -v openssl >/dev/null" ==> get rid of really big output when using over ssh, this process output includes big public key which often matches our grepping stuff
+}
+
+function killall {
+  ps -ef | grep "${1}" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}' | xargs kill -9
+  # grep -v "command -v openssl >/dev/null" ==> get rid of really big output when using over ssh, this process output includes big public key which often matches our grepping stuff
+
+  # todo: what if there is no matches?
 }
 
 # wtf is that ?
@@ -564,10 +560,6 @@ function exe {
   else
     find . -type f -executable -print
   fi
-}
-
-function killall {
-  ps -ef | grep "${1}" | grep -v grep | awk '{print $2}' | xargs kill -9
 }
 
 function sr {
@@ -971,12 +963,18 @@ function shut {
   fi
 
   if [ "$1" == 'reboot' ] || [ "$1" == 'r' ]; then
+    printf "${MAGENTA}Rebooting...${NC}\n"
     sudo reboot
   else
-    if macos; then
-      off
-    else
-      sudo shutdown -h now
+    read -r -p "Are you sure you want to shut the device down (instead of rebooting)? [Y/n] " response
+    if [[ ! $response =~ ^([nN])$ ]]
+    then
+      printf "${RED}Shutting down...${NC}\n"
+      if macos; then
+        off
+      else
+        sudo shutdown -h now
+      fi
     fi
   fi
 }
@@ -1447,8 +1445,6 @@ function repl {
   fi
 }
 
-alias re="repl"
-
 function get_npm_version() {
   npm --no-git-tag-version version patch
 }
@@ -1714,7 +1710,12 @@ function getip {
     local arr=(${line/\:/ })
     local _ip=${arr[1]}
 
-    pi "$_ip"
+    if [ -n "$_ip" ]; then
+      echo "$_ip"
+      pi "$_ip"
+    else
+      printf "${RED}Cannot find ip for ${CYAN}${1}${NC}\n"
+    fi
   fi
 }
 
@@ -2575,39 +2576,42 @@ function part {
   fi
 }
 
+function glog {
+  if [ -d ".git" ]; then
+    clear
+    if [ -z "$1" ]; then
+      git log -3
+    else
+      git log -"$1"
+    fi
+  else
+    printf "${RED}Not a git repository${NC}\n"
+  fi
+}
+
 function log {
 
   if [ -z "$1" ]; then
-    if [ -d ".git" ]; then
-      clear
-      if [ -z "$1" ]; then
-        git log -3
-      else
-        git log -"$1"
-      fi
-      return
-    else
-      printf "${YELLOW}Usage:${NC}\n"
-      echo
+    printf "${YELLOW}Usage:${NC}\n"
+    echo
 
-      #printf "${GREEN}dmt: ${GRAY}/var/log/lighttpd/error.log${NC} \n"
-      printf "${GREEN}lighttpd|light: ${GRAY}/var/log/lighttpd/error.log${NC} \n"
-      printf "${GREEN}haproxy: ${GRAY}root; tail -f /var/log/haproxy.log${NC}\n"
-      # printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
-      # printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
-      printf "${GREEN}mpd:${NC} /var/log/mpd/mpd.log\n"
-      printf "${GREEN}forked-daapd: ${GRAY}/var/log/forked-daapd.log${NC}\n"
-      printf "${GREEN}shairport-sync: ${GRAY}tail -f /var/log/syslog | grep shairpo${NC}\n"
-      # printf "${GREEN}samba:${NC} /etc/samba/smb.conf\n"
-      # printf "${GREEN}snapserver:${NC} /etc/default/snapserver\n"
-      # printf "${GREEN}snapclient:${NC} /etc/default/snapclient\n"
-      # printf "${GREEN}avahi:${NC} /etc/avahi/aliases ${GRAY}also restarts the service${NC}\n"
-      # printf "${GREEN}deluged:${NC} /var/log/deluge/daemon.log ${GRAY}${NC}\n"
-      # printf "${GREEN}deluge-web:${NC} /var/log/deluge/web.log ${GRAY}${NC}\n"
-      printf "${GREEN}mosquitto:${NC} /var/log/mosquitto/mosquitto.log ${GRAY}${NC}\n"
+    #printf "${GREEN}dmt: ${GRAY}/var/log/lighttpd/error.log${NC} \n"
+    printf "${GREEN}lighttpd|light: ${GRAY}/var/log/lighttpd/error.log${NC} \n"
+    printf "${GREEN}haproxy: ${GRAY}root; tail -f /var/log/haproxy.log${NC}\n"
+    # printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
+    # printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
+    printf "${GREEN}mpd:${NC} /var/log/mpd/mpd.log\n"
+    printf "${GREEN}forked-daapd: ${GRAY}/var/log/forked-daapd.log${NC}\n"
+    printf "${GREEN}shairport-sync: ${GRAY}tail -f /var/log/syslog | grep shairpo${NC}\n"
+    # printf "${GREEN}samba:${NC} /etc/samba/smb.conf\n"
+    # printf "${GREEN}snapserver:${NC} /etc/default/snapserver\n"
+    # printf "${GREEN}snapclient:${NC} /etc/default/snapclient\n"
+    # printf "${GREEN}avahi:${NC} /etc/avahi/aliases ${GRAY}also restarts the service${NC}\n"
+    # printf "${GREEN}deluged:${NC} /var/log/deluge/daemon.log ${GRAY}${NC}\n"
+    # printf "${GREEN}deluge-web:${NC} /var/log/deluge/web.log ${GRAY}${NC}\n"
+    printf "${GREEN}mosquitto:${NC} /var/log/mosquitto/mosquitto.log ${GRAY}${NC}\n"
 
-      return
-    fi
+    return
   fi
 
   declare -a opts=(
@@ -2631,15 +2635,12 @@ function log {
   shift
 
   case "$matching_opt" in
-
     dmt)
-      tail -f ~/.forever/dmt-controller.log
-
+      dmt_log "$@"
       ;;
 
     mpd)
       tail -f /var/log/mpd/mpd.log
-
       ;;
 
     lighttpd)

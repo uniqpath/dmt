@@ -989,7 +989,7 @@ function o {
 
 alias ox="o xcode"
 
-function s {
+function z {
   local sublime_path="/usr/local/bin/subl" # warning: this symlink is not automatic after sublime install, user has to add it, pointing to: /Applications/Sublime Text.app/Contents/SharedSupport/bin/subl
   local sublime_path2="$HOME/bin/subl"
   local atom_path="/Applications/Atom.app/Contents/Resources/app/atom.sh"
@@ -1010,6 +1010,15 @@ function s {
   else
     run_on_file "$1" "${editor}" '*' force
   fi
+}
+
+function vs {
+  local cmd="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
+  local args="$@"
+  if [ -z "$1" ]; then
+    args="."
+  fi
+  command "$cmd" "$args"
 }
 
 function g {
@@ -1211,7 +1220,7 @@ function cli {
     if [ -n "$matching_file" ]; then
       shift
       local fileName=$(echo $matching_file | sed 's/.js//g')
-      >&2 printf "${MAGENTA}${fileName}${NC} >>> " # output to stderr so that piping the output to file doesn't contain this header
+      >&2 printf "cli/${MAGENTA}${fileName}${NC} \n" # output to stderr so that piping the output to file doesn't contain this header
       node "cli/$matching_file" "$@"
       found=true
     else

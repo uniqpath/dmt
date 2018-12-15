@@ -40,7 +40,7 @@ function play {
     if [[ "$matching_file" =~ (mkv|avi|mp4|webm)$ ]]; then
       printf "${YELLOW}$matching_file${NC}\n"
       if is_rpi; then
-        omxplayer --aspect-mode stretch -o alsa:hw:0,0 "$matching_file"
+        omxplayer --vol -2000 --aspect-mode stretch -o alsa:hw:0,0 "$matching_file"
         #omxplayer --aspect-mode stretch -o alsa:hw:1,0 "$matching_file"
       else
         DISPLAY=:0 mpv --fullscreen "$matching_file"
@@ -85,12 +85,22 @@ function m {
     "search"
     "play"
     "pause"
+    "add"
     "volume"
+    "add_shuffled"
+    "list"
+    "next"
   )
+
+  local host=""
+  if [[ "$1" == @* ]]; then
+    host="$1"
+    shift
+  fi
 
   if [ -z "$1" ] || [ "$1" == "-h" ]; then
     printf "${YELLOW}Usage:${NC}\n"
-    echo "${opts[@]}"
+    printf "${GREEN}${opts[@]}${NC}\n"
     return
   fi
 
@@ -98,13 +108,18 @@ function m {
   opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     printf "Use -h to see valid options\n\n"
-    #matching_opt="aaa" # default
     return
   fi
 
   shift
 
-  node "$DMT_NODE_CORE/dmt-controller/cli/music.js" "$matching_opt" "$@"
+  local playerCmd="$DMT_NODE_CORE/dmt-controller/cli/music.js"
+
+  if [ -z "$host" ]; then
+    node "$playerCmd" "${matching_opt}" "$@"
+  else
+    node "$playerCmd" "${host}" "${matching_opt}" "$@"
+  fi
 }
 
 function m_old2 {
@@ -479,6 +494,14 @@ function ou {
     echo "no match in defined outputs"
   fi
   # -------
+}
+
+function alsastore {
+  alsactl --file ~/.config/asound.state store
+}
+
+function alsarestore {
+  alsactl --file ~/.config/asound.state restore
 }
 
 # function vol {

@@ -1,5 +1,27 @@
 #!/bin/bash
 
+# enable color support of ls and also add handy aliases
+# recently moved from .bash_general
+if [ -x /usr/bin/dircolors ]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+
+  function ls {
+    command ls --color=auto "$@"
+  }
+
+  function grep {
+    command grep --color=auto "$@"
+  }
+
+  function fgrep {
+    command fgrep --color=auto "$@"
+  }
+
+  function egrep {
+    command egrep --color=auto "$@"
+  }
+fi
+
 parse_git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }

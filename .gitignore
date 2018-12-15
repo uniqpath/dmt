@@ -1,10 +1,10 @@
 deploy
-deploy_core_packages
-deploy_from_secondary
 todo.txt
 /bin
+/log
 /core
 /etc/.bash_aliases_bundle
+/etc/.bash_aliases_slim
 /shell/.bash_staging
 /shell/.bash_temp
 .trash

@@ -85,7 +85,7 @@ Every useful piece of code should have an easy way to replicate itself, try:
 
 if you have one of the RaspberryPy computers with default settings on your network. Now it too has a copy of `.dmt` framework installed.
 
-Furthermore, if you create `~/.dmt/user/networks.def` file which looks similar to this:
+Furthermore, if you create `~/.dmt/user/def/networks.def` file which looks similar to this:
 
     network: home
       gatewayMac: 52:38:a4:cc:f7:30

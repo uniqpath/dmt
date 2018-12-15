@@ -1,21 +1,76 @@
 #!/bin/bash
 
-function rpio_set {
-  local pin="$1"
-  local direction="$2"
-  sudo echo "$pin" > /sys/class/gpio/unexport
-  sudo echo "$pin" > /sys/class/gpio/export
-  sudo echo "$direction" > "/sys/class/gpio/gpio${pin}/direction"
-}
+function gpio {
 
-function rpio {
-  local pin="$1"
-  local value="$2"
-  if [ -n "$value" ]; then
-    sudo echo "$value" > /sys/class/gpio/gpio${pin}/value
-  else
-    sudo cat "/sys/class/gpio/gpio${pin}/value"
+  declare -a opts=(
+    "export"
+    "read"
+    "write"
+  )
+
+  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}gpio export [pin] [in|*out]${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}gpio read [pin]${NC} ${GRAY}read from pin${NC}\n"
+    printf "${GREEN}gpio write [pin] [val]${NC} ${GRAY}write value to pin${NC}\n"
+    return
   fi
+
+  local matching_opt=''
+  opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    printf "Use -h to see valid options\n\n"
+    #matching_opt="aaa" # default
+    return
+  fi
+
+  shift
+
+  case "$matching_opt" in
+
+    export)
+      local pin="$1"
+      local direction="$2"
+      if [ -z "$direction" ]; then
+        direction="out"
+      fi
+
+      printf "${GRAY}Node: there might be some ephemereal errors, not sure why, in that case try again ...:${NC}\n\n"
+
+      sudo echo "$pin" > /sys/class/gpio/unexport
+      sudo echo "$pin" > /sys/class/gpio/export
+
+      sudo echo "$direction" > "/sys/class/gpio/gpio${pin}/direction"
+
+      printf "Exported pin ${YELLOW}${pin}${NC}, direction: ${MAGENTA}${direction}${NC}\n"
+      ;;
+
+    read)
+      local pin="$1"
+      local val=$(sudo cat /sys/class/gpio/gpio${pin}/value)
+      local color="$GRAY"
+      if [ "$val" == "1" ]; then
+        color="$GREEN"
+      fi
+      printf "Pin ${YELLOW}${pin}${NC} has value ${color}${val}${NC}\n"
+      ;;
+
+    write)
+      local pin="$1"
+      local val="$2"
+      local color="$GRAY"
+      if [ "$val" == "1" ]; then
+        color="$GREEN"
+      fi
+      if [ -n "$val" ]; then
+        printf "Writing ${color}${val}${NC} to pin ${YELLOW}${pin}${NC}\n"
+        sudo echo "$val" > /sys/class/gpio/gpio${pin}/value
+      else
+        printf "${RED}Missing value${NC}\n"
+      fi
+      ;;
+  esac
+
 }
 
 # searches device names (host1, host2, ...) and returns the full host (user@host.local) of the matching device
@@ -234,6 +289,7 @@ function getLastScanFilePath {
 
   if [ -n "$network_id" ]; then
     local _lastScanFilePath="$DMT_STATE/$network_id/lastScan.json"
+    #echo "$_lastScanFilePath"
   else
     local _lastScanFilePath="$DMT_STATE/lastScan.json"
   fi
@@ -358,7 +414,7 @@ function get_devices_list {
 
   local gateway_matched=false
 
-  local DMT_NETWORKS_FILE="$DMT_PATH/user/networks.def"
+  local DMT_NETWORKS_FILE="$DMT_PATH/user/def/networks.def"
 
   IFS=$'\n' read -d '' -r -a lines < "$DMT_NETWORKS_FILE"
 
@@ -527,10 +583,10 @@ function devices {
 
     case "$matching_opt" in
       edit) # warning update $opts upon change
-        local file="${DMT_USER_PATH}/devices.json"
+        local file="${DMT_USER_PATH}/devices/devices.json"
         echo $file
         if [ -f "$file" ]; then
-          s "$file"
+          z "$file"
         else
           printf "${RED}File not found${NC}\n"
         fi

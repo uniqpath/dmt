@@ -4,9 +4,11 @@ todo.txt
 /etc/.bash_aliases_bundle
 /shell/.bash_staging
 /playground
+/log
 /archive
 .trash
 /user
+/user/catalogs
 /user/data
 /user/devices/this
 /state
