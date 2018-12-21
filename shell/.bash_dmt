@@ -13,23 +13,66 @@ function dmt {
     fi
   fi
 
-  local host=""
-  if [[ "$1" == @* ]]; then
-    host="$1"
-    shift
-  fi
+  # extract host from @ symbol but replace @all with the name of current network !
+  local hosts=""
+
+  local args
+  IFS=' ' read -r -a args <<< "$@"
+
+  for arg in "${args[@]}"
+  do
+    if [ "$arg" == "@all" ]; then
+      local network_id=''
+      get_current_network network_id
+      if [ -n "$network_id" ]; then
+        hosts="${hosts} @$network_id"
+        shift
+      fi
+    elif [[ "$arg" == @* ]]; then
+      hosts="${hosts} ${arg}"
+      shift
+    fi
+  done
+
+  #echo "HOSTS: ---------"
+  hosts=$(echo "$hosts" | xargs) # remove trailing whitespace
+  # echo $hosts
+
+  # echo "ARGS: ---------"
+  # echo "$@"
+
+  # return
+
+
+  # if [[ "$1" == @* ]]; then
+  #   host="$1"
+  #   if [ "$host" == "@all" ]; then
+  #     local network_id=''
+  #     get_current_network network_id
+  #     if [ -n "$network_id" ]; then
+  #       host="@$network_id"
+  #     fi
+  #   fi
+
+  #   shift
+  # fi
 
   declare -a opts=(
     "help"
     "docs"
     #"music"
+    "info"
     "status"
     "version"
     "level"
     "devices"
+    "shares"
+    "services"
+    "providers"
     "update"
     "renew"
     "log"
+    "log2"
     "install"
     "start"
     "restart"
@@ -70,9 +113,60 @@ function dmt {
       dmt_music
       ;;
 
-    status) # warning update $opts upon change
-      dmt_status "$host" "$@"
+    info)
+      if [ -n "$hosts" ]; then
+        node "$DMT_CLI" "${hosts}" info "$@"
+      else
+        node "$DMT_CLI" info "$@"
+      fi
       ;;
+
+    log)
+      if [ -n "$hosts" ]; then
+        node "$DMT_CLI" "${hosts}" log "$@"
+      else
+        node "$DMT_CLI" log "$@"
+      fi
+      ;;
+
+    log2)
+      dmt_log_old "$@"
+      ;;
+
+    shares)
+      if [ -n "$hosts" ]; then
+        node "$DMT_CLI" "${hosts}" shares "$@"
+      else
+        node "$DMT_CLI" shares "$@"
+      fi
+      ;;
+
+    services)
+      if [ -n "$hosts" ]; then
+        node "$DMT_CLI" "${hosts}" services "$@"
+      else
+        node "$DMT_CLI" services "$@"
+      fi
+      ;;
+
+    providers)
+      if [ -n "$hosts" ]; then
+        node "$DMT_CLI" "${hosts}" providers "$@"
+      else
+        node "$DMT_CLI" providers "$@"
+      fi
+      ;;
+
+    # status) # warning update $opts upon change
+    #   dmt @all info
+    #   # local network_id=''
+    #   # get_current_network network_id
+    #   # if [ -n "$network_id" ]; then
+    #   #   node "$DMT_CLI" "@${network_id}" info
+    #   # else
+    #   #   printf "${RED}Cannot recognize the current network${NC}\n"
+    #   # fi
+    #   ;;
 
     level) # warning update $opts upon change
       dmt_level
@@ -96,10 +190,6 @@ function dmt {
 
     renew) # updates the whole folder and restarts the service
       dmt_renew "$@"
-      ;;
-
-    log) # warning update $opts upon change
-      dmt_log "$@"
       ;;
 
     install) # warning update $opts upon change
@@ -254,14 +344,6 @@ function e {
   $matching_opt "$@"
 }
 
-function dmt_status {
-  if [ -n "$host" ]; then
-    node "$DMT_CLI" "${host}" info "$@"
-  else
-    node "$DMT_CLI" info "$@"
-  fi
-}
-
 # function dmt_status {
 #   printf "${MAGENTA}Info:${NC}\n"
 
@@ -352,39 +434,6 @@ function dmt_update {
   if [ -z "$1" ] || [ "$1" == "--with-temp" ]; then
     if dev_machine; then
       printf "${RED}Prevented on dev machine${NC}\n"
-    # else
-    #   if [ -f ~/dmt.zip ]; then
-    #     rm ~/dmt.zip
-    #   fi
-
-    #   curl -o ~/dmt.zip https://uniqpath.com/repo/dmt.zip
-
-    #   if [ -f ~/dmt.zip ]; then
-    #     local cwd="`pwd`"
-    #     cd ~
-    #     unzip -o dmt.zip
-
-    #     if [ $? -eq 0 ]; then
-    #       rm dmt.zip
-    #       cd .dmt
-
-    #       if [ "$1" != "--with-temp" ] && [ -f "shell/.bash_temp" ]; then
-    #         rm "shell/.bash_temp"
-    #       fi
-
-    #       . ./install # calling with . preserves the newly loaded env
-
-    #       cd "$cwd"
-    #     else
-    #       if [ -f ~/dmt.zip ]; then
-    #         rm ~/dmt.zip
-    #       fi
-    #       printf "${RED}Failed to install update - probably server error${NC}\n"
-    #     fi
-
-    #   else
-    #     printf "${RED}Failed to download update (is the device in AP mode?)${NC}\n"
-    #   fi
     fi
   elif [ "$1" == "devices" ] || [ "$1" == "all" ]; then
     for_all_devices "update"
@@ -424,7 +473,7 @@ function dmt_restart {
   #local cmd="if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/core/node/.common-deps/node_modules/forever/bin/forever restart dmt-controller"
   #local cmd="if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; touch ~/.dmt/core/node/dmt-controller/tmp/restart.txt"
 
-  local cmd="if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/etc/onboot/daemons restart"
+  local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/etc/onboot/daemons restart\\\""
 
   if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
     for_all_devices exec "$cmd"
@@ -482,7 +531,7 @@ function dmt_uninstall {
   fi
 }
 
-function dmt_log {
+function dmt_log_old {
   declare -a opts=(
     "dmt-controller"
     "search-and-play"

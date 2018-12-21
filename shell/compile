@@ -46,11 +46,26 @@ cat .bash_core_helpers .bash_networking .bash_devices .bash_search .bash_music .
 printf "${GREEN}* Generating ${CYAN}${target} ${GREEN}on ${CYAN}$(hostname)${NC}\n"
 
 # include staging if exists
-# this is never deployed outside of development environment, we have .bash_temp for that
+# this is never deployed outside of development environment
 if [ -f .bash_staging ]; then
   printf "${GRAY} -- included .bash_staging${NC}\n"
   cat .bash_staging >> "$target"
 fi
+
+cat >> "$target" <<EOF
+# ****************** KEEP THESE AS LAST LINES --------------------
+
+if [ -f "\$LOGNAME_HOME/.dmt/user/shell/.bash_user" ]; then
+  . "\$LOGNAME_HOME/.dmt/user/shell/.bash_user"
+fi
+
+if [ -f "\$LOGNAME_HOME/.dmt/user/devices/this/shell/.bash_device" ]; then
+  . "\$LOGNAME_HOME/.dmt/user/devices/this/shell/.bash_device"
+fi
+
+# NOTHING AFTER THIS LINE
+# !!!!!!!!!!!!!!!!!!!!!!!
+EOF
 
 printf "${GREEN}* done${NC}\n"
 

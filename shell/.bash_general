@@ -181,7 +181,7 @@ DMT_PATH="$LOGNAME_HOME/.dmt"
 DMT_USER_PATH="$LOGNAME_HOME/.dmt/user"
 DMT_THIS_DEVICE="$LOGNAME_HOME/.dmt/user/devices/this"
 
-DMT_DEVICE_FILE="$DMT_THIS_DEVICE/device.def"
+DMT_DEVICE_FILE="$DMT_THIS_DEVICE/def/device.def"
 
 DMT_STATE="$DMT_PATH/state"
 mkdir -p "$DMT_STATE"
@@ -3634,7 +3634,7 @@ function loc {
   else
     IFS=$'\n'
 
-    local files=$(find . -name "*.${1}" -not -path "*/.git/*" -not -path "*/log/*" -not -path "*/node_modules/*" -not -path "*/Godeps/*" -not -path "*/elm-stuff/*" -not -path "*/deps/*" -not -path "*/_build/*" -not -path "*/target/*" -not -path "*/dist/*" -not -path "*/vendor/*" -not -path "*/bower_components/*" -not -path "*/tmp/*" -not -path "*/deploy/*" -not -path "*/distroot/*" -not -path "*/Deps/*")
+    local files=$(find . -name "*.${1}" -not -path "*/.git/*" -not -path "*/log/*" -not -path "*/node_modules/*" -not -path "*/assets/*" -not -path "*/Godeps/*" -not -path "*/elm-stuff/*" -not -path "*/deps/*" -not -path "*/_build/*" -not -path "*/target/*" -not -path "*/dist/*" -not -path "*/vendor/*" -not -path "*/bower_components/*" -not -path "*/tmp/*" -not -path "*/deploy/*" -not -path "*/distroot/*" -not -path "*/Deps/*")
     # local files=''
     # source_code files "$1"
 
@@ -3992,25 +3992,3 @@ function pog {
   p "$1"
   og
 }
-
-# ****************** KEEP THESE AS THE LAST LINES --------------------
-
-if [ -f "$LOGNAME_HOME/.dmt/user/bash/.bash_user" ]; then
-  source "$LOGNAME_HOME/.dmt/user/bash/.bash_user"
-fi
-
-if [ -f "$LOGNAME_HOME/.dmt/user/bash/.bash_user" ]; then
-  source "$LOGNAME_HOME/.dmt/user/bash/.bash_user"
-fi
-
-if [ -f "$LOGNAME_HOME/.dmt/user/devices/this/shell/.bash_device" ]; then
-  source "$LOGNAME_HOME/.dmt/user/devices/this/shell/.bash_device"
-fi
-
-if [ -f "$LOGNAME_HOME/.dmt/shell/.bash_temp" ]; then
-  source "$LOGNAME_HOME/.dmt/shell/.bash_temp"
-fi
-
-# NOTHING AFTER THIS LINE
-# !!!!!!!!!!!!!!!!!!!!!!!
-

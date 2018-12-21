@@ -196,6 +196,32 @@ function net {
   esac
 }
 
+function get_current_device {
+  local __device_id=''
+
+  if [ -f "$DMT_DEVICE_FILE" ]; then
+    def_reader __device_id "$DMT_DEVICE_FILE" "device"
+  fi
+
+  eval "$1='$__device_id'"
+}
+
+function get_current_network {
+  local __network_id=''
+  # try explicitly defined networkId inside device.def first:
+  if [ -f "$DMT_DEVICE_FILE" ]; then
+    def_reader __network_id "$DMT_DEVICE_FILE" "network"
+  fi
+
+  # otherwise detect the current network via gatewayMac address:
+  if [ -z "$__network_id" ]; then
+    local _result=''
+    network_def_reader _result __network_id "host"
+  fi
+
+  eval "$1='$__network_id'"
+}
+
 # known (but not critical) shortcomings:
 # location: home
 #   gatewayMac: 22:38:e4:cc:f7:80
