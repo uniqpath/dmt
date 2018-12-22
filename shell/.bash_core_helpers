@@ -12,19 +12,12 @@ function push_notify {
 
   if [ -f "$push_notifier" ]; then
     # if stdin is passed to nodejs script (happens automaticall),
-    #it is considered as a message, given argument is ignored
+    # it is considered as a message, given argument is ignored
     if [ -z "$1" ]; then
       node "$push_notifier"
     else
       node "$push_notifier" "$1"
     fi
-    # local msg="$1"
-    # if [ -n "$msg" ]; then
-    #   node "$push_notifier" "$msg"
-    # else
-    #   # expects stdin!
-    #   node "$push_notifier"
-    # fi
   else
     printf "${RED}Cannot push message${NC}\n"
   fi

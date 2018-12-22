@@ -7,8 +7,6 @@ function dmt {
     printf "${MAGENTA}     ∞ DMT ∞${NC}\n"
     printf "${CYAN}Liberate yourself.${NC}\n"
     if [ "$1" != "version" ]; then
-      # printf "\n${GRAY}Remember your MS-DOS c:/util directory?\nWell .dmt is not like that.${NC}\n"
-      # printf "\n${GRAY}Don't remember anything? Even better!${NC}\n"
       echo
     fi
   fi
@@ -34,37 +32,14 @@ function dmt {
     fi
   done
 
-  #echo "HOSTS: ---------"
   hosts=$(echo "$hosts" | xargs) # remove trailing whitespace
-  # echo $hosts
-
-  # echo "ARGS: ---------"
-  # echo "$@"
-
-  # return
-
-
-  # if [[ "$1" == @* ]]; then
-  #   host="$1"
-  #   if [ "$host" == "@all" ]; then
-  #     local network_id=''
-  #     get_current_network network_id
-  #     if [ -n "$network_id" ]; then
-  #       host="@$network_id"
-  #     fi
-  #   fi
-
-  #   shift
-  # fi
 
   declare -a opts=(
     "help"
     "docs"
-    #"music"
     "info"
     "status"
     "version"
-    "level"
     "devices"
     "shares"
     "services"
@@ -84,8 +59,6 @@ function dmt {
 
   if dev_machine; then
     declare -a opts_admin=(
-      "flash"
-      "publish"
       "cd"
     )
 
@@ -101,16 +74,12 @@ function dmt {
   shift
 
   case "$matching_opt" in
-    help) # warning update $opts upon change
+    help)
       dmt_help
       ;;
 
-    docs) # warning update $opts upon change
+    docs)
       dmt_docs
-      ;;
-
-    music) # warning update $opts upon change
-      dmt_music
       ;;
 
     info)
@@ -157,26 +126,11 @@ function dmt {
       fi
       ;;
 
-    # status) # warning update $opts upon change
-    #   dmt @all info
-    #   # local network_id=''
-    #   # get_current_network network_id
-    #   # if [ -n "$network_id" ]; then
-    #   #   node "$DMT_CLI" "@${network_id}" info
-    #   # else
-    #   #   printf "${RED}Cannot recognize the current network${NC}\n"
-    #   # fi
-    #   ;;
-
-    level) # warning update $opts upon change
-      dmt_level
-      ;;
-
-    version) # warning update $opts upon change
+    version)
       dmt_version
       ;;
 
-    devices) # warning update $opts upon change
+    devices)
       dmt_devices "$@"
       ;;
 
@@ -184,31 +138,17 @@ function dmt {
       dmt_update "$@"
       ;;
 
-    # shell_update) # updates only shell subfolder
-    #   dmt_install --only-shell "$@"
-    #   ;;
-
     renew) # updates the whole folder and restarts the service
       dmt_renew "$@"
       ;;
 
-    install) # warning update $opts upon change
+    install)
       dmt_install "$@"
-      # if [ "$1" == "to" ]; then
-      #   shift
-      #   dmt_install "$@"
-      # else
-      #   dmt_package "install" "$@"
-      # fi
       ;;
 
-    uninstall) # warning update $opts upon change
+    uninstall)
       dmt_uninstall
       ;;
-
-    # restart)
-    #   dmt_restart "$@"
-    #   ;;
 
     start)
       printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is starting...${NC}\n\n"
@@ -225,23 +165,18 @@ function dmt {
     stop)
       printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is stopping...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" stop
-      #printf "\n${GREEN}Daemons should now be running, use ${MAGENTA}dmt check${NC} ${GREEN}for quick self-test.${NC}\n"
       ;;
 
     # undocumented:
-    flash) # warning update $opts upon change
+    flash)
       dmt_flash "$@"
       ;;
 
-    publish) # warning update $opts upon change
-      dmt_publish "$@"
-      ;;
-
-    bin) # warning update $opts upon change
+    bin)
       dmt_bin "$@"
       ;;
 
-    cd) # warning update $opts upon change
+    cd)
       dmt_cd
       ;;
   esac
@@ -252,59 +187,15 @@ function dmt_help {
   printf "${GREEN}dmt help ${GRAY}shows this help${NC}\n"
   printf "${GREEN}dmt docs ${GRAY}shows documentation in a browser${NC}\n"
   printf "${GREEN}dmt version ${GRAY}shows dmt version${NC}\n"
-  # printf "${GREEN}dmt music ${GRAY}interact with music${NC}\n"
-  printf "${GREEN}dmt status ${GRAY}a quick glance into the state of the World${NC}\n"
-  printf "${GREEN}dmt level ${GRAY}do you have the entire system? It's easy to get!${NC}\n"
   echo
   printf "${YELLOW}Management:${NC}\n\n"
-  if dev_machine; then
-    printf "${GREEN}dmt publish ${GRAY}publish update${NC}\n"
-    # printf "${GREEN}dmt publish packages ${GRAY}publish core packages update${NC}\n"
-    echo
-  fi
   printf "${GREEN}dmt update ${GRAY}or just ${GREEN}update${GRAY} gets the latest version${NC}\n"
   printf "${GREEN}dmt install ${GRAY}spreads dmt to another machine, use ${NC}${WHITE}dmt install --with-user ${GRAY}to include user dir${NC}\n"
   printf "${GREEN}dmt uninstall ${GRAY}disables the package${NC}\n"
-
-  # printf "${YELLOW}Player:${NC}\n"
-  # printf "${GREEN}dmt player search [search_term] ${GRAY}searches for songs in local mpd library${NC}\n"
-  # printf "${GREEN}dmt player search_and_play [search_term] ${GRAY}searches for songs in local mpd library and plays them in order${NC}\n"
-  # printf "${GREEN}dmt player play ${GRAY}continues play${NC}\n"
-  # printf "${GREEN}dmt player pause ${GRAY}pauses payer${NC}\n"
-  # echo
-  # printf "${YELLOW}Devices:${NC}\n"
-  # printf "${GREEN}dmt devices list ${GRAY}${NC}\n"
-  # printf "${GREEN}dmt devices exec [cmd] ${GRAY}${NC}\n"
-  # printf "${GREEN}dmt devices update ${GRAY}${NC}\n"
-  # if dev_machine; then
-  #   echo
-  #   printf "${CYAN}Undocumented:${NC}\n"
-  #   printf "${GREEN}dmt flash ${GRAY}flashes latest version of dmt-os on a sd card${NC}\n"
-  #   printf "${GREEN}dmt publish ${GRAY}uploads to web server for remote installs${NC}\n"
-  #   printf "${GREEN}dmt missing ${GRAY}opens document with missing features for next master image${NC}\n"
-  # fi
 }
 
 function dmt_docs {
   open "$DMT_PATH/docs/index.html"
-}
-
-function dmt_music {
-  m "$@"
-}
-
-function m_help {
-  printf "${YELLOW}Usage:${NC}\n"
-  # printf "${GREEN}play${NC} ${GRAY}${NC}\n"
-  # printf "${GREEN}shuffle${NC} ${GRAY}${NC}\n"
-  # printf "${GREEN}pause${NC} ${GRAY}${NC}\n"
-  # printf "${GREEN}vol${NC} ${GRAY}${NC}\n"
-  # printf "${GREEN}list${NC} ${GRAY}${NC}\n"
-  # printf "${GREEN}status${NC} ${GRAY}${NC}\n"
-  # printf "${GREEN}playlist${NC} ${GRAY}${NC}\n"
-  # printf "${GREEN}select${NC} ${GRAY}${NC}\n"
-  # printf "${GREEN}scan${NC} ${GRAY}${NC}\n"
-  # printf "${GREEN}update${NC} ${GRAY}${NC}\n"
 }
 
 function e {
@@ -344,69 +235,10 @@ function e {
   $matching_opt "$@"
 }
 
-# function dmt_status {
-#   printf "${MAGENTA}Info:${NC}\n"
-
-#   if macos; then
-#     printf "macOS: ${GREEN}true${NC}\n"
-#   fi
-
-#   if dev_machine; then
-#     printf "dev machine: ${GREEN}true${NC}\n"
-#   fi
-
-#   echo
-
-#   printf "${YELLOW}Services:${NC}\n"
-
-#   if [ -f "/etc/lighttpd/lighttpd.conf" ]; then
-#     printf "${CYAN}lighttpd${NC}\n"
-#   fi
-
-#   if [ -f "/etc/haproxy/haproxy.cfg" ]; then
-#     printf "${CYAN}haproxy${NC}\n"
-#   fi
-
-#   if [ -f "/etc/dnsmasq.conf" ]; then
-#     printf "${CYAN}dnsmasq${NC}\n"
-#   fi
-
-#   if [ -f "/etc/hostapd/hostapd.conf" ]; then
-#     printf "${CYAN}hostapd${NC}\n"
-#   fi
-
-#   if [ -f "/etc/mpd.conf" ]; then
-#     printf "${CYAN}mpd${NC}\n"
-#   fi
-
-#   if [ -f "/etc/forked-daapd.conf" ]; then
-#     printf "${CYAN}forked-daapd${NC}\n"
-#   fi
-
-#   if [ -f "/etc/shairport-sync.conf" ]; then
-#     printf "${CYAN}shairport-sync${NC}\n"
-#   fi
-
-#   # if [ -f "/etc/samba/smb.conf" ]; then
-#   #   printf "${CYAN}samba${NC}\n"
-#   # fi
-
-#   if [ -f "/etc/mosquitto/mosquitto.conf" ]; then
-#     printf "${CYAN}mosquitto${NC}\n"
-#   fi
-
-#   echo
-#   printf "Type ${GREEN}srv${NC} to learn how to interact with these services.\n"
-# }
-
 function dmt_version {
   printf "${MAGENTA}v$(cat "$DMT_PATH/.version")${NC}\n\n"
   local NUM=$(cat $HOME/.bash_aliases | grep function | wc -l | xargs)
   printf "${WHITE}${NUM} bash functions ${GRAY}\nin ~/.bash_aliases${NC}\n"
-}
-
-function dmt_level {
-  echo "LEVEL"
 }
 
 function dmt_devices {
@@ -470,9 +302,6 @@ function dmt_renew {
 }
 
 function dmt_restart {
-  #local cmd="if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/core/node/.common-deps/node_modules/forever/bin/forever restart dmt-controller"
-  #local cmd="if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; touch ~/.dmt/core/node/dmt-controller/tmp/restart.txt"
-
   local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/etc/onboot/daemons restart\\\""
 
   if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
@@ -631,16 +460,3 @@ function dmt_compile_bin {
   cd "$cwd"
 }
 
-# UNDOCUMENTED:
-
-function dmt_flash {
-  flash ~/Misc/dmt-os/dmt-os-gui.img "$@"
-}
-
-function dmt_publish {
-  local cwd="`pwd`"
-  cd "$DMT_PATH"
-  cd ..
-  ./deploy
-  cd "$cwd"
-}

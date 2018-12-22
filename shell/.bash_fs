@@ -1,5 +1,98 @@
 #!/bin/bash
 
+function f {
+
+  local walksearch=''
+  platform_bin_command walksearch "walksearch"
+  if [ -z "$walksearch" ]; then
+    printf "${YELLOW}Using bash find instead ...${NC}\n"
+    # not completelly sure why I used uniq filter here....
+    local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+    find . -name '.git' -prune -o -print -name 'node_modules' -prune -o -print -name 'Godeps' -prune -o -print -name 'elm-stuff' -prune -o -print -name 'bower_components' -prune -o -print | uniq | grep -i -- "$pattern"
+    return
+  fi
+
+  "$walksearch" "$@" | grep -v ".git$" | grep -v ".git/" | grep -v ".node_modules$" | grep -v "node_modules/" | grep -v "Godeps$" | grep -v "Godeps/" | grep -v ".elm-stuff$" | grep -v ".elm-stuff/" | grep -v ".bower_components$" | grep -v ".bower_components/"
+
+  # not completelly sure why I used uniq filter here....
+  #local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+  #find . -name '.git' -prune -o -print -name 'node_modules' -prune -o -print -name 'Godeps' -prune -o -print -name 'elm-stuff' -prune -o -print -name 'bower_components' -prune -o -print | uniq | grep -i -- "$pattern"
+}
+
+# finds just files in current directory
+function ff {
+  local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+  find . -maxdepth 1 -type f | grep -i -- "$pattern"
+  #find . -type f -maxdepth 1 | grep -i -- "$1"
+}
+
+# finds just directories in current directory
+function ffd {
+  local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+  find . -maxdepth 1 -type d | grep -i -- "$pattern"
+  #find . -type f -maxdepth 1 | grep -i -- "$1"
+}
+
+# deps: ggrep -> brew install grep (GNU grep, newer versions which support -z option, paring by null)
+function ffm {
+  if [ -z "$1" ]; then
+    printf "${GREEN}Move files to destination directory${NC}\n"
+    echo "Usage: ffm [filter] [dir]"
+  else
+    if [ -z "$2" ]; then
+      printf "${MAGENTA}-- Dry run -- Files that would be moved:${NC}\n"
+      ff "$1"
+      printf "\n${YELLOW}Usage reminder: ffm [filter] [dir]${NC}\n"
+    else
+      if [ -d "$2" ]; then
+        printf "${GREEN}Moved to${NC} ${YELLOW}$2${NC}:\n"
+        ff "$1"
+        local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+        if macos; then
+          find . -maxdepth 1 -type f -print0 | ggrep -z -i -- "$pattern" | xargs -0 -I{} mv '{}' "$2"
+        else
+          find . -maxdepth 1 -type f -print0 | grep -z -i -- "$pattern" | xargs -0 -I{} mv '{}' "$2"
+        fi
+      else
+        printf "${RED}Target directory doesn't exist${NC}\n"
+      fi
+    fi
+  fi
+}
+
+# deps: ggrep -> brew install grep (GNU grep, newer versions which support -z option, paring by null)
+function ffc {
+  if [ -z "$1" ]; then
+    printf "${GREEN}Copy files to destination directory${NC}\n"
+    echo "Usage: ffc [filter] [dir]"
+  else
+    if [ -z "$2" ]; then
+      printf "${MAGENTA}-- Dry run -- Files that would be copied:${NC}\n"
+      ff "$1"
+      printf "\n${YELLOW}Usage reminder: ffc [filter] [dir]${NC}\n"
+    else
+      if [ -d "$2" ]; then
+        printf "${GREEN}Copied to${NC} ${YELLOW}$2${NC}:\n"
+        ff "$1"
+        local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+
+        if macos; then
+          find . -maxdepth 1 -type f -print0 | ggrep -z -i -- "$pattern" | xargs -0 -I{} cp '{}' "$2"
+        else
+          find . -maxdepth 1 -type f -print0 | grep -z -i -- "$pattern" | xargs -0 -I{} cp '{}' "$2"
+        fi
+      else
+        printf "${RED}Target directory doesn't exist${NC}\n"
+      fi
+    fi
+  fi
+}
+
+function fa {
+  find . -name '.git' -prune -o -print | uniq | grep -i -- "$1"
+}
+
+# ~~~~~~~~~~~~
 # Jump around!
 # p proj -> cd ~/Projects/project
 # works best (fastest) if your projects are lower-case and you refer to them as such
@@ -79,7 +172,6 @@ function awesome_cd {
       # search case-insensitive now
       shopt -s nocasematch # case insensitive regex
       for d in ${dirlist[@]} ; do
-        #local dir=`echo $d | tr '[:upper:]' '[:lower:]'` # SLOW
         if [[ "$d" == $pattern* ]] && [ -d "$d" ]; then
           local size=${#d}
           if [[ $size -lt $min_size ]]; then
@@ -102,22 +194,13 @@ function awesome_cd {
       fi
     fi
   elif [ "$arg" != "fuzzy" ]; then
-    #local orig2="`pwd`"
-    #local orig3=$origin
-    #local subdir2=$subdir
     awesome_cd . "$pattern" 'fuzzy'
-    #if [ "$orig2" == "`pwd`" ]; then
     if [ $? -gt 0 ]; then
       cd "$origin"
       return 1
-    #elif [ -n "$subdir2" ]; then
     elif [ -n "$subdir" ]; then
-      #orig2="`pwd`"
-      #awesome_cd . "$subdir2"
       awesome_cd . "$subdir"
       if [ $? -gt 0 ]; then
-      #if [ "$orig2" == "`pwd`" ]; then
-        #cd "$orig3"
         cd "$origin"
         return 1
       fi
@@ -152,25 +235,13 @@ function p {
       AWESOME_SILENCE=true awesome_cd ~/Projects/node/dcrypt "$1"
     fi
 
-    # if [ $? -gt 0 ]; then
-    #   AWESOME_SILENCE=true awesome_cd ~/Projects/node/smart-home/packages "$1"
-    # fi
-
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node "$1"
     fi
 
-    # if [ $? -gt 0 ]; then
-    #   AWESOME_SILENCE=true awesome_cd ~/.dmt/packages/user/nodejs "$1"
-    # fi
-
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/.dmt/core/rust "$1"
     fi
-
-    # if [ $? -gt 0 ]; then
-    #   AWESOME_SILENCE=true awesome_cd ~/.dmt/packages/user/rust "$1"
-    # fi
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/Projects/ethereum "$1"
@@ -257,20 +328,6 @@ function c {
   # c → cd to first directory
   if [ -z "$1" ]; then
     cd "`find . -maxdepth 1 -type d ! -path '*/\.*' ! -path . | sed "s/^\.\///" | sort | sed "1q;d"`"
-    #c 1
-  # c N → cd to Nth directory
-  # c -N → cd to Nth-to-last directory
-  # elif [[ "$1" =~ ^\-?[0-9]$ ]]; then
-  #   if [ -d "$1" ]; then
-  #     cd "$1"
-  #   else
-  #     if [[ "$1" =~ \- ]]; then
-  #       # -path '*/\.*' --> skips hidden
-  #       cd "`find . -maxdepth 1 -type d ! -path '*/\.*' ! -name "." | sed "s/^\.\///" | awk '{ x = $0 "\n" x } END { printf "%s", x }' | sed "$(($1*-1))q;d"`"
-  #     else
-  #       cd "`find . -maxdepth 1 -type d ! -path '*/\.*' ! -name "." | sed "s/^\.\///" | sed "${1}q;d"`"
-  #     fi
-  #   fi
   else
     # absolute paths
     if [[ "$1" =~ ^\/ ]]; then
@@ -280,10 +337,6 @@ function c {
     awesome_cd . "$1"
   fi
 }
-
-alias c2="c 2"
-alias c3="c 3"
-alias cn="c -1"
 
 function h {
   str="$1"
@@ -355,17 +408,6 @@ function l {
     ls -lah
     return
   fi
-
-  # this was commented out because even if we loose some efficiency, we want to show the exact directory name in
-  # "Subdirectory A:"
-  # if this code would run, we'd get Subdirectory a: in case ./A existed and we ran "l a"
-
-  # if [ -d "$pattern" ]; then
-  #   printf "Subdirectory ${YELLOW}${pattern}:${NC}\n"
-  #   echo
-  #   ls -lah "$pattern"
-  #   return
-  # fi
 
   # split on slash
   if [[ "$pattern" =~ \/ ]]; then
@@ -524,16 +566,7 @@ function run_on_file {
       fi
 
       if [ -z "$args" ]; then
-        #echo "MATCH"
-        #cat "$match"
         command $executable "${match}"
-
-        # SCRATCH THAT:
-        # eval caused other problems (when there was single apostrophe in file name!!) -- not even sure what the comment below was about, for now let's forget it until the supposed problem emerges
-        # we use eval instead of "command $executable "$match" because of this case:
-        # open -a 'Adobe Photoshop CS6' IMG_2932.JPG, otherwise we would get
-        # -bash: open -a 'Adobe Photoshop CS6': command not found
-        # todo: when needed use this in other instances, so far I didn't because I'm not yet sure it works as expected
       else
         command $executable "$match" "$args"
       fi
@@ -553,14 +586,6 @@ function run_on_file {
 
   fi
 }
-
-#alias shop="open -a 'Adobe Photoshop CS6'"
-
-# function shop {
-#   run_on_file "$1" "open -a 'Adobe Photoshop CS6'" '*'
-# }
-
-# there is also more complex dir_match
 
 #WARNING: replace single quotes back after calling this function:
 # local matching_folder=''
@@ -747,14 +772,6 @@ function r {
       cargo run
     else
       printf "${RED}No index.js to run: need file pattern${NC}\n"
-
-      # local count=$(find *.js -maxdepth 1 -type f ! -path '*/\.*' ! -name "." | wc -l)
-      # if [ $count == 1 ]; then
-      #   local file=$(find *.js -maxdepth 1 -type f ! -path '*/\.*' ! -name "." | sed "s/^\.\///" | sed "1q;d")
-      #   r "$file"
-      # else
-      #   printf "${RED}Multiple files or no arguments${NC}\n"
-      # fi
     fi
   else
     local executable=''
@@ -766,13 +783,6 @@ function r {
     local matching_file=''
     get_matching_file matching_file "$pattern" "*.js"
     matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
-
-    # REMOVED AFTER get_matching_file was corrected to properly return error (1) when no match is found...
-    # BRISI after some time if everything works
-    # only after first call to get_matching_file
-    # if [ $? -ne 0 ]; then # error
-    #   return
-    # fi
 
     if [ -n "$matching_file" ]; then
       if [ -f "./truffle.js" ]; then
@@ -837,10 +847,6 @@ function r {
     fi
   fi
 }
-
-# function rr {
-#   sudo r "$@"
-# }
 
 # runs scripts from util, utils or utilities
 # u sc => node utils/scan.js
@@ -972,17 +978,13 @@ function oi {
 }
 
 function o {
-  # if [ -z "$1" ] && [ -f "index.html" ]; then
-  #   open index.html
   if [ -z "$1" ] || [ "$1" == "." ]; then
     open .
-    #forklift_open
   elif [ "$1" == "xcode" ] && [ -d "ios" ]; then
     find ios -type d -depth 1 | grep xcodeproj | xargs open
   elif [[ "$1" =~ ^[0-9]+$ ]]; then
     open "http://localhost:${1}"
   else
-    #command irb -r "./$1"
     run_on_file "$1" "open" '*'
   fi
 }
@@ -1118,10 +1120,6 @@ alias ..5="cd ../../../../.."
 alias cd..='cd ..'
 
 function cop {
-  #local la=$(run_on_file "$1" "readlink -f" '*')
-  # maybe: https://thoughtbag.com/posts/6497
-  #echo $la | tr -d '\n' | pbcopy
-
   if ! macos; then
     printf "${MAGENTA}Warning: not copied to clipboard because in remote shell${NC}\n"
   fi
@@ -1200,8 +1198,6 @@ function cli {
       printf "${YELLOW}lib:${NC}\n"
       find lib -type f | sort | sed "s/lib\///g" | sed 's/.js//g'
       return
-    # else
-    #   printf "${RED}Missing ./cli and ./lib directories${NC}\n"
     fi
   fi
 
@@ -1211,7 +1207,6 @@ function cli {
   if [ -d "cli" ]; then
     local cmd="$1"
     cd cli
-    #run_on_file "$1" "node" '*.js'
     local matching_file=''
     get_matching_file matching_file "$cmd" "*.js"
     matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
@@ -1229,7 +1224,6 @@ function cli {
   elif [ -d "lib" ]; then # second option: existence of .lib directory (very similar to above)
     local cmd="$1"
     cd lib
-    #run_on_file "$1" "node" '*.js'
     local matching_file=''
     get_matching_file matching_file "$cmd" "*.js"
     matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
@@ -1275,31 +1269,25 @@ function tape {
   opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     printf "${YELLOW}Use ${GREEN}-h ${YELLOW}to see valid options${NC}\n\n"
-    #matching_opt="aaa" # default
     return
   fi
-
-  # if [ "$EUID" -ne 0 ]
-  #   then printf "${RED}Must be root${NC}\n"
-  #   return
-  # fi
 
   shift
 
   case "$matching_opt" in
-    status) # warning update $opts upon change
+    status)
       sudo mt -f /dev/nst0 status
       ;;
 
-    rewind) # warning update $opts upon change
+    rewind)
       time sudo mt -f /dev/st0 rewind
       ;;
 
-    eject) # warning update $opts upon change
+    eject)
       time sudo mt -f /dev/st0 offline
       ;;
 
-    look) # warning update $opts upon change
+    look)
       sudo tar -b 2048 -tf /dev/nst0
       ;;
 
@@ -1307,7 +1295,7 @@ function tape {
       time sudo mt -f /dev/nst0 eom
       ;;
 
-    goto) # warning update $opts upon change
+    goto)
       if [ -z "$1" ]; then
         printf "${RED}Must specify which archive number to seek to${NC}\n"
       else
@@ -1316,7 +1304,7 @@ function tape {
       fi
       ;;
 
-    fwd) # warning update $opts upon change
+    fwd)
       local steps="1"
       if [ -n "$1" ]; then
         steps="$1"
@@ -1326,7 +1314,7 @@ function tape {
       sudo mt -f /dev/nst0 status
       ;;
 
-    prev) # warning update $opts upon change
+    prev)
       local steps="1"
       if [ -n "$1" ]; then
         steps="$1"
@@ -1345,12 +1333,12 @@ function tape {
       fi
       ;;
 
-    copy) # warning update $opts upon change
+    copy)
       local dir="$1"
       time sudo tar -b 2048 -cf /dev/nst0 "$dir" --verbose --verbose
       ;;
 
-    copy_rewind) # warning update $opts upon change
+    copy_rewind)
       local dir="$1"
       time sudo tar -b 2048 -cf /dev/st0 "$dir" --verbose --verbose
       ;;

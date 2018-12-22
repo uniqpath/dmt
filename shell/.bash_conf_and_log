@@ -1,0 +1,463 @@
+#!/bin/bash
+
+function conf {
+
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    echo
+
+    printf "${GREEN}pi:${NC} sudo raspi-config\n"
+    printf "${GREEN}wifi:${NC} /etc/wpa_supplicant/wpa_supplicant.conf\n"
+    printf "${GREEN}dietpi:${NC} /DietPi/dietpi.txt\n"
+    printf "${GREEN}net:${NC} /etc/network/interfaces\n"
+    printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
+    printf "${GREEN}lighttpd:${NC} /etc/lighttpd/lighttpd.conf\n"
+    printf "${GREEN}haproxy:${NC} /etc/haproxy/haproxy.cfg\n"
+    printf "${GREEN}dnsmasq:${NC} /etc/dnsmasq.conf\n"
+    printf "${GREEN}hostapd:${NC} /etc/hostapd/hostapd.conf\n"
+    printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
+    printf "${GREEN}fstab:${NC} /etc/fstab\n"
+    printf "${GREEN}mpd:${NC} /etc/mpd.conf || ~/.mpdconf\n"
+    printf "${GREEN}forked-daapd:${NC} /etc/forked-daapd.conf\n"
+    printf "${GREEN}shairport-sync:${NC} /etc/shairport-sync.conf\n"
+    printf "${GREEN}samba:${NC} /etc/samba/smb.conf\n"
+    printf "${GREEN}syncthing:${NC} ~/.config/syncthing/config.xml\n"
+    printf "${GREEN}munin:${NC} /etc/munin/munin.conf\n"
+    printf "${GREEN}munin-node:${NC} /etc/munin/munin-node.conf\n"
+    # printf "${GREEN}snapserver:${NC} /etc/default/snapserver\n"
+    # printf "${GREEN}snapclient:${NC} /etc/default/snapclient\n"
+    printf "${GREEN}avahi:${NC} /etc/avahi/aliases ${GRAY}also restarts the service${NC}\n"
+    # printf "${GREEN}deluge:${NC} [DIR] /var/lib/deluge/.config/deluge ${GRAY}${NC}\n"
+    printf "${GREEN}mosquitto:${NC} /etc/mosquitto/mosquitto.conf ${GRAY}${NC}\n"
+
+    return
+  fi
+
+  declare -a opts=(
+    "pi"
+    "wifi"
+    "dietpi"
+    "net"
+    "sshd"
+    "lighttpd"
+    "haproxy"
+    "dnsmasq"
+    "hostapd"
+    "alsa"
+    "fstab"
+    "mpd"
+    "forked-daapd"
+    "shairport-sync"
+    "samba"
+    "syncthing"
+    "munin"
+    "munin-node"
+    "avahi"
+    "mosquitto"
+  )
+
+  local matching_opt=''
+  opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    printf "${RED}Unknown package${NC}\n"
+    return
+  fi
+
+  shift
+
+  case "$matching_opt" in
+
+    pi)
+      sudo raspi-config
+      ;;
+
+    wifi)
+      wifi_setup "from_conf" "$@"
+      ;;
+
+    dietpi)
+      sudo nano /DietPi/dietpi.txt
+      ;;
+
+    net)
+      local conf="/etc/network/interfaces"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no networking config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    sshd)
+      local conf="/etc/ssh/sshd_config"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no sshd config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    lighttpd)
+      local conf="/etc/lighttpd/lighttpd.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no lighttpd config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    haproxy)
+      local conf="/etc/haproxy/haproxy.cfg"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no haproxy config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    dnsmasq)
+      local conf="/etc/dnsmasq.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no dnsmasq config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    hostapd)
+      local conf="/etc/hostapd/hostapd.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no hostapd config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    alsa)
+      local conf="/usr/share/alsa/alsa.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no alsa config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    fstab)
+      local conf="/etc/fstab"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no fstab config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    mpd)
+      local conf="/etc/mpd.conf"
+      local conf2="$HOME/.mpdconf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      elif [ -f "${conf2}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf2}${NC}\n"
+        nano "${conf2}"
+      else
+        printf "${RED}no mpd config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    forked-daapd)
+      local conf="/etc/forked-daapd.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no forked-daapd config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    shairport-sync)
+      local conf="/etc/shairport-sync.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no shairport-sync config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    samba)
+      local conf="/etc/samba/smb.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no samba config file found${NC}\n"
+      fi
+      ;;
+
+    syncthing)
+      local conf="$HOME/.config/syncthing/config.xml"
+      local conf2="$HOME/Library/Application Support/Syncthing/config.xml"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        nano "${conf}"
+      elif [ -f "${conf2}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf2}${NC}\n"
+        nano "${conf2}"
+      else
+        printf "${RED}no syncthing config file found${NC}\n"
+      fi
+      ;;
+
+    munin)
+      local conf="/etc/munin/munin.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no munin config file found${NC}\n"
+      fi
+      ;;
+
+    munin-node)
+      local conf="/etc/munin/munin-node.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no munin-node config file found${NC}\n"
+      fi
+      ;;
+
+    avahi)
+      local conf="/etc/avahi/aliases"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+        sudo systemctl restart avahi-alias
+        printf "${MAGENTA}avahi-alias service restarted${NC}\n"
+      else
+        printf "${RED}no avahi aliases config file found${NC}\n"
+      fi
+      ;;
+
+    mosquitto)
+      local conf="/etc/mosquitto/mosquitto.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no mosquitto config file found${NC}\n"
+      fi
+      ;;
+
+  esac
+}
+
+function wifi_setup {
+  local conf="/etc/wpa_supplicant/wpa_supplicant.conf"
+
+  local instr="wifi_setup"
+  if [ "$1" == "from_conf" ]; then
+    instr="conf wifi"
+    shift
+  fi
+
+  if [ -f "${conf}" ]; then
+    if [ -n "$1" ]; then
+      wpa_passphrase "$@"
+      return
+    fi
+
+    sudo nano "${conf}"
+    printf "${MAGENTA}Never provide password in cleartext.\n${YELLOW}Use ${GREEN}${instr} [SSID]${NC} to generate encrypted password\n"
+  else
+    printf "${conf} ${RED}not found${NC}\n"
+    return
+  fi
+}
+
+
+function log {
+
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    echo
+
+    #printf "${GREEN}dmt: ${GRAY}/var/log/lighttpd/error.log${NC} \n"
+    printf "${GREEN}lighttpd|light: ${GRAY}/var/log/lighttpd/error.log${NC} \n"
+    printf "${GREEN}haproxy: ${GRAY}root; tail -f /var/log/haproxy.log${NC}\n"
+    # printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
+    # printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
+    printf "${GREEN}mpd:${NC} /var/log/mpd/mpd.log\n"
+    printf "${GREEN}forked-daapd: ${GRAY}/var/log/forked-daapd.log${NC}\n"
+    printf "${GREEN}shairport-sync: ${GRAY}tail -f /var/log/syslog | grep shairpo${NC}\n"
+    # printf "${GREEN}samba:${NC} /etc/samba/smb.conf\n"
+    # printf "${GREEN}snapserver:${NC} /etc/default/snapserver\n"
+    # printf "${GREEN}snapclient:${NC} /etc/default/snapclient\n"
+    # printf "${GREEN}avahi:${NC} /etc/avahi/aliases ${GRAY}also restarts the service${NC}\n"
+    # printf "${GREEN}deluged:${NC} /var/log/deluge/daemon.log ${GRAY}${NC}\n"
+    # printf "${GREEN}deluge-web:${NC} /var/log/deluge/web.log ${GRAY}${NC}\n"
+    printf "${GREEN}mosquitto:${NC} /var/log/mosquitto/mosquitto.log ${GRAY}${NC}\n"
+
+    return
+  fi
+
+  declare -a opts=(
+    "dmt"
+    "mpd"
+    "lighttpd"
+    "haproxy"
+    "forked-daapd"
+    "shairport-sync"
+    "munin"
+    "munin-node"
+    "mosquitto"
+  )
+
+  local matching_opt=''
+  opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    return
+  fi
+
+  shift
+
+  case "$matching_opt" in
+    dmt)
+      dmt_log "$@"
+      ;;
+
+    mpd)
+      tail -f /var/log/mpd/mpd.log
+      ;;
+
+    lighttpd)
+
+      local conf="/etc/lighttpd/lighttpd.conf"
+
+      if [ -f "${conf}" ]; then
+        tail -f /var/log/lighttpd/error.log
+      else
+        printf "${RED}no lighttpd found${NC}\n"
+        return
+      fi
+
+      ;;
+
+    haproxy)
+
+      local conf="/etc/haproxy/haproxy.cfg"
+
+      if [ -f "${conf}" ]; then
+        printf "Execute: ${MAGENTA}root; tail -f /var/log/haproxy.log${NC}\n"
+      else
+        printf "${RED}no haproxy found${NC}\n"
+        return
+      fi
+
+      ;;
+
+    forked-daapd)
+
+      local conf="/etc/forked-daapd.conf"
+
+      if [ -f "${conf}" ]; then
+        tail -f /var/log/forked-daapd.log
+      else
+        printf "${RED}no forked-daapd installed${NC}\n"
+        return
+      fi
+
+      ;;
+
+    shairport-sync)
+
+      local conf="/etc/shairport-sync.conf"
+
+      if [ -f "${conf}" ]; then
+        tail -f /var/log/syslog | grep shairpo
+      else
+        printf "${RED}no shairport-sync installed${NC}\n"
+        return
+      fi
+
+      ;;
+
+    mosquitto)
+
+      local log="/var/log/mosquitto/mosquitto.log"
+
+      if [ -f "${log}" ]; then
+        printf "tail -f ${YELLOW}${log}${NC}\n"
+        tail -f "$log"
+      else
+        printf "${RED}log not found${NC}\n"
+      fi
+
+      ;;
+
+    munin)
+
+      local log="/var/log/munin/munin-update.log"
+
+      if [ -f "${log}" ]; then
+        printf "tail -f ${YELLOW}${log}${NC}\n"
+        tail -f "$log"
+      else
+        printf "${RED}log not found${NC}\n"
+      fi
+
+      ;;
+
+    munin-node)
+
+      local log="/var/log/munin/munin-node.log"
+
+      if [ -f "${log}" ]; then
+        printf "tail -f ${YELLOW}${log}${NC}\n"
+        tail -f "$log"
+      else
+        printf "${RED}log not found${NC}\n"
+      fi
+
+      ;;
+
+  esac
+}

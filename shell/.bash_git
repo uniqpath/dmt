@@ -6,6 +6,18 @@
 #alias gx="gitx"
 alias _good="git bisect good"
 alias _bad="git bisect bad"
+
+function good {
+  if [[ $@ == *--* ]]; then
+    command good "$@";
+  else
+    echo "Last week stats:"
+    echo
+    command good --email=david.krmpotic@gmail.com --days=7;
+  fi
+}
+
+
 alias gsu="git submodule update --init"
 alias gst="git stash"
 alias gsa="git stash apply"
@@ -76,11 +88,6 @@ alias clean='echo -n "Really clean this directory?";
      echo "Not cleaned.";
   fi'
 
-# ———————————  SNIPPET ———————————
-
-alias ogcomm="og commits"
-
-# ——————————— END SNIPPET ———————————
 
 alias clone="git clone"
 

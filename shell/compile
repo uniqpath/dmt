@@ -7,13 +7,13 @@ target_slim="../etc/.bash_aliases_slim"
 
 VERSION=$(cat ../.version)
 
+# 💡DMT ALIASES -- SLIM PART → $target_slim
+
 cat > "$target_slim" <<EOF
 #!/bin/bash
 
-#
-#                      DMT ALIASES
 #                 _
-#             .__(.)< (v${VERSION})
+#             .__(.)< (💡DMT ALIASES v${VERSION})
 #              \___)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,34 +26,35 @@ EOF
 
 echo >> "$target_slim"
 
-cat .bash_util .bash_fs .bash_general .bash_git >> "$target_slim"
+cat .bash_util .bash_fs .bash_general .bash_conf_and_log .bash_process .bash_git >> "$target_slim"
 
+
+# 💡🚀🎸 FULL EDITION → $target
 
 cat "$target_slim" > "$target"
 
 cat >> "$target" <<EOF
 
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# ~~~~~~~~~~~~~~~~~~~~~~ 💡🚀🎸 FULL EDITION ~~~~~~~~~~~~~~~~~~~~~~~
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~ 💡🚀🎸 FULL EDITION ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 EOF
 
-cat .bash_core_helpers .bash_networking .bash_devices .bash_search .bash_music .bash_dep .bash_update .bash_dmt >> "$target"
+cat .bash_core_helpers .bash_node_and_npm .bash_networking .bash_devices .bash_search .bash_play .bash_dep .bash_update .bash_eth .bash_dmt >> "$target"
 
-printf "${GREEN}* Generating ${CYAN}${target} ${GREEN}on ${CYAN}$(hostname)${NC}\n"
+printf "${CYAN}💡 DMT SHELL ${GREEN}on ${CYAN}$(hostname) ${GREEN}constructed and ready 🚀🎸${NC}\n"
 
-# include staging if exists
-# this is never deployed outside of development environment
 if [ -f .bash_staging ]; then
-  printf "${GRAY} -- included .bash_staging${NC}\n"
+  #printf "${GRAY} -- included .bash_staging${NC}\n"
   cat .bash_staging >> "$target"
 fi
 
 cat >> "$target" <<EOF
-# ****************** KEEP THESE AS LAST LINES --------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~ KEEP THESE AS LAST LINES ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if [ -f "\$LOGNAME_HOME/.dmt/user/shell/.bash_user" ]; then
   . "\$LOGNAME_HOME/.dmt/user/shell/.bash_user"
@@ -63,9 +64,8 @@ if [ -f "\$LOGNAME_HOME/.dmt/user/devices/this/shell/.bash_device" ]; then
   . "\$LOGNAME_HOME/.dmt/user/devices/this/shell/.bash_device"
 fi
 
-# NOTHING AFTER THIS LINE
-# !!!!!!!!!!!!!!!!!!!!!!!
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 EOF
 
-printf "${GREEN}* done${NC}\n"
+#printf "${GREEN}* done${NC}\n"
 

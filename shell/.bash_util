@@ -4,7 +4,6 @@
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-#BLUE='\033[0;34m'
 BLUE='\033[0;94m'
 CYAN='\e[0;36m'
 MAGENTA='\033[0;35m'
@@ -34,10 +33,6 @@ function is_rpi {
 }
 
 function dev_machine {
-
-  #echo "$LOGNAME_HOME/.dmt-dev-machine"
-
-  #if [ $(hostname | grep -i "eclipse" | wc -l) = 1 ]; then
   if [ -f ~/.dmt-dev-machine ]; then
     return 0 # true
   fi
@@ -52,19 +47,12 @@ save_function() {
   eval "$NEWNAME_FUNC"
 }
 
-function debug_info {
-  if dev_machine; then
-    printf "${MAGENTA}>>> DEBUG:${NC} ${GRAY}$@ ${MAGENTA}<<<${NC}\n"
-  fi
+function array_contains_element {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
 }
-
-# function is_setting {
-#   ls "$DMT_PATH"
-# }
-
-# function read_setting {
-#   ls "$DMT_PATH"
-# }
 
 function opts_matcher_helper {
   local pattern="$2"
@@ -74,13 +62,8 @@ function opts_matcher_helper {
   local min_size=1000
   local match
 
-  #should be like this:
-  #unset IFS
-  #if it's not, find where we forgot to unset after IFS=$'\n'
-
   for entry in "${opts[@]}"
   do
-    #echo $entry
     shopt -s nocasematch # case insensitive regex
     if [[ "$entry" == "$pattern"* ]] && [ -n "$pattern" ]; then
       local size=${#entry}
@@ -175,8 +158,6 @@ function def_reader {
     fi
 
     if [[ $line =~ ^${parent_key}\: ]]; then
-      #local arr=($(echo $line | sed "s/gatewayMac:/gatewayMac@/" | tr "@" "\n")) # replace ":" with "@" because ":" appears all over mac address defined in gatewayMac
-      #local gatewayMac=$(echo "${arr[@]:1}" | xargs) # trim whitespace
       parent_key_matched=true
 
       if [ -z "$key" ]; then
@@ -188,8 +169,6 @@ function def_reader {
       local arr=($(echo "$line" | tr ":" "\n"))
       _result=$(echo "${arr[@]:1}" | xargs) # trim whitespace
       break
-    # elif [[ $line =~ ^network\: ]]; then
-    #   parent_key_matched=false # we reset the match on next record
     fi
   done
 
@@ -199,14 +178,6 @@ function def_reader {
 # calls nodejs parser and outputs nicely formatted json --
 # good for testing the correctness .def files syntax
 function parsedef {
-
-  # for runtime in "${DMT_RUNTIMES[@]}"
-  # do
-  #   echo "$runtime"
-  # done
-
-  # return
-
   which node > /dev/null 2>&1
 
   if [ ! $? -eq 0 ]; then
@@ -229,11 +200,6 @@ function parsedef {
     return
   fi
 
-  # if [ ! -f "$1" ]; then
-  #   printf "${RED}File $1 doesn't exist${NC}\n"
-  #   return
-  # fi
-
   local matching_file=''
   get_matching_file matching_file "$pattern" "*.def"
   matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
@@ -243,17 +209,7 @@ function parsedef {
     return
   fi
 
-  #printf "${BLUE}$(echo $matching_file | sed "s/\.def//")${WHITE}:${NC}\n"
-
-  #which jq > /dev/null 2>&1
-
   node "$DEF_PARSER_PATH" "$matching_file"
-
-  # if [ $? -eq 0 ]; then
-  #   node "$DEF_PARSER_PATH" "$matching_file" #| jq
-  # else
-  #   node "$DEF_PARSER_PATH" "$matching_file"
-  # fi
 }
 
 function def {

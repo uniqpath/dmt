@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# ------- ETHEREUM ----------
+function ges {
+  # rpccorsdomain is because of https://github.com/etherparty/explorer
+  geth --rpc --rpcapi "db,eth,net,web3,personal" --ipcpath $HOME/Library/Ethereum/geth.ipc --rpccorsdomain "http://localhost:8000" $@
+}
+
+function gel {
+  geth --light --rpc --rpcapi "db,eth,net,web3,personal"
+}
+
+function swarm_up {
+  if [ -f "$1" ]; then
+    swarm --bzzapi http://192.168.0.122:8500 up "$1"
+  else
+    printf "${RED}File doesn't exist${NC}\n"
+  fi
+}
+
+# still not ok, Mist tries connect to this
+function gesbg {
+  # rpccorsdomain is because of https://github.com/etherparty/explorer
+  geth --port 30305 --port 8547 --ipcdisable #--rpc --rpcapi "db,eth,net,web3,personal"
+}
+
+alias pes='parity --warp --port 30304 --rpcport 8600'
+
+#alias ges='geth --password ~/Projects/ethereum/password --unlock "0x6b2474fb5b7203acc098f5186e6bf5beacde9364" --datadir "$HOME/Projects/ethereum/data/playground" --rpc --rpcapi "db,eth,net,web3,personal" --ipcpath $HOME/Library/Ethereum/geth.ipc'
+function ge {
+  printf "${YELLOW}loadScript('console.js')${NC}\n"
+  geth --jspath "$HOME/Projects/ethereum/scripts" attach
+}
+#alias ge='geth --ipcpath "$HOME/Projects/ethereum/data/playground/geth.ipc" attach'
+
+function mew {
+  open ~/Install/mew_stable/index.html
+}
+
+function keystore {
+  if macos; then
+    cd ~/Library/Ethereum/keystore
+  else
+    cd ~/.ethereum/keystore
+  fi
+}
+
+alias keystore2="cd ~/Library/Application\ Support/io.parity.ethereum/keys/ethereum"
+
+

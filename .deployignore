@@ -2,6 +2,7 @@ deploy
 deploy_from_secondary
 todo.txt
 /etc/.bash_aliases_bundle
+/etc/.bash_aliases_slim
 /shell/.bash_staging
 /playground
 /log

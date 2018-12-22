@@ -1,0 +1,110 @@
+#!/bin/bash
+
+function npm_unlink {
+  if [ -z "$1" ]; then
+    echo "Usage: npm_unlink [package]"
+  else
+    ~/Projects/scripts/npm_executables "$1" "unlink"
+    local dir="/usr/local/lib/node_modules/${1}"
+    if [ -d "$dir" ] || [ -L "$dir" ]; then
+      rm -rf "$dir"
+      if [ "$2" != 'silent' ]; then
+        printf "${YELLOW}Unlinked ${1}${NC}\n"
+      fi
+    else
+      if [ "$2" != 'silent' ]; then
+        printf "${YELLOW}${1} already unlinked${NC}\n"
+      fi
+    fi
+  fi
+}
+
+function nig {
+  # if this package is already installed in ~/Install/npm, we install the new version there as well so it can be switched to with "stable"
+  local install_dir="${HOME}/Install/npm/${1}"
+  if [ -d "$install_dir" ]; then
+    printf "${MAGENTA}Package <$1> exists in ~/Install/npm, installing new version there as well...${NC}\n"
+    npm_install_global_special "$1"
+  else
+    npm install -g "$1"
+    lib --path "/usr/local/lib/node_modules/$1"
+  fi
+}
+
+alias reset_npm="rm -rf node_modules; npm cache clean; npm install"
+
+# can also run "npm version" to get V8 version and other things
+function ver {
+  if [ -f "./package.json" ]; then
+    printf "${YELLOW}Version in package.json:${NC}\n"
+    cat package.json | grep version |
+
+    printf "${YELLOW}Published version:${NC}\n"
+    printf " "
+    npm view . version
+  fi
+}
+
+function ver2 {
+  printf "${YELLOW}ver pub${NC}\n"
+  ver pub
+}
+
+function forever_executable {
+  local loc1="$DMT_NODE_CORE/.common-deps/node_modules/forever/bin/forever"
+  local loc2="$HOME/n/bin/forever"
+  local loc3="/usr/local/bin/forever"
+
+  local _result=''
+
+  if [ -f "$loc1" ]; then
+    _result="$loc1"
+  elif [ -f "$loc2" ]; then
+    _result="$loc2"
+  elif [ -f "$loc3" ]; then
+    _result="$loc3"
+  else
+    printf "${RED}npm package forever not found${NC}\n"
+  fi
+
+  eval "$1='$_result'"
+}
+
+function forever {
+  local forever_cmd
+  forever_executable forever_cmd
+
+  if [ -n "$forever_cmd" ]; then
+    "$forever_cmd" "$@"
+  fi
+}
+
+function fs {
+  local forever_cmd
+  forever_executable forever_cmd
+
+  if [ -n "$forever_cmd" ]; then
+    if [ -z "$1" ] && [ -f "forever/production.json" ]; then
+      printf "${YELLOW}forever start index.js${NC}\n"
+      NODE_ENV=production "$forever_cmd" start forever/production.json
+    else
+      run_on_file "$1" "$forever_cmd start" '*.js' force
+    fi
+  fi
+}
+
+function fl {
+  local forever_cmd
+  forever_executable forever_cmd
+  if [ -n "$forever_cmd" ]; then
+    "$forever_cmd" list
+  fi
+}
+
+function fr {
+  local forever_cmd
+  forever_executable forever_cmd
+  if [ -n "$forever_cmd" ]; then
+    "$forever_cmd" restartall
+  fi
+}

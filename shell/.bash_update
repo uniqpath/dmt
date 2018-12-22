@@ -18,24 +18,19 @@ function update {
   if [ "$1" == '-h' ]; then
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}dmt${NC} ${GRAY}${NC}\n"
-    printf "${GREEN}packages${NC} ${GRAY}${NC}\n"
     printf "${GREEN}rust${NC} ${GRAY}${NC}\n"
     printf "${GREEN}geth${NC} ${GRAY}${NC}\n"
     printf "${GREEN}swarm${NC} ${GRAY}${NC}\n"
     printf "${GREEN}parity${NC} ${GRAY}${NC}\n"
-    printf "${GREEN}shairport-sync${NC} ${GRAY}${NC}\n"
     return
   fi
 
   declare -a opts=(
     "dmt"
-    "pkg"
-    "packages"
     "rust"
     "geth"
     "swarm"
     "parity"
-    "shairport-sync"
   )
 
   if [ -z "$1" ]; then
@@ -51,17 +46,9 @@ function update {
     return
   fi
 
-  if [ "$matching_opt" == "pkg" ]; then
-    arg="packages"
-  fi
-
   case "$matching_opt" in
     dmt)
       dmt update "$@"
-      ;;
-
-    packages)
-      dmt update packages
       ;;
 
     rust)
@@ -78,10 +65,6 @@ function update {
 
     parity)
       update_parity  "$@"
-      ;;
-
-    shairport-sync)
-      update_shairport_sync "$@"
       ;;
   esac
 }
@@ -138,183 +121,4 @@ function update_rust {
   rustup update
 }
 
-function update_shairport_sync {
-  local repo="$HOME/Install/shairport-sync"
 
-  case "$1" in
-    dev )
-      if [ ! -d "${repo}-dev" ]; then
-        if [ ! -d "${repo}" ]; then
-          shair clone
-        fi
-        if [ -d "${repo}" ]; then
-          local cwd="`pwd`"
-          cd "$repo"
-          git branch development
-          git branch -u origin/development development
-          git pull
-          git worktree prune
-          git worktree add ../shairport-sync-dev development
-          cd "$cwd"
-        else
-          printf "${RED}didn't manage to clone${NC}\n"
-          return
-        fi
-      fi
-
-      cd "${repo}-dev"
-
-      shair make
-
-      local config_file="/etc/shairport-sync.conf"
-
-      if [ -f "$config_file" ]; then
-        sudo mv "$config_file" "${config_file}-backup"
-      fi
-
-      sudo systemctl stop shairport-sync
-      sudo make install
-
-      shair reconf
-
-      sudo systemctl enable shairport-sync
-
-      printf "\n${YELLOW}Now run:${NC}\n"
-      printf "${GREEN}sudo systemctl start shairport-sync${NC}\n"
-      # printf "${GREEN}sudo make install${NC}\n"
-      # printf "${GREEN}shair reconf${NC}\n"
-      ;;
-
-    stable )
-      local stable_commit="44fbe8b539d997b7be7717587685138ac5ebbe10"
-      if [ ! -d "${repo}-stable" ]; then
-        if [ ! -d "${repo}" ]; then
-          shair clone
-        fi
-        if [ -d "${repo}" ]; then
-          local cwd="`pwd`"
-          cd "$repo"
-          git pull
-          git worktree prune
-          git worktree add ../shairport-sync-stable "$stable_commit"
-          cd "$cwd"
-        else
-          printf "${RED}didn't manage to clone${NC}\n"
-          return
-        fi
-      fi
-
-      cd "${repo}-stable"
-
-      shair make
-
-      local config_file="/etc/shairport-sync.conf"
-
-      if [ -f "$config_file" ]; then
-        sudo mv "$config_file" "${config_file}-backup"
-      fi
-
-      sudo systemctl stop shairport-sync
-      sudo make install
-
-      shair reconf
-
-      sudo systemctl enable shairport-sync
-
-      printf "\n${YELLOW}Now run:${NC}\n"
-      printf "${GREEN}sudo systemctl start shairport-sync${NC}\n"
-      # printf "${GREEN}sudo make install${NC}\n"
-      # printf "${GREEN}shair reconf${NC}\n"
-      ;;
-
-    master )
-      echo "TODO"
-      ;;
-
-    clone )
-      if [ ! -d "$repo" ]; then
-        mkdir -p "$HOME/Install"
-        git clone https://github.com/mikebrady/shairport-sync.git "$repo"
-        sudo apt-get install -y libdaemon-dev libpopt-dev libconfig-dev libavahi-client-dev libasound2-dev
-      else
-        printf "${RED}${repo} already exists${NC}\n"
-      fi
-      ;;
-
-    make )
-      autoreconf -i -f
-      ./configure --sysconfdir=/etc --with-alsa --with-pipe --with-avahi --with-ssl=openssl --with-metadata --with-systemd
-      make
-      ;;
-
-    reconf )
-      local file="/etc/shairport-sync.conf"
-
-      # if [ -f "$file" ]; then
-      #   sudo mv "$file" "${file}-backup"
-      # fi
-
-      local TAB=$'\t'
-      sudo sed -i -e "s/\/\/.*disable_resend_requests = \"no\"/${TAB}disable_resend_requests = \"yes\"/g" "$file"
-      sudo sed -i -e "s/\/\/.*statistics = \"no\"/${TAB}statistics = \"yes\"/g" "$file"
-      sudo sed -i -e "s/\/\/.*log_verbosity = 0/${TAB}log_verbosity = 2/g" "$file"
-      ;;
-
-    * )
-      shairport-sync -V
-      ;;
-  esac
-}
-
-# MUSIC
-
-# function update_shairport {
-#   if [ "$1" == "-h" ]; then
-#     echo "Usage:"
-#     echo "update_shairport"
-#     echo "update_shairport [commit]"
-#     return
-#   fi
-
-#   local new_install=false
-
-#   if [ -d "$HOME/Install/shairport-sync" ]; then
-#     cd "$HOME/Install/shairport-sync"
-#     git fetch
-#   else
-#     new_install=true
-#     printf "${MAGENTA}shairport-sync not found, installing...${NC}\n"
-#     mkdir -p "$HOME/Install"
-#     cd "$HOME/Install"
-#     git clone https://github.com/mikebrady/shairport-sync.git
-#     cd shairport-sync
-
-#     sudo apt-get install -y libdaemon-dev libpopt-dev libconfig-dev libavahi-client-dev libasound2-dev
-#     autoreconf -i -f
-#     if [ -n "$1" ]; then
-#       git checkout "$1"
-#     fi
-#   fi
-
-#   if [ -n "$1" ]; then
-#     if [ "$1" == "stable" ]; then
-#       git checkout "44fbe8b539d997b7be7717587685138ac5ebbe10"
-#     else
-#       git checkout "$1"
-#       git merge "origin/$1"
-#     fi
-#   else
-#     git checkout master
-#     git merge origin/master
-#   fi
-
-#   ./configure --sysconfdir=/etc --with-alsa --with-pipe --with-avahi --with-ssl=openssl --with-metadata --with-systemd
-#   make
-#   sudo make install
-
-#   if $new_install; then
-#     sudo systemctl enable shairport-sync
-#     sudo systemctl start shairport-sync
-#   fi
-#   printf "\n${GREEN}Done.${NC}\n"
-# }

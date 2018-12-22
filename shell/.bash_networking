@@ -1,15 +1,15 @@
 #!/bin/bash
 
+function rpc {
+  if [ -z "$1" ]; then
+    echo "Usage:"
+    echo "rpc '{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":232367}'"
+  else
+    curl -X POST --data "$1" http://localhost:8545
+  fi
+}
+
 function y {
-  # local ssid=''
-  # get_ssid ssid
-
-  # if [ "$ssid" == "---" ]; then
-  #   echo "@HOME"
-  # else
-  #   echo "SSID: $ssid"
-  # fi
-
   declare -a topics=(
     "diagnostics"
     "doorbell"

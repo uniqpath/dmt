@@ -20,7 +20,6 @@ function gpio {
   opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     printf "Use -h to see valid options\n\n"
-    #matching_opt="aaa" # default
     return
   fi
 
@@ -335,10 +334,6 @@ function getUserFromLastScan {
   eval "$1='$_user'"
 }
 
-#
-#
-#
-#
 function sshNameToIP {
   if [ -z "$2" ]; then
     cat ~/.ssh/config | grep "Host"
@@ -347,10 +342,6 @@ function sshNameToIP {
 
     if [ -f ~/.ssh/config ]; then
       local parserScript="${DMT_PLATFORM_BIN}/ssh_parse_host"
-
-      # if [ ! -f "$parserScript" ] && [ -n "$DMT_PLATFORM" ]; then
-      #   parserScript="${DMT_SCRIPTS}/bin/${DMT_PLATFORM}/ssh_parse_host"
-      # fi
 
       if [ -f "$parserScript" ]; then
         host=$("$parserScript" "$2") # this will match by prefix (for example "a" would match if "ap" was defined in .ssh/config)
@@ -582,7 +573,7 @@ function devices {
     shift
 
     case "$matching_opt" in
-      edit) # warning update $opts upon change
+      edit)
         local file="${DMT_USER_PATH}/devices/devices.json"
         echo $file
         if [ -f "$file" ]; then
@@ -596,7 +587,7 @@ function devices {
         for_all_devices "list"
         ;;
 
-      ping) # warning update $opts upon change
+      ping)
         for_all_devices
         ;;
 
