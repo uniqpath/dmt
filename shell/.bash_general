@@ -193,15 +193,17 @@ DMT_NODE_CORE="$DMT_CORE/node"
 DMT_RUST_CORE="$DMT_CORE/rust"
 
 DMT_RUNTIMES=(node rust)
-for runtime in "${DMT_RUNTIMES[@]}"
-do
-  if [ ! -f "$DMT_CORE/${runtime}" ]; then
-    mkdir -p "$DMT_CORE/${runtime}"
-  fi
-done
-if [ ! -f "$DMT_CORE/static" ]; then
-  mkdir -p "$DMT_CORE/static"
-fi
+
+# for runtime in "${DMT_RUNTIMES[@]}"
+# do
+#   if [ ! -f "$DMT_CORE/${runtime}" ]; then
+#     mkdir -p "$DMT_CORE/${runtime}"
+#   fi
+# done
+
+# if [ ! -f "$DMT_CORE/static" ]; then
+#   mkdir -p "$DMT_CORE/static"
+# fi
 
 DMT_SCRIPTS="$LOGNAME_HOME/etc/scripts"
 

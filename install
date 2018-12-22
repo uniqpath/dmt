@@ -58,7 +58,41 @@ function compile {
   cd "$cwd"
 }
 
-if [ -z "$arg" ]; then # install here
+function install_core_source {
+  if [ -d "./core" ]; then
+    if [ -d "./core/.git" ]; then
+      cd core
+      printf "${CYAN}Updating DMT-CORE from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
+      git pull
+      cd ..
+    else
+      printf "${YELLOW}core already exists but is not a git repo, not updating${NC}\n"
+    fi
+  else
+    printf "${CYAN}Pulling DMT-CORE from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
+    git clone git@github.com:uniqpath/dmt-core.git core
+    local cwd="`pwd`"
+    cd "core/node/.scripts"
+    ./symlink_dmt_deps
+    cd "$cwd"
+  fi
+}
+
+function install_core_bin {
+  if [ -d "./bin" ]; then
+    if [ -d "./bin/.git" ]; then
+      cd bin
+      printf "\n${CYAN}Updating DMT-BIN from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
+      git pull
+      cd ..
+    fi
+  else
+    printf "\n${CYAN}Pulling DMT-BIN from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
+    git clone git@github.com:uniqpath/dmt-bin.git bin
+  fi
+}
+
+if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
 
     COMPILED_BASH_ALIASES="$HOME/.dmt/etc/.bash_aliases_bundle"
 
@@ -68,8 +102,6 @@ if [ -z "$arg" ]; then # install here
       printf "${RED}Error: compilation was supposed to produce $COMPILED_BASH_ALIASES${NC}\n"
       exit
     fi
-
-    echo $HOME
 
     if [ -f "$HOME/.bash_aliases" ] || [ -L "$HOME/.bash_aliases" ]; then # -L : we check for broken symlink (-f would return true for working symlink but not for a broken one)
       if [ -f "$HOME/.bash_aliases" ] && [ "$(head -3 "$HOME/.bash_aliases" | tail -1)" == "# DMT ALIASES" ]; then
@@ -88,7 +120,12 @@ if [ -z "$arg" ]; then # install here
       "$after_update_hook"
     fi
 
-    printf "\n${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname)${NC}\n\n"
+    if [ "$arg" == "full" ]; then
+      install_core_source
+      install_core_bin
+    fi
+
+    printf "\n${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT SYSTEM ∞${NC} installed on ${CYAN}$(hostname)${NC}\n\n"
     printf "Enter ${GREEN}dmt help${NC} to start.\n"
 
     . "$HOME/.bash_aliases"

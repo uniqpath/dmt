@@ -1,6 +1,7 @@
-# DMT SHELL
+## Prerequisites
 
-**Command line** in general is for UNIX people that more or less know what they are doing... GUI was invented later in the history of computing.
+- `git`
+- `node.js` v11.4.0 (preferred) or up
 
 ## Install
 
@@ -8,29 +9,25 @@
 cd ~
 git clone git@github.com:uniqpath/dmt.git .dmt
 cd .dmt
-./install
+./install full
 ```
 
-Try:
+## Verify
+
 ```bash
 dmt version
 ```
 
-Example:
+or just
 
-```
-     ∞ DMT ∞
-Liberate yourself.
-v1.0.0 ■ 2018-12-22
-
-357 bash functions
-in ~/.bash_aliases
+```bash
+dmt
 ```
 
-Troubleshooting:
+## Troubleshooting
 
-- if `dmt version` doesn't work, try closing terminal tab or logout / log back in in case of ssh session.
-- make sure you have something like this:
+- if it doesn't work (unknown command), try closing terminal tab or logout / log back in in case of ssh session.
+- also make sure you have something like this:
 
 ```bash
 # Alias definitions.
@@ -41,11 +38,16 @@ fi
 
 in `.bashrc`, `.profile` or `.bash_profile`.
 
-# DMT CORE
+## Start the daemon(s)
 
-## Install
+```
+dmt start
+```
 
-```bash
-cd ~/.dmt
-git clone git@github.com:uniqpath/dmt-core.git core
+## Verify
+
+Check if the daemons are actually running and observe the log:
+
+```
+dmt log
 ```

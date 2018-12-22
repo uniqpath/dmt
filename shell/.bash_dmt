@@ -44,8 +44,10 @@ function dmt {
     "shares"
     "services"
     "providers"
+    "next"
     "update"
     "renew"
+    "remove"
     "log"
     "log2"
     "install"
@@ -53,7 +55,8 @@ function dmt {
     "restart"
     "stop"
     "check"
-    "uninstall"
+    "deactivate"
+    "remove"
     "bin"
   )
 
@@ -134,6 +137,10 @@ function dmt {
       dmt_devices "$@"
       ;;
 
+    next)
+      dmt_next
+      ;;
+
     update) # updates the whole folder, doesn't restart the service
       dmt_update "$@"
       ;;
@@ -142,18 +149,22 @@ function dmt {
       dmt_renew "$@"
       ;;
 
+    remove)
+      dmt_remove
+      ;;
+
     install)
       dmt_install "$@"
       ;;
 
-    uninstall)
-      dmt_uninstall
+    deactivate)
+      dmt_deactivate
       ;;
 
     start)
       printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is starting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" start
-      printf "\n${GREEN}Daemons should now be running, use ${MAGENTA}dmt check${NC} ${GREEN}for quick self-test.${NC}\n"
+      printf "\n${GREEN}Daemons should now be running, use ${GREEN}dmt log${NC} ${GREEN}to see if so.${NC}\n"
       ;;
 
     restart)
@@ -183,15 +194,26 @@ function dmt {
 }
 
 function dmt_help {
-  printf "${YELLOW}Info:${NC}\n\n"
+  printf "${YELLOW}Info:${NC}\n"
   printf "${GREEN}dmt help ${GRAY}shows this help${NC}\n"
-  printf "${GREEN}dmt docs ${GRAY}shows documentation in a browser${NC}\n"
-  printf "${GREEN}dmt version ${GRAY}shows dmt version${NC}\n"
+  printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a local browser${NC}\n"
+  printf "${GREEN}dmt version ${GRAY}shows dmt version, like v$(cat "$DMT_PATH/.version")${NC}\n"
   echo
-  printf "${YELLOW}Management:${NC}\n\n"
-  printf "${GREEN}dmt update ${GRAY}or just ${GREEN}update${GRAY} gets the latest version${NC}\n"
-  printf "${GREEN}dmt install ${GRAY}spreads dmt to another machine, use ${NC}${WHITE}dmt install --with-user ${GRAY}to include user dir${NC}\n"
-  printf "${GREEN}dmt uninstall ${GRAY}disables the package${NC}\n"
+  printf "${YELLOW}Daemon presence (in Unix sense):\n${NC}"
+  printf "${CYAN}■ daemons will not persist after reboot — to set this up, please ${MAGENTA}use the docs.${NC}"
+  echo
+  printf "${GREEN}dmt start ${GRAY}starts the background services 🚀🎸${NC}\n"
+  printf "${GREEN}dmt stop ${GRAY}${NC}\n"
+  printf "${GREEN}dmt restart ${GRAY}${NC}\n"
+  echo
+  printf "${GREEN}dmt info ${GRAY}gets information about current device${NC}\n"
+  printf "${GREEN}dmt log ${GRAY}gets latest log of recent activity (only if daemons are running)${NC}\n"
+  echo
+  printf "${YELLOW}Spreading and dissemination:${NC}\n"
+  printf "${GREEN}dmt next ${GRAY}gets the latest code from public repo on github (DMT SYSTEM never auto-updates)${NC}\n"
+  printf "${GREEN}dmt update [host] ${GRAY}or ${GREEN}dmt install [host] ${GRAY}clones dmt to another machine of yours if you wish so (via SSH)${NC}\n"
+  printf "${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get back just do ${CYAN}./install${GRAY})${NC}\n"
+  printf "${GREEN}dmt remove ${GRAY}self-destroys on this machine (except the user settings)${NC}\n"
 }
 
 function dmt_docs {
@@ -245,6 +267,31 @@ function dmt_devices {
   devices "$@"
 }
 
+function dmt_next {
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  local cwd="`pwd`"
+
+  cd "$DMT_PATH"
+  git pull
+
+  if [ -d "./core/.git" ]; then
+    cd core
+    git pull
+  fi
+  if [ -d "./bin/.git" ]; then
+    cd bin
+    git pull
+  fi
+
+  rel
+
+  cd "$cwd"
+}
+
 function dmt_install {
 
   # multi install: dmt update dev1 dev2 ... devn
@@ -263,7 +310,7 @@ function dmt_install {
 }
 
 function dmt_update {
-  if [ -z "$1" ] || [ "$1" == "--with-temp" ]; then
+  if [ -z "$1" ]; then
     if dev_machine; then
       printf "${RED}Prevented on dev machine${NC}\n"
     fi
@@ -301,6 +348,12 @@ function dmt_renew {
   fi
 }
 
+function dmt_remove {
+  printf "${GRAY}Please copy and execute:${NC}\n\n"
+  printf "1) ${GREEN}dmt deactivate${NC}\n"
+  printf "2) ${RED}rm -rf ~/.dmt${NC}\n"
+}
+
 function dmt_restart {
   local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/etc/onboot/daemons restart\\\""
 
@@ -327,7 +380,7 @@ function dmt_restart {
   fi
 }
 
-function dmt_uninstall {
+function dmt_deactivate {
   if dev_machine; then
     printf "${RED}Prevented on dev machine${NC}\n"
     return
@@ -346,13 +399,10 @@ function dmt_uninstall {
     echo
     printf "${CYAN}To reinstall${NC}\n"
     printf "${GREEN}cd $HOME/.dmt${NC}\n"
-    printf "${GREEN}./install here${NC}\n"
+    printf "${GREEN}./install${NC}\n"
     echo
     printf "${CYAN}To remove the unused directory${NC}\n"
     printf "${GREEN}rm -rf $HOME/.dmt${NC}\n"
-    echo
-    printf "${CYAN}To install on a fresh system${NC}\n"
-    printf "${GREEN}curl -L https://uniqpath.com/dmt_install | bash${NC}\n"
     echo
     printf "${WHITE}If you want to confirm that dmt is uninstalled you have to first reload the shell.${NC}\n"
   else
