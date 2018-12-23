@@ -8,7 +8,7 @@ function manage_daemon {
   local DAEMON_MANAGER="${DAEMONS_PATH}/manager.js"
 
   if [ ! -f "$DAEMON_MANAGER" ]; then
-    echo "Error: missing ${DAEMON_MANAGER}"
+    echo "Missing daemons code in dmt-core, please get the code from Microsoft GitHub 🚀"
     exit
   fi
 

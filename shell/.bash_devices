@@ -295,6 +295,11 @@ function getLastScanFilePath {
   eval "$1='$_lastScanFilePath'"
 }
 
+function getDMTDeviceResolverPath {
+  local _deviceResolverPath="${DMT_NODE_CORE}/dmt-controller/cli/deviceResolve.js"
+  eval "$1='$_deviceResolverPath'"
+}
+
 function getLastScanSearchScriptPath {
   local _lastScanSearchPath="${DMT_NODE_CORE}/dmt-net/lib/net-scanner/lastScanSearch.js"
   eval "$1='$_lastScanSearchPath'"
@@ -302,7 +307,7 @@ function getLastScanSearchScriptPath {
 
 function getIpFromLastScan {
   local lastScan
-  getLastScanSearchScriptPath lastScan
+  getDMTDeviceResolverPath lastScan
 
   local line=$(node "$lastScan" "$2" | grep "ip:")
   local arr=(${line/\:/ })
@@ -313,7 +318,7 @@ function getIpFromLastScan {
 
 function getNameFromLastScan {
   local lastScan
-  getLastScanSearchScriptPath lastScan
+  getDMTDeviceResolverPath lastScan
 
   local line=$(node "$lastScan" "$2" | grep "name:")
   local arr=(${line/\:/ })
@@ -325,7 +330,7 @@ function getNameFromLastScan {
 
 function getUserFromLastScan {
   local lastScan
-  getLastScanSearchScriptPath lastScan
+  getDMTDeviceResolverPath lastScan
 
   local line=$(node "$lastScan" "$2" | grep "user:")
   local arr=(${line/\:/ })

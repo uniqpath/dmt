@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -d ~/.dmt ]; then
+  source ./.bash_util
+  printf "${MAGENTA}~/.dmt directory already exists, please remove it first and then run the one-line-install command again${NC}\n"
+else
+  cd ~
+  git clone https://github.com/uniqpath/dmt .dmt
+  cd .dmt
+  ./install full
+fi

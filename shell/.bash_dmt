@@ -45,6 +45,7 @@ function dmt {
     "services"
     "providers"
     "next"
+    "core"
     "update"
     "renew"
     "remove"
@@ -71,7 +72,9 @@ function dmt {
   local matching_opt=''
   opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
-    matching_opt="help" # default
+    printf "Try ${GREEN}dmt help${NC}\n"
+    #matching_opt="help" # default
+    return
   fi
 
   shift
@@ -141,6 +144,10 @@ function dmt {
       dmt_next
       ;;
 
+    core)
+      dmt_core "$@"
+      ;;
+
     update) # updates the whole folder, doesn't restart the service
       dmt_update "$@"
       ;;
@@ -164,7 +171,7 @@ function dmt {
     start)
       printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is starting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" start
-      printf "\n${GREEN}Daemons should now be running, use ${GREEN}dmt log${NC} ${GREEN}to see if so.${NC}\n"
+      printf "\nDaemons should now be running, use ${GREEN}dmt log${NC} to see if true.${NC}\n"
       ;;
 
     restart)
@@ -196,28 +203,33 @@ function dmt {
 function dmt_help {
   printf "${YELLOW}Info:${NC}\n"
   printf "${GREEN}dmt help ${GRAY}shows this help${NC}\n"
-  printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a local browser${NC}\n"
+  printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a browser${NC}\n"
   printf "${GREEN}dmt version ${GRAY}shows dmt version, like v$(cat "$DMT_PATH/.version")${NC}\n"
   echo
-  printf "${YELLOW}Daemon presence (in Unix sense):\n${NC}"
-  printf "${CYAN}■ daemons will not persist after reboot — to set this up, please ${MAGENTA}use the docs.${NC}"
+  printf "${YELLOW}Unix background processes:\n${NC}"
+  printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
   echo
   printf "${GREEN}dmt start ${GRAY}starts the background services 🚀🎸${NC}\n"
-  printf "${GREEN}dmt stop ${GRAY}${NC}\n"
-  printf "${GREEN}dmt restart ${GRAY}${NC}\n"
+  printf "${GREEN}dmt stop ${GRAY}self-describing${NC}\n"
+  printf "${GREEN}dmt restart ${GRAY}self-describing${NC}\n"
   echo
   printf "${GREEN}dmt info ${GRAY}gets information about current device${NC}\n"
+  printf "${GREEN}dmt @hostOrIp info ${GRAY}gets information about host or ip on local network${NC}\n"
+  printf "${GREEN}dmt @@remoteIpOrHost info ${GRAY}gets information about remote device on the other side of router WAN port${NC}\n"
+  echo
   printf "${GREEN}dmt log ${GRAY}gets latest log of recent activity (only if daemons are running)${NC}\n"
+  printf "${GREEN}dmt @hostOrIp log ${GRAY}self-describing${NC}\n"
+  printf "${GREEN}dmt @@remoteIpOrHost log ${GRAY}self-describing${NC}\n"
   echo
   printf "${YELLOW}Spreading and dissemination:${NC}\n"
   printf "${GREEN}dmt next ${GRAY}gets the latest code from public repo on github (DMT SYSTEM never auto-updates)${NC}\n"
   printf "${GREEN}dmt update [host] ${GRAY}or ${GREEN}dmt install [host] ${GRAY}clones dmt to another machine of yours if you wish so (via SSH)${NC}\n"
-  printf "${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get back just do ${CYAN}./install${GRAY})${NC}\n"
-  printf "${GREEN}dmt remove ${GRAY}self-destroys on this machine (except the user settings)${NC}\n"
+  printf "${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY})${NC}\n"
+  printf "${GREEN}dmt remove ${GRAY}self-destroys on this machine (except the user definitions and data)${NC}\n"
 }
 
 function dmt_docs {
-  open "$DMT_PATH/docs/index.html"
+  open https://github.com/uniqpath/dmt/blob/master/docs/README.md
 }
 
 function e {
@@ -276,18 +288,60 @@ function dmt_next {
   local cwd="`pwd`"
 
   cd "$DMT_PATH"
-  git pull
+  git fetch
+  git reset --hard origin/master
 
   if [ -d "./core/.git" ]; then
     cd core
-    git pull
+    git fetch
+    git reset --hard origin/master
   fi
   if [ -d "./bin/.git" ]; then
     cd bin
-    git pull
+    git fetch
+    git reset --hard origin/master
   fi
 
   rel
+
+  cd "$cwd"
+}
+
+function dmt_core {
+  printf "${MAGENTA}CURRENT DMT-CORE REPO${NC}\n"
+  cat "$DMT_CORE/.git/config" | grep "url ="
+
+  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt core [handle]${NC} ${GRAY}replaces current core with the one at github.com/[handle]/dmt${NC}\n"
+    return
+  fi
+
+  local DMT_CORE_BACKUP="$DMT_PATH/cores_extra/prev-core-backup"
+
+  if [ -d "$DMT_CORE_BACKUP" ]; then
+    rm -rf "$DMT_CORE_BACKUP"
+  fi
+
+  mkdir -p "$DMT_CORE_BACKUP"
+
+  if [ -d "$DMT_CORE" ]; then
+    printf "${GRAY}Backing up current core to ${YELLOW}${DMT_CORE_BACKUP}${NC}\n"
+    mv "$DMT_CORE" "$DMT_CORE_BACKUP"
+  fi
+
+  local cwd="`pwd`"
+
+  cd "$DMT_PATH"
+  git clone "https://github.com/${1}/dmt-core" core
+
+  if [ -f "$DMT_NODE_CORE/.scripts" ]; then
+
+    cd "$DMT_NODE_CORE/.scripts"
+    ./symlink_dmt_deps
+  fi
+
+  dmt_core "-h"
 
   cd "$cwd"
 }

@@ -1,8 +1,10 @@
 deploy
+tagversion
 todo.txt
 /bin
 /log
 /core
+/cores_extra
 /etc/.bash_aliases_bundle
 /etc/.bash_aliases_slim
 /shell/.bash_staging

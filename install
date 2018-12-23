@@ -62,14 +62,14 @@ function install_core_source {
   if [ -d "./core" ]; then
     if [ -d "./core/.git" ]; then
       cd core
-      printf "${CYAN}Updating DMT-CORE from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
+      printf "${CYAN}Updating ${MAGENTA}dmt-core${NC} from public repository on ${GRAY}Microsoft GitHub${NC}\n"
       git pull
       cd ..
     else
       printf "${YELLOW}core already exists but is not a git repo, not updating${NC}\n"
     fi
   else
-    printf "${CYAN}Pulling DMT-CORE from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
+    printf "${CYAN}Pulling ${MAGENTA}dmt-core${NC} from public repository on ${GRAY}Microsoft GitHub${NC}\n"
     git clone https://github.com/uniqpath/dmt-core core
     local cwd="`pwd`"
     cd "core/node/.scripts"
@@ -82,12 +82,12 @@ function install_core_bin {
   if [ -d "./bin" ]; then
     if [ -d "./bin/.git" ]; then
       cd bin
-      printf "\n${CYAN}Updating DMT-BIN from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
+      printf "\n${CYAN}Updating ${MAGENTA}dmt-bin${NC} from public repository on ${GRAY}Microsoft GitHub${NC}\n"
       git pull
       cd ..
     fi
   else
-    printf "\n${CYAN}Pulling DMT-BIN from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
+    printf "\n${CYAN}Pulling ${MAGENTA}dmt-bin${NC} from public repository on ${GRAY}Microsoft GitHub${NC}\n"
     git clone https://github.com/uniqpath/dmt-bin bin
   fi
 }
@@ -123,6 +123,15 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
     if [ "$arg" == "full" ]; then
       install_core_source
       install_core_bin
+    fi
+
+    if [ -d "$HOME/user/def" ]; then
+      if [ -d "$HOME/.dmt/user/def" ]; then
+        rm "$HOME/.dmt/user"
+      fi
+
+      ln -s "$HOME/user" "$HOME/.dmt/user"
+      printf "${MAGENTA}Symlinked ${CYAN}~/.dmt/user${NC} directory to existing directory ${CYAN}$HOME/user${NC}\n"
     fi
 
     printf "\n${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT SYSTEM ∞${NC} installed on ${CYAN}$(hostname)${NC}\n\n"

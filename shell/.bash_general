@@ -245,13 +245,13 @@ function rel {
   fi
 
   if [ -f ~/.bash_aliases ]; then
-    source ~/.bash_aliases
+    . ~/.bash_aliases
   fi
   if [ -f ~/.bashrc ]; then
-    source ~/.bashrc
+    . ~/.bashrc
   fi
   if [ -f ~/.bash_profile ]; then
-    source ~/.bash_profile
+    . ~/.bash_profile
   fi
 }
 
@@ -1181,8 +1181,7 @@ function getip {
     fi
   else
     local lastScan
-    getLastScanSearchScriptPath lastScan
-    node "$lastScan" "$1"
+    getDMTDeviceResolverPath lastScan
 
     local line=$(node "$lastScan" "$1" | grep "ip:")
     local arr=(${line/\:/ })

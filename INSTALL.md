@@ -12,6 +12,12 @@ cd .dmt
 ./install full
 ```
 
+or one line:
+
+```bash
+curl -L https://raw.githubusercontent.com/uniqpath/dmt/master/shell/web-one-line-install-script | bash
+```
+
 ## Verify
 
 ```bash
