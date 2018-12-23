@@ -217,7 +217,11 @@ function awesome_cd {
 function p {
   if macos; then
 
-    AWESOME_SILENCE=true awesome_cd ~/Projects/node "$1"
+    AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node/dmt-controller "$1"
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Projects/node "$1"
+    fi
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/Projects/rust "$1"
@@ -287,7 +291,11 @@ function p {
     # nice side effect:
     # p -> /var/projects
     # p (second time) -> /var/www
-    AWESOME_SILENCE=true awesome_cd /var/projects "$1"
+    AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node/dmt-controller "$1"
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd /var/projects "$1"
+    fi
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node "$1"

@@ -1,10 +1,3 @@
-How to install from web:
-
-curl -L https://uniqpath.com/dmt-install | bash
-
-# *********************************************
-
-
 MANUAL ADD FOR BETTER PROMPT (PARSING GIT BRANCH, SCREEN NAME):
 
 *** STEP 1)
@@ -73,7 +66,7 @@ fi
 Warning: >>>> REPLACE /home/pi WITH CORRECT PATH
 
 
-ONE LAST THING:
+MORE:
 
 on macOS (when using it as a target - recipient of rsync connection),
 it's good to install rsync v3+ via homebrew, and add this to .bashrc:

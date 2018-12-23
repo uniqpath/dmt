@@ -57,3 +57,11 @@ Check if the daemons are actually running and observe the log:
 ```
 dmt log
 ```
+
+## Update
+
+To pull stable changes from github from the three repositories: [dmt](https://github.com/uniqpath/dmt), [dmt-core](https://github.com/uniqpath/dmt-core), [dmt-bin](https://github.com/uniqpath/dmt-bin), use this command:
+
+```
+dmt next
+```

@@ -13,22 +13,6 @@ if [ "$1" == "from-dmt-install" ]; then
   shift
 fi
 
-# deploy including user and .bash_staging
-#with_user=false
-with_user=true
-# decided that this is the dedault option!! will display warning instead of sometimes not deploying with user (for "known" devices)
-
-# if [ "$1" == "--with-user" ] || [ "$1" == "--user" ]; then
-#   with_user=true
-#   shift
-# fi
-
-only_shell=false
-if [ "$1" == "--only-shell" ]; then
-  only_shell=true
-  shift
-fi
-
 arg="$1"
 
 if [ "$arg" == "--help" ] || [  "$arg" == "-h" ]; then
@@ -43,7 +27,6 @@ if [ "$arg" == "--help" ] || [  "$arg" == "-h" ]; then
   else
     printf "${GREEN}$0${GRAY} link-installs current directory on this device${NC}\n"
     printf "${GREEN}$0 user@host ${GRAY}installs on user@host, shortcut ${GREEN}$0 ap ${GRAY}installs on ${DMT_AP_DEFAULT_HOST}${NC}\n"
-    # printf "${GREEN}$0 --with-user user@host ${GRAY}includes user directory${NC}\n"
   fi
 
   exit
@@ -125,17 +108,11 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       install_core_bin
     fi
 
-    if [ -d "$HOME/user/def" ]; then
-      if [ -d "$HOME/.dmt/user/def" ]; then
-        rm "$HOME/.dmt/user"
-      fi
-
-      ln -s "$HOME/user" "$HOME/.dmt/user"
-      printf "${MAGENTA}Symlinked ${CYAN}~/.dmt/user${NC} directory to existing directory ${CYAN}$HOME/user${NC}\n"
-    fi
-
     printf "\n${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT SYSTEM ∞${NC} installed on ${CYAN}$(hostname)${NC}\n\n"
-    printf "Enter ${GREEN}dmt help${NC} to start.\n"
+    printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${MAGENTA}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
+    printf "${GRAY}If this works, then try to log out of terminal and back in.${NC}\n"
+    printf "${GRAY}If it still works, ${GREEN}then everything is set up correctly.${NC}\n"
+    printf "${GRAY}If not, read the docs at ${CYAN}https://github.com/uniqpath/dmt/blob/master/INSTALL.md${NC}\n"
 
     . "$HOME/.bash_aliases"
 
@@ -164,18 +141,7 @@ else # install on device
 
     compile
 
-    if $only_shell; then
-      dirsync ~/.dmt/shell "${target}/shell"
-    else
-      if $with_user || [ -n "$matching_host" ] || [ "$host" == "$DMT_AP_DEFAULT_HOST" ]; then
-        if [ "$host" == "$DMT_AP_DEFAULT_HOST" ]; then
-          printf "${RED}Warning: ${CYAN}copying with user directory to potentially untrusted device${NC}\n"
-        fi
-        dirsync --dmt_with_user ~/.dmt "$target"
-      else
-        dirsync ~/.dmt "$target"
-      fi
-    fi
+    dirsync ~/.dmt "$target"
 
     remote --silent -h "$host" "cd ~/.dmt; ./install"
 

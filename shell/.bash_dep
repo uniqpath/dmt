@@ -491,23 +491,16 @@ function dirsync {
     local e_params="ssh -T -o Compression=no -x" # optimized for LAN !!
     local grep_ignore="Warning: Permanently added"
 
-    if $dmt_with_user; then # note: --no-ignore doesn't have an effect here because we don't actually need it and it would complicate the code:
-      rsync $params --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$") --exclude-from <(cat ./.deployignore | grep -v "/user$" | grep -v ".bash_staging$") -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
-    else
-      if [ -f "$DMT_PATH/etc/.deployignore" ] && ! $no_ignore ; then
-        params="${params} --exclude-from $DMT_PATH/etc/.deployignore"
-      fi
-
-      if [ -f "./.deployignore" ] && ! $no_ignore; then
-        params="${params} --exclude-from ./.deployignore"
-      fi
-
-      rsync $params -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
-      # echo $? ==> tried this but still got result 0 ("succes") even if connection failed...
-      #return $?
-      # printf "\n${WHITE}Ignoring ${GRAY}(in addition to ~/.deployignore):${MAGENTA}${NC} "
-      # cat ./.deployignore | paste -sd "," -
+    if [ -f "$DMT_PATH/etc/.deployignore" ] && ! $no_ignore ; then
+      params="${params} --exclude-from $DMT_PATH/etc/.deployignore"
     fi
+
+    if [ -f "./.deployignore" ] && ! $no_ignore; then
+      params="${params} --exclude-from ./.deployignore"
+    fi
+
+    rsync $params -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+
     echo
   fi
 }

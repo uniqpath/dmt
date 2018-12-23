@@ -1,9 +1,55 @@
 <html>
 <pre>
 
-.dmt is a suite of command-line tools for Unix based systems like Linux and macOS.
+DMH SHELL is a suite of command-line tools for Unix based systems like Linux and macOS.
 
--= THEY MAKE LIFE SIMPLER =-
+Reasons to exist:
+
+- To serve as a stable playground for developing easy to install, update and share p2p, IoT and other modular software.
+- To equalize the command line between Linux and macOS devices, including servers and single board computers.
+- To equalize the command line (and broader functionality via packages) between all your PC / IoT machines.
+- To optimize for efficiency: maximum amount of functionality / impact for minimum amount of typing / thinking.
+
+Design goals:
+
+- Very easy install and clean removal.
+- Small initial download size.
+- Once installed on one of your machines, it can spread "like a virus" to all the others (only on your request, technically impossible otherwise).
+- Integrity and safety (no hidden traps).
+- Commands with as little keystrokes as possible - you can most of the time type just a few letters of the command and command line will know exactly what you ment. This is useful, but especially useful when controlling one or more of your machines from a mobile phone.
+
+You have to make sure your `~/.bash_aliases` is actually included from `.bashrc`, `.bash_profile` or `.profile`, like this:
+
+```
+# Alias definitions.
+if [ -f ~/.bash_aliases ]; then
+ . ~/.bash_aliases
+fi
+```
+
+This is true by default on most systems, so it should just work. Try:
+
+`dmt`
+
+To learn a few basic commands that will save you time, please try:
+
+Help
+
+    dmt help
+
+To see some examples of commands:
+
+    dmt docs
+
+Spreading and dissemination
+
+Every useful piece of code should have an easy way to replicate itself, try:
+
+    dmt update pi@raspberry.local
+
+if you have one of the RaspberryPy computers with default settings on your network. Now it too has a copy of `.dmt` framework installed.
+
+Tutorial
 
 You can try this for start:
 
@@ -92,8 +138,6 @@ Run this program:
 Clean up:
 
   rm -rf ~/dmt-test
-
-What you saw here are just four commands ("c", "l", "t" and "r"), to learn about much more do this:
 
 </pre>
 </html>

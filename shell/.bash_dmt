@@ -43,6 +43,7 @@ function dmt {
     "devices"
     "shares"
     "services"
+    "provider"
     "providers"
     "next"
     "core"
@@ -59,6 +60,8 @@ function dmt {
     "deactivate"
     "remove"
     "bin"
+    "music"
+    "search"
   )
 
   if dev_machine; then
@@ -72,9 +75,13 @@ function dmt {
   local matching_opt=''
   opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
-    printf "Try ${GREEN}dmt help${NC}\n"
-    #matching_opt="help" # default
-    return
+    if [ -z "$hosts" ]; then
+      printf "Try ${GREEN}dmt help${NC}\n"
+      #matching_opt="help" # default
+      return
+    else
+      matching_opt="info"
+    fi
   fi
 
   shift
@@ -96,16 +103,75 @@ function dmt {
       fi
       ;;
 
-    log)
+    search)
       if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" log "$@"
+        search "${hosts}" "$@"
       else
-        node "$DMT_CLI" log "$@"
+        search "$@"
       fi
       ;;
 
-    log2)
-      dmt_log_old "$@"
+    music)
+      if [ -n "$hosts" ]; then
+        m "${hosts}" "$@"
+      else
+        m "$@"
+      fi
+      ;;
+
+    log)
+
+      declare -a opts=(
+        "dmt-controller"
+        "search-and-play"
+      )
+
+      if [ -z "$1" ] || [ "$1" == "-h" ]; then
+        printf "${YELLOW}All logs:${NC}\n"
+
+        for service in "${opts[@]}"
+        do
+          printf "\n${MAGENTA}${service}${NC}\n"
+          if [ "$service" == "dmt-controller" ]; then
+            printf "  * default and special because you can call it on remote devices, example — ${GRAY}dmt ${GREEN}@host ${GRAY}log${NC}\n"
+          fi
+        done
+        if [ "$1" == "-h" ]; then
+          return
+        fi
+      fi
+
+      local matching_opt=''
+      opts_matcher matching_opt "$1" "${opts[@]}"
+      if [ $? -ne 0 ]; then # error
+
+        matching_opt="dmt-controller" # default
+        return
+      fi
+
+      shift
+
+      case "$matching_opt" in
+
+        dmt-controller)
+          if [ -n "$hosts" ]; then
+            node "$DMT_CLI" "${hosts}" log "$@"
+          else
+            node "$DMT_CLI" log "$@"
+          fi
+          ;;
+
+        search-and-play)
+          local logfile="$DMT_PATH/log/search-and-play.log"
+          if [ -f "$logfile" ]; then
+            tail -f "$logfile"
+          else
+            printf "${RED}${logfile} is missing${NC}\n"
+          fi
+          ;;
+
+      esac
+
       ;;
 
     shares)
@@ -121,6 +187,14 @@ function dmt {
         node "$DMT_CLI" "${hosts}" services "$@"
       else
         node "$DMT_CLI" services "$@"
+      fi
+      ;;
+
+    provider)
+      if [ -n "$hosts" ]; then
+        node "$DMT_CLI" "${hosts}" provider "$@"
+      else
+        node "$DMT_CLI" provider "$@"
       fi
       ;;
 
@@ -171,7 +245,7 @@ function dmt {
     start)
       printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is starting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" start
-      printf "\nDaemons should now be running, use ${GREEN}dmt log${NC} to see if true.${NC}\n"
+      printf "\n${GRAY}Daemons should now be running, use ${GREEN}dmt log ${GRAY}to see if true.${NC}\n"
       ;;
 
     restart)
@@ -197,6 +271,7 @@ function dmt {
     cd)
       dmt_cd
       ;;
+
   esac
 }
 
@@ -209,12 +284,12 @@ function dmt_help {
   printf "${YELLOW}Unix background processes:\n${NC}"
   printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
   echo
-  printf "${GREEN}dmt start ${GRAY}starts the background services 🚀🎸${NC}\n"
+  printf "${GREEN}dmt start ${GRAY}starts the background services 💡🚀🎸${NC}\n"
   printf "${GREEN}dmt stop ${GRAY}self-describing${NC}\n"
   printf "${GREEN}dmt restart ${GRAY}self-describing${NC}\n"
   echo
   printf "${GREEN}dmt info ${GRAY}gets information about current device${NC}\n"
-  printf "${GREEN}dmt @hostOrIp info ${GRAY}gets information about host or ip on local network${NC}\n"
+  printf "${GREEN}dmt @hostOrIp info ${GRAY}gets information about a device on local network${NC}\n"
   printf "${GREEN}dmt @@remoteIpOrHost info ${GRAY}gets information about remote device on the other side of router WAN port${NC}\n"
   echo
   printf "${GREEN}dmt log ${GRAY}gets latest log of recent activity (only if daemons are running)${NC}\n"
@@ -223,13 +298,18 @@ function dmt_help {
   echo
   printf "${YELLOW}Spreading and dissemination:${NC}\n"
   printf "${GREEN}dmt next ${GRAY}gets the latest code from public repo on github (DMT SYSTEM never auto-updates)${NC}\n"
-  printf "${GREEN}dmt update [host] ${GRAY}or ${GREEN}dmt install [host] ${GRAY}clones dmt to another machine of yours if you wish so (via SSH)${NC}\n"
+  printf "${GREEN}dmt update [host] ${GRAY}or ${GREEN}dmt install [host] ${GRAY}clones dmt to another machine of yours (via SSH)${NC}\n"
   printf "${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY})${NC}\n"
   printf "${GREEN}dmt remove ${GRAY}self-destroys on this machine (except the user definitions and data)${NC}\n"
 }
 
 function dmt_docs {
-  open https://github.com/uniqpath/dmt/blob/master/docs/README.md
+  if [ -f ~/.dmt/docs/index.html ]; then
+    open ~/.dmt/docs/index.html
+  else
+    printf "${RED}Docs missing${NC}\n"
+  fi
+  #open https://github.com/uniqpath/dmt/blob/master/docs/README.md
 }
 
 function e {
@@ -296,6 +376,12 @@ function dmt_next {
     git fetch
     git reset --hard origin/master
   fi
+
+  if [ -f "$DMT_NODE_CORE/.scripts" ]; then
+    cd "$DMT_NODE_CORE/.scripts"
+    ./symlink_dmt_deps
+  fi
+
   if [ -d "./bin/.git" ]; then
     cd bin
     git fetch
@@ -335,8 +421,7 @@ function dmt_core {
   cd "$DMT_PATH"
   git clone "https://github.com/${1}/dmt-core" core
 
-  if [ -f "$DMT_NODE_CORE/.scripts" ]; then
-
+  if [ -d "$DMT_NODE_CORE/.scripts" ]; then
     cd "$DMT_NODE_CORE/.scripts"
     ./symlink_dmt_deps
   fi

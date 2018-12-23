@@ -11,7 +11,7 @@ function push_notify {
   local push_notifier="$DMT_NODE_CORE/dmt-notify/lib/apn.js"
 
   if [ -f "$push_notifier" ]; then
-    # if stdin is passed to nodejs script (happens automaticall),
+    # if stdin is passed to nodejs script (happens automatically),
     # it is considered as a message, given argument is ignored
     if [ -z "$1" ]; then
       node "$push_notifier"

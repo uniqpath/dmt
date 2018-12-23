@@ -1,14 +1,36 @@
-# DMT
+# DMT 🚀☘
 
 ## Install
 
     curl -L https://raw.githubusercontent.com/uniqpath/dmt/master/shell/web-one-line-install-script | bash
 
-## Verify
+or Update if already installed:
+
+    dmt next
+
+## Run
 
     dmt version
 
+Now a lot should already work (see `dmt help`) but all of it is transactional on explicit user request (like http protocol for example). To get background processing and thus most out of the system, you will want to start a few background services (default ones are: `dmt-controller` and `search-and-play`) with:
+
+    dmt start
+
+See what the system is doing at each moment (hint: not much by design, only when needed and requested):
+
+    dmt log
+
 [More info](INSTALL.md)
+
+## Where?
+
+- servers _(example: for data and search processing)_
+- **laptops or PCs** _(example: as a remote controller device for sbcs, as a consumer of personal server data etc.)_
+- and especially **single board computers (SBC)** (RPi, odroid etc.) _(as digital slaves, as it should be)_
+
+## But why?
+
+[One example](https://github.com/uniqpath/everything/blob/master/docs/search-and-play.md)
 
 ## Computing Elves Inside Your Machine
 
@@ -18,5 +40,5 @@
 
 ![DMT](https://subcults.com/img/bitcells.jpg)
 
-[Documentation](docs/README.md)
+Runs [everything](https://github.com/uniqpath/everything).
 
