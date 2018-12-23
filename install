@@ -70,7 +70,7 @@ function install_core_source {
     fi
   else
     printf "${CYAN}Pulling DMT-CORE from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
-    git clone git@github.com:uniqpath/dmt-core.git core
+    git clone https://github.com/uniqpath/dmt-core core
     local cwd="`pwd`"
     cd "core/node/.scripts"
     ./symlink_dmt_deps
@@ -88,7 +88,7 @@ function install_core_bin {
     fi
   else
     printf "\n${CYAN}Pulling DMT-BIN from public repository on ${GRAY}Microsoft GitHub (not so relevant)${NC}\n"
-    git clone git@github.com:uniqpath/dmt-bin.git bin
+    git clone https://github.com/uniqpath/dmt-bin bin
   fi
 }
 
