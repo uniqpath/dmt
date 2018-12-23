@@ -7,7 +7,7 @@
 
 ```bash
 cd ~
-git clone git@github.com:uniqpath/dmt.git .dmt
+git clone https://github.com/uniqpath/dmt.git .dmt
 cd .dmt
 ./install full
 ```
