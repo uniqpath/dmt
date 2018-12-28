@@ -10,6 +10,7 @@ function m {
     "add_shuffled"
     "list"
     "next"
+    "info"
   )
 
   local host=""
@@ -18,7 +19,7 @@ function m {
     shift
   fi
 
-  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+  if [ "$1" == "-h" ]; then
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}${opts[@]}${NC}\n"
     return
@@ -27,8 +28,7 @@ function m {
   local matching_opt=''
   opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
-    printf "Use -h to see valid options\n\n"
-    return
+    matching_opt="info"
   fi
 
   shift

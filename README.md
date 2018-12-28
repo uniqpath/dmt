@@ -1,5 +1,8 @@
 # DMT 🚀☘
 
+> Simplicity is the ultimate form of sophistication.
+> — Leonardo da Vinci
+
 ## Install
 
     curl -L https://raw.githubusercontent.com/uniqpath/dmt/master/shell/web-one-line-install-script | bash
@@ -30,7 +33,11 @@ See what the system is doing at each moment (hint: not much by design, only when
 
 ## But why?
 
-[One example](https://github.com/uniqpath/everything/blob/master/docs/search-and-play.md)
+Examples of what could be achieved with this technology:
+
+[Search and Play 🚀🎸](https://github.com/uniqpath/everything/blob/master/tutorials/search-and-play.md)
+
+[File Search 🚀🌀](https://github.com/uniqpath/everything/blob/master/tutorials/fractal-search.md)
 
 ## Computing Elves Inside Your Machine
 

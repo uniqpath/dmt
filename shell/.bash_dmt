@@ -48,6 +48,7 @@ function dmt {
     "next"
     "core"
     "update"
+    "debug"
     "renew"
     "remove"
     "log"
@@ -103,6 +104,27 @@ function dmt {
       fi
       ;;
 
+    debug)
+      local markerfile="$DMT_STATE/.debug-mode"
+      if [ -z "$1" ] || [ "$1" == "on" ] || [ "$1" == "enable" ]; then
+        if [ -f "$markerfile" ]; then
+          printf "${GRAY}Debug mode ${YELLOW}was already enabled${NC}\n"
+        else
+          touch "$markerfile"
+          printf "${YELLOW}Debug mode ⚙️  enabled${NC}\n"
+        fi
+      fi
+
+      if [ "$1" == "off" ] || [ "$1" == "disable" ]; then
+        if [ -f "$markerfile" ]; then
+          rm "$markerfile"
+          printf "${GREEN}Debug mode disabled 🏄${NC}\n"
+        else
+          printf "${GRAY}Debug mode was already disabled${NC}\n"
+        fi
+      fi
+      ;;
+
     search)
       if [ -n "$hosts" ]; then
         search "${hosts}" "$@"
@@ -126,27 +148,30 @@ function dmt {
         "search-and-play"
       )
 
-      if [ -z "$1" ] || [ "$1" == "-h" ]; then
+      if [ "$1" == "-h" ]; then
         printf "${YELLOW}All logs:${NC}\n"
 
         for service in "${opts[@]}"
         do
           printf "\n${MAGENTA}${service}${NC}\n"
           if [ "$service" == "dmt-controller" ]; then
-            printf "  * default and special because you can call it on remote devices, example — ${GRAY}dmt ${GREEN}@host ${GRAY}log${NC}\n"
+            printf "${CYAN}  default + special because:\n"
+            printf "${CYAN}    a) you can call it on remote devices, example: ${GRAY}dmt ${GREEN}@host ${GRAY}log${NC}\n"
+            printf "${CYAN}    b) you can only call it via rpc (even on local device)${NC}\n"
           fi
         done
-        if [ "$1" == "-h" ]; then
-          return
-        fi
+        return
       fi
 
       local matching_opt=''
       opts_matcher matching_opt "$1" "${opts[@]}"
       if [ $? -ne 0 ]; then # error
-
-        matching_opt="dmt-controller" # default
-        return
+        if [ -n "$1" ]; then # error
+          printf "${RED}Unknown log: ${1}${NC}\n"
+          return
+        else
+          matching_opt="dmt-controller" # default
+        fi
       fi
 
       shift
@@ -251,7 +276,7 @@ function dmt {
     restart)
       printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is restarting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" restart
-      printf "\n${GREEN}Daemons restarted, use ${MAGENTA}dmt check${NC} ${GREEN}for quick self-test.${NC}\n"
+      printf "\n${GRAY}Daemons restarted, use ${GREEN}dmt log${NC} ${GRAY}to see the dmt-controller log.${NC}\n"
       ;;
 
     stop)
@@ -375,17 +400,19 @@ function dmt_next {
     cd core
     git fetch
     git reset --hard origin/master
-  fi
-
-  if [ -f "$DMT_NODE_CORE/.scripts" ]; then
-    cd "$DMT_NODE_CORE/.scripts"
-    ./symlink_dmt_deps
+    cd ..
   fi
 
   if [ -d "./bin/.git" ]; then
     cd bin
     git fetch
     git reset --hard origin/master
+    cd ..
+  fi
+
+  if [ -d "$DMT_NODE_CORE/.scripts" ]; then
+    cd "$DMT_NODE_CORE/.scripts"
+    ./symlink_dmt_deps
   fi
 
   rel

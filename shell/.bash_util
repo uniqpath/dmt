@@ -33,7 +33,7 @@ function is_rpi {
 }
 
 function dev_machine {
-  if [ -f ~/.dmt-dev-machine ]; then
+  if [ -f "$DMT_THIS_DEVICE/.dev-machine" ]; then
     return 0 # true
   fi
 

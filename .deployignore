@@ -8,6 +8,7 @@ todo.txt
 /log
 /archive
 .trash
+/cores_extra
 /user/catalogs
 /user/catalogs_unsynced
 /user/data
