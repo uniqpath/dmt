@@ -1,0 +1,12 @@
+share: general
+  path: ~
+  catalog: general.catalog.txt
+
+share: music
+  path: ~/Storage/Music
+  catalog: music.catalog.txt
+
+# this is currently not used (exposed anywhere) but it can still be defined here
+share: books
+  path: ~/Storage/Books
+  catalog: books.catalog.txt

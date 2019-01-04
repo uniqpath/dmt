@@ -1,0 +1,11 @@
+share: music
+  path: ~/Music
+  path: ~/Torrents
+  path: ~/IPFSMount
+  path: ~/SambaMount
+  path: ~/WhateverFSMount
+  path: ~/SyncthingFolder
+
+
+
+

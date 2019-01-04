@@ -1,0 +1,9 @@
+device: dmtos1
+
+  content: music [from] content.def
+
+  service: player
+    contentRef: music
+    defaultVolume:
+      mpv: 70
+

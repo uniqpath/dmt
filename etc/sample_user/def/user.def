@@ -1,0 +1,5 @@
+user:
+
+  name: [my_name]
+  handle: [my_handle]
+  avatar: maze.generate()

@@ -1,0 +1,18 @@
+service: controller
+  code: controller/dmtService.js
+  port: 3850
+  symbol: 💡
+
+service: search
+  code: search/searchService.js
+  port: 4770
+  symbol: 🚀
+  ---
+  contentRef: general
+
+service: player
+  code: music/playerService.js
+  port: 5220
+  symbol: 🎸
+  ---
+  serverMaxResults: 30

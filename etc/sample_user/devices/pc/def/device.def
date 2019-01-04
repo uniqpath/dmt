@@ -1,0 +1,10 @@
+device: eclipse
+
+  content: music [from] content.def
+
+  service: player
+    contentRef: music
+    contentRef: @server/music
+    defaultVolume:
+      mpv: 50
+

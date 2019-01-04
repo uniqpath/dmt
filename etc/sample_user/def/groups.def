@@ -1,0 +1,10 @@
+groups:
+
+  # most of the people in people.def probably
+  # don't have to be speficied here.
+
+  family:
+    members: [person1], [person2], [person3]
+
+  friends:
+    members: [person1], [person2], [person3]

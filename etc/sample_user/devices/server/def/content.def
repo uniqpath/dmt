@@ -1,0 +1,6 @@
+content: general
+  share: general [from] shares.def
+
+content: music
+  share: music [from] shares.def
+  allow: @family
