@@ -23,7 +23,7 @@ function dmt {
       local network_id=''
       get_current_network network_id
       if [ -n "$network_id" ]; then
-        hosts="${hosts} @$network_id"
+        hosts="${hosts} @@$network_id"
         shift
       fi
     elif [[ "$arg" == @* ]]; then
@@ -41,10 +41,7 @@ function dmt {
     "status"
     "version"
     "devices"
-    "shares"
     "services"
-    "provider"
-    "providers"
     "next"
     "core"
     "update"
@@ -77,11 +74,17 @@ function dmt {
   opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     if [ -z "$hosts" ]; then
-      printf "Try ${GREEN}dmt help${NC}\n"
-      #matching_opt="help" # default
-      return
-    else
+      printf "Try ${GREEN}dmt help${NC}.\n"
+      if [ -z "$1" ]; then
+        echo
+        printf "${CYAN}This device info:${NC}\n\n"
+      fi
+    fi
+
+    if [ -z "$1" ]; then
       matching_opt="info"
+    else
+      return
     fi
   fi
 
@@ -115,7 +118,7 @@ function dmt {
         fi
       fi
 
-      if [ "$1" == "off" ] || [ "$1" == "disable" ]; then
+      if [ "$1" == "off" ] || [ "$1" == "disable" ] || [ "$1" == "stop" ]; then
         if [ -f "$markerfile" ]; then
           rm "$markerfile"
           printf "${GREEN}Debug mode disabled 🏄${NC}\n"
@@ -145,7 +148,11 @@ function dmt {
 
       declare -a opts=(
         "dmt-controller"
-        "search-and-play"
+        "dmt-search"
+        "dmt-player"
+        "controller"
+        "search"
+        "player"
       )
 
       if [ "$1" == "-h" ]; then
@@ -165,6 +172,7 @@ function dmt {
 
       local matching_opt=''
       opts_matcher matching_opt "$1" "${opts[@]}"
+
       if [ $? -ne 0 ]; then # error
         if [ -n "$1" ]; then # error
           printf "${RED}Unknown log: ${1}${NC}\n"
@@ -172,6 +180,18 @@ function dmt {
         else
           matching_opt="dmt-controller" # default
         fi
+      fi
+
+      if [ "$matching_opt" == "controller" ]; then
+        matching_opt="dmt-controller"
+      fi
+
+      if [ "$matching_opt" == "search" ]; then
+        matching_opt="dmt-search"
+      fi
+
+      if [ "$matching_opt" == "player" ]; then
+        matching_opt="dmt-player"
       fi
 
       shift
@@ -186,8 +206,17 @@ function dmt {
           fi
           ;;
 
-        search-and-play)
-          local logfile="$DMT_PATH/log/search-and-play.log"
+        dmt-search)
+          local logfile="$DMT_PATH/log/dmt-search.log"
+          if [ -f "$logfile" ]; then
+            tail -f "$logfile"
+          else
+            printf "${RED}${logfile} is missing${NC}\n"
+          fi
+          ;;
+
+        dmt-player)
+          local logfile="$DMT_PATH/log/dmt-player.log"
           if [ -f "$logfile" ]; then
             tail -f "$logfile"
           else
@@ -199,13 +228,13 @@ function dmt {
 
       ;;
 
-    shares)
-      if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" shares "$@"
-      else
-        node "$DMT_CLI" shares "$@"
-      fi
-      ;;
+    # shares)
+    #   if [ -n "$hosts" ]; then
+    #     node "$DMT_CLI" "${hosts}" shares "$@"
+    #   else
+    #     node "$DMT_CLI" shares "$@"
+    #   fi
+    #   ;;
 
     services)
       if [ -n "$hosts" ]; then
@@ -215,21 +244,21 @@ function dmt {
       fi
       ;;
 
-    provider)
-      if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" provider "$@"
-      else
-        node "$DMT_CLI" provider "$@"
-      fi
-      ;;
+    # provider)
+    #   if [ -n "$hosts" ]; then
+    #     node "$DMT_CLI" "${hosts}" provider "$@"
+    #   else
+    #     node "$DMT_CLI" provider "$@"
+    #   fi
+    #   ;;
 
-    providers)
-      if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" providers "$@"
-      else
-        node "$DMT_CLI" providers "$@"
-      fi
-      ;;
+    # providers)
+    #   if [ -n "$hosts" ]; then
+    #     node "$DMT_CLI" "${hosts}" providers "$@"
+    #   else
+    #     node "$DMT_CLI" providers "$@"
+    #   fi
+    #   ;;
 
     version)
       dmt_version
@@ -575,24 +604,6 @@ function dmt_deactivate {
     printf "${RED}dmt is not installed${NC}\n"
   fi
 }
-
-function dmt_log_old {
-  declare -a opts=(
-    "dmt-controller"
-    "search-and-play"
-  )
-
-  local matching_opt=''
-  opts_matcher matching_opt "$1" "${opts[@]}"
-  if [ $? -ne 0 ]; then # error
-    matching_opt="dmt-controller" # default
-  fi
-
-  shift
-
-  tail -f -n 200 "$DMT_PATH/log/${matching_opt}.log"
-}
-
 
 function dmt_cd {
   cd "$DMT_PATH"

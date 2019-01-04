@@ -184,9 +184,6 @@ DMT_THIS_DEVICE="$LOGNAME_HOME/.dmt/user/devices/this"
 DMT_DEVICE_FILE="$DMT_THIS_DEVICE/def/device.def"
 
 DMT_STATE="$DMT_PATH/state"
-mkdir -p "$DMT_STATE"
-
-mkdir -p "$DMT_PATH/log"
 
 DMT_CORE="$LOGNAME_HOME/.dmt/core"
 DMT_NODE_CORE="$DMT_CORE/node"

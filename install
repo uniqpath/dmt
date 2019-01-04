@@ -86,6 +86,9 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       exit
     fi
 
+    mkdir -p "$DMT_PATH/log"
+    mkdir -p "$DMT_STATE"
+
     if [ -f "$HOME/.bash_aliases" ] || [ -L "$HOME/.bash_aliases" ]; then # -L : we check for broken symlink (-f would return true for working symlink but not for a broken one)
       if [ -f "$HOME/.bash_aliases" ] && [ "$(head -3 "$HOME/.bash_aliases" | tail -1)" == "# DMT ALIASES" ]; then
         rm "$HOME/.bash_aliases"
@@ -116,7 +119,7 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
 
     . "$HOME/.bash_aliases"
 
-else # install on device
+else # clone to and install on remote device
 
     host="$arg"
 

@@ -491,6 +491,12 @@ function dirsync {
     local e_params="ssh -T -o Compression=no -x" # optimized for LAN !!
     local grep_ignore="Warning: Permanently added"
 
+    if [ -f "./shell/.bash_general" ]; then
+      # ... updating or installing .dmt framework to another device
+      rsync $params --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+      return
+    fi
+
     if [ -f "$DMT_PATH/etc/.deployignore" ] && ! $no_ignore ; then
       params="${params} --exclude-from $DMT_PATH/etc/.deployignore"
     fi

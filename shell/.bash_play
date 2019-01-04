@@ -13,17 +13,42 @@ function m {
     "info"
   )
 
-  local host=""
-  if [[ "$1" == @* ]]; then
-    host="$1"
-    shift
-  fi
+  # local host=""
+  # if [[ "$1" == @* ]]; then
+  #   host="$1"
+  #   shift
+  # fi
 
   if [ "$1" == "-h" ]; then
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}${opts[@]}${NC}\n"
     return
   fi
+
+  #-----------#-----------#----------- A BIT OF DUPLICATE CODE FROM function dmt
+  local hosts=""
+
+  local args
+  IFS=' ' read -r -a args <<< "$@"
+
+  for arg in "${args[@]}"
+  do
+    if [ "$arg" == "@all" ]; then
+      local network_id=''
+      get_current_network network_id
+      if [ -n "$network_id" ]; then
+        # extract host from @ symbol but replace @all with the name of current network !
+        hosts="${hosts} @@$network_id"
+        shift
+      fi
+    elif [[ "$arg" == @* ]]; then
+      hosts="${hosts} ${arg}"
+      shift
+    fi
+  done
+
+  hosts=$(echo "$hosts" | xargs) # remove trailing whitespace
+  #-----------#-----------#-----------
 
   local matching_opt=''
   opts_matcher matching_opt "$1" "${opts[@]}"
@@ -35,10 +60,10 @@ function m {
 
   local playerCmd="$DMT_NODE_CORE/dmt-controller/cli/music.js"
 
-  if [ -z "$host" ]; then
+  if [ -z "$hosts" ]; then
     node "$playerCmd" "${matching_opt}" "$@"
   else
-    node "$playerCmd" "${host}" "${matching_opt}" "$@"
+    node "$playerCmd" "${hosts}" "${matching_opt}" "$@"
   fi
 }
 
