@@ -15,4 +15,4 @@ service: player
   port: 5220
   symbol: 🎸
   ---
-  serverMaxResults: 30
+  maxResults: 30

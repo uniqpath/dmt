@@ -1,0 +1,3 @@
+#!/bin/bash
+. ~/.bash_aliases
+device_selector

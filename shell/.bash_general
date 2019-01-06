@@ -202,7 +202,7 @@ DMT_RUNTIMES=(node rust)
 #   mkdir -p "$DMT_CORE/static"
 # fi
 
-DMT_SCRIPTS="$LOGNAME_HOME/etc/scripts"
+DMT_SCRIPTS="$DMT_PATH/etc/scripts"
 
 DMT_PLATFORM=""
 if macos; then
@@ -1177,10 +1177,10 @@ function getip {
       ip addr show wlan0 | grep scope | grep -P 'inet \d+.\d+\.\d+\.\d+'
     fi
   else
-    local lastScan
-    getDMTDeviceResolverPath lastScan
+    local resolverPath
+    getDMTDeviceResolverPath resolverPath
 
-    local line=$(node "$lastScan" "$1" | grep "ip:")
+    local line=$(node "$resolverPath" "$1" | grep "ip:")
     local arr=(${line/\:/ })
     local _ip=${arr[1]}
 
@@ -1188,7 +1188,21 @@ function getip {
       echo "$_ip"
       pi "$_ip"
     else
-      printf "${RED}Cannot find ip for ${CYAN}${1}${NC}\n"
+      local lastScanResolverPath
+      getLastScanSearchScriptPath lastScanResolverPath
+
+      printf "${CYAN}Trying most recent network scan information ...${NC}\n"
+      local line=$(node "$lastScanResolverPath" "$1" | grep "ip:")
+      local arr=(${line/\:/ })
+      local _ip=${arr[1]}
+
+      if [ -n "$_ip" ]; then
+        echo "$_ip"
+        printf "${GREEN}Found ip, trying ping...${NC}\n"
+        pi "$_ip"
+      else
+        printf "${RED}Cannot find ip for ${CYAN}${1}${NC}\n"
+      fi
     fi
   fi
 }
@@ -1622,7 +1636,7 @@ alias sublime="cd '$HOME/Library/Application Support/Sublime Text 3/Packages/Use
 
 # ping server (ex. server.com) or "resource" (http://server.com/file)
 function pi {
-  local target="google.com"
+  local target="1.0.0.1"
   if [ -n "$1" ]; then
     if [[ "$1" =~ \/ ]]; then
       if [[ $(curl -I --write-out %{http_code} --silent --output /dev/null "$@") == "200" ]]; then
@@ -1632,14 +1646,14 @@ function pi {
       fi
     else
       if [[ $(ping -c 1 "$@" 2>&1) == *"0% packet loss"* ]]; then
-        printf "${GREEN}OK${NC}\n"
+        printf "${GREEN}Ping OK${NC}\n"
       else
         printf "${RED}NO CONN${NC}\n"
       fi
     fi
   else
     if [[ $(ping -c 1 "$target" 2>&1) == *"0% packet loss"* ]]; then
-      printf "${GREEN}OK${NC}\n"
+      printf "${GREEN}Ping OK${NC}\n"
     else
       printf "${RED}NO CONN${NC}\n"
     fi

@@ -368,7 +368,8 @@ function addp {
 }
 
 alias rh='git reset HEAD'
-alias open_last="git reset --soft HEAD^1"
+alias open_last_commit="git reset --soft HEAD^1"
+alias last_commit=open_last_commit
 
 #alias gp_amend="git add . && git commit --amend && fp"
 alias cdr='cd $(git rev-parse --show-toplevel || echo ".")'

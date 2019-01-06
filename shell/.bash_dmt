@@ -40,7 +40,7 @@ function dmt {
     "info"
     "status"
     "version"
-    "devices"
+    "device"
     "services"
     "next"
     "core"
@@ -78,6 +78,10 @@ function dmt {
       if [ -z "$1" ]; then
         echo
         printf "${CYAN}This device info:${NC}\n\n"
+        if [ ! -f "$DMT_DEVICE_FILE" ]; then
+          printf "${RED}Reminder ● ${GRAY}you still need to configure this device ● ${CYAN}please run → \n\n${GREEN}  dmt device config${NC}\n\n"
+          return
+        fi
       fi
     fi
 
@@ -264,8 +268,50 @@ function dmt {
       dmt_version
       ;;
 
-    devices)
-      dmt_devices "$@"
+    device)
+
+      declare -a opts=(
+        "configure"
+        "def"
+      )
+
+      if [ -z "$1" ] || [ "$1" == "-h" ]; then
+        printf "${YELLOW}Usage:${NC}\n"
+        echo "${opts[@]}"
+        return
+      fi
+
+      local matching_opt=''
+      opts_matcher matching_opt "$1" "${opts[@]}"
+      # if [ $? -ne 0 ]; then # error
+      #   #printf "Use -h to see valid options\n\n"
+      #   #matching_opt="aaa" # default
+      #   #return
+      # fi
+
+      shift
+
+      case "$matching_opt" in
+        configure)
+          local script="$DMT_SCRIPTS/setup_device"
+          if [ -f "$script" ]; then
+            "$script"
+          fi
+          return
+          ;;
+
+        def)
+          printf "${YELLOW}Showing parsed defice definition:${NC}\n"
+          ;;
+      esac
+
+      local cli="$DMT_NODE_CORE/dmt-controller/cli/device.js"
+      if [ -n "$hosts" ]; then
+        node "$cli" "${hosts}" "$@"
+      else
+        node "$cli" "$@"
+      fi
+      #dmt_devices "$@"
       ;;
 
     next)
@@ -334,6 +380,7 @@ function dmt_help {
   printf "${GREEN}dmt help ${GRAY}shows this help${NC}\n"
   printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a browser${NC}\n"
   printf "${GREEN}dmt version ${GRAY}shows dmt version, like v$(cat "$DMT_PATH/.version")${NC}\n"
+  printf "${GREEN}dmt device ${GRAY}device configuration${NC}\n"
   echo
   printf "${YELLOW}Unix background processes:\n${NC}"
   printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
