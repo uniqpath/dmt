@@ -1166,47 +1166,6 @@ function global {
 
 ############### NODE.JS -- END
 
-function getip {
-
-  if [ -z "$1" ]; then
-    if macos; then
-      ifconfig en0 | grep broadcast
-
-    else
-      ip addr show eth0 | grep scope | grep -P 'inet \d+.\d+\.\d+\.\d+'
-      ip addr show wlan0 | grep scope | grep -P 'inet \d+.\d+\.\d+\.\d+'
-    fi
-  else
-    local resolverPath
-    getDMTDeviceResolverPath resolverPath
-
-    local line=$(node "$resolverPath" "$1" | grep "ip:")
-    local arr=(${line/\:/ })
-    local _ip=${arr[1]}
-
-    if [ -n "$_ip" ]; then
-      echo "$_ip"
-      pi "$_ip"
-    else
-      local lastScanResolverPath
-      getLastScanSearchScriptPath lastScanResolverPath
-
-      printf "${CYAN}Trying most recent network scan information ...${NC}\n"
-      local line=$(node "$lastScanResolverPath" "$1" | grep "ip:")
-      local arr=(${line/\:/ })
-      local _ip=${arr[1]}
-
-      if [ -n "$_ip" ]; then
-        echo "$_ip"
-        printf "${GREEN}Found ip, trying ping...${NC}\n"
-        pi "$_ip"
-      else
-        printf "${RED}Cannot find ip for ${CYAN}${1}${NC}\n"
-      fi
-    fi
-  fi
-}
-
 alias psq="sudo -u postgres psql"
 
 # fix permissions
@@ -1640,22 +1599,24 @@ function pi {
   if [ -n "$1" ]; then
     if [[ "$1" =~ \/ ]]; then
       if [[ $(curl -I --write-out %{http_code} --silent --output /dev/null "$@") == "200" ]]; then
-        printf "${GREEN}OK${NC}\n"
+        printf "${GREEN}✓ CurlPing OK, Returned status 200${NC}\n"
       else
-        printf "${RED}NOT FOUND${NC}\n"
+        printf "${RED}✖ NOT FOUND${NC}\n"
       fi
     else
+      printf "${GRAY}Pinging ${@} ...${NC}\n"
       if [[ $(ping -c 1 "$@" 2>&1) == *"0% packet loss"* ]]; then
-        printf "${GREEN}Ping OK${NC}\n"
+        printf "${GREEN}✓ Ping OK${NC}\n"
       else
-        printf "${RED}NO CONN${NC}\n"
+        printf "${RED}✖ NO CONN${NC}\n"
       fi
     fi
   else
+    printf "${GRAY}Pinging ${target} ...${NC}\n"
     if [[ $(ping -c 1 "$target" 2>&1) == *"0% packet loss"* ]]; then
-      printf "${GREEN}Ping OK${NC}\n"
+      printf "${GREEN}✓ Ping OK${NC}\n"
     else
-      printf "${RED}NO CONN${NC}\n"
+      printf "${RED}✖ NO CONN${NC}\n"
     fi
   fi
 }

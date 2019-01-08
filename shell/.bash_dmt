@@ -54,7 +54,7 @@ function dmt {
     "start"
     "restart"
     "stop"
-    "check"
+    "symlink"
     "deactivate"
     "remove"
     "bin"
@@ -276,8 +276,20 @@ function dmt {
       )
 
       if [ -z "$1" ] || [ "$1" == "-h" ]; then
+        local device_name=''
+        get_current_device device_name
+
+        if [ -n "$device_name" ]; then
+          printf "${CYAN}Device name: 💡 ${MAGENTA}${device_name}${NC}\n\n"
+        else
+          printf "${GRAY}This device is ${RED}unnamed 🤔${GRAY}, ${YELLOW}please name it by running ${GREEN}dmt device configure${NC}\n\n"
+          return
+        fi
+
         printf "${YELLOW}Usage:${NC}\n"
-        echo "${opts[@]}"
+        printf "${GREEN}configure${NC} ${GRAY}select configuration for this device from existing configurations or create a new configuration and assign it to this device${NC}\n"
+        printf "${GREEN}def${NC} ${GRAY}shows parsed device.def definition in json format${NC}\n"
+
         return
       fi
 
@@ -340,6 +352,13 @@ function dmt {
 
     deactivate)
       dmt_deactivate
+      ;;
+
+    symlink)
+      local cwd="`pwd`"
+      cd "$DMT_NODE_CORE/.scripts"
+      ./symlink_dmt_deps "$@"
+      cd "$cwd"
       ;;
 
     start)
@@ -556,8 +575,8 @@ function dmt_update {
     if dev_machine; then
       printf "${RED}Prevented on dev machine${NC}\n"
     fi
-  elif [ "$1" == "devices" ] || [ "$1" == "all" ]; then
-    for_all_devices "update"
+  # elif [ "$1" == "devices" ] || [ "$1" == "all" ]; then
+  #   for_all_devices "update"
   else
     dmt_install "$@"
   fi
@@ -599,27 +618,28 @@ function dmt_remove {
 function dmt_restart {
   local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/etc/onboot/daemons restart\\\""
 
-  if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
-    for_all_devices exec "$cmd"
+  # if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
+  #   for_all_devices exec "$cmd"
+  # else
+  local host="$1"
+
+  if [ "$host" == "ap" ]; then
+    host="$DMT_AP_DEFAULT_HOST"
   else
-    local host="$1"
-
-    if [ "$host" == "ap" ]; then
-      host="$DMT_AP_DEFAULT_HOST"
-    else
-      local matching_host=''
-      get_full_host matching_host "$host"
-      if [ $? -ne 1 ]; then # not error
-        host="$matching_host"
-      fi
-    fi
-
-    if [ -n "$host" ]; then
-      remote -h "$host" "$cmd"
-    else
-      printf "${RED}Unknown host${NC}\n"
+    local matching_host=''
+    local ssh_port=''
+    get_full_host matching_host ssh_port "$host"
+    if [ $? -ne 1 ]; then # not error
+      host="$matching_host"
     fi
   fi
+
+  if [ -n "$host" ]; then
+    remote -h "$host" --port "$ssh_port" "$cmd"
+  else
+    printf "${RED}Unknown host${NC}\n"
+  fi
+  #fi
 }
 
 function dmt_deactivate {

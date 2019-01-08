@@ -95,6 +95,28 @@ function gatewayMac {
 }
 # ---- for debugging purposes for now!!
 
+function get_mac {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}get_mac [ip]${NC} ${GRAY}${NC}\n"
+    return
+  fi
+
+  local ip="$2"
+
+  ping -c 1 "$ip" > /dev/null
+
+  local __mac=$(ip neigh | grep "${ip} " | grep "[0-9a-f]:" | head -1 | cut -d' ' -f5) #| tr '[A-F]' '[a-f]')
+  # | grep "REACHABLE"
+
+  #printf "${GREEN}MAC: ${NC}$mac\n"
+
+  local __normalized_mac=''
+  normalize_mac __normalized_mac "$__mac"
+
+  eval "$1='$__normalized_mac'"
+}
+
 #todo: implement without using "ip" on mac.. if not possible, then document this homebrew dep....
 # gateway ip on mac: route -n get default
 #local gateway_ip=$(ip -4 route list | head -1 | cut -d' ' -f3)
@@ -108,17 +130,9 @@ function get_gatewayMac {
   # todo: ping once ? probably useful....... but for now there were no problems
   local gateway_ip=$(ip -4 route list | head -1 | cut -d' ' -f3)
   if [[ "$gateway_ip" =~ [0-9]\. ]]; then # we can also get "wlan0" if working as access point
-    ping -c 1 "$gateway_ip" > /dev/null
-
-    local mac=$(ip neigh | grep "${gateway_ip} " | grep "[0-9a-f]:" | head -1 | cut -d' ' -f5) #| tr '[A-F]' '[a-f]')
-    # | grep "REACHABLE"
-
-    #printf "${GREEN}MAC: ${NC}$mac\n"
-
-    local normalized_mac=''
-    normalize_mac normalized_mac "$mac"
-
-    eval "$1='$normalized_mac'"
+    local _normalized_mac=''
+    get_mac _normalized_mac "$gateway_ip"
+    eval "$1='$_normalized_mac'"
   fi
   #printf "${GREEN}Normalized: ${NC}$normalized_mac\n"
 }
@@ -208,6 +222,7 @@ function get_current_device {
 
 function get_current_network {
   local __network_id=''
+
   # try explicitly defined networkId inside device.def first:
   if [ -f "$DMT_DEVICE_FILE" ]; then
     def_reader __network_id "$DMT_DEVICE_FILE" "network"

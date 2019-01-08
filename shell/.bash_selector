@@ -49,16 +49,19 @@ handle_sigtstp() {
 # Display sorted versions directories paths.
 #
 
-EMPTY_OPTION="_NONE_"
+NONE_OPTION="_NONE_"
+CREATE_NEW_OPTION="_NEW_"
 
 versions_paths() {
-  echo "$EMPTY_OPTION"
+  echo "$NONE_OPTION"
+  echo "$CREATE_NEW_OPTION"
   local BASE_PATH="$DMT_PATH/user/devices"
   find "$BASE_PATH" -maxdepth 1 -type d \
     | sed 's|'$BASE_PATH'/||g' \
     | grep -v "$BASE_PATH" \
     | grep -v "^@" \
     | sort
+    # ^@ is because we use these directories sometimes to symlink suff for each device from
 }
 
 #
@@ -131,7 +134,7 @@ check_current_version() {
   if [ -n "$device_name" ]; then
     active=$device_name
   else
-    active=$EMPTY_OPTION
+    active=$NONE_OPTION
   fi
 }
 
@@ -147,15 +150,75 @@ activate() {
     local cwd="`pwd`"
     cd "$DMT_PATH/user/devices"
 
-    if [ "$selected" != "$EMPTY_OPTION" ]; then
-      if [ -L "this" ]; then
-        rm this
-      fi
-      ln -s "$selected" this
-    elif [ -L "this" ]; then
+    case $selected in
+
+      $NONE_OPTION)
+        if [ -L "this" ]; then
+          rm this
+        fi
+
+        printf "${RED}✖ ${GRAY}Current device is now ${CYAN}undefined${NC}\n"
+        ;;
+
+      $CREATE_NEW_OPTION)
+        create_new_device
+        ;;
+
+      *)
+        if [ -L "this" ]; then
+          rm this
+        fi
+        ln -s "$selected" this
+
+        printf "${GREEN}✓ ${GRAY}Current device is now defined by files in ~/.dmt/user/devices/${MAGENTA}${selected}${GRAY} ${NC}\n"
+        printf "  ${GRAY}To delete this device's definition (careful!), issue this command: ${GARY}rm -rf ~/.dmt/user/devices/${selected}${NC}\n"
+        echo
+        printf "${GRAY}Please ${CYAN}reload the shell ${GRAY}by closing and reopening the terminal tab or entering: ${GREEN}rel${NC}\n"
+        ;;
+    esac
+
+    cd "$cwd"
+  fi
+}
+
+create_new_device() {
+  printf "${CYAN}Device name (id): ${NC}\n"
+  read -r -p "" response
+
+  local deviceId="$response"
+
+  if [ -z "$deviceId" ]; then
+    printf "${YELLOW}Must provide a new deviceId, not empty string${NC}\n"
+    printf "${RED}Aborting new device creation${NC}\n"
+    return
+  fi
+
+  local BASE_PATH="$DMT_PATH/user/devices"
+  local device_path="$BASE_PATH/${deviceId}"
+
+  if [ -d "$device_path" ]; then
+    printf "${RED}This deviceId already exists: ${deviceId}...${NC}\n"
+  else
+    local def_path="$device_path/def"
+    mkdir -p "$def_path"
+
+    cat > "$def_path/device.def" <<EOF
+device: ${deviceId}
+
+  tagline: controller, search, play, all the best service in my control
+EOF
+
+    # create symlink
+    local cwd="`pwd`"
+    cd "$BASE_PATH"
+
+    if [ -L "this" ]; then
       rm this
     fi
+    ln -s "$deviceId" this
     cd "$cwd"
+
+    printf "${GREEN}✓ ${GRAY}Created and activated new device with name ${MAGENTA}${deviceId}${NC} ...\n"
   fi
 }
 
@@ -219,8 +282,11 @@ device_selector() {
         ;;
       "")
         # enter key returns empty string
-        activate $selected
+
+        # the following two can be switched vice-versa but only in this order, we can do further action that is visible to the user
+        # for example: showing a message, a next interactive screen or text entry etc.
         leave_fullscreen
+        activate $selected
         #echo $selected
         exit
         ;;

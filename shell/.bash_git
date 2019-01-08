@@ -318,13 +318,13 @@ function lg {
         tail -n 20 -f /var/log/apache2/error_log
       elif [ "$1" == "nginx" ]; then
         tail -n 20 -f /var/log/nginx/error.log
-      else # lg th mak
-        local parserScript=~/Projects/scripts/ssh_parse_host
-        if [ ! -f "$parserScript" ] && [ -f /var/projects/scripts/ssh_parse_host ]; then
-          parserScript="/var/projects/scripts/ssh_parse_host"
-        fi
-        local server=$("$parserScript" "$1")
-        ssh "$server" "if [ -d /var/www/${2}/current/log ]; then tail -n 20 -f /var/www/${2}/current/log/production.log; elif [ -f /var/www/${2}/log/nginx.access.log ]; then tail -n 20 -f /var/www/${2}/log/nginx.access.log; else tail -n 20 -f /var/www/${2}/log/production.log; fi"
+      # else # lg th mak
+      #   local parserScript=~/Projects/scripts/ssh_parse_host
+      #   if [ ! -f "$parserScript" ] && [ -f /var/projects/scripts/ssh_parse_host ]; then
+      #     parserScript="/var/projects/scripts/ssh_parse_host"
+      #   fi
+      #   local server=$("$parserScript" "$1")
+      #   ssh "$server" "if [ -d /var/www/${2}/current/log ]; then tail -n 20 -f /var/www/${2}/current/log/production.log; elif [ -f /var/www/${2}/log/nginx.access.log ]; then tail -n 20 -f /var/www/${2}/log/nginx.access.log; else tail -n 20 -f /var/www/${2}/log/production.log; fi"
       fi
     fi
   fi

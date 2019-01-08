@@ -316,11 +316,18 @@ function remote {
   fi
 
   local server=""
+  local ssh_port="22"
 
   if [ "$1" == "--host" ] || [ "$1" == "-h" ]; then
     server="$2"
     shift
     shift
+
+    if [ "$1" == "--port" ]; then
+      ssh_port="$2"
+      shift
+      shift
+    fi
   elif [ -n "$1" ] && [ -f "./.deploy" ]; then
     target=$(head -n 1 ./.deploy)
 
@@ -356,7 +363,7 @@ function remote {
   else
     printf "Executing ${GREEN}$@${NC} on ${YELLOW}$server${NC}... "
     #printf "${YELLOW}Warning: environment variables passed as part of command are evaluated locally${NC}\n"
-    local cmd="ssh $server 'bash -ic \"$@\"' < /dev/null"
+    local cmd="ssh $server -p ${ssh_port} 'bash -ic \"$@\"' < /dev/null"
     if $silent; then
       cmd="${cmd} > /dev/null"
     else
@@ -376,21 +383,25 @@ function dirsync {
     printf "${YELLOW}Usage:${NC}\n\n"
     printf "${GREEN}dirsync dir1 dir2${NC}\n"
     printf "${GREEN}dirsync --dry dir1 dir2${NC} ${GRAY}(simulate)${NC}\n"
+    printf "${GREEN}dirsync --total${NC} ${GRAY}(ignoring every .deployignore file and copying everything)${NC}\n"
     printf "${GREEN}dirsync --compress dir1 dir2${NC} ${GRAY}(compress - use over internet, but not LAN)${NC}\n"
     printf "${GREEN}dirsync --checksum dir1 dir2${NC} ${GRAY}(use when timestamps on target are different but contents is likely same... This will sync & equalize timestamps, it's slow though but still probably faster than copying files over for no reason)${NC}\n"
     printf "${GREEN}dirsync --symlinks dir1 dir2${NC} ${GRAY}(copy symlink contents, not just symlinks)${NC}\n"
     printf "${GREEN}dirsync --no-delete dir1 dir2${NC} ${GRAY}(don't delete files on destination)${NC}\n"
     printf "${GREEN}dirsync --full-delete dir1 dir2${NC} ${GRAY}(delete ignored files on target as well)${NC}\n"
+    printf "${GREEN}dirsync --port [port] dir1 dir2${NC} ${GRAY}(specify if non-default ssh port)${NC}\n"
   else
 
     local dmt_with_user=false
     local dry=""
+    local total=false
     local compress=""
     local checksum=""
     local symlinks=""
     local no_ignore=false
     local no_delete=false
     local full_delete=false
+    local ssh_port="22"
 
     for arg in "$@"
     do
@@ -402,6 +413,10 @@ function dirsync {
         "--dry" )
           dry="--dry-run"
           printf "${GRAY}--dry-run: simulated run with no effects...${NC}\n"
+          shift
+          ;;
+        "--total" )
+          total=true
           shift
           ;;
         "--compress" )
@@ -432,6 +447,11 @@ function dirsync {
         "--full-delete" ) # delete excluded files on target as well if present
           full_delete=true
           printf "${GRAY}--full-delete: Delete ignored files on target as well...${NC}\n"
+          shift
+          ;;
+        "--port" )
+          shift
+          ssh_port="$1"
           shift
           ;;
       esac
@@ -488,12 +508,17 @@ function dirsync {
     # https://gist.github.com/KartikTalwar/4393116
     printf "${GREEN}Syncing...${NC}\n"
 
-    local e_params="ssh -T -o Compression=no -x" # optimized for LAN !!
+    local e_params="ssh -p ${ssh_port} -T -o Compression=no -x" # optimized for LAN !!
     local grep_ignore="Warning: Permanently added"
 
     if [ -f "./shell/.bash_general" ]; then
       # ... updating or installing .dmt framework to another device
       rsync $params --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+      return
+    fi
+
+    if $total; then
+      rsync $params  -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
       return
     fi
 

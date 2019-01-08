@@ -280,6 +280,10 @@ function p {
     fi
 
     if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Library/Application\ Support/Sublime\ Text\ 3/Packages "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/Projects/archive "$1"
     fi
 

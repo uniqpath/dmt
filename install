@@ -127,7 +127,8 @@ else # clone to and install on remote device
       host="$DMT_AP_DEFAULT_HOST"
     else
       matching_host=''
-      get_full_host matching_host "$host"
+      ssh_port=''
+      get_full_host matching_host ssh_port "$host"
       if [ $? -ne 1 ]; then # not error
         host="$matching_host"
       fi
@@ -140,12 +141,12 @@ else # clone to and install on remote device
 
     target="${host}:.dmt"
 
-    printf "${CYAN}Installing on ${YELLOW}$host${NC}\n"
+    printf "${CYAN}Installing on ${YELLOW}$host:$ssh_port${NC}\n"
 
     compile
 
-    dirsync ~/.dmt "$target"
+    dirsync --port $ssh_port ~/.dmt "$target"
 
-    remote --silent -h "$host" "cd ~/.dmt; ./install"
+    remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
 
 fi

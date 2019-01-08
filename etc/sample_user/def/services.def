@@ -16,3 +16,8 @@ service: player
   symbol: 🎸
   ---
   maxResults: 30
+
+service: gui
+  port: 7777
+  wsPort: 7780
+  symbol: 🌐
