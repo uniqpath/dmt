@@ -111,6 +111,16 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       install_core_bin
     fi
 
+    if [ ! -d "$DMT_PATH/user" ]; then
+      printf "${CYAN}Missing user dir, copying ./etc/sample_user${NC}\n"
+      cp -r "$DMT_PATH/etc/sample_user" "$DMT_PATH/user"
+
+      cwd="`pwd`"
+      cd "$DMT_PATH/user/devices"
+      ln -s pc this
+      cd "$cwd"
+    fi
+
     printf "\n${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT SYSTEM ∞${NC} installed on ${CYAN}$(hostname)${NC}\n\n"
     printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${MAGENTA}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
     printf "${GRAY}If this works, then try to log out of terminal and back in.${NC}\n"
