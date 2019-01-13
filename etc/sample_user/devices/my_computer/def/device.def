@@ -1,0 +1,7 @@
+device: my_computer
+
+  content: * [from] content.def
+
+  service: player
+    contentRef: music
+

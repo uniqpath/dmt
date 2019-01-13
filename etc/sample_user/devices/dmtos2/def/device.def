@@ -1,6 +1,6 @@
 device: dmtos2
 
   service: player
-    contentRef: @server/music
+    contentRef: @my_server/music
     defaultVolume:
       mpv: 70

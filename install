@@ -117,7 +117,7 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
 
       cwd="`pwd`"
       cd "$DMT_PATH/user/devices"
-      ln -s pc this
+      ln -s my_computer this
       cd "$cwd"
     fi
 
