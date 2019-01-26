@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "./shell/.bash_util"
+source "./shell/.bash_dmt_vars"
 source "./shell/.bash_general"
 source "./shell/.bash_networking"
 source "./shell/.bash_devices"
@@ -49,7 +50,7 @@ function install_core_source {
       git pull
       cd ..
     else
-      printf "${YELLOW}core already exists but is not a git repo, not updating${NC}\n"
+      printf "🚀 ${CYAN}dmt-core ${GREEN}already exists but is not a git repo, not updating${NC}\n"
     fi
   else
     printf "${CYAN}Pulling ${MAGENTA}dmt-core${NC} from public repository on ${GRAY}Microsoft GitHub${NC}\n"
@@ -94,7 +95,7 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
         rm "$HOME/.bash_aliases"
       else
         mv "$HOME/.bash_aliases" "$HOME/.bash_aliases-backup-by-dmt"
-        printf "\n${GRAY}Backed up $HOME/.bash_aliases → $HOME/.bash_aliases-backup-by-dmt${NC}\n\n"
+        #printf "\n${GRAY}Backed up $HOME/.bash_aliases → $HOME/.bash_aliases-backup-by-dmt${NC}\n\n"
       fi
     fi
 
@@ -112,20 +113,23 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
     fi
 
     if [ ! -d "$DMT_PATH/user" ]; then
-      printf "${CYAN}Missing user dir, copying ./etc/sample_user${NC}\n"
+      printf "${GREEN}~/.dmt/user ${CYAN}directory was not present, created a sample one from ${GREEN}~/.dmt/etc/sample_user${NC}\n"
       cp -r "$DMT_PATH/etc/sample_user" "$DMT_PATH/user"
 
+      printf "${YELLOW}identifying this device as ${CYAN}~/.dmt/user/devices/my_computer${NC} (you can use ${GREEN}dmt device select${NC} to adjust)\n"
       cwd="`pwd`"
       cd "$DMT_PATH/user/devices"
       ln -s my_computer this
       cd "$cwd"
     fi
 
-    printf "\n${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT SYSTEM ∞${NC} installed on ${CYAN}$(hostname)${NC}\n\n"
-    printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${MAGENTA}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
-    printf "${GRAY}If this works, then try to log out of terminal and back in.${NC}\n"
-    printf "${GRAY}If it still works, ${GREEN}then everything is set up correctly.${NC}\n"
-    printf "${GRAY}If not, read the docs at ${CYAN}https://github.com/uniqpath/dmt/blob/master/INSTALL.md${NC}\n"
+    printf "${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname) ${GRAY}(you may need to restart the terminal tab)${NC}\n"
+
+    #printf "${CYAN}Readings: ${MAGENTA}https://github.com/uniqpath/dmt/blob/master/AFTER_INSTALL.md${NC}\n"
+    # printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${MAGENTA}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
+    # printf "${GRAY}If this works, then try to log out of terminal and back in.${NC}\n"
+    # printf "${GRAY}If it still works, ${GREEN}then everything is set up correctly.${NC}\n"
+    # printf "${GRAY}If not, read the docs at ${CYAN}https://github.com/uniqpath/dmt/blob/master/INSTALL.md${NC}\n"
 
     . "$HOME/.bash_aliases"
 

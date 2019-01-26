@@ -1003,19 +1003,16 @@ function o {
 
 alias ox="o xcode"
 
-function z {
+function es {
   local sublime_path="/usr/local/bin/subl" # warning: this symlink is not automatic after sublime install, user has to add it, pointing to: /Applications/Sublime Text.app/Contents/SharedSupport/bin/subl
   local sublime_path2="$HOME/bin/subl"
-  local atom_path="/Applications/Atom.app/Contents/Resources/app/atom.sh"
 
   if [ -f "${sublime_path}" ]; then
     local editor="${sublime_path}"
   elif [ -f "${sublime_path2}" ]; then
     local editor="${sublime_path2}"
-  elif [ -f "${atom_path}" ]; then
-    local editor="${atom_path}"
   else
-    printf "${RED}No sublime or atom installed${NC}\n"
+    printf "${RED}No SublimeText editor installed${NC}\n"
     return
   fi
 
@@ -1026,7 +1023,23 @@ function z {
   fi
 }
 
-function vs {
+function ea {
+  local atom_path="/Applications/Atom.app/Contents/Resources/app/atom.sh"
+  if [ -f "${atom_path}" ]; then
+    local editor="${atom_path}"
+
+    if [ -z "$1" ]; then
+      command "${editor}" .
+    else
+      run_on_file "$1" "${editor}" '*' force
+    fi
+  else
+    printf "${RED}No atom editor installed${NC}\n"
+    return
+  fi
+}
+
+function ec {
   local cmd="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
   local args="$@"
   if [ -z "$1" ]; then

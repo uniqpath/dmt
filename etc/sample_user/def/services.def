@@ -1,17 +1,15 @@
 service: controller
-  code: controller/dmtService.js
   port: 3850
+  wsPort: 8888
   symbol: 💡
 
 service: search
-  code: search/searchService.js
   port: 4770
   symbol: 🚀
   ---
   contentRef: general
 
 service: player
-  code: music/playerService.js
   port: 5220
   symbol: 🎸
   ---
@@ -19,5 +17,6 @@ service: player
 
 service: gui
   port: 7777
+  #port: 80 # (in case you uncomment this line, comment out the previous!)
   wsPort: 7780
   symbol: 🌐

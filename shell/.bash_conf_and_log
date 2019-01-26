@@ -18,16 +18,10 @@ function conf {
     printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
     printf "${GREEN}fstab:${NC} /etc/fstab\n"
     printf "${GREEN}mpd:${NC} /etc/mpd.conf || ~/.mpdconf\n"
-    printf "${GREEN}forked-daapd:${NC} /etc/forked-daapd.conf\n"
-    printf "${GREEN}shairport-sync:${NC} /etc/shairport-sync.conf\n"
     printf "${GREEN}samba:${NC} /etc/samba/smb.conf\n"
     printf "${GREEN}syncthing:${NC} ~/.config/syncthing/config.xml\n"
     printf "${GREEN}munin:${NC} /etc/munin/munin.conf\n"
     printf "${GREEN}munin-node:${NC} /etc/munin/munin-node.conf\n"
-    # printf "${GREEN}snapserver:${NC} /etc/default/snapserver\n"
-    # printf "${GREEN}snapclient:${NC} /etc/default/snapclient\n"
-    printf "${GREEN}avahi:${NC} /etc/avahi/aliases ${GRAY}also restarts the service${NC}\n"
-    # printf "${GREEN}deluge:${NC} [DIR] /var/lib/deluge/.config/deluge ${GRAY}${NC}\n"
     printf "${GREEN}mosquitto:${NC} /etc/mosquitto/mosquitto.conf ${GRAY}${NC}\n"
 
     return
@@ -46,13 +40,10 @@ function conf {
     "alsa"
     "fstab"
     "mpd"
-    "forked-daapd"
-    "shairport-sync"
     "samba"
     "syncthing"
     "munin"
     "munin-node"
-    "avahi"
     "mosquitto"
   )
 
@@ -191,30 +182,6 @@ function conf {
       fi
       ;;
 
-    forked-daapd)
-      local conf="/etc/forked-daapd.conf"
-
-      if [ -f "${conf}" ]; then
-        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
-        sudo nano "${conf}"
-      else
-        printf "${RED}no forked-daapd config file found${NC}\n"
-        return
-      fi
-      ;;
-
-    shairport-sync)
-      local conf="/etc/shairport-sync.conf"
-
-      if [ -f "${conf}" ]; then
-        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
-        sudo nano "${conf}"
-      else
-        printf "${RED}no shairport-sync config file found${NC}\n"
-        return
-      fi
-      ;;
-
     samba)
       local conf="/etc/samba/smb.conf"
 
@@ -263,19 +230,6 @@ function conf {
       fi
       ;;
 
-    avahi)
-      local conf="/etc/avahi/aliases"
-
-      if [ -f "${conf}" ]; then
-        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
-        sudo nano "${conf}"
-        sudo systemctl restart avahi-alias
-        printf "${MAGENTA}avahi-alias service restarted${NC}\n"
-      else
-        printf "${RED}no avahi aliases config file found${NC}\n"
-      fi
-      ;;
-
     mosquitto)
       local conf="/etc/mosquitto/mosquitto.conf"
 
@@ -320,20 +274,12 @@ function log {
     printf "${YELLOW}Usage:${NC}\n"
     echo
 
-    #printf "${GREEN}dmt: ${GRAY}/var/log/lighttpd/error.log${NC} \n"
     printf "${GREEN}lighttpd|light: ${GRAY}/var/log/lighttpd/error.log${NC} \n"
     printf "${GREEN}haproxy: ${GRAY}root; tail -f /var/log/haproxy.log${NC}\n"
     # printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
     # printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
     printf "${GREEN}mpd:${NC} /var/log/mpd/mpd.log\n"
-    printf "${GREEN}forked-daapd: ${GRAY}/var/log/forked-daapd.log${NC}\n"
-    printf "${GREEN}shairport-sync: ${GRAY}tail -f /var/log/syslog | grep shairpo${NC}\n"
     # printf "${GREEN}samba:${NC} /etc/samba/smb.conf\n"
-    # printf "${GREEN}snapserver:${NC} /etc/default/snapserver\n"
-    # printf "${GREEN}snapclient:${NC} /etc/default/snapclient\n"
-    # printf "${GREEN}avahi:${NC} /etc/avahi/aliases ${GRAY}also restarts the service${NC}\n"
-    # printf "${GREEN}deluged:${NC} /var/log/deluge/daemon.log ${GRAY}${NC}\n"
-    # printf "${GREEN}deluge-web:${NC} /var/log/deluge/web.log ${GRAY}${NC}\n"
     printf "${GREEN}mosquitto:${NC} /var/log/mosquitto/mosquitto.log ${GRAY}${NC}\n"
 
     return
@@ -344,8 +290,6 @@ function log {
     "mpd"
     "lighttpd"
     "haproxy"
-    "forked-daapd"
-    "shairport-sync"
     "munin"
     "munin-node"
     "mosquitto"
@@ -389,32 +333,6 @@ function log {
         printf "Execute: ${MAGENTA}root; tail -f /var/log/haproxy.log${NC}\n"
       else
         printf "${RED}no haproxy found${NC}\n"
-        return
-      fi
-
-      ;;
-
-    forked-daapd)
-
-      local conf="/etc/forked-daapd.conf"
-
-      if [ -f "${conf}" ]; then
-        tail -f /var/log/forked-daapd.log
-      else
-        printf "${RED}no forked-daapd installed${NC}\n"
-        return
-      fi
-
-      ;;
-
-    shairport-sync)
-
-      local conf="/etc/shairport-sync.conf"
-
-      if [ -f "${conf}" ]; then
-        tail -f /var/log/syslog | grep shairpo
-      else
-        printf "${RED}no shairport-sync installed${NC}\n"
         return
       fi
 

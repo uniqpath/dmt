@@ -1,0 +1,45 @@
+#!/bin/bash
+
+LOGNAME_HOME="$HOME"
+
+DMT_PATH="$LOGNAME_HOME/.dmt"
+
+DMT_USER_PATH="$LOGNAME_HOME/.dmt/user"
+DMT_THIS_DEVICE="$LOGNAME_HOME/.dmt/user/devices/this"
+
+DMT_DEVICE_FILE="$DMT_THIS_DEVICE/def/device.def"
+
+DMT_STATE="$DMT_PATH/state"
+
+DMT_CORE="$LOGNAME_HOME/.dmt/core"
+DMT_NODE_CORE="$DMT_CORE/node"
+DMT_RUST_CORE="$DMT_CORE/rust"
+
+DMT_RUNTIMES=(node rust)
+
+# for runtime in "${DMT_RUNTIMES[@]}"
+# do
+#   if [ ! -f "$DMT_CORE/${runtime}" ]; then
+#     mkdir -p "$DMT_CORE/${runtime}"
+#   fi
+# done
+
+# if [ ! -f "$DMT_CORE/static" ]; then
+#   mkdir -p "$DMT_CORE/static"
+# fi
+
+DMT_SCRIPTS="$DMT_PATH/etc/scripts"
+
+DMT_PLATFORM=""
+if macos; then
+  DMT_PLATFORM="darwin"
+elif [ "$OSTYPE" == "linux-gnu" ]; then
+  DMT_PLATFORM="linux-x64"
+elif [ "$OSTYPE" == "linux-gnueabihf" ]; then
+  DMT_PLATFORM="linux-arm"
+fi
+
+DMT_PLATFORM_BIN="${DMT_PATH}/bin/${DMT_PLATFORM}"
+DMT_USER_PLATFORM_BIN="${DMT_USER_PATH}/bin/${DMT_PLATFORM}"
+DMT_DEVICE_PLATFORM_BIN="${DMT_THIS_DEVICE}/bin/${DMT_PLATFORM}"
+DMT_AP_DEFAULT_HOST="pi@192.168.1.1"

@@ -1,6 +1,7 @@
 device: my_computer
 
-  content: * [from] content.def
+  content: music
+    path: ~/Music
 
   service: player
     contentRef: music

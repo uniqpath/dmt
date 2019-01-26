@@ -1,6 +1,7 @@
 deploy
 tagversion
 todo.txt
+INSTRUCTIONS.md
 /bin
 /log
 /core

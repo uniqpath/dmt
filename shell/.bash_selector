@@ -51,10 +51,12 @@ handle_sigtstp() {
 
 NONE_OPTION="_NONE_"
 CREATE_NEW_OPTION="_NEW_"
+QUIT_OPTION="*QUIT*"
 
 versions_paths() {
   echo "$NONE_OPTION"
   echo "$CREATE_NEW_OPTION"
+  echo "$QUIT_OPTION"
   local BASE_PATH="$DMT_PATH/user/devices"
   find "$BASE_PATH" -maxdepth 1 -type d \
     | sed 's|'$BASE_PATH'/||g' \
@@ -142,6 +144,12 @@ check_current_version() {
 # Activate <version>
 #
 
+quit() {
+  clear
+  leave_fullscreen
+  exit
+}
+
 activate() {
   local selected="$1"
   check_current_version
@@ -162,6 +170,10 @@ activate() {
 
       $CREATE_NEW_OPTION)
         create_new_device
+        ;;
+
+      $QUIT_OPTION)
+        quit
         ;;
 
       *)
@@ -276,9 +288,7 @@ device_selector() {
       #   display_versions_with_selected $(next_version_installed)
       #   ;;
       "q")
-        clear
-        leave_fullscreen
-        exit
+        quit
         ;;
       "")
         # enter key returns empty string

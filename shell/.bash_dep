@@ -401,7 +401,7 @@ function dirsync {
     local no_ignore=false
     local no_delete=false
     local full_delete=false
-    local ssh_port="22"
+    local ssh_port
 
     for arg in "$@"
     do
@@ -508,7 +508,12 @@ function dirsync {
     # https://gist.github.com/KartikTalwar/4393116
     printf "${GREEN}Syncing...${NC}\n"
 
-    local e_params="ssh -p ${ssh_port} -T -o Compression=no -x" # optimized for LAN !!
+    local e_params="ssh"
+    if [ -n "$ssh_port" ]; then
+      e_params="${e_params} -p ${ssh_port}"
+    fi
+    e_params="${e_params} -T -o Compression=no -x" # optimized for LAN !!
+
     local grep_ignore="Warning: Permanently added"
 
     if [ -f "./shell/.bash_general" ]; then

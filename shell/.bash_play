@@ -11,6 +11,8 @@ function m {
     "list"
     "next"
     "info"
+    "list"
+    "shuffle"
   )
 
   # local host=""
@@ -41,7 +43,7 @@ function m {
         hosts="${hosts} @@$network_id"
         shift
       fi
-    elif [[ "$arg" == @* ]]; then
+    elif [[ "$arg" == @* ]] && [[ ! "$arg" =~ = ]]; then # @count=200 etc. these should not be treated as hostnames
       hosts="${hosts} ${arg}"
       shift
     fi
@@ -81,7 +83,8 @@ function pl {
 
 function play {
 
-  local audio_cmd="mpv --no-video --volume 60"
+  #local audio_cmd="mpv --no-video --volume 60"
+  local audio_cmd="$DMT_PLATFORM_BIN/music_player"
 
   # AUDIO
   if [ -z "$1" ] || [ "$1" == "mp3" ] || [ "$1" == "flac" ] || [ "$1" == "ogg" ]; then
@@ -135,21 +138,55 @@ function play {
 }
 
 function soundtest {
-  if [ "$1" == "mp3" ]; then
-    which mpv > /dev/null 2>&1
+  dmt stop
+  killall mpv
 
-    if [ $? -eq 0 ]; then
-      printf "${GREEN}Playing...${NC}\n"
-    else
-      printf "${MAGENTA}mpv is missing, installing...${NC}\n"
-      sudo apt-get update
-      sudo apt-get -y install mpv
-      printf "\n${GREEN}Playing...${NC}\n"
-    fi
-
-    mpv --no-video "$DMT_PATH/etc/soundtest/soundtest.mp3"
-  else
-    aplay "$DMT_PATH/etc/soundtest/soundtest.wav"
+  if is_rpi; then
+    printf "${GREEN}Soundtest ${MAGENTA}0.${NC}\n"
+    aplay "$DMT_PATH/etc/sounds/soundtest/music.wav"
   fi
+
+  which mpv > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then
+    printf "${MAGENTA}mpv is missing, please install it....${NC}\n"
+    printf "${GRAY}debian linux / raspberrypi${NC} → ${GREEN}sudo apt-get install mpv${NC}\n"
+    printf "${GRAY}macos${NC} → ${GREEN}brew install mpv${NC}\n"
+    printf "${GRAY}windows${NC} → ${YELLOW}?${NC}\n"
+    return
+  fi
+
+  #printf "${GREEN}Soundtest ${MAGENTA}1.${NC}\n"
+  #mpv --no-video "$DMT_PATH/etc/sounds/soundtest/music.mp3"
+
+  printf "${GREEN}Soundtest ${MAGENTA}1.${NC}\n"
+  node "$DMT_NODE_CORE/dmt-controller/lib/player/localMusicPlayer.js"
+
+  killall mpv
+
+  dmt start
 }
 
+
+function videotest {
+  # if is_rpi; then
+  #   printf "${GREEN}Soundtest ${MAGENTA}0.${NC}\n"
+  #   aplay "$DMT_PATH/etc/sounds/soundtest/music.wav"
+  # fi
+
+  which mpv > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then
+    printf "${MAGENTA}mpv is missing, please install it....${NC}\n"
+    printf "${GRAY}debian linux / raspberrypi${NC} → ${GREEN}sudo apt-get install mpv${NC}\n"
+    printf "${GRAY}macos${NC} → ${GREEN}brew install mpv${NC}\n"
+    printf "${GRAY}windows${NC} → ${YELLOW}?${NC}\n"
+    return
+  fi
+
+  #printf "${GREEN}Videotest ${MAGENTA}1.${NC}\n"
+  #mpv "$DMT_PATH/etc/videos/videotest/video.mp4"
+
+  printf "${GREEN}Videotest ${MAGENTA}1.${NC}\n"
+  node "$DMT_NODE_CORE/dmt-controller/lib/player/localVideoPlayer.js"
+}

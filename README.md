@@ -1,68 +1,135 @@
-# DMT 🚀☘
+<img src="https://github.com/uniqpath/everything/blob/master/assets/img/dmt-logo.png?raw=true" width="286px">
 
-> Simplicity is the ultimate form of sophistication.
-> — Leonardo da Vinci
+<img src="https://github.com/uniqpath/everything/blob/master/assets/img/dmt-homepanel.jpg?raw=true">
 
-We are developing a time synchronisation platform for devices with CPU, basically creating a virtual clock that keeps all devices in sync so that the shared state is pedictable.
+## 🔌 Prerequisites
 
-State is synchronized over four-tier eventing architecture with each level doing focused work. Levels are:
+### Linux (debian) deps
 
-- on device
-- on link-local network
-- on global network
-- on UI clients (mostly via new `WebSocket technology` — `ws://`)
+```
+sudo apt-get install -y curl git
+```
 
-This is a general computing platform that integrates with blockchains and everything else related to computing.
+### Other linux deps
 
-Time synchronisation is always a challenge and we took a sane approach with some well understood tradeoffs. The benefit is that our clock can be down to `0.1s` or even `µs` in some cases as compared to most blockchains where it is tens of seconds or even minutes for blocks to be finalized. Of course our system is not better, just complementary and mutually reinforcing with various other great systems and approaches. Since everything is so flexible, modular and open, the implementer of the whole has to know quite a lot to achieve nearly perfect final design with well defined characteristics.
+See your os manual.
 
-## More interesting features:
+### macOS deps
 
-### Disappearing private keys
+```
+brew install git
+```
 
-Since people are bad with keeping their private keys safe, our system helps by loosing private keys all the time because they are cheap to regenerate. If a private key is lost, *someone else* looses access to your content, you do not.
+### Node.js
 
-## Install
+recommended way on both Linux and macOS:
 
-    curl -L https://raw.githubusercontent.com/uniqpath/dmt/master/shell/web-one-line-install-script | bash
+```
+curl -L https://git.io/n-install | bash
+```
 
-or Update if already installed:
+This install `node.js` via [n](https://github.com/tj/n). If you already have system version of `node.js`, try with that. It has to be higher than `v8.0`.
 
-    dmt next
+## 🌀 Install DMT
 
-## Run
+The best technology helps you become more isolated from uncertainty and unpredicatble actions of _"the external world"_. The most useful digital systems let you progress at your own stable pace and help you learn more useful and true information instead of dissipating your attention needlessly. The greatest information systems of the future have no direct incentives to extract "value" from its users. **DMT** is progressing each day and there is no exact path forward, just a few basic assumptions of what we want to achieve. One of the clearest goals is: taking back individual control of our destinies while still staying connected in coherent but dynamic whole.
 
-    dmt version
+### Pro way ✓✓
 
-Now a lot should already work (see `dmt help`) but all of it is transactional on explicit user request (like http protocol for example). To get background processing and thus most out of the system, you will want to start a few background services (default ones are: `dmt-controller` and `search-and-play`) with:
+```bash
+curl -L https://raw.githubusercontent.com/uniqpath/dmt/master/shell/web-one-line-install-script | bash
+```
 
-    dmt start
+```bash
+source ~/.bash_aliases
+dmt help
+```
+### Beginner way ✓
 
-See what the system is doing at each moment (hint: not much by design, only when needed and requested):
+```bash
+cd ~
+git clone https://github.com/uniqpath/dmt .dmt
+cd .dmt
+git clone https://github.com/uniqpath/dmt-core core
+git clone https://github.com/uniqpath/dmt-bin bin
+./dmt symlink
+```
 
-    dmt log
+```bash
+cd ~/.dmt
+./dmt help
+```
 
-[More info](INSTALL.md)
+Beginner, move to Pro →
 
-## Where?
+```bash
+./install full
+```
 
-- servers _(example: for data and search processing)_
-- **laptops or PCs** _(example: as a remote controller device for sbcs, as a consumer of personal server data etc.)_
-- and especially **single board computers (SBC)** (RPi, odroid etc.) _(as digital slaves, as it should be)_
+## Usage
 
-## But why?
+Get the basic information about current device (you are invited to install `dmt` on as many of your devices as allowed).
 
-Examples of what could be achieved with this technology:
+Beginner ✓
 
-🚀🎸🌀 [Tutorials](https://github.com/uniqpath/everything/blob/master/tutorials/README.md)
+```bash
+cd ~/.dmt
+./dmt info
+```
 
-## Computing Elves Inside Your Machine
+Pro ✓✓
 
-“In short, I do not believe DMT is a gateway to an alternate dimension, nor does it induce contact with autonomous elves and alien entities. Yes, DMT produces a vivid other-worldly landscape when ingested, often including elves, aliens, insects, snakes, jaguars, etc. This is true for the majority of people who try it. Some people do not have such vivid responses, but many do. Although this may appear at first glance to be "shocking," it is actually no more shocking then the fact that most people dream at night, or that most people see geometric patterns (pressure phosphenes) when they close their eyes and press against their eyeballs. But the difference between pressure phosphenes and DMT is that DMT is illegal and very hard to come by, so most people never have the opportunity to experience it. If we could all hold our breath for a minute and produce vivid hallucinations of alien landscapes it would seem quite mundane, no more than a mere curiosity of the human condition. However, since this particular alien landscape is produced by a specific rare substance (DMT), people seem to think it is akin to unlocking the mysteries of the universe when they actually get their hands on it.”
+```
+dmt info
+```
 
-— from __The Case Against DMT Elves__ by _James Kent_
+### 💡Start the process
 
-![DMT](https://subcults.com/img/bitcells.jpg)
+_DMT background process_ is like your digital servant that can fullfill a lot of your digital wishes and not tell anyone about it.
 
-Runs [everything](https://github.com/uniqpath/everything).
+Beginner ✓
+
+```bash
+cd ~/.dmt
+./dmt start
+```
+
+Pro ✓✓
+
+```
+dmt start
+```
+
+Use `dmt stop` to full terminate the background process.
+
+### See what is going on inside the process
+
+Beginner ✓
+
+```bash
+cd ~/.dmt
+./dmt log
+```
+
+Pro ✓✓
+
+```
+dmt log
+```
+
+If you wish to have immediate feedback, try `dmt stop` and `dmt startfg` to start the _dmt process_ in foreground, not background. You will be able to observe all the log output as it happens in realtime.
+
+## ➬ Update request
+
+To pull stable changes from github from the three repositories: [dmt](https://github.com/uniqpath/dmt), [dmt-core](https://github.com/uniqpath/dmt-core), [dmt-bin](https://github.com/uniqpath/dmt-bin), use this command:
+
+```
+dmt next
+```
+
+## 🦄 Congrats!
+
+This was just the zeroth step, [now you can start](https://github.com/uniqpath/everything).
+
+<img src="https://github.com/uniqpath/everything/blob/master/assets/img/dmt-processor.png?raw=true">
 

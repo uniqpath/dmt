@@ -174,49 +174,8 @@
 #   fi
 # fi
 
-LOGNAME_HOME="$HOME"
-
-DMT_PATH="$LOGNAME_HOME/.dmt"
-
-DMT_USER_PATH="$LOGNAME_HOME/.dmt/user"
-DMT_THIS_DEVICE="$LOGNAME_HOME/.dmt/user/devices/this"
-
-DMT_DEVICE_FILE="$DMT_THIS_DEVICE/def/device.def"
-
-DMT_STATE="$DMT_PATH/state"
-
-DMT_CORE="$LOGNAME_HOME/.dmt/core"
-DMT_NODE_CORE="$DMT_CORE/node"
-DMT_RUST_CORE="$DMT_CORE/rust"
-
-DMT_RUNTIMES=(node rust)
-
-# for runtime in "${DMT_RUNTIMES[@]}"
-# do
-#   if [ ! -f "$DMT_CORE/${runtime}" ]; then
-#     mkdir -p "$DMT_CORE/${runtime}"
-#   fi
-# done
-
-# if [ ! -f "$DMT_CORE/static" ]; then
-#   mkdir -p "$DMT_CORE/static"
-# fi
-
-DMT_SCRIPTS="$DMT_PATH/etc/scripts"
-
-DMT_PLATFORM=""
-if macos; then
-  DMT_PLATFORM="darwin"
-elif [ "$OSTYPE" == "linux-gnu" ]; then
-  DMT_PLATFORM="linux-x64"
-elif [ "$OSTYPE" == "linux-gnueabihf" ]; then
-  DMT_PLATFORM="linux-arm"
-fi
-
-DMT_PLATFORM_BIN="${DMT_PATH}/bin/${DMT_PLATFORM}"
-DMT_USER_PLATFORM_BIN="${DMT_USER_PATH}/bin/${DMT_PLATFORM}"
-DMT_DEVICE_PLATFORM_BIN="${DMT_THIS_DEVICE}/bin/${DMT_PLATFORM}"
-DMT_AP_DEFAULT_HOST="pi@192.168.1.1"
+# LOGNAME_HOME="$HOME"
+# DMT_PATH="$LOGNAME_HOME/.dmt"
 
 # syncbox="pi@dmt.local"
 
@@ -273,6 +232,15 @@ function al {
 
 function loop {
   while true; do "$@"; sleep 5; done
+}
+
+function latest {
+  local num=5
+  if [ -n "$1" ]; then
+    num="$1"
+  fi
+
+  ls -tp | grep -v /$ | head -"$num"
 }
 
 function newscript {
@@ -490,12 +458,10 @@ function kiosk {
 
     reload)
 
-      if [ ! -f ~/.config/lxsession/LXDE-pi/autostart ]; then
-        printf "${YELLOW}Kiosk configuration missing...${NC}\n"
-        return
-      fi
-
-      printf "${GREEN}Reloaded...${NC}\n"
+      # if [ ! -f ~/.config/lxsession/LXDE-pi/autostart ]; then
+      #   printf "${YELLOW}Kiosk configuration missing...${NC}\n"
+      #   return
+      # fi
 
       #printf "${MAGENTA}Note: this only reloads the currently open url, if you changed it, you have to call [kiosk restart]${NC}\n"
 
@@ -509,6 +475,8 @@ function kiosk {
       else
         printf "${RED}xdotool missing, please install with: ${GRAY}sudo apt-get -y install xdotool${NC}\n"
       fi
+
+      printf "${GREEN}Reloaded...${NC}\n"
 
       ;;
 
@@ -1495,6 +1463,11 @@ function countr {
   printf "${CYAN}Directories (Recursive): "
   find "$dir/" ! -path . ! -path "*/.git/*" -type d | wc -l | xargs # "/" is needed if we use "count ~/path/to/symlinked_directory", it's changed to: "count ~/path/to/symlinked_directory/"
   printf "${GREEN}Files: (Recursive):      "
+  # If you have issues here: for example mismatch in number of files in two directories where one is a copy of another,
+  # it's almost certainly symlinks issue, find out like this:
+  # Directory A) find . -type f > ~/Desktop/a.txt
+  # Directory B) find . -type f > ~/Desktop/b.txt
+  # Compare: diff ~/Desktop/a.txt ~/Desktop/b.txt
   find "$dir/" ! -path "*/.DS_Store" ! -path "*/.git/*" -type f | wc -l | xargs
   printf "${NC}"
 }

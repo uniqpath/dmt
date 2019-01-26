@@ -1,0 +1,3 @@
+#!/bin/bash
+. "$HOME/.dmt/shell/basic_commands"
+dmt "$@"

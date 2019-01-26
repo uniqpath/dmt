@@ -1,7 +1,6 @@
 .DS_Store
 .deploy
 .deployignore
-.coolsync
 .git
 .gitignore
 log

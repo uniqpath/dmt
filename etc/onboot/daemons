@@ -22,7 +22,7 @@ function manage_daemon {
 
 function manage_daemons {
   local command="$1"
-  manage_daemon "$command" dmt-monolith
+  manage_daemon "$command" dmt-proc
 }
 
 if [ -z "$1" ]; then

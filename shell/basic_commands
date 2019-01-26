@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source $HOME/.dmt/shell/.bash_util
+source $HOME/.dmt/shell/.bash_dmt_vars
+source $HOME/.dmt/shell/.bash_dmt
+source $HOME/.dmt/shell/.bash_search
+source $HOME/.dmt/shell/.bash_play

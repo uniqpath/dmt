@@ -26,7 +26,7 @@ function dmt {
         hosts="${hosts} @@$network_id"
         shift
       fi
-    elif [[ "$arg" == @* ]]; then
+    elif [[ "$arg" == @* ]] && [[ ! "$arg" =~ = ]]; then # @attr=val should not be treated as hostnames
       hosts="${hosts} ${arg}"
       shift
     fi
@@ -49,9 +49,10 @@ function dmt {
     "renew"
     "remove"
     "log"
-    "log2"
+    "logfg"
     "install"
     "start"
+    "startfg"
     "restart"
     "stop"
     "symlink"
@@ -79,7 +80,7 @@ function dmt {
         echo
         printf "${CYAN}This device info:${NC}\n\n"
         if [ ! -f "$DMT_DEVICE_FILE" ]; then
-          printf "${RED}Reminder ● ${GRAY}you still need to configure this device ● ${CYAN}please run → \n\n${GREEN}  dmt device config${NC}\n\n"
+          printf "${RED}Reminder ● ${GRAY}you still need to configure this device ● ${CYAN}please run → \n\n${GREEN}  dmt device select${NC}\n\n"
           return
         fi
       fi
@@ -148,98 +149,6 @@ function dmt {
       fi
       ;;
 
-    log)
-
-      declare -a opts=(
-        "dmt-controller"
-        "dmt-search"
-        "dmt-player"
-        "controller"
-        "search"
-        "player"
-      )
-
-      if [ "$1" == "-h" ]; then
-        printf "${YELLOW}All logs:${NC}\n"
-
-        for service in "${opts[@]}"
-        do
-          printf "\n${MAGENTA}${service}${NC}\n"
-          if [ "$service" == "dmt-controller" ]; then
-            printf "${CYAN}  default + special because:\n"
-            printf "${CYAN}    a) you can call it on remote devices, example: ${GRAY}dmt ${GREEN}@host ${GRAY}log${NC}\n"
-            printf "${CYAN}    b) you can only call it via rpc (even on local device)${NC}\n"
-          fi
-        done
-        return
-      fi
-
-      local matching_opt=''
-      opts_matcher matching_opt "$1" "${opts[@]}"
-
-      if [ $? -ne 0 ]; then # error
-        if [ -n "$1" ]; then # error
-          printf "${RED}Unknown log: ${1}${NC}\n"
-          return
-        else
-          matching_opt="dmt-controller" # default
-        fi
-      fi
-
-      if [ "$matching_opt" == "controller" ]; then
-        matching_opt="dmt-controller"
-      fi
-
-      if [ "$matching_opt" == "search" ]; then
-        matching_opt="dmt-search"
-      fi
-
-      if [ "$matching_opt" == "player" ]; then
-        matching_opt="dmt-player"
-      fi
-
-      shift
-
-      case "$matching_opt" in
-
-        dmt-controller)
-          if [ -n "$hosts" ]; then
-            node "$DMT_CLI" "${hosts}" log "$@"
-          else
-            node "$DMT_CLI" log "$@"
-          fi
-          ;;
-
-        dmt-search)
-          local logfile="$DMT_PATH/log/dmt-search.log"
-          if [ -f "$logfile" ]; then
-            tail -f "$logfile"
-          else
-            printf "${RED}${logfile} is missing${NC}\n"
-          fi
-          ;;
-
-        dmt-player)
-          local logfile="$DMT_PATH/log/dmt-player.log"
-          if [ -f "$logfile" ]; then
-            tail -f "$logfile"
-          else
-            printf "${RED}${logfile} is missing${NC}\n"
-          fi
-          ;;
-
-      esac
-
-      ;;
-
-    # shares)
-    #   if [ -n "$hosts" ]; then
-    #     node "$DMT_CLI" "${hosts}" shares "$@"
-    #   else
-    #     node "$DMT_CLI" shares "$@"
-    #   fi
-    #   ;;
-
     services)
       if [ -n "$hosts" ]; then
         node "$DMT_CLI" "${hosts}" services "$@"
@@ -248,86 +157,18 @@ function dmt {
       fi
       ;;
 
-    # provider)
-    #   if [ -n "$hosts" ]; then
-    #     node "$DMT_CLI" "${hosts}" provider "$@"
-    #   else
-    #     node "$DMT_CLI" provider "$@"
-    #   fi
-    #   ;;
-
-    # providers)
-    #   if [ -n "$hosts" ]; then
-    #     node "$DMT_CLI" "${hosts}" providers "$@"
-    #   else
-    #     node "$DMT_CLI" providers "$@"
-    #   fi
-    #   ;;
-
     version)
       dmt_version
       ;;
 
     device)
-
-      declare -a opts=(
-        "configure"
-        "def"
-      )
-
-      if [ -z "$1" ] || [ "$1" == "-h" ]; then
-        local device_name=''
-        get_current_device device_name
-
-        if [ -n "$device_name" ]; then
-          printf "${CYAN}Device name: 💡 ${MAGENTA}${device_name}${NC}\n\n"
-        else
-          printf "${GRAY}This device is ${RED}unnamed 🤔${GRAY}, ${YELLOW}please name it by running ${GREEN}dmt device configure${NC}\n\n"
-          return
-        fi
-
-        printf "${YELLOW}Usage:${NC}\n"
-        printf "${GREEN}configure${NC} ${GRAY}select configuration for this device from existing configurations or create a new configuration and assign it to this device${NC}\n"
-        printf "${GREEN}def${NC} ${GRAY}shows parsed device.def definition in json format${NC}\n"
-
-        return
-      fi
-
-      local matching_opt=''
-      opts_matcher matching_opt "$1" "${opts[@]}"
-      # if [ $? -ne 0 ]; then # error
-      #   #printf "Use -h to see valid options\n\n"
-      #   #matching_opt="aaa" # default
-      #   #return
-      # fi
-
-      shift
-
-      case "$matching_opt" in
-        configure)
-          local script="$DMT_SCRIPTS/setup_device"
-          if [ -f "$script" ]; then
-            "$script"
-          fi
-          return
-          ;;
-
-        def)
-          printf "${YELLOW}Showing parsed defice definition:${NC}\n"
-          ;;
-      esac
-
-      local cli="$DMT_NODE_CORE/dmt-controller/cli/device.js"
-      if [ -n "$hosts" ]; then
-        node "$cli" "${hosts}" "$@"
-      else
-        node "$cli" "$@"
-      fi
-      #dmt_devices "$@"
+      dmt_device "$@"
       ;;
 
     next)
       dmt_next
+      #gui reload
+      #dmt restart
       ;;
 
     core)
@@ -362,23 +203,39 @@ function dmt {
       ;;
 
     start)
-      printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is starting...${NC}\n\n"
+      printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is starting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" start
       printf "\n${GRAY}Daemons should now be running, use ${GREEN}dmt log ${GRAY}to see if true.${NC}\n"
       ;;
 
+    stop)
+      printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is stopping...${NC}\n\n"
+      "${DMT_PATH}/etc/onboot/daemons" stop
+      ;;
+
     restart)
-      printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is restarting...${NC}\n\n"
+      printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is restarting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" restart
       printf "\n${GRAY}Daemons restarted, use ${GREEN}dmt log${NC} ${GRAY}to see the dmt-controller log.${NC}\n"
       ;;
 
-    stop)
-      printf "${CYAN}DMT SYSTEM${NC} ${MAGENTA}is stopping...${NC}\n\n"
-      "${DMT_PATH}/etc/onboot/daemons" stop
+    log)
+      dmt_log "$@"
+      ;;
+
+    # FOREGROUND
+
+    logfg)
+      dmt_log fg "$@"
+      ;;
+
+    startfg)
+      printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is starting in ${CYAN}foreground${NC} ...\n\n"
+      node --trace-warnings "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"
       ;;
 
     # undocumented:
+
     flash)
       dmt_flash "$@"
       ;;
@@ -394,14 +251,254 @@ function dmt {
   esac
 }
 
+function dmt_device {
+  declare -a opts=(
+    "cd"
+    "select"
+    "def"
+  )
+
+  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+    local device_name=''
+    get_current_device device_name
+
+    if [ -n "$device_name" ]; then
+      printf "${CYAN}Device name: 💡 ${MAGENTA}${device_name}${NC}\n\n"
+    else
+      printf "${GRAY}This device is ${RED}unnamed 🤔${GRAY}, ${YELLOW}please name it by running ${GREEN}dmt device select${NC}\n\n"
+      return
+    fi
+
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}cd${NC} ${GRAY}move to directory with curent device's configuration${NC}\n"
+    printf "${GREEN}select${NC} ${GRAY}select configuration for this device from existing configurations or create a new configuration and assign it to this device${NC}\n"
+    printf "${GREEN}def${NC} ${GRAY}shows parsed device.def definition in json format${NC}\n"
+
+    return
+  fi
+
+  local matching_opt=''
+  opts_matcher matching_opt "$1" "${opts[@]}"
+
+  shift
+
+  case "$matching_opt" in
+    cd)
+      device_helper cd
+      ;;
+
+    select)
+      local script="$DMT_SCRIPTS/setup_device"
+      if [ -f "$script" ]; then
+        "$script"
+      fi
+      ;;
+
+    def)
+      printf "${YELLOW}Showing parsed defice definition:${NC}\n"
+      local cli="$DMT_NODE_CORE/dmt-controller/cli/device.js"
+      if [ -n "$hosts" ]; then
+        node "$cli" "${hosts}" "$@"
+      else
+        node "$cli" "$@"
+      fi
+      ;;
+  esac
+}
+
+function dev {
+  dmt_device "$@"
+}
+
+function device_helper {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}cd${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}edit${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}list${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}ping${NC} ${GRAY}${NC}\n"
+  else
+    declare -a opts=(
+      "cd"
+      "edit"
+      "list"
+      "ping"
+    )
+
+    local matching_opt=''
+    opts_matcher matching_opt "$1" "${opts[@]}"
+    if [ $? -ne 0 ]; then # error
+      printf "${YELLOW}Use ${GREEN}help ${YELLOW}for more options${NC}\n\n"
+      #matching_opt="aaa" # default
+    fi
+
+    shift
+
+    case "$matching_opt" in
+      cd)
+        if [ -z "$1" ]; then
+          AWESOME_SILENCE=true awesome_cd ~/.dmt/user/devices
+          if [ $? -eq 0 ] && [ -d "this/def" ]; then
+            cd "this/def"
+          fi
+        else
+          AWESOME_SILENCE=true awesome_cd ~/.dmt/user/devices "$1"
+
+          if [ $? -eq 0 ]; then
+            if [ -d "def" ]; then
+              cd "def"
+            fi
+          else
+            printf "${RED}not found${NC}\n"
+          fi
+        fi
+        ;;
+
+      edit)
+        local file="${DMT_USER_PATH}/devices/devices.json"
+        if [ -f "$file" ]; then
+          e "$file"
+        else
+          printf "${RED}File not found${NC}\n"
+        fi
+        ;;
+
+      list)
+        for_all_devices "list"
+        ;;
+
+      ping)
+        for_all_devices
+        ;;
+
+      # exec)
+      #   for_all_devices "exec" "$@"
+      #   ;;
+
+      # update)
+      #   for_all_devices "update"
+      #   ;;
+    esac
+  fi
+}
+
+function state {
+  local DMT_STATE_FILE="$DMT_PATH/state/program.json"
+
+  if [ -f "$DMT_STATE_FILE" ]; then
+    if [ "$1" == "purge" ]; then
+      if [ -f "$DMT_STATE_FILE" ]; then
+        #dmt stop
+        rm "$DMT_STATE_FILE"
+        printf "${GREEN}purged dmt state${NC}\n"
+        #dmt start
+      fi
+    else
+      cat "${DMT_STATE_FILE}" | jq "$@"
+    fi
+  else
+    printf "${YELLOW}dmt state not found on disk${NC}\n"
+  fi
+}
+
+function gui {
+  local dir="$DMT_PATH/core/node/dmt-gui/gui-frontend"
+  local backendDir="$DMT_PATH/core/node/dmt-gui/gui-backend"
+
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}gui cd [gui]${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}gui run [gui]${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}gui build${NC} ${GRAY}build all GUIs${NC}\n"
+    printf "${GREEN}gui build [gui]${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}gui reload${NC} ${GRAY}send request to frontend via websocket requesting refresh of current url${NC}\n"
+    printf "${GREEN}gui reload [gui]${NC} ${GRAY}reloads the specified gui view (home, player, debug etc.)${NC}\n"
+    return
+  fi
+
+  case "$1" in
+    cd)
+      awesome_cd "$dir" "$2"
+      if [ $? -eq 0 ] && [ -d "src" ]; then
+        cd "src"
+      fi
+      ;;
+
+    reload)
+      local action="reload"
+      if [ -n "$2" ]; then
+        action="${action}:${2}"
+      fi
+      node "${backendDir}/ws_servers/index.js" localhost "$action" frontend
+      ;;
+
+    run)
+      if [ -z "$2" ]; then
+        npm run dev
+      else
+        awesome_cd "$dir" "$2"
+        if [ $? -eq 0 ]; then
+          npm run dev
+        fi
+      fi
+      ;;
+
+    build)
+      if [ -z "$2" ]; then
+        gui_build_all
+        return
+      fi
+
+      awesome_cd "$dir" "$2"
+      if [ $? -eq 0 ]; then
+        npm run build
+      fi
+      ;;
+
+    *)
+      awesome_cd "$dir" "$1"
+      ;;
+  esac
+}
+
+function dmt_log {
+  local foreground=false
+
+  if [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt log${NC} ${GRAY}get last 10 log lines on this machine${NC}\n"
+    printf "${GREEN}dmt @host log${NC} ${GRAY}get last 10 log lines for remote machine${NC}\n"
+    printf "${GREEN}dmt logfg${NC} ${GRAY}local log in foreground (updates are visible as they come)${NC}\n"
+    return
+  fi
+
+  local logfile="$DMT_PATH/log/dmt.log"
+
+  if [ "$1" == "fg" ]; then
+    tail -f -n 100 "$logfile"
+  else
+    if [ -n "$hosts" ]; then
+      node "$DMT_CLI" "${hosts}" log "$@"
+    else
+      node "$DMT_CLI" log "$@"
+    fi
+  fi
+}
+
 function dmt_help {
   printf "${YELLOW}Info:${NC}\n"
   printf "${GREEN}dmt help ${GRAY}shows this help${NC}\n"
   printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a browser${NC}\n"
   printf "${GREEN}dmt version ${GRAY}shows dmt version, like v$(cat "$DMT_PATH/.version")${NC}\n"
-  printf "${GREEN}dmt device ${GRAY}device configuration${NC}\n"
+  printf "${GREEN}dmt device ${GRAY}device configuration and information${NC}\n"
   echo
-  printf "${YELLOW}Unix background processes:\n${NC}"
+  printf "${YELLOW}Clone to more of your devices:${NC}\n"
+  printf "${GREEN}dmt next ${GRAY}gets the latest code from public repo on github (DMT SYSTEM never auto-updates)${NC}\n"
+  printf "${GREEN}dmt update [host] ${GRAY}or ${GREEN}dmt install [host] ${GRAY}clones dmt to another machine of yours (via SSH)${NC}\n"
+  printf "${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY})${NC}\n"
+  printf "${GREEN}dmt remove ${GRAY}self-destroys on this machine (except the user definitions and data)${NC}\n"
+  echo
+  printf "${MAGENTA}dmt-proc ${YELLOW}management:\n${NC}"
   printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
   echo
   printf "${GREEN}dmt start ${GRAY}starts the background services 💡🚀🎸${NC}\n"
@@ -415,12 +512,6 @@ function dmt_help {
   printf "${GREEN}dmt log ${GRAY}gets latest log of recent activity (only if daemons are running)${NC}\n"
   printf "${GREEN}dmt @hostOrIp log ${GRAY}self-describing${NC}\n"
   printf "${GREEN}dmt @@remoteIpOrHost log ${GRAY}self-describing${NC}\n"
-  echo
-  printf "${YELLOW}Spreading and dissemination:${NC}\n"
-  printf "${GREEN}dmt next ${GRAY}gets the latest code from public repo on github (DMT SYSTEM never auto-updates)${NC}\n"
-  printf "${GREEN}dmt update [host] ${GRAY}or ${GREEN}dmt install [host] ${GRAY}clones dmt to another machine of yours (via SSH)${NC}\n"
-  printf "${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY})${NC}\n"
-  printf "${GREEN}dmt remove ${GRAY}self-destroys on this machine (except the user definitions and data)${NC}\n"
 }
 
 function dmt_docs {
@@ -430,43 +521,6 @@ function dmt_docs {
     printf "${RED}Docs missing${NC}\n"
   fi
   #open https://github.com/uniqpath/dmt/blob/master/docs/README.md
-}
-
-function e {
-
-  if [ -z "$1" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    printf "${GREEN}e [command_shortcut] [args]${NC} ${GRAY}executes some of the common .dmt functions by refering to them with only part of the name${NC}\n"
-    return
-  fi
-
-  declare -a opts=(
-    "dmt"
-    "esp"
-    "devices"
-    "gateway_ip"
-    "gatewayMac"
-    "mac_ping"
-    "timer"
-    "count"
-    "freespace"
-    "space"
-    "usage"
-    "conf"
-    "speed"
-    "flash"
-    "serve"
-    "push_notify"
-  )
-
-  local matching_opt=''
-  opts_matcher matching_opt "$1" "${opts[@]}"
-  if [ $? -ne 0 ]; then # error
-    return
-  fi
-
-  shift
-  $matching_opt "$@"
 }
 
 function dmt_version {
@@ -575,8 +629,6 @@ function dmt_update {
     if dev_machine; then
       printf "${RED}Prevented on dev machine${NC}\n"
     fi
-  # elif [ "$1" == "devices" ] || [ "$1" == "all" ]; then
-  #   for_all_devices "update"
   else
     dmt_install "$@"
   fi
@@ -618,9 +670,6 @@ function dmt_remove {
 function dmt_restart {
   local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/etc/onboot/daemons restart\\\""
 
-  # if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
-  #   for_all_devices exec "$cmd"
-  # else
   local host="$1"
 
   if [ "$host" == "ap" ]; then

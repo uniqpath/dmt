@@ -1,6 +1,0 @@
-content: general
-  path: ~/Desktop
-
-content: music
-  share: music [from] shares.def
-  allow: @friends, @family
