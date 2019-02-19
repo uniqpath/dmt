@@ -35,7 +35,6 @@ function killport {
 }
 
 function proc {
-
   if [ -z "$1" ]; then
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}proc [process]${NC} ${GRAY}search all processes that match the term${NC}\n"
@@ -47,13 +46,23 @@ function proc {
 }
 
 function killall {
-  ps -ef | grep "${1}" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}' | xargs kill -9
-  # grep -v "command -v openssl >/dev/null" ==> get rid of really big output when using over ssh, this process output includes big public key which often matches our grepping stuff
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}killall [term]${NC} ${GRAY}kills *all processes* matching the search term${NC}\n"
+    return
+  fi
 
-  # todo: what if there is no matches?
+  local proc=$(ps -ef | grep "${1}" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
+  if [ -n "$proc" ]; then
+    echo "$proc" | xargs kill -9
+    printf "${CYAN}Killed process ${proc}${NC}\n"
+  else
+    printf "${GRAY}No such process: ${1}${NC}\n"
+  fi
+  # grep -v "command -v openssl >/dev/null" ==> get rid of really big output when using over ssh, this process output includes big public key which often matches our grepping stuff
 }
 
-# wtf is that ?
 function port2 {
   lsof -n -i4UDP:$1
 }

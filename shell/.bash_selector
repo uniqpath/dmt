@@ -51,7 +51,7 @@ handle_sigtstp() {
 
 NONE_OPTION="_NONE_"
 CREATE_NEW_OPTION="_NEW_"
-QUIT_OPTION="*QUIT*"
+QUIT_OPTION="*(Q)UIT*"
 
 versions_paths() {
   echo "$NONE_OPTION"
@@ -183,9 +183,9 @@ activate() {
         ln -s "$selected" this
 
         printf "${GREEN}✓ ${GRAY}Current device is now defined by files in ~/.dmt/user/devices/${MAGENTA}${selected}${GRAY} ${NC}\n"
-        printf "  ${GRAY}To delete this device's definition (careful!), issue this command: ${GARY}rm -rf ~/.dmt/user/devices/${selected}${NC}\n"
-        echo
-        printf "${GRAY}Please ${CYAN}reload the shell ${GRAY}by closing and reopening the terminal tab or entering: ${GREEN}rel${NC}\n"
+        printf "  ${GRAY}Please restart the ${MAGENTA}dmt process${GRAY} with ${GREEN}dmt restart ${GRAY}command${NC}\n"
+        # echo
+        # printf "${GRAY}Please ${CYAN}reload the shell ${GRAY}by closing and reopening the terminal tab or entering: ${GREEN}rel${NC}\n"
         ;;
     esac
 

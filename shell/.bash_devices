@@ -211,7 +211,7 @@ function getip {
       if ! $is_dmt_device; then
         echo
         printf "${GRAY}All possible matches:${NC}\n"
-        net_scan --no-rescan "$1"
+        net_scan --last "$1"
       fi
     else
       printf "${RED}Cannot find ip for ${CYAN}${1}${NC}\n"

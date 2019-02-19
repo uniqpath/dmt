@@ -108,13 +108,14 @@ function update_swarm {
   go install -v ./cmd/swarm
 }
 
+# https://github.com/paritytech/parity-ethereum/tree/stable
 function update_parity {
   cd ~/Install/parity
   git fetch
-  git reset --hard stable
-  echo "1.27.0" > rust-toolchain
+  git reset --hard origin/stable
+  #echo "1.27.0" > rust-toolchain
   cargo build --release --features final
-  printf "${YELLOW}set rust version 1.27.0, change this value in update_parity function if build failed${NC}\n"
+  #printf "${YELLOW}set rust version 1.27.0, change this value in update_parity function if build failed${NC}\n"
 }
 
 function update_rust {

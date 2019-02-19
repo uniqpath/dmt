@@ -273,21 +273,23 @@ function gc {
 
 # ----------------------------
 
-# functions instead of aliases because GRAB command coudln't see aliases
-function l1 {
-  log 1
-}
-function l2 {
-  log 2
-}
-function l3 {
-  log 3
-}
-function l4 {
-  log 4
-}
-function l5 {
-  log 5
+function log {
+  if [ -n "$1" ]; then
+    slog "$1"
+    return
+  fi
+
+  if [ -d ".git" ]; then
+    clear
+    git log -5
+    # if [ -z "$1" ]; then
+    #   git log -3
+    # else
+    #   git log -"$1"
+    # fi
+  else
+    printf "${RED}Not a git repository${NC}\n"
+  fi
 }
 
 # open app log

@@ -112,20 +112,26 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       install_core_bin
     fi
 
+    echo
+
+    printf "${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname) ${GRAY}(you may need to restart the terminal tab)${NC}\n"
+
     if [ ! -d "$DMT_PATH/user" ]; then
+      echo
       printf "${GREEN}~/.dmt/user ${CYAN}directory was not present, created a sample one from ${GREEN}~/.dmt/etc/sample_user${NC}\n"
       cp -r "$DMT_PATH/etc/sample_user" "$DMT_PATH/user"
 
-      printf "${YELLOW}identifying this device as ${CYAN}~/.dmt/user/devices/my_computer${NC} (you can use ${GREEN}dmt device select${NC} to adjust)\n"
+      printf "${YELLOW}Identifying this device as ${CYAN}~/.dmt/user/devices/my_computer${NC} (you can use ${GREEN}dmt device select${NC} to adjust)\n"
       cwd="`pwd`"
       cd "$DMT_PATH/user/devices"
       ln -s my_computer this
       cd "$cwd"
     fi
 
-    printf "${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname) ${GRAY}(you may need to restart the terminal tab)${NC}\n"
+    echo
+    printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${GRAY}source ~/.bash_aliases ${YELLOW}first.${NC}\n"
+    printf "${MAGENTA}Docs and tutorials: ${CYAN}https://github.com/uniqpath/info${NC}\n"
 
-    #printf "${CYAN}Readings: ${MAGENTA}https://github.com/uniqpath/dmt/blob/master/AFTER_INSTALL.md${NC}\n"
     # printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${MAGENTA}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
     # printf "${GRAY}If this works, then try to log out of terminal and back in.${NC}\n"
     # printf "${GRAY}If it still works, ${GREEN}then everything is set up correctly.${NC}\n"

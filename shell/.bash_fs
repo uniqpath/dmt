@@ -1003,6 +1003,10 @@ function o {
 
 alias ox="o xcode"
 
+function e {
+  en "$@"
+}
+
 function es {
   local sublime_path="/usr/local/bin/subl" # warning: this symlink is not automatic after sublime install, user has to add it, pointing to: /Applications/Sublime Text.app/Contents/SharedSupport/bin/subl
   local sublime_path2="$HOME/bin/subl"
@@ -1036,6 +1040,14 @@ function ea {
   else
     printf "${RED}No atom editor installed${NC}\n"
     return
+  fi
+}
+
+function en {
+  if [ -z "$1" ]; then
+    printf "${RED}Must specify file to edit with nano${NC}\n"
+  else
+    EDITOR=nano run_on_file "$1" "nano" '*' force
   fi
 }
 

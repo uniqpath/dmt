@@ -1,6 +1,7 @@
-<img src="https://github.com/uniqpath/everything/blob/master/assets/img/dmt-logo.png?raw=true" width="286px">
+<!-- <img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-logo.png?raw=true" width="500px"> -->
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-logo-with-tagline.png?raw=true&ver=5" width="600px">
 
-<img src="https://github.com/uniqpath/everything/blob/master/assets/img/dmt-homepanel.jpg?raw=true">
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-homepanel.jpg?raw=true">
 
 ## 🔌 Prerequisites
 
@@ -129,7 +130,7 @@ dmt next
 
 ## 🦄 Congrats!
 
-This was just the zeroth step, [now you can start](https://github.com/uniqpath/everything).
+This was just the zeroth step, [now you can start](https://github.com/uniqpath/info).
 
-<img src="https://github.com/uniqpath/everything/blob/master/assets/img/dmt-processor.png?raw=true">
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-processor.png?raw=true">
 

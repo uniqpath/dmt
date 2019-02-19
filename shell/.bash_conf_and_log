@@ -268,7 +268,7 @@ function wifi_setup {
 }
 
 
-function log {
+function slog {
 
   if [ -z "$1" ]; then
     printf "${YELLOW}Usage:${NC}\n"

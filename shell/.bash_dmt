@@ -6,9 +6,7 @@ function dmt {
   if [ -z "$1" ] || [ "$1" == "help" ] || [ "$1" == "version" ]; then
     printf "${MAGENTA}     ∞ DMT ∞${NC}\n"
     printf "${CYAN}Liberate yourself.${NC}\n"
-    if [ "$1" != "version" ]; then
-      echo
-    fi
+    echo
   fi
 
   # extract host from @ symbol but replace @all with the name of current network !
@@ -34,6 +32,24 @@ function dmt {
 
   hosts=$(echo "$hosts" | xargs) # remove trailing whitespace
 
+  # report if a process named "dmt-proc" is currently running
+  local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local proc_manager=$(ps -ef | grep "dmt-proc" | grep "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
+  if [ -z "$hosts" ]; then # if we're targeting remote hosts, information about our own local process is irrelevant
+    if [ -n "$proc" ]; then
+      printf "${CYAN}dmt-proc${NC} seems to be running with ${YELLOW}pid ${proc}${NC}\n"
+    elif [ "$1" != "start" ]; then
+      echo
+        printf "⚠️  ${CYAN}dmt-proc${NC} ${MAGENTA}does not seem to be running${NC} ${YELLOW}→ use${NC} ${GREEN}dmt start${NC} 🚀\n"
+        if [ -n "$proc_manager" ]; then
+          printf ".... ${GREEN}looks like dmt process manager is currently (re)starting ${YELLOW}dmt-proc${NC} ....\n"
+        fi
+    fi
+    echo
+  fi
+  # ----
+
   declare -a opts=(
     "help"
     "docs"
@@ -54,6 +70,7 @@ function dmt {
     "start"
     "startfg"
     "restart"
+    "restart2"
     "stop"
     "symlink"
     "deactivate"
@@ -75,8 +92,8 @@ function dmt {
   opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     if [ -z "$hosts" ]; then
-      printf "Try ${GREEN}dmt help${NC}.\n"
-      if [ -z "$1" ]; then
+      printf "Try ${GREEN}dmt help${NC} as well.\n"
+      if [ -z "$1" ] && [ -n "$proc" ] ; then
         echo
         printf "${CYAN}This device info:${NC}\n\n"
         if [ ! -f "$DMT_DEVICE_FILE" ]; then
@@ -108,7 +125,9 @@ function dmt {
       if [ -n "$hosts" ]; then
         node "$DMT_CLI" "${hosts}" info "$@"
       else
-        node "$DMT_CLI" info "$@"
+        if [ -n "$proc" ]; then
+          node "$DMT_CLI" info "$@"
+        fi
       fi
       ;;
 
@@ -205,7 +224,7 @@ function dmt {
     start)
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is starting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" start
-      printf "\n${GRAY}Daemons should now be running, use ${GREEN}dmt log ${GRAY}to see if true.${NC}\n"
+      printf "\n${CYAN}dmt-proc${NC} ${GRAY}should now be running, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
       ;;
 
     stop)
@@ -216,7 +235,17 @@ function dmt {
     restart)
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is restarting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" restart
-      printf "\n${GRAY}Daemons restarted, use ${GREEN}dmt log${NC} ${GRAY}to see the dmt-controller log.${NC}\n"
+      if [ $? -eq 0 ]; then
+        printf "\n${CYAN}dmt-proc${NC} ${GRAY}restarted, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
+      fi
+      ;;
+
+    restart2)
+      printf "${CYAN}DMT${NC} ${WHITE}is *fully* restarting...${NC}\n\n"
+      "${DMT_PATH}/etc/onboot/daemons" stop
+      killall mpv
+      killall dmt-proc
+      "${DMT_PATH}/etc/onboot/daemons" start
       ;;
 
     log)
@@ -256,6 +285,7 @@ function dmt_device {
     "cd"
     "select"
     "def"
+    "edit"
   )
 
   if [ -z "$1" ] || [ "$1" == "-h" ]; then
@@ -265,7 +295,7 @@ function dmt_device {
     if [ -n "$device_name" ]; then
       printf "${CYAN}Device name: 💡 ${MAGENTA}${device_name}${NC}\n\n"
     else
-      printf "${GRAY}This device is ${RED}unnamed 🤔${GRAY}, ${YELLOW}please name it by running ${GREEN}dmt device select${NC}\n\n"
+      printf "${GRAY}This device is ${RED}unnamed 🤔${GRAY}, please name it by running ${GREEN}dmt device select${GRAY} (or shorter: ${GREEN}dev sel${GRAY}).${NC}\n\n"
       return
     fi
 
@@ -273,7 +303,7 @@ function dmt_device {
     printf "${GREEN}cd${NC} ${GRAY}move to directory with curent device's configuration${NC}\n"
     printf "${GREEN}select${NC} ${GRAY}select configuration for this device from existing configurations or create a new configuration and assign it to this device${NC}\n"
     printf "${GREEN}def${NC} ${GRAY}shows parsed device.def definition in json format${NC}\n"
-
+    printf "${GREEN}edit${NC} ${GRAY}edit current device's device.def${NC}\n"
     return
   fi
 
@@ -285,6 +315,10 @@ function dmt_device {
   case "$matching_opt" in
     cd)
       device_helper cd
+      ;;
+
+    edit)
+      device_helper edit
       ;;
 
     select)
@@ -355,13 +389,28 @@ function device_helper {
         ;;
 
       edit)
-        local file="${DMT_USER_PATH}/devices/devices.json"
-        if [ -f "$file" ]; then
-          e "$file"
+        local dir="${DMT_USER_PATH}/devices/this"
+        if [ -d "$dir" ]; then
+          local file="${dir}/def/device.def"
+          if [ -f "$file" ]; then
+            e "$file"
+          else
+            echo $file
+            printf "${RED}device.def file not found${NC}\n"
+          fi
         else
-          printf "${RED}File not found${NC}\n"
+          printf "${RED}Device is unknown${GRAY}, please select the definition file by using ${GREEN}dev select${GRAY}, then try again.${NC}\n"
         fi
         ;;
+
+      # edit)
+      #   local file="${DMT_USER_PATH}/devices/devices.json"
+      #   if [ -f "$file" ]; then
+      #     e "$file"
+      #   else
+      #     printf "${RED}File not found${NC}\n"
+      #   fi
+      #   ;;
 
       list)
         for_all_devices "list"
@@ -383,6 +432,16 @@ function device_helper {
 }
 
 function state {
+
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}state${NC} ${GRAY}show program state${NC}\n"
+    printf "${GREEN}state [store]${NC} ${GRAY}show a specific store state (controller, player etc.)${NC}\n"
+    printf "${GREEN}state [store].[key]${NC} ${GRAY}ex.: player.playlist, controller.weather${NC}\n"
+    printf "${GREEN}state purge${NC} ${GRAY}delete program state${NC}\n"
+    return
+  fi
+
   local DMT_STATE_FILE="$DMT_PATH/state/program.json"
 
   if [ -f "$DMT_STATE_FILE" ]; then
@@ -394,7 +453,11 @@ function state {
         #dmt start
       fi
     else
-      cat "${DMT_STATE_FILE}" | jq "$@"
+      if [ -n "$1" ]; then
+        cat "${DMT_STATE_FILE}" | jq ".$1"
+      else
+        cat "${DMT_STATE_FILE}" | jq
+      fi
     fi
   else
     printf "${YELLOW}dmt state not found on disk${NC}\n"
@@ -413,6 +476,7 @@ function gui {
     printf "${GREEN}gui build [gui]${NC} ${GRAY}${NC}\n"
     printf "${GREEN}gui reload${NC} ${GRAY}send request to frontend via websocket requesting refresh of current url${NC}\n"
     printf "${GREEN}gui reload [gui]${NC} ${GRAY}reloads the specified gui view (home, player, debug etc.)${NC}\n"
+    printf "${GREEN}gui debug${NC} ${GRAY}shows debugging info for current gui issues troubleshooting${NC}\n"
     return
   fi
 
@@ -453,6 +517,10 @@ function gui {
       if [ $? -eq 0 ]; then
         npm run build
       fi
+      ;;
+
+    debug)
+      echo "TODO"
       ;;
 
     *)
@@ -608,7 +676,6 @@ function dmt_core {
 }
 
 function dmt_install {
-
   # multi install: dmt update dev1 dev2 ... devn
   if [ -n "$2" ]; then
     for dev in "$@"
@@ -643,21 +710,15 @@ function re {
 }
 
 function dmt_renew {
-  if [ "$1" == "devices" ] || [ "$1" == "all" ]; then
-    dmt_update all
-    dmt_restart all
-  else
-    # multi install: dmt renew dev1 dev2 ... devn
-    if [ -n "$2" ]; then
-      for dev in "$@"
-      do
-        dmt_renew "$dev"
-      done
-      return
-    fi
-
+  # supports multi install: dmt renew dev1 dev2 ... devN
+  if [ -z "$2" ]; then
     dmt_update "$1"
-    dmt_restart "$1"
+    restart_remote_device "$1"
+  else
+    for device in "$@"
+    do
+      dmt_renew "$device"
+    done
   fi
 }
 
@@ -667,7 +728,7 @@ function dmt_remove {
   printf "2) ${RED}rm -rf ~/.dmt${NC}\n"
 }
 
-function dmt_restart {
+function restart_remote_device {
   local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/etc/onboot/daemons restart\\\""
 
   local host="$1"

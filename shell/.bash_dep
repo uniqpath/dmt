@@ -516,9 +516,19 @@ function dirsync {
 
     local grep_ignore="Warning: Permanently added"
 
+    # ****
+    # **** updating or installing .dmt framework to another device
+    # ****
     if [ -f "./shell/.bash_general" ]; then
-      # ... updating or installing .dmt framework to another device
-      rsync $params --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+      # we exclude .gitignore mainly because if not, it can hang around inside various node_modules (that have been deleted)
+      # and then we get things like:
+      # Syncing...
+      # sending incremental file list
+      # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules/optimist
+      # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules/optimist
+      # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules
+      # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules
+      rsync $params --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$" | grep -v ".gitignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
       return
     fi
 

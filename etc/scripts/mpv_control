@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# source: https://gist.github.com/dwgill/a66769e0edef69c04d3b
+
+# This script requires:
+# - that the directory $HOME/.mpv exist
+# - that the program socat be installed
+# - that you start mpv with the unix socket feature pointing at that directory
+#   I recommend an alias in your .bashrc or equivalent file:
+#       alias mpv="mpv --input-unix-socket=$HOME/.mpv/socket"
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+#socket="$HOME/.mpv/socket"
+socket="/tmp/node-mpv.sock"
+
+command() {
+    # JSON preamble.
+    local tosend='{ "command": ['
+    # adding in the parameters.
+    for arg in "$@"; do
+        tosend="$tosend \"$arg\","
+    done
+    # closing it up.
+    tosend=${tosend%?}' ] }'
+    # send it along and ignore output.
+    # to print output just remove the redirection to /dev/null
+    printf "${GRAY}    Sent: ${YELLOW}${tosend}${NC}\n"
+    local result=$(echo $tosend | socat - $socket) #&> /dev/null
+    printf "${GRAY}Received: ${CYAN}${result}${NC}\n"
+    #echo $result | jq
+}
+
+if [ "$1" == "-h" ]; then
+  printf "${YELLOW}Usage:${NC}\n"
+  printf "${GREEN}${NC} ${GRAY}todo${NC}\n"
+  exit
+fi
+
+if [ -z "$1" ]; then
+  $0 get volume
+  echo
+  $0 -h
+  exit
+fi
+
+if [ "$1" == 'get' ]; then
+  command 'get_property' "$2"
+fi
+
+if [ "$1" == 'set' ]; then
+  shift
+  command 'set_property' "$@"
+fi
+
+# exit mpv
+[ "$1" = "stop" ] && command 'quit'
+# toggle play-pause
+[ "$1" = "play-pause" ] && command 'cycle' 'pause'
+# start playing
+[ "$1" = "pause" ] && command 'set' 'pause' 'yes'
+# stop playing
+[ "$1" = "play" ] && command 'set' 'pause' 'no'
+# play next item in playlist
+[ "$1" = "next" ] && command 'playlist_next'
+# play previous item in playlist
+[ "$1" = "previous" ] && command 'playlist_prev'
+# add item(s) to playlist
+[ "$1" = "add" ] && shift &&
+    for video in "$@"; do
+        command 'loadfile' "$video" 'append-play';
+    done;

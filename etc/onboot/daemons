@@ -1,5 +1,15 @@
 #!/bin/bash
 
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
 function manage_daemon {
   local command="$1"
   local daemon_process="$2"
@@ -30,6 +40,13 @@ if [ -z "$1" ]; then
   printf "${GREEN}daemons start${NC} ${GRAY}starts or restarts daemons if already running${NC}\n"
   printf "${GREEN}daemons stop${NC} ${GRAY}stops deamons${NC}\n"
   return
+fi
+
+proc=$(ps -ef | grep "manager.js" | grep "dmt-proc" | grep -v grep | awk '{print $2}')
+
+if [ -n "$proc" ]; then
+  printf "${YELLOW}dmt-proc manager is already running... please wait for it to finish or kill it if stuck${NC}\n"
+  exit 1
 fi
 
 case "$1" in

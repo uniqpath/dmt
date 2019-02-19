@@ -447,11 +447,14 @@ function kiosk {
 
       local loc1="/var/lib/dietpi/dietpi-software/installed/chromium-autostart.sh"
       local loc2=~/.config/lxsession/LXDE-pi/autostart
+      local loc3=/home/pi/.config/lxsession/LXDE-pi/autostart
 
       if [ -f "$loc1" ]; then
         sudo nano "$loc1"
       elif [ -f "$loc2" ]; then
         nano "$loc2"
+      elif [ -f "$loc3" ]; then
+        nano "$loc3"
       fi
 
       ;;
@@ -1641,19 +1644,6 @@ function part {
   fi
 }
 
-function glog {
-  if [ -d ".git" ]; then
-    clear
-    if [ -z "$1" ]; then
-      git log -3
-    else
-      git log -"$1"
-    fi
-  else
-    printf "${RED}Not a git repository${NC}\n"
-  fi
-}
-
 function getlog {
   remote -h "$1" "cat /var/log/syslog | grep shairpo > /tmp/log.txt"
   scp "${1}:/tmp/log.txt" .
@@ -1665,39 +1655,6 @@ function remove_ds_store {
 
 function remove_ds_global {
   sudo find / -name ".DS_Store" -depth -exec rm {} \;
-}
-
-function nuke {
-  local dir="`pwd`"
-  local user=`whoami`
-  local dir_levels=$(grep -o "/" <<< "$dir" | wc -l)
-
-  local homedir="/home/${user}"
-  if macos; then
-    homedir="/Users/${user}"
-  fi
-
-  if [ "$user" != "root" ] && [[ $dir == $homedir* ]] && [ $dir_levels -gt 3 ]; then
-    if macos; then
-      cd ..
-      (~/Projects/backups/nuke.rb "$dir" &)
-      printf "${GREEN}Moved to ~/Misc/Archive/Nuked${NC}\n"
-      #~/Projects/backups/nuke.rb "$dir"
-      # read -r -p "Nuke ${dir}? [Y/n] " response
-      # if [[ ! $response =~ ^([nN])$ ]]
-      # then
-      #   cd ..
-      #   rm -rf $dir
-      # fi
-    else
-      cd ..
-      local tempdir=$(mktemp -d)
-      mv "$dir" "$tempdir"
-      printf "${GREEN}Moved to $tempdir${NC}\n"
-    fi
-  else
-    printf "${RED}Refused!${NC} Has to be at least two levels into HOME dir and cannot be root.\n"
-  fi
 }
 
 # *** nginx on server ***

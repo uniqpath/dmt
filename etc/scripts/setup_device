@@ -1,3 +1,4 @@
 #!/bin/bash
 . ~/.bash_aliases
+. "$DMT_PATH/shell/.bash_selector"
 device_selector

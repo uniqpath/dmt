@@ -2,17 +2,16 @@
 
 function m {
   declare -a opts=(
+    "info"
     "search"
     "play"
     "pause"
     "add"
+    "shuffle"
     "volume"
-    "add_shuffled"
+    "status"
     "list"
     "next"
-    "info"
-    "list"
-    "shuffle"
   )
 
   # local host=""
@@ -69,12 +68,21 @@ function m {
   fi
 }
 
-function alsastore {
+function save_alsa {
   alsactl --file ~/.config/asound.state store
 }
 
-function alsarestore {
+function restore_alsa {
   alsactl --file ~/.config/asound.state restore
+}
+
+function mpvc {
+  local script="$DMT_SCRIPTS/mpv_control"
+  if [ -f "$script" ]; then
+    "$script" "$@"
+  else
+    printf "${RED}missing ${script}${NC}\n"
+  fi
 }
 
 function pl {
@@ -115,13 +123,50 @@ function play {
   matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
 
   if [ -f "$matching_file" ]; then
+    # EXTENSIONS = {
+    #   'mkv', 'avi', 'mp4', 'ogv', 'webm', 'rmvb', 'flv', 'wmv', 'mpeg', 'mpg', 'm4v', '3gp'
+    # }
+    if [[ "$matching_file" =~ (mkv|avi|mp4|webm)$ ]]; then
+      printf "${YELLOW}$matching_file${NC}\n"
+      #DISPLAY=:0 mpv --fullscreen --no-ytdl "$matching_file"
+      DISPLAY=:0 mpv --no-keepaspect --no-ytdl "$matching_file"
+      # if is_rpi; then
+      #   omxplayer --vol -2000 --aspect-mode stretch -o alsa:hw:0,0 "$matching_file"
+      #   #omxplayer --aspect-mode stretch -o alsa:hw:1,0 "$matching_file"
+      # else
+      #   DISPLAY=:0 mpv --fullscreen --no-ytdl "$matching_file"
+      # fi
+    elif [[ "$matching_file" =~ (mp3|flac|ogg)$ ]]; then # ADUIO
+      printf "${YELLOW}$matching_file${NC}\n"
+      eval "$audio_cmd \"$matching_file\""
+    fi
+  else
+    printf "${RED}No matching file${NC}\n"
+    # if [[ "$1" =~ youtube ]]; then
+    #   DISPLAY=:0 mpv --fullscreen "$1"
+    # else
+    #   DISPLAY=:0 mpv --fullscreen "https://www.youtube.com/watch?v=$1"
+    # fi
+  fi
+}
+
+function plo {
+
+  # MOSTLY VIDEO
+
+  local matching_file=''
+  get_matching_file matching_file "$1"
+  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+  if [ -f "$matching_file" ]; then
     if [[ "$matching_file" =~ (mkv|avi|mp4|webm)$ ]]; then
       printf "${YELLOW}$matching_file${NC}\n"
       if is_rpi; then
         omxplayer --vol -2000 --aspect-mode stretch -o alsa:hw:0,0 "$matching_file"
         #omxplayer --aspect-mode stretch -o alsa:hw:1,0 "$matching_file"
       else
-        DISPLAY=:0 mpv --fullscreen "$matching_file"
+        # DISPLAY=:0 mpv --fullscreen --no-ytdl "$matching_file"
+        printf "${YELLOW}expected to run on rpi${NC}\n"
       fi
     elif [[ "$matching_file" =~ (mp3|flac|ogg)$ ]]; then # ADUIO
       printf "${YELLOW}$matching_file${NC}\n"
@@ -138,9 +183,6 @@ function play {
 }
 
 function soundtest {
-  dmt stop
-  killall mpv
-
   if is_rpi; then
     printf "${GREEN}Soundtest ${MAGENTA}0.${NC}\n"
     aplay "$DMT_PATH/etc/sounds/soundtest/music.wav"
@@ -161,10 +203,6 @@ function soundtest {
 
   printf "${GREEN}Soundtest ${MAGENTA}1.${NC}\n"
   node "$DMT_NODE_CORE/dmt-controller/lib/player/localMusicPlayer.js"
-
-  killall mpv
-
-  dmt start
 }
 
 
