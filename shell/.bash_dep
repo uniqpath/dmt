@@ -296,16 +296,6 @@ function dep {
 }
 
 # Deploy and purge cache
-function depp {
-  printf "${YELLOW}Deploying to production...${NC}\n"
-  dep "$@" .deploy.production
-}
-
-function revdep {
-  if [ -f ./.revdep ]; then
-    ./.revdep
-  fi
-}
 
 function remote {
   local silent=false

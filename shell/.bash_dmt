@@ -140,6 +140,7 @@ function dmt {
           touch "$markerfile"
           printf "${YELLOW}Debug mode ⚙️  enabled${NC}\n"
         fi
+        printf "\nEdit ${YELLOW}${markerfile}${NC} file to increase debug log level (one line, one category)${NC}\n"
       fi
 
       if [ "$1" == "off" ] || [ "$1" == "disable" ] || [ "$1" == "stop" ]; then

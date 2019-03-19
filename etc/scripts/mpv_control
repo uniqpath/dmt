@@ -75,7 +75,10 @@ fi
 # play previous item in playlist
 [ "$1" = "previous" ] && command 'playlist_prev'
 # add item(s) to playlist
-[ "$1" = "add" ] && shift &&
-    for video in "$@"; do
-        command 'loadfile' "$video" 'append-play';
-    done;
+[ "$1" = "load" ] && shift &&
+  for video in "$@"; do
+      # this worked:
+      # mpvc load /root/Desktop/video.mkv
+      #
+      command 'loadfile' "$video" 'append-play';
+  done;

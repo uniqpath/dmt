@@ -12,6 +12,7 @@ function m {
     "status"
     "list"
     "next"
+    "clear"
   )
 
   # local host=""
@@ -129,7 +130,7 @@ function play {
     if [[ "$matching_file" =~ (mkv|avi|mp4|webm)$ ]]; then
       printf "${YELLOW}$matching_file${NC}\n"
       #DISPLAY=:0 mpv --fullscreen --no-ytdl "$matching_file"
-      DISPLAY=:0 mpv --no-keepaspect --no-ytdl "$matching_file"
+      DISPLAY=:0 mpv --fullscreen --no-keepaspect --no-ytdl "$matching_file"
       # if is_rpi; then
       #   omxplayer --vol -2000 --aspect-mode stretch -o alsa:hw:0,0 "$matching_file"
       #   #omxplayer --aspect-mode stretch -o alsa:hw:1,0 "$matching_file"

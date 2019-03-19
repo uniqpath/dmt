@@ -2057,10 +2057,6 @@ function ee {
   fi
 }
 
-# function play {
-#   run_on_file "$1" "afplay" '*'
-# }
-
 function flash_usage {
   local sectors="$1"
   printf "${YELLOW}Usage:${NC}\n"
@@ -2113,7 +2109,7 @@ function flash {
 
       if [ -z "$3" ]; then
         printf "${GREEN}Copying full image to ${YELLOW}${image}${NC}\n"
-        sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=64k
+        time sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=64k
       else
         local sectors
 
@@ -2133,12 +2129,12 @@ function flash {
           # for default 20000000 sectors it takes around 150s to copy data from sd card
           # 1 sector = 512b
           # 64K seems to be quite optimal, no difference with 1M, but faster than 32K or less
-          sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=64k count="$((sectors/128))"
+          time sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=64k count="$((sectors/128))"
         elif ! (( $sectors % 32 )) ; then
           printf "${MAGENTA}Almost optimal speed: number of sectors divisible by 32 - reading 64 sectors (32K) at a time${NC}\n"
-          sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=32k count="$((sectors/64))"
+          time sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=32k count="$((sectors/64))"
         else
-          sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=512 count="${sectors}"
+          time sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=512 count="${sectors}"
         fi
       fi
 

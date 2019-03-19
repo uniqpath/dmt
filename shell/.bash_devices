@@ -86,7 +86,16 @@ function gpio {
 #######################################
 
 function get_remote_device_ip_and_name_and_user_and_network {
-  local deviceName="$8"
+  local userAndDevice="$8"
+
+  # check for user, ex: pi@host
+  if [[ "$userAndDevice" =~ \@ ]]; then
+    local arr=(${userAndDevice/\@/ }) # split on @
+    local deviceName="${arr[@]:1}" # take everything except first el
+    local argUser=${arr[0]} # normal element access echo ${arr[1]}
+  else
+    local deviceName="$userAndDevice"
+  fi
 
   local resolverPath
   getDMTDeviceResolverPath resolverPath
@@ -122,6 +131,11 @@ function get_remote_device_ip_and_name_and_user_and_network {
   line=$(echo "$result" | grep "user:")
   arr=(${line/\:/ })
   local _user=${arr[1]}
+
+  # override if we passed the user with device name to this function
+  if [ -n "$argUser" ]; then
+    _user="$argUser"
+  fi
 
   # network
   line=$(echo "$result" | grep "network:")
@@ -274,6 +288,7 @@ function get_full_host() {
   local network
   local is_dmt_device
   get_remote_device_ip_and_name_and_user_and_network ip globalIp __globalSSHPort name user network is_dmt_device "$3"
+
   if [ -n "$ip" ]; then
     if [ -z "$user" ]; then
       user='root'
