@@ -140,7 +140,17 @@ function dmt {
           touch "$markerfile"
           printf "${YELLOW}Debug mode ⚙️  enabled${NC}\n"
         fi
-        printf "\nEdit ${YELLOW}${markerfile}${NC} file to increase debug log level (one line, one category)${NC}\n"
+
+        printf "\n${MAGENTA}Micro-Debugging options:${NC}\n"
+
+        printf "\nEdit ${YELLOW}${markerfile}${NC} file to increase debug log level (one line, one category like ${GREEN}mpv${NC}, ${GREEN}lan${NC} etc.)${NC}\n"
+
+        echo
+
+        printf "${GREEN}mpv${NC} ${GRAY}enables mpv process logging into ~/.dmt/log/mpv.dmt (requires dmt restart ${GREEN}while other commands do not!${NC})${NC}\n"
+        printf "${GREEN}mpv:ipc${NC} ${GRAY}enables debug messages between ${MAGENTA}dmt-process${NC} ${GRAY}and${NC} ${CYAN}mpv${NC} ${GRAY}process${NC}\n"
+        printf "${GREEN}ws${NC} ${GRAY}enables debug messages about websocket connections (port 7780 -- metagui)${NC}\n"
+        printf "${GREEN}lan${NC} ${GRAY}enables debug messages about lanbus${NC}\n"
       fi
 
       if [ "$1" == "off" ] || [ "$1" == "disable" ] || [ "$1" == "stop" ]; then
@@ -465,8 +475,30 @@ function state {
   fi
 }
 
+function gui_build_all {
+  local cwd="`pwd`"
+
+  local base_dir="$DMT_PATH/core/node/dmt-gui/gui-frontend-core"
+
+  cd "$base_dir"
+
+  for component in *; do
+    if [ -d "$component" ] && [ "$component" != "common_assets" ]; then
+      cd $component
+      if [ -f "package.json" ]; then
+        npm run build
+      else
+        echo "not sure how to build this gui component: ${component}"
+      fi
+    fi
+    cd "$base_dir"
+  done
+
+  cd "$cwd"
+}
+
 function gui {
-  local dir="$DMT_PATH/core/node/dmt-gui/gui-frontend"
+  local dir="$DMT_PATH/core/node/dmt-gui/gui-frontend-core"
   local backendDir="$DMT_PATH/core/node/dmt-gui/gui-backend"
 
   if [ -z "$1" ]; then

@@ -1,7 +1,8 @@
 <!-- <img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-logo.png?raw=true" width="500px"> -->
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-logo-with-tagline.png?raw=true&ver=5" width="600px">
 
-<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-homepanel.jpg?raw=true">
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/screens/home_inside_brave_new_tab.png?raw=true">
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/screens/player_inside_brave_new_tab.png?raw=true">
 
 ## 🔌 Prerequisites
 

@@ -60,7 +60,11 @@ function m {
 
   shift
 
-  local playerCmd="$DMT_NODE_CORE/dmt-controller/cli/music.js"
+  local playerCmd="$DMT_NODE_CORE/dmt-player/cli/music.js"
+
+  if [ ! -f "$playerCmd" ]; then # dmt shell before v1.0.79 :::
+    playerCmd="$DMT_NODE_CORE/dmt-controller/cli/music.js"
+  fi
 
   if [ -z "$hosts" ]; then
     node "$playerCmd" "${matching_opt}" "$@"

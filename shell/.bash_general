@@ -1626,24 +1626,6 @@ function archive_short {
   fi
 }
 
-function ap {
-  local script="$DMT_SCRIPTS/setup_ap"
-  if [ -f "$script" ]; then
-    sudo "$script" "$@"
-  else
-    printf "${RED}missing ${script}${NC}\n"
-  fi
-}
-
-function part {
-  local script="$DMT_SCRIPTS/part"
-  if [ -f "$script" ]; then
-    sudo "$script" "$@"
-  else
-    printf "${RED}missing ${script}${NC}\n"
-  fi
-}
-
 function getlog {
   remote -h "$1" "cat /var/log/syslog | grep shairpo > /tmp/log.txt"
   scp "${1}:/tmp/log.txt" .

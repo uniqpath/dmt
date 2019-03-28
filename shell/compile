@@ -42,7 +42,7 @@ cat >> "$target" <<EOF
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 EOF
 
-cat .bash_core_helpers .bash_node_and_npm .bash_networking .bash_devices .bash_search .bash_play .bash_dep .bash_update .bash_eth .bash_dmt >> "$target"
+cat .bash_core_helpers .bash_node_and_npm .bash_networking .bash_devices .bash_search .bash_play .bash_dep .bash_update .bash_eth .bash_sbc .bash_dmt >> "$target"
 
 printf "${CYAN}💡 DMT SHELL ${GREEN}on ${CYAN}$(hostname) ${GREEN}constructed and ready 🚀🎸${NC}\n"
 

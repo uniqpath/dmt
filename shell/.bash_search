@@ -1,12 +1,40 @@
 #!/bin/bash
 
+# SEARCH THIS MACHINE OR SOME OTHER MACHINE (LIST)
+#
+# search @this terms (shorter: search terms) → searches this device ("general" share which needs to be defined)
+# search @this/books terms → searches this device ("books" share which needs to be defined)
+
+# search @device1 terms → searches device1 ("general" share)
+# search @device1/books terms → searches books on device1
+
+# search @device1 @device2 @device3 terms → searches device1, device2 and device3 ("general" share on each device) and returns aggregate results
+
 function search {
-  local searchCmd="$DMT_NODE_CORE/dmt-controller/cli/search.js"
+  local searchCmd="$DMT_NODE_CORE/dmt-search/cli/search.js"
+
+  if [ ! -f "$searchCmd" ]; then # dmt shell before v1.0.79 :::
+    searchCmd="$DMT_NODE_CORE/dmt-controller/cli/search.js"
+  fi
+
   node "$searchCmd" "$@"
 }
 
 function s {
   search "$@"
+}
+
+# SEARCH ALL
+
+# just a shortcut to search all local catalogs (@this/catalogs is a normal share defined on local device with the name "catalogs"
+# -- it contains a list of catalogs which are saved locally on the device)
+
+function search_all {
+  search "@this/catalogs" "$@"
+}
+
+function sall {
+  search_all "$@"
 }
 
 function walksearch {
