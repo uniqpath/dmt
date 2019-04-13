@@ -53,6 +53,23 @@ if [ -z "$1" ]; then
   exit
 fi
 
+#command "$1" "$2"
+# command 'set' 'pause' 'yes'
+# command 'playlist-remove' 'current'
+# playlist-next force ==> this worked!!
+#
+# force
+# Terminate playback if there are no more files on the playlist.
+#
+
+# exit
+
+if [ "$1" == 'custom' ]; then
+  shift
+  command "$@"
+  exit
+fi
+
 if [ "$1" == 'get' ]; then
   command 'get_property' "$2"
 fi
@@ -82,3 +99,9 @@ fi
       #
       command 'loadfile' "$video" 'append-play';
   done;
+
+
+
+
+
+

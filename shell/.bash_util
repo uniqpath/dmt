@@ -153,9 +153,21 @@ function def_reader {
 
     line=$(echo "${line}" | xargs) # trim whitespace
 
-    if [[ $line =~ ^\s*"#" ]]; then
+    # Handle comments
+
+    if [[ $line =~ ^\s*"#" ]]; then # comment is a whole line, ignore
       continue
     fi
+
+    # if not, ignore after # character
+
+    local fillInToken="%@@%" # string that is unlikely to occur
+
+    line=$(echo "$line" | sed "s/ /${fillInToken}/g")
+    local arr=(${line/\#/ }) # split on \#
+    line=$(echo ${arr[0]} | sed "s/${fillInToken}/ /g")
+
+    # ---- end comment handing
 
     if [[ $line =~ ^${parent_key}\: ]]; then
       parent_key_matched=true

@@ -88,6 +88,7 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
     fi
 
     mkdir -p "$DMT_PATH/log"
+    mkdir -p "$DMT_PATH/user/data"
     mkdir -p "$DMT_STATE"
 
     if [ -f "$HOME/.bash_aliases" ] || [ -L "$HOME/.bash_aliases" ]; then # -L : we check for broken symlink (-f would return true for working symlink but not for a broken one)
@@ -145,6 +146,7 @@ else # clone to and install on remote device
 
     if [ "$host" == "ap" ]; then
       host="$DMT_AP_DEFAULT_HOST"
+      ssh_port=22
     else
       matching_host=''
       ssh_port=''

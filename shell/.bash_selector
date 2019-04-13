@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# DEFINE COLORS
+
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+# INTERACTIVE MENU SELECTOR
+
 UP=$'\033[A'
 DOWN=$'\033[B'
 
@@ -190,6 +204,8 @@ activate() {
     esac
 
     cd "$cwd"
+  else
+    printf "Device ${CYAN}${selected}${NC} was already selected ...\n"
   fi
 }
 
@@ -247,6 +263,17 @@ EOF
 #
 
 device_selector() {
+  if [ -n "$1" ]; then # non interactive (= pseudio gui) mode... pure cli
+    local deviceId="$1"
+    if [ -d "$HOME/.dmt/user/devices/${deviceId}" ]; then
+      #printf "Device ${CYAN}${deviceId}${NC} exists, activating...\n"
+      activate "$deviceId"
+    else
+      printf "${RED}Unknown device name:${NC} ${YELLOW}${deviceId}${NC}\n"
+    fi
+    return
+  fi
+
   enter_fullscreen
   check_current_version
   clear

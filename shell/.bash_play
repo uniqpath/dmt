@@ -1,5 +1,9 @@
 #!/bin/bash
 
+function vid {
+  m "vid" "$@"
+}
+
 function m {
   declare -a opts=(
     "info"
@@ -13,6 +17,8 @@ function m {
     "list"
     "next"
     "clear"
+    "limit"
+    "stop"
   )
 
   # local host=""
@@ -25,6 +31,14 @@ function m {
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}${opts[@]}${NC}\n"
     return
+  fi
+
+  local video=false
+
+  ## TODO: FIX... instead of "m vid" , pass on the @media=[mediaType] parameter !!
+  if [ "$1" == "vid" ]; then
+    video=true
+    shift
   fi
 
   #-----------#-----------#----------- A BIT OF DUPLICATE CODE FROM function dmt
@@ -60,16 +74,28 @@ function m {
 
   shift
 
-  local playerCmd="$DMT_NODE_CORE/dmt-player/cli/music.js"
+  local playerCmd="$DMT_NODE_CORE/dmt-player/cli/media.js"
 
   if [ ! -f "$playerCmd" ]; then # dmt shell before v1.0.79 :::
     playerCmd="$DMT_NODE_CORE/dmt-controller/cli/music.js"
   fi
 
-  if [ -z "$hosts" ]; then
-    node "$playerCmd" "${matching_opt}" "$@"
+  if $video; then
+
+    if [ -z "$hosts" ]; then
+      node "$playerCmd" "${matching_opt}" "$@" "@media=video"
+    else
+      node "$playerCmd" "${hosts}" "${matching_opt}" "$@" "@media=video"
+    fi
+
   else
-    node "$playerCmd" "${hosts}" "${matching_opt}" "$@"
+
+    if [ -z "$hosts" ]; then
+      node "$playerCmd" "${matching_opt}" "$@"
+    else
+      node "$playerCmd" "${hosts}" "${matching_opt}" "$@"
+    fi
+
   fi
 }
 

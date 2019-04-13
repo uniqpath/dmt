@@ -10,9 +10,9 @@ todo.txt
 .trash
 /cores_extra
 /user/catalogs
-/user/catalogs_unsynced
 /user/data
 /user/devices/this
 /state
 target/debug
 target/release
+/core/node/dmt-user/lib-auto-assembled

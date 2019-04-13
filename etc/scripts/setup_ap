@@ -232,9 +232,9 @@ dhcp-range=192.168.1.20,192.168.1.100,255.255.255.0,24h
 EOF
 
   echo
-  echo "ssid: $APSSID"
-  echo "pass: $APPASS"
-  echo "To change: conf hostapd"
+  printf "${GRAY}ssid: ${CYAN}${APSSID}${NC}\n"
+  printf "${GRAY}pass: ${CYAN}${APPASS}${NC}\n"
+  printf "To change: ${GREEN}conf hostapd${NC}\n"
 
   printf "${RED}Now execute: ${GREEN}ap enable${NC} to enable AP\n"
 

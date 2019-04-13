@@ -20,8 +20,9 @@ printf "${CYAN}You should now see the following output:${NC}\n"
 
 printf "${GRAY}No LSB modules are available.${NC}\n"
 printf "${GRAY}Distributor ID: Raspbian${NC}\n"
-printf "${GRAY}Description:  Raspbian GNU/Linux 9.4 (stretch)${NC}\n"
-printf "${GRAY}Release:  9.4${NC}\n"
+#printf "${GRAY}Description:  Raspbian GNU/Linux ...${NC}\n"
+printf "${GRAY}Description:  Raspbian GNU/Linux X.Y (stretch)${NC}\n"
+printf "${GRAY}Release:  9.4 or 9.8 (possibly even higher)${NC}\n"
 printf "${GRAY}Codename: stretch${NC}\n"
 
 read -r -p "Continue with mpv build? [Y/n] " response
@@ -631,11 +632,11 @@ sudo chmod 644 /etc/apt/preferences
 ##### In some ways, this next section just might be the coolest part of the entire script. That's because it takes the TRILLIONS of computations the script just performed – distilled into 6 tiny packages – and neatly places them in the Vidware_Packages folder. They contain everything you need to reconstitute all the programs on any Raspberry 3B or 3B+ IN ONLY 1 MINUTE! So when the script is all done and the demonstration video has played, be sure to back up the 6 .deb files to a safe location.
 
 
-echo; echo; echo
-echo "------------------------------"
-echo "Almost finished! The Debian package files are now in the Vidware_Packages folder. You can use them at any time in the future to install all the programs my script just built! Now downloading youtube-dl and a brief 1080p demonstration video from YouTube. All of this should take less than 2 minutes. After the looped video starts playing, feel free to press the q key to quit." | fold -s
-echo "------------------------------"
-echo
+# echo; echo; echo
+# echo "------------------------------"
+# echo "Almost finished! The Debian package files are now in the Vidware_Packages folder. You can use them at any time in the future to install all the programs my script just built! Now downloading youtube-dl and a brief 1080p demonstration video from YouTube. All of this should take less than 2 minutes. After the looped video starts playing, feel free to press the q key to quit." | fold -s
+# echo "------------------------------"
+# echo
 
 find "${target}/Vidware_Build" -name '*.deb' -exec mv -t "${target}/Vidware_Packages" {} +
 

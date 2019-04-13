@@ -1,0 +1,17 @@
+[Unit]
+Description=DMT-PROC
+After=local-fs.target syslog.target network.target
+
+# replace USER with correct user ....
+# replace NODE_PATH with correct node.js path on your device ....
+
+[Service]
+User=1000
+Group=1000
+WorkingDirectory=/home/user/.dmt/core/node/dmt-controller
+Environment="NODE_PATH=/home/user/n/bin/node"
+ExecStart=/home/user/.dmt/etc/onboot/onboot
+Type=forking
+
+[Install]
+WantedBy=multi-user.target

@@ -4,8 +4,9 @@ DMT_CLI="$DMT_NODE_CORE/dmt-controller/cli/dmt.js"
 
 function dmt {
   if [ -z "$1" ] || [ "$1" == "help" ] || [ "$1" == "version" ]; then
-    printf "${MAGENTA}     ∞ DMT ∞${NC}\n"
-    printf "${CYAN}Liberate yourself.${NC}\n"
+    printf "${MAGENTA}      ∞ DMT ∞${NC}\n"
+    printf "${CYAN}Open edge computing.${NC}\n"
+    #printf "${CYAN}${NC}\n"
     echo
   fi
 
@@ -32,24 +33,6 @@ function dmt {
 
   hosts=$(echo "$hosts" | xargs) # remove trailing whitespace
 
-  # report if a process named "dmt-proc" is currently running
-  local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
-  local proc_manager=$(ps -ef | grep "dmt-proc" | grep "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
-
-  if [ -z "$hosts" ]; then # if we're targeting remote hosts, information about our own local process is irrelevant
-    if [ -n "$proc" ]; then
-      printf "${CYAN}dmt-proc${NC} seems to be running with ${YELLOW}pid ${proc}${NC}\n"
-    elif [ "$1" != "start" ]; then
-      echo
-        printf "⚠️  ${CYAN}dmt-proc${NC} ${MAGENTA}does not seem to be running${NC} ${YELLOW}→ use${NC} ${GREEN}dmt start${NC} 🚀\n"
-        if [ -n "$proc_manager" ]; then
-          printf ".... ${GREEN}looks like dmt process manager is currently (re)starting ${YELLOW}dmt-proc${NC} ....\n"
-        fi
-    fi
-    echo
-  fi
-  # ----
-
   declare -a opts=(
     "help"
     "docs"
@@ -72,7 +55,8 @@ function dmt {
     "restart"
     "restart2"
     "stop"
-    "symlink"
+    "link"
+    "unlink"
     "deactivate"
     "remove"
     "bin"
@@ -112,6 +96,24 @@ function dmt {
 
   shift
 
+  # report if a process named "dmt-proc" is currently running
+  local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local proc_manager=$(ps -ef | grep "dmt-proc" | grep "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
+  if [ -z "$hosts" ]; then # if we're targeting remote hosts, information about our own local process is irrelevant
+    if [ -n "$proc" ]; then
+      printf "${WHITE}dmt-proc${NC} seems to be running with ${YELLOW}pid ${proc}${NC}\n"
+    elif [ "$matching_opt" != "start" ] && [ "$matching_opt" != "startfg" ] && [ "$matching_opt" != "stop" ] && [ "$matching_opt" != "restart" ]; then
+      echo
+      printf "⚠️  ${WHITE}dmt-proc${NC} ${RED}does not seem to be running${NC} ${YELLOW}→ use${NC} ${GREEN}dmt start${NC} 🚀\n"
+      if [ -n "$proc_manager" ]; then
+        printf ".... ${GREEN}looks like dmt process manager is currently (re)starting ${WHITE}dmt-proc${NC} ....\n"
+      fi
+    fi
+    echo
+  fi
+  # ----
+
   case "$matching_opt" in
     help)
       dmt_help
@@ -135,30 +137,41 @@ function dmt {
       local markerfile="$DMT_STATE/.debug-mode"
       if [ -z "$1" ] || [ "$1" == "on" ] || [ "$1" == "enable" ]; then
         if [ -f "$markerfile" ]; then
-          printf "${GRAY}Debug mode ${YELLOW}was already enabled${NC}\n"
+          printf "${GREEN}✓✓✓ ${GRAY}Debug mode ${YELLOW}was already enabled ${GREEN}✓✓✓${NC}\n"
         else
           touch "$markerfile"
-          printf "${YELLOW}Debug mode ⚙️  enabled${NC}\n"
+          printf "${GREEN}✓✓✓ ${YELLOW}Debug mode ⚙️  enabled ${GREEN}✓✓✓${NC}\n"
         fi
 
         printf "\n${MAGENTA}Micro-Debugging options:${NC}\n"
 
-        printf "\nEdit ${YELLOW}${markerfile}${NC} file to increase debug log level (one line, one category like ${GREEN}mpv${NC}, ${GREEN}lan${NC} etc.)${NC}\n"
+        printf "\nEdit ${YELLOW}${markerfile}${NC} file to increase debug log level (one line, one category like ${GREEN}mpv${NC}, ${GREEN}lan${NC} etc.) ${GRAY}⚠️  This will get lost when you execute ${GREEN}dmt debug off${GRAY}.${NC}\n"
+        printf "\nTo make it more permanent, add this to device.def ${GRAY}(command:${NC} ${GREEN}dev edit${NC}${GRAY})${NC}:\n"
+        printf "${MAGENTA}debug:${NC}\n"
+        printf "  ${MAGENTA}log: ${GRAY}mpv${NC}\n"
+        printf "  ${MAGENTA}log: ${GRAY}lan${NC}\n"
+        printf "  ${MAGENTA}log: ${GRAY}...${NC}\n"
+        printf "\n⚠️  ${GRAY}This, however, requires ${GREEN}dmt restart${GRAY} while editing the ${YELLOW}.debug-mode${GRAY} file does not.${NC}\n"
 
         echo
 
-        printf "${GREEN}mpv${NC} ${GRAY}enables mpv process logging into ~/.dmt/log/mpv.dmt (requires dmt restart ${GREEN}while other commands do not!${NC})${NC}\n"
+        printf "${MAGENTA}Options:${NC}\n"
+        printf "${MAGENTA}--------${NC}\n\n"
+
+        printf "${GREEN}mpv${NC} ${GRAY}enables mpv process logging into ~/.dmt/log/mpv.log (requires dmt restart ${NC}while other commands do not!${NC})${NC}\n"
         printf "${GREEN}mpv:ipc${NC} ${GRAY}enables debug messages between ${MAGENTA}dmt-process${NC} ${GRAY}and${NC} ${CYAN}mpv${NC} ${GRAY}process${NC}\n"
         printf "${GREEN}ws${NC} ${GRAY}enables debug messages about websocket connections (port 7780 -- metagui)${NC}\n"
         printf "${GREEN}lan${NC} ${GRAY}enables debug messages about lanbus${NC}\n"
+        printf "${GREEN}mqtt${NC} ${GRAY}enables debug messages about received mqtt messages${NC}\n"
+        printf "${GREEN}beats${NC} ${GRAY}todo${NC}\n"
       fi
 
       if [ "$1" == "off" ] || [ "$1" == "disable" ] || [ "$1" == "stop" ]; then
         if [ -f "$markerfile" ]; then
           rm "$markerfile"
-          printf "${GREEN}Debug mode disabled 🏄${NC}\n"
+          printf "${MAGENTA}✖✖✖ ${CYAN}Debug mode disabled ${MAGENTA}✖✖✖${NC}\n"
         else
-          printf "${GRAY}Debug mode was already disabled${NC}\n"
+          printf "${MAGENTA}✖✖✖ ${CYAN}Debug mode was already disabled ${MAGENTA}✖✖✖${NC}\n"
         fi
       fi
       ;;
@@ -225,14 +238,25 @@ function dmt {
       dmt_deactivate
       ;;
 
-    symlink)
+    link)
       local cwd="`pwd`"
       cd "$DMT_NODE_CORE/.scripts"
-      ./symlink_dmt_deps "$@"
+      ./symlink_dmt_deps
+      cd "$cwd"
+      ;;
+
+    unlink)
+      local cwd="`pwd`"
+      cd "$DMT_NODE_CORE/.scripts"
+      ./symlink_dmt_deps "remove"
       cd "$cwd"
       ;;
 
     start)
+      symlink_if_unlinked
+      #copy_core_bootscripts
+      compile_gui_if_missing
+
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is starting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" start
       printf "\n${CYAN}dmt-proc${NC} ${GRAY}should now be running, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
@@ -244,6 +268,10 @@ function dmt {
       ;;
 
     restart)
+      symlink_if_unlinked
+      #copy_core_bootscripts
+      compile_gui_if_missing
+
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is restarting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" restart
       if [ $? -eq 0 ]; then
@@ -252,6 +280,10 @@ function dmt {
       ;;
 
     restart2)
+      symlink_if_unlinked
+      #copy_core_bootscripts
+      compile_gui_if_missing
+
       printf "${CYAN}DMT${NC} ${WHITE}is *fully* restarting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" stop
       killall mpv
@@ -270,7 +302,11 @@ function dmt {
       ;;
 
     startfg)
-      printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is starting in ${CYAN}foreground${NC} ...\n\n"
+      symlink_if_unlinked
+      #copy_core_bootscripts
+      compile_gui_if_missing
+
+      printf "${WHITE}dmt-proc${NC} ${MAGENTA}is starting in ${CYAN}foreground${NC} ...\n\n"
       node --trace-warnings "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"
       ;;
 
@@ -335,12 +371,12 @@ function dmt_device {
     select)
       local script="$DMT_SCRIPTS/setup_device"
       if [ -f "$script" ]; then
-        "$script"
+        "$script" "$@"
       fi
       ;;
 
     def)
-      printf "${YELLOW}Showing parsed defice definition:${NC}\n"
+      printf "${YELLOW}Showing device definition in json format (parsed from .def):${NC}\n"
       local cli="$DMT_NODE_CORE/dmt-controller/cli/device.js"
       if [ -n "$hosts" ]; then
         node "$cli" "${hosts}" "$@"
@@ -352,6 +388,10 @@ function dmt_device {
 }
 
 function dev {
+  dmt_device "$@"
+}
+
+function device {
   dmt_device "$@"
 }
 
@@ -488,7 +528,7 @@ function gui_build_all {
       if [ -f "package.json" ]; then
         npm run build
       else
-        echo "not sure how to build this gui component: ${component}"
+        printf "${GREEN}Gui component ${YELLOW}${component}${NC} ${GREEN}not buildable in isolation, it was probably (hopefuly) included from some other components...${NC}\n"
       fi
     fi
     cd "$base_dir"
@@ -497,43 +537,62 @@ function gui_build_all {
   cd "$cwd"
 }
 
+function gui_send_action_to_frontend {
+  local action="$1"
+  if [ -n "$2" ]; then
+    action="${action}:${2}"
+  fi
+  node "${backendDir}/ws_servers/index.js" localhost "$action" frontend
+}
+
 function gui {
   local dir="$DMT_PATH/core/node/dmt-gui/gui-frontend-core"
   local backendDir="$DMT_PATH/core/node/dmt-gui/gui-backend"
 
-  if [ -z "$1" ]; then
+  local option="$1"
+
+  if [ -z "$option" ]; then
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}gui cd [gui]${NC} ${GRAY}${NC}\n"
     printf "${GREEN}gui run [gui]${NC} ${GRAY}${NC}\n"
     printf "${GREEN}gui build${NC} ${GRAY}build all GUIs${NC}\n"
     printf "${GREEN}gui build [gui]${NC} ${GRAY}${NC}\n"
     printf "${GREEN}gui reload${NC} ${GRAY}send request to frontend via websocket requesting refresh of current url${NC}\n"
-    printf "${GREEN}gui reload [gui]${NC} ${GRAY}reloads the specified gui view (home, player, debug etc.)${NC}\n"
+    printf "${GREEN}gui reload [view]${NC} ${GRAY}reloads the specified gui view (home, player, debug etc.)${NC}\n"
+    #printf "${GREEN}gui switch [ip]${NC} ${GRAY}switches gui to specified IP (todo: deviceId)${NC}\n"
     printf "${GREEN}gui debug${NC} ${GRAY}shows debugging info for current gui issues troubleshooting${NC}\n"
     return
   fi
 
-  case "$1" in
+  shift
+
+  case "$option" in
     cd)
-      awesome_cd "$dir" "$2"
+      awesome_cd "$dir" "$1"
       if [ $? -eq 0 ] && [ -d "src" ]; then
         cd "src"
       fi
       ;;
 
     reload)
-      local action="reload"
-      if [ -n "$2" ]; then
-        action="${action}:${2}"
-      fi
-      node "${backendDir}/ws_servers/index.js" localhost "$action" frontend
+      local view="$1"
+      gui_send_action_to_frontend "reload" "$view"
       ;;
 
+    # switch) ## TODO: we don't yet have everything ready in dmt-gui to process the switch action properly....
+    #   local ip="$1"
+    #   gui_send_action_to_frontend "switch" "$ip"
+    #   ;;
+
     run)
-      if [ -z "$2" ]; then
+      symlink_if_unlinked
+
+      if [ -z "$1" ]; then
+        gui run app
+      elif [ "$1" == "." ]; then
         npm run dev
       else
-        awesome_cd "$dir" "$2"
+        awesome_cd "$dir" "$1"
         if [ $? -eq 0 ]; then
           npm run dev
         fi
@@ -541,12 +600,15 @@ function gui {
       ;;
 
     build)
-      if [ -z "$2" ]; then
-        gui_build_all
+      symlink_if_unlinked
+
+      if [ -z "$1" ]; then
+        gui build app
+        #gui_build_all
         return
       fi
 
-      awesome_cd "$dir" "$2"
+      awesome_cd "$dir" "$1"
       if [ $? -eq 0 ]; then
         npm run build
       fi
@@ -557,7 +619,7 @@ function gui {
       ;;
 
     *)
-      awesome_cd "$dir" "$1"
+      awesome_cd "$dir" "$option"
       ;;
   esac
 }
@@ -576,6 +638,7 @@ function dmt_log {
   local logfile="$DMT_PATH/log/dmt.log"
 
   if [ "$1" == "fg" ]; then
+    # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) renew device.. 4) PROBLEM: even older log messages will be shown
     tail -f -n 100 "$logfile"
   else
     if [ -n "$hosts" ]; then
@@ -630,10 +693,6 @@ function dmt_version {
   printf "${WHITE}${NUM} bash functions ${GRAY}\nin ~/.bash_aliases${NC}\n"
 }
 
-function dmt_devices {
-  devices "$@"
-}
-
 function dmt_next {
   if dev_machine; then
     printf "${RED}Prevented on dev machine${NC}\n"
@@ -660,10 +719,12 @@ function dmt_next {
     cd ..
   fi
 
-  if [ -d "$DMT_NODE_CORE/.scripts" ]; then
-    cd "$DMT_NODE_CORE/.scripts"
-    ./symlink_dmt_deps
-  fi
+  symlink_if_unlinked
+  gui build
+  # if [ -d "$DMT_NODE_CORE/.scripts" ]; then
+  #   cd "$DMT_NODE_CORE/.scripts"
+  #   ./symlink_dmt_deps
+  # fi
 
   rel
 
@@ -725,11 +786,16 @@ function dmt_install {
 }
 
 function dmt_update {
+  symlink_if_unlinked
+
   if [ -z "$1" ]; then
     if dev_machine; then
       printf "${RED}Prevented on dev machine${NC}\n"
     fi
   else
+    #copy_core_bootscripts
+    compile_gui_if_missing
+
     dmt_install "$@"
   fi
 }
@@ -743,11 +809,16 @@ function re {
 }
 
 function dmt_renew {
+  symlink_if_unlinked
+
   # supports multi install: dmt renew dev1 dev2 ... devN
   if [ -z "$2" ]; then
     dmt_update "$1"
     restart_remote_device "$1"
   else
+    #symlink_if_unlinked
+    compile_gui_if_missing
+
     for device in "$@"
     do
       dmt_renew "$device"

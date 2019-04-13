@@ -2,6 +2,7 @@ deploy
 tagversion
 todo.txt
 INSTRUCTIONS.md
+/archive
 /bin
 /log
 /core
@@ -16,5 +17,3 @@ INSTRUCTIONS.md
 /snippets
 /user
 /state
-/archive
-

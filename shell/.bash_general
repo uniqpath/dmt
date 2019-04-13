@@ -193,6 +193,40 @@ function compile {
   cd "$cwd"
 }
 
+# copies custom user javascript files which are loaded inside dmt-proc !
+# each gets an instance of a "program"
+## UPDATE: this (along with .scripts/copy_user_bootscripts was moved into node.js code -- inside dmt-user)
+# function copy_core_bootscripts {
+#   local script="$DMT_NODE_CORE/.scripts/copy_user_bootscripts"
+
+#   if [ -f "$script" ]; then
+#     local cwd="`pwd`"
+#     cd "$DMT_NODE_CORE/.scripts"
+#     ./copy_user_bootscripts
+#     cd "$cwd"
+#   fi
+# }
+
+function symlink_if_unlinked {
+  local script="$DMT_NODE_CORE/.scripts/symlink_dmt_deps"
+
+  if [ -f "$script" ]; then
+
+    if [ ! -L "$DMT_NODE_CORE/dmt-bridge/node_modules" ]; then
+      local cwd="`pwd`"
+      cd "$DMT_NODE_CORE/.scripts"
+      ./symlink_dmt_deps
+      cd "$cwd"
+    fi
+  fi
+}
+
+function compile_gui_if_missing {
+  if [ ! -f "$DMT_NODE_CORE/dmt-gui/gui-frontend-core/app/public/bundle.js" ]; then
+    gui build
+  fi
+}
+
 # Reload the environment
 function rel {
 
@@ -548,6 +582,13 @@ function shut {
   fi
 
   if [ "$1" == 'reboot' ] || [ "$1" == 'r' ]; then
+    if is_rpi; then
+      # fix: "This profile appears to be in use by another Chromium process (543)...""
+      if [ -d /home/pi/.config/chromium ]; then
+        rm /home/pi/.config/chromium/Singleton*
+      fi
+    fi
+
     printf "${MAGENTA}Rebooting...${NC}\n"
     sudo reboot
   else
@@ -2153,7 +2194,7 @@ function flash {
       then
         printf "${YELLOW}Flashing after password...${NC} Press Ctrl+T to see progress\n"
         diskutil unmountDisk "/dev/disk${disk_n}"
-        sudo dd if="$matching_file" of="/dev/rdisk${disk_n}" bs=1m
+        time sudo dd if="$matching_file" of="/dev/rdisk${disk_n}" bs=64m # changed from: 1m
         diskutil eject "/dev/disk${disk_n}"
         printf "${GREEN}done.${NC} ${YELLOW}You can take the SD card out now.${NC}\n"
       fi

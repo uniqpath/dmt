@@ -30,7 +30,7 @@ if [ "$1" == "--main" ]; then
 
 elif [ "$1" == "--create" ]; then
 
-  if [ -d /root/Media ]; then
+  if [ -d /root/LocalMedia ]; then
     printf "${RED}target mount directory /root/Media already exists${NC}\n"
     exit
   fi
@@ -44,18 +44,18 @@ elif [ "$1" == "--create" ]; then
 
   parted /dev/mmcblk0 unit s print
 
-  mkdir /root/Media
-  mount /dev/mmcblk0p3 /root/Media
-  # chown -R pi:pi /root/Media
+  mkdir /root/LocalMedia
+  mount /dev/mmcblk0p3 /root/LocalMedia
+  # chown -R pi:pi /root/LocalMedia
 
   if grep -Fxq "LABEL=media" /etc/fstab
   then
     printf "${YELLOW}Did not add automount because LABEL=media already exists in /etc/fstab${NC}\n"
     printf "${RED}Verify the contents of /etc/fstab, it should contain:{NC}\n"
-    printf "${WHITE}LABEL=media /root/Media ext4 defaults 0 2${NC}\n"
+    printf "${WHITE}LABEL=media /root/LocalMedia ext4 defaults 0 2${NC}\n"
   else
     echo >> /etc/fstab
-    echo "LABEL=media /root/Media ext4 defaults 0 2" >> /etc/fstab
+    echo "LABEL=media /root/LocalMedia ext4 defaults 0 2" >> /etc/fstab
   fi
 
 else

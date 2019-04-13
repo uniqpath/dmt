@@ -25,7 +25,18 @@ function manage_daemon {
   local cwd=`pwd`
   cd "$DAEMONS_PATH"
 
-  node "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
+  local node_path="node"
+
+  if [ -n "$NODE_PATH" ]; then
+    # see ~/.dmt/etc/onboot/linux-systemd-launch-script/dmt-proc.service, namely:
+    # ...
+    # Environment="NODE_PATH=/home/user/n/bin/node"
+    # ExecStart=/home/user/.dmt/etc/onboot/onboot
+    # ...
+    node_path="$NODE_PATH"
+  fi
+
+  "$node_path" "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
 
   cd "$cwd"
 }
