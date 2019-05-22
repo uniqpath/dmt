@@ -57,6 +57,7 @@ function dmt {
     "stop"
     "link"
     "unlink"
+    "relink"
     "deactivate"
     "remove"
     "bin"
@@ -159,10 +160,11 @@ function dmt {
         printf "${MAGENTA}--------${NC}\n\n"
 
         printf "${GREEN}mpv${NC} ${GRAY}enables mpv process logging into ~/.dmt/log/mpv.log (requires dmt restart ${NC}while other commands do not!${NC})${NC}\n"
-        printf "${GREEN}mpv:ipc${NC} ${GRAY}enables debug messages between ${MAGENTA}dmt-process${NC} ${GRAY}and${NC} ${CYAN}mpv${NC} ${GRAY}process${NC}\n"
+        printf "${GREEN}mpv-ipc${NC} ${GRAY}enables debug messages between ${MAGENTA}dmt-process${NC} ${GRAY}and${NC} ${CYAN}mpv${NC} ${GRAY}process${NC}\n"
         printf "${GREEN}ws${NC} ${GRAY}enables debug messages about websocket connections (port 7780 -- metagui)${NC}\n"
         printf "${GREEN}lan${NC} ${GRAY}enables debug messages about lanbus${NC}\n"
-        printf "${GREEN}mqtt${NC} ${GRAY}enables debug messages about received mqtt messages${NC}\n"
+        printf "${GREEN}mqtt-sent${NC} ${GRAY}enables debug messages about sent mqtt messages${NC}\n"
+        printf "${GREEN}mqtt-received${NC} ${GRAY}enables debug messages about received mqtt messages${NC}\n"
         printf "${GREEN}beats${NC} ${GRAY}todo${NC}\n"
       fi
 
@@ -252,6 +254,11 @@ function dmt {
       cd "$cwd"
       ;;
 
+    relink) #rarely used, usually "dmt link" is enough for this purpose as well... use "dmt relink" only if suddenly symlinks should point somewewhere else... if just some new symlinks have to be added, there is no need to unlink first, the symlinking script (dmt link) will add what's missing
+      dmt unlink
+      dmt link
+      ;;
+
     start)
       symlink_if_unlinked
       #copy_core_bootscripts
@@ -306,7 +313,7 @@ function dmt {
       #copy_core_bootscripts
       compile_gui_if_missing
 
-      printf "${WHITE}dmt-proc${NC} ${MAGENTA}is starting in ${CYAN}foreground${NC} ...\n\n"
+      printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
       node --trace-warnings "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"
       ;;
 
@@ -325,6 +332,14 @@ function dmt {
       ;;
 
   esac
+}
+
+# warning: duplicated in ~/.dmt/etc/onboot/daemons
+function save_dmt_state {
+  local dmt_cli="${DMT_NODE_CORE}/dmt-controller/cli/dmt.js"
+  if [ -f "$dmt_cli" ]; then
+    node "$dmt_cli" save_state
+  fi
 }
 
 function dmt_device {
@@ -539,10 +554,12 @@ function gui_build_all {
 
 function gui_send_action_to_frontend {
   local action="$1"
+  local payload
   if [ -n "$2" ]; then
-    action="${action}:${2}"
+    #action="${action}:${2}"
+    payload="$2"
   fi
-  node "${backendDir}/ws_servers/index.js" localhost "$action" frontend
+  node "${backendDir}/ws_servers/index.js" localhost "$action" gui "$payload"
 }
 
 function gui {
@@ -559,7 +576,7 @@ function gui {
     printf "${GREEN}gui build [gui]${NC} ${GRAY}${NC}\n"
     printf "${GREEN}gui reload${NC} ${GRAY}send request to frontend via websocket requesting refresh of current url${NC}\n"
     printf "${GREEN}gui reload [view]${NC} ${GRAY}reloads the specified gui view (home, player, debug etc.)${NC}\n"
-    #printf "${GREEN}gui switch [ip]${NC} ${GRAY}switches gui to specified IP (todo: deviceId)${NC}\n"
+    printf "${GREEN}gui switch [ip]${NC} ${GRAY}switches gui to specified IP (todo: use deviceId instead of ip)${NC}\n"
     printf "${GREEN}gui debug${NC} ${GRAY}shows debugging info for current gui issues troubleshooting${NC}\n"
     return
   fi
@@ -579,10 +596,10 @@ function gui {
       gui_send_action_to_frontend "reload" "$view"
       ;;
 
-    # switch) ## TODO: we don't yet have everything ready in dmt-gui to process the switch action properly....
-    #   local ip="$1"
-    #   gui_send_action_to_frontend "switch" "$ip"
-    #   ;;
+    switch)
+      local ip="$1"
+      gui_send_action_to_frontend "switch" "$ip"
+      ;;
 
     run)
       symlink_if_unlinked
@@ -833,7 +850,7 @@ function dmt_remove {
 }
 
 function restart_remote_device {
-  local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; ~/.dmt/etc/onboot/daemons restart\\\""
+  local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-renew ]; then ~/.dmt/etc/deploy_hooks/before-renew; fi; ~/.dmt/etc/onboot/daemons restart\\\""
 
   local host="$1"
 

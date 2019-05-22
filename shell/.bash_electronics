@@ -1,0 +1,380 @@
+#!/bin/bash
+
+########### ESP8226 ###########
+
+function get_highest_version_subdir {
+  local dir="$2"
+
+  if [ ! -d "$dir" ]; then
+    printf "${dir} ${RED}directory is missing${NC}\n"
+    return
+  fi
+
+  local cwd="`pwd`"
+  cd "$dir"
+
+  local __highest
+
+  for entry in *
+  do
+    if [ -d "$entry" ]; then
+      if [ -z "$__highest" ]; then
+        __highest="$entry"
+      else
+        vercomp "$entry" "$__highest"
+
+        if [ "$?" == 1 ]; then
+          __highest="$entry"
+        fi
+
+        # case $? in
+        #     0) op='=';;
+        #     1) op='>';;
+        #     2) op='<';;
+        # esac
+      fi
+    fi
+  done
+
+  cd "$cwd"
+
+  eval "$1='${__highest}'"
+}
+
+# esptool -vv -cd ck -cb 115200 -cp /dev/cu.SLAB_USBtoUART -ca 0x00000 -cf /var/folders/8l/7gg0cdz556x6shrd9n42kf140000gn/T/arduino_build_444147/lights.ino.bin
+function esp {
+  # local ftdi1="/dev/tty.SLAB_USBtoUART"
+  # local ftdi2="/dev/tty.wchusbserial1420"
+
+  local ftdi1="/dev/cu.SLAB_USBtoUART"
+  local ftdi2="/dev/cu.wchusbserial1420"
+
+  local ftdi=$ftdi1
+
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    echo "esp [command] [arguments]"
+    echo
+    printf "${YELLOW}Commands:${NC}\n"
+    printf "${GREEN}help${NC}\n"
+    printf "${GREEN}erase${NC}\n"
+    printf "${GREEN}flash${NC} ${GRAY}[file.bin] [slow|fast] (default=slow)${NC}\n"
+    printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip]${NC}\n"
+  else
+
+    declare -a opts=(
+      "help"
+      "flash"
+      "erase"
+      "upload"
+    )
+
+    local matching_opt=''
+    opts_matcher matching_opt "$1" "${opts[@]}"
+    if [ $? -ne 0 ]; then # error
+      return
+    fi
+
+    shift
+
+    # LOCATE ESPTOOL
+    local esp_tool_parent_path="$HOME/Library/Arduino15/packages/esp8266/tools/esptool"
+    local highest=''
+    get_highest_version_subdir highest "$esp_tool_parent_path"
+    local esp_tool_path="${esp_tool_parent_path}/${highest}/esptool"
+    if [ ! -f "$esp_tool_path" ]; then
+      printf "${esp_tool_path} ${RED}file is missing${NC}\n"
+      return
+    fi
+
+    case "$matching_opt" in
+      help)
+        "$esp_tool_path" -h
+        ;;
+
+      erase)
+          printf "esp tool : ${MAGENTA}$esp_tool_path${NC}\n"
+          printf "ftdi: ${MAGENTA}$ftdi${NC}\n"
+          "$esp_tool_path" -vv -cp "$ftdi" -ce
+          ;;
+
+      flash)
+          if [ -z "$1" ]; then
+            printf "${RED}Please specify firmware file${NC}\n"
+            return
+          fi
+          if [ ! -f "$1" ]; then
+            printf "${RED}Firmware file doesn't exist${NC}\n"
+            return
+          fi
+          local baudrate=57600
+          if [ "$3" == "fast" ]; then
+            baudrate=115200
+            echo "FAST"
+          fi
+          printf "esp tool : ${MAGENTA}$esp_tool_path${NC}\n"
+          printf "ftdi: ${MAGENTA}$ftdi${NC}\n"
+          printf "baudrate: ${MAGENTA}$baudrate${NC}\n"
+          "$esp_tool_path" -vv -cp "$ftdi" -cb "$baudrate" -ca 0x0 -cf "$1"
+          ;;
+
+      upload)
+          # LOCATE ESPOTA
+          local esp_path="$HOME/Library/Arduino15/packages/esp8266/hardware/esp8266"
+          local highest=''
+          get_highest_version_subdir highest "$esp_path"
+          local esp_ota_path="${esp_path}/${highest}/tools/espota.py"
+          if [ ! -f "$esp_ota_path" ]; then
+            printf "${esp_ota_path} ${RED}file is missing${NC}\n"
+            return
+          fi
+
+          if [ -z "$1" ]; then
+            printf "${RED}Please specify firmware file and ip address${NC}\n"
+            return
+          fi
+          # if [ ! -f "$2" ]; then
+          #   printf "${RED}Firmware file doesn't exist${NC}\n"
+          #   return
+          # fi
+          if [ -z "$2" ]; then
+            printf "${RED}Please specify an ip address${NC}\n"
+            return
+          fi
+          local file="$1"
+          local ip="$2"
+
+          local matching_file=''
+          get_matching_file matching_file "$file"
+          matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+          if [ ! -f "$matching_file" ]; then
+            printf "${RED}Firmware file not found based on $file${NC}\n"
+            return
+          fi
+
+          printf "esp ota : ${MAGENTA}$esp_ota_path${NC}\n"
+          printf "file    : ${MAGENTA}$matching_file${NC}\n"
+          printf "ip      : ${MAGENTA}$ip${NC}\n"
+
+          python "$esp_ota_path" -d -i $ip -p 8266 --auth= -f "$matching_file"
+          ;;
+
+      esac
+
+    fi
+}
+
+
+# source:
+# https://stackoverflow.com/a/4025065/458177
+
+vercomp () {
+    if [[ $1 == $2 ]]
+    then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # fill empty fields in ver1 with zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+    do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++))
+    do
+        if [[ -z ${ver2[i]} ]]
+        then
+            # fill empty fields in ver2 with zeros
+            ver2[i]=0
+        fi
+        if ((10#${ver1[i]} > 10#${ver2[i]}))
+        then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]}))
+        then
+            return 2
+        fi
+    done
+    return 0
+}
+
+testvercomp() {
+    vercomp $1 $2
+    case $? in
+        0) op='=';;
+        1) op='>';;
+        2) op='<';;
+    esac
+    if [[ $op != $3 ]]
+    then
+        echo "FAIL: Expected '$3', Actual '$op', Arg1 '$1', Arg2 '$2'"
+    else
+        echo "Pass: '$1 $op $2'"
+    fi
+}
+
+run_testvercomp() {
+  # Run tests
+  # argument table format:
+  # testarg1   testarg2     expected_relationship
+  echo "The following tests should pass"
+  while read -r test
+  do
+      testvercomp $test
+done << EOF
+1            1            =
+2.1          2.2          <
+3.0.4.10     3.0.4.2      >
+4.08         4.08.01      <
+3.2.1.9.8144 3.2          >
+3.2          3.2.1.9.8144 <
+1.2          2.1          <
+2.1          1.2          >
+5.6.7        5.6.7        =
+1.01.1       1.1.1        =
+1.1.1        1.01.1       =
+1            1.0          =
+1.0          1            =
+1.0.2.0      1.0.2        =
+1..0         1.0          =
+1.0          1..0         =
+EOF
+
+  echo "The following test should fail (test the tester)"
+  testvercomp 1 1 '>'
+}
+
+
+
+# https://github.com/espressif/esptool
+# did not work on newer models of sonoff basic
+# function esp_old {
+#   local ftdi1="/dev/tty.SLAB_USBtoUART"
+#   local ftdi2="/dev/tty.wchusbserial1420"
+
+#   local ftdi=$ftdi1
+
+#   if [ -z "$1" ]; then
+#     printf "${YELLOW}Usage:${NC}\n"
+#     echo "esp [command] [arguments]"
+#     echo
+#     printf "${YELLOW}Commands:${NC}\n"
+#     printf "${GREEN}mac${NC}\n"
+#     printf "${GREEN}erase${NC}\n"
+#     printf "${GREEN}flash${NC} ${GRAY}[file.bin] [slow|fast] (default=slow)${NC}\n"
+#     printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip]${NC}\n"
+#   else
+
+#     declare -a opts=(
+#       "mac"
+#       "flash"
+#       "erase"
+#       "upload"
+#     )
+
+#     local matching_opt=''
+#     opts_matcher matching_opt "$1" "${opts[@]}"
+#     if [ $? -ne 0 ]; then # error
+#       return
+#     fi
+
+#     shift
+
+#     # https://github.com/espressif/esptool
+#     # pip install esptool
+#     local esp_tool_path="$HOME/Desktop/esptool/esptool.py"
+
+#     case "$matching_opt" in
+#       mac)
+#           printf "esp tool : ${MAGENTA}$esp_tool_path${NC}\n"
+#           printf "ftdi: ${MAGENTA}$ftdi${NC}\n"
+#           "$esp_tool_path" -p "$ftdi" --chip auto read_mac
+#           ;;
+
+#       erase)
+#           printf "esp tool : ${MAGENTA}$esp_tool_path${NC}\n"
+#           printf "ftdi: ${MAGENTA}$ftdi${NC}\n"
+#           "$esp_tool_path" -p "$ftdi" erase_flash
+#           ;;
+
+#       flash)
+#           if [ -z "$1" ]; then
+#             printf "${RED}Please specify firmware file${NC}\n"
+#             return
+#           fi
+#           if [ ! -f "$1" ]; then
+#             printf "${RED}Firmware file doesn't exist${NC}\n"
+#             return
+#           fi
+#           local baudrate=57600
+#           if [ "$3" == "fast" ]; then
+#             baudrate=115200
+#             echo "FAST"
+#           fi
+#           printf "esp tool : ${MAGENTA}$esp_tool_path${NC}\n"
+#           printf "ftdi: ${MAGENTA}$ftdi${NC}\n"
+#           printf "baudrate: ${MAGENTA}$baudrate${NC}\n"
+#           "$esp_tool_path" -p "$ftdi" -b "$baudrate" write_flash 0x0 "$1"
+#           ;;
+
+#       upload)
+#           local esp_path="$HOME/Library/Arduino15/packages/esp8266/hardware/esp8266"
+#           local exec_count=$(find "$esp_path" -type f -name "espota.py" | wc -l)
+
+#           if [ $exec_count == 1 ]; then
+#             local esp_ota_path=$(find "$esp_path" -type f -name "espota.py")
+#           elif [ $exec_count == 0 ]; then
+#             printf "${RED}Missing espota.py under $esp_path${NC}\n"
+#             return
+#           else
+#             printf "${RED}Multiple espota.py:${NC}\n"
+#             find "$esp_path" -type f -name "espota.py"
+#             printf "${YELLOW}Which one is correct?${NC}\n"
+#             return
+#           fi
+
+#           if [ -z "$1" ]; then
+#             printf "${RED}Please specify firmware file and ip address${NC}\n"
+#             return
+#           fi
+#           # if [ ! -f "$2" ]; then
+#           #   printf "${RED}Firmware file doesn't exist${NC}\n"
+#           #   return
+#           # fi
+#           if [ -z "$2" ]; then
+#             printf "${RED}Please specify an ip address${NC}\n"
+#             return
+#           fi
+#           local file="$1"
+#           local ip="$2"
+
+#           local matching_file=''
+#           get_matching_file matching_file "$file"
+#           matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+#           if [ ! -f "$matching_file" ]; then
+#             printf "${RED}Firmware file not found based on $file${NC}\n"
+#             return
+#           fi
+
+#           printf "esp ota : ${MAGENTA}$esp_ota_path${NC}\n"
+#           printf "file    : ${MAGENTA}$matching_file${NC}\n"
+#           printf "ip      : ${MAGENTA}$ip${NC}\n"
+
+#           python "$esp_ota_path" -d -i $ip -p 8266 --auth= -f "$matching_file"
+
+#           # if [ -f "$HOME/Install/esp8266/tools/espota.py" ]; then
+#           #   printf "ip: ${MAGENTA}$ip${NC}\n"
+#           #   printf "file: ${MAGENTA}$file${NC}\n"
+#           #   $HOME/Install/esp8266/tools/espota.py -d -i "$ip" -p 8266 --auth= -f "$file"
+#           # else
+#           #   printf "$HOME/Install/esp8266/tools/espota.py ${RED}not found${NC}\n"
+#           # fi
+#           ;;
+
+#       esac
+
+#     fi
+# }

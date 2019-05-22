@@ -87,9 +87,13 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       exit
     fi
 
-    mkdir -p "$DMT_PATH/log"
-    mkdir -p "$DMT_PATH/user/data"
     mkdir -p "$DMT_STATE"
+    mkdir -p "$DMT_PATH/log"
+
+    if [ ! -d "$DMT_PATH/user" ] && [ -d "$DMT_PATH/etc/sample_user" ]; then
+      cp -r "$DMT_PATH/etc/sample_user" "$DMT_PATH"
+      mv "$DMT_PATH/sample_user" "$DMT_PATH/user"
+    fi
 
     if [ -f "$HOME/.bash_aliases" ] || [ -L "$HOME/.bash_aliases" ]; then # -L : we check for broken symlink (-f would return true for working symlink but not for a broken one)
       if [ -f "$HOME/.bash_aliases" ] && [ "$(head -3 "$HOME/.bash_aliases" | tail -1)" == "# DMT ALIASES" ]; then
@@ -103,9 +107,17 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
     ln -s "$COMPILED_BASH_ALIASES" "$HOME/.bash_aliases"
 
     # run after-install (=after-update) hooks
+
+    # defined for this device
     after_update_hook="$HOME/.dmt/user/devices/this/after-update"
     if [ -f "$after_update_hook" ]; then
       "$after_update_hook"
+    fi
+
+    # general
+    after_update_hook="$HOME/.dmt/etc/deploy_hooks/after-update"
+    if [ -f "$after_update_hook" ]; then
+      "$after_update_hook" > /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
     fi
 
     if [ "$arg" == "full" ]; then
@@ -115,7 +127,7 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
 
     echo
 
-    printf "${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname) ${GRAY}(you may need to restart the terminal tab)${NC}\n"
+    printf "${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname) ${GRAY}(you may need to reload the terminal tab)${NC}\n"
 
     if [ ! -d "$DMT_PATH/user" ]; then
       echo

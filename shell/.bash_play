@@ -19,6 +19,7 @@ function m {
     "clear"
     "limit"
     "stop"
+    "forward"
   )
 
   # local host=""

@@ -320,137 +320,6 @@ function mac {
   ifconfig en0
 }
 
-########### ESP8226 ###########
-
-function esp {
-  local ftdi1="/dev/tty.SLAB_USBtoUART"
-  local ftdi2="/dev/tty.wchusbserial1420"
-
-  local ftdi=$ftdi1
-
-  if [ -z "$1" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    echo "esp [command] [arguments]"
-    echo
-    printf "${YELLOW}Commands:${NC}\n"
-    printf "${GREEN}mac${NC}\n"
-    printf "${GREEN}erase${NC}\n"
-    printf "${GREEN}flash${NC} ${GRAY}[file.bin] [slow|fast] (default=slow)${NC}\n"
-    printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip]${NC}\n"
-  else
-
-    declare -a opts=(
-      "mac"
-      "flash"
-      "erase"
-      "upload"
-    )
-
-    local matching_opt=''
-    opts_matcher matching_opt "$1" "${opts[@]}"
-    if [ $? -ne 0 ]; then # error
-      return
-    fi
-
-    shift
-
-    # https://github.com/espressif/esptool
-    # pip install esptool
-    local esp_tool_path="esptool.py"
-
-    case "$matching_opt" in
-      mac)
-          printf "esp tool : ${MAGENTA}$esp_tool_path${NC}\n"
-          printf "ftdi: ${MAGENTA}$ftdi${NC}\n"
-          "$esp_tool_path" -p "$ftdi" read_mac
-          ;;
-
-      erase)
-          printf "esp tool : ${MAGENTA}$esp_tool_path${NC}\n"
-          printf "ftdi: ${MAGENTA}$ftdi${NC}\n"
-          "$esp_tool_path" -p "$ftdi" erase_flash
-          ;;
-
-      flash)
-          if [ -z "$1" ]; then
-            printf "${RED}Please specify firmware file${NC}\n"
-            return
-          fi
-          if [ ! -f "$1" ]; then
-            printf "${RED}Firmware file doesn't exist${NC}\n"
-            return
-          fi
-          local baudrate=57600
-          if [ "$3" == "fast" ]; then
-            baudrate=115200
-            echo "FAST"
-          fi
-          printf "esp tool : ${MAGENTA}$esp_tool_path${NC}\n"
-          printf "ftdi: ${MAGENTA}$ftdi${NC}\n"
-          printf "baudrate: ${MAGENTA}$baudrate${NC}\n"
-          "$esp_tool_path" -p "$ftdi" -b "$baudrate" write_flash 0x0 "$1"
-          ;;
-
-      upload)
-          local esp_path="$HOME/Library/Arduino15/packages/esp8266/hardware/esp8266"
-          local exec_count=$(find "$esp_path" -type f -name "espota.py" | wc -l)
-
-          if [ $exec_count == 1 ]; then
-            local esp_ota_path=$(find "$esp_path" -type f -name "espota.py")
-          elif [ $exec_count == 0 ]; then
-            printf "${RED}Missing espota.py under $esp_path${NC}\n"
-            return
-          else
-            printf "${RED}Multiple espota.py:${NC}\n"
-            find "$esp_path" -type f -name "espota.py"
-            printf "${YELLOW}Which one is correct?${NC}\n"
-            return
-          fi
-
-          if [ -z "$1" ]; then
-            printf "${RED}Please specify firmware file and ip address${NC}\n"
-            return
-          fi
-          # if [ ! -f "$2" ]; then
-          #   printf "${RED}Firmware file doesn't exist${NC}\n"
-          #   return
-          # fi
-          if [ -z "$2" ]; then
-            printf "${RED}Please specify an ip address${NC}\n"
-            return
-          fi
-          local file="$1"
-          local ip="$2"
-
-          local matching_file=''
-          get_matching_file matching_file "$file"
-          matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
-
-          if [ ! -f "$matching_file" ]; then
-            printf "${RED}Firmware file not found based on $file${NC}\n"
-            return
-          fi
-
-          printf "esp ota : ${MAGENTA}$esp_ota_path${NC}\n"
-          printf "file    : ${MAGENTA}$matching_file${NC}\n"
-          printf "ip      : ${MAGENTA}$ip${NC}\n"
-
-          python "$esp_ota_path" -d -i $ip -p 8266 --auth= -f "$matching_file"
-
-          # if [ -f "$HOME/Install/esp8266/tools/espota.py" ]; then
-          #   printf "ip: ${MAGENTA}$ip${NC}\n"
-          #   printf "file: ${MAGENTA}$file${NC}\n"
-          #   $HOME/Install/esp8266/tools/espota.py -d -i "$ip" -p 8266 --auth= -f "$file"
-          # else
-          #   printf "$HOME/Install/esp8266/tools/espota.py ${RED}not found${NC}\n"
-          # fi
-          ;;
-
-      esac
-
-    fi
-}
-
 # dep for reload:
 # sudo apt-get install -y xdotool
 function kiosk {
@@ -589,6 +458,8 @@ function shut {
       fi
     fi
 
+    save_dmt_state
+
     printf "${MAGENTA}Rebooting...${NC}\n"
     sudo reboot
   else
@@ -599,6 +470,8 @@ function shut {
       if macos; then
         off
       else
+        save_dmt_state
+
         sudo shutdown -h now
       fi
     fi
@@ -2328,7 +2201,7 @@ function serve {
   elif [ -f ./server.js ]; then
     printf "${YELLOW}node server.js${NC}\n"
     node server.js
-  elif [ -f ./package.json ] && [ $(ls-scripts | grep 'vue-cli' | wc -l) -gt 0 ]; then
+  elif [ -f ./package.json ] && [ $(ls-scripts | grep 'serve' | wc -l) -gt 0 ]; then
     npm run serve
   # npm install -g npm-ls-scripts
   elif [ -f ./package.json ] && [ $(ls-scripts | grep '^start' | wc -l) = 1 ]; then

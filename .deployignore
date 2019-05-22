@@ -9,9 +9,9 @@ todo.txt
 /archive
 .trash
 /cores_extra
-/user/catalogs
-/user/data
 /user/devices/this
+/user/catalogs
+/user/frontend-assets/volatile
 /state
 target/debug
 target/release

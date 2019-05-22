@@ -46,6 +46,15 @@ function manage_daemons {
   manage_daemon "$command" dmt-proc
 }
 
+# warning: duplicated in ~/.dmt/shell/.bash_dmt (for use in "shut" command)
+function save_dmt_state {
+  local DMT_NODE_CORE="$HOME/.dmt/core/node"
+  local dmt_cli="${DMT_NODE_CORE}/dmt-controller/cli/dmt.js"
+  if [ -f "$dmt_cli" ]; then
+    node "$dmt_cli" save_state
+  fi
+}
+
 if [ -z "$1" ]; then
   printf "${YELLOW}Usage:${NC}\n"
   printf "${GREEN}daemons start${NC} ${GRAY}starts or restarts daemons if already running${NC}\n"
@@ -67,14 +76,17 @@ case "$1" in
     ;;
 
   restart )
+    save_dmt_state
     manage_daemons restart
     ;;
 
   start_or_restart ) # for clarity
+    save_dmt_state
     manage_daemons restart
     ;;
 
   stop )
+    save_dmt_state
     manage_daemons stop
     ;;
 

@@ -70,6 +70,14 @@ if [ "$1" == 'custom' ]; then
   exit
 fi
 
+# mpv --list-properties
+#
+# mpvc get metadata
+
+# streams:
+
+# Received: {"data":{"icy-notice1":"<BR>This stream requires <a href="http://www.winamp.com">Winamp</a><BR>","icy-notice2":"SHOUTcast DNAS/posix(linux x64) v2.5.1.724<BR>","icy-name":"Smooth Jazz Florida","icy-genre":"Smooth Jazz","icy-br":"128","icy-sr":"44100","icy-url":"http://www.SmoothJazzFlorida.com","icy-pub":"1","icy-title":"Earl Klugh - Canadian Sunset"},"error":"success"}
+# mpvc get stream-path
 if [ "$1" == 'get' ]; then
   command 'get_property' "$2"
 fi
@@ -86,6 +94,23 @@ fi
 # start playing
 [ "$1" = "pause" ] && command 'set' 'pause' 'yes'
 # stop playing
+
+if [ "$1" == "vol" ] || [ "$1" == "volume" ]; then
+  if [ -n "$2" ]; then
+    command 'set_property' "volume" "$2"
+  else
+    $0 get volume
+    #echo "Missing second argument [vol]"
+  fi
+  exit
+fi
+
+if [ "$1" == "play" ] && [ -n "$2" ]; then
+  command 'loadfile' "$2" 'replace'
+  command 'set' 'pause' 'no' # should not be neccessary... but it is, esp. for playing streams that have been set to pause
+  exit
+fi
+
 [ "$1" = "play" ] && command 'set' 'pause' 'no'
 # play next item in playlist
 [ "$1" = "next" ] && command 'playlist_next'
