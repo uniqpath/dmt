@@ -35,7 +35,6 @@ function dmt {
 
   declare -a opts=(
     "help"
-    "docs"
     "info"
     "status"
     "version"
@@ -98,13 +97,19 @@ function dmt {
   shift
 
   # report if a process named "dmt-proc" is currently running
-  local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  #local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
+  local dmt_proc_pid=''
+  get_dmt_proc_pid dmt_proc_pid
+
   local proc_manager=$(ps -ef | grep "dmt-proc" | grep "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
 
   if [ -z "$hosts" ]; then # if we're targeting remote hosts, information about our own local process is irrelevant
-    if [ -n "$proc" ]; then
-      printf "${WHITE}dmt-proc${NC} seems to be running with ${YELLOW}pid ${proc}${NC}\n"
-    elif [ "$matching_opt" != "start" ] && [ "$matching_opt" != "startfg" ] && [ "$matching_opt" != "stop" ] && [ "$matching_opt" != "restart" ]; then
+    if [ -n "$dmt_proc_pid" ]; then
+      if [ "$matching_opt" != "next" ] && [ "$matching_opt" != "start" ] && [ "$matching_opt" != "startfg" ]; then
+        printf "${WHITE}dmt-proc${NC} seems to be running with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
+      fi
+    elif [ "$matching_opt" != "next" ] && [ "$matching_opt" != "start" ] && [ "$matching_opt" != "startfg" ] && [ "$matching_opt" != "stop" ] && [ "$matching_opt" != "restart" ]; then
       echo
       printf "⚠️  ${WHITE}dmt-proc${NC} ${RED}does not seem to be running${NC} ${YELLOW}→ use${NC} ${GREEN}dmt start${NC} 🚀\n"
       if [ -n "$proc_manager" ]; then
@@ -120,15 +125,15 @@ function dmt {
       dmt_help
       ;;
 
-    docs)
-      dmt_docs
-      ;;
+    # docs)
+    #   dmt_docs
+    #   ;;
 
     info)
       if [ -n "$hosts" ]; then
         node "$DMT_CLI" "${hosts}" info "$@"
       else
-        if [ -n "$proc" ]; then
+        if [ -n "$dmt_proc_pid" ]; then
           node "$DMT_CLI" info "$@"
         fi
       fi
@@ -260,6 +265,10 @@ function dmt {
       ;;
 
     start)
+      if is_dmt_running; then
+        return
+      fi
+
       symlink_if_unlinked
       #copy_core_bootscripts
       compile_gui_if_missing
@@ -269,9 +278,29 @@ function dmt {
       printf "\n${CYAN}dmt-proc${NC} ${GRAY}should now be running, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
       ;;
 
+    startfg) # START FOREGROUND
+      if is_dmt_running; then
+        return
+      fi
+
+      symlink_if_unlinked
+      #copy_core_bootscripts
+      compile_gui_if_missing
+
+      printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
+      node --trace-warnings "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"
+      ;;
+
     stop)
-      printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is stopping...${NC}\n\n"
-      "${DMT_PATH}/etc/onboot/daemons" stop
+      local dmt_proc_pid=''
+      get_dmt_proc_pid dmt_proc_pid
+
+      if [ -n "$dmt_proc_pid" ]; then
+        printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is stopping...${NC}\n\n"
+        "${DMT_PATH}/etc/onboot/daemons" stop
+      else
+        printf "${YELLOW}dmt-proc is not currently running ...${NC}\n"
+      fi
       ;;
 
     restart)
@@ -298,23 +327,12 @@ function dmt {
       "${DMT_PATH}/etc/onboot/daemons" start
       ;;
 
-    log)
+    log) # requestion to the service to get latest few log lines
       dmt_log "$@"
       ;;
 
-    # FOREGROUND
-
-    logfg)
+    logfg) # show log in foreground and keep it updated
       dmt_log fg "$@"
-      ;;
-
-    startfg)
-      symlink_if_unlinked
-      #copy_core_bootscripts
-      compile_gui_if_missing
-
-      printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
-      node --trace-warnings "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"
       ;;
 
     # undocumented:
@@ -332,6 +350,25 @@ function dmt {
       ;;
 
   esac
+}
+
+function get_dmt_proc_pid {
+  local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  if [ -n "$proc" ]; then
+    eval "$1='$proc'"
+  fi
+}
+
+function is_dmt_running {
+  local dmt_proc_pid=''
+  get_dmt_proc_pid dmt_proc_pid
+
+  if [ -n "$dmt_proc_pid" ]; then
+    printf "${WHITE}dmt-proc${NC} ${GREEN}seems to already be running with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
+    return 0
+  fi
+
+  return 1
 }
 
 # warning: duplicated in ~/.dmt/etc/onboot/daemons
@@ -695,19 +732,41 @@ function dmt_help {
   printf "${GREEN}dmt @@remoteIpOrHost log ${GRAY}self-describing${NC}\n"
 }
 
-function dmt_docs {
-  if [ -f ~/.dmt/docs/index.html ]; then
-    open ~/.dmt/docs/index.html
-  else
-    printf "${RED}Docs missing${NC}\n"
-  fi
-  #open https://github.com/uniqpath/dmt/blob/master/docs/README.md
-}
+# function dmt_docs {
+#   if [ -f ~/.dmt/docs/index.html ]; then
+#     open ~/.dmt/docs/index.html
+#   else
+#     printf "${RED}Docs missing${NC}\n"
+#   fi
+#   #open https://github.com/uniqpath/dmt/blob/master/docs/README.md
+# }
 
 function dmt_version {
   printf "${MAGENTA}v$(cat "$DMT_PATH/.version")${NC}\n\n"
   local NUM=$(cat $HOME/.bash_aliases | grep function | wc -l | xargs)
   printf "${WHITE}${NUM} bash functions ${GRAY}\nin ~/.bash_aliases${NC}\n"
+}
+
+function get_dmt_source {
+  local _gatewayMac=''
+  get_gateway_mac _gatewayMac
+
+  if [ "$_gatewayMac" == "$LOCAL_DMT_SOURCE_MAC" ]; then
+    eval "$1='local'"
+    #printf "${GREEN}LOCAL${NC}\n"
+  else
+    eval "$1='global'"
+    #printf "${MAGENTA}GLOBAL${NC}\n"
+  fi
+  #printf "${YELLOW}$_gatewayMac${NC}\n"
+}
+
+function stop_dmt_if_running {
+  local dmt_proc_pid=''
+  get_dmt_proc_pid dmt_proc_pid
+  if [ -n "$dmt_proc_pid" ]; then
+    dmt stop
+  fi
 }
 
 function dmt_next {
@@ -716,36 +775,92 @@ function dmt_next {
     return
   fi
 
-  local cwd="`pwd`"
+  stop_dmt_if_running
 
-  cd "$DMT_PATH"
-  git fetch
-  git reset --hard origin/master
-
-  if [ -d "./core/.git" ]; then
-    cd core
-    git fetch
-    git reset --hard origin/master
-    cd ..
+  if [ -d "$DMT_PATH/user" ]; then
+    local backup_dir="$HOME/dmt-user-backup"
+    if [ ! -d "$backup_dir" ]; then
+      mv "$DMT_PATH/user" "$backup_dir"
+    else
+      printf "${RED}Aborting due to existing directory - ${backup_dir} ${NC}\n"
+      return
+    fi
   fi
 
-  if [ -d "./bin/.git" ]; then
-    cd bin
-    git fetch
-    git reset --hard origin/master
-    cd ..
+  if [ -d "$DMT_PATH/state" ]; then
+    local backup_dir="$HOME/dmt-state-backup"
+    if [ ! -d "$backup_dir" ]; then
+      mv "$DMT_PATH/state" "$backup_dir"
+    else
+      printf "${RED}Aborting due to existing directory - ${backup_dir} ${NC}\n"
+      return
+    fi
   fi
 
-  symlink_if_unlinked
-  gui build
-  # if [ -d "$DMT_NODE_CORE/.scripts" ]; then
-  #   cd "$DMT_NODE_CORE/.scripts"
-  #   ./symlink_dmt_deps
+  cd "$HOME"
+
+  rm -rf "$DMT_PATH"
+
+  local dmt_source=''
+  get_dmt_source dmt_source
+
+  if [ $dmt_source == 'local' ]; then
+    printf "${GREEN}Fetching from ${YELLOW}${LOCAL_DMT_SOURCE_ENDPOINT}${NC} ...\n\n"
+    curl "$LOCAL_DMT_SOURCE_ENDPOINT" | bash
+  else
+    printf "${CYAN}Fetching from ${MAGENTA}dmt-system.com${NC} ...\n\n"
+    curl -L dmt-system.com/get | bash
+  fi
+
+  if [ ! -d "$DMT_PATH" ]; then
+    printf "${RED}Problem installing dmt -- ~/.dmt does not exist${NC}\n"
+    return
+  fi
+
+  if [ -d "$HOME/dmt-user-backup" ]; then
+    rm -rf "$DMT_PATH/user"
+    mv "$HOME/dmt-user-backup" "$DMT_PATH/user"
+  fi
+
+  if [ -d "$HOME/dmt-state-backup" ]; then
+    rm -rf "$DMT_PATH/state"
+    mv "$HOME/dmt-state-backup" "$DMT_PATH/state"
+  fi
+
+  dmt start
+
+  # OLD CODE FOR GITHUB SOURCE
+
+  # local cwd="`pwd`"
+
+  # cd "$DMT_PATH"
+  # git fetch
+  # git reset --hard origin/master
+
+  # if [ -d "./core/.git" ]; then
+  #   cd core
+  #   git fetch
+  #   git reset --hard origin/master
+  #   cd ..
   # fi
 
-  rel
+  # if [ -d "./bin/.git" ]; then
+  #   cd bin
+  #   git fetch
+  #   git reset --hard origin/master
+  #   cd ..
+  # fi
 
-  cd "$cwd"
+  # symlink_if_unlinked
+  # gui build
+  # # if [ -d "$DMT_NODE_CORE/.scripts" ]; then
+  # #   cd "$DMT_NODE_CORE/.scripts"
+  # #   ./symlink_dmt_deps
+  # # fi
+
+  # rel
+
+  # cd "$cwd"
 }
 
 function dmt_core {

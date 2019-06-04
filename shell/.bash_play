@@ -127,7 +127,7 @@ function play {
   local audio_cmd="$DMT_PLATFORM_BIN/music_player"
 
   # AUDIO
-  if [ -z "$1" ] || [ "$1" == "mp3" ] || [ "$1" == "flac" ] || [ "$1" == "ogg" ]; then
+  if [ -z "$1" ] || [ "$1" == "mp3" ] || [ "$1" == "m4a" ] || [ "$1" == "flac" ] || [ "$1" == "ogg" ]; then
     local ext="$1"
 
     if [ -z "$ext" ]; then

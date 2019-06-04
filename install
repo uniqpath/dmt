@@ -93,6 +93,10 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
     if [ ! -d "$DMT_PATH/user" ] && [ -d "$DMT_PATH/etc/sample_user" ]; then
       cp -r "$DMT_PATH/etc/sample_user" "$DMT_PATH"
       mv "$DMT_PATH/sample_user" "$DMT_PATH/user"
+      cwd="`pwd`"
+      cd "$DMT_PATH/user/devices"
+      ln -s "dmtos1" "this"
+      cd "$cwd"
     fi
 
     if [ -f "$HOME/.bash_aliases" ] || [ -L "$HOME/.bash_aliases" ]; then # -L : we check for broken symlink (-f would return true for working symlink but not for a broken one)
@@ -142,8 +146,8 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
     fi
 
     echo
-    printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${GRAY}source ~/.bash_aliases ${YELLOW}first.${NC}\n"
-    printf "${MAGENTA}Docs and tutorials: ${CYAN}https://github.com/uniqpath/info${NC}\n"
+    printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${GRAY}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
+    printf "${GRAY}Project website — ${MAGENTA}dmt-system.com${NC}\n"
 
     # printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${MAGENTA}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
     # printf "${GRAY}If this works, then try to log out of terminal and back in.${NC}\n"

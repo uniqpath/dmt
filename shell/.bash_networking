@@ -87,9 +87,9 @@ function gateway_ip {
   ip -4 route list | head -1 | cut -d' ' -f3
 }
 
-function gatewayMac {
+function gateway_mac {
   local _gatewayMac=''
-  get_gatewayMac _gatewayMac
+  get_gateway_mac _gatewayMac
 
   printf "${YELLOW}$_gatewayMac${NC}\n"
 }
@@ -126,7 +126,7 @@ function get_mac {
 #
 # https://askubuntu.com/questions/605306/how-do-i-get-the-mac-address-of-my-router
 
-function get_gatewayMac {
+function get_gateway_mac {
   # todo: ping once ? probably useful....... but for now there were no problems
   local gateway_ip=$(ip -4 route list | head -1 | cut -d' ' -f3)
   if [[ "$gateway_ip" =~ [0-9]\. ]]; then # we can also get "wlan0" if working as access point
@@ -249,7 +249,7 @@ function network_def_reader {
   local entry="$3"
 
   local _gatewayMac=''
-  get_gatewayMac _gatewayMac
+  get_gateway_mac _gatewayMac
 
   if [ -z "$_gatewayMac" ]; then
     #printf "${RED}Cannot get gateway mac address${NC}\n\n"
