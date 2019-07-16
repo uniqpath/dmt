@@ -33,6 +33,8 @@ if [ "$1" == "-h" ] || [ -z "$1" ]; then
   printf "${GREEN}ap disable | off | wifi${NC}\n"
   printf "${GREEN}ap wifi_once ${GRAY}(enables wifi only for next reboot)${NC}\n"
   echo
+  printf "${GREEN}ap toggle${NC}\n"
+  echo
   printf "${YELLOW}More:${NC}\n"
   printf "To change hotspot SSID/PASS: ${GREEN}conf hostapd${NC}\n"
   printf "To update known external wifi networks: ${GREEN}conf wifi${NC}\n"
@@ -67,6 +69,17 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
+# TOGGLE
+
+if [ "$1" == "toggle" ]; then
+  if grep -Fq "hostapd" /etc/network/interfaces
+  then
+    $0 disable
+  else
+    $0 enable
+  fi
+fi
+
 # ENABLE AP
 
 if [ "$1" == "enable" ] || [ "$1" == "on" ]; then
@@ -74,6 +87,18 @@ if [ "$1" == "enable" ] || [ "$1" == "on" ]; then
     install_warning
     exit
   fi
+
+  if [ -f /boot/config.txt ]; then
+    wifi_overlay="dtoverlay=pi3-disable-wifi"
+    line=$(cat /boot/config.txt | grep $wifi_overlay)
+
+    if [ -n "$line" ] && [[ ! "$line" =~ ^# ]]; then # dtoverlay line is present and not commented out
+      printf "⚠️  ${YELLOW}Wifi is disabled with ${GRAY}${wifi_overlay} ${RED}in ${GRAY}/boot/config.txt${NC}\n"
+      printf "${RED}Cannot activate AP mode, please enable wifi first.${NC}\n"
+      exit
+    fi
+  fi
+
   cp /etc/network/interfaces-hostapd /etc/network/interfaces
 
   if [ -f "/etc/network/if-up.d/off-power-manager" ]; then
@@ -88,14 +113,19 @@ if [ "$1" == "enable" ] || [ "$1" == "on" ]; then
   # systemctl enable hostapd
   systemctl enable dnsmasq
 
+  # enable mosquitto ! Devices connected to AP use AP's mqtt broker to exchange information (presence etc...)
+  systemctl enable mosquitto
+  # note: this will stay enabled once we switch back to wifi mode... but it doesn't matter... and we really should not disable it because some devices may actually act as mqtt brokers when in wifi client mode
+
+  echo
   printf "${CYAN}Wifi mode disabled${NC}\n"
-  printf "${GREEN}AP mode enabled${NC}\n"
+  printf "${MAGENTA}AP mode enabled${NC}\n"
 
   if [ "$2" == "r" ]; then
     printf "${MAGENTA}Rebooting...${NC}\n"
     reboot
   else
-    printf "${GREEN}Please reboot now...${NC}\n"
+    printf "\n${GREEN}Please reboot now ...${NC}\n"
   fi
 
   exit
@@ -162,14 +192,15 @@ EOF
 
   chmod +x /etc/network/if-up.d/off-power-manager
 
-  printf "${CYAN}AP mode disabled${NC}\n"
-  printf "${GREEN}Wifi mode enabled${NC}\n"
+  echo
+  printf "${MAGENTA}AP mode disabled${NC}\n"
+  printf "${CYAN}Wifi mode enabled${NC}\n"
 
   if [ "$2" == "r" ]; then
     printf "${MAGENTA}Rebooting...${NC}\n"
     reboot
   else
-    printf "${GREEN}Please reboot now...${NC}\n"
+    printf "\n${GREEN}Please reboot now ...${NC}\n"
   fi
   exit
 fi
@@ -188,6 +219,8 @@ if [ "$1" == "install" ]; then
   if [ -n "$2" ]; then
     APPASS=$2
   fi
+
+  apt-get update
 
   apt-get install hostapd dnsmasq -y
 

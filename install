@@ -181,8 +181,6 @@ else # clone to and install on remote device
 
     printf "${CYAN}Installing on ${YELLOW}$host:$ssh_port${NC}\n"
 
-    compile
-
     dirsync --port $ssh_port ~/.dmt "$target"
 
     remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"

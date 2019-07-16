@@ -11,7 +11,7 @@
 
 source ~/.dmt/shell/.bash_custom
 
-~/.dmt/etc/onboot/daemons start_or_restart
+~/.dmt/etc/onboot/daemons start #_or_restart
 
 if [ -f ~/.dmt/user/devices/this/onboot ]; then
   ~/.dmt/user/devices/this/onboot

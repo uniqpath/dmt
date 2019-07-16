@@ -108,14 +108,41 @@ function update_swarm {
   go install -v ./cmd/swarm
 }
 
+function install_node {
+  curl -L https://git.io/n-install | bash
+}
+
+function install_parity {
+  echo "If it doesn't compile on some machine (for example Digital Ocean droplet), compile elsewhere and copy ./target/release/parity binary over..."
+  if [ -d "$HOME/parity-ethereum" ]; then
+    printf "${RED}~/Install/parity directory already exists${NC}\n"
+  else
+    local cwd="`pwd`"
+    mkdir -p ~/Install
+    cd ~/Install
+
+    sudo apt-get install -y libudev-dev cmake
+
+    git clone https://github.com/paritytech/parity-ethereum.git
+    update_parity
+    cd "$cwd"
+  fi
+}
+
 # https://github.com/paritytech/parity-ethereum/tree/stable
 function update_parity {
-  cd ~/Install/parity
+  local cwd="`pwd`"
+  cd ~/Install/parity-ethereum
   git fetch
   git reset --hard origin/stable
   #echo "1.27.0" > rust-toolchain
   cargo build --release --features final
   #printf "${YELLOW}set rust version 1.27.0, change this value in update_parity function if build failed${NC}\n"
+  cd "$cwd"
+}
+
+function install_rust {
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 }
 
 function update_rust {

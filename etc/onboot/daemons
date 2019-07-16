@@ -80,6 +80,11 @@ case "$1" in
     manage_daemons restart
     ;;
 
+  restart_and_notify_on_fail )
+    save_dmt_state
+    manage_daemons restart_and_notify_on_fail
+    ;;
+
   start_or_restart ) # for clarity
     save_dmt_state
     manage_daemons restart

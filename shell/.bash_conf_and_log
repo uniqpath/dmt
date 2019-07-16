@@ -37,6 +37,7 @@ function conf {
     "haproxy"
     "dnsmasq"
     "hostapd"
+    "ap"
     "alsa"
     "fstab"
     "mpd"
@@ -131,6 +132,10 @@ function conf {
       ;;
 
     hostapd)
+      printf "${YELLOW}Please use ${GREEN}conf ap${NC}\n"
+      ;;
+
+    ap)
       local conf="/etc/hostapd/hostapd.conf"
 
       if [ -f "${conf}" ]; then

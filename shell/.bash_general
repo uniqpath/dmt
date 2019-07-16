@@ -297,23 +297,23 @@ function os {
 
 # ---------------------------
 
-function gr {
-  if [ -z "$1" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    echo "gr search_term [where]"
-    return
-  fi
+# function gr {
+#   if [ -z "$1" ]; then
+#     printf "${YELLOW}Usage:${NC}\n"
+#     echo "gr search_term [where]"
+#     return
+#   fi
 
-  local pattern="$1"
-  local where="."
+#   local pattern="$1"
+#   local where="."
 
-  if [ -n "$2" ]; then
-    where="$2"
-  fi
-  # http://www.computerhope.com/unix/ugrep.htm
+#   if [ -n "$2" ]; then
+#     where="$2"
+#   fi
+#   # http://www.computerhope.com/unix/ugrep.htm
 
-  grep -rI --exclude-dir="\.svn" --exclude-dir="\.git" "$pattern" "$where" --color -n
-}
+#   grep -rI --exclude-dir="\.svn" --exclude-dir="\.git" "$pattern" "$where" --color -n
+# }
 
 function mac {
   system_profiler SPNetworkDataType | grep Wi-Fi -A10
@@ -462,19 +462,50 @@ function shut {
 
     printf "${MAGENTA}Rebooting...${NC}\n"
     sudo reboot
+  elif [ "$1" == 'rr' ]; then
+    # https://unix.stackexchange.com/questions/183095/last-resort-linux-terminal-command-to-reboot-over-ssh-in-case-of-a-kernel-bu
+    echo s > /proc/sysrq-trigger
+    echo u > /proc/sysrq-trigger
+    echo s > /proc/sysrq-trigger
+    echo b > /proc/sysrq-trigger
   else
-    read -r -p "Are you sure you want to shut the device down (instead of rebooting)? [Y/n] " response
-    if [[ ! $response =~ ^([nN])$ ]]
-    then
-      printf "${RED}Shutting down...${NC}\n"
-      if macos; then
-        off
-      else
-        save_dmt_state
+    if [ -n "$1" ]; then
+      local seconds=0
+      local val=0
+      local desc=""
+      local denom=""
 
-        sudo shutdown -h now
+      convert_to_seconds seconds val desc denom "$1"
+
+      if [ "$denom" == "s" ]; then
+        printf "${RED}Please specify shutdown delay in minutes or hours${NC}\n"
+        return
+      else
+        echo
+        printf "${CYAN}Shutting down in ${MAGENTA}${desc}${NC} ${CYAN}...${NC}\n"
+        echo
+        # sleep $seconds
+
+        se -n shutdown_task "$1" execute_shutdown
+      fi
+    else
+      read -r -p "Are you sure you want to shut the device down (instead of rebooting)? [Y/n] " response
+      if [[ ! $response =~ ^([nN])$ ]]
+      then
+        execute_shutdown
       fi
     fi
+  fi
+}
+
+function execute_shutdown {
+  printf "${RED}Shutting down...${NC}\n"
+  if macos; then
+    off
+  else
+    save_dmt_state
+
+    sudo shutdown -h now
   fi
 }
 
@@ -498,7 +529,7 @@ function srv {
     printf "${YELLOW}Usage:${NC}\n"
 
     printf "${GREEN}srv [service]${NC} ${GRAY}show status${NC}\n"
-    printf "${GREEN}srv [service] [command]${NC} ${GRAY}run command, ex.: start|stop|reload|restart${NC}\n"
+    printf "${GREEN}srv [service] [command]${NC} ${GRAY}run command, ex.: start|stop|reload|restart|enable|disable${NC}\n"
     printf "${GREEN}srv [service] cat${NC} ${GRAY}show service specification${NC}\n"
     printf "${GREEN}srv [service] edit${NC} ${GRAY}edit service specification${NC}\n"
     printf "${GREEN}srv [service] log${NC} ${GRAY}see service log${NC}\n"

@@ -5,7 +5,7 @@ DMT_CLI="$DMT_NODE_CORE/dmt-controller/cli/dmt.js"
 function dmt {
   if [ -z "$1" ] || [ "$1" == "help" ] || [ "$1" == "version" ]; then
     printf "${MAGENTA}      ∞ DMT ∞${NC}\n"
-    printf "${CYAN}Open edge computing.${NC}\n"
+    printf "${CYAN}Freedom to imagine${NC}\n"
     #printf "${CYAN}${NC}\n"
     echo
   fi
@@ -275,7 +275,16 @@ function dmt {
 
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is starting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" start
-      printf "\n${CYAN}dmt-proc${NC} ${GRAY}should now be running, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
+
+      # see if process is actually running
+      local dmt_proc_pid=''
+      get_dmt_proc_pid dmt_proc_pid
+
+      if [ -n "$dmt_proc_pid" ]; then
+        printf "\n${CYAN}dmt-proc${NC} ${GRAY}should now be running, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
+      else
+        printf "\n${RED}Problem starting ${CYAN}dmt-proc${RED}, please use ${GREEN}dmt logfg ${RED}to determine the reason${NC}\n"
+      fi
       ;;
 
     startfg) # START FOREGROUND
@@ -311,7 +320,16 @@ function dmt {
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is restarting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" restart
       if [ $? -eq 0 ]; then
-        printf "\n${CYAN}dmt-proc${NC} ${GRAY}restarted, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
+        #printf "\n${CYAN}dmt-proc${NC} ${GRAY}restarted, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
+        # see if process is actually running
+        local dmt_proc_pid=''
+        get_dmt_proc_pid dmt_proc_pid
+
+        if [ -n "$dmt_proc_pid" ]; then
+          printf "\n${CYAN}dmt-proc${NC} ${GRAY}restarted, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
+        else
+          printf "\n${RED}Problem restarting ${CYAN}dmt-proc${RED}, please use ${GREEN}dmt logfg ${RED}to determine the reason${NC}\n"
+        fi
       fi
       ;;
 
@@ -353,8 +371,11 @@ function dmt {
 }
 
 function get_dmt_proc_pid {
-  local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
   if [ -n "$proc" ]; then
+    # for debugging purposes: for example: found that eslint was confusing dmt-proc detection when some file in dmt-proc directory was saved
+    #ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
     eval "$1='$proc'"
   fi
 }
@@ -965,7 +986,7 @@ function dmt_remove {
 }
 
 function restart_remote_device {
-  local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-renew ]; then ~/.dmt/etc/deploy_hooks/before-renew; fi; ~/.dmt/etc/onboot/daemons restart\\\""
+  local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-renew ]; then ~/.dmt/etc/deploy_hooks/before-renew; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
 
   local host="$1"
 

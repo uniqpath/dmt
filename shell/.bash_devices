@@ -154,6 +154,14 @@ function get_remote_device_ip_and_name_and_user_and_network {
     local _network=${arr[1]}
 
     if [ -z "$_ip" ]; then
+
+      if [ -n "$result" ]; then
+        printf "${GRAY}All def files have to parse without error for device resolver to work${NC}\n"
+        printf "${RED}Device resolver returned error:${NC}\n"
+        printf "${GRAY}$result${NC}\n"
+        return
+      fi
+
       _dmt_device=false
       printf "${CYAN}Trying most recent network scan information ...${NC}\n"
       local lastScanResolverPath

@@ -68,7 +68,8 @@ else
 fi
 
 dirlist=($(find . -maxdepth 1 -type d ! -path . -or -type l | sed "s/^\.\///" | sort))
-num_dirs=${#dirlist}
+num_dirs="${#dirlist[@]}"
+
 printf "${MAGENTA}Backing up ${num_dirs} directories...${NC}\n\n"
 
 INDEX_FILE="/home/eclipse/Syncbox/TapeIndex/Index $(date '+%Y-%m-%d %H:%M').txt"
