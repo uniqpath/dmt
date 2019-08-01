@@ -1,16 +1,25 @@
 #!/bin/bash
 
+function jazz {
+  mpvc play http://us4.internet-radio.com:8266/stream
+}
+
+function rock {
+  mpvc play http://198.58.98.83:8258/stream
+}
+
 function vid {
   m "vid" "$@"
 }
 
 function m {
   declare -a opts=(
-    "info"
+    "help"
     "search"
     "play"
     "pause"
     "add"
+    "insert"
     "shuffle"
     "volume"
     "status"
@@ -20,13 +29,8 @@ function m {
     "limit"
     "stop"
     "forward"
+    "seek"
   )
-
-  # local host=""
-  # if [[ "$1" == @* ]]; then
-  #   host="$1"
-  #   shift
-  # fi
 
   if [ "$1" == "-h" ]; then
     printf "${YELLOW}Usage:${NC}\n"
@@ -39,6 +43,14 @@ function m {
   ## TODO: FIX... instead of "m vid" , pass on the @media=[mediaType] parameter !!
   if [ "$1" == "vid" ]; then
     video=true
+    shift
+  fi
+
+  # m [command] @hosts [terms]
+  local command=''
+
+  if [[ "$1" != @* ]]; then
+    command="$1"
     shift
   fi
 
@@ -68,12 +80,10 @@ function m {
   #-----------#-----------#-----------
 
   local matching_opt=''
-  opts_matcher matching_opt "$1" "${opts[@]}"
+  opts_matcher matching_opt "${command}" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
-    matching_opt="info"
+    matching_opt="play" # default command when none specified
   fi
-
-  shift
 
   local playerCmd="$DMT_NODE_CORE/dmt-player/cli/media.js"
 

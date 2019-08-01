@@ -95,7 +95,7 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       mv "$DMT_PATH/sample_user" "$DMT_PATH/user"
       cwd="`pwd`"
       cd "$DMT_PATH/user/devices"
-      ln -s "dmtos1" "this"
+      ln -s "dmt-new" "this"
       cd "$cwd"
     fi
 

@@ -36,7 +36,7 @@ function manage_daemon {
     node_path="$NODE_PATH"
   fi
 
-  "$node_path" "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
+  "$node_path" --experimental-modules "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
 
   cd "$cwd"
 }

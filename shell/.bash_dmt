@@ -10,6 +10,14 @@ function dmt {
     echo
   fi
 
+  # dmt [command] @hosts [terms]
+  local command=''
+
+  if [[ "$1" != @* ]]; then
+    command="$1"
+    shift
+  fi
+
   # extract host from @ symbol but replace @all with the name of current network !
   local hosts=""
 
@@ -35,7 +43,7 @@ function dmt {
 
   declare -a opts=(
     "help"
-    "info"
+    "test"
     "status"
     "version"
     "device"
@@ -73,7 +81,7 @@ function dmt {
   fi
 
   local matching_opt=''
-  opts_matcher matching_opt "$1" "${opts[@]}"
+  opts_matcher matching_opt "$command" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     if [ -z "$hosts" ]; then
       printf "Try ${GREEN}dmt help${NC} as well.\n"
@@ -88,7 +96,7 @@ function dmt {
     fi
 
     if [ -z "$1" ]; then
-      matching_opt="info"
+      matching_opt="help"
     else
       return
     fi
@@ -100,41 +108,56 @@ function dmt {
   #local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
 
   local dmt_proc_pid=''
-  get_dmt_proc_pid dmt_proc_pid
+  local dmt_fg_bg=''
+  get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
 
   local proc_manager=$(ps -ef | grep "dmt-proc" | grep "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
 
   if [ -z "$hosts" ]; then # if we're targeting remote hosts, information about our own local process is irrelevant
-    if [ -n "$dmt_proc_pid" ]; then
-      if [ "$matching_opt" != "next" ] && [ "$matching_opt" != "start" ] && [ "$matching_opt" != "startfg" ]; then
+    if [ "$matching_opt" != "next" ] && [ "$matching_opt" != "start" ] && [ "$matching_opt" != "startfg" ] && [ "$matching_opt" != "debug" ] && [ "$matching_opt" != "device" ]; then
+      if [ -n "$dmt_proc_pid" ]; then
         printf "${WHITE}dmt-proc${NC} seems to be running with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
+      elif [ "$matching_opt" != "stop" ] && [ "$matching_opt" != "restart" ]; then
+        printf "⚠️  ${WHITE}dmt-proc${NC} ${RED}does not seem to be running${NC} ${YELLOW}→ use${NC} ${GREEN}dmt start${NC} 🚀\n"
+        if [ -n "$proc_manager" ]; then
+          printf ".... ${GREEN}looks like dmt process manager is currently (re)starting ${WHITE}dmt-proc${NC} ....\n"
+        fi
       fi
-    elif [ "$matching_opt" != "next" ] && [ "$matching_opt" != "start" ] && [ "$matching_opt" != "startfg" ] && [ "$matching_opt" != "stop" ] && [ "$matching_opt" != "restart" ]; then
       echo
-      printf "⚠️  ${WHITE}dmt-proc${NC} ${RED}does not seem to be running${NC} ${YELLOW}→ use${NC} ${GREEN}dmt start${NC} 🚀\n"
-      if [ -n "$proc_manager" ]; then
-        printf ".... ${GREEN}looks like dmt process manager is currently (re)starting ${WHITE}dmt-proc${NC} ....\n"
-      fi
     fi
-    echo
   fi
   # ----
 
   case "$matching_opt" in
     help)
       dmt_help
+
+      echo
+      printf "${MAGENTA}Available rpc methods: ${NC}\n\n"
+
+      if [ -n "$hosts" ]; then
+        node "$DMT_CLI" "${hosts}" help "$@"
+
+        dmt_help_explain_rpc
+      else
+        if [ -z "$dmt_proc_pid" ]; then
+          printf "${RED}None${NC}\n"
+          echo
+          printf "Please type ${GREEN}dmt start${NC} to start ${MAGENTA}dmt-proc${NC}.\n"
+        else
+          node "$DMT_CLI" help "$@"
+
+          dmt_help_explain_rpc
+        fi
+      fi
       ;;
 
-    # docs)
-    #   dmt_docs
-    #   ;;
-
-    info)
+    test)
       if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" info "$@"
+        node "$DMT_CLI" "${hosts}" test "$@"
       else
         if [ -n "$dmt_proc_pid" ]; then
-          node "$DMT_CLI" info "$@"
+          node "$DMT_CLI" test "$@"
         fi
       fi
       ;;
@@ -143,10 +166,10 @@ function dmt {
       local markerfile="$DMT_STATE/.debug-mode"
       if [ -z "$1" ] || [ "$1" == "on" ] || [ "$1" == "enable" ]; then
         if [ -f "$markerfile" ]; then
-          printf "${GREEN}✓✓✓ ${GRAY}Debug mode ${YELLOW}was already enabled ${GREEN}✓✓✓${NC}\n"
+          printf "${GRAY}✓ Debug mode was already enabled${NC}\n"
         else
           touch "$markerfile"
-          printf "${GREEN}✓✓✓ ${YELLOW}Debug mode ⚙️  enabled ${GREEN}✓✓✓${NC}\n"
+          printf "${GREEN}✓ ${YELLOW}Debug mode ⚙️  enabled${NC}\n"
         fi
 
         printf "\n${MAGENTA}Micro-Debugging options:${NC}\n"
@@ -176,9 +199,9 @@ function dmt {
       if [ "$1" == "off" ] || [ "$1" == "disable" ] || [ "$1" == "stop" ]; then
         if [ -f "$markerfile" ]; then
           rm "$markerfile"
-          printf "${MAGENTA}✖✖✖ ${CYAN}Debug mode disabled ${MAGENTA}✖✖✖${NC}\n"
+          printf "${CYAN}Debug mode disabled${NC}\n"
         else
-          printf "${MAGENTA}✖✖✖ ${CYAN}Debug mode was already disabled ${MAGENTA}✖✖✖${NC}\n"
+          printf "${GRAY}Debug mode was already disabled${NC}\n"
         fi
       fi
       ;;
@@ -265,7 +288,7 @@ function dmt {
       ;;
 
     start)
-      if is_dmt_running; then
+      if report_dmt_running "$dmt_proc_pid" "$dmt_fg_bg"; then
         return
       fi
 
@@ -278,7 +301,8 @@ function dmt {
 
       # see if process is actually running
       local dmt_proc_pid=''
-      get_dmt_proc_pid dmt_proc_pid
+      local dmt_fg_bg=''
+      get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
 
       if [ -n "$dmt_proc_pid" ]; then
         printf "\n${CYAN}dmt-proc${NC} ${GRAY}should now be running, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
@@ -288,7 +312,7 @@ function dmt {
       ;;
 
     startfg) # START FOREGROUND
-      if is_dmt_running; then
+      if report_dmt_running "$dmt_proc_pid" "$dmt_fg_bg"; then
         return
       fi
 
@@ -297,12 +321,21 @@ function dmt {
       compile_gui_if_missing
 
       printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
-      node --trace-warnings "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"
+      node --trace-warnings --experimental-modules "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       ;;
 
     stop)
       local dmt_proc_pid=''
-      get_dmt_proc_pid dmt_proc_pid
+      local dmt_fg_bg=''
+      get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+      if [ $dmt_fg_bg == 'fg' ]; then
+        printf "${MAGENTA}dmt-proc${NC} ${RED}is already running in 'foreground'${NC}, it was started with ${CYAN}dmt startfg${NC} in another terminal tab.\n"
+        printf "${YELLOW}Please go to the other terminal tab and press ${GREEN}CTRL+C${NC}\n"
+        echo
+        printf "You can also use ${GREEN}sudo kill -9 ${dmt_proc_pid}${NC} to kill the process now.\n"
+        return
+      fi
 
       if [ -n "$dmt_proc_pid" ]; then
         printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is stopping...${NC}\n\n"
@@ -323,7 +356,8 @@ function dmt {
         #printf "\n${CYAN}dmt-proc${NC} ${GRAY}restarted, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
         # see if process is actually running
         local dmt_proc_pid=''
-        get_dmt_proc_pid dmt_proc_pid
+        local dmt_fg_bg=''
+        get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
 
         if [ -n "$dmt_proc_pid" ]; then
           printf "\n${CYAN}dmt-proc${NC} ${GRAY}restarted, use ${GREEN}dmt log ${GRAY}to see events and information.${NC}\n"
@@ -371,21 +405,34 @@ function dmt {
 }
 
 function get_dmt_proc_pid {
-  local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  # space in " dmt-proc" is required
+  local proc=$(ps -ef | grep " dmt-proc" | grep -v "eslint" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local procFG=$(ps -ef | grep "dmt-controller/daemons/dmt-proc.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
 
   if [ -n "$proc" ]; then
-    # for debugging purposes: for example: found that eslint was confusing dmt-proc detection when some file in dmt-proc directory was saved
-    #ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
+    #ps -ef | grep " dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
     eval "$1='$proc'"
+    eval "$2='bg'"
+  fi
+
+  # dmt process running in foreground
+  if [ -n "$procFG" ]; then
+    #ps -ef | grep "dmt-controller/daemons/dmt-proc.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
+    eval "$1='$procFG'"
+    eval "$2='fg'"
   fi
 }
 
-function is_dmt_running {
-  local dmt_proc_pid=''
-  get_dmt_proc_pid dmt_proc_pid
+function report_dmt_running {
+  local dmt_proc_pid="$1"
+  local fg_bg="$2"
 
   if [ -n "$dmt_proc_pid" ]; then
-    printf "${WHITE}dmt-proc${NC} ${GREEN}seems to already be running with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
+    local fg_bg_msg=""
+    if [ "$fg_bg" == 'fg' ]; then
+      fg_bg_msg="${MAGENTA}in foreground${NC} "
+    fi
+    printf "${WHITE}dmt-proc${NC} ${GREEN}seems to already be running ${fg_bg_msg}with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
     return 0
   fi
 
@@ -725,10 +772,10 @@ function dmt_log {
 }
 
 function dmt_help {
-  printf "${YELLOW}Info:${NC}\n"
-  printf "${GREEN}dmt help ${GRAY}shows this help${NC}\n"
-  printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a browser${NC}\n"
-  printf "${GREEN}dmt version ${GRAY}shows dmt version, like v$(cat "$DMT_PATH/.version")${NC}\n"
+  printf "${YELLOW}Basic info:${NC}\n"
+  printf "${GREEN}dmt help ${GRAY}shows this help screen${NC}\n"
+  #printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a browser${NC}\n"
+  printf "${GREEN}dmt version ${GRAY}shows dmt version — v$(cat "$DMT_PATH/.version")${NC}\n"
   printf "${GREEN}dmt device ${GRAY}device configuration and information${NC}\n"
   echo
   printf "${YELLOW}Clone to more of your devices:${NC}\n"
@@ -740,17 +787,22 @@ function dmt_help {
   printf "${MAGENTA}dmt-proc ${YELLOW}management:\n${NC}"
   printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
   echo
-  printf "${GREEN}dmt start ${GRAY}starts the background services 💡🚀🎸${NC}\n"
-  printf "${GREEN}dmt stop ${GRAY}self-describing${NC}\n"
-  printf "${GREEN}dmt restart ${GRAY}self-describing${NC}\n"
+  printf "${GREEN}dmt start ${GRAY}starts the background process ${MAGENTA}(dmt-proc)${NC} 💡🚀🎸${NC}\n"
+  printf "${GREEN}dmt startfg ${GRAY}(only used in special cases when testing or developing) starts the services in current terminal (foreground) and quits when terminal is closed${NC}\n"
+  printf "${GREEN}dmt stop ${GRAY}stops the process${NC}\n"
+  printf "${GREEN}dmt restart ${GRAY}restarts the process${NC}\n"
+  printf "${GREEN}dmt logfg ${GRAY}shows log in current tab (to get last few lines use ${GREEN}dmt log${GRAY} - makes a rpc call, see below)${NC}\n"
+}
+
+function dmt_help_explain_rpc {
+  echo
+  printf "${CYAN}A general example of using a rpc method either on localhost or some other device:${NC}\n"
   echo
   printf "${GREEN}dmt info ${GRAY}gets information about current device${NC}\n"
   printf "${GREEN}dmt @hostOrIp info ${GRAY}gets information about a device on local network${NC}\n"
   printf "${GREEN}dmt @@remoteIpOrHost info ${GRAY}gets information about remote device on the other side of router WAN port${NC}\n"
   echo
-  printf "${GREEN}dmt log ${GRAY}gets latest log of recent activity (only if daemons are running)${NC}\n"
-  printf "${GREEN}dmt @hostOrIp log ${GRAY}self-describing${NC}\n"
-  printf "${GREEN}dmt @@remoteIpOrHost log ${GRAY}self-describing${NC}\n"
+  printf "${GRAY}You can do the same with all other rpc methods listed above.${NC}\n"
 }
 
 # function dmt_docs {
@@ -784,7 +836,9 @@ function get_dmt_source {
 
 function stop_dmt_if_running {
   local dmt_proc_pid=''
-  get_dmt_proc_pid dmt_proc_pid
+  local dmt_fg_bg=''
+  get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
   if [ -n "$dmt_proc_pid" ]; then
     dmt stop
   fi

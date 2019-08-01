@@ -331,6 +331,8 @@ function get_full_host() {
   local user
   local network
   local is_dmt_device
+
+  # IMPORTANT METHOD :::
   get_remote_device_ip_and_name_and_user_and_network ip globalIp __globalSSHPort name user network is_dmt_device "$3"
 
   if [ -n "$ip" ]; then
