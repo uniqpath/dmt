@@ -29,7 +29,8 @@ function m {
     "limit"
     "stop"
     "forward"
-    "seek"
+    "rewind"
+    "goto"
   )
 
   if [ "$1" == "-h" ]; then

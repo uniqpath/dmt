@@ -1,0 +1,14 @@
+#!/bin/bash
+
+function lint {
+  ~/Misc/CodeLintEslint/node_modules/eslint/bin/eslint.js "$@" -c ~/Misc/CodeLintEslint/.eslintrc.json --resolve-plugins-relative-to ~/Misc/CodeLintEslint
+
+  # maybe implement looking for local linter first ... (probably not needed)
+  # if [ ! -f ./node_modules/.bin/eslint ] || [ ! -f ./.eslintrc.json ]; then
+  # ...
+  # fi
+}
+
+function pretty {
+  ~/Misc/CodeLintEslint/node_modules/prettier/bin-prettier.js --config ~/Misc/CodeLintEslint/prettier.config.js --plugin-search-dir ~/Misc/CodeLintEslint "$@"
+}

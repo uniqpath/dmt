@@ -42,40 +42,6 @@ function compile {
   cd "$cwd"
 }
 
-function install_core_source {
-  if [ -d "./core" ]; then
-    if [ -d "./core/.git" ]; then
-      cd core
-      printf "${CYAN}Updating ${MAGENTA}dmt-core${NC} from public repository on ${GRAY}Microsoft GitHub${NC}\n"
-      git pull
-      cd ..
-    else
-      printf "🚀 ${CYAN}dmt-core ${GREEN}already exists but is not a git repo, not updating${NC}\n"
-    fi
-  else
-    printf "${CYAN}Pulling ${MAGENTA}dmt-core${NC} from public repository on ${GRAY}Microsoft GitHub${NC}\n"
-    git clone https://github.com/uniqpath/dmt-core core
-    local cwd="`pwd`"
-    cd "core/node/.scripts"
-    ./symlink_dmt_deps
-    cd "$cwd"
-  fi
-}
-
-function install_core_bin {
-  if [ -d "./bin" ]; then
-    if [ -d "./bin/.git" ]; then
-      cd bin
-      printf "\n${CYAN}Updating ${MAGENTA}dmt-bin${NC} from public repository on ${GRAY}Microsoft GitHub${NC}\n"
-      git pull
-      cd ..
-    fi
-  else
-    printf "\n${CYAN}Pulling ${MAGENTA}dmt-bin${NC} from public repository on ${GRAY}Microsoft GitHub${NC}\n"
-    git clone https://github.com/uniqpath/dmt-bin bin
-  fi
-}
-
 if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
 
     COMPILED_BASH_ALIASES="$HOME/.dmt/etc/.bash_aliases_bundle"
@@ -124,10 +90,10 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       "$after_update_hook" > /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
     fi
 
-    if [ "$arg" == "full" ]; then
-      install_core_source
-      install_core_bin
-    fi
+    # if [ "$arg" == "full" ]; then
+    #   install_core_source
+    #   install_core_bin
+    # fi
 
     echo
 

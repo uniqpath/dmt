@@ -1,5 +1,0 @@
-person: [some_name_listed_only_here1]
-  pubkey: [dmt_pubkey_of_this_person_obtained_or_given_directly_from/to_this_person]
-
-person: [some_name_listed_only_here2]
-  pubkey: [dmt_pubkey_of_this_person_obtained_or_given_directly_from/to_this_person]

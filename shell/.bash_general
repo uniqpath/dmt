@@ -594,6 +594,10 @@ function srv {
 }
 
 function d {
+  dmt "$@"
+}
+
+function de {
   local desk="$HOME/Desktop"
   # if [ ! -d $desk ]; then
   #   #printf "~/Desktop not found, using ${YELLOW}/tmp${NC}\n"
@@ -995,29 +999,16 @@ function setup_linter {
   fi
 }
 
-function update_linter {
-  local conf="$DMT_PATH/etc/templates/node/.eslintrc.json"
-  if [ -f "$conf" ]; then
-    printf "${YELLOW}Copying ${conf} ...${NC}\n"
-    cp "$conf" .
-    printf "${GREEN}done${NC}\n"
-  else
-    printf "${RED}Cannot complete (or update) linter because file ${conf} is missing...${NC}\n"
-  fi
-}
-
-function lint {
-  if [ ! -f ./node_modules/.bin/eslint ] || [ ! -f ./.eslintrc.json ]; then
-    printf "${YELLOW}Linting not setup, setting up linting first...${NC}\n"
-    setup_linter
-  fi
-  if [ -n "$1" ]; then
-    ./node_modules/.bin/eslint "$1"
-  else
-    printf "${YELLOW}Usage:${NC}\n"
-    echo "lint [file]"
-  fi
-}
+# function update_linter {
+#   local conf="$DMT_PATH/etc/templates/node/.eslintrc.json"
+#   if [ -f "$conf" ]; then
+#     printf "${YELLOW}Copying ${conf} ...${NC}\n"
+#     cp "$conf" .
+#     printf "${GREEN}done${NC}\n"
+#   else
+#     printf "${RED}Cannot complete (or update) linter because file ${conf} is missing...${NC}\n"
+#   fi
+# }
 
 function restart_airplay {
   sudo systemctl restart shairport-sync

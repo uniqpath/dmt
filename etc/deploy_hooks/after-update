@@ -1,4 +1,8 @@
 #!/bin/bash
 
 DMT_NODE_CORE="$HOME/.dmt/core/node"
+
+# overwrite fasterix frontend compiled gui for production
+cp "$DMT_NODE_CORE/dmt-fasterix/svelte/public_production/"* "$DMT_NODE_CORE/dmt-fasterix/svelte/public"
+
 node "${DMT_NODE_CORE}/dmt-gui/gui-backend/ws_servers/index.js" localhost reload gui

@@ -1,6 +1,8 @@
-device: dmtos3
+device: dmt-sample-1
 
   service: player
     contentRef: @my_server/music
     defaultVolume:
       mpv: 70
+
+  service: gui

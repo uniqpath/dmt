@@ -20,15 +20,18 @@ function npm_unlink {
 }
 
 function nig {
+
+  npm install -g "$@"
+
   # if this package is already installed in ~/Install/npm, we install the new version there as well so it can be switched to with "stable"
-  local install_dir="${HOME}/Install/npm/${1}"
-  if [ -d "$install_dir" ]; then
-    printf "${MAGENTA}Package <$1> exists in ~/Install/npm, installing new version there as well...${NC}\n"
-    npm_install_global_special "$1"
-  else
-    npm install -g "$1"
-    lib --path "/usr/local/lib/node_modules/$1"
-  fi
+  # local install_dir="${HOME}/Install/npm/${1}"
+  # if [ -d "$install_dir" ]; then
+  #   printf "${MAGENTA}Package <$1> exists in ~/Install/npm, installing new version there as well...${NC}\n"
+  #   npm_install_global_special "$1"
+  # else
+  #   npm install -g "$1"
+  #   lib --path "/usr/local/lib/node_modules/$1"
+  # fi
 }
 
 alias reset_npm="rm -rf node_modules; npm cache clean; npm install"

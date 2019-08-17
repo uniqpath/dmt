@@ -1,4 +1,4 @@
-device: dmtos1
+device: dmt-new
 
   content: music [from] content.def
 
@@ -7,3 +7,5 @@ device: dmtos1
     defaultVolume:
       mpv: 70
 
+  service: gui
+    #port: 80

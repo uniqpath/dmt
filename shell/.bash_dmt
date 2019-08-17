@@ -329,7 +329,8 @@ function dmt {
       local dmt_fg_bg=''
       get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
 
-      if [ $dmt_fg_bg == 'fg' ]; then
+
+      if [[ $dmt_fg_bg == 'fg' ]]; then
         printf "${MAGENTA}dmt-proc${NC} ${RED}is already running in 'foreground'${NC}, it was started with ${CYAN}dmt startfg${NC} in another terminal tab.\n"
         printf "${YELLOW}Please go to the other terminal tab and press ${GREEN}CTRL+C${NC}\n"
         echo
@@ -777,12 +778,14 @@ function dmt_help {
   #printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a browser${NC}\n"
   printf "${GREEN}dmt version ${GRAY}shows dmt version — v$(cat "$DMT_PATH/.version")${NC}\n"
   printf "${GREEN}dmt device ${GRAY}device configuration and information${NC}\n"
+
   echo
   printf "${YELLOW}Clone to more of your devices:${NC}\n"
-  printf "${GREEN}dmt next ${GRAY}gets the latest code from public repo on github (DMT SYSTEM never auto-updates)${NC}\n"
+  printf "${GREEN}dmt next ${GRAY}gets the latest code from The Source (dmt-system.com)${NC}\n"
   printf "${GREEN}dmt update [host] ${GRAY}or ${GREEN}dmt install [host] ${GRAY}clones dmt to another machine of yours (via SSH)${NC}\n"
   printf "${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY})${NC}\n"
   printf "${GREEN}dmt remove ${GRAY}self-destroys on this machine (except the user definitions and data)${NC}\n"
+  printf "From another machine: ${MAGENTA}curl [thisMachineIp]:1111 | bash ${GRAY}replicates ~/.dmt directory (without ~/.dmt/user) from this to another machine${NC}\n"
   echo
   printf "${MAGENTA}dmt-proc ${YELLOW}management:\n${NC}"
   printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"

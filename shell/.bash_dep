@@ -276,18 +276,7 @@ function dep_rsync {
 }
 
 function dep {
-
-  # coolsyc (based on names inside network / devices.json instead of ips)
-  # $ cat .coolsync
-  # dmt
-  # /var/projects/songstera
-  if [ -f ./.coolsync ]; then
-    printf "${YELLOW}Warning: running coolsync${NC}\n"
-    local name=$(head -n 1 ./.coolsync | tail -n 1)
-    local dir=$(head -n 2 ./.coolsync | tail -n 1)
-
-    coolsync "$name" "$dir"
-  elif [ -f ./truffle.js ]; then
+  if [ -f ./truffle.js ]; then
     truffle deploy --reset
     # deploy target (manual from cli or from ./.deploy file)
   else
@@ -559,23 +548,3 @@ function comp {
   fi
 }
 
-# run dep
-# example of ./.coolsync file:
-# dmt
-# /home/pi/Music/fromEclipse
-#
-# first line: query to search for with help of network node script
-# second line: deploy dir for dirsync
-function coolsync {
-  local userAndIp=''
-  subcultsNameToIP userAndIp "$name"
-  if [ $? -ne 0 ]; then # error
-    printf "\n${RED}Unknown host \"$1\", tried everything, sorry${NC}\n"
-    return
-  fi
-  userAndIp=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$userAndIp")
-
-  local dir="$2"
-
-  dirsync . $userAndIp:$dir
-}
