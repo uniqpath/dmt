@@ -8,29 +8,42 @@ function rock {
   mpvc play http://198.58.98.83:8258/stream
 }
 
-function vid {
+function v {
   m "vid" "$@"
 }
 
 function m {
   declare -a opts=(
     "help"
+
     "search"
+
     "play"
     "pause"
-    "add"
-    "insert"
-    "shuffle"
+    "stop"
+    "next"
+
     "volume"
     "status"
     "list"
-    "next"
-    "clear"
-    "limit"
-    "stop"
+
+    "add"
+    "insert"
+    "insplay" # insert-play
+    "bump" # moves song to the next position
+
+    "shuffle"
+    "cut"
+    "paste"
+
     "forward"
-    "rewind"
+    "backward"
     "goto"
+
+    "limit"
+
+    "spaced"
+    "unspaced"
   )
 
   if [ "$1" == "-h" ]; then
@@ -81,7 +94,7 @@ function m {
   #-----------#-----------#-----------
 
   local matching_opt=''
-  opts_matcher matching_opt "${command}" "${opts[@]}"
+  opts_matcher matching_opt "no_warning" "${command}" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     matching_opt="play" # default command when none specified
   fi
@@ -132,98 +145,7 @@ function pl {
   play "$@"
 }
 
-function play {
 
-  #local audio_cmd="mpv --no-video --volume 60"
-  local audio_cmd="$DMT_PLATFORM_BIN/music_player"
-
-  # AUDIO
-  if [ -z "$1" ] || [ "$1" == "mp3" ] || [ "$1" == "m4a" ] || [ "$1" == "flac" ] || [ "$1" == "ogg" ]; then
-    local ext="$1"
-
-    if [ -z "$ext" ]; then
-      local count=`ls -1 *.flac 2>/dev/null | wc -l`
-      if [ $count -eq 0 ]; then
-        count=`ls -1 *.ogg 2>/dev/null | wc -l`
-        if [ $count -eq 0 ]; then
-          ext="mp3"
-        else
-          ext="ogg"
-        fi
-      else
-        ext="flac"
-      fi
-    fi
-
-    eval "$audio_cmd *.$ext"
-    return
-  fi
-
-  # MOSTLY VIDEO
-
-  local matching_file=''
-  get_matching_file matching_file "$1"
-  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
-
-  if [ -f "$matching_file" ]; then
-    # EXTENSIONS = {
-    #   'mkv', 'avi', 'mp4', 'ogv', 'webm', 'rmvb', 'flv', 'wmv', 'mpeg', 'mpg', 'm4v', '3gp'
-    # }
-    if [[ "$matching_file" =~ (mkv|avi|mp4|webm)$ ]]; then
-      printf "${YELLOW}$matching_file${NC}\n"
-      #DISPLAY=:0 mpv --fullscreen --no-ytdl "$matching_file"
-      DISPLAY=:0 mpv --fullscreen --no-keepaspect --no-ytdl "$matching_file"
-      # if is_rpi; then
-      #   omxplayer --vol -2000 --aspect-mode stretch -o alsa:hw:0,0 "$matching_file"
-      #   #omxplayer --aspect-mode stretch -o alsa:hw:1,0 "$matching_file"
-      # else
-      #   DISPLAY=:0 mpv --fullscreen --no-ytdl "$matching_file"
-      # fi
-    elif [[ "$matching_file" =~ (mp3|flac|ogg)$ ]]; then # ADUIO
-      printf "${YELLOW}$matching_file${NC}\n"
-      eval "$audio_cmd \"$matching_file\""
-    fi
-  else
-    printf "${RED}No matching file${NC}\n"
-    # if [[ "$1" =~ youtube ]]; then
-    #   DISPLAY=:0 mpv --fullscreen "$1"
-    # else
-    #   DISPLAY=:0 mpv --fullscreen "https://www.youtube.com/watch?v=$1"
-    # fi
-  fi
-}
-
-function plo {
-
-  # MOSTLY VIDEO
-
-  local matching_file=''
-  get_matching_file matching_file "$1"
-  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
-
-  if [ -f "$matching_file" ]; then
-    if [[ "$matching_file" =~ (mkv|avi|mp4|webm)$ ]]; then
-      printf "${YELLOW}$matching_file${NC}\n"
-      if is_rpi; then
-        omxplayer --vol -2000 --aspect-mode stretch -o alsa:hw:0,0 "$matching_file"
-        #omxplayer --aspect-mode stretch -o alsa:hw:1,0 "$matching_file"
-      else
-        # DISPLAY=:0 mpv --fullscreen --no-ytdl "$matching_file"
-        printf "${YELLOW}expected to run on rpi${NC}\n"
-      fi
-    elif [[ "$matching_file" =~ (mp3|flac|ogg)$ ]]; then # ADUIO
-      printf "${YELLOW}$matching_file${NC}\n"
-      eval "$audio_cmd \"$matching_file\""
-    fi
-  else
-    printf "${RED}No matching file${NC}\n"
-    # if [[ "$1" =~ youtube ]]; then
-    #   DISPLAY=:0 mpv --fullscreen "$1"
-    # else
-    #   DISPLAY=:0 mpv --fullscreen "https://www.youtube.com/watch?v=$1"
-    # fi
-  fi
-}
 
 function soundtest {
   if is_rpi; then

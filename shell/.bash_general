@@ -265,7 +265,7 @@ function al {
 }
 
 function loop {
-  while true; do "$@"; sleep 5; done
+  while true; do "$@"; sleep 2; done
 }
 
 function latest {

@@ -10,5 +10,22 @@ function lint {
 }
 
 function pretty {
-  ~/Misc/CodeLintEslint/node_modules/prettier/bin-prettier.js --config ~/Misc/CodeLintEslint/prettier.config.js --plugin-search-dir ~/Misc/CodeLintEslint "$@"
+  local opts=" "
+
+  if [ "$1" == "c" ]; then
+    shift
+    opts="-c"
+  fi
+
+  if [ "$1" == "l" ]; then
+    shift
+    opts="-l"
+  fi
+
+  if [ "$1" == "write" ] || [ "$1" == "w" ]; then
+    shift
+    opts="--write"
+  fi
+
+  ~/Misc/CodeLintEslint/node_modules/prettier/bin-prettier.js --config ~/Misc/CodeLintEslint/prettier.config.js --plugin-search-dir ~/Misc/CodeLintEslint "$opts" "$@"
 }

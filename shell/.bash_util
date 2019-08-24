@@ -84,13 +84,25 @@ function opts_matcher_helper {
 
 function opts_matcher {
   local __matching_opt=''
-  local pattern="$2"
-  local ARGS=("$@")
-  local opts=("${ARGS[@]:2}")
+
+  local no_warning
+  if [ "$2" == "no_warning" ]; then
+    no_warning="true"
+
+    local pattern="$3"
+    local ARGS=("$@")
+    local opts=("${ARGS[@]:3}")
+  else
+    local pattern="$2"
+    local ARGS=("$@")
+    local opts=("${ARGS[@]:2}")
+  fi
+
+
 
   opts_matcher_helper __matching_opt "$pattern" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
-    if [ -n "$pattern" ]; then
+    if [ -n "$pattern" ] && [ -z "$no_warning" ]; then
       printf "${RED}Unknown option:${NC} ${pattern}\n\n"
     fi
     return 1

@@ -78,22 +78,17 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
 
     # run after-install (=after-update) hooks
 
-    # defined for this device
-    after_update_hook="$HOME/.dmt/user/devices/this/after-update"
-    if [ -f "$after_update_hook" ]; then
-      "$after_update_hook"
-    fi
-
-    # general
+    # general deploy hooks -- all devices
     after_update_hook="$HOME/.dmt/etc/deploy_hooks/after-update"
     if [ -f "$after_update_hook" ]; then
       "$after_update_hook" > /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
     fi
 
-    # if [ "$arg" == "full" ]; then
-    #   install_core_source
-    #   install_core_bin
-    # fi
+    # (possibly defined) for each particular device
+    after_update_hook="$HOME/.dmt/user/devices/this/after-update"
+    if [ -f "$after_update_hook" ]; then
+      "$after_update_hook"
+    fi
 
     echo
 

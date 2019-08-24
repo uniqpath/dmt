@@ -102,11 +102,6 @@ function dmt {
     fi
   fi
 
-  shift
-
-  # report if a process named "dmt-proc" is currently running
-  #local proc=$(ps -ef | grep "dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
-
   local dmt_proc_pid=''
   local dmt_fg_bg=''
   get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
@@ -240,12 +235,6 @@ function dmt {
 
     next)
       dmt_next
-      #gui reload
-      #dmt restart
-      ;;
-
-    core)
-      dmt_core "$@"
       ;;
 
     update) # updates the whole folder, doesn't restart the service
@@ -366,18 +355,6 @@ function dmt {
           printf "\n${RED}Problem restarting ${CYAN}dmt-proc${RED}, please use ${GREEN}dmt logfg ${RED}to determine the reason${NC}\n"
         fi
       fi
-      ;;
-
-    restart2)
-      symlink_if_unlinked
-      #copy_core_bootscripts
-      compile_gui_if_missing
-
-      printf "${CYAN}DMT${NC} ${WHITE}is *fully* restarting...${NC}\n\n"
-      "${DMT_PATH}/etc/onboot/daemons" stop
-      killall mpv
-      killall dmt-proc
-      "${DMT_PATH}/etc/onboot/daemons" start
       ;;
 
     log) # requestion to the service to get latest few log lines
@@ -575,15 +552,6 @@ function device_helper {
         fi
         ;;
 
-      # edit)
-      #   local file="${DMT_USER_PATH}/devices/devices.json"
-      #   if [ -f "$file" ]; then
-      #     e "$file"
-      #   else
-      #     printf "${RED}File not found${NC}\n"
-      #   fi
-      #   ;;
-
       list)
         for_all_devices "list"
         ;;
@@ -591,14 +559,6 @@ function device_helper {
       ping)
         for_all_devices
         ;;
-
-      # exec)
-      #   for_all_devices "exec" "$@"
-      #   ;;
-
-      # update)
-      #   for_all_devices "update"
-      #   ;;
     esac
   fi
 }
@@ -808,15 +768,6 @@ function dmt_help_explain_rpc {
   printf "${GRAY}You can do the same with all other rpc methods listed above.${NC}\n"
 }
 
-# function dmt_docs {
-#   if [ -f ~/.dmt/docs/index.html ]; then
-#     open ~/.dmt/docs/index.html
-#   else
-#     printf "${RED}Docs missing${NC}\n"
-#   fi
-#   #open https://github.com/uniqpath/dmt/blob/master/docs/README.md
-# }
-
 function dmt_version {
   printf "${MAGENTA}v$(cat "$DMT_PATH/.version")${NC}\n\n"
   local NUM=$(cat $HOME/.bash_aliases | grep function | wc -l | xargs)
@@ -855,29 +806,19 @@ function dmt_next {
 
   stop_dmt_if_running
 
-  if [ -d "$DMT_PATH/user" ]; then
-    local backup_dir="$HOME/dmt-user-backup"
-    if [ ! -d "$backup_dir" ]; then
-      mv "$DMT_PATH/user" "$backup_dir"
-    else
-      printf "${RED}Aborting due to existing directory - ${backup_dir} ${NC}\n"
-      return
-    fi
+  local before_next_backup_dir="$HOME/.dmt-backup-before-next"
+
+  if [ -d "$before_next_backup_dir" ]; then
+    printf "${RED}Aborting due to existing directory - ${before_next_backup_dir} ${NC}\n"
+    return
   fi
 
-  if [ -d "$DMT_PATH/state" ]; then
-    local backup_dir="$HOME/dmt-state-backup"
-    if [ ! -d "$backup_dir" ]; then
-      mv "$DMT_PATH/state" "$backup_dir"
-    else
-      printf "${RED}Aborting due to existing directory - ${backup_dir} ${NC}\n"
-      return
-    fi
+  if [ -d "$DMT_PATH" ]; then
+    printf "${YELLOW}Moving $DMT_PATH to ${before_next_backup_dir}...${NC}\n"
+    mv "$DMT_PATH" "$before_next_backup_dir"
   fi
 
   cd "$HOME"
-
-  rm -rf "$DMT_PATH"
 
   local dmt_source=''
   get_dmt_source dmt_source
@@ -890,93 +831,37 @@ function dmt_next {
     curl -L dmt-system.com/get | bash
   fi
 
-  if [ ! -d "$DMT_PATH" ]; then
+  if [ -d "$DMT_PATH" ]; then
+    if [ -d "$DMT_PATH/user" ] && [ -d "$before_next_backup_dir/user" ]; then
+      rm -rf "$DMT_PATH/user"
+      printf "${YELLOW}Moving ${before_next_backup_dir}/user to ${DMT_PATH} ...${NC}\n"
+      mv "$before_next_backup_dir/user" "$DMT_PATH"
+    fi
+
+    if [ -d "$DMT_PATH/state" ] && [ -d "$before_next_backup_dir/state" ]; then
+      rm -rf "$DMT_PATH/state"
+      printf "${YELLOW}Moving ${before_next_backup_dir}/state to ${DMT_PATH} ...${NC}\n"
+      mv "$before_next_backup_dir/state" "$DMT_PATH"
+    fi
+
+    if [ -d "$DMT_PATH/log" ] && [ -d "$before_next_backup_dir/log" ]; then
+      rm -rf "$DMT_PATH/log"
+      printf "${YELLOW}Moving ${before_next_backup_dir}/log to ${DMT_PATH} ...${NC}\n"
+      mv "$before_next_backup_dir/log" "$DMT_PATH"
+    fi
+
+    printf "${YELLOW}Removing ${before_next_backup_dir}${NC}\n"
+    rm -rf "$before_next_backup_dir"
+  else
     printf "${RED}Problem installing dmt -- ~/.dmt does not exist${NC}\n"
-    return
-  fi
 
-  if [ -d "$HOME/dmt-user-backup" ]; then
-    rm -rf "$DMT_PATH/user"
-    mv "$HOME/dmt-user-backup" "$DMT_PATH/user"
-  fi
-
-  if [ -d "$HOME/dmt-state-backup" ]; then
-    rm -rf "$DMT_PATH/state"
-    mv "$HOME/dmt-state-backup" "$DMT_PATH/state"
+    if [ -d "$before_next_backup_dir" ]; then
+      printf "${MAGENTA}Restoring ${before_next_backup_dir} to ${DMT_PATH}${NC}\n"
+      mv "$before_next_backup_dir" "$DMT_PATH"
+    fi
   fi
 
   dmt start
-
-  # OLD CODE FOR GITHUB SOURCE
-
-  # local cwd="`pwd`"
-
-  # cd "$DMT_PATH"
-  # git fetch
-  # git reset --hard origin/master
-
-  # if [ -d "./core/.git" ]; then
-  #   cd core
-  #   git fetch
-  #   git reset --hard origin/master
-  #   cd ..
-  # fi
-
-  # if [ -d "./bin/.git" ]; then
-  #   cd bin
-  #   git fetch
-  #   git reset --hard origin/master
-  #   cd ..
-  # fi
-
-  # symlink_if_unlinked
-  # gui build
-  # # if [ -d "$DMT_NODE_CORE/.scripts" ]; then
-  # #   cd "$DMT_NODE_CORE/.scripts"
-  # #   ./symlink_dmt_deps
-  # # fi
-
-  # rel
-
-  # cd "$cwd"
-}
-
-function dmt_core {
-  printf "${MAGENTA}CURRENT DMT-CORE REPO${NC}\n"
-  cat "$DMT_CORE/.git/config" | grep "url ="
-
-  if [ -z "$1" ] || [ "$1" == "-h" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    printf "${GREEN}dmt core [handle]${NC} ${GRAY}replaces current core with the one at github.com/[handle]/dmt${NC}\n"
-    return
-  fi
-
-  local DMT_CORE_BACKUP="$DMT_PATH/cores_extra/prev-core-backup"
-
-  if [ -d "$DMT_CORE_BACKUP" ]; then
-    rm -rf "$DMT_CORE_BACKUP"
-  fi
-
-  mkdir -p "$DMT_CORE_BACKUP"
-
-  if [ -d "$DMT_CORE" ]; then
-    printf "${GRAY}Backing up current core to ${YELLOW}${DMT_CORE_BACKUP}${NC}\n"
-    mv "$DMT_CORE" "$DMT_CORE_BACKUP"
-  fi
-
-  local cwd="`pwd`"
-
-  cd "$DMT_PATH"
-  git clone "https://github.com/${1}/dmt-core" core
-
-  if [ -d "$DMT_NODE_CORE/.scripts" ]; then
-    cd "$DMT_NODE_CORE/.scripts"
-    ./symlink_dmt_deps
-  fi
-
-  dmt_core "-h"
-
-  cd "$cwd"
 }
 
 function dmt_install {
@@ -1177,4 +1062,3 @@ function dmt_compile_bin {
 
   cd "$cwd"
 }
-
