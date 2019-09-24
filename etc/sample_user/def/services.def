@@ -16,7 +16,9 @@ service: player
   maxResults: 30
 
 service: gui
+  # will try in specified order until successful:
+  port: 80
   port: 7777
-  #port: 80 # (in case you uncomment this line, comment out the previous!)
+
   wsPort: 7780
   symbol: 🌐

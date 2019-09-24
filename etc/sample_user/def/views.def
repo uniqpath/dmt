@@ -1,0 +1,18 @@
+view: home
+  wallpaper: /img/wallpapers/home.jpg
+
+view: player
+  wallpaper: /img/wallpapers/player.jpg
+  sidebar: true
+
+view: search
+  wallpaper: /img/wallpapers/search.jpg
+
+view: gallery
+  sidebar: top-only
+
+view: weather
+  sidebar: true
+
+view: debug
+  sidebar: true

@@ -44,6 +44,10 @@ function monitor_off {
     #/opt/vc/bin/tvservice --off
 }
 
+function rpi_temp {
+  /opt/vc/bin/vcgencmd measure_temp
+}
+
 function mon {
   if [ "$1" == '-h' ]; then
     printf "${MAGENTA}Control Raspberry Pi monitor output${NC}\n"

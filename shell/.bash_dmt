@@ -763,7 +763,7 @@ function dmt_help_explain_rpc {
   echo
   printf "${GREEN}dmt info ${GRAY}gets information about current device${NC}\n"
   printf "${GREEN}dmt @hostOrIp info ${GRAY}gets information about a device on local network${NC}\n"
-  printf "${GREEN}dmt @@remoteIpOrHost info ${GRAY}gets information about remote device on the other side of router WAN port${NC}\n"
+  # printf "${GREEN}dmt @@remoteIpOrHost info ${GRAY}gets information about remote device on the other side of router WAN port${NC}\n"
   echo
   printf "${GRAY}You can do the same with all other rpc methods listed above.${NC}\n"
 }

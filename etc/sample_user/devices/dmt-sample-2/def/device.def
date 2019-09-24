@@ -5,4 +5,3 @@ device: dmt-sample-2
     defaultVolume:
       mpv: 70
 
-  service: gui
