@@ -1,17 +1,16 @@
 #!/bin/bash
 
 function jazz {
-  mpvc play http://us4.internet-radio.com:8266/stream
+  # see recent playlist here (if needed) ;) https://www.radio.net/s/smoothjazzfl
+  mpvc play ~/.dmt/user/refs/internet_radio_stations/Jazz/smooth-jazz-florida.pls
 }
 
 function rock {
-  mpvc play http://198.58.98.83:8258/stream
+  mpvc play ~/.dmt/user/refs/internet_radio_stations/ClassicRock/classic-rock-florida.pls
 }
 
-function v {
-  m "vid" "$@"
-}
-
+# m = MEDIA
+# music (default), video (@media=video)
 function m {
   declare -a opts=(
     "help"
@@ -50,14 +49,6 @@ function m {
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}${opts[@]}${NC}\n"
     return
-  fi
-
-  local video=false
-
-  ## TODO: FIX... instead of "m vid" , pass on the @media=[mediaType] parameter !!
-  if [ "$1" == "vid" ]; then
-    video=true
-    shift
   fi
 
   # m [command] @hosts [terms]
@@ -105,23 +96,23 @@ function m {
     playerCmd="$DMT_NODE_CORE/dmt-controller/cli/music.js"
   fi
 
-  if $video; then
+  # if $video; then
 
-    if [ -z "$hosts" ]; then
-      node "$playerCmd" "${matching_opt}" "$@" "@media=video"
-    else
-      node "$playerCmd" "${hosts}" "${matching_opt}" "$@" "@media=video"
-    fi
+  #   if [ -z "$hosts" ]; then
+  #     node "$playerCmd" "${matching_opt}" "$@" "@media=video"
+  #   else
+  #     node "$playerCmd" "${hosts}" "${matching_opt}" "$@" "@media=video"
+  #   fi
 
+  # else
+
+  if [ -z "$hosts" ]; then
+    node "$playerCmd" "${matching_opt}" "$@"
   else
-
-    if [ -z "$hosts" ]; then
-      node "$playerCmd" "${matching_opt}" "$@"
-    else
-      node "$playerCmd" "${hosts}" "${matching_opt}" "$@"
-    fi
-
+    node "$playerCmd" "${hosts}" "${matching_opt}" "$@"
   fi
+
+  # fi
 }
 
 function save_alsa {

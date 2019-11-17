@@ -15,5 +15,5 @@ todo.txt
 /state
 target/debug
 target/release
-/core/node/dmt-fasterix/svelte/public/bundle.*
+/core/node/dmt-fasterix/fproc/public/bundle.*
 /core/node/dmt-user/lib-auto-assembled

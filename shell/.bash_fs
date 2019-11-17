@@ -1003,10 +1003,6 @@ function o {
 
 alias ox="o xcode"
 
-function e {
-  en "$@"
-}
-
 function es {
   local sublime_path="/usr/local/bin/subl" # warning: this symlink is not automatic after sublime install, user has to add it, pointing to: /Applications/Sublime Text.app/Contents/SharedSupport/bin/subl
   local sublime_path2="$HOME/bin/subl"
@@ -1043,7 +1039,7 @@ function ea {
   fi
 }
 
-function en {
+function e {
   if [ -z "$1" ]; then
     printf "${RED}Must specify file to edit with nano${NC}\n"
   else

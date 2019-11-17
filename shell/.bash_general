@@ -1713,22 +1713,7 @@ function ne {
 }
 
 function sites {
-  if macos; then
-    #cd ~/Sites
-    cd /usr/local/etc/nginx/servers
-  else
-    if [ -d /opt/nginx/conf/sites/ ]; then
-      cd /opt/nginx/conf/sites/
-    elif [ -d /etc/nginx/sites ]; then
-      cd /etc/nginx/sites
-    elif [ -d /etc/nginx/sites-available ]; then
-      cd /etc/nginx/sites-available
-    elif [ -d /etc/apache2/sites-available ]; then
-      cd /etc/apache2/sites-available
-    else
-      printf "${RED}Can't find nginx sites folder${NC}\n"
-    fi
-  fi
+  awesome_cd ~/.dmt/user/sites "$1"
 
   if [ -n "$1" ]; then
     if [ "$1" == "ports" ]; then

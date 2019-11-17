@@ -63,6 +63,7 @@ function dmt {
     "restart2"
     "stop"
     "link"
+    "checklink"
     "unlink"
     "relink"
     "deactivate"
@@ -78,6 +79,10 @@ function dmt {
     )
 
     opts=("${opts[@]}" "${opts_admin[@]}")
+  fi
+
+  if [ "$command" == '-h' ] || [ "$command" == '--help' ]; then
+    command="help"
   fi
 
   local matching_opt=''
@@ -96,7 +101,7 @@ function dmt {
     fi
 
     if [ -z "$1" ]; then
-      matching_opt="help"
+      matching_opt="plain"
     else
       return
     fi
@@ -124,6 +129,17 @@ function dmt {
   # ----
 
   case "$matching_opt" in
+    plain)
+      #echo "plain"
+      # printf "${MAGENTA}Enabled aliasing:${NC}\n"
+      # printf "${GREEN}✓${NC} 1) search and play${NC}\n"
+      # printf "${GREEN}✓${NC} 2) networking${NC}\n"
+      # printf "${RED}✖${NC} 3) extended aliases${NC}\n"
+      # echo
+      # printf "${GREEN}Enable group:${NC} dmt enable_al [num] ${WHITE}| ${RED}Disable group:${NC} ${GRAY}dmt disable_al [num]${NC}\n"
+      node "$DMT_CLI" help "$@"
+      ;;
+
     help)
       dmt_help
 
@@ -268,6 +284,13 @@ function dmt {
       local cwd="`pwd`"
       cd "$DMT_NODE_CORE/.scripts"
       ./symlink_dmt_deps "remove"
+      cd "$cwd"
+      ;;
+
+    checklink)
+      local cwd="`pwd`"
+      cd "$DMT_NODE_CORE/.scripts"
+      ./symlink_dmt_deps "check"
       cd "$cwd"
       ;;
 
@@ -445,7 +468,7 @@ function dmt_device {
     fi
 
     printf "${YELLOW}Usage:${NC}\n"
-    printf "${GREEN}cd${NC} ${GRAY}move to directory with curent device's configuration${NC}\n"
+    printf "${GREEN}cd [device]${NC} ${GRAY}move to directory with device definition (${GREEN}dev cd ${GRAY}moves to this device's def)${NC}\n"
     printf "${GREEN}select${NC} ${GRAY}select configuration for this device from existing configurations or create a new configuration and assign it to this device${NC}\n"
     printf "${GREEN}def${NC} ${GRAY}shows parsed device.def definition in json format${NC}\n"
     printf "${GREEN}edit${NC} ${GRAY}edit current device's device.def${NC}\n"
@@ -459,7 +482,7 @@ function dmt_device {
 
   case "$matching_opt" in
     cd)
-      device_helper cd
+      device_helper cd "$@"
       ;;
 
     edit)
@@ -820,16 +843,17 @@ function dmt_next {
 
   cd "$HOME"
 
-  local dmt_source=''
-  get_dmt_source dmt_source
+  # local dmt_source=''
+  # get_dmt_source dmt_source
 
-  if [ $dmt_source == 'local' ]; then
-    printf "${GREEN}Fetching from ${YELLOW}${LOCAL_DMT_SOURCE_ENDPOINT}${NC} ...\n\n"
-    curl "$LOCAL_DMT_SOURCE_ENDPOINT" | bash
-  else
+  # BUGGY! when you run it on the local source machine itself, it will do and say nonsense
+  # if [ $dmt_source == 'local' ]; then
+  #   printf "${GREEN}Fetching from ${YELLOW}${LOCAL_DMT_SOURCE_ENDPOINT}${NC} ...\n\n"
+  #   curl "$LOCAL_DMT_SOURCE_ENDPOINT" | bash
+  # else
     printf "${CYAN}Fetching from ${MAGENTA}dmt-system.com${NC} ...\n\n"
     curl -L dmt-system.com/get | bash
-  fi
+  # fi
 
   if [ -d "$DMT_PATH" ]; then
     if [ -d "$DMT_PATH/user" ] && [ -d "$before_next_backup_dir/user" ]; then
