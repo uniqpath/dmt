@@ -1,7 +1,5 @@
 device: dmt-new
 
-  content: music [from] content.def
-
   service: player
     contentRef: music
     defaultVolume:

@@ -3,6 +3,63 @@
 #######
 # git #
 #######
+
+# stable project - using a git worktree feature:
+# https://git-scm.com/docs/git-worktree
+# so projects under ~/Projects/stable are actually a stable checkouts of projects elsewhere
+function stable {
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "stable . ${GRAY}checkout stable version of the project in ~/Projects/stable${NC}\n"
+    printf "stable [project] ${GRAY}move to stable project${NC}\n"
+  elif [ "$1" == "." ]; then
+    local project="${PWD##*/}"
+    local target="$HOME/Projects/stable/$project"
+
+    if [ -d "$target" ]; then
+
+      if [ -f ~/Projects/backups/nuke.rb ]; then
+        printf "${YELLOW}${target} already exists...${NC}\n"
+        #~/Projects/backups/nuke.rb "$target"
+        rm -rf "$target"
+      else
+        printf "${RED}${target} already exists...${NC}\n"
+        printf "Please execute: ${RED}rm -rf ${target}${NC} manually\n"
+        return
+      fi
+    fi
+
+    git worktree prune
+
+    if git rev-parse --quiet --verify stable > /dev/null; then
+      git branch -d stable
+    fi
+
+    git worktree add -b stable "$target" master
+
+    printf "${GREEN}\nNow copying some things over (copy more manually if needed):${NC}\n"
+
+    if [ -d data ]; then
+      printf "${YELLOW}data...${NC}\n"
+      cp -r data "$target/"
+      printf "${GREEN}ok${NC}\n"
+    fi
+
+    if [ -d node_modules ]; then
+      printf "${YELLOW}node_modules...${NC}\n"
+      cp -r node_modules "$target/"
+      printf "${GREEN}ok${NC}\n"
+    fi
+
+    echo
+    printf "${MAGENTA}Project stabilified in ${target}${NC}\n"
+
+  else
+    awesome_cd ~/Projects/stable "$1"
+  fi
+}
+
+
 #alias gx="gitx"
 alias _good="git bisect good"
 alias _bad="git bisect bad"

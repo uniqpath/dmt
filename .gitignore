@@ -2,6 +2,7 @@ deploy
 tagversion
 todo.txt
 INSTRUCTIONS.md
+.prevent_dmt_next
 /archive
 /bin
 /log

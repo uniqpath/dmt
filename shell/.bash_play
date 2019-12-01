@@ -29,6 +29,7 @@ function m {
     "add"
     "insert"
     "insplay" # insert-play
+    #"clone" # repeats current song n-times (default: 1)
     "bump" # moves song to the next position
 
     "shuffle"
@@ -41,8 +42,8 @@ function m {
 
     "limit"
 
-    "spaced"
-    "unspaced"
+    # "spaced"
+    # "unspaced"
   )
 
   if [ "$1" == "-h" ]; then
@@ -96,23 +97,11 @@ function m {
     playerCmd="$DMT_NODE_CORE/dmt-controller/cli/music.js"
   fi
 
-  # if $video; then
-
-  #   if [ -z "$hosts" ]; then
-  #     node "$playerCmd" "${matching_opt}" "$@" "@media=video"
-  #   else
-  #     node "$playerCmd" "${hosts}" "${matching_opt}" "$@" "@media=video"
-  #   fi
-
-  # else
-
   if [ -z "$hosts" ]; then
     node "$playerCmd" "${matching_opt}" "$@"
   else
     node "$playerCmd" "${hosts}" "${matching_opt}" "$@"
   fi
-
-  # fi
 }
 
 function save_alsa {

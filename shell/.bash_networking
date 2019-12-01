@@ -9,31 +9,31 @@ function rpc {
   fi
 }
 
-function y {
-  declare -a topics=(
-    "diagnostics"
-    "doorbell"
-    "lantern"
-    "alarm"
-    "house"
-  )
+# function y {
+#   declare -a topics=(
+#     "diagnostics"
+#     "doorbell"
+#     "lantern"
+#     "alarm"
+#     "house"
+#   )
 
-  local matching_topic=''
-  opts_matcher matching_topic "$1" "${topics[@]}"
-  if [ $? -ne 0 ]; then # error
-    printf "${RED}Unknown mqtt topic $1${NC}\n"
-    return
-  fi
+#   local matching_topic=''
+#   opts_matcher matching_topic "$1" "${topics[@]}"
+#   if [ $? -ne 0 ]; then # error
+#     printf "${RED}Unknown mqtt topic $1${NC}\n"
+#     return
+#   fi
 
-  shift
-  local msg="$1"
-  if [ -n "$msg" ]; then
-    printf "${GREEN}Publish: ${NC}$matching_topic ■ $msg\n"
-    pub "$matching_topic" "$msg"
-  else
-    printf "${RED}Missing message for ${MAGENTA}${matching_topic} ...${NC}\n"
-  fi
-}
+#   shift
+#   local msg="$1"
+#   if [ -n "$msg" ]; then
+#     printf "${GREEN}Publish: ${NC}$matching_topic ■ $msg\n"
+#     pub "$matching_topic" "$msg"
+#   else
+#     printf "${RED}Missing message for ${MAGENTA}${matching_topic} ...${NC}\n"
+#   fi
+# }
 
 function get_ssid {
   if macos; then

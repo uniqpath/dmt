@@ -3,4 +3,3 @@ content: general
 
 content: music
   share: music [from] shares.def
-  allow: @family

@@ -13,6 +13,7 @@ function conf {
     printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
     printf "${GREEN}lighttpd:${NC} /etc/lighttpd/lighttpd.conf\n"
     printf "${GREEN}haproxy:${NC} /etc/haproxy/haproxy.cfg\n"
+    printf "${GREEN}hiawatha:${NC} /etc/hiawatha/hiawatha.conf\n"
     printf "${GREEN}dnsmasq:${NC} /etc/dnsmasq.conf\n"
     printf "${GREEN}hostapd:${NC} /etc/hostapd/hostapd.conf\n"
     printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
@@ -35,6 +36,7 @@ function conf {
     "sshd"
     "lighttpd"
     "haproxy"
+    "hiawatha"
     "dnsmasq"
     "hostapd"
     "ap"
@@ -115,6 +117,18 @@ function conf {
         sudo nano "${conf}"
       else
         printf "${RED}no haproxy config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    hiawatha)
+      local conf="/etc/hiawatha/hiawatha.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no hiawatha config file found${NC}\n"
         return
       fi
       ;;
@@ -272,115 +286,3 @@ function wifi_setup {
   fi
 }
 
-
-function slog {
-
-  if [ -z "$1" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    echo
-
-    printf "${GREEN}lighttpd|light: ${GRAY}/var/log/lighttpd/error.log${NC} \n"
-    printf "${GREEN}haproxy: ${GRAY}root; tail -f /var/log/haproxy.log${NC}\n"
-    # printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
-    # printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
-    printf "${GREEN}mpd:${NC} /var/log/mpd/mpd.log\n"
-    # printf "${GREEN}samba:${NC} /etc/samba/smb.conf\n"
-    printf "${GREEN}mosquitto:${NC} /var/log/mosquitto/mosquitto.log ${GRAY}${NC}\n"
-
-    return
-  fi
-
-  declare -a opts=(
-    "dmt"
-    "mpd"
-    "lighttpd"
-    "haproxy"
-    "munin"
-    "munin-node"
-    "mosquitto"
-  )
-
-  local matching_opt=''
-  opts_matcher matching_opt "$1" "${opts[@]}"
-  if [ $? -ne 0 ]; then # error
-    return
-  fi
-
-  shift
-
-  case "$matching_opt" in
-    dmt)
-      dmt_log "$@"
-      ;;
-
-    mpd)
-      tail -f /var/log/mpd/mpd.log
-      ;;
-
-    lighttpd)
-
-      local conf="/etc/lighttpd/lighttpd.conf"
-
-      if [ -f "${conf}" ]; then
-        tail -f /var/log/lighttpd/error.log
-      else
-        printf "${RED}no lighttpd found${NC}\n"
-        return
-      fi
-
-      ;;
-
-    haproxy)
-
-      local conf="/etc/haproxy/haproxy.cfg"
-
-      if [ -f "${conf}" ]; then
-        printf "Execute: ${MAGENTA}root; tail -f /var/log/haproxy.log${NC}\n"
-      else
-        printf "${RED}no haproxy found${NC}\n"
-        return
-      fi
-
-      ;;
-
-    mosquitto)
-
-      local log="/var/log/mosquitto/mosquitto.log"
-
-      if [ -f "${log}" ]; then
-        printf "tail -f ${YELLOW}${log}${NC}\n"
-        tail -f "$log"
-      else
-        printf "${RED}log not found${NC}\n"
-      fi
-
-      ;;
-
-    munin)
-
-      local log="/var/log/munin/munin-update.log"
-
-      if [ -f "${log}" ]; then
-        printf "tail -f ${YELLOW}${log}${NC}\n"
-        tail -f "$log"
-      else
-        printf "${RED}log not found${NC}\n"
-      fi
-
-      ;;
-
-    munin-node)
-
-      local log="/var/log/munin/munin-node.log"
-
-      if [ -f "${log}" ]; then
-        printf "tail -f ${YELLOW}${log}${NC}\n"
-        tail -f "$log"
-      else
-        printf "${RED}log not found${NC}\n"
-      fi
-
-      ;;
-
-  esac
-}

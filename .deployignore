@@ -1,5 +1,5 @@
 deploy
-deploy_from_secondary
+.prevent_dmt_next
 todo.txt
 /etc/.bash_aliases_bundle
 /etc/.bash_aliases_slim
@@ -8,10 +8,7 @@ todo.txt
 /log
 /archive
 .trash
-/cores_extra
 /user/devices/this
-/user/catalogs
-/user/frontend-assets/volatile
 /state
 target/debug
 target/release

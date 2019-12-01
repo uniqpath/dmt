@@ -9,6 +9,212 @@ function ap {
   fi
 }
 
+function mac {
+  system_profiler SPNetworkDataType | grep Wi-Fi -A10
+  ifconfig en0
+}
+
+# dep for reload:
+# sudo apt-get install -y xdotool
+function kiosk {
+  if macos; then
+    printf "${RED}Cannot run on macOS${NC}\n"
+    return
+  fi
+
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    echo
+
+    printf "${GREEN}edit: ${GRAY}edit kiosk configuration file${NC}\n"
+    printf "${GREEN}reload: ${GRAY}reload currently set url in kiosk browser${NC}\n"
+    printf "${GREEN}restart: ${GRAY}restart kiosk browser (for example on configuration change)${NC}\n"
+
+    if [ -f ~/.config/lxsession/LXDE-pi/autostart ]; then
+      printf "\n${MAGENTA}Current kiosk setup:${NC}\n"
+      cat ~/.config/lxsession/LXDE-pi/autostart | grep ^@/usr/bin/chromium-browser
+    fi
+
+    return
+  fi
+
+  case "$1" in
+
+    edit)
+
+      local loc1="/var/lib/dietpi/dietpi-software/installed/chromium-autostart.sh"
+      local loc2=~/.config/lxsession/LXDE-pi/autostart
+      local loc3=/home/pi/.config/lxsession/LXDE-pi/autostart
+
+      if [ -f "$loc1" ]; then
+        sudo nano "$loc1"
+      elif [ -f "$loc2" ]; then
+        nano "$loc2"
+      elif [ -f "$loc3" ]; then
+        nano "$loc3"
+      fi
+
+      ;;
+
+    reload)
+
+      # if [ ! -f ~/.config/lxsession/LXDE-pi/autostart ]; then
+      #   printf "${YELLOW}Kiosk configuration missing...${NC}\n"
+      #   return
+      # fi
+
+      #printf "${MAGENTA}Note: this only reloads the currently open url, if you changed it, you have to call [kiosk restart]${NC}\n"
+
+      which xdotool > /dev/null 2>&1
+
+      if [ $? -eq 0 ]; then
+        export DISPLAY=":0"
+        WID=$(xdotool search --onlyvisible --class chromium|head -1)
+        xdotool windowactivate ${WID}
+        xdotool key ctrl+F5
+      else
+        printf "${RED}xdotool missing, please install with: ${GRAY}sudo apt-get -y install xdotool${NC}\n"
+      fi
+
+      printf "${GREEN}Reloaded...${NC}\n"
+
+      ;;
+
+    restart)
+
+      if [ ! -f ~/.config/lxsession/LXDE-pi/autostart ]; then
+        printf "${YELLOW}Kiosk configuration missing...${NC}\n"
+        return
+      fi
+
+      sudo killall chromium-browser
+      printf "${MAGENTA}Please copy and execute this command:${NC}\n"
+      echo "export DISPLAY=\":0\"; $(cat ~/.config/lxsession/LXDE-pi/autostart | grep ^@/usr/bin/chromium-browser | sed 's/^@//') &"
+
+      ;;
+
+    *)
+      printf "${RED}Unknown request${NC}\n"
+      ;;
+
+  esac
+}
+
+function shut {
+
+  if ! macos && [ -f "/etc/fstab" ] ; then
+    which lsblk > /dev/null 2>&1
+
+    # lsblk exists
+    if [ $? -eq 0 ]; then
+      local labels=()
+
+      # read all present labels via lsblk
+      while read label do
+      do
+        if [ -n "$label" ] && [ "$label" != "LABEL" ]; then
+          labels+=("$label")
+        fi
+      done < <(lsblk -o LABEL)
+
+      # read /etc/fstab
+      while read line
+      do
+        local label=$(echo "$line" | awk '{print $1}' | sed 's/LABEL=//')
+        local path=$(echo "$line" | awk '{print $2}')
+
+        array_contains_element "$label" "${labels[@]}"
+
+        if [ $? -eq 0 ]; then
+          if [ ! -d "$path" ]; then
+            printf "${YELLOW}/etc/fstab:${NC} ${CYAN}Directory ${path} ${RED}not found, system wouldn't boot, aborting ...${NC}\n"
+            return
+          fi
+        else
+          printf "${YELLOW}/etc/fstab:${NC} ${CYAN}Label ${label} ${RED}not found on the system with lsblk, system wouldn't boot, aborting ...${NC}\n"
+          return
+        fi
+      done < <(cat /etc/fstab | grep '^LABEL')
+    else
+      printf "${YELLOW}lsblk missing${NC}, no additional safety checks performed on /etc/fstab ...\n"
+      printf "${MAGENTA}Install lsblk${NC}\n"
+    fi
+  fi
+
+  if [ "$1" == 'reboot' ] || [ "$1" == 'r' ]; then
+    if is_rpi; then
+      # fix: "This profile appears to be in use by another Chromium process (543)...""
+      if [ -d /home/pi/.config/chromium ]; then
+        rm /home/pi/.config/chromium/Singleton*
+      fi
+    fi
+
+    #save_dmt_state
+
+    printf "${MAGENTA}Rebooting...${NC}\n"
+    sudo reboot
+  elif [ "$1" == 'rr' ]; then
+    # https://unix.stackexchange.com/questions/183095/last-resort-linux-terminal-command-to-reboot-over-ssh-in-case-of-a-kernel-bu
+    echo s > /proc/sysrq-trigger
+    echo u > /proc/sysrq-trigger
+    echo s > /proc/sysrq-trigger
+    echo b > /proc/sysrq-trigger
+  else
+    if [ -n "$1" ]; then
+      local seconds=0
+      local val=0
+      local desc=""
+      local denom=""
+
+      convert_to_seconds seconds val desc denom "$1"
+
+      if [ "$denom" == "s" ]; then
+        printf "${RED}Please specify shutdown delay in minutes or hours${NC}\n"
+        return
+      else
+        echo
+        printf "${CYAN}Shutting down in ${MAGENTA}${desc}${NC} ${CYAN}...${NC}\n"
+        echo
+        # sleep $seconds
+
+        se -n shutdown_task "$1" execute_shutdown
+      fi
+    else
+      read -r -p "Are you sure you want to shut the device down (instead of rebooting)? [Y/n] " response
+      if [[ ! $response =~ ^([nN])$ ]]
+      then
+        execute_shutdown
+      fi
+    fi
+  fi
+}
+
+function execute_shutdown {
+  printf "${RED}Shutting down...${NC}\n"
+  if macos; then
+    off
+  else
+    #save_dmt_state
+
+    sudo shutdown -h now
+  fi
+}
+
+function res {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}res [service] ${GRAY}= sudo systemctl restart [service]${NC}\n"
+  else
+    sudo systemctl restart "$@"
+    printf "${GREEN}Done.${NC}\n"
+  fi
+}
+
+function reb {
+  printf "${MAGENTA}Rebooting...${NC}\n"
+  shut reboot
+}
+
 function part {
   local script="$DMT_SCRIPTS/part"
   if [ -f "$script" ]; then
@@ -69,4 +275,75 @@ function mon {
     printf "${RED}✖ Error: Only works on Raspberry Pi${NC}\n"
     mon -h
   fi
+}
+
+function gpio {
+
+  declare -a opts=(
+    "export"
+    "read"
+    "write"
+  )
+
+  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}gpio export [pin] [in|*out]${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}gpio read [pin]${NC} ${GRAY}read from pin${NC}\n"
+    printf "${GREEN}gpio write [pin] [val]${NC} ${GRAY}write value to pin${NC}\n"
+    return
+  fi
+
+  local matching_opt=''
+  opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    printf "Use -h to see valid options\n\n"
+    return
+  fi
+
+  shift
+
+  case "$matching_opt" in
+
+    export)
+      local pin="$1"
+      local direction="$2"
+      if [ -z "$direction" ]; then
+        direction="out"
+      fi
+
+      printf "${GRAY}Node: there might be some ephemereal errors, not sure why, in that case try again ...:${NC}\n\n"
+
+      sudo echo "$pin" > /sys/class/gpio/unexport
+      sudo echo "$pin" > /sys/class/gpio/export
+
+      sudo echo "$direction" > "/sys/class/gpio/gpio${pin}/direction"
+
+      printf "Exported pin ${YELLOW}${pin}${NC}, direction: ${MAGENTA}${direction}${NC}\n"
+      ;;
+
+    read)
+      local pin="$1"
+      local val=$(sudo cat /sys/class/gpio/gpio${pin}/value)
+      local color="$GRAY"
+      if [ "$val" == "1" ]; then
+        color="$GREEN"
+      fi
+      printf "Pin ${YELLOW}${pin}${NC} has value ${color}${val}${NC}\n"
+      ;;
+
+    write)
+      local pin="$1"
+      local val="$2"
+      local color="$GRAY"
+      if [ "$val" == "1" ]; then
+        color="$GREEN"
+      fi
+      if [ -n "$val" ]; then
+        printf "Writing ${color}${val}${NC} to pin ${YELLOW}${pin}${NC}\n"
+        sudo echo "$val" > /sys/class/gpio/gpio${pin}/value
+      else
+        printf "${RED}Missing value${NC}\n"
+      fi
+      ;;
+  esac
 }

@@ -1,9 +1,5 @@
 #!/bin/bash
 
-function make_index {
-  node "$DMT_NODE_CORE/dmt-index/index.js" "$@"
-}
-
 # can also do:
 # [some long process_with_text_result] | push_notify
 # in background: se "space|push_notify"
@@ -21,10 +17,6 @@ function push_notify {
   else
     printf "${RED}Cannot push message${NC}\n"
   fi
-}
-
-function magic {
-  node "$DMT_NODE_CORE/magic-window/index.js" "$@"
 }
 
 function net_scan {

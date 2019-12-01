@@ -1,8 +1,5 @@
 device: my_computer
 
-  content: music
-    path: ~/Music
-
   service: player
     contentRef: music
 

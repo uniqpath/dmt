@@ -43,7 +43,7 @@ function dmt {
 
   declare -a opts=(
     "help"
-    "test"
+    "gui_test"
     "status"
     "version"
     "device"
@@ -53,12 +53,13 @@ function dmt {
     "update"
     "debug"
     "renew"
-    "remove"
     "log"
     "logfg"
+    "loglan"
     "install"
     "start"
     "startfg"
+    "startprofiler"
     "restart"
     "restart2"
     "stop"
@@ -67,7 +68,6 @@ function dmt {
     "unlink"
     "relink"
     "deactivate"
-    "remove"
     "bin"
     "music"
     "search"
@@ -81,7 +81,7 @@ function dmt {
     opts=("${opts[@]}" "${opts_admin[@]}")
   fi
 
-  if [ "$command" == '-h' ] || [ "$command" == '--help' ]; then
+  if [ -z "$command" ] || [ "$command" == '-h' ] || [ "$command" == '--help' ]; then
     command="help"
   fi
 
@@ -143,32 +143,31 @@ function dmt {
     help)
       dmt_help
 
-      echo
-      printf "${MAGENTA}Available rpc methods: ${NC}\n\n"
+      # echo
+      # printf "${MAGENTA}Available rpc methods: ${NC}\n\n"
 
       if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" help "$@"
+        #node "$DMT_CLI" "${hosts}" help "$@"
 
         dmt_help_explain_rpc
       else
-        if [ -z "$dmt_proc_pid" ]; then
-          printf "${RED}None${NC}\n"
-          echo
-          printf "Please type ${GREEN}dmt start${NC} to start ${MAGENTA}dmt-proc${NC}.\n"
-        else
-          node "$DMT_CLI" help "$@"
+        dmt_help_explain_rpc
 
-          dmt_help_explain_rpc
+        if [ -z "$dmt_proc_pid" ]; then
+          printf "${GRAY}_____________________________________________________________________________${NC}\n"
+          echo
+          printf "Please type ${GREEN}dmt start${NC} to start ${MAGENTA}dmt-proc${NC}. 💡🚀🎸\n"
+          echo
         fi
       fi
       ;;
 
-    test)
+    gui_test)
       if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" test "$@"
+        node "$DMT_CLI" "${hosts}" gui_test "$@"
       else
         if [ -n "$dmt_proc_pid" ]; then
-          node "$DMT_CLI" test "$@"
+          node "$DMT_CLI" gui_test "$@"
         fi
       fi
       ;;
@@ -250,7 +249,7 @@ function dmt {
       ;;
 
     next)
-      dmt_next
+      dmt_next "$@"
       ;;
 
     update) # updates the whole folder, doesn't restart the service
@@ -259,10 +258,6 @@ function dmt {
 
     renew) # updates the whole folder and restarts the service
       dmt_renew "$@"
-      ;;
-
-    remove)
-      dmt_remove
       ;;
 
     install)
@@ -305,7 +300,6 @@ function dmt {
       fi
 
       symlink_if_unlinked
-      #copy_core_bootscripts
       compile_gui_if_missing
 
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is starting...${NC}\n\n"
@@ -329,11 +323,22 @@ function dmt {
       fi
 
       symlink_if_unlinked
-      #copy_core_bootscripts
       compile_gui_if_missing
 
       printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
       node --trace-warnings --experimental-modules "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+      ;;
+
+    startprofiler)
+      if report_dmt_running "$dmt_proc_pid" "$dmt_fg_bg"; then
+        return
+      fi
+
+      symlink_if_unlinked
+      compile_gui_if_missing
+
+      printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
+      node --trace-warnings --prof --experimental-modules "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       ;;
 
     stop)
@@ -360,7 +365,6 @@ function dmt {
 
     restart)
       symlink_if_unlinked
-      #copy_core_bootscripts
       compile_gui_if_missing
 
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is restarting...${NC}\n\n"
@@ -386,6 +390,11 @@ function dmt {
 
     logfg) # show log in foreground and keep it updated
       dmt_log fg "$@"
+      ;;
+
+    loglan) # show LAN log in foreground and keep it updated
+           # this will run a node listener process that will gather log messages from the entire LAN network and show them according to their timestamp
+      dmt_log lan "$@"
       ;;
 
     # undocumented:
@@ -414,6 +423,7 @@ function get_dmt_proc_pid {
     #ps -ef | grep " dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
     eval "$1='$proc'"
     eval "$2='bg'"
+    return
   fi
 
   # dmt process running in foreground
@@ -441,12 +451,12 @@ function report_dmt_running {
 }
 
 # warning: duplicated in ~/.dmt/etc/onboot/daemons
-function save_dmt_state {
-  local dmt_cli="${DMT_NODE_CORE}/dmt-controller/cli/dmt.js"
-  if [ -f "$dmt_cli" ]; then
-    node "$dmt_cli" save_state
-  fi
-}
+# function save_dmt_state {
+#   local dmt_cli="${DMT_NODE_CORE}/dmt-controller/cli/dmt.js"
+#   if [ -f "$dmt_cli" ]; then
+#     node "$dmt_cli" save_state
+#   fi
+# }
 
 function dmt_device {
   declare -a opts=(
@@ -542,22 +552,31 @@ function device_helper {
 
     case "$matching_opt" in
       cd)
-        if [ -z "$1" ]; then
-          AWESOME_SILENCE=true awesome_cd ~/.dmt/user/devices
-          if [ $? -eq 0 ] && [ -d "this/def" ]; then
-            cd "this/def"
+        local device="$1"
+
+        if [ -z "$device" ]; then
+          device="this"
+        fi
+
+        # if [ -z "$1" ]; then
+        #   AWESOME_SILENCE=true awesome_cd ~/.dmt/user/devices
+        #   if [ $? -eq 0 ] && [ -d "this/def" ]; then
+        #     cd "this/def"
+        #   fi
+        # else
+
+        AWESOME_SILENCE=true awesome_cd ~/.dmt/user/devices "$device"
+
+        if [ $? -eq 0 ]; then
+          if [ -d "def" ]; then
+            cd "def"
+          else
+            printf "${GRAY}Moved to ${CYAN}${device}${GRAY} device directory but ${YELLOW}def ${GRAY}subdirectory is not present, please create it ...${NC}\n"
           fi
         else
-          AWESOME_SILENCE=true awesome_cd ~/.dmt/user/devices "$1"
-
-          if [ $? -eq 0 ]; then
-            if [ -d "def" ]; then
-              cd "def"
-            fi
-          else
-            printf "${RED}not found${NC}\n"
-          fi
+          printf "${RED}not found${NC}\n"
         fi
+
         ;;
 
       edit)
@@ -615,7 +634,7 @@ function state {
       fi
     fi
   else
-    printf "${YELLOW}dmt state not found on disk${NC}\n"
+    printf "${YELLOW}dmt state not found on storage media${NC}\n"
   fi
 }
 
@@ -746,6 +765,9 @@ function dmt_log {
   if [ "$1" == "fg" ]; then
     # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) renew device.. 4) PROBLEM: even older log messages will be shown
     tail -f -n 100 "$logfile"
+  elif [ "$1" == "lan" ]; then
+    printf "${MAGENTA}Not yet implemented ...${NC}\n"
+    printf "${CYAN}Expect it in the next minor release of ${MAGENTA}dmt-system${NC}.${NC}\n"
   else
     if [ -n "$hosts" ]; then
       node "$DMT_CLI" "${hosts}" log "$@"
@@ -757,38 +779,61 @@ function dmt_log {
 
 function dmt_help {
   printf "${YELLOW}Basic info:${NC}\n"
-  printf "${GREEN}dmt help ${GRAY}shows this help screen${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${GREEN}dmt help ${GRAY}shows this help screen${NC}\n"
   #printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a browser${NC}\n"
-  printf "${GREEN}dmt version ${GRAY}shows dmt version — v$(cat "$DMT_PATH/.version")${NC}\n"
-  printf "${GREEN}dmt device ${GRAY}device configuration and information${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt version ${GRAY}shows dmt version — v$(cat "$DMT_PATH/.version")${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt device ${GRAY}device configuration and information${NC}\n"
 
   echo
-  printf "${YELLOW}Clone to more of your devices:${NC}\n"
-  printf "${GREEN}dmt next ${GRAY}gets the latest code from The Source (dmt-system.com)${NC}\n"
-  printf "${GREEN}dmt update [host] ${GRAY}or ${GREEN}dmt install [host] ${GRAY}clones dmt to another machine of yours (via SSH)${NC}\n"
-  printf "${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY})${NC}\n"
-  printf "${GREEN}dmt remove ${GRAY}self-destroys on this machine (except the user definitions and data)${NC}\n"
-  printf "From another machine: ${MAGENTA}curl [thisMachineIp]:1111 | bash ${GRAY}replicates ~/.dmt directory (without ~/.dmt/user) from this to another machine${NC}\n"
+  printf "${YELLOW}Process replication:${NC}\n"
   echo
-  printf "${MAGENTA}dmt-proc ${YELLOW}management:\n${NC}"
-  printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
+  printf "  ${GREEN}■${NC} ${GREEN}dmt next ${GRAY}gets the latest dmt-system code from the source${NC}\n"
+  printf "  ${GREEN}■${NC} ${GREEN}dmt next --dry ${GRAY}show what would ${WHITE}dmt next${NC} command do${NC}\n"
   echo
-  printf "${GREEN}dmt start ${GRAY}starts the background process ${MAGENTA}(dmt-proc)${NC} 💡🚀🎸${NC}\n"
-  printf "${GREEN}dmt startfg ${GRAY}(only used in special cases when testing or developing) starts the services in current terminal (foreground) and quits when terminal is closed${NC}\n"
-  printf "${GREEN}dmt stop ${GRAY}stops the process${NC}\n"
-  printf "${GREEN}dmt restart ${GRAY}restarts the process${NC}\n"
-  printf "${GREEN}dmt logfg ${GRAY}shows log in current tab (to get last few lines use ${GREEN}dmt log${GRAY} - makes a rpc call, see below)${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt update [deviceId|ip_address] ${GRAY}clones or updates ~/.dmt directory at another machine via SSH${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt renew [deviceId|ip_address] ${GRAY}same as above and in addition it restarts the process after update${NC}\n"
+  echo
+  printf "  Another way to clone/update: from another machine: ${MAGENTA}curl [thisMachineIp]:1111 | bash ${NC}→\n"
+  printf "  ${GRAY}replicates ~/.dmt directory (without ~/.dmt/user|state|log) from this to another machine${NC}\n"
+  echo
+  printf "${YELLOW}Deactivation:${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY})${NC}\n"
+  echo
+  printf "${CYAN}dmt-proc${NC} ${YELLOW}management:${NC}\n"
+  # printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
+  echo
+  printf "  ${CYAN}■${NC} ${GREEN}dmt start ${GRAY}starts the background process ${MAGENTA}(dmt-proc)${NC} 💡🚀🎸${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt startfg ${GRAY}starts dmt-proc visible in terminal foreground${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt stop ${GRAY}stops the process${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt restart ${GRAY}restarts the process${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${CYAN}dmt log ${GRAY}shows a few recent log entries (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt logfg ${GRAY}shows log in current tab (to get last few lines use ${GREEN}dmt log${GRAY} - makes a rpc call, see below)${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt loglan ${GRAY}starts listening to network log message broadcasts${NC}\n"
+
+  echo
+  printf "${YELLOW}Other:\n${NC}"
+  echo
+  printf "  ${CYAN}■${NC} ${CYAN}dmt services ${GRAY}shows configured services (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt gui_test ${GRAY}shows a test notification on connected GUIs (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
 }
 
 function dmt_help_explain_rpc {
   echo
-  printf "${CYAN}A general example of using a rpc method either on localhost or some other device:${NC}\n"
+  printf "${GRAY}_____________________________________________________________________________${NC}\n"
   echo
-  printf "${GREEN}dmt info ${GRAY}gets information about current device${NC}\n"
-  printf "${GREEN}dmt @hostOrIp info ${GRAY}gets information about a device on local network${NC}\n"
+  printf "How to refer to other ${CYAN}dmt-proc${NC} instances on local network? ${YELLOW}Use ${MAGENTA}the @ symbol${NC} →${NC}\n"
+  echo
+  printf "  ${MAGENTA}■${NC} ${GREEN}dmt ${MAGENTA}@deviceId${GREEN} [log|services|etc.] ${GRAY}gets information about a device on local network${NC}\n"
+  printf "  ${MAGENTA}■${NC} ${GREEN}dmt ${MAGENTA}@ip_address${GREEN} [log|services|etc.] ${GRAY}same as above but directly with ip address instead of deviceId from device.def${NC}\n"
+  printf "  while ${GREEN}dmt [log|services|etc.] ${GRAY}gets information about current device as usual${NC}\n"
   # printf "${GREEN}dmt @@remoteIpOrHost info ${GRAY}gets information about remote device on the other side of router WAN port${NC}\n"
   echo
-  printf "${GRAY}You can do the same with all other rpc methods listed above.${NC}\n"
+  printf "  All methods in ${CYAN}cyan${NC} work in this way where an optional ${MAGENTA}@${NC} symbol\n"
+  printf "  can be used to refer to other device on local area network.\n"
+  echo
 }
 
 function dmt_version {
@@ -797,18 +842,25 @@ function dmt_version {
   printf "${WHITE}${NUM} bash functions ${GRAY}\nin ~/.bash_aliases${NC}\n"
 }
 
-function get_dmt_source {
-  local _gatewayMac=''
-  get_gateway_mac _gatewayMac
+function get_dmt_source_from_user_def {
+  local __dmt_source=''
 
-  if [ "$_gatewayMac" == "$LOCAL_DMT_SOURCE_MAC" ]; then
-    eval "$1='local'"
-    #printf "${GREEN}LOCAL${NC}\n"
-  else
-    eval "$1='global'"
-    #printf "${MAGENTA}GLOBAL${NC}\n"
+  if [ -f "$DMT_USER_DEF_FILE" ]; then
+    def_reader __dmt_source "$DMT_USER_DEF_FILE" "dmtSource"
   fi
-  #printf "${YELLOW}$_gatewayMac${NC}\n"
+
+  eval "$1='$__dmt_source'"
+
+  # return
+
+  # local _gatewayMac=''
+  # get_gateway_mac _gatewayMac
+
+  # if [ "$_gatewayMac" == "$LOCAL_DMT_SOURCE_MAC" ]; then
+  #   eval "$1='local'"
+  # else
+  #   eval "$1='global'"
+  # fi
 }
 
 function stop_dmt_if_running {
@@ -822,70 +874,121 @@ function stop_dmt_if_running {
 }
 
 function dmt_next {
-  if dev_machine; then
-    printf "${RED}Prevented on dev machine${NC}\n"
+  # if dev_machine; then
+  #   printf "${RED}Prevented on dev machine${NC}\n"
+  #   return
+  # fi
+
+    # option 1: specify from where to fetch via an argument:
+  # dmt next [dmtSource]
+  # or from user.def ->
+  # user:
+  #  dmtSource: [dmtSource]
+
+  if [ "$1" == "--help" ] || [  "$1" == "-h" ]; then
+    dmt_next_help
+    return
+  else
+    printf "${GRAY}To read help for this command use: ${GREEN}dmt next -h${NC}\n"
+    echo
+  fi
+
+  local dry_run=false
+
+  # dmt next --dry
+  # dmt next --dry url.com
+  if [ "$1" == "--dry" ]; then
+    dry_run=true
+    shift
+  fi
+
+  # dmt next url.com --dry
+  if [ "$2" == "--dry" ]; then
+    dry_run=true
+  fi
+
+  # 1) dmtSource from argument
+  local arg="$1"
+
+  # 2) dmtSource from user.def
+  local dmt_source="$arg"
+
+  if [ -n "$dmt_source" ]; then
+    if $dry_run; then
+      printf "${CYAN}1)${NC} ${MAGENTA}dmtSource${NC} provided as argument: ${MAGENTA}${dmt_source}${NC}.\n"
+    fi
+  else
+    if $dry_run; then
+      printf "${CYAN}1)${NC} ${MAGENTA}dmtSource ${GRAY}not provided as bash argument to this command ${NC}...\n"
+      printf "${CYAN}2)${NC} ${GRAY}Checking ~/.dmt/user/def/user.def for ${MAGENTA}dmtSource ${NC} ...\n"
+    fi
+
+    get_dmt_source_from_user_def dmt_source
+
+    if [ -n "$dmt_source" ] && $dry_run; then
+      printf "   ${GREEN}●●● found it!${NC}\n"
+    fi
+  fi
+
+  # aborting if couldn't determine dmtSource
+
+  if [ -z "$dmt_source" ]; then
+    if $dry_run; then echo; fi
+    printf "${RED}Could not determine ${MAGENTA}dmtSource${RED} ... ${NC}"
+    if ! $dry_run; then printf "${RED}aborting.${NC}"; fi
+    echo
+    return
+  fi
+
+  # dry run
+  if $dry_run; then
+    echo
+    printf "${GREEN}dmt next${NC} ${YELLOW}command would fetch the code from → ${MAGENTA}${dmt_source}${NC}\n"
+    return
+  fi
+
+  # possible safeguard
+  if [ -f ~/.dmt/.prevent_dmt_next ]; then
+    printf "${RED}Prevented operation because ~/.dmt/.prevent_dmt_next file is present, please remove it to continue${NC}\n"
     return
   fi
 
   stop_dmt_if_running
 
-  local before_next_backup_dir="$HOME/.dmt-backup-before-next"
+  local cwd="`pwd`"
 
-  if [ -d "$before_next_backup_dir" ]; then
-    printf "${RED}Aborting due to existing directory - ${before_next_backup_dir} ${NC}\n"
-    return
-  fi
+  curl -L "${dmt_source}" | bash
 
-  if [ -d "$DMT_PATH" ]; then
-    printf "${YELLOW}Moving $DMT_PATH to ${before_next_backup_dir}...${NC}\n"
-    mv "$DMT_PATH" "$before_next_backup_dir"
-  fi
-
-  cd "$HOME"
-
-  # local dmt_source=''
-  # get_dmt_source dmt_source
-
-  # BUGGY! when you run it on the local source machine itself, it will do and say nonsense
-  # if [ $dmt_source == 'local' ]; then
-  #   printf "${GREEN}Fetching from ${YELLOW}${LOCAL_DMT_SOURCE_ENDPOINT}${NC} ...\n\n"
-  #   curl "$LOCAL_DMT_SOURCE_ENDPOINT" | bash
-  # else
-    printf "${CYAN}Fetching from ${MAGENTA}dmt-system.com${NC} ...\n\n"
-    curl -L dmt-system.com/get | bash
-  # fi
-
-  if [ -d "$DMT_PATH" ]; then
-    if [ -d "$DMT_PATH/user" ] && [ -d "$before_next_backup_dir/user" ]; then
-      rm -rf "$DMT_PATH/user"
-      printf "${YELLOW}Moving ${before_next_backup_dir}/user to ${DMT_PATH} ...${NC}\n"
-      mv "$before_next_backup_dir/user" "$DMT_PATH"
-    fi
-
-    if [ -d "$DMT_PATH/state" ] && [ -d "$before_next_backup_dir/state" ]; then
-      rm -rf "$DMT_PATH/state"
-      printf "${YELLOW}Moving ${before_next_backup_dir}/state to ${DMT_PATH} ...${NC}\n"
-      mv "$before_next_backup_dir/state" "$DMT_PATH"
-    fi
-
-    if [ -d "$DMT_PATH/log" ] && [ -d "$before_next_backup_dir/log" ]; then
-      rm -rf "$DMT_PATH/log"
-      printf "${YELLOW}Moving ${before_next_backup_dir}/log to ${DMT_PATH} ...${NC}\n"
-      mv "$before_next_backup_dir/log" "$DMT_PATH"
-    fi
-
-    printf "${YELLOW}Removing ${before_next_backup_dir}${NC}\n"
-    rm -rf "$before_next_backup_dir"
-  else
-    printf "${RED}Problem installing dmt -- ~/.dmt does not exist${NC}\n"
-
-    if [ -d "$before_next_backup_dir" ]; then
-      printf "${MAGENTA}Restoring ${before_next_backup_dir} to ${DMT_PATH}${NC}\n"
-      mv "$before_next_backup_dir" "$DMT_PATH"
-    fi
-  fi
+  # ~/.dmt directory will get replaced under us ...
+  # we move to it again ....
+  cd "$cwd"
 
   dmt start
+}
+
+function dmt_next_help {
+  printf "${YELLOW}Usage:${NC}\n"
+  printf "${GREEN}dmt next ${GRAY}read ${MAGENTA}dmtSource ${GRAY}from user.def, dmtSource is just an url from where to fetch the entire ${CYAN}dmt-proc ${GRAY}code${NC}\n"
+  printf "${GREEN}dmt next [dmtSource] ${GRAY}specify manually (has precedence over user.def, careful!)${NC}\n"
+
+  printf "${GREEN}dmt next --dry ${GRAY}does not do anything except showing you what would be the determined ${MAGENTA}dmtSource ${GRAY}value${NC}\n"
+
+  # echo
+  # printf "${MAGENTA}Supported formats for ${CYAN}dmtSource${NC}:\n"
+
+  # printf "Regular url: ${CYAN}dmt-system.com/urlpath${NC} (attaches /getdmt to the end if urlpath is missing - example: just 'dmt-system.com' becomes 'dmt-system.com/getdmt')\n"
+  # printf "${YELLOW}this options gets the bash script from the endpoint and executes it${NC}\n"
+
+  # printf "Github url: ${CYAN}github.com/uniqpath/dmt${NC}\n"
+
+  # printf "Local network: ${CYAN}192.168.0.50${NC} (attaches :1111 port if there is no port specified - example: just '192.168.0.70' becomes '192.168.0.70:1111')\n"
+  # printf "Regular url or ip apart from 192.168.* with port specified: ${CYAN}somedomain.com:2222${NC}\n"
+
+  # OPTION A -  dmt next dmt-system.com
+  # dmt next github.com/uniqpath/dmt
+  # OPTION C - local network - dmt next 192.168.0.50
+  # OPTION C2 - local network with port included - dmt next 192.168.0.50:1111
+  # OPTION D - regular url with port included: dmt next dmt-system.com:1111
 }
 
 function dmt_install {
@@ -912,7 +1015,6 @@ function dmt_update {
       printf "${RED}Prevented on dev machine${NC}\n"
     fi
   else
-    #copy_core_bootscripts
     compile_gui_if_missing
 
     dmt_install "$@"
@@ -945,12 +1047,6 @@ function dmt_renew {
   fi
 }
 
-function dmt_remove {
-  printf "${GRAY}Please copy and execute:${NC}\n\n"
-  printf "1) ${GREEN}dmt deactivate${NC}\n"
-  printf "2) ${RED}rm -rf ~/.dmt${NC}\n"
-}
-
 function restart_remote_device {
   local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-renew ]; then ~/.dmt/etc/deploy_hooks/before-renew; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
 
@@ -981,7 +1077,7 @@ function dmt_deactivate {
     return
   fi
 
-  local backup_file="$HOME/.bash_aliases-backup-by-dmt"
+  local backup_file="$LOGNAME_HOME/.bash_aliases-backup-by-dmt"
 
   if [ -L "$LOGNAME_HOME/.bash_aliases" ] && [ "$(head -3 $LOGNAME_HOME/.bash_aliases | tail -1)" == "# DMT ALIASES" ]; then
     rm ~/.bash_aliases
@@ -993,11 +1089,11 @@ function dmt_deactivate {
     printf "${MAGENTA}dmt${NC} ${CYAN}was unlinked${NC}, only the folder ${CYAN}~/.dmt${NC} remains and is not active in any way.\n"
     echo
     printf "${CYAN}To reinstall${NC}\n"
-    printf "${GREEN}cd $HOME/.dmt${NC}\n"
+    printf "${GREEN}cd $LOGNAME_HOME/.dmt${NC}\n"
     printf "${GREEN}./install${NC}\n"
     echo
     printf "${CYAN}To remove the unused directory${NC}\n"
-    printf "${GREEN}rm -rf $HOME/.dmt${NC}\n"
+    printf "${GREEN}rm -rf $LOGNAME_HOME/.dmt${NC}\n"
     echo
     printf "${WHITE}If you want to confirm that dmt is uninstalled you have to first reload the shell.${NC}\n"
   else

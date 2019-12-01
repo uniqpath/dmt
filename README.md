@@ -7,9 +7,10 @@
 
 **Visit the Website →** [dmt-system.com](https://dmt-system.com) 💡🚀🎸
 
-<img src="https://github.com/uniqpath/info/blob/master/assets/img/screens/dmt_system_website.jpg?raw=true&ver=1" width="100%">
-
 # dmt-system release 1.0
+
+We built this simply because it didn't exist.
+We made it radically good so you can make the most out of it.
 
 ** dmt-system 1.0 release is on 1.1.2020 at midnight **
 
@@ -38,13 +39,9 @@ Well. It does not contain a single known bug as far as our own code is concerned
 
 There are "minuscule" (depending on the viewpoint) systemic issues and glitches though. Since dmt-system is a product and a research project at the same time, we are reporting our exact observations. Issues we are talking about are further explained and put in context in Section 10.
 
-## How feature complete is it?
-
-Design space of general software systems is infinite and by this metric the system is not feature complete. It is rather limited in functionality but very very good at what it does. One of the important goals of the project besides practical usability is to serve as an inspiration (to ourselves and to anyone else) for further development in the area of personal dynamic helper systems on the boundary of real and digital.
-
 ## So, what happens on 1.1.2020 at midnight?
 
-Official website [dmt-system.com](https://dmt-system.com) gets updated with complete documentation, this repo receives **core code** and that's it. For us the whole story ends right there (for some time).
+Official website [dmt-system.com](https://dmt-system.com) gets updated, this repo receives **core code** and (more) documentation.
 
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-processor.png?raw=true&ver=1" width="600px">
 
@@ -52,7 +49,4 @@ Official website [dmt-system.com](https://dmt-system.com) gets updated with comp
 
 [Here is how ...](https://github.com/uniqpath/info) _(last section)_
 
-You can enjoy January of 2020 setting up and getting to know your own **dmt-system**. By investing into some hardware **(click on the link just mentioned above)** and having it ready exactly when the software arrives, you will be motivated to go forward with this journey of proper symbiosis with small computers in immediate space around you (home, office, etc...). **Imagine how fun it is** when _The Cloud_ is somewhere else and you are right here **At the Edge of Computing**.
-
-<img src="https://github.com/uniqpath/info/blob/master/assets/img/screens/wireframe1.jpg?raw=true&ver=1" width="600px">
-
+You can enjoy January of 2020 setting up and getting to know your own **dmt-system**. By investing into some hardware **(click on the link just mentioned above)** and having it ready exactly when the software arrives, you will be motivated to go forward with this journey.

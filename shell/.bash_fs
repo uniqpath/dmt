@@ -989,6 +989,7 @@ function oi {
   fi
 }
 
+# open
 function o {
   if [ -z "$1" ] || [ "$1" == "." ]; then
     open .
@@ -1147,9 +1148,9 @@ alias wg='wget'
 #alias .='l' bad idea
 alias ..='cd ..'
 alias ...='cd ../..'
-alias ..3="cd ../../.."
-alias ..4="cd ../../../.."
-alias ..5="cd ../../../../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias ......="cd ../../../../.."
 alias cd..='cd ..'
 
 function cop {

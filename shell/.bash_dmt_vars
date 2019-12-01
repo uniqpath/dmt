@@ -5,6 +5,7 @@ LOGNAME_HOME="$HOME"
 DMT_PATH="$LOGNAME_HOME/.dmt"
 
 DMT_USER_PATH="$LOGNAME_HOME/.dmt/user"
+DMT_USER_DEF_FILE="$LOGNAME_HOME/.dmt/user/def/user.def"
 DMT_THIS_DEVICE="$LOGNAME_HOME/.dmt/user/devices/this"
 
 DMT_DEVICE_FILE="$DMT_THIS_DEVICE/def/device.def"

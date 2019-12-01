@@ -154,10 +154,5 @@ function killport {
 }
 
 
-alias dup="docker-compose up -d"
-
-function dc {
-  docker container $@
-}
 
 #
