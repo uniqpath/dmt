@@ -130,7 +130,7 @@ function get_remote_device_ip_and_name_and_user_and_network {
 
 function getip {
   if [ -z "$1" ]; then
-    if macos; then
+    if dmt_macos; then
       ifconfig en0 | grep broadcast
     else
       ip addr show eth0 | grep scope | grep -P 'inet \d+.\d+\.\d+\.\d+'

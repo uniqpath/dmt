@@ -1,5 +1,0 @@
-device: my_computer
-
-  service: player
-    contentRef: music
-

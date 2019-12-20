@@ -51,7 +51,7 @@ function conf {
   )
 
   local matching_opt=''
-  opts_matcher matching_opt "$1" "${opts[@]}"
+  dmt_opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     printf "${RED}Unknown package${NC}\n"
     return

@@ -1,0 +1,213 @@
+#!/usr/bin/env bash
+
+kMIN_BASH_VERSION='3.2'  # due to use of =~, we require at least 3.2
+
+kINIT_FILE_LINE_ID=" # Added by dmt-system (see https://github.com/uniqpath/dmt)"
+#kREGEX_CONFLICTING_LINE='^[^#]*\b~/.dmt/shell/.bash_dmt_loader' # Regex that identifies relevant existing lines.
+kREGEX_CONFLICTING_LINE='~/.dmt/shell/.loader' # Regex that identifies relevant existing lines.
+
+# SYNOPSIS
+#   echoColored colorNum [text...]
+# DESCRIPTION
+#   Prints input in the specified color, which must be an ANSI color code (e.g., 31 for red).
+#   Input is either provided via the TEXT operands, or, in their absence, from stdin.
+#   If input is provided via TXT operands, a trailing \n is added.
+#   NOTE:
+#     - Unlike echo, uses stdin, if no TEXT arguments are specified; you MUST either specify
+#       at least one input operand OR stdin input; in that sense, this function is like a hybrid
+#       between echo and cat. However, *interactive* stdin input makes no sense, and therefore
+#       a newline is simply printed - as with echo without arguments - if stdin is connected to
+#       a terminal and neither operands nor stdin input is provided.
+#     - Coloring is suppressed, if the variable kNO_COLOR exists and is set to 1.
+#       An invoking script may set this in case output is NOT being sent to a terminal.
+#       (E.g., test -t 1 || kNO_COLOR=1)
+# EXAMPLES
+#   echoColored 31 "I'm red"
+#   cat file | echoColored 32 # file contents is printed in green
+echoColored() {
+  local pre="\033[${1}m" post='\033[0m'
+  (( kNO_COLOR )) && { pre= post=; }
+  shift # skip the color argument
+  if (( $# )); then
+    printf "${pre}%s${post}\n" "$*"
+  else
+    [[ -t 0 ]] && { printf '\n'; return; } # no interactive stdin input
+    printf "$pre"; cat; printf "$post"
+  fi
+}
+
+# SYNOPSIS
+#   die [msg|- [exitCode]]
+# DESCRIPTION
+#   Prints a red error message to and by default exits with exit code 1, meant to indicate
+#   a runtime problem.
+#   A standard message is provided, if no arguments are given.
+#   If the first (and only) argument is '-', input is taken from stdin; otherwise, the
+#   first argument specifies the message to print.
+#   Either way, a preamble with this script's name and the type of message is printed.
+# NOTES
+#   Uses echoColored(), whose coloring may be suppressed with kNO_COLOR=1.
+die() {
+  local kPREAMBLE="$kTHIS_NAME: ERROR:"
+  if [[ $1 == '-' ]]; then # from stdin
+    {
+      printf '%s\n' "$kPREAMBLE"
+      sed 's/^/  &/'
+    } | echoColored 31 # red
+  else # from operands
+    echoColored 31 "$kPREAMBLE ${1:-"ABORTING due to unexpected error."}"
+  fi
+  exit ${2:-1}
+} >&2
+
+# SYNOPIS
+#   isMinBashVersion <major[.minor]>
+# DESCRIPTION
+#   Indicates via exit code whether the Bash version running this script meets the minimum version number specified.
+# EXAMPLES
+#   isMinBashVersion 3.2
+#   isMinBashVersion 4
+isMinBashVersion() {
+  local minMajor minMinor thisMajor thisMinor
+  IFS=. read -r minMajor minMinor <<<"$1"
+  [[ -z $minMinor ]] && minMinor=0
+  thisMajor=${BASH_VERSINFO[0]}
+  thisMinor=${BASH_VERSINFO[1]}
+  (( thisMajor > minMajor || (thisMajor == minMajor && thisMinor >= minMinor) ))
+}
+
+# !! ========== IMPORTANT:
+# !! Since Bash's parsing of the script FAILS BELOW on versions < 3.2 due to use of `=~`,
+# !! we do the version check HERE, right after definining the function, which should work.
+# !! Verified on Bash 3.1 - unclear, how far back it works, however.
+isMinBashVersion "$kMIN_BASH_VERSION" || { echo "FATAL ERROR: This script requires Bash $kMIN_BASH_VERSION or higher. You're running: $BASH_VERSION" >&2; exit 1; }
+# !! ==========
+
+# SYNOPSIS
+#   warn [msg|-]
+# DESCRIPTION
+#   Prints a yellow warning message to stderr.
+#   If the first (and only) argument is '-', input is taken from stdin; otherwise, the
+#   first argument specifies the message to print.
+#   Either way, a preamble with this script's name and the type of message is printed.
+# NOTES
+#   Uses echoColored(), whose coloring may be suppressed with kNO_COLOR=1.
+warn() {
+  local kPREAMBLE="$kTHIS_NAME: WARNING:"
+  [[ $1 == '-' ]] && shift # for consistency with die() and dieSyntax(), accept '-' as an indicator that stdin input should be used.
+  if (( $# == 0 )); then # from stdin
+    {
+      printf '%s\n' "$kPREAMBLE"
+      sed 's/^/  &/'
+    } | echoColored 33 # yellow
+  else # from operands
+    echoColored 33 "$kPREAMBLE $*"
+  fi
+} >&2
+
+# Print the line that a shell initialization file must contain for `n` (and
+# `n-update` and `n-uninstall`) to work correctly.
+getShellInitFileLine() {
+  # Synthesize the - single - line to add to the init file, using Bash/Ksh/Zsh syntax.
+  # Sourcing the the .bash_aliases_bundle
+  printf '%s' \
+    "if [ -f ~/.dmt/shell/.loader ]; then . ~/.dmt/shell/.loader; fi" \
+    "$kINIT_FILE_LINE_ID"
+}
+
+# SYNOPSIS
+#   modifyShellInitFile
+# DESCRIPTION
+#   Modifies the relevant initialization file for the current user's shell by
+#   adding a SINGLE line composed of:
+#     - export N_PREFIX=... command
+#     - an add-bin-Dir-to-$PATH-if not-yet-there command.
+#  Outputs the full path of the initialization file modified.
+modifyShellInitFile() {
+
+  local line initFile existingLine initFileContents
+
+  # Get the line to add to the init file.
+  line=$(getShellInitFileLine)
+
+  # Determine the shell-specific initialization file.
+  if [[ -n $INSTALL_N_TEST_OVERRIDE_SHELL_INIT_FILE ]]; then # override for testing
+      initFile=$INSTALL_N_TEST_OVERRIDE_SHELL_INIT_FILE
+  else
+    case "$(basename -- "$SHELL")" in
+      'bash')
+        # !! Sadly, bash ONLY reads ~/.bash_profile in LOGIN shells, and on OSX (Darwin) ALL shells are login shells, so on OSX we must target ~/.bash_profile.
+        [[ $(uname) == 'Darwin' ]] && initFile=~/.bash_profile || initFile=~/.bashrc
+        ;;
+      'ksh')
+        initFile=~/.kshrc
+        ;;
+      'zsh')
+        initFile=~/.zshrc
+        ;;
+      *)
+        warn - <<EOF
+Automatic modification of the initialization file for shell
+$SHELL is not supported.
+For n and the Node.js versions managed by it to work correctly,
+you must MANUALLY ADD THE EQUIVALENT OF THE FOLLOWING TO YOUR SHELL'S
+INITIALIZATION FILE:
+
+$line
+EOF
+        return 0
+        ;;
+    esac
+  fi
+
+  if [[ -f $initFile ]]; then
+
+    existingLine=$(grep -E "$kREGEX_CONFLICTING_LINE" "$initFile")
+    (( $(grep -c '^' <<<"$existingLine") > 1 )) &&
+      die - <<EOF
+Aborting, because multiple existing definitions of dmt-system setup were found in
+'$initFile':
+
+$existingLine
+
+Please remove them and try again.
+EOF
+
+  fi
+
+  # CAREFUL HERE -- if this comment (kINIT_FILE_LINE_ID) changes, we might get these reports of already existing definitions added by someone else!
+  # REMOVE THIS CHECK!! improve and actually don't check for that!!!
+#   if [[ -n $existingLine && $existingLine != *$kINIT_FILE_LINE_ID* ]]; then # A "foreign" 'export N_PREFIX=' line was found.
+
+#     die - <<EOF
+# Aborting, because an existing definition of dmt-system setup added by someone else was found in '$initFile':
+
+# $existingLine
+
+# Please remove it and try again.
+# EOF
+
+  if [[ -z $existingLine ]]; then
+  #else # No existing line was found, or one we ourselves previously added.
+    errMsg="Aborting, because shell initialization file '$initFile' could not be updated."
+    if [[ -z $existingLine ]]; then # Simplest case: no traces of an old installation were found.
+      # Simply append to file (which may get created on demand.)
+      printf '\n%s\n' "$line" >>"$initFile" || { echo "$errMsg" >&2; return 1; }
+    elif [[ "$existingLine" != "$line" ]]; then # A line from a previous installation of ours was found: update it.
+      # !! We do NOT use sed -i, because that is not safe, notably because it
+      # !! would destroy a symlink, if the target file happens to be one.
+      # !! Instead, we read the entire contents into memory, and rewrite
+      # !! the modified string using simply '>', which DOES preserve the
+      # !! existing inode and thus file attributes including symlink status.
+      # !! Also note that for simplicity and consistency we add the new line at the *end*.
+      initFileContents=$(grep -Ev "$kREGEX_CONFLICTING_LINE" "$initFile")
+      printf '%s\n\n%s\n' "$initFileContents" "$line" > "$initFile" || die "$errMsg"
+    fi
+  fi
+
+  printf '%s updated with dmt-system loading script\n' "$initFile"
+
+  return 0
+}
+
+modifyShellInitFile

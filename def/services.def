@@ -1,24 +1,22 @@
-service: controller
+# meta-service to act as a rpc receiver
+# which then delegates to defined services like
+# controller, search and player etc.
+service: rpc
   port: 3850
-  wsPort: 8888
   symbol: 💡
 
-service: search
-  port: 4770
-  symbol: 🚀
-  ---
-  contentRef: general
-
-service: player
-  port: 5220
-  symbol: 🎸
-  ---
-  maxResults: 30
-
+# services can be "whatever"
 service: gui
-  # will try in specified order until successful:
-  port: 80
   port: 7777
+
+  port: 80
+    whenRootUser: true
 
   wsPort: 7780
   symbol: 🌐
+
+# see? Whatever!
+service: player
+  symbol: 🎸
+  maxResults: 30
+

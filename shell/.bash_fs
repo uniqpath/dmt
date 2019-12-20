@@ -1,9 +1,28 @@
 #!/bin/bash
 
+function walksearch {
+  local walksearch=''
+  dmt_platform_bin_command walksearch "walksearch"
+  if [ -z "$walksearch" ]; then
+    return
+  fi
+  "$walksearch" "$@"
+}
+
+function walkdir {
+  local walkdir=''
+  dmt_platform_bin_command walkdir "walkdir"
+  if [ -z "$walkdir" ]; then
+    return
+  fi
+
+  "$walkdir" "$@"
+}
+
 function f {
 
   local walksearch=''
-  platform_bin_command walksearch "walksearch"
+  dmt_platform_bin_command walksearch "walksearch"
   if [ -z "$walksearch" ]; then
     printf "${YELLOW}Using bash find instead ...${NC}\n"
     # not completelly sure why I used uniq filter here....
@@ -48,7 +67,7 @@ function ffm {
         printf "${GREEN}Moved to${NC} ${YELLOW}$2${NC}:\n"
         ff "$1"
         local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
-        if macos; then
+        if dmt_macos; then
           find . -maxdepth 1 -type f -print0 | ggrep -z -i -- "$pattern" | xargs -0 -I{} mv '{}' "$2"
         else
           find . -maxdepth 1 -type f -print0 | grep -z -i -- "$pattern" | xargs -0 -I{} mv '{}' "$2"
@@ -76,7 +95,7 @@ function ffc {
         ff "$1"
         local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
 
-        if macos; then
+        if dmt_macos; then
           find . -maxdepth 1 -type f -print0 | ggrep -z -i -- "$pattern" | xargs -0 -I{} cp '{}' "$2"
         else
           find . -maxdepth 1 -type f -print0 | grep -z -i -- "$pattern" | xargs -0 -I{} cp '{}' "$2"
@@ -215,7 +234,7 @@ function awesome_cd {
 }
 
 function p {
-  if macos; then
+  if dmt_macos; then
 
     AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node/dmt-controller "$1"
 
@@ -359,7 +378,7 @@ function h {
   AWESOME_SILENCE=true awesome_cd ~/ "$str"
 
   if [ $? -gt 0 ]; then
-    if macos; then
+    if dmt_macos; then
       if [ -d ~/Misc ]; then
         AWESOME_SILENCE=true awesome_cd ~/Misc "$str"
         if [ $? -gt 0 ]; then
@@ -935,7 +954,7 @@ function t {
     fi
 
     if [[ "$matching_file" == *".def" ]]; then
-      parsedef "$matching_file"
+      dmt_parsedef "$matching_file"
     elif [[ "$matching_file" == *".json" ]]; then
       if [ "$2" == "hidden" ]; then
         cat "$matching_file"
@@ -1154,7 +1173,7 @@ alias ......="cd ../../../../.."
 alias cd..='cd ..'
 
 function cop {
-  if ! macos; then
+  if ! dmt_macos; then
     printf "${MAGENTA}Warning: not copied to clipboard because in remote shell${NC}\n"
   fi
 
@@ -1164,7 +1183,7 @@ function cop {
     path=$(pwd)
   else
     if [ -f "$1" ]; then
-      if macos; then
+      if dmt_macos; then
         path=$(greadlink -f "$1")
       else
         path=$(readlink -f "$1")
@@ -1178,7 +1197,7 @@ function cop {
         return
       fi
 
-      if macos; then
+      if dmt_macos; then
         local path=$(greadlink -f "$matching_file")
       else
         path=$(readlink -f "$matching_file")
@@ -1195,7 +1214,7 @@ function cop {
     path=$(sed "s/\"/\\\\\"/g" <<< "$path")
     path=$(echo $path | tr -d '\n')
 
-    if macos; then
+    if dmt_macos; then
       printf "Clipboard: ${YELLOW}${path}${NC}\n"
       echo "$path" | tr -d '\n' | pbcopy
     else
@@ -1300,7 +1319,7 @@ function tape {
   fi
 
   local matching_opt=''
-  opts_matcher matching_opt "$1" "${opts[@]}"
+  dmt_opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     printf "${YELLOW}Use ${GREEN}-h ${YELLOW}to see valid options${NC}\n\n"
     return

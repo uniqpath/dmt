@@ -19,7 +19,7 @@ function rpc {
 #   )
 
 #   local matching_topic=''
-#   opts_matcher matching_topic "$1" "${topics[@]}"
+#   dmt_opts_matcher matching_topic "$1" "${topics[@]}"
 #   if [ $? -ne 0 ]; then # error
 #     printf "${RED}Unknown mqtt topic $1${NC}\n"
 #     return
@@ -36,7 +36,7 @@ function rpc {
 # }
 
 function get_ssid {
-  if macos; then
+  if dmt_macos; then
     local __ssid="$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | awk '/ SSID/ {print substr($0, index($0, $2))}')"
   else
     local __ssid="$(iwgetid -r)"
@@ -47,7 +47,7 @@ function get_ssid {
 # 70:0f:57:12:01:b7 --> 70:f:57:12:1:b7
 function normalize_mac {
   local cmd="sed"
-  if macos; then
+  if dmt_macos; then
     cmd="gsed"
   fi
   local __mac=$(echo "$2" | tr '[:upper:]' '[:lower:]' | $cmd -r -e 's/\b0([0-9]|[a-f])/\1/g')
@@ -66,7 +66,7 @@ function mac_ping {
   #if [ "$#" -ne 1 ]; then echo Usage example: $0 aa:bb:cc:dd:ee:ff; exit 2; fi;
   nmap -sP -T4 $network >& /dev/null
 
-  if macos; then
+  if dmt_macos; then
     local ip=$(arp -n | grep -i $1 | awk ' { print $1 }')
   else
     local ip=$(ip -4 n show | grep -i $1 | awk ' { print $1 }')
@@ -157,7 +157,7 @@ function net {
     which nc > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
-      if macos; then
+      if dmt_macos; then
         printf "${RED}netcat is not installed, please install and try again${NC}\n"
         return
       else
@@ -173,7 +173,7 @@ function net {
       ;;
 
     receive )
-      if macos; then
+      if dmt_macos; then
         printf "${RED}Receive not working on macos - (todo)${NC}\n"
         #nc -l localhost 1238 | tar xv
       else
@@ -197,7 +197,7 @@ function net {
       fi
 
       printf "${MAGENTA}Sending to ${GREEN}${2}${MAGENTA} ...${NC}\n"
-      if macos; then
+      if dmt_macos; then
         tar cv . | nc "$host" 1238
       else
         tar cv . | nc -q 1 "$host" 1238
@@ -214,7 +214,7 @@ function get_current_device {
   local __device_id=''
 
   if [ -f "$DMT_DEVICE_FILE" ]; then
-    def_reader __device_id "$DMT_DEVICE_FILE" "device"
+    dmt_def_reader __device_id "$DMT_DEVICE_FILE" "device"
   fi
 
   eval "$1='$__device_id'"
@@ -225,7 +225,7 @@ function get_current_network {
 
   # try explicitly defined networkId inside device.def first:
   if [ -f "$DMT_DEVICE_FILE" ]; then
-    def_reader __network_id "$DMT_DEVICE_FILE" "network"
+    dmt_def_reader __network_id "$DMT_DEVICE_FILE" "network"
   fi
 
   # otherwise detect the current network via gatewayMac address:

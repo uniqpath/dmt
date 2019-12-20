@@ -1,389 +1,5 @@
 #!/bin/bash
 
-# -- DMT ALIASES --
-# SAVES YOU TIME AND MONEY. FREE SOFTWARE.
-
-# INSTALL INSTRUCTIONS FOR Linux / macOS
-# (Windows not supported, it has different philosophy)
-
-# TODO: UPDATE!!!!!!!!
-
-# 1.
-# put this file into ~/.bash_aliases
-# curl -o ~/.bash_aliases https://elm-research.com/projects/bash_aliases.txt
-#
-# Make the shell load it:
-# type:
-# sudo nano /etc/profile
-#
-# add this to the end:
-#
-# # Alias definitions.
-# if [ -f /Users/[your name]/.bash_aliases ]; then
-#   . /Users/[your name]/.bash_aliases
-# fi
-#
-# You could also add this to ~/.bash_profile but it's better in /etc/profile because then you will have access to things defined here even when you are root
-#
-# To update in the future:
-# update
-#
-# You can also check the changelog before each update:
-# update_diff
-
-# 2.
-# place to put non-shareable stuff: /etc/.bash_aliases_custom
-
-# YOU CAN add your custom aliases or changes here please...
-# don't add them in this file for now, rather ask me (the author - davidhq) to update it, this is the only way to keep this file in sync for easy updates
-
-# 3.
-# ------------ TEST YOUR SETUP: ---------------
-# Open a new terminal tab and type:
-# l [enter]
-# or
-# count [enter]
-
-# You can always terminate commands that are running too long (shouldn't happen often and almost always by your own fault - for example running count on a big folder!)
-# with: CTRL+C
-
-# If you make some changes to ~/.bash_aliases_custom, you can type: rel [enter] to reload the environment without closing the tab and opening a new one
-
-# Learn about two useful metacommands for start: "rel" and "al"
-
-# -------------------------------------------------------
-
-# OPTIONAL:
-#
-# 4. DEPENDENCIES
-
-# Install some other dependencies that some functions use:
-# - Install "homebrew" awesome package manager for macOS based on the archaic Ruby language
-#
-# --- SSHRC
-# brew install sshrc
-#
-# This turbocharges this file even more because now you'll take it with you to whatever linux server you ssh into!
-# This file speeds up your command line in both, MacOS and Linux in the same exact way: it smoothes out the differences, vas majority of commands work the same on both
-# types of systems.
-#
-# Step 2 - create symlink to this file:
-# cd [this moves to home directory]
-# ln -s
-
-# -- coreutils (macOS)
-# brew install coreutils
-# provides gsort (used in "usage" for example) and other commands
-# also provides "gshuf"
-#
-# --- GNU GREP
-# brew install grep (gnu grep: install the command "ggrep")
-#
-# --- CLOC
-# npm install -g cloc (code analysis in addition to "loc" which .dmt provides)
-#
-# --- ACK
-# brew install ack
-#
-# Create ~/.ackrc with this contents:
-#
-# --type-add
-# ruby=.builder,.feature
-# --type-set
-# rackup=.ru
-# --type-set
-# elm=.elm
-# --type-set
-# livescript=.ls
-# --type-set
-# haml=.haml
-# --type-add
-# php=.phtml
-# --type-set
-# jsx=.jsx
-# --type-set
-# vue=.vue
-# --type-set
-# markdown=.markdown,.md,.mdown
-# --type-set=cache=.cache
-# --ignore-dir=.idea
-# --ignore-dir=tmp
-# --ignore-dir=photos
-# --ignore-dir=node_modules
-# --ignore-dir=bower_components
-# --ignore-dir=dist
-# --ignore-dir=.git
-# --ignore-dir=log
-# --ignore-dir=Godeps
-# --ignore-dir=elm-stuff
-# --ignore-dir=deps
-# --ignore-dir=build
-# --ignore-dir=_build
-# --ignore-dir=dist
-# --ignore-dir=Deps
-# --ignore-dir=vendor
-# --nocache
-#
-# --- HIGHLIGHT: highlight code in terminal (when using "t" command instead of "cat")
-# brew install highlight
-#
-# --- jq: parse .json in terminal
-# brew install jq
-#
-# --- latest version of RSYNC (only needed for macOS Sierra+, linux already has the latest version)
-# brew install rsync
-# needed because of --protect-args (https://unix.stackexchange.com/a/137285/135062) - used in dirsync function
-# if you want to rsync *to* macOS (rsync server is used), make sure to add /usr/local/bin to $PATH in ~/.bashrc so that it's loaded on ssh / rsync
-#
-# --- TREE: show directory and file structure
-# brew install tree
-#
-# --- COLORDIFF: colors in diffs (example: update_diff command that shows what would be updated with "update")
-# brew install colordiff
-#
-# --- GITSTATS
-# Todo: automatic install - detect os, ask for confirmation and install!!!
-# command: stats
-
-# 5. SYNCBOX
-#
-# mkdir ~/Syncbox
-# echo "pi@lab.local" > ~/.syncbox
-#
-# Commands:
-# push
-# pull
-
-# ----------------======---------------
-
-# + LOAD DMT DEPS
-
-# LOGNAME=$(logname 2>/dev/null)
-
-# # Returns error in two known occasions:
-# # 1) after "dmt update [device]" which calls "./install" *via ssh -e*
-# # 2) on linux machines when executing "se" (command in background screen)
-# if [ $? -ne 0 ]; then # error
-#   LOGNAME_HOME="$HOME"
-# else
-#   if macos; then
-#     #LOGNAME_HOME="/Users/$(whoami)"
-#     LOGNAME_HOME="$HOME"
-#   else
-#     LOGNAME_HOME="/home/$(logname)" # MAYBE IMPROVE??
-#   fi
-# fi
-
-# LOGNAME_HOME="$HOME"
-# DMT_PATH="$LOGNAME_HOME/.dmt"
-
-# syncbox="pi@dmt.local"
-
-# if [ -f ~/.syncbox ]; then
-#   syncbox=`cat ~/.syncbox`
-# fi
-
-# cp with progress and speed of the transfer
-alias cpp="rsync -ah --progress"
-
-function compile {
-  local cwd="`pwd`"
-  cd "$DMT_PATH/shell"
-  ./compile
-  cd "$cwd"
-}
-
-function symlink_if_unlinked {
-  local script="$DMT_NODE_CORE/.scripts/symlink_dmt_deps"
-
-  if [ -f "$script" ]; then
-
-    if [ ! -L "$DMT_NODE_CORE/dmt-bridge/node_modules" ]; then
-      local cwd="`pwd`"
-      cd "$DMT_NODE_CORE/.scripts"
-      ./symlink_dmt_deps
-      cd "$cwd"
-    fi
-  fi
-}
-
-function compile_gui_if_missing {
-  if [ ! -f "$DMT_NODE_CORE/dmt-gui/gui-frontend-core/app/public/bundle.js" ]; then
-    gui build
-  fi
-}
-
-# Reload the environment
-function rel {
-  if [ -f "$DMT_PATH/shell/compile" ]; then
-    compile
-  fi
-
-  if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-  fi
-  if [ -f ~/.bashrc ]; then
-    . ~/.bashrc
-  fi
-  if [ -f ~/.bash_profile ]; then
-    . ~/.bash_profile
-  fi
-}
-
-function loop {
-  while true; do "$@"; sleep 2; done
-}
-
-function latest {
-  local num=5
-  if [ -n "$1" ]; then
-    num="$1"
-  fi
-
-  ls -tp | grep -v /$ | head -"$num"
-}
-
-function newscript {
-  if [ -n "$1" ]; then
-    if [ -f "$1" ]; then
-      printf "${RED}File already exists${NC}\n"
-    else
-      echo "#!/usr/bin/env node" > "$1"
-      echo '"use strict"' >> "$1"
-      ux "$1"
-    fi
-  else
-    echo "Usage: newscript [file]"
-  fi
-}
-
-function os {
-  cat /etc/os-release
-}
-
-# ---------------------------
-
-function srv {
-  if [ -z "$1" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-
-    printf "${GREEN}srv [service]${NC} ${GRAY}show status${NC}\n"
-    printf "${GREEN}srv [service] [command]${NC} ${GRAY}run command, ex.: start|stop|reload|restart|enable|disable${NC}\n"
-    printf "${GREEN}srv [service] cat${NC} ${GRAY}show service specification${NC}\n"
-    printf "${GREEN}srv [service] edit${NC} ${GRAY}edit service specification${NC}\n"
-    printf "${GREEN}srv [service] log${NC} ${GRAY}see service log${NC}\n"
-    echo
-    printf "${GREEN}srv ls${NC} ${GRAY}show services in /etc/systemd/system${NC}\n"
-    printf "${GREEN}srv cd${NC} ${GRAY}move to /etc/systemd/system${NC}\n"
-    printf "${GREEN}srv cd2${NC} ${GRAY}move to /lib/systemd/system${NC}\n"
-
-    #printf "${GREEN}${NC} ${GRAY}${NC}\n"
-
-    echo
-
-    printf "Dir: ${MAGENTA}/etc/systemd/system${NC}\n"
-    printf "Dir (system): ${MAGENTA}/lib/systemd/system${NC}\n"
-
-    return
-  fi
-
-  if [ -z "$2" ]; then
-    if [ "$1" == "ls" ]; then
-      ls -la /etc/systemd/system/*.service
-    elif [ "$1" == "cd" ]; then
-      cd /etc/systemd/system
-    elif [ "$1" == "cd2" ]; then
-      cd /lib/systemd/system
-    else
-      sudo systemctl status "$1"
-    fi
-  elif [ "$2" == "cat" ]; then
-    local loc1="/etc/systemd/system/${1}.service"
-    local loc2="/lib/systemd/system/${1}.service"
-
-    if [ -f "$loc1" ]; then
-      printf "${YELLOW}Found${NC} ${GREEN}$loc1${NC}\n\n"
-      cat "$loc1"
-    elif [ -f "$loc2" ]; then
-      printf "${YELLOW}Found${NC} ${GREEN}$loc2${NC}\n\n"
-      cat "$loc2"
-    else
-      printf "${RED}unknown service $1${NC}\n"
-    fi
-  elif [ "$2" == "edit" ]; then
-    local loc1="/etc/systemd/system/${1}.service"
-    local loc2="/lib/systemd/system/${1}.service"
-
-    if [ -f "$loc1" ]; then
-      printf "${YELLOW}Found${NC} ${GREEN}$loc1${NC}\n\n"
-      sudo nano "$loc1"
-      sudo systemctl daemon-reload
-    elif [ -f "$loc2" ]; then
-      printf "${YELLOW}Found${NC} ${GREEN}$loc2${NC}\n\n"
-      sudo nano "$loc2"
-      sudo systemctl daemon-reload
-    else
-      printf "${RED}unknown service $1${NC}\n"
-    fi
-  elif [ "$2" == "log" ]; then
-    journalctl -u "${1}.service"
-  else
-    sudo systemctl "$2" "$1"
-  fi
-}
-
-###### Arduino
-
-alias esp8266="cd ~/Library/Arduino15/packages/esp8266/hardware/esp8266"
-
-function arduino {
-  awesome_cd ~/Documents/Arduino/libraries "$1"
-}
-
-###### Deps management
-
-function query {
-  if [ -z "$1" ]; then
-    for d in `ls -1 ~/Install/npm/` ; do
-      do_query "$d"
-    done
-    # this is faster (done in parallel), but:
-    # - we would need to move query out to ~/bin/query because xargs cannot work with functions
-    # - results would be in random order
-    #ls -1 ~/Install/npm | xargs -n 1 -P 10 query
-  else
-    local matching_folder=''
-    get_matching_folder matching_folder ~/Install/npm "$1"
-    matching_folder=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_folder")
-
-    if [ -n "$matching_folder" ]; then
-      do_query "$matching_folder"
-    else
-      printf "${RED}$1 doesn't match any package in ~/Install/npm${NC}\n"
-    fi
-  fi
-}
-
-function do_query {
-  local matches=$(ls -l /usr/local/lib/node_modules | grep "$1" | wc -l)
-  if [ ! $matches -eq 0 ]; then
-    version=$(version "/usr/local/lib/node_modules/${1}")
-    matches=$(ls -l /usr/local/lib/node_modules | grep "Install/npm" | grep "$1" | wc -l)
-
-    if [ $matches == 0 ]; then
-      printf "${YELLOW}${1} ${version} (unstable)${NC}\n"
-    else
-      printf "${GREEN}${1} ${version} (stable)${NC}\n"
-    fi
-  else
-    printf "${RED}${1} (not linked)${NC}\n"
-  fi
-}
-
-
-
-######
-
 function message {
   if [ -z "$1" ]; then
     echo "Usage: message msg [title]"
@@ -394,17 +10,6 @@ function message {
     fi
     osascript -e "display notification \"$1\" with title \"$title\""
   fi
-}
-
-function ctrl_c_trap() {
-  CTRL_C=true # crap, still doesn't get called in time!!!
-  echo "** Trapped CTRL-C in ~/.bash_aliases"
-}
-
-# warning: STAYS FOREVER INSIDE TERMINAL CONSOLE after first set
-function set_ctrl_c_trap {
-  CTRL_C=false
-  trap ctrl_c_trap INT
 }
 
 function convert_to_seconds {
@@ -503,10 +108,7 @@ function timer {
           ;;
       esac
 
-      # following check won't matter because CTRL_C is not actually set to TRUE yet even if trap function ctrl_c_trap was supposedly called first (?)
-      #if [ -z ${CTRL_C+x} ] || [ $CTRL_C] ; then
-      #  echo $CTRL_C
-      if macos; then
+      if dmt_macos; then
         shift
         local msg="$@"
         if [ -n "$msg" ]; then
@@ -530,19 +132,23 @@ function sleepmin {
   fi
 }
 
+# Usage:
+# "al [any function name]" to see the source for the function directly in terminal without having to open source files
+function al {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}al [function]${NC} ${GRAY}show bash function source${NC}\n"
+    return
+  fi
 
-function find_recent() {
-  find . -type f -mmin -$1 -not -name .DS_Store -exec ls -lh {} \; | sed 's/\.\///' | awk '{print $5, substr($0,index($0,$9))}'
-  #| cut -d' ' -f6-
+  which highlight > /dev/null 2>&1
+
+  if [ $? -eq 0 ]; then
+    type "$1" | highlight -O xterm256 -s darkbone --syntax bash
+  else
+    type "$1"
+  fi
 }
-
-alias min="find_recent 2"
-alias hour="find_recent 60"
-alias day="find_recent 1440"
-
-alias mk="mkdir"
-alias mkp="mkdir -p"
-k () { mkdir -p "$@" && cd "$_"; }
 
 # sum column of numbers...
 # 1 lala
@@ -551,10 +157,6 @@ k () { mkdir -p "$@" && cd "$_"; }
 function total {
   cat $1 | awk '{s+=$1} END {printf "Sum: %.0f\n", s}'
 }
-
-# iterm2
-alias normal='echo -e "\033]50;SetProfile=Default\a"'
-alias large='echo -e "\033]50;SetProfile=LargeFont\a"'
 
 #brew install highlight
 #alias pcat="pygmentize -f terminal256 -O style=monokai -g"
@@ -610,7 +212,7 @@ function usage_for {
 }
 
 function usage {
-  if macos; then
+  if dmt_macos; then
     find . -maxdepth 1 -type d -print0 | xargs -0 -I{} du -sh {} | gsort -hr # probably need: "brew install coreutils" for gsort
   else
     find . -maxdepth 1 -type d -print0 | xargs -0 -I{} du -sh {} | sort -hr
@@ -667,91 +269,6 @@ function countr {
   # Compare: diff ~/Desktop/a.txt ~/Desktop/b.txt
   find "$dir/" ! -path "*/.DS_Store" ! -path "*/.git/*" -type f | wc -l | xargs
   printf "${NC}"
-}
-
-function lines {
-  if [ -z "$1" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    printf "${GREEN}lines [file.txt] ${GRAY}counts the number of lines in the file${NC}\n"
-  else
-    cat "$1" | wc -l
-  fi
-}
-
-function space2rem {
-  if [ "$EUID" -ne 0 ]; then
-    echo "please run under root - execute: root"
-    return
-  fi
-  find /var/folders -name "*.iscachebmp" -type f -exec rm -v "{}" \;
-  find /private/var/folders -name "*.iscachebmp" -type f -exec rm -v "{}" \;
-}
-
-# swap files or directories
-function swap {
-  if [ -n "$1" ] && [ -n "$2" ]; then
-    swap_once "$1" "$2"
-  elif [ -f "config.json.sample" ] && [ -f "config.json" ]; then
-    swap_once "config.json.sample" "config.json"
-  elif [ -f "david_wallet" ] && [ -f "default_wallet" ]; then
-    swap_once "david_wallet" "default_wallet"
-  fi
-}
-
-function swap_once {
-  mv "$1" /tmp/switch_temp
-  mv "$2" "$1"
-  mv /tmp/switch_temp "$2"
-}
-
-function sleepin {
-  if [ -z "$1" ]; then
-    printf "${YELLOW}Usage:${NC} sleepin 10 (min)\n"
-  else
-    local delay=$(($1*60))
-    sleep $delay && pmset sleepnow # with && - if you cancel with ctrl+c it works correctly (semicolon doesn't!)
-  fi
-}
-
-# ping server (ex. server.com) or "resource" (http://server.com/file)
-function pi {
-  local target="1.0.0.1"
-  if [ -n "$1" ]; then
-    if [[ "$1" =~ \/ ]]; then
-      if [[ $(curl -I --write-out %{http_code} --silent --output /dev/null "$@") == "200" ]]; then
-        printf "${GREEN}✓ CurlPing OK, Returned status 200${NC}\n"
-      else
-        printf "${RED}✖ NOT FOUND${NC}\n"
-      fi
-    else
-      printf "${GRAY}Pinging ${@} ...${NC}\n"
-      if [[ $(ping -c 1 "$@" 2>&1) == *"0% packet loss"* ]]; then
-        printf "${GREEN}✓ Ping OK${NC}\n"
-      else
-        printf "${RED}✖ NO CONN${NC}\n"
-      fi
-    fi
-  else
-    printf "${GRAY}Pinging ${target} ...${NC}\n"
-    if [[ $(ping -c 1 "$target" 2>&1) == *"0% packet loss"* ]]; then
-      printf "${GREEN}✓ Ping OK${NC}\n"
-    else
-      printf "${RED}✖ NO CONN${NC}\n"
-    fi
-  fi
-}
-
-function ux {
-  matching_file=''
-  get_matching_file matching_file "$1"
-  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
-
-  if [ -f "$matching_file" ]; then
-    printf "chmod u+x ${YELLOW}$matching_file${NC}\n"
-    chmod u+x "$matching_file"
-  else
-    printf "${RED}File not found${NC}\n"
-  fi
 }
 
 function flash_usage {
@@ -837,7 +354,7 @@ function flash {
 
       if [ -f "image.img" ]; then
         sudo chown $(whoami) image.img
-        if macos; then
+        if dmt_macos; then
           sudo chgrp staff image.img
         fi
       fi
@@ -873,58 +390,6 @@ function flash {
         printf "${GREEN}done.${NC} ${YELLOW}You can take the SD card out now.${NC}\n"
       fi
     fi
-  fi
-}
-
-function md {
-  if [ -f "$1" ] || [ -d "$1" ]; then
-    mv "$1" ~/Desktop
-    if [ $? -eq 0 ]; then
-      printf "${YELLOW}Moved ${1} to ~/Desktop\n"
-    fi
-  else
-    printf "${RED}No such file or directory${NC}\n"
-  fi
-}
-
-alias vlc="open -n /Applications/VLC.app"
-
-# Requirement for static server: npm install -g http-server
-# Other: elixir, mina, jekyll, node, npm
-function serve {
-  if [ -f ./server ]; then
-    printf "${YELLOW}./server $1${NC}\n"
-    ./server $1
-  elif [ -f ./mix.exs ]; then
-    printf "${YELLOW}mix phoenix.server${NC}\n"
-    mix phoenix.server
-    # or: iex -S mix phoenix.server
-  elif [ -f ./server.js ]; then
-    printf "${YELLOW}node server.js${NC}\n"
-    node server.js
-  elif [ -f ./package.json ] && [ $(ls-scripts | grep 'serve' | wc -l) -gt 0 ]; then
-    npm run serve
-  # npm install -g npm-ls-scripts
-  elif [ -f ./package.json ] && [ $(ls-scripts | grep '^start' | wc -l) = 1 ]; then
-    printf "${YELLOW}npm run start${NC}\n"
-    npm run start
-  elif [ -f ./truffle.js ]; then
-    printf "${YELLOW}testrpc --port 8700${NC}\n"
-    testrpc --port 8700
-  elif [ -f ./index.js ]; then
-    local args=$@
-    printf "${YELLOW}nodemon index.js ${args}${NC}\n"
-    nodemon index.js $args
-  elif [ -f ./elm-package.json ]; then
-    printf "${YELLOW}elm reactor${NC}\n"
-    elm reactor
-    #elm-reactor
-  elif [ -d _site ]; then
-    printf "${YELLOW}jekyll serve${NC}\n"
-    jekyll serve
-  else
-    printf "${YELLOW}http-server -p 3000${NC}\n"
-    http-server -p 3000
   fi
 }
 
@@ -994,25 +459,16 @@ function loc {
   fi
 }
 
-function stats {
-  local tempdir=$(mktemp -d)
-  if [ -d ".git" ]; then
-    gitstats . "$tempdir"
-    open "$tempdir/authors.html"
+function md {
+  if [ -f "$1" ] || [ -d "$1" ]; then
+    mv "$1" ~/Desktop
+    if [ $? -eq 0 ]; then
+      printf "${YELLOW}Moved ${1} to ~/Desktop\n"
+    fi
   else
-    printf "${RED}Not a git repo...${NC}\n"
+    printf "${RED}No such file or directory${NC}\n"
   fi
 }
-
-function loct {
-  loc "all" "total"
-}
-
-# alias deb="DEBUG=true"
-
-# function diag {
-#   echo "DIAGNOSTICS for the project: to implement"
-# }
 
 function a {
   if [ -z "$1" ]; then
@@ -1028,9 +484,6 @@ function a {
       else
         command ack "$1" -i -Q -- "$2"
       fi
-    # if [[ $@ == *--* ]]; then
-    #   # ack --ruby something
-    #   command ack -i -Q "$@"
     else
       # -k flag to say "Only search the files that ack recognizes the types for"
       if [ -n "$2" ]; then

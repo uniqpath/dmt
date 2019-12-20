@@ -1,0 +1,8 @@
+#!/bin/bash
+
+. ~/.dmt/shell/.bash_util
+. ~/.dmt/shell/.bash_dmt_vars
+. ~/.dmt/shell/.bash_dmt_search
+. ~/.dmt/shell/.bash_dmt_media
+. ~/.dmt/shell/.bash_dmt
+

@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [ -n "$ZSH_VERSION" ]; then
+
+  # we source these functions from zsh
+  # but we can run bash script (~/.dmt/bin/dmt) that loads these... and that's what we do for zsh
+  export PATH="$HOME/.dmt/bin:$PATH"
+
+  # we don't have any other command except "dmt" in zsh... so no other possible global or user functions or aliases ...
+
+elif [ -n "$BASH_VERSION" ]; then
+
+  . ~/.dmt/shell/.basic
+
+  if [ -f ~/.dmt/shell/.full ] && [ -f "$DMT_USER_DEF_FILE" ]; then
+    __user_shell=''
+
+    dmt_def_reader __user_shell "$DMT_USER_DEF_FILE" "shell"
+
+    if [ $__user_shell == "full" ]; then
+      . ~/.dmt/shell/.full
+    fi
+  fi
+
+  if [ -f ~/.dmt/shell/.bash_staging ]; then
+    . ~/.dmt/shell/.bash_staging
+  fi
+
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # ~~~~~~~~~~~~~~~~~~~~~~~ KEEP THESE AS LAST LINES ~~~~~~~~~~~~~~~~~~~~~~~
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  if [ -f ~/.dmt/user/shell/.bash_user ]; then
+    . ~/.dmt/user/shell/.bash_user
+  fi
+
+  if [ -f ~/.dmt/user/devices/this/shell/.bash_device ]; then
+    . ~/.dmt/user/devices/this/shell/.bash_device
+  fi
+
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+fi
+

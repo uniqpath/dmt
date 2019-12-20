@@ -35,7 +35,7 @@ DMT_RUNTIMES=(node rust)
 DMT_SCRIPTS="$DMT_PATH/etc/scripts"
 
 DMT_PLATFORM=""
-if macos; then
+if dmt_macos; then
   DMT_PLATFORM="darwin"
 elif [ "$OSTYPE" == "linux-gnu" ]; then
   DMT_PLATFORM="linux-x64"

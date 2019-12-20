@@ -461,7 +461,7 @@ function dirsync {
       params="${params} --delete-excluded"
     fi
 
-    if macos && [ `which rsync` != "/usr/local/bin/rsync" ]; then
+    if dmt_macos && [ `which rsync` != "/usr/local/bin/rsync" ]; then
       printf "${YELLOW}Warning: using old version of rsync (where spaces in filenames can cause issues).${NC}\n"
       printf "${CYAN}Fix:${NC} brew install rsync\n"
     else

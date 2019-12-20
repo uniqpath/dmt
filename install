@@ -65,16 +65,19 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       cd "$cwd"
     fi
 
-    if [ -f "$HOME/.bash_aliases" ] || [ -L "$HOME/.bash_aliases" ]; then # -L : we check for broken symlink (-f would return true for working symlink but not for a broken one)
-      if [ -f "$HOME/.bash_aliases" ] && [ "$(head -3 "$HOME/.bash_aliases" | tail -1)" == "# DMT ALIASES" ]; then
-        rm "$HOME/.bash_aliases"
-      else
-        mv "$HOME/.bash_aliases" "$HOME/.bash_aliases-backup-by-dmt"
-        #printf "\n${GRAY}Backed up $HOME/.bash_aliases → $HOME/.bash_aliases-backup-by-dmt${NC}\n\n"
-      fi
-    fi
+    "$DMT_PATH/shell/.inject"
 
-    ln -s "$COMPILED_BASH_ALIASES" "$HOME/.bash_aliases"
+    # REMOVED
+    #
+    # if [ -f "$HOME/.bash_aliases" ] || [ -L "$HOME/.bash_aliases" ]; then # -L : we check for broken symlink (-f would return true for working symlink but not for a broken one)
+    #   if [ -f "$HOME/.bash_aliases" ] && [ "$(head -3 "$HOME/.bash_aliases" | tail -1)" == "# DMT ALIASES" ]; then
+    #     rm "$HOME/.bash_aliases"
+    #   else
+    #     mv "$HOME/.bash_aliases" "$HOME/.bash_aliases-backup-by-dmt"
+    #   fi
+    # fi
+
+    # ln -s "$COMPILED_BASH_ALIASES" "$HOME/.bash_aliases"
 
     # run after-install (=after-update) hooks
 
@@ -92,30 +95,22 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
 
     echo
 
-    printf "${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname) ${GRAY}(you may need to reload the terminal tab)${NC}\n"
-
-    if [ ! -d "$DMT_PATH/user" ]; then
-      echo
-      printf "${GREEN}~/.dmt/user ${CYAN}directory was not present, created a sample one from ${GREEN}~/.dmt/etc/sample_user${NC}\n"
-      cp -r "$DMT_PATH/etc/sample_user" "$DMT_PATH/user"
-
-      printf "${YELLOW}Identifying this device as ${CYAN}~/.dmt/user/devices/my_computer${NC} (you can use ${GREEN}dmt device select${NC} to adjust)\n"
-      cwd="`pwd`"
-      cd "$DMT_PATH/user/devices"
-      ln -s my_computer this
-      cd "$cwd"
-    fi
-
+    printf "${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname).${NC}\n"
     echo
-    printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${GRAY}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
-    printf "${GRAY}Project website — ${MAGENTA}dmt-system.com${NC}\n"
+    printf "${GRAY}Project website — ${MAGENTA}dmt-system.com ${GRAY}/ ${CYAN}github.com/uniqpath/dmt${NC}\n"
+    echo
+    printf "Enter ${GREEN}dmt${NC} command to see the options 💡${YELLOW}\n"
+    printf "${GRAY}----------------------------------------${NC}\n"
+    printf "To start ${CYAN}dmt-proc${NC} with visible log output enter ${GREEN}dmt startfg${NC}\nand to start normally in background enter ${GREEN}dmt start${NC}\n\n"
+    printf "⚠️  If ${GREEN}dmt ${GRAY}command doesn't work ${RED}open new terminal${GRAY} or ${CYAN}source ~/.dmt/shell/.bash_dmt_loader ${GRAY}${NC}\n\n"
+
 
     # printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${MAGENTA}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
     # printf "${GRAY}If this works, then try to log out of terminal and back in.${NC}\n"
     # printf "${GRAY}If it still works, ${GREEN}then everything is set up correctly.${NC}\n"
     # printf "${GRAY}If not, read the docs at ${CYAN}https://github.com/uniqpath/dmt/blob/master/INSTALL.md${NC}\n"
 
-    . "$HOME/.bash_aliases"
+    #. "$HOME/.bash_aliases"
 
 else # clone to and install on remote device
 

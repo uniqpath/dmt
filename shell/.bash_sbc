@@ -17,7 +17,7 @@ function mac {
 # dep for reload:
 # sudo apt-get install -y xdotool
 function kiosk {
-  if macos; then
+  if dmt_macos; then
     printf "${RED}Cannot run on macOS${NC}\n"
     return
   fi
@@ -102,7 +102,7 @@ function kiosk {
 
 function shut {
 
-  if ! macos && [ -f "/etc/fstab" ] ; then
+  if ! dmt_macos && [ -f "/etc/fstab" ] ; then
     which lsblk > /dev/null 2>&1
 
     # lsblk exists
@@ -123,7 +123,7 @@ function shut {
         local label=$(echo "$line" | awk '{print $1}' | sed 's/LABEL=//')
         local path=$(echo "$line" | awk '{print $2}')
 
-        array_contains_element "$label" "${labels[@]}"
+        dmt_array_contains_element "$label" "${labels[@]}"
 
         if [ $? -eq 0 ]; then
           if [ ! -d "$path" ]; then
@@ -142,7 +142,7 @@ function shut {
   fi
 
   if [ "$1" == 'reboot' ] || [ "$1" == 'r' ]; then
-    if is_rpi; then
+    if dmt_is_rpi; then
       # fix: "This profile appears to be in use by another Chromium process (543)...""
       if [ -d /home/pi/.config/chromium ]; then
         rm /home/pi/.config/chromium/Singleton*
@@ -191,7 +191,7 @@ function shut {
 
 function execute_shutdown {
   printf "${RED}Shutting down...${NC}\n"
-  if macos; then
+  if dmt_macos; then
     off
   else
     #save_dmt_state
@@ -225,7 +225,7 @@ function part {
 }
 
 function fix_chromium {
-  if is_rpi; then
+  if dmt_is_rpi; then
     rm -rf /home/pi/.config/chromium/Singleton*
     printf "${GREEN}Fixed ${GRAY}'This profile appears to be in use by another Chromium process' ${GREEN}problem.${NC}\n"
   else
@@ -263,7 +263,7 @@ function mon {
     return
   fi
 
-  if is_rpi; then
+  if dmt_is_rpi; then
 
     if [ -z "$1" ] || [ "$1" == "on" ]; then
       monitor_on
@@ -294,7 +294,7 @@ function gpio {
   fi
 
   local matching_opt=''
-  opts_matcher matching_opt "$1" "${opts[@]}"
+  dmt_opts_matcher matching_opt "$1" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     printf "Use -h to see valid options\n\n"
     return

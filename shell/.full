@@ -1,0 +1,16 @@
+#!/bin/bash
+
+. ~/.dmt/shell/.bash_fs
+. ~/.dmt/shell/.bash_general
+
+. ~/.dmt/shell/.bash_conf_and_log
+. ~/.dmt/shell/.bash_process
+. ~/.dmt/shell/.bash_git
+. ~/.dmt/shell/.bash_sbc
+. ~/.dmt/shell/.bash_devices
+
+. ~/.dmt/shell/.bash_core_helpers
+. ~/.dmt/shell/.bash_networking
+. ~/.dmt/shell/.bash_electronics
+. ~/.dmt/shell/.bash_dep
+. ~/.dmt/shell/.bash_sbc
