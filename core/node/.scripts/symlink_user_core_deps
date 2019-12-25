@@ -1,0 +1,75 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# HELPER FUNCTIONS
+. "$DIR/helpers"
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+# deps from ~/.dmt/user/core/node/node_modules/[dep] to ~/.dmt/core/node/[aspect/dep]
+declare -a DepList=(
+  "dmt-bridge"
+  "dmt-notify"
+  "aspect-iot/dmt-iot"
+)
+
+arg="$1"
+
+user_node_core="$DIR/../../../user/core/node"
+user_node_modules="$user_node_core/node_modules"
+
+mkdir -p "$user_node_modules"
+
+pkg_file="${user_node_core}/package.json"
+
+if [ ! -f "$pkg_file" ]; then
+cat >"$pkg_file" <<EOL
+{
+  "type": "module"
+}
+EOL
+fi
+
+index_file="${user_node_core}/index.js"
+
+if [ ! -f "$index_file" ]; then
+cat >"$index_file" <<EOL
+import dmt from 'dmt-bridge';
+const { log } = dmt;
+
+function init(program) {
+  log.write('user core template init function called, see ~/.dmt/user/core/node/index.js');
+  log.write('see https://github.com/uniqpath/dmt/blob/master/help/USER_CORE_FRAMEWORK.md')
+}
+
+export default { init };
+EOL
+fi
+
+for dep in "${DepList[@]}"; do
+
+  dmt_dep_without_aspect=''
+  aspect=''
+  parse_dep_aspect dmt_dep_without_aspect aspect "$dep"
+
+  dep_symlink="${user_node_modules}/${dmt_dep_without_aspect}"
+  if [ "$arg" == "remove" ]; then
+    if [ -L "$dep_symlink" ]; then
+      rm "$dep_symlink"
+    fi
+  else
+    if [ ! -L "$dep_symlink" ]; then
+      ln -s "../../../../core/node/${dep}" "$dep_symlink"
+    fi
+  fi
+done

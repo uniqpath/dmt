@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# HELPER FUNCTIONS
+. ./helpers
+
 # DEFINE COLORS
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
@@ -51,27 +54,12 @@ declare -a DepList=(
   "aspect-meta/dmt-meta"
   "aspect-meta/dmt-replicate"
   "aspect-meta/dmt-sysinfo"
+
+  "dmt-integrations"
+  "aspect-integrations/dmt-twitter"
 )
 
 # HELPER FUNCTIONS
-
-function parse_dep_aspect() {
-  local dep="$3"
-  local _dmt_dep_without_aspect=''
-  local _aspect=''
-
-  arr=(${dep/\// }) # split on /
-  _aspect=''
-  if [ ${#arr[@]} == 1 ]; then
-    _dmt_dep_without_aspect="$arr"
-  else
-    _dmt_dep_without_aspect="${arr[@]:1}" # take everything except first el
-    _aspect="${arr[0]}"
-  fi
-
-  eval "$1='${_dmt_dep_without_aspect}'"
-  eval "$2='${_aspect}'"
-}
 
 function manage_symlink_pkg_node_modules_to_common_deps_node_modules() {
   local arg="$1"
@@ -267,20 +255,22 @@ if [ -d "$dir" ]; then
   # special treatment
   manage_symlink_dmt_external_node_modules "$arg" "$check"
 
-  if ! $check; then
-    if [ "$arg" == "remove" ]; then
-      printf "${YELLOW}symlinks removed${NC}\n"
-    else
-      printf "${GREEN}symlinks created${NC}\n"
-    fi
-  fi
+  # if ! $check; then
+  #   if [ "$arg" == "remove" ]; then
+  #     printf "${YELLOW}symlinks removed${NC}\n"
+  #   else
+  #     printf "${GREEN}symlinks created${NC}\n"
+  #   fi
+  # fi
 
   # !! call to symlink frontend !!
   # ./symlink_dmt_gui
 
   cd "$cwd"
-  echo
-  printf "${GREEN}Done.${NC}\n"
+  # echo
+  # printf "${GREEN}Done.${NC}\n"
 else
   echo "Missing $dir"
 fi
+
+./symlink_user_core_deps "$arg"

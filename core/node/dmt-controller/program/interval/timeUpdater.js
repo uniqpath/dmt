@@ -17,6 +17,8 @@ function rolloverSecondDetect(program) {
   const minute = today.getMinutes();
 
   if (second == 0 && (lastDetectedMinute == null || lastDetectedMinute != minute)) {
+    program.emit('minute_rollover');
+
     updateTime(program, { announce: true });
     lastDetectedMinute = today.getMinutes();
   }

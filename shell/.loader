@@ -10,32 +10,39 @@ if [ -n "$ZSH_VERSION" ]; then
 
 elif [ -n "$BASH_VERSION" ]; then
 
-  . ~/.dmt/shell/.basic
+  # relative to current file
+  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-  if [ -f ~/.dmt/shell/.full ] && [ -f "$DMT_USER_DEF_FILE" ]; then
+  . "$DIR/.basic"
+
+  if [ -f "$DMT_USER_DEF_FILE" ]; then
     __user_shell=''
 
     dmt_def_reader __user_shell "$DMT_USER_DEF_FILE" "shell"
 
-    if [ $__user_shell == "full" ]; then
-      . ~/.dmt/shell/.full
+    if [ -f "$DIR/.full" ] && [[ "$__user_shell" =~ ^full ]]; then
+      . "$DIR/.full"
+    fi
+
+    if [ -f "$DIR/.bash_custom" ] && [ "$__user_shell" == "full_with_prompt" ]; then
+      . "$DIR/.bash_custom"
     fi
   fi
 
-  if [ -f ~/.dmt/shell/.bash_staging ]; then
-    . ~/.dmt/shell/.bash_staging
+  if [ -f "$DIR/.bash_staging" ]; then
+    . "$DIR/.bash_staging"
   fi
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ~~~~~~~~~~~~~~~~~~~~~~~ KEEP THESE AS LAST LINES ~~~~~~~~~~~~~~~~~~~~~~~
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  if [ -f ~/.dmt/user/shell/.bash_user ]; then
-    . ~/.dmt/user/shell/.bash_user
+  if [ -f "$DMT_USER_PATH/shell/.bash_user" ]; then
+    . "$DMT_USER_PATH/shell/.bash_user"
   fi
 
-  if [ -f ~/.dmt/user/devices/this/shell/.bash_device ]; then
-    . ~/.dmt/user/devices/this/shell/.bash_device
+  if [ -f "$DMT_USER_PATH/devices/this/shell/.bash_device" ]; then
+    . "$DMT_USER_PATH/devices/this/shell/.bash_device"
   fi
 
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

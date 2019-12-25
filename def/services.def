@@ -1,11 +1,10 @@
 # meta-service to act as a rpc receiver
-# which then delegates to defined services like
+# which then delegates to some other services like
 # controller, search and player etc.
 service: rpc
   port: 3850
   symbol: 💡
 
-# services can be "whatever"
 service: gui
   port: 7777
 
@@ -15,8 +14,9 @@ service: gui
   wsPort: 7780
   symbol: 🌐
 
-# see? Whatever!
 service: player
   symbol: 🎸
   maxResults: 30
 
+service: replicate
+  port: 1111

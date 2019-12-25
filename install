@@ -1,18 +1,7 @@
 #!/bin/bash
 
-source "./shell/.bash_util"
-source "./shell/.bash_dmt_vars"
-source "./shell/.bash_general"
-source "./shell/.bash_networking"
-source "./shell/.bash_devices"
-source "./shell/.bash_dep"
-source "./shell/.bash_update"
-
-FROM_DMT_INSTALL=false
-if [ "$1" == "from-dmt-install" ]; then
-  FROM_DMT_INSTALL=true
-  shift
-fi
+# basic functions -- we need this for color definitions etc.
+. ./shell/.basic
 
 arg="$1"
 
@@ -23,15 +12,24 @@ if [ "$arg" == "--help" ] || [  "$arg" == "-h" ]; then
   echo
   printf "${YELLOW}Usage:${NC}\n"
 
-  if $FROM_DMT_INSTALL; then
-    printf "${GREEN}dmt install user@host ${GRAY}installs on user@host${NC}\n"
-  else
-    printf "${GREEN}$0${GRAY} link-installs current directory on this device${NC}\n"
-    printf "${GREEN}$0 user@host ${GRAY}installs on user@host, shortcut ${GREEN}$0 ap ${GRAY}installs on ${DMT_AP_DEFAULT_HOST}${NC}\n"
-  fi
+  printf "${GREEN}$0${GRAY} install on this device${NC}\n"
+  printf "${GREEN}$0 user@host ${GRAY}installs on user@host, shortcut ${GREEN}$0 ap ${GRAY}installs on ${DMT_AP_DEFAULT_HOST}${NC}\n"
 
   exit
 fi
+
+# this install script is used in two scenarios:
+#
+# A) after we get the ~/.dmt directory (for example by cloning the https://github.com/uniqpath/dmt repo)
+#    it sets up basic things and doesn't do anything outside of ~/.dmt directory except add one line to
+#    ~/.bash_profile, ~/.bashrc or ~/.zshrc (as appropriate) which then enables the user to have access
+#    to "dmt" command to be able to manipulate (start, stop, restart) the "dmt-proc" (dmt process -
+#    a main component of dmt-system).
+#
+# B) if install script is called with one argument (user@host), then it will
+#    - first rsync our entire ~/.dmt directory to that device
+#    - call this same ./install script without any arguments on that device to set it up in the same way
+#      as it set up this device
 
 DMT_BASH_PATH="$HOME/.dmt/shell"
 
@@ -46,6 +44,8 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
 
     COMPILED_BASH_ALIASES="$HOME/.dmt/etc/.bash_aliases_bundle"
 
+    # 1.) we concatenate all dmt shell scripts into one file -- .bash_aliases_bundle
+    #     this file is sourced from some scripts as needed but is not loaded by default in user's shell
     compile
 
     if [ ! -f "$COMPILED_BASH_ALIASES" ]; then
@@ -53,9 +53,11 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       exit
     fi
 
+    # 2.) we create some needed empty dirs
     mkdir -p "$DMT_STATE"
     mkdir -p "$DMT_PATH/log"
 
+    # 3.) if there is no ~/.dmt/user directory, we copy the pre-defined sample user from ~/.dmt/etc/sample_user
     if [ ! -d "$DMT_PATH/user" ] && [ -d "$DMT_PATH/etc/sample_user" ]; then
       cp -r "$DMT_PATH/etc/sample_user" "$DMT_PATH"
       mv "$DMT_PATH/sample_user" "$DMT_PATH/user"
@@ -65,21 +67,18 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
       cd "$cwd"
     fi
 
+    # 4.) ~/.dmt/shell/.inject script will add one line to the end of ~/.bash_profile, ~/.bashrc or ~/.zshrc:
+    # if [ -f ~/.dmt/shell/.loader ]; then . ~/.dmt/shell/.loader; fi # Added by dmt-system (see https://github.com/uniqpath/dmt)
+    # this line sources our .loader which then sources only the "dmt" shell command by default but can source more if
+    # an appropriate option "shell: full" is found inside ~/.dmt/user/def/user.def
     "$DMT_PATH/shell/.inject"
 
-    # REMOVED
-    #
-    # if [ -f "$HOME/.bash_aliases" ] || [ -L "$HOME/.bash_aliases" ]; then # -L : we check for broken symlink (-f would return true for working symlink but not for a broken one)
-    #   if [ -f "$HOME/.bash_aliases" ] && [ "$(head -3 "$HOME/.bash_aliases" | tail -1)" == "# DMT ALIASES" ]; then
-    #     rm "$HOME/.bash_aliases"
-    #   else
-    #     mv "$HOME/.bash_aliases" "$HOME/.bash_aliases-backup-by-dmt"
-    #   fi
-    # fi
+    # 4.) run after-install (=after-update) hooks
 
-    # ln -s "$COMPILED_BASH_ALIASES" "$HOME/.bash_aliases"
-
-    # run after-install (=after-update) hooks
+    # This is useful mostly only in the second (B) case after we ./install is called on remote device (via "dmt update user@host")
+    # "$HOME/.dmt/etc/deploy_hooks/after-update" contains just one important line
+    # node "${DMT_NODE_CORE}/dmt-gui/gui-backend/ws_servers/index.js" localhost reload gui
+    # -- this is used to send the "reload" command to all connected guis so that they reload possible changes that arrived on update (sync)
 
     # general deploy hooks -- all devices
     after_update_hook="$HOME/.dmt/etc/deploy_hooks/after-update"
@@ -101,18 +100,14 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
     echo
     printf "Enter ${GREEN}dmt${NC} command to see the options 💡${YELLOW}\n"
     printf "${GRAY}----------------------------------------${NC}\n"
-    printf "To start ${CYAN}dmt-proc${NC} with visible log output enter ${GREEN}dmt startfg${NC}\nand to start normally in background enter ${GREEN}dmt start${NC}\n\n"
-    printf "⚠️  If ${GREEN}dmt ${GRAY}command doesn't work ${RED}open new terminal${GRAY} or ${CYAN}source ~/.dmt/shell/.bash_dmt_loader ${GRAY}${NC}\n\n"
+    printf "To start ${CYAN}dmt-proc${NC} with visible log output enter ${GREEN}dmt startfg${NC} 🚀\nand to start normally in background enter ${GREEN}dmt start${NC} 🚀\n\n"
+    printf "⚠️  If ${GREEN}dmt ${GRAY}command doesn't work ${MAGENTA}open new terminal${GRAY} or ${CYAN}source ~/.dmt/shell/.bash_dmt_loader ${GRAY}${NC}\n\n"
 
-
-    # printf "Enter ${GREEN}dmt help${NC} to start. ${YELLOW}If it doesn't work, try ${MAGENTA}source ~/.bash_aliases ${YELLOW}first.${NC}\n\n"
-    # printf "${GRAY}If this works, then try to log out of terminal and back in.${NC}\n"
-    # printf "${GRAY}If it still works, ${GREEN}then everything is set up correctly.${NC}\n"
-    # printf "${GRAY}If not, read the docs at ${CYAN}https://github.com/uniqpath/dmt/blob/master/INSTALL.md${NC}\n"
-
-    #. "$HOME/.bash_aliases"
 
 else # clone to and install on remote device
+
+    # we need this for dirsync, remote and get_full_host functions
+    . ./shell/.full
 
     host="$arg"
 

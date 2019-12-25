@@ -15,7 +15,7 @@ const MidLoader = require('./middleware');
 
 const initIntervalTicker = require('./interval');
 const { setupTimeUpdater } = require('./interval/timeUpdater');
-const onProgramTick = require('./onProgramTick');
+const onProgramTick = require('./interval/onProgramTick');
 
 const Network = require('../network');
 

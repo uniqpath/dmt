@@ -88,7 +88,7 @@ class MidLoader {
 
     const midDirectory = path.join(dmt.dmtPath, `core/node/${dir}`);
     if (!fs.existsSync(midDirectory)) {
-      log.cyan(`${colors.magenta(midPkgName)} middleware ${colors.white('is not present')}`);
+      log.cyan(`${colors.red('✖')} ${colors.magenta(midPkgName)} middleware ${colors.white('is not present')}`);
       return;
     }
 

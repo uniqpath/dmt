@@ -44,7 +44,7 @@ function dmt {
   declare -a opts=(
     "help"
     "info"
-    "gui_test"
+    "gui"
     "status"
     "version"
     "device"
@@ -182,13 +182,14 @@ function dmt {
       reload_shell
       ;;
 
-    gui_test)
+    gui)
       if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" gui_test "$@"
+        dmt_gui "$hosts" "$@"
       else
-        if [ -n "$dmt_proc_pid" ]; then
-          node "$DMT_CLI" gui_test "$@"
-        fi
+        # if [ -n "$dmt_proc_pid" ]; then
+        #   node "$DMT_CLI" gui_test "$@"
+        # fi
+        dmt_gui "@this" "$@"
       fi
       ;;
 
@@ -319,7 +320,7 @@ function dmt {
         return
       fi
 
-      symlink_if_unlinked
+      dmt_symlink_nodejs_deps
       compile_gui_if_missing
 
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is starting...${NC}\n\n"
@@ -342,7 +343,7 @@ function dmt {
         return
       fi
 
-      symlink_if_unlinked
+      dmt_symlink_nodejs_deps
       compile_gui_if_missing
 
       printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
@@ -354,7 +355,7 @@ function dmt {
         return
       fi
 
-      symlink_if_unlinked
+      dmt_symlink_nodejs_deps
       compile_gui_if_missing
 
       printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
@@ -388,7 +389,7 @@ function dmt {
       ;;
 
     restart)
-      symlink_if_unlinked
+      dmt_symlink_nodejs_deps
       compile_gui_if_missing
 
       printf "${CYAN}DMT PROCESS${NC} ${MAGENTA}is restarting...${NC}\n\n"
@@ -438,16 +439,18 @@ function dmt {
   esac
 }
 
-function symlink_if_unlinked {
+function dmt_symlink_nodejs_deps {
   local script="$DMT_NODE_CORE/.scripts/symlink_dmt_deps"
 
   if [ -f "$script" ]; then
-    if [ ! -L "$DMT_NODE_CORE/dmt-bridge/node_modules" ]; then
+    # changed recently!! if symlinking logic changes, we cannot just check if one symlink is present to know
+    # if we have to do something!!
+    #if [ ! -L "$DMT_NODE_CORE/dmt-bridge/node_modules" ] || [ ! -d "$DMT_USER_PATH/core/node/node_modules" ]; then
       local cwd="`pwd`"
       cd "$DMT_NODE_CORE/.scripts"
       ./symlink_dmt_deps
       cd "$cwd"
-    fi
+    #fi
   fi
 }
 
@@ -736,24 +739,56 @@ function dmt_gui {
   local dir="$DMT_PATH/core/node/dmt-gui/gui-frontend-core"
   local backendDir="$DMT_PATH/core/node/dmt-gui/gui-backend"
 
+  # extract host from @ symbol but replace @all with the name of current network !
+  local hosts=""
+
+  local args
+  IFS=' ' read -r -a args <<< "$@"
+
+  for arg in "${args[@]}"
+  do
+    if [ "$arg" == "@all" ]; then
+      local network_id=''
+      get_current_network network_id
+      if [ -n "$network_id" ]; then
+        hosts="${hosts} @@$network_id"
+        shift
+      fi
+    elif [[ "$arg" == @* ]] && [[ ! "$arg" =~ = ]]; then # @attr=val should not be treated as hostnames
+      hosts="${hosts} ${arg}"
+      shift
+    fi
+  done
+
+  hosts=$(echo "$hosts" | xargs) # remove trailing whitespace
+
   local option="$1"
 
   if [ -z "$option" ]; then
     printf "${YELLOW}Usage:${NC}\n"
-    printf "${GREEN}dmt_gui cd [gui]${NC} ${GRAY}${NC}\n"
-    printf "${GREEN}dmt_gui run [gui]${NC} ${GRAY}${NC}\n"
-    printf "${GREEN}dmt_gui build${NC} ${GRAY}build all GUIs${NC}\n"
-    printf "${GREEN}dmt_gui build [gui]${NC} ${GRAY}${NC}\n"
-    printf "${GREEN}dmt_gui reload${NC} ${GRAY}send request to frontend via websocket requesting refresh of current url${NC}\n"
-    printf "${GREEN}dmt_gui reload [view]${NC} ${GRAY}reloads the specified gui view (home, player, debug etc.)${NC}\n"
-    printf "${GREEN}dmt_gui switch [ip]${NC} ${GRAY}switches gui to specified IP (todo: use deviceId instead of ip)${NC}\n"
-    printf "${GREEN}dmt_gui debug${NC} ${GRAY}shows debugging info for current gui issues troubleshooting${NC}\n"
+    printf "${GREEN}dmt gui test${NC} ${GRAY}display a test notification on the gui${NC}\n"
+    printf "${GREEN}dmt gui @deviceId test${NC} ${GRAY}display a test notification on remote gui${NC}\n"
+    printf "${GREEN}dmt gui cd [gui]${NC} ${GRAY}${NC}\n"
+    # printf "${GREEN}dmt_gui run${NC} ${GRAY}${NC}\n"
+    # printf "${GREEN}dmt_gui build${NC} ${GRAY}build all GUIs${NC}\n"
+    # printf "${GREEN}dmt_gui build [gui]${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}dmt gui reload${NC} ${GRAY}send request to frontend via websocket requesting refresh of current url${NC}\n"
+    printf "${GREEN}dmt gui reload [view]${NC} ${GRAY}reloads the specified gui view (home, player, debug etc.)${NC}\n"
+    printf "${GREEN}dmt gui switch [ip]${NC} ${GRAY}switches gui to specified IP (todo: use deviceId instead of ip)${NC}\n"
+    # printf "${GREEN}dmt_gui debug${NC} ${GRAY}shows debugging info for current gui issues troubleshooting${NC}\n"
     return
   fi
 
   shift
 
   case "$option" in
+    test)
+      if [ -n "$hosts" ]; then
+        node "$DMT_CLI" "${hosts}" gui_test "$@"
+      else
+        node "$DMT_CLI" gui_test "$@"
+      fi
+      ;;
     cd)
       awesome_cd "$dir" "$1"
       if [ $? -eq 0 ] && [ -d "src" ]; then
@@ -772,7 +807,7 @@ function dmt_gui {
       ;;
 
     run)
-      symlink_if_unlinked
+      dmt_symlink_nodejs_deps
 
       if [ -z "$1" ]; then
         gui run app
@@ -787,7 +822,7 @@ function dmt_gui {
       ;;
 
     build)
-      symlink_if_unlinked
+      dmt_symlink_nodejs_deps
 
       if [ -z "$1" ]; then
         dmt_gui build app
@@ -851,7 +886,7 @@ function dmt_help {
   printf "${YELLOW}Process replication:${NC}\n"
   echo
   printf "  ${GREEN}■${NC} ${GREEN}dmt next ${GRAY}gets the latest dmt-system code from the source${NC}\n"
-  printf "  ${GREEN}■${NC} ${GREEN}dmt next --dry ${GRAY}show what would ${WHITE}dmt next${NC} command do${NC}\n"
+  #printf "  ${GREEN}■${NC} ${GREEN}dmt next --dry ${GRAY}show what would ${WHITE}dmt next${GRAY} command do${NC}\n"
   echo
   printf "  ${CYAN}■${NC} ${GREEN}dmt update [deviceId|ip_address] ${GRAY}clones or updates ~/.dmt directory at another machine via SSH${NC}\n"
   printf "  ${CYAN}■${NC} ${GREEN}dmt renew [deviceId|ip_address] ${GRAY}same as above and in addition it restarts the process after update${NC}\n"
@@ -878,8 +913,10 @@ function dmt_help {
   echo
   printf "${YELLOW}Other:\n${NC}"
   echo
-  printf "  ${CYAN}■${NC} ${CYAN}dmt services ${GRAY}shows configured services (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
-  printf "  ${CYAN}■${NC} ${CYAN}dmt gui_test ${GRAY}shows a test notification on connected GUIs (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
+  #printf "  ${CYAN}■${NC} ${CYAN}dmt services ${GRAY}shows configured services (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt gui [option] ${GRAY}various methods related to GUIs (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt media [option] ${GRAY}various methods for cli media player manipulation (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt search [option] ${GRAY}various methods for cli search (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
 }
 
 function dmt_help_explain_rpc {
@@ -1096,12 +1133,12 @@ function dmt_install {
 
   local cwd="`pwd`"
   cd "$DMT_PATH"
-  . ./install "from-dmt-install" "$@" # calling with . preserves the newly loaded env
+  . ./install "$@" # calling with . preserves the newly loaded env
   cd "$cwd"
 }
 
 function dmt_update {
-  symlink_if_unlinked
+  dmt_symlink_nodejs_deps
 
   if [ -z "$1" ]; then
     if dev_machine; then
@@ -1115,14 +1152,14 @@ function dmt_update {
 }
 
 function dmt_renew {
-  symlink_if_unlinked
+  dmt_symlink_nodejs_deps
 
   # supports multi install: dmt renew dev1 dev2 ... devN
   if [ -z "$2" ]; then
     dmt_update "$1"
     restart_remote_device "$1"
   else
-    #symlink_if_unlinked
+    #dmt_symlink_nodejs_deps
     compile_gui_if_missing
 
     for device in "$@"

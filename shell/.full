@@ -1,16 +1,18 @@
 #!/bin/bash
 
-. ~/.dmt/shell/.bash_fs
-. ~/.dmt/shell/.bash_general
+# relative to current file
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-. ~/.dmt/shell/.bash_conf_and_log
-. ~/.dmt/shell/.bash_process
-. ~/.dmt/shell/.bash_git
-. ~/.dmt/shell/.bash_sbc
-. ~/.dmt/shell/.bash_devices
+. "$DIR/.bash_fs"
+. "$DIR/.bash_general"
 
-. ~/.dmt/shell/.bash_core_helpers
-. ~/.dmt/shell/.bash_networking
-. ~/.dmt/shell/.bash_electronics
-. ~/.dmt/shell/.bash_dep
-. ~/.dmt/shell/.bash_sbc
+. "$DIR/.bash_conf_and_log"
+. "$DIR/.bash_process"
+. "$DIR/.bash_git"
+. "$DIR/.bash_sbc"
+. "$DIR/.bash_devices"
+. "$DIR/.bash_dep"
+
+. "$DIR/.bash_core_helpers"
+. "$DIR/.bash_networking"
+. "$DIR/.bash_electronics"
