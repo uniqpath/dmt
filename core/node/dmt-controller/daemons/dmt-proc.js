@@ -19,6 +19,8 @@ mids.push('connections/lanbus');
 mids.push('connections/nearby');
 mids.push('iot/iot');
 
+mids.push('integrations');
+
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
 
 mids.push('content/samba');

@@ -5,6 +5,8 @@ function removeStateChangeFalseTriggers(stateClone) {
       delete deviceInfo.lastSeenAt;
     }
   }
+
+  delete stateClone.integrations;
 }
 
 module.exports = removeStateChangeFalseTriggers;

@@ -8,6 +8,7 @@ const colorJson = require('./colorJson');
 const deepmerge = require('./utilities/deepmerge');
 const random = require('./utilities/just/array-random');
 const hexutils = require('./utilities/hexutils');
+const snakeCaseKeys = require('./utilities/snakecasekeys');
 
 const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
 
@@ -28,6 +29,15 @@ function measure(func, { desc = ' ', disable = false } = {}) {
   return result;
 }
 
+function periodicRepeat(callback, timeMs) {
+  const update = () => {
+    callback();
+    setTimeout(update, timeMs);
+  };
+
+  update();
+}
+
 module.exports = {
   compare: require('./utilities/just/collection-compare'),
   diff,
@@ -37,7 +47,9 @@ module.exports = {
   },
   random,
   hexutils,
+  snakeCaseKeys,
   measure,
+  periodicRepeat,
   clone: require('./utilities/just/collection-clone'),
   last: require('./utilities/just/array-last'),
   pad: (number, digits = 2) => {

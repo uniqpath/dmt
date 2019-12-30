@@ -50,6 +50,7 @@
     "systeminformation": "^4.16.0",
     "tweetnacl": "^1.0.1",
     "tweetnacl-util": "^0.15.0",
+    "twitter": "^1.7.1",
     "unzipper": "^0.10.5",
     "urlencode": "^1.1.0",
     "ws": "^6.1.4"
