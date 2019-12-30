@@ -16,9 +16,10 @@ class WSResponder extends EventEmitter {
     this.server = new Server();
 
     this.server.on('connection', channel => {
-      log.debug('NEW WS CONNECTION', { cat: 'ws' });
+      log.debug(`NEW WS CONNECTION from ${channel.remoteIp}`, { cat: 'ws' });
 
-      channel.send(JSON.stringify({ state: reduceSizeOfStateForGUI(program.state) }));
+      const state = { ...reduceSizeOfStateForGUI(program.state), ...{ integrations: undefined } };
+      channel.send(JSON.stringify({ state }));
 
       channel.on('message', message => {
         this.parseMessage({ program, message, channel });
@@ -34,6 +35,28 @@ class WSResponder extends EventEmitter {
     program.on('state_diff', ({ diff }) => {
       this.server.sendAllChannels(JSON.stringify({ diff }));
     });
+  }
+
+  integrationsStateChangeSetup({ program, channel }) {
+    function sendIntegrationsState() {
+      if (program.state.integrations) {
+        channel.send(JSON.stringify({ integrations: program.state.integrations }));
+      }
+    }
+
+    const name = 'integrations_state_updated';
+
+    const callback = () => {
+      if (channel.closed()) {
+        program.removeListener(name, callback);
+      } else {
+        sendIntegrationsState();
+      }
+    };
+
+    program.on(name, callback);
+
+    sendIntegrationsState();
   }
 
   parseMessage({ program, message, channel }) {
@@ -53,6 +76,8 @@ class WSResponder extends EventEmitter {
         this.server.sendAllChannels(constructAction({ action, storeName, payload }));
       } else if (storeName == 'rpc') {
         program.emit('ws_api_request', { action, payload, channel });
+      } else if (storeName == 'connection' && action == 'local_ws') {
+        this.integrationsStateChangeSetup({ program, channel });
       } else {
         program.receiveAction({ action, storeName, payload });
       }

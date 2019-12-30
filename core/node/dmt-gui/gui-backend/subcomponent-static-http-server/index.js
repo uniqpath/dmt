@@ -15,9 +15,9 @@ function listen({ program, name, description, port, expressOptions = {}, serving
     .listen(port, () => {
       log.green('%s listening at http://%s:%s', description || 'Server', 'localhost', port);
 
-      log.cyan('-----------------------------------------------------');
-      log.cyan(`💡🚀🎸 OPEN DMT GUI IN BOWSER → ${colors.magenta(`http://localhost:${port}`)}`);
-      log.cyan('-----------------------------------------------------');
+      log.cyan('------------------------------------------------------');
+      log.cyan(`💡🚀🎸 OPEN DMT GUI IN BOWSRER → ${colors.magenta(`http://localhost:${port}`)}`);
+      log.cyan('------------------------------------------------------');
 
       if (dmt.user().disableStartNotification != 'true') {
         desktop.notify(`💡 OPEN DMT GUI IN BOWSER`, `🚀🎸 http://localhost:${port}`);

@@ -3,6 +3,18 @@ const EventEmitter = require('events');
 const dmt = require('dmt-bridge');
 const { log } = dmt;
 
+function getRemoteIp(ws) {
+  let remoteIp = ws._socket.remoteAddress;
+
+  if (remoteIp) {
+    if (remoteIp.substr(0, 7) == '::ffff:') {
+      remoteIp = remoteIp.substr(7);
+    }
+  }
+
+  return remoteIp == '::1' || remoteIp == '127.0.0.1' ? 'localhost' : remoteIp;
+}
+
 class Channel extends EventEmitter {
   constructor(ws) {
     super();
@@ -17,16 +29,10 @@ class Channel extends EventEmitter {
       this.checkAuthentication();
     });
 
-    let remoteIp = ws._socket.remoteAddress;
+    this.remoteIp = getRemoteIp(ws);
 
-    if (remoteIp) {
-      if (remoteIp.substr(0, 7) == '::ffff:') {
-        remoteIp = remoteIp.substr(7);
-      }
-
-      this.remoteIp = remoteIp;
-    } else {
-      log.write(`WARNING: cannot read websocket remote Ip!! -- TODO: debug... happens mostly on lan`);
+    if (dmt.isDevMachine() && !this.remoteIp) {
+      log.red('WARNING: cannot read websocket remote Ip!! -- TODO: debug... happens mostly on lan');
     }
   }
 
@@ -50,6 +56,10 @@ class Channel extends EventEmitter {
 
   terminated() {
     return this.ws.terminated;
+  }
+
+  closed() {
+    return [this.ws.CLOSED, this.ws.CLOSING].includes(this.ws.readyState);
   }
 
   send(message) {

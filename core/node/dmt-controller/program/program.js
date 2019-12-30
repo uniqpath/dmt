@@ -141,6 +141,8 @@ class Program extends EventEmitter {
       delete this.state.controller.isRPi;
     }
 
+    this.emit('program_ready');
+
     const debugInstructions = dmt.debugMode()
       ? colors.gray(`→ disable with: ${colors.yellow('dmt debug off')}`)
       : colors.gray(`→ enable with ${colors.green('dmt debug')}`);
@@ -213,6 +215,11 @@ class Program extends EventEmitter {
 
   updateState(newState, { announce = true } = {}) {
     this.store.updateState(newState, { announce });
+  }
+
+  updateIntegrationsState(integrationsState) {
+    this.updateState({ integrations: integrationsState }, { announce: false });
+    this.emit('integrations_state_updated', this.state.integrations);
   }
 
   replaceState(replacement, { announce = true } = {}) {

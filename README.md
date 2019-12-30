@@ -31,6 +31,7 @@ Basic / practical:
 
 Use cases:
 - [Playing media files stored on local network-attached storage](help/use_cases/PLAY_MEDIA_VIA_NAS_SERVER.md)
+- [Showing your recent favorite tweets](help/use_cases/TWITTER_INTEGRATION.md)
 <hr>
 
 Advanced / theory:

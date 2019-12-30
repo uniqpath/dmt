@@ -19,6 +19,8 @@ function cleanupStateOnSave(state) {
     delete state.controller.actualGuiPort;
   }
 
+  delete state.deviceDefinition;
+
   delete state.log;
   delete state.nearbySensors;
   delete state.sysinfo;

@@ -31,8 +31,6 @@ declare -a DepList=(
 
   "dmt-fasterix"
 
-  "dmt-external" # special treatment, has its own node_modules directory instead of a symlink to .commoon-deps
-
   "aspect-connections/dmt-lanbus"
   "aspect-connections/dmt-nearby"
   "aspect-connections/dmt-connect"
@@ -86,36 +84,6 @@ function manage_symlink_pkg_node_modules_to_common_deps_node_modules() {
     else
       #if $check; then echo "  Symlink from $pkg to .common-deps exists"; fi
       if $check; then printf "  Symlink ${YELLOW}$pkg${NC} ${GREEN}→${NC} ${CYAN}.common-deps${NC} ${GREEN}✓${NC}\n"; fi
-    fi
-  fi
-}
-
-# we don't symlink this package back to .common-deps because it maintains it's own deps under ./node_modules
-# it only links back to dmt-bridge for basic info about configuration etc.
-function manage_symlink_dmt_external_node_modules() {
-  local arg="$1"
-  local check="$2"
-
-  local pkg="dmt-external"
-
-  if [ ! -d "$pkg" ]; then
-    return
-  fi
-
-  local dmt_bridge_symlink="$pkg/node_modules/dmt-bridge"
-
-  if [ "$arg" == "remove" ]; then
-    if [ -L "$dmt_bridge_symlink" ]; then
-      # if ! $check; then echo "Removing $pkg symlink to dmt-bridge"; fi
-      rm "$dmt_bridge_symlink"
-    fi
-  else
-    if [ ! -L "$dmt_bridge_symlink" ]; then
-      # if ! $silent; then echo "Symlinking $pkg/node_modules/dmt-bridge to dmt-bridge"; fi
-      ln -s "../../dmt-bridge" "$dmt_bridge_symlink"
-    else
-      if $check; then printf "  Symlink ${YELLOW}$pkg${NC} ${GREEN}→${NC} ${MAGENTA}dmt-bridge${NC} ${GREEN}✓${NC}\n"; fi
-      #if $check; then echo "Symlink from $pkg to dmt-bridge exists"; fi
     fi
   fi
 }
@@ -251,9 +219,6 @@ if [ -d "$dir" ]; then
     printf "${GREEN}● Checking if dmt-external/node_modules includes a symlink to dmt-bridge:${NC}\n"
     echo
   fi
-
-  # special treatment
-  manage_symlink_dmt_external_node_modules "$arg" "$check"
 
   # if ! $check; then
   #   if [ "$arg" == "remove" ]; then

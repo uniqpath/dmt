@@ -49,7 +49,7 @@ const { log } = dmt;
 
 function init(program) {
   log.write('user core template init function called, see ~/.dmt/user/core/node/index.js');
-  log.write('see https://github.com/uniqpath/dmt/blob/master/help/USER_CORE_FRAMEWORK.md')
+  log.write('read more: https://github.com/uniqpath/dmt/blob/master/help/USER_CORE_FRAMEWORK.md')
 }
 
 export default { init };

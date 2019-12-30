@@ -36,13 +36,13 @@ dmt startfg
 
 You should see this notification on your macOS screen:
 
-![dmt_start_notification](https://github.com/uniqpath/info/blob/master/assets/img/dmt-start/macos-notification.png?raw=true)
+![dmt_start_notification](https://github.com/uniqpath/info/blob/master/assets/img/dmt-start/macos-notification2.png?raw=true)
 
 Or no notification otherwise (for now) if installing on Linux or Windows 10 (Ubuntu shell).
 
 You should see this log entry being output to the terminal where `dmt startfg` was executed:
 
-![dmt_player](https://github.com/uniqpath/info/blob/master/assets/img/dmt-start/log-entry.png?raw=true)
+![dmt_player](https://github.com/uniqpath/info/blob/master/assets/img/dmt-start/log-entry2.png?raw=true)
 
  start**fg** means **f**ore**g**round. To run `dmt` without having to keep a terminal tab open press `CTRL+C` to terminate the foreground process. Type `dmt start` to start a *background process*. You can still see the log by typing `dmt logfg` (log in the foreground), press CTRL+C to terminate it. To see last few log entries via a "RPC" (remote-procedure-execution) type `dmt log`. This will fetch log entries and then return to the `command line shell` (computing interfaces from the old days before nice GUIs ;)
 
