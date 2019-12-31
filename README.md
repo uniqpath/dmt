@@ -29,7 +29,7 @@ Basic / practical:
 - [Push notifications](help/PUSH_NOTIFICATIONS.md)
 - [User core extensibility framework](help/USER_CORE_FRAMEWORK.md) ⚡
 
-Use cases:
+Example use cases (more are coming):
 - [Playing media files stored on local network-attached storage](help/use_cases/PLAY_MEDIA_VIA_NAS_SERVER.md)
 - [Showing your recent favorite tweets](help/use_cases/TWITTER_INTEGRATION.md)
 <hr>
@@ -178,7 +178,11 @@ Full disclaimer: you can still only use audio/video/search part of the system af
 
 ## Update
 
+This command will fetch changes from GitHub:
+
 `dmt next`
+
+In one of the next versions there will be an option to turn on a notifier to know when the next version is available.
 
 ## Uninstall
 
@@ -234,13 +238,15 @@ This system (of code and data philosophy) is designed to save you time and effor
 
 There is enough material on our <a href="https://github.com/uniqpath">GitHub</a> to get you started. In case you do need assistance, we are available for consulting and practical help at <a href="mailto:info@uniqpath.com">info@uniqpath.com</a>. Write us and we will find a solution! We think that during 2020 we can mostly help for free and if there is enough community and practical knowledge built up afterwards, we will then only offer more involved consulting for bigger system planning. All code on GitHub will always remain free.
 
-## So, what happens on 1.1.2020 with v1.0?
-
-- This repo receives all documentation needed for proper understanding of v1.0 usage (almost there!).
+## dmt-system v1.0 release
 
 **Jan 1st is just a slow, a bit uneventful start.** Expect steady stream of useful updates during 2020.
 
 What obvious thing is missing in v1.0? — Proper responsive layout for smaller screens. Sorry! Soon™ → v1.0.1
+
+Some other small things also slipped into v1.0.1 but we did even more than planned for v1.0, thank you to all cca. dozen testers! Especially to a 2-year old daughter of the main (sole atm) commiter to this repo. She found some really interesting glitches and even solutions. Kids these days ^_^ ... And thanks to her mother and brother too! And also the whole extended family. We did this together. In the next 10 year period we will do even more. The more we do, the more we need to be organized and we write all the code to achieve that. Computers these days... they are cheap and small. Where they lead, nobody knows ... They seem to lead to the real world though.
+
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/fireworks.jpg?raw=true">
 
 # License
 

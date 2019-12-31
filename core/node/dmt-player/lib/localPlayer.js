@@ -387,9 +387,7 @@ class LocalPlayer {
         song.error = true;
         log.red(`${colors.gray(song.path)} doesn't exist`);
 
-        this.program.updateState({ player: { stuckOnMissingMedia: true } });
-
-        this.playlist.markMissingMedia();
+        this.playlist.stuckOnMissingMedia();
 
         reject(new Error("Song doesn't exist on disk"));
         return;

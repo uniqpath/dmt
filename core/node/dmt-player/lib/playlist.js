@@ -378,13 +378,65 @@ class Playlist {
     }
   }
 
+  stuckOnMissingMedia(stuck = true) {
+    const numberOfMissingMedia = this.markAndCountMissingMedia();
+    this.program.updateState({ player: { stuckOnMissingMedia: stuck }, playlistMetadata: { numberOfMissingMedia } }, { announce: false });
+    this.broadcastPlaylistState();
+  }
+
+  markAndCountMissingMedia() {
+    let count = 0;
+
+    for (const song of this.playlist) {
+      if (!fs.existsSync(song.path)) {
+        song.error = true;
+        count += 1;
+      } else {
+        delete song.error;
+      }
+    }
+
+    return count;
+  }
+
+  removeMissingMedia() {
+    function removeMissing(playlist) {
+      return playlist.filter(song => fs.existsSync(song.path));
+    }
+
+    if (this.playlist.length > 0) {
+      const currentSongId = this.currentSongId();
+
+      const beforeCurrent = removeMissing(this.playlist.slice(0, this.currentIndex));
+      const fromCurrent = removeMissing(this.playlist.slice(this.currentIndex));
+
+      this.playlist = beforeCurrent.concat(fromCurrent);
+
+      if (this.playlist.length > 0) {
+        const missingBefore = this.currentIndex - beforeCurrent.length;
+        this.currentIndex -= missingBefore;
+      } else {
+        this.currentIndex = null;
+      }
+    }
+
+    this.renumberPlaylist();
+
+    this.stuckOnMissingMedia(false);
+  }
+
   broadcastPlaylistState() {
     this.updatePlaylistDerivedData();
     const playlistHasSelectedEntries = !!this.playlist.find(songInfo => songInfo.selected && !songInfo.aboutToBeCut && songInfo.id != this.currentSongId());
     const currentSongIsSelected = !!this.playlist.find(songInfo => songInfo.selected && songInfo.id == this.currentSongId());
     this.program.updateState({
       playlist: this.playlist,
-      playlistMetadata: { playlistLength: this.playlist.length, playlistHasSelectedEntries, currentSongIsSelected, playlistClipboard: !!this.clipboard }
+      playlistMetadata: {
+        playlistLength: this.playlist.length,
+        playlistHasSelectedEntries,
+        currentSongIsSelected,
+        playlistClipboard: !!this.clipboard
+      }
     });
   }
 
@@ -428,23 +480,6 @@ class Playlist {
         offset += 1;
       }
     }
-  }
-
-  markMissingMedia() {
-    for (const song of this.playlist) {
-      if (!fs.existsSync(song.path)) {
-        song.error = true;
-      }
-    }
-
-    this.broadcastPlaylistState();
-  }
-
-  removeMissingMedia() {
-    this.playlist = this.playlist.filter(song => fs.existsSync(song.path));
-
-    this.renumberPlaylist();
-    this.broadcastPlaylistState();
   }
 
   rollover() {

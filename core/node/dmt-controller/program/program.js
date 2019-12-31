@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const colors = require('colors');
-const { push } = require('dmt-notify');
+const { push, desktop } = require('dmt-notify');
 
 const dmt = require('dmt-bridge');
 const path = require('path');
@@ -211,6 +211,8 @@ class Program extends EventEmitter {
     };
 
     this.store.pushToStateArray('notifications', notification);
+
+    desktop.notify('dmt notification', msg);
   }
 
   updateState(newState, { announce = true } = {}) {

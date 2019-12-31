@@ -55,6 +55,7 @@ declare -a DepList=(
 
   "dmt-integrations"
   "aspect-integrations/dmt-twitter"
+  "aspect-integrations/dmt-ultimaker"
 )
 
 # HELPER FUNCTIONS
