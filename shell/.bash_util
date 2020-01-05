@@ -11,12 +11,7 @@ GRAY='\e[1;30m'
 WHITE='\e[33;97m'
 NC='\033[0m' # No Color
 
-# http://stackoverflow.com/a/17805088/458177
-# Ultimate bash debugging
-# just "set -x" and you will get all this additional info printed:
-export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
-
-function macos {
+function dmt_macos {
   if [[ $OSTYPE == darwin* ]]; then
     return 0 # true
   fi
@@ -24,7 +19,7 @@ function macos {
   return 1 # false
 }
 
-function is_rpi {
+function dmt_is_rpi {
   if [ -f /etc/issue ] && [[ $(cat /etc/issue) =~ Raspbian ]]; then
     return 0 # true
   fi
@@ -41,20 +36,20 @@ function dev_machine {
 }
 
 # info: https://mharrison.org/post/bashfunctionoverride/
-save_function() {
+dmt_save_function() {
   local ORIG_FUNC=$(declare -f $1)
   local NEWNAME_FUNC="$2${ORIG_FUNC#$1}"
   eval "$NEWNAME_FUNC"
 }
 
-function array_contains_element {
+function dmt_array_contains_element {
   local e match="$1"
   shift
   for e; do [[ "$e" == "$match" ]] && return 0; done
   return 1
 }
 
-function opts_matcher_helper {
+function dmt_opts_matcher_helper {
   local pattern="$2"
   local ARGS=("$@")
   local opts=("${ARGS[@]:2}")
@@ -82,7 +77,7 @@ function opts_matcher_helper {
   fi
 }
 
-function opts_matcher {
+function dmt_opts_matcher {
   local __matching_opt=''
 
   local no_warning
@@ -98,9 +93,7 @@ function opts_matcher {
     local opts=("${ARGS[@]:2}")
   fi
 
-
-
-  opts_matcher_helper __matching_opt "$pattern" "${opts[@]}"
+  dmt_opts_matcher_helper __matching_opt "$pattern" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     if [ -n "$pattern" ] && [ -z "$no_warning" ]; then
       printf "${RED}Unknown option:${NC} ${pattern}\n\n"
@@ -122,7 +115,7 @@ function opts_matcher {
 # TODO:
 # DEV_BIN=true [command] [args]
 # when true, it goes directly to core/rust/target/release example or bin... searches everything
-function platform_bin_command {
+function dmt_platform_bin_command {
   local __result=''
 
   shift
@@ -147,7 +140,7 @@ function platform_bin_command {
 
 # very simple parsing... scan all the lines until "parent_key" is found,
 # then search for the first occurence of "key" and return its "value"
-function def_reader {
+function dmt_def_reader {
   local file="$2"
   local parent_key="$3"
   local key="$4"
@@ -201,7 +194,7 @@ function def_reader {
 
 # calls nodejs parser and outputs nicely formatted json --
 # good for testing the correctness .def files syntax
-function parsedef {
+function dmt_parsedef {
   which node > /dev/null 2>&1
 
   if [ ! $? -eq 0 ]; then
@@ -220,7 +213,7 @@ function parsedef {
 
   if [ -z "$pattern" ]; then
     printf "${YELLOW}Usage:${NC}\n"
-    printf "${GREEN}parsedef [file.def]${NC} ${GRAY}converts .def file to json and shows the parsed results if successful${NC}\n"
+    printf "${GREEN}dmt_parsedef [file.def]${NC} ${GRAY}converts .def file to json and shows the parsed results if successful${NC}\n"
     return
   fi
 
@@ -234,8 +227,4 @@ function parsedef {
   fi
 
   node "$DEF_PARSER_PATH" "$matching_file"
-}
-
-function def {
-  parsedef "$@"
 }

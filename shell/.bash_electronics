@@ -1,5 +1,13 @@
 #!/bin/bash
 
+###### Arduino
+
+alias esp8266="cd ~/Library/Arduino15/packages/esp8266/hardware/esp8266"
+
+function arduino {
+  awesome_cd ~/Documents/Arduino/libraries "$1"
+}
+
 ########### ESP8226 ###########
 
 function get_highest_version_subdir {
@@ -70,7 +78,7 @@ function esp {
     )
 
     local matching_opt=''
-    opts_matcher matching_opt "$1" "${opts[@]}"
+    dmt_opts_matcher matching_opt "$1" "${opts[@]}"
     if [ $? -ne 0 ]; then # error
       return
     fi
@@ -275,7 +283,7 @@ EOF
 #     )
 
 #     local matching_opt=''
-#     opts_matcher matching_opt "$1" "${opts[@]}"
+#     dmt_opts_matcher matching_opt "$1" "${opts[@]}"
 #     if [ $? -ne 0 ]; then # error
 #       return
 #     fi

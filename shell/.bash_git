@@ -150,7 +150,7 @@ alias clone="git clone"
 
 function cclone {
   local tmp
-  if macos; then
+  if dmt_macos; then
     tmp=$(mktemp -t git)
   else
     tmp=$(mktemp)
@@ -355,7 +355,7 @@ function lg {
     `cat .log`
   else
     if [ -z "$1" ]; then
-      if macos; then
+      if dmt_macos; then
         if [ -f 'log/development.log' ]; then
           tail -n 20 -f log/development.log
         elif [ -f 'log/error.log' ]; then

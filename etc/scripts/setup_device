@@ -1,4 +1,4 @@
 #!/bin/bash
-. ~/.bash_aliases
+. ~/.dmt/etc/.bash_aliases_bundle
 . "$DMT_PATH/shell/.bash_selector"
 device_selector "$@"

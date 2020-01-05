@@ -1,0 +1,242 @@
+#!/bin/bash
+
+# HELPER FUNCTIONS
+. ./helpers
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+# PREPARE MODULES TO LINK:
+
+# used for creating symlinks from .common-deps/node_modules to each of these packages, so that they can be included
+# from anywhere
+declare -a DepList=(
+  "dmt-bridge"
+
+  "dmt-user"
+  "dmt-gui"
+  "dmt-net"
+  "dmt-search"
+  "dmt-player"
+  "dmt-notify"
+  "dmt-crypto"
+
+  "dmt-fasterix"
+
+  "aspect-connections/dmt-lanbus"
+  "aspect-connections/dmt-nearby"
+  "aspect-connections/dmt-connect"
+  "aspect-connections/dmt-beats"
+  "aspect-connections/dmt-rpc"
+
+  "aspect-protocol/fasterix-protocol"
+
+  "aspect-content/dmt-content"
+  "aspect-content/dmt-photo"
+  "aspect-content/dmt-samba"
+  "aspect-content/dmt-slideshow"
+
+  "aspect-iot/dmt-climate"
+  "aspect-iot/dmt-iot"
+  "aspect-iot/dmt-interproc"
+
+  "aspect-meta/dmt-bash-exec"
+  "aspect-meta/dmt-meta"
+  "aspect-meta/dmt-replicate"
+  "aspect-meta/dmt-sysinfo"
+
+  "dmt-integrations"
+  "aspect-integrations/dmt-twitter"
+  "aspect-integrations/dmt-ultimaker"
+)
+
+# HELPER FUNCTIONS
+
+function manage_symlink_pkg_node_modules_to_common_deps_node_modules() {
+  local arg="$1"
+  local pkg="$2"
+  local check="$3"
+  local is_within_aspect="$4"
+
+  symlink="$pkg/node_modules"
+  if [ "$arg" == "remove" ]; then
+    if [ -L "$symlink" ]; then
+      #if ! $silent; then echo "Removing $pkg symlink to .common-deps"; fi
+      rm "$symlink"
+    fi
+  else
+    if [ ! -L "$symlink" ]; then
+      #if ! $silent; then echo "Symlinking $pkg to .common-deps"; fi
+
+      if [ -n "$is_within_aspect" ]; then
+        # we're inside dmt-[aspect]/dmt-package directory and have to go one extra level out
+        ln -s "../../.common-deps/node_modules" "$symlink"
+      else
+        ln -s "../.common-deps/node_modules" "$symlink"
+      fi
+    else
+      #if $check; then echo "  Symlink from $pkg to .common-deps exists"; fi
+      if $check; then printf "  Symlink ${YELLOW}$pkg${NC} ${GREEN}→${NC} ${CYAN}.common-deps${NC} ${GREEN}✓${NC}\n"; fi
+    fi
+  fi
+}
+
+# DO WORK:
+
+silent=false
+if [ "$1" == "silent" ]; then
+  silent=true
+  shift
+fi
+
+arg="$1"
+
+if [ "$arg" == "-h" ] || [ "$arg" == "help" ]; then
+  printf "${GREEN}-h${NC} or ${GREEN}help${NC}\n"
+  printf "${GREEN}check${NC}\n"
+  printf "${GREEN}remove${NC}\n"
+  exit
+fi
+
+check=false
+
+if [ "$arg" == "check" ]; then
+  check=true
+fi
+
+dir=".common-deps/node_modules"
+
+if [ ! -d "$dir" ] && [ -d "../$dir" ]; then
+  dir="../$dir"
+fi
+
+if [ -d "$dir" ]; then
+  cwd="`pwd`"
+  cd "$dir"
+
+  # construct Deps array with entries from DepList that actually exist
+
+  declare -a Deps=()
+
+  if $check; then
+    echo
+    printf "${GREEN}● Checking if all required modules are present in ~/.dmt/core/node:${NC}\n"
+    echo
+  fi
+
+  for dep in "${DepList[@]}"; do
+    dep_exists="${RED}✖${NC} ${GRAY}[module_not_present]${NC}"
+    if [ -d "../../$dep" ]; then
+      dep_exists="${GREEN}✓${NC}"
+      Deps+=($dep)
+    fi
+    if $check; then printf "  ${dep_exists} ${CYAN}${dep}${NC}\n"; fi
+  done
+
+  # symlinks from .common-deps/node_modules
+
+  # CURRENT DIR = ".common-deps/node_modules"
+
+  if $check; then
+    echo
+    printf "${GREEN}● Checking if all modules are symlinked from ~/.dmt/core/node/.common-deps/node_modules:${NC}\n"
+    echo
+  fi
+
+  for dep in "${Deps[@]}"; do
+    dmt_dep_without_aspect=''
+    aspect=''
+    parse_dep_aspect dmt_dep_without_aspect aspect "$dep"
+
+    if [ "$arg" == "remove" ]; then
+      if [ -L "$dmt_dep_without_aspect" ]; then
+        # if ! $silent; then echo "Removing $dmt_dep_without_aspect symlink from .common-deps"; fi
+        rm $dmt_dep_without_aspect
+      fi
+    else
+      if [ ! -L "$dmt_dep_without_aspect" ]; then
+        # if ! $silent; then echo "Symlinking $dep from .common-deps"; fi
+        ln -s ../../$dep . # $dep insludes aspect if it's present ...
+      else
+        #if ! $silent;
+        if $check; then printf "  Symlink ${YELLOW}.common-deps/$dmt_dep_without_aspect${NC} ${GREEN}→${NC} ${CYAN}$dep${NC} ${GREEN}✓${NC}\n"; fi
+      fi
+    fi
+  done
+
+  # symlinks to .common-deps from each dmt package
+
+  # we scan the directory and symlink each one to .common-deps so that they can actually use third-party node_modules and also each other
+
+  if $check; then
+    echo
+    printf "${GREEN}● Checking if all modules symlink their node_modules to ~/.dmt/core/node/.common-deps/node_modules:${NC}\n"
+    echo
+  fi
+
+  cd "$cwd/$dir/../.."
+
+  # CURRENT DIR = core/node
+
+  for pkg_or_aspect in *; do
+    if [ -d "$pkg_or_aspect" ]; then
+
+      # ASPECT
+      if [[ "$pkg_or_aspect" =~ ^aspect ]]; then
+        cd "$pkg_or_aspect"
+
+        for pkg in *; do
+          if [[ "$pkg" =~ ^dmt- ]] || [[ "$pkg" =~ ^fasterix- ]]; then
+            manage_symlink_pkg_node_modules_to_common_deps_node_modules "$arg" "$pkg" "$check" "is-within-aspect"
+          fi
+        done
+
+        cd ..
+      else
+        pkg="$pkg_or_aspect"
+
+        # special treatment for this bellow since dmt-external has its own node_modules and doesn't link to .common-deps
+        if [ "$pkg" != "dmt-external" ]; then
+          manage_symlink_pkg_node_modules_to_common_deps_node_modules "$arg" "$pkg" "$check"
+        fi
+      fi
+    #else
+      #echo "$pkg_or_aspect"
+      #echo "------"
+      #echo "$pkg_or_aspect package doesn't exist"
+    fi
+  done
+
+  if $check; then
+    echo
+    printf "${GREEN}● Checking if dmt-external/node_modules includes a symlink to dmt-bridge:${NC}\n"
+    echo
+  fi
+
+  # if ! $check; then
+  #   if [ "$arg" == "remove" ]; then
+  #     printf "${YELLOW}symlinks removed${NC}\n"
+  #   else
+  #     printf "${GREEN}symlinks created${NC}\n"
+  #   fi
+  # fi
+
+  # !! call to symlink frontend !!
+  # ./symlink_dmt_gui
+
+  cd "$cwd"
+  # echo
+  # printf "${GREEN}Done.${NC}\n"
+else
+  echo "Missing $dir"
+fi
+
+./symlink_user_core_deps "$arg"

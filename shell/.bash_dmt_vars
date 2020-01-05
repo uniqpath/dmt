@@ -1,6 +1,9 @@
 #!/bin/bash
 
-LOGNAME_HOME="$HOME"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+#LOGNAME_HOME="$HOME"
+LOGNAME_HOME="$DIR/../.."
 
 DMT_PATH="$LOGNAME_HOME/.dmt"
 
@@ -35,7 +38,7 @@ DMT_RUNTIMES=(node rust)
 DMT_SCRIPTS="$DMT_PATH/etc/scripts"
 
 DMT_PLATFORM=""
-if macos; then
+if dmt_macos; then
   DMT_PLATFORM="darwin"
 elif [ "$OSTYPE" == "linux-gnu" ]; then
   DMT_PLATFORM="linux-x64"

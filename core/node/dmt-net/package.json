@@ -1,0 +1,13 @@
+{
+  "name": "dmt-net",
+  "version": "1.0.0",
+  "description": "Networking tools",
+  "bin": {
+    "net": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "davidhq",
+  "license": "ISC"
+}

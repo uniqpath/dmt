@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# relative to current file
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+. "$DIR/.bash_util"
+. "$DIR/.bash_dmt_vars"
+. "$DIR/.bash_dmt_search"
+. "$DIR/.bash_dmt_media"
+. "$DIR/.bash_dmt"

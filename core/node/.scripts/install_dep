@@ -1,0 +1,34 @@
+#!/bin/bash
+
+cwd="`pwd`"
+
+dir=".common-deps"
+
+if [ ! -d "$dir" ] && [ -d "../$dir" ]; then
+  cd ..
+fi
+
+if [ -d "$dir" ]; then
+  ./.scripts/symlink_dmt_deps remove
+  cd "$dir"
+
+  npm install "$@"
+
+  echo
+  echo "now copy this npm entry from .common-deps/package.json into all the subprojects that actually use it..."
+  echo
+
+  if [ -z "$2" ]; then
+    cat package.json | grep "$1"
+  fi
+
+  cd ..
+  ./.scripts/symlink_dmt_deps
+
+  echo
+  echo "done"
+else
+  echo "Missing $dir"
+fi
+
+cd "$cwd"

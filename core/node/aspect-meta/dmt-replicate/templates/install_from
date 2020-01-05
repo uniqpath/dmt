@@ -1,0 +1,164 @@
+#!/bin/bash
+
+# DMT-SYSTEM v1.0 — NAUTILUS
+#
+# *** ONE-LINE INSTALL *** 💡🚀🎸
+#
+# curl {{host}} | bash
+#
+# Paste this command into your bash shell on macOS or Linux (Debian, Raspbian etc.)
+#
+# More info : https://dmt-system.com
+# Basic demo: {{protocol}}://{{host}}/home
+#
+# Requirements:
+#
+# - curl (linux: sudo apt-get install curl)
+# - node.js > v12.7 (macOS / linux: curl -L https://git.io/n-install | bash)
+# - mpv.io (for multimedia play)
+#
+# RPi beta recipe:
+# https://dmt-system.com/guide/dmt_rpi_beta_recipe.pdf
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+function get_dmt_proc_pid {
+  local proc=$(ps -ef | grep " dmt-proc" | grep -v "eslint" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local procFG=$(ps -ef | grep "dmt-controller/daemons/dmt-proc.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
+  if [ -n "$proc" ]; then
+    eval "$1='$proc'"
+    eval "$2='bg'"
+    return
+  fi
+
+  # dmt process running in foreground
+  if [ -n "$procFG" ]; then
+    eval "$1='$procFG'"
+    eval "$2='fg'"
+  fi
+}
+
+function report_dmt_running {
+  local dmt_proc_pid="$1"
+  local fg_bg="$2"
+
+  if [ -n "$dmt_proc_pid" ]; then
+    local fg_bg_msg=""
+    if [ "$fg_bg" == 'fg' ]; then
+      fg_bg_msg="${MAGENTA}in foreground${NC} "
+    fi
+    printf "${WHITE}dmt-proc${NC} ${GREEN}seems to be running ${fg_bg_msg}with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
+    return 0
+  fi
+
+  return 1
+}
+
+function prepare_backup_dir {
+  local backup_dir="$1"
+
+  if [ -d "$backup_dir" ]; then
+    printf "${backup_dir} already existed, purging it ...${NC}\n"
+    rm -rf "$backup_dir"
+
+    if [ -d "$backup_dir" ]; then
+      printf "${RED}${backup_dir} already exists and cannot delete it! Aborting operation ...${NC}\n"
+      exit
+    fi
+  fi
+
+  mkdir "$backup_dir"
+}
+
+if [ -f ~/.dmt/.prevent_dmt_next ]; then
+  printf "${RED}Prevented operation because ~/.dmt/.prevent_dmt_next file is present, please remove it to continue${NC}\n"
+  exit
+fi
+
+# abort if dmt-proc is currently running
+
+dmt_proc_pid=''
+dmt_fg_bg=''
+get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+if report_dmt_running "$dmt_proc_pid" "$dmt_fg_bg"; then
+  printf "${RED}Please stop it and try again${NC}\n"
+  exit
+fi
+
+cwd="`pwd`"
+
+cd $(mktemp -d)
+
+printf "${CYAN}Fetching from ${MAGENTA}{{host}}${NC} ...\n\n"
+printf "${YELLOW}Please wait for up to a minute even if nothing seems to be happening...${NC}\n"
+curl -L {{protocol}}://{{host}}/dmt.zip -o dmt.zip
+
+if [ -f dmt.zip ]; then
+
+  now=$(date +"%Y-%m-%dT%H-%M-%S")
+
+  backup_dir="$HOME/.dmt-backup-${now}"
+
+  if [ -d ~/.dmt ]; then
+    prepare_backup_dir "$backup_dir"
+
+    if [ ! -d "$backup_dir" ]; then
+      printf "${RED}${backup_dir} hasn't been created, error, aborting ... ${NC}\n"
+      exit
+    fi
+
+    mv ~/.dmt/user "$backup_dir"
+    mv ~/.dmt/state "$backup_dir"
+    mv ~/.dmt/log "$backup_dir"
+
+    rm -rf ~/.dmt
+  fi
+
+  if [ -d ~/.dmt ]; then
+    printf "${RED}Couldn't delete ~/.dmt directory, aborting in inconsistent state ... ${NC}\n"
+    exit
+  fi
+
+  mkdir ~/.dmt
+  mv dmt.zip ~/.dmt
+  cd ~/.dmt
+
+  unzip dmt.zip
+  rm dmt.zip
+
+  if [ -d "$backup_dir/user" ]; then
+    mv "$backup_dir/user" ~/.dmt
+  fi
+
+  if [ -d "$backup_dir/state" ]; then
+    mv "$backup_dir/state" ~/.dmt
+  fi
+
+  if [ -d "$backup_dir/log" ]; then
+    mv "$backup_dir/log" ~/.dmt
+  fi
+
+  if [ ! -d "$backup_dir/user" ] && [ ! -d "$backup_dir/state" ] && [ ! -d "$backup_dir/log" ]; then
+    rm -rf "$backup_dir"
+  else
+    printf "${MAGENTA}Warning: couldn't move some things from ${backup_dir} and left it there ... ${NC}\n"
+  fi
+
+  ./install
+
+else
+  printf "${RED}Failed to fetch dmt.zip, aborting ...${NC}\n"
+fi
+
+cd "$cwd"

@@ -2,5 +2,7 @@ device: dmt-new
 
   service: player
     contentRef: music
+    #contentRef: @dmt-server/music
+
     defaultVolume:
       mpv: 70

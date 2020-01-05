@@ -1,0 +1,23 @@
+tmp
+todo.txt
+trash.txt
+
+/.common-deps/node_modules/dmt-*
+/.common-deps/node_modules/fasterix-*
+
+/dmt-*/node_modules
+/fasterix-*/node_modules
+
+/aspect-*/dmt-*/node_modules
+/aspect-*/fasterix-*/node_modules
+
+/dmt-fasterix/fproc/public/bundle*
+/dmt-fasterix/fproc/public_production/bundle*
+
+/playground
+
+/dmt-gui/**/public/*
+
+# allow:
+
+!/dmt-gui/gui-frontend-core/app/public/index.html

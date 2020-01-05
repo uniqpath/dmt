@@ -16,13 +16,13 @@ function port {
   if [[ "$1" =~ ^[0-9]+$ ]]; then
     lsof -i :$1
   elif [ -n "$1" ]; then
-    if macos; then
+    if dmt_macos; then
       sudo lsof -i | grep "$1"
     else
       netstat -l -p | grep "$1"
     fi
   else
-    if macos; then
+    if dmt_macos; then
       sudo lsof -i
     else
       netstat -l -p
@@ -69,7 +69,7 @@ function port2 {
 
 # list all the executable files in folder
 function exe {
-  if macos; then
+  if dmt_macos; then
     find . -type f -perm +111 -print
   else
     find . -type f -executable -print
@@ -139,7 +139,7 @@ function se {
 
     printf "${GREEN}Executing in background screen:\n${YELLOW}${cmd}${NC}\n"
 
-    cmd="if [ -f ~/.bash_aliases ]; then . ~/.bash_aliases; fi; ${cmd}"
+    cmd="if [ -f ~/.dmt/etc/.bash_aliases_bundle ]; then . ~/.dmt/etc/.bash_aliases_bundle; fi; ${cmd}"
 
     if [ -z "$name" ]; then
       local name="dmt_task"
