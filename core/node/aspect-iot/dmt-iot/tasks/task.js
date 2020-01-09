@@ -20,13 +20,13 @@ class Task {
   }
 
   tick() {
-    if (this.program.responsibleNode) {
+    if (this.program.isResponsibleNode()) {
       this.ifTimeOfDay.tick();
     }
   }
 
   handleIotEvent({ topic, msg }) {
-    if (this.program.responsibleNode) {
+    if (this.program.isResponsibleNode()) {
       this.ifMsg.handleIotEvent({ topic, msg });
     }
 

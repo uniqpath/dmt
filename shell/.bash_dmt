@@ -726,13 +726,14 @@ function gui_build_all {
 }
 
 function gui_send_action_to_frontend {
+  local cliGUI="$DMT_PATH/core/node/dmt-gui/cli/gui.js"
   local action="$1"
   local payload
   if [ -n "$2" ]; then
     #action="${action}:${2}"
     payload="$2"
   fi
-  node "${backendDir}/ws_servers/index.js" localhost "$action" gui "$payload"
+  node "${cliGUI}" localhost "$action" gui "$payload"
 }
 
 function dmt_gui {
@@ -768,12 +769,13 @@ function dmt_gui {
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}dmt gui test${NC} ${GRAY}display a test notification on the gui${NC}\n"
     printf "${GREEN}dmt gui @deviceId test${NC} ${GRAY}display a test notification on remote gui${NC}\n"
-    printf "${GREEN}dmt gui cd [gui]${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}dmt gui cd [view]${NC} ${GRAY}${NC}\n"
     # printf "${GREEN}dmt_gui run${NC} ${GRAY}${NC}\n"
     # printf "${GREEN}dmt_gui build${NC} ${GRAY}build all GUIs${NC}\n"
     # printf "${GREEN}dmt_gui build [gui]${NC} ${GRAY}${NC}\n"
-    printf "${GREEN}dmt gui reload${NC} ${GRAY}send request to frontend via websocket requesting refresh of current url${NC}\n"
-    printf "${GREEN}dmt gui reload [view]${NC} ${GRAY}reloads the specified gui view (home, player, debug etc.)${NC}\n"
+    printf "${GREEN}dmt gui load [view]${NC} ${GRAY}loads the specified gui view (home, player, debug etc.)${NC}\n"
+    printf "${GREEN}dmt gui reload${NC} ${GRAY}send request to frontend via websocket requesting reload of current url${NC}\n"
+    printf "${GREEN}dmt gui reload [view]${NC} ${GRAY}reloads to the specified gui view (home, player, debug etc.)${NC}\n"
     printf "${GREEN}dmt gui switch [ip]${NC} ${GRAY}switches gui to specified IP (todo: use deviceId instead of ip)${NC}\n"
     # printf "${GREEN}dmt_gui debug${NC} ${GRAY}shows debugging info for current gui issues troubleshooting${NC}\n"
     return
@@ -794,6 +796,11 @@ function dmt_gui {
       if [ $? -eq 0 ] && [ -d "src" ]; then
         cd "src"
       fi
+      ;;
+
+    load)
+      local view="$1"
+      gui_send_action_to_frontend "load" "$view"
       ;;
 
     reload)
@@ -1033,7 +1040,7 @@ function dmt_next {
 
   if [ -z "$dmt_source" ]; then
     if $dry_run; then echo; fi
-    printf "${GRAY}Could not determine ${MAGENTA}dmtSource ${GRAY}...${NC}"
+    printf "${GRAY}Could not determine ${MAGENTA}dmtSource ${GRAY}... ${NC}"
 
     if [ -d "$DMT_PATH/.git" ]; then
 

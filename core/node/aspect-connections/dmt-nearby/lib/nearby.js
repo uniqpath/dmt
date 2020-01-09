@@ -1,5 +1,5 @@
 const dmt = require('dmt-bridge');
-const { util, log } = dmt;
+const { log } = dmt;
 
 const msgLanbusChatter = require('./messages/lanbusChatter');
 
@@ -20,6 +20,10 @@ class Nearby {
     this.setupNearbyDevicesListRefresh();
 
     this.program.on('player_play_state_changed', () => {
+      this.broadcastOurHelloMessage();
+    });
+
+    this.program.on('responsible_node_state_changed', () => {
       this.broadcastOurHelloMessage();
     });
 

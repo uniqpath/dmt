@@ -16,6 +16,8 @@ const cli = require('./lib/parsers/cli/cliHelper');
 const numberRanges = require('./lib/parsers/numbers/rangeParser');
 const FMLParser = require('./lib/parsers/fml/parser');
 
+const { apMode, apInfo, accessPointIP } = require('./lib/apTools');
+
 const suntime = require('./lib/suntime');
 
 const db = require('./lib/databases');
@@ -52,20 +54,6 @@ function memoryUsage() {
   return memUsage;
 }
 
-function apMode() {
-  const filePath = '/etc/network/interfaces';
-  if (fs.existsSync(filePath)) {
-    try {
-      const lines = scan.readFileLines(filePath);
-      return !!lines.find(line => line.startsWith('hostapd '));
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return false;
-}
-
 module.exports = {
   log,
   util,
@@ -77,15 +65,16 @@ module.exports = {
   numberRanges,
   stopwatch,
   apMode,
+  apInfo,
+  accessPointIP,
   db,
   suntime,
+  loop: util.periodicRepeat,
   guiViews: () => {
     const viewsDefFile = path.join(helper.dmtPath, 'def/gui_views.def');
     return def.values(helper.parseDef(viewsDefFile, { caching: false }).multi);
   },
   commonTruthSource: helper.commonTruthSource,
-
-  accessPointIP: '192.168.1.1',
 
   isInstalled() {
     return fs.existsSync(helper.dmtPath);

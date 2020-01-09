@@ -12,7 +12,7 @@ function setup(program) {
 
   if (thisSpecialNode) {
     program.specialNode = thisSpecialNode;
-    program.responsibleNode = thisSpecialNode.priority == 0;
+    program.setResponsibleNode(thisSpecialNode.priority == 0);
   }
 }
 
@@ -41,17 +41,17 @@ function tick(program) {
         }
       }
 
-      if (pushNotifications && !program.responsibleNode && !otherResponsibleNodeActive) {
+      if (pushNotifications && !program.isResponsibleNode() && !otherResponsibleNodeActive) {
         push.notify(`${program.device.id} took over as a responsible node`);
       }
 
-      if (pushNotifications && program.responsibleNode && otherResponsibleNodeActive) {
+      if (pushNotifications && program.isResponsibleNode() && otherResponsibleNodeActive) {
         push.notify(`${program.device.id} is not a responsible node anymore because a node with higher priority took over`);
       }
 
-      program.responsibleNode = !otherResponsibleNodeActive;
+      program.setResponsibleNode(!otherResponsibleNodeActive);
     } else {
-      program.responsibleNode = false;
+      program.setResponsibleNode(false);
     }
   }
 }

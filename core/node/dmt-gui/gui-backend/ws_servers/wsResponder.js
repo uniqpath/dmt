@@ -1,15 +1,16 @@
 const EventEmitter = require('events');
-const colors = require('colors');
 const dmt = require('dmt-bridge');
+const os = require('os');
+
 const { log } = dmt;
 
 const { Server } = require('dmt-connect');
 
-const constructAction = require('./constructAction');
-
-const loadGuiViewsDef = require('../../loadGuiViewsDef');
-
 const reduceSizeOfStateForGUI = require('../reduceSizeOfStateForGUI');
+
+const frameworkInternalActionReponses = require('./frameworkInternalActionReponses');
+
+const constructAction = require('./constructAction');
 
 class WSResponder extends EventEmitter {
   init({ program, port }) {
@@ -17,6 +18,16 @@ class WSResponder extends EventEmitter {
 
     this.server.on('connection', channel => {
       log.debug(`NEW WS CONNECTION from ${channel.remoteIp}`, { cat: 'ws' });
+
+      if (os.uptime() <= 60 && !channel.initialIdleViewLoad) {
+        const { idleView } = dmt.services('gui');
+        channel.initialIdleViewLoad = true;
+        if (idleView) {
+          setTimeout(() => {
+            channel.send(constructAction({ action: 'load', storeName: 'gui', payload: idleView }));
+          }, 500);
+        }
+      }
 
       const state = { ...reduceSizeOfStateForGUI(program.state), ...{ integrations: undefined } };
       channel.send(JSON.stringify({ state }));
@@ -37,48 +48,11 @@ class WSResponder extends EventEmitter {
     });
   }
 
-  integrationsStateChangeSetup({ program, channel }) {
-    function sendIntegrationsState() {
-      if (program.state.integrations) {
-        channel.send(JSON.stringify({ integrations: program.state.integrations }));
-      }
-    }
-
-    const name = 'integrations_state_updated';
-
-    const callback = () => {
-      if (channel.closed()) {
-        program.removeListener(name, callback);
-      } else {
-        sendIntegrationsState();
-      }
-    };
-
-    program.on(name, callback);
-
-    sendIntegrationsState();
-  }
-
   parseMessage({ program, message, channel }) {
     const { action, storeName, payload } = JSON.parse(message || {});
+
     if (action && storeName) {
-      if (storeName == 'gui') {
-        log.cyan(
-          `Received request to send action ${colors.magenta(`gui:${action}`)} to frontend${
-            payload ? `${colors.cyan(' with payload')} ${colors.yellow(payload)}` : ''
-          }`
-        );
-
-        if (action == 'reload') {
-          loadGuiViewsDef(program);
-        }
-
-        this.server.sendAllChannels(constructAction({ action, storeName, payload }));
-      } else if (storeName == 'rpc') {
-        program.emit('ws_api_request', { action, payload, channel });
-      } else if (storeName == 'connection' && action == 'local_ws') {
-        this.integrationsStateChangeSetup({ program, channel });
-      } else {
+      if (!frameworkInternalActionReponses({ action, storeName, payload, program, channel, server: this.server })) {
         program.receiveAction({ action, storeName, payload });
       }
     } else {

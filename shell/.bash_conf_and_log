@@ -24,6 +24,7 @@ function conf {
     printf "${GREEN}munin:${NC} /etc/munin/munin.conf\n"
     printf "${GREEN}munin-node:${NC} /etc/munin/munin-node.conf\n"
     printf "${GREEN}mosquitto:${NC} /etc/mosquitto/mosquitto.conf ${GRAY}${NC}\n"
+    printf "${GREEN}mysql:${NC} /etc/mysql/mariadb.conf.d ${GRAY}${NC}\n"
 
     return
   fi
@@ -48,6 +49,7 @@ function conf {
     "munin"
     "munin-node"
     "mosquitto"
+    "mysql"
   )
 
   local matching_opt=''
@@ -257,6 +259,17 @@ function conf {
         sudo nano "${conf}"
       else
         printf "${RED}no mosquitto config file found${NC}\n"
+      fi
+      ;;
+
+    mysql)
+      local conf="/etc/mysql/mariadb.conf.d"
+
+      if [ -d "${conf}" ]; then
+        printf "${CYAN}cd ${YELLOW}${conf}${NC}\n"
+        cd "${conf}"
+      else
+        printf "${RED}no mysql/mariadb config directory found${NC}\n"
       fi
       ;;
 

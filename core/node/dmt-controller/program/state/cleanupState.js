@@ -15,11 +15,12 @@ function cleanupStateOnSave(state) {
     delete state.controller.sunrise;
     delete state.controller.sunset;
     delete state.controller.apMode;
+    delete state.controller.apInfo;
     delete state.controller.serverMode;
     delete state.controller.actualGuiPort;
   }
 
-  delete state.deviceDefinition;
+  delete state.services;
 
   delete state.log;
   delete state.nearbySensors;

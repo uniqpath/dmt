@@ -7,7 +7,7 @@ function onTick(program) {
   const now = Date.now();
   const apMode = program.apMode();
 
-  program.store.removeFromStateArray('notifications', el => el.expireAt && el.expireAt < now, { announce: false });
+  program.store.removeFromStateArray('notifications', el => !el.expireAt || el.expireAt < now, { announce: false });
 
   const controllerUpdate = {
     devMachine: dmt.isDevMachine(),

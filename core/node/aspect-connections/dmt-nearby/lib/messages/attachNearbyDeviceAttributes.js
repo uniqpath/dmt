@@ -1,4 +1,4 @@
-function msgProgramExpand({ program = null, msg }) {
+function attachNearbyDeviceAttributes({ program = null, msg }) {
   if (program) {
     const playerState = program.state.player;
 
@@ -31,9 +31,11 @@ function msgProgramExpand({ program = null, msg }) {
       msg.specialNodePriority = thisSpecialNode.priority;
       msg.networkId = thisSpecialNode.networkId;
     }
+
+    msg.responsibleNode = program.isResponsibleNode();
   }
 
   return msg;
 }
 
-module.exports = msgProgramExpand;
+module.exports = attachNearbyDeviceAttributes;

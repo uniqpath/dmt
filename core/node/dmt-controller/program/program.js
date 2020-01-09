@@ -1,5 +1,6 @@
 const EventEmitter = require('events');
 const colors = require('colors');
+
 const { push, desktop } = require('dmt-notify');
 
 const dmt = require('dmt-bridge');
@@ -35,8 +36,6 @@ class Program extends EventEmitter {
 
     ensureDirectories();
 
-    this.defineServices();
-
     this.log = dmt.log;
 
     this.device = dmt.device();
@@ -52,9 +51,6 @@ class Program extends EventEmitter {
 
     this.state = { notifications: [] };
 
-    const deviceDefinition = { ...this.device };
-    delete deviceDefinition.try;
-
     this.store = new Store(this, {
       initState: {
         controller: {
@@ -62,16 +58,22 @@ class Program extends EventEmitter {
           devMachine: dmt.isDevMachine(),
           devCluster: dmt.isDevCluster(),
           apMode: this.apMode()
-        },
-        deviceDefinition
+        }
       }
     });
+
+    if (this.apMode()) {
+      this.updateState({ controller: { apInfo: dmt.apInfo() } }, { announce: false });
+    }
 
     if (def.isTruthy(this.device.demo)) {
       this.updateState({ controller: { demoDevice: this.device.demo } }, { announce: false });
     } else {
       this.removeStoreElement({ storeName: 'controller', key: 'demoDevice' }, { announce: false });
     }
+
+    const guiServiceDef = dmt.services('gui');
+    this.updateState({ services: { gui: guiServiceDef } }, { announce: false });
 
     if (def.isTruthy(this.device.serverMode)) {
       this.updateState({ controller: { serverMode: true } }, { announce: false });
@@ -119,6 +121,15 @@ class Program extends EventEmitter {
     }
 
     setupTimeUpdater(this);
+  }
+
+  setResponsibleNode(isResponsible) {
+    this.responsibleNode = isResponsible;
+    this.emit('responsible_node_state_changed');
+  }
+
+  isResponsibleNode() {
+    return this.responsibleNode;
   }
 
   registerRpcService(service) {
@@ -183,36 +194,19 @@ class Program extends EventEmitter {
     return this.device.try('service[gui].disable') != 'true';
   }
 
-  defineServices() {
-    const services = dmt
-      .services()
-      .filter(service => service.id != 'player')
-      .map(s => s.id);
-
-    const playerServiceId = 'player';
-    const playerService = dmt.services(playerServiceId);
-    if (playerService && playerService.contentRef) {
-      services.push(playerServiceId);
-    }
-
-    log.debug(`Services: ${colors.cyan(JSON.stringify(services, null, 2))}`);
-
-    this.services = services.map(serviceId => dmt.services(serviceId)).filter(service => !service.empty);
-  }
-
   showNotification({ id, msg, ttl, color, bgColor }) {
+    const DEFAULT_TTL = 30;
+
     const notification = {
       id,
       msg,
       color,
       bgColor,
-      expireAt: Date.now() + ttl * 1000,
+      expireAt: Date.now() + (ttl || DEFAULT_TTL) * 1000,
       addedAt: Date.now()
     };
 
     this.store.pushToStateArray('notifications', notification);
-
-    desktop.notify('dmt notification', msg);
   }
 
   updateState(newState, { announce = true } = {}) {

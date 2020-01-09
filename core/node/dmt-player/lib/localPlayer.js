@@ -112,6 +112,9 @@ class LocalPlayer {
           case 'volume_down':
             this.volume('down').catch(() => {});
             break;
+          case 'forward':
+            this.forward(payload.seconds).catch(() => {});
+            break;
           case 'play_next':
             this.next().catch(() => {});
             break;
@@ -599,10 +602,12 @@ class LocalPlayer {
     const prevVolume = this.program.state.player.volume;
     let newVolume;
 
+    const volumeStep = parseInt(dmt.services('player').volumeStep || 10);
+
     if (vol == 'up') {
-      newVolume = Math.min(100, prevVolume + 10);
+      newVolume = Math.min(100, prevVolume + volumeStep);
     } else if (vol == 'down') {
-      newVolume = Math.max(0, prevVolume - 10);
+      newVolume = Math.max(0, prevVolume - volumeStep);
     } else if (!isNaN(parseInt(vol))) {
       newVolume = parseInt(vol);
       if (newVolume < 0) {

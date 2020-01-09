@@ -166,8 +166,18 @@ class MpvEngine extends EventEmitter {
     if (this.playerInitialized && !util.compare(this.playerEngineState, newState)) {
       this.program.updateState({ player: newState });
 
+      clearTimeout(this.stateChangedSmallDelayTimer);
+
       if (this.playerEngineState.paused != newState.paused || this.playerEngineState.currentMedia.mediaType != newState.currentMedia.mediaType) {
-        this.program.emit('player_play_state_changed', { paused: newState.paused, mediaType: newState.currentMedia.mediaType });
+        const emit = () => {
+          this.program.emit('player_play_state_changed', { paused: newState.paused, mediaType: newState.currentMedia.mediaType });
+        };
+
+        if (newState.paused) {
+          this.stateChangedSmallDelayTimer = setTimeout(emit, 100);
+        } else {
+          emit();
+        }
       }
     }
 
@@ -357,7 +367,7 @@ class MpvEngine extends EventEmitter {
         return;
       }
 
-      log.gray(`Trying connection to ${colors.yellow('mpv (multimedia player) process')}`);
+      log.gray(`Connecting to ${colors.yellow('mpv (multimedia player) process')}`);
 
       this.mpvProcess
         .connect()

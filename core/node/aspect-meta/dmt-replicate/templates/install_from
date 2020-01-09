@@ -17,8 +17,8 @@
 # - node.js > v12.7 (macOS / linux: curl -L https://git.io/n-install | bash)
 # - mpv.io (for multimedia play)
 #
-# RPi beta recipe:
-# https://dmt-system.com/guide/dmt_rpi_beta_recipe.pdf
+# RPi guide:
+# https://github.com/uniqpath/info/blob/master/assets/pdf/rpi_guide.pdf
 
 # DEFINE COLORS
 YELLOW='\033[0;33m'

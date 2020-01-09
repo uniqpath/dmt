@@ -3,6 +3,7 @@ const { util, def, log } = dmt;
 
 import Twitter from 'twitter';
 import favoriteTweets from './lib/favoriteTweets.js';
+import tweets from './lib/tweets.js';
 const tokens = dmt.accessTokens('twitter');
 
 const refreshInterval = 15 * 60 * 1000;

@@ -4,7 +4,7 @@ const powerline = require('../powerline');
 const { PowerMonitor, powerLog } = powerline;
 
 function notify({ msg, program, notifyOnlyAdmin }) {
-  if (program.responsibleNode) {
+  if (program.isResponsibleNode()) {
     if (notifyOnlyAdmin) {
       push.notify(msg);
     } else {
@@ -14,9 +14,9 @@ function notify({ msg, program, notifyOnlyAdmin }) {
 }
 
 class OnOffMonitor {
-  constructor({ program, deviceName, idleSeconds, notifyOnlyAdmin = false }) {
+  constructor({ program, deviceName, idleSeconds, safetyOffSeconds, notifyOnlyAdmin = false }) {
     this.program = program;
-    this.pm = new PowerMonitor(deviceName, { idleSeconds });
+    this.pm = new PowerMonitor(deviceName, { program, idleSeconds, safetyOffSeconds });
 
     this.pm.on('start', e => {
       const msg = `${e.device} is ON …`;

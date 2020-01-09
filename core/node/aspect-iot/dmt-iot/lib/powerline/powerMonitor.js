@@ -1,8 +1,12 @@
+const dmt = require('dmt-bridge');
+const { log } = dmt;
+const { push } = require('dmt-notify');
+
 const EventEmitter = require('events');
 const sensorMsg = require('../sensorMessageFormats');
 
 class PowerMonitor extends EventEmitter {
-  constructor(tasmotaDeviceName, { idleSeconds = 120 } = {}) {
+  constructor(tasmotaDeviceName, { program, idleSeconds = 120, safetyOffSeconds = null } = {}) {
     super();
 
     this.sensorTopic = tasmotaDeviceName;
@@ -13,6 +17,21 @@ class PowerMonitor extends EventEmitter {
     this.idleSeconds = idleSeconds;
 
     this.aboveThresholdCounter = 0;
+
+    dmt.loop(() => {
+      if (
+        program &&
+        program.isResponsibleNode() &&
+        this.onDetectedAt &&
+        safetyOffSeconds &&
+        Date.now() - this.onDetectedAt > safetyOffSeconds * 1000 &&
+        !this.safetyOffAlreadyRequested
+      ) {
+        push.notify(`${tasmotaDeviceName} safety OFF requested.`);
+        program.iotMsg(`cmnd/${tasmotaDeviceName}/power`, '0');
+        this.safetyOffAlreadyRequested = true;
+      }
+    }, 5000);
   }
 
   handleReading({ topic, msg }) {
@@ -25,14 +44,14 @@ class PowerMonitor extends EventEmitter {
 
       const deviceHandle = parsedMsg.id;
 
-      const deviceHandleUpcase = deviceHandle.toUpperCase();
-
       const current = data.Current;
 
       if (current > this.onTriggerThreshold) {
         if (this.aboveThresholdCounter >= this.aboveThresholdCounterTrigger) {
           if (!this.deviceOn) {
+            this.onDetectedAt = Date.now();
             this.emit('start', { device: deviceHandle, time });
+            this.safetyOffAlreadyRequested = false;
           }
 
           this.deviceOn = true;
@@ -63,6 +82,8 @@ class PowerMonitor extends EventEmitter {
               this.deviceOn = false;
               this.maxIdle = null;
               this.lastAboveThreshholdTime = null;
+              this.safetyOffAlreadyRequested = false;
+              this.onDetectedAt = null;
             }
           }
         }

@@ -57,6 +57,7 @@ function dmtFilesAndSymlinks({ replicateExcludedByUser }) {
   const _replicateExcludedByUser = replicateExcludedByUser || (() => false);
 
   const pkgPath = dmt.dmtPath;
+
   const files = scan.recursive(pkgPath, {
     flatten: true,
     includeSymlinks: true,

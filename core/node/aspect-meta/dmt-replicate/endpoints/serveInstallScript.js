@@ -87,4 +87,3 @@ function install({ req, res, isCurl, program, port }) {
 }
 
 module.exports = install;
-
