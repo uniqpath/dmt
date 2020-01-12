@@ -7,6 +7,7 @@ function cleanupStateOnSave(state) {
     delete state.controller.time;
     delete state.controller.date;
     delete state.controller.dow;
+    delete state.controller.holiday;
     delete state.controller.ip;
     delete state.controller.ticker;
     delete state.controller.devMachine;

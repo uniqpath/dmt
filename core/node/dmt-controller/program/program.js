@@ -174,6 +174,12 @@ class Program extends EventEmitter {
     }
   }
 
+  country() {
+    if (this.network) {
+      return this.network.country();
+    }
+  }
+
   lang() {
     if (this.network) {
       return this.network.lang();

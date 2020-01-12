@@ -15,6 +15,10 @@ class Network {
     return this.try('latlng');
   }
 
+  country() {
+    return this.try('country');
+  }
+
   lang() {
     return this.try('lang') || 'eng';
   }

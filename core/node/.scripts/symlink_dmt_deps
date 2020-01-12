@@ -52,6 +52,7 @@ declare -a DepList=(
   "aspect-meta/dmt-meta"
   "aspect-meta/dmt-replicate"
   "aspect-meta/dmt-sysinfo"
+  "aspect-meta/dmt-holidays"
 
   "dmt-integrations"
   "aspect-integrations/dmt-twitter"

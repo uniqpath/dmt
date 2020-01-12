@@ -449,6 +449,8 @@ class LocalPlayer {
         }
       }
 
+      limit = Math.min(limit, this.playlist.count() - this.playlist.currentIndex);
+
       this.program.updateState({ player: { limit } }, { announce: false });
       this.program.removeStoreElement({ storeName: 'player', key: 'timeLimit' }, { announce: false });
 
@@ -471,7 +473,7 @@ class LocalPlayer {
           timeLimit = num;
         } else if (!timeLimit) {
           timeLimit = 10;
-        } else if (timeLimit < 30) {
+        } else if (timeLimit < 25) {
           timeLimit += 10;
           if (timeLimit > 30) {
             timeLimit = 30;

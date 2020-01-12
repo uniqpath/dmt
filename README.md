@@ -136,7 +136,7 @@ Core never calls bash functions except in [a few specific cases](https://github.
 
 **Linux** (Debian, Raspbian etc.) / **macOS** / **Windows 10 Ubuntu shell**:
 
-Short, simple and effective install 💡🚀🎸:
+Short, simple and effective install 💡🚀🎸 —
 
 ```
 git clone https://github.com/uniqpath/dmt.git ~/.dmt; cd ~/.dmt; ./install
