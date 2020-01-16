@@ -67,7 +67,11 @@ class LocalPlayer {
 
     const playNext = () =>
       this.next({ fromAction: false })
-        .then(() => this.playlist.rollover())
+        .then(() => {
+          if (!this.program.state.player.repeatCount) {
+            this.playlist.rollover();
+          }
+        })
         .catch(() => {
           this.timeLimit('reset');
         });
@@ -120,6 +124,9 @@ class LocalPlayer {
             break;
           case 'shuffle_playlist':
             this.shuffle().catch(() => {});
+            break;
+          case 'repeat_increase':
+            this.repeatIncrease();
             break;
           case 'stop':
             this.stop().catch(() => {});
@@ -316,7 +323,29 @@ class LocalPlayer {
     this.playlist.shuffle();
   }
 
+  repeatIncrease() {
+    const maxRepeat = 3;
+
+    let { repeatCount } = this.program.state.player;
+
+    if (repeatCount == null) {
+      repeatCount = 1;
+    } else {
+      repeatCount += 1;
+    }
+
+    if (repeatCount > maxRepeat) {
+      repeatCount = undefined;
+    }
+
+    this.program.updateState({ player: { repeatCount } });
+  }
+
   decrementLimit() {
+    if (this.program.state.player.repeatCount) {
+      return false;
+    }
+
     const { limit } = this.program.state.player;
     if (limit > 1) {
       this.program.updateState({ player: { limit: limit - 1 } }, { announce: false });
@@ -351,19 +380,34 @@ class LocalPlayer {
               .catch(reject);
           })
           .catch(reject);
-      } else if (this.playlist.selectNextSong() != null) {
-        if (fromAction) {
-          this.decrementLimit();
-        }
-
-        this.playCurrent()
-          .then(song => {
-            this.playlist.broadcastPlaylistState();
-            success(song);
-          })
-          .catch(reject);
       } else {
-        reject();
+        const cont = () => {
+          this.playCurrent()
+            .then(song => {
+              this.playlist.broadcastPlaylistState();
+              success(song);
+            })
+            .catch(reject);
+        };
+
+        if (!fromAction && this.program.state.player.repeatCount) {
+          let { repeatCount } = this.program.state.player;
+          if (repeatCount == 1) {
+            repeatCount = null;
+          } else {
+            repeatCount -= 1;
+          }
+          this.program.updateState({ player: { repeatCount } });
+          cont();
+        } else if (this.playlist.selectNextSong() != null) {
+          this.program.updateState({ player: { repeatCount: undefined } });
+          if (fromAction) {
+            this.decrementLimit();
+          }
+          cont();
+        } else {
+          reject();
+        }
       }
     });
   }

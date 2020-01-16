@@ -6,6 +6,8 @@ const { log } = dmt;
 
 const Channel = require('./channel');
 
+const getRemoteIp = require('./getRemoteIp');
+
 function noop() {}
 
 function heartbeat() {
@@ -68,11 +70,18 @@ class WsServer extends EventEmitter {
 
   enumerateConnections() {
     let num = 0;
+    const list = [];
+
     this.wss.clients.forEach(ws => {
       num += 1;
+      list.push({
+        ip: getRemoteIp(ws)
+      });
     });
 
-    return num;
+    list.push({ num });
+
+    return list.reverse();
   }
 
   periodicCleanupAndPing() {

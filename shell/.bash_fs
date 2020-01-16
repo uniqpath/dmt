@@ -1398,7 +1398,7 @@ function tape {
 
     restore)
       local dir="$1" # optional! if we call tar -xf without the directory which we want to extract, we will extract the entire archive
-      time sudo tar -b 2048 -xf /dev/nst0 "$dir" #--verbose --verbose
+      time sudo tar -b 2048 -xvf /dev/nst0 "$dir" #--verbose --verbose
       #tar -b 2048 -xf /dev/nst0 "$dir"
       ;;
   esac

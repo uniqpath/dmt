@@ -12,12 +12,22 @@ const frameworkInternalActionReponses = require('./frameworkInternalActionRepons
 
 const constructAction = require('./constructAction');
 
+function enumerateConnections({ server, program }, { announce = false } = {}) {
+  program.updateState({ sysinfo: { connections: server.enumerateConnections() } }, { announce });
+}
+
 class WSResponder extends EventEmitter {
   init({ program, port }) {
     this.server = new Server();
 
+    program.on('tick', () => {
+      enumerateConnections({ server: this.server, program });
+    });
+
     this.server.on('connection', channel => {
       log.debug(`NEW WS CONNECTION from ${channel.remoteIp}`, { cat: 'ws' });
+
+      enumerateConnections({ server: this.server, program }, { announce: true });
 
       if (os.uptime() <= 60 && !channel.initialIdleViewLoad) {
         const { idleView } = dmt.services('gui');

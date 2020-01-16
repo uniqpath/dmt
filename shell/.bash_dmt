@@ -195,6 +195,7 @@ function dmt {
 
     debug)
       local markerfile="$DMT_STATE/.debug-mode"
+      local markerfile_display="~/.dmt/state/.debug-mode"
       if [ -z "$1" ] || [ "$1" == "on" ] || [ "$1" == "enable" ]; then
         if [ -f "$markerfile" ]; then
           printf "${GRAY}✓ Debug mode was already enabled${NC}\n"
@@ -203,9 +204,9 @@ function dmt {
           printf "${GREEN}✓ ${YELLOW}Debug mode ⚙️  enabled${NC}\n"
         fi
 
-        printf "\n${MAGENTA}Micro-Debugging options:${NC}\n"
+        printf "\n${MAGENTA}Debugging options:${NC}\n"
 
-        printf "\nEdit ${YELLOW}${markerfile}${NC} file to increase debug log level (one line, one category like ${GREEN}mpv${NC}, ${GREEN}lan${NC} etc.) ${GRAY}⚠️  This will get lost when you execute ${GREEN}dmt debug off${GRAY}.${NC}\n"
+        printf "\nEdit ${YELLOW}${markerfile_display}${NC} file to increase debug log level (one line, one category like ${GREEN}mpv${NC}, ${GREEN}lan${NC} etc.) ${GRAY}⚠️  This will get lost when you execute ${GREEN}dmt debug off${GRAY}.${NC}\n"
         printf "\nTo make it more permanent, add this to device.def ${GRAY}(command:${NC} ${GREEN}dev edit${NC}${GRAY})${NC}:\n"
         printf "${MAGENTA}debug:${NC}\n"
         printf "  ${MAGENTA}log: ${GRAY}mpv${NC}\n"

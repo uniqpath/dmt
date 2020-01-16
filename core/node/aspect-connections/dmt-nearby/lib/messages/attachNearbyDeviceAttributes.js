@@ -5,7 +5,7 @@ function attachNearbyDeviceAttributes({ program = null, msg }) {
     if (playerState) {
       const playing = !playerState.paused && (playerState.isStream || (playerState.currentMedia && playerState.currentMedia.songPath));
 
-      msg.playing = playing;
+      msg.playing = !!playing;
       if (playerState.currentMedia) {
         msg.mediaType = playerState.currentMedia.mediaType;
       }
