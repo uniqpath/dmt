@@ -131,6 +131,9 @@ class LocalPlayer {
           case 'stop':
             this.stop().catch(() => {});
             break;
+          case 'insert_selected':
+            this.insertSelected();
+            break;
           case 'cut_selected':
             this.cutSelected();
             break;
@@ -305,6 +308,11 @@ class LocalPlayer {
 
   async paste() {
     this.playlist.paste();
+  }
+
+  insertSelected() {
+    this.cutSelected();
+    this.paste();
   }
 
   async bump(args) {

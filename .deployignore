@@ -1,4 +1,5 @@
 deploy
+deploy_github_omit
 .prevent_dmt_next
 todo.txt
 /etc/.bash_aliases_bundle

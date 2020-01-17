@@ -26,7 +26,6 @@ function rpc({ action, payload, program, channel }) {
 
 function connection({ action, channel, program }) {
   if (action == 'local_ws') {
-    integrationsStateChangeSetup({ program, channel });
   }
 }
 

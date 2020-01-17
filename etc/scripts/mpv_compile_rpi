@@ -22,8 +22,11 @@ printf "${GRAY}No LSB modules are available.${NC}\n"
 printf "${GRAY}Distributor ID: Raspbian${NC}\n"
 #printf "${GRAY}Description:  Raspbian GNU/Linux ...${NC}\n"
 printf "${GRAY}Description:  Raspbian GNU/Linux X.Y (stretch)${NC}\n"
-printf "${GRAY}Release:  9.4 or 9.8 (possibly even higher)${NC}\n"
+printf "${GRAY}Release:  9${NC}\n"
 printf "${GRAY}Codename: stretch${NC}\n"
+
+echo
+printf "${RED}If you compile for v10 (Buster), the playback will not be reliable ... use v9 (Stretch) !${NC}\n"
 
 read -r -p "Continue with mpv build? [Y/n] " response
 if [[ $response =~ ^([nN])$ ]]
@@ -31,6 +34,7 @@ then
   exit
 fi
 
+raspbian_release=$(lsb_release -a | grep Codename)
 
 # PREREQUISITES:
 
@@ -155,6 +159,17 @@ wget -q --show-progress --no-use-server-timestamps https://github.com/raspberryp
 wget -q --show-progress --no-use-server-timestamps http://www.freehackers.org/~tnagy/release/waf-2.0.9
 
 
+if [[ $raspbian_release =~ buster ]]; then
+
+  wget -q --show-progress --no-use-server-timestamps https://github.com/raspberrypi/firmware/raw/master/hardfp/opt/vc/lib/pkgconfig/brcmglesv2.pc
+
+  wget -q --show-progress --no-use-server-timestamps https://github.com/raspberrypi/firmware/raw/master/hardfp/opt/vc/lib/pkgconfig/brcmegl.pc
+
+  sudo cp brcmglesv2.pc /opt/vc/lib/pkgconfig
+
+  sudo cp brcmegl.pc /opt/vc/lib/pkgconfig
+
+fi
 
 
 
@@ -244,6 +259,16 @@ cp "${target}/Vidware_Downloads/waf" "${target}/Vidware_Build/mpv"
 
 
 
+
+if [[ $raspbian_release =~ buster ]]; then
+
+  cd "${target}/Vidware_Build/mpv"
+
+  wget  https://github.com/mpv-player/mpv/files/3458510/0001-6838-Fix-rpi-compile-issues.patch.txt
+
+  patch  -p1  <  0001-6838-Fix-rpi-compile-issues.patch.txt
+
+fi
 
 
 

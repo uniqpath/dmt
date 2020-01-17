@@ -90,6 +90,7 @@ module.exports = program => {
         }
 
         let { protectVisibility } = view;
+
         if (matchWallpaper && matchWallpaper.protectVisibility) {
           protectVisibility = matchWallpaper.protectVisibility;
         }

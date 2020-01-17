@@ -36,10 +36,9 @@ function replicateAllowed(entry) {
     entry.reldir != 'user' &&
     entry.reldir != 'state' &&
     entry.reldir != 'log' &&
-    entry.reldir != 'playground' &&
-    entry.reldir != 'core/node/playground' &&
     entry.relpath != 'todo.txt' &&
     entry.relpath != 'tagversion' &&
+    entry.relpath != 'core/node/.gitignore' &&
     entry.relpath != 'shell/.bash_staging' &&
     entry.relpath != 'etc/.bash_aliases_bundle' &&
     entry.relpath != 'etc/.bash_aliases_slim' &&

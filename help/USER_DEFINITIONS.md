@@ -26,10 +26,10 @@ We do have a few possible subkeys as options:
 
 ```
 user:
-  shell: full | full_with_prompt
+  shell: full | full_without_prompt
 ```
 
-`shell` subkey has two possible values: `full` and `full_with_prompt`.<br>
+`shell` subkey has two possible values: `full` and `full_without_prompt`.<br>
 This turns on the full bash shell with or without prompt customizations.
 
 Read more in [shell framework section](SHELL_FRAMEWORK.md).

@@ -6,3 +6,7 @@ device: dmt-new
 
     defaultVolume:
       mpv: 70
+
+    service: gui
+      #theme: dmt_mountains
+      #idleView: clock

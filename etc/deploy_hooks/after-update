@@ -2,4 +2,4 @@
 
 DMT_NODE_CORE="$HOME/.dmt/core/node"
 
-node "${DMT_NODE_CORE}/dmt-gui/gui-backend/ws_servers/index.js" localhost reload gui
+node "${DMT_NODE_CORE}/dmt-gui/cli/gui.js" localhost reload gui

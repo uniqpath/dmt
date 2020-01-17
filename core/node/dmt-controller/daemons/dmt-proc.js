@@ -17,16 +17,17 @@ mids.push('player');
 mids.push('search');
 mids.push('connections/lanbus');
 mids.push('connections/nearby');
+mids.push('connections/fiber');
 mids.push('iot/iot');
 
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
 
 mids.push('content/samba');
+
 mids.push('meta/bash-exec');
 mids.push('meta/replicate');
-mids.push('meta/holidays');
-
 mids.push('meta/sysinfo');
+mids.push('meta/holidays');
 
 try {
   program({ mids });

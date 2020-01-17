@@ -209,7 +209,7 @@ if [ "$1" == "install" ]; then
 
   shift
 
-  APSSID="RPi-NETWORK"
+  APSSID="DMT-AP"
   APPASS="password"
 
   if [ -n "$1" ]; then
@@ -267,7 +267,7 @@ EOF
   echo
   printf "${GRAY}ssid: ${CYAN}${APSSID}${NC}\n"
   printf "${GRAY}pass: ${CYAN}${APPASS}${NC}\n"
-  printf "To change: ${GREEN}conf hostapd${NC}\n"
+  printf "To change: ${GREEN}conf ap${NC}\n"
 
   printf "${RED}Now execute: ${GREEN}ap enable${NC} to enable AP\n"
 

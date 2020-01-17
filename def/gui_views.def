@@ -49,9 +49,8 @@ view: clock
   wallpaper: /wallpapers/space/violet-wave-planet.jpg
     theme: dmt_space
 
-  wallpaper: /wallpapers/mountains/sunny_winter.jpg
+  wallpaper: /wallpapers/mountains/bridge.jpg
     theme: dmt_mountains
-    protectVisibility: true
 
   wallpaper: /wallpapers/landscape/foggy_forest.jpg
     theme: dmt_mist

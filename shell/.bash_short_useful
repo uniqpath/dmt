@@ -9,6 +9,14 @@ function mpvc {
   fi
 }
 
+function save_alsa {
+  dmt_save_alsa
+}
+
+function restore_alsa {
+  dmt_restore_alsa
+}
+
 function video_test {
   local test_file="/root/Media/Video/Neutron_Stars_Colliding_1080p.mp4"
 

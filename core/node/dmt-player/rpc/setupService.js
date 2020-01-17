@@ -1,6 +1,8 @@
 const dmt = require('dmt-bridge');
 const { def, cli, log } = dmt;
 
+const colors = require('colors');
+
 const { SearchClient } = require('dmt-search');
 const LocalPlayer = require('../lib/localPlayer');
 

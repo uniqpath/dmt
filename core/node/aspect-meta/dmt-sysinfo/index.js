@@ -9,9 +9,11 @@ function init(program) {
   program.on('tick', () => {
     const processes = program.state.sysinfo.processes || {};
     Promise.all(observedProcesses.map(proc => proc.profile())).then(procData => {
-      for (const data of procData.filter(data => data)) {
-        const procname = Object.keys(data)[0];
-        processes[procname] = Object.values(data)[0];
+      for (const data of procData) {
+        if (data) {
+          const procname = Object.keys(data)[0];
+          processes[procname] = Object.values(data)[0];
+        }
       }
       program.updateState({ sysinfo: { processes } }, { announce: false });
     });

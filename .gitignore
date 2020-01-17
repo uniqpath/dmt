@@ -1,12 +1,32 @@
-deploy
-.deploy
-tagversion
-todo.txt
 /user
 /state
 /log
 /etc/.bash_aliases_bundle
 /etc/.bash_aliases_slim
+
+.deploy
+deploy
+deploy_github_omit
+tagversion
+todo.txt
 /shell/.bash_staging
 /shell/.bash_temp
 .trash
+
+# core/node
+
+/core/node/.common-deps/node_modules/dmt-*
+/core/node/.common-deps/node_modules/fasterix-*
+
+/core/node/dmt-*/node_modules
+/core/node/fasterix-*/node_modules
+
+/core/node/aspect-*/dmt-*/node_modules
+/core/node/aspect-*/fasterix-*/node_modules
+
+# gui public
+/core/node/dmt-gui/**/public/*
+# allow public dist:
+!/core/node/dmt-gui/gui-frontend-core/app/public/index.html
+!/core/node/dmt-gui/gui-frontend-core/app/public/bundle.js
+!/core/node/dmt-gui/gui-frontend-core/app/public/bundle.css

@@ -22,10 +22,10 @@ elif [ -n "$BASH_VERSION" ]; then
 
     if [ -f "$DIR/.shell_advanced" ] && [[ "$__user_shell" =~ ^full ]]; then
       . "$DIR/.shell_advanced"
-    fi
 
-    if [ -f "$DIR/.bash_custom" ] && [ "$__user_shell" == "full_with_prompt" ]; then
-      . "$DIR/.bash_custom"
+      if [ -f "$DIR/.bash_custom" ] && [ "$__user_shell" != "full_without_prompt" ]; then
+        . "$DIR/.bash_custom"
+      fi
     fi
   fi
 

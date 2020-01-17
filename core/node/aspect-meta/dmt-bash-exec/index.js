@@ -5,6 +5,7 @@ const { log } = dmt;
 
 const bashSetAccessPoint = require('./lib/setAccessPoint');
 const bashReboot = require('./lib/reboot');
+const bashDmtNext = require('./lib/dmtNext');
 
 const scriptsPath = path.join(dmt.dmtPath, 'etc/scripts');
 
@@ -12,6 +13,14 @@ function init(program) {
   program.on('action', ({ action, storeName }) => {
     if (storeName == 'controller') {
       log.yellow(`Received ${colors.magenta(storeName)}:${colors.cyan(action)} action`);
+
+      switch (action) {
+        case 'dmt_next':
+          bashDmtNext({ scriptsPath });
+          return;
+        default:
+          break;
+      }
 
       if (!dmt.isRPi()) {
         log.red(

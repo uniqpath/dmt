@@ -101,7 +101,7 @@ cwd="`pwd`"
 cd $(mktemp -d)
 
 printf "${CYAN}Fetching from ${MAGENTA}{{host}}${NC} ...\n\n"
-printf "${YELLOW}Please wait for up to a minute even if nothing seems to be happening...${NC}\n"
+printf "${YELLOW}Please wait for up to a minute even if nothing seems to be happening ...${NC}\n"
 curl -L {{protocol}}://{{host}}/dmt.zip -o dmt.zip
 
 if [ -f dmt.zip ]; then
@@ -135,6 +135,15 @@ if [ -f dmt.zip ]; then
   cd ~/.dmt
 
   unzip dmt.zip
+
+  if [ $? -ne 0 ]; then # error
+    printf "${RED}Error when unzipping dmt.zip, aborting and reverting ...${NC}\n"
+    rm -rf ~/.dmt
+    mv "$backup_dir" ~/.dmt
+    cd "$cwd"
+    exit
+  fi
+
   rm dmt.zip
 
   if [ -d "$backup_dir/user" ]; then

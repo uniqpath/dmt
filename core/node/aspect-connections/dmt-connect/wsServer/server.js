@@ -79,7 +79,9 @@ class WsServer extends EventEmitter {
       });
     });
 
-    list.push({ num });
+    if (list.length > 0) {
+      list.push({ num });
+    }
 
     return list.reverse();
   }

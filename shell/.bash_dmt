@@ -294,6 +294,7 @@ function dmt {
       local cwd="`pwd`"
       cd "$DMT_NODE_CORE/.scripts"
       ./symlink_dmt_deps
+      printf "${GREEN}Linked.${NC}\n"
       cd "$cwd"
       ;;
 
@@ -301,6 +302,7 @@ function dmt {
       local cwd="`pwd`"
       cd "$DMT_NODE_CORE/.scripts"
       ./symlink_dmt_deps "remove"
+      printf "${MAGENTA}Unlinked.${NC}\n"
       cd "$cwd"
       ;;
 
@@ -832,9 +834,11 @@ function dmt_gui {
     build)
       dmt_symlink_nodejs_deps
 
+      local cwd="`pwd`"
+
       if [ -z "$1" ]; then
         dmt_gui build app
-        #gui_build_all
+        cd "$cwd"
         return
       fi
 
@@ -842,6 +846,8 @@ function dmt_gui {
       if [ $? -eq 0 ]; then
         npm run build
       fi
+
+      cd "$cwd"
       ;;
 
     debug)
@@ -1095,6 +1101,8 @@ function dmt_next {
 
   local cwd="`pwd`"
 
+  printf "${MAGENTA}dmtSource${NC} = ${CYAN}${dmt_source}${NC}\n"
+
   curl -L "${dmt_source}" | bash
 
   # ~/.dmt directory will get replaced under us ...
@@ -1102,6 +1110,14 @@ function dmt_next {
   cd "$cwd"
 
   dmt start
+
+  printf "${GRAY}Waiting 1s ...${NC}\n"
+  sleep 1
+
+  printf "${YELLOW}Sending gui reload request ...${NC}\n"
+  dmt_gui reload
+
+  printf "${GREEN}Done.${NC}\n"
 }
 
 function dmt_next_help {

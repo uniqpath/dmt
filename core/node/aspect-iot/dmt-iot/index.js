@@ -19,15 +19,15 @@ function init(program) {
 
   if (program.specialNodes.length > 0) {
     iotBus.init({ specialNodes: program.specialNodes });
-
-    iotBus.on('message', msg => {
-      program.emit('iot:message', msg);
-    });
-
-    import('./loadIotModules.mjs').then(exp => {
-      exp.default({ program, modulesPath });
-    });
   }
+
+  iotBus.on('message', msg => {
+    program.emit('iot:message', msg);
+  });
+
+  import('./loadIotModules.mjs').then(exp => {
+    exp.default({ program, modulesPath });
+  });
 
   program.on('iot:message', ({ topic, msg }) => {
     if (topic == 'onoff_monitor_safety_off_warning') {

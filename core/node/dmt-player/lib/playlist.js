@@ -13,6 +13,21 @@ const DIRECT_PLAY_ROLLOVER_TRIGGERING_INDEX = 15;
 class Playlist {
   constructor({ program }) {
     this.program = program;
+
+    program.on('tick', () => {
+      const { playlistMetadata } = program.state;
+
+      if (playlistMetadata) {
+        const deselectAfterSeconds = 30;
+
+        if (!playlistMetadata.lastSelectedAt) {
+          this.deselectAll();
+        } else if (Date.now() - playlistMetadata.lastSelectedAt > deselectAfterSeconds * 1000) {
+          this.deselectAll();
+          program.removeStoreElement({ storeName: 'playlistMetadata', key: 'lastSelectedAt' }, { announce: false });
+        }
+      }
+    });
   }
 
   init(currentSongPath, isStream) {
@@ -169,6 +184,12 @@ class Playlist {
   }
 
   cut(args, { fromGui = false } = {}) {
+    if (this.cutInProgress) {
+      return;
+    }
+
+    this.cutInProgress = true;
+
     clearTimeout(this.chanceToPasteTimer);
 
     this.cutMarked();
@@ -177,6 +198,7 @@ class Playlist {
 
     if (rangePatternOrStr.match(/[a-zA-Z]/)) {
       this.cutSearch(rangePatternOrStr);
+      this.cutInProgress = false;
       return;
     }
 
@@ -200,6 +222,8 @@ class Playlist {
         }
       }
     }
+
+    this.cutInProgress = false;
   }
 
   cutSearch(terms) {
@@ -262,7 +286,7 @@ class Playlist {
       this.chanceToPasteTimer = setTimeout(() => {
         this.clipboard = null;
         this.broadcastPlaylistState();
-      }, 10000);
+      }, 2000);
 
       const prevCutCount = this.playlist.filter(songInfo => songInfo.id < this.currentSongId() && songInfo.aboutToBeCut).length;
 
@@ -349,8 +373,10 @@ class Playlist {
   }
 
   deselectAll() {
-    this.playlist.forEach(songInfo => delete songInfo.selected);
-    this.broadcastPlaylistState();
+    if (this.playlist && this.playlist.find(songInfo => songInfo.selected)) {
+      this.playlist.forEach(songInfo => delete songInfo.selected);
+      this.broadcastPlaylistState();
+    }
   }
 
   toggleSelected(songId) {
@@ -358,8 +384,21 @@ class Playlist {
       if (songInfo.id == songId) {
         songInfo.selected = !songInfo.selected;
         this.broadcastPlaylistState();
+
+        this.timestampLastSelected();
       }
     });
+  }
+
+  timestampLastSelected() {
+    this.program.updateState(
+      {
+        playlistMetadata: {
+          lastSelectedAt: Date.now()
+        }
+      },
+      { announce: false }
+    );
   }
 
   shuffle() {
