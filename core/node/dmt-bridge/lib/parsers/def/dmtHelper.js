@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const colors = require('colors');
 const homedir = require('homedir');
+const isRPi = require('../../detectRPi');
 const def = require('./parser');
 const cliParser = require('../cli/parser');
 const scan = require('../../scan');
@@ -115,6 +116,8 @@ function commonTruthSource() {
   }
 }
 
+let checkedForDuplicateMacs = false;
+
 module.exports = {
   dmtPath,
   userDir: dmtUserDir,
@@ -161,38 +164,6 @@ module.exports = {
     }
   },
 
-  info() {
-    const info = {
-      platform: process.platform,
-      architecture: process.arch,
-      nodeVersion: process.version
-    };
-
-    const versionFilePath = path.join(dmtPath, '.version');
-
-    if (fs.existsSync(versionFilePath)) {
-      const version = fs
-        .readFileSync(versionFilePath)
-        .toString()
-        .replace(/(\n|\r)+$/, '');
-      info.dmtVersion = version;
-    }
-
-    if (this.debugMode()) {
-      info.debugMode = true;
-    }
-
-    if (isDevMachine()) {
-      info.devMachine = true;
-    }
-
-    if (isDevCluster()) {
-      info.devCluster = true;
-    }
-
-    return info;
-  },
-
   nodeVersion() {
     const re = new RegExp(/^v(.*?)\.(.*?)\./);
     const matches = re.exec(process.version);
@@ -204,17 +175,44 @@ module.exports = {
     }
   },
 
-  platformExecutablePath(executable) {
-    let { platform } = process;
+  isMacOS() {
+    return this.platform() == 'darwin';
+  },
+
+  isWindows() {
+    return this.platform() == 'windows';
+  },
+
+  isLinux() {
+    return this.platform() == 'linux';
+  },
+
+  isRPi() {
+    return isRPi();
+  },
+
+  platform() {
+    const { platform } = process;
 
     if (platform == 'win32') {
-      platform = 'windows';
+      return 'windows';
     }
+
+    return platform;
+  },
+
+  platformWithArchitecture() {
+    const platform = this.platform();
 
     if (platform == 'linux') {
-      platform = `${platform}-${process.arch}`;
+      return `${platform}-${process.arch}`;
     }
 
+    return platform;
+  },
+
+  platformExecutablePath(executable) {
+    const platform = this.platformWithArchitecture();
     return path.join(this.dmtPath, `bin/${platform}/${executable}`);
   },
 
@@ -344,6 +342,66 @@ module.exports = {
   fiber() {
     const filePath = this.deviceDefFile('this', 'fiber');
     return readFiberDef({ filePath });
+  },
+
+  allNetworkSegments() {
+    const segmentsDef = this.userDef('network_segments.def');
+
+    if (segmentsDef && !segmentsDef.empty) {
+      return segmentsDef.multi;
+    }
+
+    return [];
+  },
+
+  normalizeMac(mac) {
+    return mac.toLowerCase().replace(/\b0(\d|[a-f])\b/g, '$1');
+  },
+
+  hasDuplicateBssids(segments) {
+    const list = [];
+
+    for (const segment of segments) {
+      for (const ap of def.listify(segment.ap)) {
+        for (const mac of def.values(ap.mac)) {
+          if (list.includes(this.normalizeMac(mac))) {
+            return mac;
+          }
+
+          list.push(this.normalizeMac(mac));
+        }
+      }
+    }
+  },
+
+  networkSegment({ networkId, bssid } = {}) {
+    const segments = this.allNetworkSegments();
+
+    if (segments.length == 0) {
+      return;
+    }
+
+    if (!checkedForDuplicateMacs) {
+      checkedForDuplicateMacs = true;
+
+      const duplicateMac = this.hasDuplicateBssids(segments);
+
+      if (duplicateMac) {
+        throw new Error(`At least one duplicate mac address inside network_segments.def: ${colors.cyan(duplicateMac)}`);
+      }
+    }
+
+    if (networkId && bssid) {
+      for (const segment of segments.filter(segmentsFor => def.id(segmentsFor) == networkId)) {
+        for (const ap of def.listify(segment.ap)) {
+          for (const mac of def.values(ap.mac)) {
+            if (this.normalizeMac(mac) == this.normalizeMac(bssid)) {
+              return { networkId: segment.id, segmentName: ap.id, bssid: bssid.toLowerCase() };
+            }
+          }
+        }
+      }
+    }
   },
 
   thisProvider() {

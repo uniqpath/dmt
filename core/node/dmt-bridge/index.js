@@ -2,7 +2,6 @@ const os = require('os');
 const fs = require('fs');
 const colors = require('colors');
 const path = require('path');
-const isRPi = require('./lib/detectRPi');
 const util = require('./lib/util');
 const scan = require('./lib/scan');
 const search = require('./lib/search');
@@ -15,6 +14,7 @@ const helper = require('./lib/parsers/def/dmtHelper');
 const cli = require('./lib/parsers/cli/cliHelper');
 const numberRanges = require('./lib/parsers/numbers/rangeParser');
 const FMLParser = require('./lib/parsers/fml/parser');
+const textfileParsers = require('./lib/parsers/textfiles');
 
 const { apMode, apInfo, accessPointIP } = require('./lib/apTools');
 
@@ -62,6 +62,7 @@ module.exports = {
   def,
   cli,
   FMLParser,
+  textfileParsers,
   numberRanges,
   stopwatch,
   apMode,
@@ -78,10 +79,6 @@ module.exports = {
 
   isInstalled() {
     return fs.existsSync(helper.dmtPath);
-  },
-
-  info() {
-    return helper.info();
   },
 
   parseDef(...args) {
@@ -146,8 +143,24 @@ module.exports = {
     return helper.devices(options);
   },
 
-  fiber() {
-    return helper.fiber();
+  fiberInfo() {
+    const fiber = helper.fiber();
+
+    const connections = def.listify(fiber.connect);
+    const hasFiberServer = def.id(fiber.server) == 'true';
+
+    const result = { hasFiberServer, connections, fiber };
+
+    if (hasFiberServer) {
+      const authorizedKeys = def.values(fiber.try('server.authorizedKeys.pubkey'));
+      Object.assign(result, { authorizedKeys });
+    }
+
+    return result;
+  },
+
+  networkSegment(opts) {
+    return helper.networkSegment(opts);
   },
 
   convertParsedAtAttributeToDmtAccessData(attrData) {
@@ -204,7 +217,18 @@ module.exports = {
   thisProvider: helper.thisProvider,
   assetsDir: path.join(helper.dmtPath, 'core/assets'),
   accessTokensDir: path.join(helper.userDir, 'access_tokens'),
-  isRPi,
+  isMacOS: () => {
+    return helper.isMacOS();
+  },
+  isWindows: () => {
+    return helper.isWindows();
+  },
+  isLinux: () => {
+    return helper.isLinux();
+  },
+  isRPi: () => {
+    return helper.isRPi();
+  },
   globals: helper.globals,
   promiseTimeout,
   listify: util.listify,

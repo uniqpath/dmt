@@ -1,5 +1,6 @@
 const fs = require('fs');
 const scan = require('./scan');
+const { textfileKeyValueParser } = require('./parsers/textfiles');
 
 function apMode() {
   const filePath = '/etc/network/interfaces';
@@ -15,42 +16,12 @@ function apMode() {
   return false;
 }
 
-function valueForKey(lines, key) {
-  const line = lines.find(line => line.startsWith(`${key}=`));
-  return line.split('=')[1];
-}
-
-function mapKey(key) {
-  switch (key) {
-    case 'wpa_passphrase':
-      return 'password';
-    default:
-      return key;
-  }
-}
-
 function apInfo() {
   const filePath = '/etc/hostapd/hostapd.conf';
+  const keys = ['ssid', 'wpa_passphrase'];
+  const keyMap = { wpa_passphrase: 'password' };
 
-  const empty = { empty: true };
-
-  if (fs.existsSync(filePath)) {
-    try {
-      const lines = scan.readFileLines(filePath);
-
-      const obj = {};
-
-      for (const key of ['ssid', 'wpa_passphrase']) {
-        obj[mapKey(key)] = valueForKey(lines, key);
-      }
-
-      return obj;
-    } catch (e) {
-      return empty;
-    }
-  }
-
-  return empty;
+  return textfileKeyValueParser({ filePath, keys, keyMap });
 }
 
 const accessPointIP = '192.168.1.1';

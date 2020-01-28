@@ -36,6 +36,8 @@ class Program extends EventEmitter {
 
     ensureDirectories();
 
+    this.sideStore = {};
+
     this.log = dmt.log;
 
     this.device = dmt.device();

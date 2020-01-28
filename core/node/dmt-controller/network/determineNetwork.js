@@ -1,23 +1,27 @@
 const colors = require('colors');
 
 const dmt = require('dmt-bridge');
-const { log } = dmt;
+const { log, def, loop } = dmt;
+
+const determineNetworkSegment = require('./determineNetworkSegment');
 
 class DetermineNetwork {
   constructor({ program, obj }) {
     this.program = program;
     this.obj = obj;
 
-    this.determineCurrentNetwork();
+    this.determineCurrentNetworkAndSegment();
 
     program.on('nearby_devices', nearbyDevices => {
       if (!obj.def) {
-        this.determineCurrentNetwork(nearbyDevices);
+        this.determineCurrentNetworkAndSegment(nearbyDevices);
       }
     });
+
+    loop(this.determineCurrentNetworkAndSegment.bind(this), 10000);
   }
 
-  determineCurrentNetwork(nearbyDevices) {
+  determineCurrentNetworkAndSegment(nearbyDevices) {
     if (this.program.apMode()) {
       this.obj.def = null;
     } else if (dmt.definedNetworkId()) {
@@ -25,6 +29,20 @@ class DetermineNetwork {
     } else if (nearbyDevices) {
       this.dynamicallyDetermineCurrentNetwork(nearbyDevices);
     }
+
+    this.determineSegment();
+  }
+
+  determineSegment() {
+    let networkId;
+
+    const { def: networkDef } = this.obj;
+
+    if (networkDef) {
+      networkId = def.id(networkDef);
+    }
+
+    determineNetworkSegment({ program: this.program, networkId });
   }
 
   dynamicallyDetermineCurrentNetwork(nearbyDevices) {

@@ -38,6 +38,11 @@ function periodicRepeat(callback, timeMs) {
   update();
 }
 
+function autoDetectEOLMarker(content = '') {
+  const EOL = content.match(/\r\n/gm) ? '\r\n' : '\n';
+  return EOL;
+}
+
 module.exports = {
   compare: require('./utilities/just/collection-compare'),
   diff,
@@ -50,6 +55,7 @@ module.exports = {
   snakeCaseKeys,
   measure,
   periodicRepeat,
+  autoDetectEOLMarker,
   clone: require('./utilities/just/collection-clone'),
   last: require('./utilities/just/array-last'),
   pad: (number, digits = 2) => {
