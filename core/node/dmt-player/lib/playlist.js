@@ -71,6 +71,8 @@ class Playlist {
       this.engine.clearState();
     }
 
+    this.detectMissingMedia();
+
     return { updatedFromMpvPlayerState };
   }
 
@@ -417,25 +419,35 @@ class Playlist {
     }
   }
 
-  stuckOnMissingMedia(stuck = true) {
-    const numberOfMissingMedia = this.markAndCountMissingMedia();
-    this.program.updateState({ player: { stuckOnMissingMedia: stuck }, playlistMetadata: { numberOfMissingMedia } }, { announce: false });
-    this.broadcastPlaylistState();
+  detectMissingMedia({ force = false } = {}) {
+    const { changed, numberOfMissingMedia } = this.markAndCountMissingMedia();
+    if (changed || force) {
+      this.program.updateState({ player: { hasMissingMedia: numberOfMissingMedia > 0 }, playlistMetadata: { numberOfMissingMedia } }, { announce: false });
+      this.broadcastPlaylistState();
+    }
   }
 
   markAndCountMissingMedia() {
-    let count = 0;
+    let numberOfMissingMedia = 0;
+
+    let changed = false;
 
     for (const song of this.playlist) {
       if (!fs.existsSync(song.path)) {
+        if (!song.error) {
+          changed = true;
+        }
         song.error = true;
-        count += 1;
+        numberOfMissingMedia += 1;
       } else {
+        if (song.error) {
+          changed = true;
+        }
         delete song.error;
       }
     }
 
-    return count;
+    return { changed, numberOfMissingMedia };
   }
 
   removeMissingMedia() {
@@ -444,8 +456,6 @@ class Playlist {
     }
 
     if (this.playlist.length > 0) {
-      const currentSongId = this.currentSongId();
-
       const beforeCurrent = removeMissing(this.playlist.slice(0, this.currentIndex));
       const fromCurrent = removeMissing(this.playlist.slice(this.currentIndex));
 
@@ -461,7 +471,7 @@ class Playlist {
 
     this.renumberPlaylist();
 
-    this.stuckOnMissingMedia(false);
+    this.detectMissingMedia({ force: true });
   }
 
   broadcastPlaylistState() {

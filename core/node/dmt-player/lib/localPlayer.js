@@ -210,7 +210,7 @@ class LocalPlayer {
       if (files.length == 0) {
         if (this.hasLoadedMedia()) {
           this.engine.play().then(() => {
-            this.removeErrorOnCurrentSong();
+            this.playlist.detectMissingMedia();
             success();
           });
         } else {
@@ -420,35 +420,18 @@ class LocalPlayer {
     });
   }
 
-  removeErrorOnCurrentSong() {
-    const song = this.playlist.currentSong();
-
-    if (song.error) {
-      delete song.error;
-      this.playlist.broadcastPlaylistState();
-    }
-
-    if (this.program.state.player.stuckOnMissingMedia) {
-      this.program.updateState({ player: { stuckOnMissingMedia: false } });
-    }
-  }
-
   playCurrent() {
     return new Promise((success, reject) => {
+      this.playlist.detectMissingMedia();
+
       const song = this.playlist.currentSong();
       log.green('Playing song 🎵');
 
-      if (!fs.existsSync(song.path)) {
-        song.error = true;
+      if (song.error) {
         log.red(`${colors.gray(song.path)} doesn't exist`);
-
-        this.playlist.stuckOnMissingMedia();
-
         reject(new Error("Song doesn't exist on disk"));
         return;
       }
-
-      this.removeErrorOnCurrentSong();
 
       log.dir(song);
 
