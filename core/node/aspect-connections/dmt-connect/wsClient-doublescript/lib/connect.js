@@ -90,6 +90,10 @@ function tryReconnect({ obj, endpoint }, { WebSocket, log }) {
 
       conn.websocket = ws;
 
+      if (obj.freshConnection) {
+        obj.freshConnection(ws);
+      }
+
       obj.connectStatus(true);
     } else {
       ws.close();

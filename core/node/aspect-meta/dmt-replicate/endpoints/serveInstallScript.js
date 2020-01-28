@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+const dmt = require('dmt-bridge');
+const { util } = dmt;
+
 function install({ req, res, isCurl, program, port }) {
   let host;
   let protocol = 'http';
@@ -24,7 +27,7 @@ function install({ req, res, isCurl, program, port }) {
     res.charset = 'UTF-8';
     res.send(bashScript);
   } else {
-    const EOL = bashScript.match(/\r\n/gm) ? '\r\n' : '\n';
+    const EOL = util.autoDetectEOLMarker(bashScript);
 
     const keywords = ['function', 'if', 'fi', 'then', 'else', 'eval', 'local', 'return', 'echo', 'printf', 'exit'];
 

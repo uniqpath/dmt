@@ -15,8 +15,6 @@ class Channel extends EventEmitter {
 
     ws.on('message', msg => {
       this.receivedMessageCount += 1;
-
-      this.checkAuthentication();
     });
 
     this.remoteIp = getRemoteIp(ws);
@@ -25,12 +23,6 @@ class Channel extends EventEmitter {
       log.red('WARNING: cannot read websocket remote Ip!! -- TODO: debug... happens mostly on lan');
     }
   }
-
-  isAthenticated() {
-    return this.authenticated;
-  }
-
-  checkAuthentication() {}
 
   terminate() {
     this.ws.terminated = true;
@@ -52,9 +44,11 @@ class Channel extends EventEmitter {
     return [this.ws.CLOSED, this.ws.CLOSING].includes(this.ws.readyState);
   }
 
-  send(message) {
-    this.checkAuthentication();
+  jsonRpcReceived(msg) {
+    this.emit('json_rpc', msg);
+  }
 
+  send(message) {
     if (!this.ws.terminated && this.ws.readyState == this.ws.OPEN) {
       this.sentMessageCount += 1;
       this.ws.send(message);

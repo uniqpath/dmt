@@ -4,9 +4,9 @@ const WebSocket = require('ws');
 const dmt = require('dmt-bridge');
 const { log } = dmt;
 
-const Channel = require('./channel');
+const Channel = require('../wsChannel/channel');
 
-const getRemoteIp = require('./getRemoteIp');
+const getRemoteIp = require('../wsChannel/getRemoteIp');
 
 function noop() {}
 

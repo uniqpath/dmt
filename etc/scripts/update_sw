@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+NC='\033[0m' # No Color
+
+if [ "$EUID" -ne 0 ]
+  then printf "${RED}Must be root${NC}\n"
+  exit
+fi
+
+wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl
+chmod a+rx /usr/local/bin/youtube-dl

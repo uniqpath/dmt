@@ -45,8 +45,6 @@ class Program extends EventEmitter {
       process.exit();
     }
 
-    this.fiber = dmt.fiber();
-
     this.network = new Network(this);
 
     this.state = { notifications: [] };
@@ -190,10 +188,6 @@ class Program extends EventEmitter {
 
   apMode() {
     return dmt.apMode();
-  }
-
-  runsFiberServer() {
-    return this.fiber.server == 'true';
   }
 
   hasGui() {
