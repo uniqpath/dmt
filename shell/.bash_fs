@@ -987,19 +987,6 @@ function t {
   fi
 }
 
-function uz {
-  run_on_file "$1" unzip '*.zip'
-}
-
-function ir {
-  if [ -z "$1" ]; then
-    irb
-  else
-    #command irb -r "./$1"
-    run_on_file "$1" "irb -r" '*.rb' 'local'
-  fi
-}
-
 function oi {
   if [ -f "index.html" ]; then
     open "index.html"
@@ -1021,8 +1008,6 @@ function o {
   fi
 }
 
-alias ox="o xcode"
-
 function es {
   local sublime_path="/usr/local/bin/subl" # warning: this symlink is not automatic after sublime install, user has to add it, pointing to: /Applications/Sublime Text.app/Contents/SharedSupport/bin/subl
   local sublime_path2="$HOME/bin/subl"
@@ -1040,48 +1025,6 @@ function es {
     command "${editor}" .
   else
     run_on_file "$1" "${editor}" '*' force
-  fi
-}
-
-function ea {
-  local atom_path="/Applications/Atom.app/Contents/Resources/app/atom.sh"
-  if [ -f "${atom_path}" ]; then
-    local editor="${atom_path}"
-
-    if [ -z "$1" ]; then
-      command "${editor}" .
-    else
-      run_on_file "$1" "${editor}" '*' force
-    fi
-  else
-    printf "${RED}No atom editor installed${NC}\n"
-    return
-  fi
-}
-
-function e {
-  if [ -z "$1" ]; then
-    printf "${RED}Must specify file to edit with nano${NC}\n"
-  else
-    EDITOR=nano run_on_file "$1" "nano" '*' force
-  fi
-}
-
-function ec {
-  local cmd="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
-  local args="$@"
-  if [ -z "$1" ]; then
-    args="."
-  fi
-  command "$cmd" "$args"
-}
-
-function g {
-  if [ -z "$1" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    echo "z [file]"
-  else
-    run_on_file "$1" nano '*' force
   fi
 }
 

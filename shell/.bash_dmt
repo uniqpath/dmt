@@ -196,6 +196,22 @@ function dmt {
     debug)
       local markerfile="$DMT_STATE/.debug-mode"
       local markerfile_display="~/.dmt/state/.debug-mode"
+
+      # dmt debug edit
+      if [ "$1" == "edit" ]; then
+        echo "#mpv" > $markerfile
+        echo "#mpv-ipc" >> $markerfile
+        echo "#ws" >> $markerfile
+        echo "#lanbus" >> $markerfile
+        echo "#network-detect" >> $markerfile
+        echo "#mqtt-sent" >> $markerfile
+        echo "#mqtt-received" >> $markerfile
+
+        nano $markerfile
+
+        return
+      fi
+
       if [ -z "$1" ] || [ "$1" == "on" ] || [ "$1" == "enable" ]; then
         if [ -f "$markerfile" ]; then
           printf "${GRAY}✓ Debug mode was already enabled${NC}\n"
@@ -206,11 +222,11 @@ function dmt {
 
         printf "\n${MAGENTA}Debugging options:${NC}\n"
 
-        printf "\nEdit ${YELLOW}${markerfile_display}${NC} file to increase debug log level (one line, one category like ${GREEN}mpv${NC}, ${GREEN}lan${NC} etc.) ${GRAY}⚠️  This will get lost when you execute ${GREEN}dmt debug off${GRAY}.${NC}\n"
+        printf "\nExecute ${GREEN}dmt debug edit${NC} and remove comments to increase particular debug log level (one line, one category).\n"
         printf "\nTo make it more permanent, add this to device.def ${GRAY}(command:${NC} ${GREEN}dev edit${NC}${GRAY})${NC}:\n"
         printf "${MAGENTA}debug:${NC}\n"
         printf "  ${MAGENTA}log: ${GRAY}mpv${NC}\n"
-        printf "  ${MAGENTA}log: ${GRAY}lan${NC}\n"
+        printf "  ${MAGENTA}log: ${GRAY}lanbus${NC}\n"
         printf "  ${MAGENTA}log: ${GRAY}...${NC}\n"
         printf "\n⚠️  ${GRAY}This, however, requires ${GREEN}dmt restart${GRAY} while editing the ${YELLOW}.debug-mode${GRAY} file does not.${NC}\n"
 
@@ -222,10 +238,11 @@ function dmt {
         printf "${GREEN}mpv${NC} ${GRAY}enables mpv process logging into ~/.dmt/log/mpv.log (requires dmt restart ${NC}while other commands do not!${NC})${NC}\n"
         printf "${GREEN}mpv-ipc${NC} ${GRAY}enables debug messages between ${MAGENTA}dmt-process${NC} ${GRAY}and${NC} ${CYAN}mpv${NC} ${GRAY}process${NC}\n"
         printf "${GREEN}ws${NC} ${GRAY}enables debug messages about websocket connections (port 7780 -- metagui)${NC}\n"
-        printf "${GREEN}lan${NC} ${GRAY}enables debug messages about lanbus${NC}\n"
+        printf "${GREEN}lanbus${NC} ${GRAY}enables debug messages about lanbus${NC}\n"
+        printf "${GREEN}network-detect${NC} ${GRAY}enables debugging of current lan network and network segments identification${NC}\n"
         printf "${GREEN}mqtt-sent${NC} ${GRAY}enables debug messages about sent mqtt messages${NC}\n"
         printf "${GREEN}mqtt-received${NC} ${GRAY}enables debug messages about received mqtt messages${NC}\n"
-        printf "${GREEN}beats${NC} ${GRAY}todo${NC}\n"
+        #printf "${GREEN}beats${NC} ${GRAY}todo${NC}\n"
       fi
 
       if [ "$1" == "off" ] || [ "$1" == "disable" ] || [ "$1" == "stop" ]; then
@@ -652,7 +669,7 @@ function device_helper {
         if [ -d "$dir" ]; then
           local file="${dir}/def/device.def"
           if [ -f "$file" ]; then
-            e "$file"
+            nano "$file"
           else
             echo $file
             printf "${RED}device.def file not found${NC}\n"

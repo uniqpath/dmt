@@ -11,6 +11,7 @@ todo.txt
 .trash
 /user/devices/this
 /state
+keys.def
 target/debug
 target/release
 /core/node/dmt-fasterix/fproc/public/bundle.*
