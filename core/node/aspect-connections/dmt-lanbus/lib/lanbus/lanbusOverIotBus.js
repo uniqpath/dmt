@@ -25,7 +25,7 @@ class LanBusOverIotBus extends EventEmitter {
 
           this.emit('message', jsonMsg);
 
-          log.debug(`${colors.magenta('LANBUS')} message from: ${colors.magenta(jsonMsg.deviceId)} ● ${colors.cyan(jsonMsg)}`, { cat: 'lan' });
+          log.debug(`${colors.magenta('LANBUS')} message from: ${colors.magenta(jsonMsg.deviceId)} ● ${colors.cyan(jsonMsg)}`, { cat: 'lanbus' });
         } catch (e) {
           log.write(`Received LANBUS MQTT message from: ${colors.gray(JSON.parse(msg, null, 2))} ${colors.red("But couldn't parse it to JSON")}`);
         }
@@ -49,7 +49,7 @@ class LanBusOverIotBus extends EventEmitter {
     if (ip) {
       const msg = JSON.stringify(Object.assign(msgJson, { ip }));
       iotBus.publish({ topic: 'lanbus-chatter', msg });
-      log.debug(`Broadcasting LANBUS MQTT message "${msg}"`, { cat: 'lan' });
+      log.debug(`Broadcasting LANBUS MQTT message "${msg}"`, { cat: 'lanbus' });
     } else {
       log.red('Not broadcasting LANBUS MQTT message because IP address of this device is unknown...');
     }

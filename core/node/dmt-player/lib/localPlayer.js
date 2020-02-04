@@ -1,4 +1,3 @@
-const fs = require('fs');
 const path = require('path');
 const dmt = require('dmt-bridge');
 const { log } = dmt;
@@ -6,6 +5,8 @@ const colors = require('colors');
 
 const Playlist = require('./playlist');
 const Mpv = require('./engines/mpv');
+
+const setupUserActionHandlers = require('./userActionHandlers');
 
 class LocalPlayer {
   constructor({ program }) {
@@ -82,7 +83,8 @@ class LocalPlayer {
   initPlayer({ currentSongPath, paused, isStream }) {
     const { updatedFromMpvPlayerState } = this.playlist.init(currentSongPath, isStream);
     this.initVolume();
-    this.wireHandlers();
+
+    setupUserActionHandlers({ program: this.program, player: this });
 
     if (!updatedFromMpvPlayerState) {
       paused = true;
@@ -91,94 +93,6 @@ class LocalPlayer {
     this.program.updateState({ player: { paused, currentMedia: { songPath: currentSongPath } } });
 
     this.program.emit('player:initialized', this.program.state.player);
-  }
-
-  wireHandlers() {
-    this.program.on('action', ({ action, storeName, payload }) => {
-      if (storeName == 'player') {
-        switch (action) {
-          case 'play':
-            this.play().catch(() => {});
-            break;
-          case 'pause':
-            this.pause().catch(() => {});
-            break;
-          case 'toggle':
-            if (this.program.state.player.paused) {
-              this.play().catch(() => {});
-            } else {
-              this.pause().catch(() => {});
-            }
-            break;
-          case 'volume_up':
-            this.volume('up').catch(() => {});
-            break;
-          case 'volume_down':
-            this.volume('down').catch(() => {});
-            break;
-          case 'forward':
-            this.forward(payload.seconds).catch(() => {});
-            break;
-          case 'play_next':
-            this.next().catch(() => {});
-            break;
-          case 'shuffle_playlist':
-            this.shuffle().catch(() => {});
-            break;
-          case 'repeat_increase':
-            this.repeatIncrease();
-            break;
-          case 'stop':
-            this.stop().catch(() => {});
-            break;
-          case 'insert_selected':
-            this.insertSelected();
-            break;
-          case 'cut_selected':
-            this.cutSelected();
-            break;
-          case 'paste':
-            this.paste();
-            break;
-          case 'select': {
-            const { songId } = payload;
-            this.toggleSelected(songId);
-            break;
-          }
-          case 'deselect_all': {
-            this.playlist.deselectAll();
-            break;
-          }
-          case 'goto': {
-            const { percentPos } = payload;
-            this.gotoPercentPos(percentPos);
-            break;
-          }
-          case 'limit_increase':
-            this.limit();
-            break;
-          case 'limit_reset':
-            this.limit('reset');
-            break;
-          case 'time_limit_increase':
-            this.timeLimit();
-            break;
-          case 'time_limit_reset':
-            this.timeLimit('reset');
-            break;
-          case 'remove_missing_media':
-            this.playlist.removeMissingMedia();
-            break;
-          case 'play_radio': {
-            const { radioId } = payload;
-            this.playRadio(radioId);
-            break;
-          }
-          default:
-            break;
-        }
-      }
-    });
   }
 
   initVolume() {

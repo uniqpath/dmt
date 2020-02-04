@@ -3,7 +3,6 @@ const moment = require('moment');
 
 const stopwatch = require('./stopwatch');
 
-const dmtHelper = require('./parsers/def/dmtHelper');
 const colorJson = require('./colorJson');
 const deepmerge = require('./utilities/deepmerge');
 const random = require('./utilities/just/array-random');
@@ -15,6 +14,17 @@ const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
 const generateJsonPatch = require('rfc6902').createPatch;
 
 const { diff, jsonPatchPathConverter } = require('./utilities/just/collection-diff');
+function nodeVersion() {
+  const re = new RegExp(/^v(.*?)\.(.*?)\./);
+  const matches = re.exec(process.version);
+  if (matches) {
+    return {
+      major: parseInt(matches[1]),
+      minor: parseInt(matches[2])
+    };
+  }
+}
+
 function measure(func, { desc = ' ', disable = false } = {}) {
   if (disable) {
     return func();
@@ -43,6 +53,10 @@ function autoDetectEOLMarker(content = '') {
   return EOL;
 }
 
+function normalizeMac(mac) {
+  return mac.toLowerCase().replace(/\b0(\d|[a-f])\b/g, '$1');
+}
+
 module.exports = {
   compare: require('./utilities/just/collection-compare'),
   diff,
@@ -56,6 +70,7 @@ module.exports = {
   measure,
   periodicRepeat,
   autoDetectEOLMarker,
+  normalizeMac,
   clone: require('./utilities/just/collection-clone'),
   last: require('./utilities/just/array-last'),
   pad: (number, digits = 2) => {
@@ -86,7 +101,7 @@ module.exports = {
       return arr;
     }
 
-    const { major, minor } = dmtHelper.nodeVersion;
+    const { major, minor } = nodeVersion();
 
     if (major > 11 || (major == 11 && minor >= 4)) {
       return arr.flat();
@@ -155,7 +170,3 @@ module.exports = {
     return array;
   }
 };
-
-if (require.main === module) {
-  console.log(module.exports.nodeVersion());
-}

@@ -159,8 +159,23 @@ module.exports = {
     return result;
   },
 
+  keys() {
+    return helper.keys();
+  },
+
   networkSegment(opts) {
     return helper.networkSegment(opts);
+  },
+
+  defaultKey() {
+    const keys = helper.keys();
+    if (keys.length > 0) {
+      return keys.find(keyInfo => !def.id(keyInfo));
+    }
+  },
+
+  deviceKeyDefFile() {
+    return helper.deviceDefFile('this', 'keys');
   },
 
   convertParsedAtAttributeToDmtAccessData(attrData) {

@@ -35,7 +35,7 @@ class LanBusOverUdpBroadcast extends EventEmitter {
         this.emit('message', msg);
       }
 
-      log.debug(`${colors.magenta('LANBUS')} message from: ${colors.magenta(msg.deviceId)} ● ${colors.cyan(msg)}`, { cat: 'lan' });
+      log.debug(`${colors.magenta('LANBUS')} message from: ${colors.magenta(msg.deviceId)} ● ${colors.cyan(msg)}`, { cat: 'lanbus' });
     });
   }
 
@@ -50,7 +50,7 @@ class LanBusOverUdpBroadcast extends EventEmitter {
     this.udpBus
       .publish(msg)
       .then(() => {
-        log.debug(`Broadcasted UDP message "${msg}"`, { cat: 'lan' });
+        log.debug(`Broadcasted UDP message "${msg}"`, { cat: 'lanbus' });
       })
       .catch(e => {
         log.debug(`Lanbus broadcast error: ${JSON.stringify(e, null, 2)}`);

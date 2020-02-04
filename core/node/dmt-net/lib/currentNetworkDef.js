@@ -1,10 +1,7 @@
 const dmt = require('dmt-bridge');
-const { log } = dmt;
 const getGatewayMac = require('./gatewayMac');
 
-function normalizeMac(mac) {
-  return mac.toLowerCase().replace(/\b0(\d|[a-f])\b/g, '$1');
-}
+const { normalizeMac } = dmt.util;
 
 async function currentNetworkDefEntry() {
   const networkDefs = dmt.userDef('networks').multi;

@@ -47,7 +47,7 @@ function debugInfo(data) {
 }
 
 function programSideStore({ program, data }) {
-  data.wifiSegment = '';
+  data.wifiSegment = undefined;
 
   const { sideStore } = program;
 

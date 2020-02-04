@@ -3,8 +3,9 @@ const colors = require('colors');
 const dmt = require('dmt-bridge');
 const { log } = dmt;
 
-const bashSetAccessPoint = require('./lib/setAccessPoint');
+const bashShutdown = require('./lib/shutdown');
 const bashReboot = require('./lib/reboot');
+const bashSetAccessPoint = require('./lib/setAccessPoint');
 const bashDmtNext = require('./lib/dmtNext');
 
 const scriptsPath = path.join(dmt.dmtPath, 'etc/scripts');
@@ -31,6 +32,9 @@ function scriptActionHandler({ program, action, storeName }) {
     }
 
     switch (action) {
+      case 'shutdown':
+        bashShutdown({ program });
+        break;
       case 'reboot':
         bashReboot({ program });
         break;

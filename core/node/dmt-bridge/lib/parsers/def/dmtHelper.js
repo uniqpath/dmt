@@ -1,11 +1,13 @@
 const fs = require('fs');
 const path = require('path');
+
 const colors = require('colors');
 const homedir = require('homedir');
 const isRPi = require('../../detectRPi');
 const def = require('./parser');
 const cliParser = require('../cli/parser');
 const scan = require('../../scan');
+const util = require('../../util');
 
 const dmtPath = path.join(homedir(), '.dmt');
 const dmtUserDir = path.join(dmtPath, 'user');
@@ -107,6 +109,30 @@ function readFiberDef({ filePath }) {
   }
 }
 
+function readKeysDef({ filePath }) {
+  try {
+    if (!fs.existsSync(filePath)) {
+      return { empty: true };
+    }
+
+    const keysDef = def.parseFile(filePath);
+
+    return keysDef.multi.length > 0
+      ? keysDef.multi.map(keyInfo => {
+          const result = { ...keyInfo, ...{ privateKey: keyInfo.private, publicKey: keyInfo.public } };
+
+          delete result.private;
+          delete result.public;
+
+          return result;
+        })
+      : { empty: true };
+  } catch (e) {
+    console.log(colors.red(e.message));
+    process.exit();
+  }
+}
+
 function commonTruthSource() {
   if (this.user()) {
     const ts = this.user().commonTruthSource;
@@ -160,18 +186,13 @@ module.exports = {
 
       const categories = categoriesDebugModeFile.concat(categoriesDeviceDef);
 
-      return categories.find(cat => cat == category);
-    }
-  },
+      if (categoriesDeviceDef.find(cat => cat == category)) {
+        console.log(
+          `⚠️  Warning: debug category ${colors.yellow(category)} is defined in ${colors.cyan('device.def')}, ${colors.red('not the best permanent practice')}.`
+        );
+      }
 
-  nodeVersion() {
-    const re = new RegExp(/^v(.*?)\.(.*?)\./);
-    const matches = re.exec(process.version);
-    if (matches) {
-      return {
-        major: parseInt(matches[1]),
-        minor: parseInt(matches[2])
-      };
+      return categories.find(cat => cat == category);
     }
   },
 
@@ -344,6 +365,11 @@ module.exports = {
     return readFiberDef({ filePath });
   },
 
+  keys() {
+    const filePath = this.deviceDefFile('this', 'keys');
+    return readKeysDef({ filePath });
+  },
+
   allNetworkSegments() {
     const segmentsDef = this.userDef('network_segments.def');
 
@@ -354,21 +380,17 @@ module.exports = {
     return [];
   },
 
-  normalizeMac(mac) {
-    return mac.toLowerCase().replace(/\b0(\d|[a-f])\b/g, '$1');
-  },
-
   hasDuplicateBssids(segments) {
     const list = [];
 
     for (const segment of segments) {
       for (const ap of def.listify(segment.ap)) {
         for (const mac of def.values(ap.mac)) {
-          if (list.includes(this.normalizeMac(mac))) {
+          if (list.includes(util.normalizeMac(mac))) {
             return mac;
           }
 
-          list.push(this.normalizeMac(mac));
+          list.push(util.normalizeMac(mac));
         }
       }
     }
@@ -395,7 +417,7 @@ module.exports = {
       for (const segment of segments.filter(segmentsFor => def.id(segmentsFor) == networkId)) {
         for (const ap of def.listify(segment.ap)) {
           for (const mac of def.values(ap.mac)) {
-            if (this.normalizeMac(mac) == this.normalizeMac(bssid)) {
+            if (util.normalizeMac(mac) == util.normalizeMac(bssid)) {
               return { networkId: segment.id, segmentName: ap.id, bssid: bssid.toLowerCase() };
             }
           }
