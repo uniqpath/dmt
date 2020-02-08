@@ -1,4 +1,4 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { util } = dmt;
 
 function mergeState(state, patch) {
@@ -61,4 +61,4 @@ class UpdateState {
   }
 }
 
-module.exports = UpdateState;
+export default UpdateState;

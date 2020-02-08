@@ -1,7 +1,7 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { def } = dmt;
 
-const sambaMount = require('./lib/samba');
+import sambaMount from './lib/samba';
 
 function init(program) {
   if (program.network.try('samba.automount')) {
@@ -13,6 +13,4 @@ function init(program) {
   }
 }
 
-module.exports = {
-  init
-};
+export { init };

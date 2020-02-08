@@ -1,5 +1,3 @@
-const detectMediaType = require('./lib/files/detectMediaType');
+import detectMediaType from './lib/files/detectMediaType';
 
-module.exports = {
-  detectMediaType
-};
+export { detectMediaType };

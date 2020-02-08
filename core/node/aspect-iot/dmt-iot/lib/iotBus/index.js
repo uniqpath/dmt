@@ -1,13 +1,11 @@
-const EventEmitter = require('events');
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import EventEmitter from 'events';
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const MqttRail = require('./mqttRail');
+import MqttRail from './mqttRail';
 
-const logging = require('./logging');
+import MessageDropper from './messageDropper';
 
-const MessageDropper = require('./messageDropper');
 class IotBus extends EventEmitter {
   constructor() {
     super();
@@ -68,4 +66,4 @@ class IotBus extends EventEmitter {
   }
 }
 
-module.exports = IotBus;
+export default IotBus;

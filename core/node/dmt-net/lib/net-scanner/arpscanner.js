@@ -1,6 +1,7 @@
-const extend = require('gextend');
-const { spawn } = require('child_process');
-const suspawn = require('suspawn');
+import suspawn from 'suspawn';
+import extend from 'gextend';
+
+import { spawn } from 'child_process';
 
 function parse(out) {
   return function lineParser(line) {
@@ -69,5 +70,4 @@ function scanner(cb, options) {
   arp.on('exit', (code, signal) => {});
 }
 
-module.exports = scanner;
-module.exports.promisify = () => require('./arpscanner-promise');
+export { scanner as default };

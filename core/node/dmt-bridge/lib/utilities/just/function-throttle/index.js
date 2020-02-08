@@ -1,4 +1,4 @@
-module.exports = throttle;
+export default throttle;
 
 function throttle(fn, interval, callFirst) {
   var wait = false;

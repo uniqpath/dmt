@@ -1,4 +1,4 @@
-module.exports = get;
+export default get;
 
 function get(obj, props) {
   if (!obj) {

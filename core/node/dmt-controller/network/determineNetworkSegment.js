@@ -1,8 +1,12 @@
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const { wifiAccessPointMAC } = require('dmt-bash-exec').platformTools;
+import { platformTools } from 'dmt-bash-exec';
+const { wifiAccessPointMAC } = platformTools;
+
+export default determineNetworkSegment;
 
 function deleteWifiSegmentInfo(program) {
   delete program.sideStore.wifiSegment;
@@ -41,5 +45,3 @@ function determineNetworkSegment({ program, networkId }) {
       deleteWifiSegmentInfo(program);
     });
 }
-
-module.exports = determineNetworkSegment;

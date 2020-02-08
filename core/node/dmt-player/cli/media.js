@@ -1,13 +1,13 @@
-const colors = require('colors');
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { util, cli } = dmt;
 
-const rpc = require('dmt-rpc');
-const { aggregateSearchResultsFormatter } = require('dmt-search');
-const { cliResolveIp } = require('dmt-nearby');
+import { errorFormatter } from 'dmt-rpc';
+import { aggregateSearchResultsFormatter } from 'dmt-search';
+import { cliResolveIp } from 'dmt-nearby';
 
-const PlayerRemote = require('../lib/playerRemote');
+import PlayerRemote from '../lib/playerRemote';
 
 function help() {
   console.log(colors.cyan('\n'));
@@ -49,10 +49,6 @@ function printPlaylist({ playlist }) {
 }
 
 function printPlayerStatus({ status }) {
-  if (status.idleSince) {
-    status.idleSince = util.relativeTimeSince(status.idleSince);
-  }
-
   util.dir(status);
 }
 
@@ -74,7 +70,7 @@ function printResponse(command, response, rpcArgs) {
   }
 
   if (response.error) {
-    rpc.errorFormatter({ error: response.error.message }, { host: '' });
+    errorFormatter({ error: response.error.message }, { host: '' });
     return;
   }
 
@@ -171,40 +167,38 @@ async function request({ device, address, clientMaxResults, mediaType, command, 
 
     process.exit();
   } catch (e) {
-    rpc.errorFormatter(e, { host: address });
+    errorFormatter(e, { host: address });
     console.log();
     console.log(`If ${colors.cyan('DMT Player')} is not running on ${colors.cyan(address)}, please start it with ${colors.green('dmt start')}`);
     process.exit();
   }
 }
 
-if (require.main === module) {
-  if (process.argv.length > 2 && process.argv[2] == '-h') {
-    help();
+if (process.argv.length > 2 && process.argv[2] == '-h') {
+  help();
+  process.exit();
+}
+try {
+  const allArgs = process.argv.slice(2);
+  const { terms, atDevices, attributeOptions } = cli(allArgs);
+  const clientMaxResults = attributeOptions.count;
+  const mediaType = attributeOptions.media;
+  const command = terms.shift() || 'info';
+  if (atDevices.length > 1) {
+    console.log(colors.red('TODO'));
     process.exit();
   }
-  try {
-    const allArgs = process.argv.slice(2);
-    const { terms, atDevices, attributeOptions } = cli(allArgs);
-    const clientMaxResults = attributeOptions.count;
-    const mediaType = attributeOptions.media;
-    const command = terms.shift() || 'info';
-    if (atDevices.length > 1) {
-      console.log(colors.red('TODO'));
-      process.exit();
-    }
-    (async () => {
-      const device = atDevices[0];
+  (async () => {
+    const device = atDevices[0];
 
-      if (device.localhost) {
-        request({ device, address: 'localhost', clientMaxResults, mediaType, command, terms });
-      } else {
-        cliResolveIp({ deviceId: device.host }).then(ip => {
-          request({ device, address: ip, clientMaxResults, mediaType, command, terms });
-        });
-      }
-    })();
-  } catch (e) {
-    console.log(colors.red(e.message));
-  }
+    if (device.localhost) {
+      request({ device, address: 'localhost', clientMaxResults, mediaType, command, terms });
+    } else {
+      cliResolveIp({ deviceId: device.host }).then(ip => {
+        request({ device, address: ip, clientMaxResults, mediaType, command, terms });
+      });
+    }
+  })();
+} catch (e) {
+  console.log(colors.red(e.message));
 }

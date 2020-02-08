@@ -8,4 +8,4 @@ const constructAction = ({ action, storeName, payload }) => {
   return JSON.stringify(data);
 };
 
-module.exports = constructAction;
+export default constructAction;

@@ -1,5 +1,3 @@
-function setup({ program }) {
+export default ({ program }) => {
   return {};
-}
-
-module.exports = setup;
+};

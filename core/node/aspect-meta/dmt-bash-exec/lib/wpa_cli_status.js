@@ -1,9 +1,9 @@
-const fs = require('fs');
-const dmt = require('dmt-bridge');
+import fs from 'fs';
+import dmt from 'dmt-bridge';
 const { textfileParsers } = dmt;
 const { textfileKeyValueParser } = textfileParsers;
 
-const { exec } = require('child_process');
+import { exec } from 'child_process';
 
 let executable = '/sbin/wpa_cli';
 
@@ -13,7 +13,7 @@ if (!fs.existsSync(executable)) {
 
 const bashAction = `${executable} -i wlan0 status`;
 
-module.exports = () => {
+export default () => {
   return new Promise((success, reject) => {
     if (!fs.existsSync(executable)) {
       reject(new Error(`${executable} is missing`));
@@ -32,7 +32,3 @@ module.exports = () => {
     });
   });
 };
-
-if (require.main === module) {
-  module.exports();
-}

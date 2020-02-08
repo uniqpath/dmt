@@ -1,8 +1,8 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 
 const { def } = dmt;
 
-const helpers = require('./helpers');
+import * as helpers from './helpers';
 
 const statementName = 'if-user-action';
 
@@ -20,4 +20,4 @@ function parseIfUserAction({ taskDef, program }) {
   }
 }
 
-module.exports = parseIfUserAction;
+export default parseIfUserAction;

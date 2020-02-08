@@ -1,4 +1,4 @@
-module.exports = modulo;
+export default modulo;
 
 function modulo(n, d) {
   if (d === 0) {

@@ -1,4 +1,4 @@
-module.exports = pick;
+export default pick;
 
 function pick(obj, select) {
   var result = {};

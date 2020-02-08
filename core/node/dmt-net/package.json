@@ -2,6 +2,8 @@
   "name": "dmt-net",
   "version": "1.0.0",
   "description": "Networking tools",
+  "main": "index.js",
+  "type": "module",
   "bin": {
     "net": "index.js"
   },

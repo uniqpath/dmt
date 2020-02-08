@@ -1,5 +1,5 @@
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
 function staticIP(specialNodes) {
@@ -52,9 +52,4 @@ function hasNetworkId(specialNodes) {
   return specialNodes.filter(node => node.ip);
 }
 
-module.exports = {
-  staticIP,
-  firstPriority,
-  atLeastOneSpecialNode,
-  hasNetworkId
-};
+export { staticIP, firstPriority, atLeastOneSpecialNode, hasNetworkId };

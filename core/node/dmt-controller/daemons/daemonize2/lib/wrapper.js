@@ -1,8 +1,7 @@
-'use strict';
+import * as constants from './constants';
 
-var constants = require('./constants');
+let exceptionHandler = null;
 
-var exceptionHandler = null;
 process.on(
   'uncaughtException',
   (exceptionHandler = function(err) {
@@ -12,21 +11,17 @@ process.on(
   })
 );
 
-process.on('message', function(message) {
+process.on('message', message => {
   if (message.type == 'init') {
     init(message.options);
   }
 });
 
-var init = function(options) {
+process.send({ type: 'wrapper_loaded' });
+
+function init(options) {
   if (!options.main) {
     process.exit(constants.exitCodes.argMainRequired[0]);
-  }
-
-  try {
-    require.resolve(options.main);
-  } catch (ex) {
-    process.exit(constants.exitCodes.mainNotFound[0]);
   }
 
   if (options.name) process.title = options.name;
@@ -57,11 +52,12 @@ var init = function(options) {
 
   process.argv = [process.argv[0], options.main].concat(process.argv.slice(2));
 
-  var setup = require(options.main);
-
-  if (typeof setup == 'function') setup(options);
+  import(options.main).then(module => {
+    const setup = module.default;
+    if (typeof setup == 'function') setup(options);
+  });
 
   process.removeListener('uncaughtException', exceptionHandler);
 
   process.disconnect();
-};
+}

@@ -1,4 +1,6 @@
-var defaultIsMergeableObject = require('./isPlainObject');
+import defaultIsMergeableObject from './isPlainObject';
+
+export default deepmerge;
 
 function emptyTarget(val) {
   return Array.isArray(val) ? [] : {};
@@ -66,5 +68,3 @@ deepmerge.all = function deepmergeAll(array, options) {
     return deepmerge(prev, next, options);
   }, {});
 };
-
-module.exports = deepmerge;

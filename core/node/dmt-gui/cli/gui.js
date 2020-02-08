@@ -1,8 +1,8 @@
-const dmt = require('dmt-bridge');
-const WebSocket = require('ws');
-const colors = require('colors');
+import dmt from 'dmt-bridge';
+import WebSocket from 'ws';
+import colors from 'colors';
 
-const constructAction = require('../gui-backend/ws_servers/constructAction');
+import constructAction from '../gui-backend/ws_servers/constructAction';
 
 const args = process.argv.slice(2);
 

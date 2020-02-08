@@ -1,4 +1,4 @@
-const network = require('network');
+import network from 'network';
 
 async function getNetworkInterfaces() {
   return new Promise((success, reject) => {
@@ -25,4 +25,4 @@ async function getNetworkInterfaces() {
   });
 }
 
-module.exports = getNetworkInterfaces;
+export default getNetworkInterfaces;

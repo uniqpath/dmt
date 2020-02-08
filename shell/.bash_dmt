@@ -140,7 +140,7 @@ function dmt {
       # printf "${RED}✖${NC} 3) extended aliases${NC}\n"
       # echo
       # printf "${GREEN}Enable group:${NC} dmt enable_al [num] ${WHITE}| ${RED}Disable group:${NC} ${GRAY}dmt disable_al [num]${NC}\n"
-      node "$DMT_CLI" help "$@"
+      $DMT_NODEJS_EXEC "$DMT_CLI" help "$@"
       ;;
 
     help)
@@ -170,10 +170,10 @@ function dmt {
 
     info)
       if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" info "$@"
+        $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" info "$@"
       else
         if [ -n "$dmt_proc_pid" ]; then
-          node "$DMT_CLI" info "$@"
+          $DMT_NODEJS_EXEC "$DMT_CLI" info "$@"
         fi
       fi
       ;;
@@ -273,9 +273,9 @@ function dmt {
 
     services)
       if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" services "$@"
+        $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" services "$@"
       else
-        node "$DMT_CLI" services "$@"
+        $DMT_NODEJS_EXEC "$DMT_CLI" services "$@"
       fi
       ;;
 
@@ -367,7 +367,7 @@ function dmt {
       compile_gui_if_missing
 
       printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
-      node --trace-warnings --experimental-modules "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+      $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       ;;
 
     startprofiler)
@@ -379,7 +379,7 @@ function dmt {
       compile_gui_if_missing
 
       printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
-      node --trace-warnings --prof --experimental-modules "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+      $DMT_NODEJS_EXEC --trace-warnings --prof "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       ;;
 
     state)
@@ -595,9 +595,9 @@ function dmt_device {
       printf "${YELLOW}Showing device definition in json format (parsed from .def):${NC}\n"
       local cli="$DMT_NODE_CORE/dmt-controller/cli/device.js"
       if [ -n "$hosts" ]; then
-        node "$cli" "${hosts}" "$@"
+        $DMT_NODEJS_EXEC "$cli" "${hosts}" "$@"
       else
-        node "$cli" "$@"
+        $DMT_NODEJS_EXEC "$cli" "$@"
       fi
       ;;
   esac
@@ -753,7 +753,7 @@ function gui_send_action_to_frontend {
     #action="${action}:${2}"
     payload="$2"
   fi
-  node "${cliGUI}" localhost "$action" gui "$payload"
+  $DMT_NODEJS_EXEC "${cliGUI}" localhost "$action" gui "$payload"
 }
 
 function dmt_gui {
@@ -806,9 +806,9 @@ function dmt_gui {
   case "$option" in
     test)
       if [ -n "$hosts" ]; then
-        node "$DMT_CLI" "${hosts}" gui_test "$@"
+        $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" gui_test "$@"
       else
-        node "$DMT_CLI" gui_test "$@"
+        $DMT_NODEJS_EXEC "$DMT_CLI" gui_test "$@"
       fi
       ;;
     cd)
@@ -898,9 +898,9 @@ function dmt_log {
     printf "${CYAN}Expect it in the next minor release of ${MAGENTA}dmt-system${NC}.${NC}\n"
   else
     if [ -n "$hosts" ]; then
-      node "$DMT_CLI" "${hosts}" log "$@"
+      $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" log "$@"
     else
-      node "$DMT_CLI" log "$@"
+      $DMT_NODEJS_EXEC "$DMT_CLI" log "$@"
     fi
   fi
 }

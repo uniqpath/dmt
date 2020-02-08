@@ -1,10 +1,10 @@
-const colors = require('colors');
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const mqtt = require('mqtt');
-const EventEmitter = require('events');
+import mqtt from 'mqtt';
+import EventEmitter from 'events';
 
 class MqttRail extends EventEmitter {
   constructor({ ip, ensureBrokerIsAuthentic = false }) {
@@ -44,4 +44,4 @@ class MqttRail extends EventEmitter {
   }
 }
 
-module.exports = MqttRail;
+export default MqttRail;

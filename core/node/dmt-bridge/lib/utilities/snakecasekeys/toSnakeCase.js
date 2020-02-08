@@ -1,6 +1,6 @@
-var toSpace = require('./toSpaceCase');
+import toSpace from './toSpaceCase';
 
-module.exports = toSnakeCase;
+export default toSnakeCase;
 
 function toSnakeCase(string) {
   return toSpace(string).replace(/\s/g, '_');

@@ -1,20 +1,22 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
-const dmtUserDir = require('dmt-bridge').userDir;
+import dmt from 'dmt-bridge';
+
+const dmtUserDir = dmt.userDir;
 const devicesFile = path.join(dmtUserDir, 'devices/devices.json');
-const deviceRegistry = fs.existsSync(devicesFile) ? require(devicesFile) : [];
+const deviceRegistry = fs.existsSync(devicesFile) ? JSON.parse(fs.readFileSync(devicesFile)) : [];
 
-module.exports = {
-  findByMac(devices, mac) {
-    return devices.find(device => device.mac == mac);
-  },
+function findByMac(devices, mac) {
+  return devices.find(device => device.mac == mac);
+}
 
-  identify(scanResults) {
-    return scanResults.map(device => {
-      const knownDevice = this.findByMac(deviceRegistry, device.mac);
+function identify(scanResults) {
+  return scanResults.map(device => {
+    const knownDevice = findByMac(deviceRegistry, device.mac);
 
-      return knownDevice ? Object.assign(device, knownDevice) : device;
-    });
-  }
-};
+    return knownDevice ? Object.assign(device, knownDevice) : device;
+  });
+}
+
+export { findByMac, identify };

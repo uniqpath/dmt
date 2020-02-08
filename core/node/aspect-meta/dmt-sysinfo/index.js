@@ -1,5 +1,5 @@
-const ProcCPU = require('./lib/procCPU');
-const { systemOnce, systemPeriodic } = require('./lib/system');
+import ProcCPU from './lib/procCPU';
+import { systemOnce, systemPeriodic } from './lib/system';
 
 function init(program) {
   program.updateState({ sysinfo: { system: { once: systemOnce() } } }, { announce: false });
@@ -22,6 +22,4 @@ function init(program) {
   });
 }
 
-module.exports = {
-  init
-};
+export { init };

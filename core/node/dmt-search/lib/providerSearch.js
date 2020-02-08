@@ -1,10 +1,9 @@
-const jayson = require('jayson');
-const stopwatch = require('pretty-hrtime');
+import jayson from 'jayson';
+import stopwatch from 'pretty-hrtime';
 
-const dmt = require('dmt-bridge');
-const { log } = dmt;
+import dmt from 'dmt-bridge';
 
-const contentSearch = require('./contentSearch');
+import contentSearch from './contentSearch';
 
 class ProviderSearch {
   constructor({ provider, mediaType }) {
@@ -105,4 +104,4 @@ class ProviderSearch {
   }
 }
 
-module.exports = ProviderSearch;
+export default ProviderSearch;

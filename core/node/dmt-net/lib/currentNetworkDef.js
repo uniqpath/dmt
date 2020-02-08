@@ -1,5 +1,5 @@
-const dmt = require('dmt-bridge');
-const getGatewayMac = require('./gatewayMac');
+import dmt from 'dmt-bridge';
+import getGatewayMac from './gatewayMac';
 
 const { normalizeMac } = dmt.util;
 
@@ -16,4 +16,4 @@ async function currentNetworkDefEntry() {
   }
 }
 
-module.exports = currentNetworkDefEntry;
+export default currentNetworkDefEntry;

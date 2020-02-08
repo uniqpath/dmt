@@ -1,7 +1,7 @@
-const colors = require('colors');
-const { errorFormatter } = require('dmt-rpc');
+import colors from 'colors';
+import { errorFormatter } from 'dmt-rpc';
 
-const resultsFormatter = require('./resultsFormatter');
+import resultsFormatter from './resultsFormatter';
 
 function aggregateResultsFormatter(aggregateResults, resultMap) {
   if (aggregateResults.error) {
@@ -43,4 +43,4 @@ function aggregateResultsFormatter(aggregateResults, resultMap) {
   }
 }
 
-module.exports = aggregateResultsFormatter;
+export default aggregateResultsFormatter;

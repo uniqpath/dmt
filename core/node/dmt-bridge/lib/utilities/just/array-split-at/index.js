@@ -1,4 +1,4 @@
-module.exports = splitAt;
+export default splitAt;
 
 function splitAt(arr, n) {
   if (!Array.isArray(arr)) {

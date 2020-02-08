@@ -1,4 +1,4 @@
-module.exports = random;
+export default random;
 
 function random(arr) {
   if (!Array.isArray(arr)) {

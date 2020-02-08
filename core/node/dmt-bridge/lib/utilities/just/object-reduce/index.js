@@ -1,4 +1,4 @@
-module.exports = reduce;
+export default reduce;
 
 function reduce(obj, predicate) {
   var args = [callback];

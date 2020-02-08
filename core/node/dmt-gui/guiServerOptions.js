@@ -1,9 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const dmt = require('dmt-bridge');
-const { log, def } = dmt;
+import path from 'path';
 
-const { username } = require('os').userInfo();
+import dmt from 'dmt-bridge';
+const { def } = dmt;
+
+import os from 'os';
+
+const { username } = os.userInfo();
+
+export default guiServerOptions;
 
 function determineGUIPort() {
   const isRootUser = username == 'root';
@@ -52,5 +56,3 @@ function guiServerOptions(program) {
 
   return { program, name, description, port, redirects, servingOptions };
 }
-
-module.exports = guiServerOptions;

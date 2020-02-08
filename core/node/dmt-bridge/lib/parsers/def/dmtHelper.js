@@ -1,13 +1,13 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import colors from 'colors';
+import homedir from 'homedir';
 
-const colors = require('colors');
-const homedir = require('homedir');
-const isRPi = require('../../detectRPi');
-const def = require('./parser');
-const cliParser = require('../cli/parser');
-const scan = require('../../scan');
-const util = require('../../util');
+import isRPi from '../../detectRPi';
+import def from './parser';
+import cliParser from '../cli/parser';
+import scan from '../../scan';
+import util from '../../util';
 
 const dmtPath = path.join(homedir(), '.dmt');
 const dmtUserDir = path.join(dmtPath, 'user');
@@ -144,7 +144,7 @@ function commonTruthSource() {
 
 let checkedForDuplicateMacs = false;
 
-module.exports = {
+export default {
   dmtPath,
   userDir: dmtUserDir,
   catalogsDir: dmtCatalogsDir,

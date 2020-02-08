@@ -1,3 +1,5 @@
+export default mapObj;
+
 const isObject = value => typeof value === 'object' && value !== null;
 
 const isObjectCustom = value => isObject(value) && !(value instanceof RegExp) && !(value instanceof Error) && !(value instanceof Date);
@@ -36,10 +38,10 @@ const mapObject = (object, mapper, options, isSeen = new WeakMap()) => {
   return target;
 };
 
-module.exports = (object, mapper, options) => {
+function mapObj(object, mapper, options) {
   if (!isObject(object)) {
     throw new TypeError(`Expected an object, got \`${object}\` (${typeof object})`);
   }
 
   return mapObject(object, mapper, options);
-};
+}

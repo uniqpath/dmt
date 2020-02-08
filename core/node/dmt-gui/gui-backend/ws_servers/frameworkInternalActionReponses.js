@@ -1,10 +1,10 @@
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const constructAction = require('./constructAction');
-const integrationsStateChangeSetup = require('./integrationsStateChangeSetup');
-const loadGuiViewsDef = require('../../loadGuiViewsDef');
+import constructAction from './constructAction';
+import integrationsStateChangeSetup from './integrationsStateChangeSetup';
+import loadGuiViewsDef from '../../loadGuiViewsDef';
 
 function gui({ storeName, action, payload, program, server }) {
   log.cyan(
@@ -47,4 +47,4 @@ function actionsReponder({ storeName, action, payload, channel, server, program 
   return true;
 }
 
-module.exports = actionsReponder;
+export default actionsReponder;

@@ -1,4 +1,4 @@
-const { push } = require('dmt-notify');
+import { push } from 'dmt-notify';
 
 const pushNotifications = true;
 
@@ -56,4 +56,4 @@ function tick(program) {
   }
 }
 
-module.exports = { setup, tick };
+export { setup, tick };

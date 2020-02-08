@@ -1,66 +1,64 @@
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+import dmt from 'dmt-bridge';
 const { scan } = dmt;
 
-const PowerMonitor = require('./powerMonitor');
+import PowerMonitor from './powerMonitor';
 
-if (require.main === module) {
-  const args = process.argv.slice(2);
+const args = process.argv.slice(2);
 
-  let file = '/Users/david/Misc/PowerMonitoringData-Wash/power.csv';
-  let device;
+let file = '/Users/david/Misc/PowerMonitoringData-Wash/power.csv';
+let device;
 
-  if (args.length > 1) {
-    file = args[0];
-    device = args[1];
-  } else {
-    console.log(colors.red('Missing arguments'));
-    console.log();
-    console.log(colors.yellow('Usage:'));
-    console.log(colors.green('node simulate.js [logfile.csv] [deviceName]'));
-    return;
-  }
-
-  const pwr = new PowerMonitor(device, { idleSeconds: 2 * 60 });
-
-  console.log(colors.gray(`Log file: ${colors.white(file)}`));
-  console.log(colors.gray(`Monitoring device: ${colors.magenta(device)}`));
+if (args.length > 1) {
+  file = args[0];
+  device = args[1];
+} else {
+  console.log(colors.red('Missing arguments'));
   console.log();
+  console.log(colors.yellow('Usage:'));
+  console.log(colors.green('node simulate.js [logfile.csv] [deviceName]'));
+  process.exit();
+}
 
-  pwr.on('start', e => {
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-    const msg = `${e.device} Start at ${e.time}`;
-    console.log(colors.green(msg));
-  });
+const pwr = new PowerMonitor(device, { idleSeconds: 2 * 60 });
 
-  pwr.on('finish', e => {
-    const msg = `${e.device} Finished at ${e.time}`;
-    console.log(colors.cyan(msg));
-    console.log();
-    console.log(colors.gray(`Longest idle interval during operation: ${colors.magenta(`${e.longestIdleInterval}s`)}`));
-    console.log(
-      colors.gray(
-        `perhaps move ${colors.white('idleSeconds')} parameter closer to that for \nfaster off time detection — currently set at ${colors.yellow(
-          `${e.idleSeconds}s`
-        )}`
-      )
-    );
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-    console.log();
-  });
+console.log(colors.gray(`Log file: ${colors.white(file)}`));
+console.log(colors.gray(`Monitoring device: ${colors.magenta(device)}`));
+console.log();
 
-  for (const line of scan.readFileLines(file)) {
-    const reading = line.split(',');
+pwr.on('start', e => {
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  const msg = `${e.device} Start at ${e.time}`;
+  console.log(colors.green(msg));
+});
 
-    const deviceName = reading[0];
+pwr.on('finish', e => {
+  const msg = `${e.device} Finished at ${e.time}`;
+  console.log(colors.cyan(msg));
+  console.log();
+  console.log(colors.gray(`Longest idle interval during operation: ${colors.magenta(`${e.longestIdleInterval}s`)}`));
+  console.log(
+    colors.gray(
+      `perhaps move ${colors.white('idleSeconds')} parameter closer to that for \nfaster off time detection — currently set at ${colors.yellow(
+        `${e.idleSeconds}s`
+      )}`
+    )
+  );
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  console.log();
+});
 
-    const data = {
-      Time: reading[1],
-      ENERGY: {
-        Current: reading[2]
-      }
-    };
+for (const line of scan.readFileLines(file)) {
+  const reading = line.split(',');
 
-    pwr.handleReading({ topic: `tele/${deviceName}/SENSOR`, msg: JSON.stringify(data) });
-  }
+  const deviceName = reading[0];
+
+  const data = {
+    Time: reading[1],
+    ENERGY: {
+      Current: reading[2]
+    }
+  };
+
+  pwr.handleReading({ topic: `tele/${deviceName}/SENSOR`, msg: JSON.stringify(data) });
 }

@@ -1,9 +1,9 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { def } = dmt;
 
-const { push } = require('dmt-notify');
+import { push } from 'dmt-notify';
 
-const helpers = require('./helpers');
+import * as helpers from './helpers';
 
 const statementName = 'if-msg';
 
@@ -43,4 +43,4 @@ class IfMsg {
   }
 }
 
-module.exports = IfMsg;
+export default IfMsg;

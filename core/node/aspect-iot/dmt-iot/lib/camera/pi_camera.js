@@ -1,23 +1,15 @@
-const path = require('path');
-const dmt = require('dmt-bridge');
+import path from 'path';
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-if (!dmt.isRPi()) {
-  class Recorder {
-    recordVideo() {
-      log.write("Calling stub function on pi_camera.js because it's not RaspberryPi");
-    }
-  }
+import { exec } from 'child_process';
 
-  module.exports = Recorder;
-  return;
-}
+import piCamera from 'pi-camera-connect';
+const { StreamCamera, Codec } = piCamera;
 
-const { exec } = require('child_process');
-const { StreamCamera, Codec } = require('pi-camera-connect');
-const fs = require('fs');
+import fs from 'fs';
 
-const { push, email } = require('dmt-notify');
+import { push, email } from 'dmt-notify';
 
 const device = dmt.device();
 
@@ -33,6 +25,10 @@ class Recorder {
   }
 
   recordVideo() {
+    if (!this.nonrpi()) {
+      return;
+    }
+
     if (this.recording) return;
     this.recording = true;
 
@@ -81,6 +77,13 @@ class Recorder {
       }, this.seconds * 1000);
     });
   }
+
+  nonrpi() {
+    if (!dmt.isRPi()) {
+      log.write("Calling stub function on pi_camera.js because it's not RaspberryPi");
+      return true;
+    }
+  }
 }
 
-module.exports = Recorder;
+export default Recorder;

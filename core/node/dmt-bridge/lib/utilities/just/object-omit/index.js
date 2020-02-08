@@ -1,4 +1,4 @@
-module.exports = omit;
+export default omit;
 
 function omit(obj, remove) {
   var result = {};

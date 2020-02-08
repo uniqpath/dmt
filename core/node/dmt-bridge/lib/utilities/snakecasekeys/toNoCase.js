@@ -1,4 +1,4 @@
-module.exports = toNoCase;
+export default toNoCase;
 
 var hasSpace = /\s/;
 var hasSeparator = /(_|-|\.|:)/;

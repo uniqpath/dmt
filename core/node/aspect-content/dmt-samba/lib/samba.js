@@ -1,10 +1,10 @@
-const fs = require('fs');
-const dmt = require('dmt-bridge');
+import fs from 'fs';
+import dmt from 'dmt-bridge';
 const { log, mountutils } = dmt;
 
-const homedir = require('homedir');
+import homedir from 'homedir';
 
-function mount({ share, mountpoint, serverIp, writable = false }) {
+export default function mount({ share, mountpoint, serverIp, writable = false }) {
   const mntPath = `${mountpoint.replace(/^~/, homedir())}/${share}`;
 
   if (fs.existsSync(mntPath)) {
@@ -26,9 +26,4 @@ function mount({ share, mountpoint, serverIp, writable = false }) {
       );
     }
   }
-}
-
-module.exports = mount;
-
-if (require.main === module) {
 }

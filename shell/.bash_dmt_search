@@ -17,5 +17,5 @@ function dmt_search {
     searchCmd="$DMT_NODE_CORE/dmt-controller/cli/search.js"
   fi
 
-  node "$searchCmd" "$@"
+  $DMT_NODEJS_EXEC "$searchCmd" "$@"
 }

@@ -1,7 +1,7 @@
-const def = require('./parser');
-const dmtHelper = require('./dmtHelper');
-const handler1 = require('./inlineHandlers/operatorFrom.js');
+import operatorFrom from './inlineHandlers/operatorFrom';
 
-module.exports = (str, { cwd }) => {
-  return handler1(str, { def, cwd, dmtHelper });
-};
+export default inlineValueParser;
+
+function inlineValueParser(str, { cwd, parseFile }) {
+  return operatorFrom(str, { parseFile, cwd });
+}

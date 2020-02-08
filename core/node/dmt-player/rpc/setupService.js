@@ -1,12 +1,12 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { def, cli, log } = dmt;
 
-const colors = require('colors');
+import colors from 'colors';
 
-const { SearchClient } = require('dmt-search');
-const LocalPlayer = require('../lib/localPlayer');
+import { SearchClient } from 'dmt-search';
+import LocalPlayer from '../lib/localPlayer';
 
-const mapToLocal = require('../lib/mapToLocal');
+import mapToLocal from '../lib/mapToLocal';
 
 function setup({ program }) {
   const playerInfo = dmt.services('player');
@@ -71,7 +71,7 @@ function addOrPlay(action, { args, searchClient, channel, requestId, player }) {
 
       const shareMappings = dmt.remoteShareMappings();
       const mappedResults = successfulResults.map(results => mapToLocal(results, shareMappings));
-      const playableResults = dmt.util.flatten(mappedResults.map(res => res.results));
+      const playableResults = mappedResults.map(res => res.results).flat();
 
       player[action]({ files: playableResults });
     })
@@ -99,4 +99,4 @@ function setupWsAPI({ program, searchClient, player }) {
   });
 }
 
-module.exports = setup;
+export default setup;

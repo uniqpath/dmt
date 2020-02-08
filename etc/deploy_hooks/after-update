@@ -1,5 +1,6 @@
 #!/bin/bash
 
 DMT_NODE_CORE="$HOME/.dmt/core/node"
+DMT_NODEJS_EXEC="node --experimental-modules --experimental-specifier-resolution=node"
 
-node "${DMT_NODE_CORE}/dmt-gui/cli/gui.js" localhost reload gui
+$DMT_NODEJS_EXEC "${DMT_NODE_CORE}/dmt-gui/cli/gui.js" localhost reload gui

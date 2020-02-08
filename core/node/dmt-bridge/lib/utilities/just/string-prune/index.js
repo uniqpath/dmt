@@ -1,4 +1,4 @@
-module.exports = prune;
+export default prune;
 
 function prune(str, length, end) {
   if (length == null || length >= str.length) {

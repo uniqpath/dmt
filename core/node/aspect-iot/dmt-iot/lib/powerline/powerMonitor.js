@@ -1,9 +1,8 @@
-const dmt = require('dmt-bridge');
-const { log } = dmt;
-const { push } = require('dmt-notify');
+import dmt from 'dmt-bridge';
+import { push } from 'dmt-notify';
 
-const EventEmitter = require('events');
-const sensorMsg = require('../sensorMessageFormats');
+import EventEmitter from 'events';
+import * as sensorMsg from '../sensorMessageFormats';
 
 class PowerMonitor extends EventEmitter {
   constructor(tasmotaDeviceName, { program, idleSeconds = 120, safetyOffSeconds = null } = {}) {
@@ -99,4 +98,4 @@ class PowerMonitor extends EventEmitter {
   }
 }
 
-module.exports = PowerMonitor;
+export default PowerMonitor;

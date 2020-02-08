@@ -1,13 +1,13 @@
-const colors = require('colors');
-const archiver = require('archiver');
-const path = require('path');
-const fs = require('fs');
+import colors from 'colors';
+import archiver from 'archiver';
+import path from 'path';
+import fs from 'fs';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { scan, log, def, stopwatch } = dmt;
 
-const { pipeline, Transform } = require('stream');
-const { StringDecoder } = require('string_decoder');
+import { pipeline, Transform } from 'stream';
+import { StringDecoder } from 'string_decoder';
 
 class CodeTransform extends Transform {
   constructor(options) {
@@ -152,4 +152,4 @@ function deliverDmtZip({ req, res, program, files, replicateExcludedByUser, repl
   archive.finalize();
 }
 
-module.exports = deliverDmtZip;
+export default deliverDmtZip;

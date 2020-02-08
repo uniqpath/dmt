@@ -1,4 +1,4 @@
-const parse = require('./parser');
+import parse from './parser';
 
 function example(argsStr) {
   console.log(parse(argsStr.split(' ')));

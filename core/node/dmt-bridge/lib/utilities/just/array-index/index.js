@@ -1,4 +1,4 @@
-module.exports = index;
+export default index;
 
 function index(arr, key) {
   if (!Array.isArray(arr)) {

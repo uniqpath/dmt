@@ -1,9 +1,7 @@
-const rpcService = require('./rpc/service');
+import rpcService from './rpc/service';
 
 function init(program) {
   rpcService(program);
 }
 
-module.exports = {
-  init
-};
+export { init };

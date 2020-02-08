@@ -20,4 +20,4 @@ function integrationsStateChangeSetup({ program, channel }) {
   sendIntegrationsState();
 }
 
-module.exports = integrationsStateChangeSetup;
+export default integrationsStateChangeSetup;

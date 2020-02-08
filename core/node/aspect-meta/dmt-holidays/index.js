@@ -1,6 +1,6 @@
-const dmt = require('dmt-bridge');
-const { getCurrentYearMonthDay } = require('./helpers');
-const { holidayName, holidayDataExists } = require('./holidays');
+import dmt from 'dmt-bridge';
+import { getCurrentYearMonthDay } from './helpers';
+import { holidayName, holidayDataExists } from './holidays';
 
 function updateCurrentHoliday(program) {
   const country = program.country();
@@ -34,4 +34,4 @@ function init(program) {
   }
 }
 
-module.exports = { init };
+export { init };

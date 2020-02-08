@@ -1,8 +1,9 @@
-const express = require('express');
-const colors = require('colors');
-const fs = require('fs');
-const pathModule = require('path');
-const dmt = require('dmt-bridge');
+import express from 'express';
+import colors from 'colors';
+import fs from 'fs';
+import pathModule from 'path';
+
+import dmt from 'dmt-bridge';
 const { scan, log } = dmt;
 
 function setFileSystemRoutes(app, serverName, { rootDir, publicDir, assetsSubdir, subServings = [] }) {
@@ -83,4 +84,4 @@ function setFileSystemRoutes(app, serverName, { rootDir, publicDir, assetsSubdir
   return app;
 }
 
-module.exports = setFileSystemRoutes;
+export default setFileSystemRoutes;

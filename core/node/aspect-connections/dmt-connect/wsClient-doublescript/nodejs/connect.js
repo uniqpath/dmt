@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import dmt from 'dmt-bridge';
-import _establishAndMaintainConnection from '../lib/connect.js';
+import _establishAndMaintainConnection from '../lib/connect';
 
 const { log } = dmt;
 

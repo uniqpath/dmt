@@ -1,6 +1,6 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 
-const SearchClient = require('../lib/searchClient');
+import SearchClient from '../lib/searchClient';
 
 function setup({ program, serviceName }) {
   const providers = [dmt.thisProvider()];
@@ -10,4 +10,4 @@ function setup({ program, serviceName }) {
   return { searchClient };
 }
 
-module.exports = setup;
+export default setup;

@@ -1,4 +1,4 @@
-module.exports = set;
+export default set;
 
 function set(obj, props, value) {
   if (typeof props == 'string') {

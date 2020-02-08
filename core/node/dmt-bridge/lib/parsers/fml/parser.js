@@ -1,10 +1,9 @@
-const stripAnsi = require('strip-ansi');
-const colors = require('colors');
-const fs = require('fs');
-const path = require('path');
-
-const dmtHelper = require('../def/dmtHelper');
-const scan = require('../../scan');
+import fs from 'fs';
+import path from 'path';
+import colors from 'colors';
+import stripAnsi from 'strip-ansi';
+import dmtHelper from '../def/dmtHelper';
+import scan from '../../scan';
 
 class FMLParser {
   constructor({ handle, channel, fiberAuth }) {
@@ -256,4 +255,4 @@ class FMLParser {
   }
 }
 
-module.exports = FMLParser;
+export default FMLParser;

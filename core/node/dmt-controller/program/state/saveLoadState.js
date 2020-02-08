@@ -1,9 +1,9 @@
-const fs = require('fs');
+import fs from 'fs';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { util, log } = dmt;
 
-const { cleanupStateOnLoad, cleanupStateOnSave } = require('./cleanupState');
+import { cleanupStateOnLoad, cleanupStateOnSave } from './cleanupState';
 
 const STATE_SCHEMA_VERSION = 0.8;
 
@@ -23,6 +23,7 @@ class SaveLoadState {
     if (fs.existsSync(dmt.programStateFile)) {
       try {
         const loadedState = cleanupStateOnLoad(JSON.parse(fs.readFileSync(dmt.programStateFile)));
+
         if (loadedState.schemaVersion == STATE_SCHEMA_VERSION) {
           this.updateState(loadedState);
         } else {
@@ -35,4 +36,4 @@ class SaveLoadState {
   }
 }
 
-module.exports = SaveLoadState;
+export default SaveLoadState;

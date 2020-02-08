@@ -1,19 +1,20 @@
-const colors = require('colors');
-const fs = require('fs');
-const path = require('path');
-const deviceIdentifier = require('./deviceIdentifier');
+import colors from 'colors';
+import fs from 'fs';
+import path from 'path';
+import dmt from 'dmt-bridge';
 
-const currentNetworkDef = require('../currentNetworkDef');
+import { identify } from './deviceIdentifier';
+import currentNetworkDef from '../currentNetworkDef';
 
 (async () => {
   const networkDef = await currentNetworkDef();
-  const dmtStateDir = require('dmt-bridge').stateDir;
+  const dmtStateDir = dmt.stateDir;
   const stateDir = networkDef ? path.join(dmtStateDir, networkDef.id.toLowerCase()) : dmtStateDir;
 
   const lastScanPath = path.join(stateDir, 'lastScan.json');
 
   if (fs.existsSync(lastScanPath)) {
-    const devices = deviceIdentifier.identify(require(lastScanPath));
+    const devices = identify(JSON.parse(fs.readFileSync(lastScanPath)));
 
     const term = process.argv[2];
 

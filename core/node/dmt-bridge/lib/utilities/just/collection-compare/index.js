@@ -1,4 +1,4 @@
-module.exports = compare;
+export default compare;
 
 function compare(value1, value2) {
   if (value1 === value2) {

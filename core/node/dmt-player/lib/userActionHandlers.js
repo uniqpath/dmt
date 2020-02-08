@@ -1,4 +1,4 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
 function userActionHandlers({ program, player }) {
@@ -91,4 +91,4 @@ function userActionHandlers({ program, player }) {
   });
 }
 
-module.exports = userActionHandlers;
+export default userActionHandlers;

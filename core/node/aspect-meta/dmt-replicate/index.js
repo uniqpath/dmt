@@ -1,12 +1,13 @@
-const colors = require('colors');
-const express = require('express');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+import express from 'express';
+
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const serveDmtZip = require('./endpoints/serveDmtZip');
-const serveInstallScript = require('./endpoints/serveInstallScript');
-const serveLogo = require('./endpoints/serveLogo');
-const serveWallpaper = require('./endpoints/serveWallpaper');
+import serveDmtZip from './endpoints/serveDmtZip';
+import serveInstallScript from './endpoints/serveInstallScript';
+import serveLogo from './endpoints/serveLogo';
+import serveWallpaper from './endpoints/serveWallpaper';
 
 function serverInit({ app, program, port, replicateUserCodeTransform, replicateExcludedByUser }) {
   const files = [];
@@ -45,6 +46,4 @@ function init(program) {
   });
 }
 
-module.exports = {
-  init
-};
+export { init };

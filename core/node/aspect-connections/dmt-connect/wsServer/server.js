@@ -1,12 +1,12 @@
-const EventEmitter = require('events');
-const WebSocket = require('ws');
+import EventEmitter from 'events';
+import WebSocket from 'ws';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const Channel = require('../wsChannel/channel');
+import Channel from '../wsChannel/channel';
 
-const getRemoteIp = require('../wsChannel/getRemoteIp');
+import getRemoteIp from '../wsChannel/getRemoteIp';
 
 function noop() {}
 
@@ -107,4 +107,4 @@ class WsServer extends EventEmitter {
   }
 }
 
-module.exports = WsServer;
+export default WsServer;

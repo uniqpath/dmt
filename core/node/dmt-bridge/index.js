@@ -1,26 +1,27 @@
-const os = require('os');
-const fs = require('fs');
-const colors = require('colors');
-const path = require('path');
-const util = require('./lib/util');
-const scan = require('./lib/scan');
-const search = require('./lib/search');
-const stopwatch = require('./lib/stopwatch');
+import os from 'os';
+import fs from 'fs';
+import path from 'path';
+import colors from 'colors';
+import util from './lib/util';
+import scan from './lib/scan';
+import search from './lib/search';
+import stopwatch from './lib/stopwatch';
+import FsState from './lib/fsState';
 
-const FsState = require('./lib/fsState');
+import def from './lib/parsers/def/parser';
+import cli from './lib/parsers/cli/cliHelper';
+import helper from './lib/parsers/def/dmtHelper';
 
-const def = require('./lib/parsers/def/parser');
-const helper = require('./lib/parsers/def/dmtHelper');
-const cli = require('./lib/parsers/cli/cliHelper');
-const numberRanges = require('./lib/parsers/numbers/rangeParser');
-const FMLParser = require('./lib/parsers/fml/parser');
-const textfileParsers = require('./lib/parsers/textfiles');
+import * as numberRanges from './lib/parsers/numbers/rangeParser';
+import * as textfileParsers from './lib/parsers/textfiles';
+import FMLParser from './lib/parsers/fml/parser';
 
-const { apMode, apInfo, accessPointIP } = require('./lib/apTools');
+import { apMode, apInfo, accessPointIP } from './lib/apTools';
 
-const suntime = require('./lib/suntime');
+import * as suntime from './lib/suntime';
+import db from './lib/databases';
 
-const db = require('./lib/databases');
+import * as mountutils from './lib/utilities/mountutils';
 
 if (!fs.existsSync(helper.dmtPath)) {
   console.log(
@@ -31,7 +32,7 @@ if (!fs.existsSync(helper.dmtPath)) {
   process.exit();
 }
 
-const Logger = require('./lib/logger');
+import Logger from './lib/logger';
 const log = new Logger();
 
 function promiseTimeout(ms, promise) {
@@ -54,7 +55,7 @@ function memoryUsage() {
   return memUsage;
 }
 
-module.exports = {
+export default {
   log,
   util,
   scan,
@@ -248,5 +249,5 @@ module.exports = {
   promiseTimeout,
   listify: util.listify,
   accessProperty: (obj, acc) => def.tryOnTheFly(obj, acc),
-  mountutils: require('./lib/utilities/mountutils')
+  mountutils
 };

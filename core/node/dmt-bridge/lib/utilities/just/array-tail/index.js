@@ -1,4 +1,4 @@
-module.exports = tail;
+export default tail;
 
 function tail(arr) {
   if (!Array.isArray(arr)) {

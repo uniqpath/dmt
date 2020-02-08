@@ -1,3 +1,3 @@
-const simpleKeyValuePairs = require('./simpleKeyValuePairs');
+import simpleKeyValuePairs from './simpleKeyValuePairs';
 
-module.exports = { textfileKeyValueParser: simpleKeyValuePairs };
+export { simpleKeyValuePairs as textfileKeyValueParser };

@@ -1,12 +1,13 @@
-const path = require('path');
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import path from 'path';
+import colors from 'colors';
+
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const bashShutdown = require('./lib/shutdown');
-const bashReboot = require('./lib/reboot');
-const bashSetAccessPoint = require('./lib/setAccessPoint');
-const bashDmtNext = require('./lib/dmtNext');
+import bashShutdown from './lib/shutdown';
+import bashReboot from './lib/reboot';
+import bashSetAccessPoint from './lib/setAccessPoint';
+import bashDmtNext from './lib/dmtNext';
 
 const scriptsPath = path.join(dmt.dmtPath, 'etc/scripts');
 
@@ -50,6 +51,4 @@ function scriptActionHandler({ program, action, storeName }) {
   }
 }
 
-module.exports = {
-  scriptActionHandler
-};
+export { scriptActionHandler };

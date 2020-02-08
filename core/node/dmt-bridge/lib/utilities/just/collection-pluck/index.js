@@ -1,4 +1,4 @@
-module.exports = pluck;
+export default pluck;
 
 function pluck(collection, propertyName) {
   if (!collection || typeof collection != 'object') {

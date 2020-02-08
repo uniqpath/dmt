@@ -1,14 +1,14 @@
-const path = require('path');
-const colors = require('colors');
+import path from 'path';
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const { exec } = require('child_process');
+import { exec } from 'child_process';
 
-const bashReboot = require('./reboot');
+import bashReboot from './reboot';
 
-module.exports = ({ program, scriptsPath, action }) => {
+export default ({ program, scriptsPath, action }) => {
   const bashAction = `setup_ap ${action}`;
 
   exec(path.join(scriptsPath, bashAction), (error, stdout, stderr) => {

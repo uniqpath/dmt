@@ -1,4 +1,4 @@
-module.exports = clamp;
+export default clamp;
 
 function clamp(b1, n, b2) {
   if (typeof b1 != 'number' || typeof n != 'number' || typeof b2 != 'number') {

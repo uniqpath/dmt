@@ -1,4 +1,4 @@
-const stopwatch = require('pretty-hrtime');
+import stopwatch from 'pretty-hrtime';
 
 function start() {
   return process.hrtime();
@@ -9,4 +9,4 @@ function stop(start) {
   return stopwatch(end);
 }
 
-module.exports = { start, stop };
+export default { start, stop };

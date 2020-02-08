@@ -1,5 +1,6 @@
-const jayson = require('jayson');
-const dmt = require('dmt-bridge');
+import jayson from 'jayson';
+
+import dmt from 'dmt-bridge';
 
 class DmtRemote {
   constructor({ host, port = dmt.services('rpc').port, targetService }) {
@@ -21,4 +22,4 @@ class DmtRemote {
   }
 }
 
-module.exports = DmtRemote;
+export default DmtRemote;

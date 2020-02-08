@@ -1,10 +1,8 @@
-const colors = require('colors');
+import colors from 'colors';
 
-function resultsFormatter(results, resultMap = x => x) {
+export default function resultsFormatter(results, resultMap = x => x) {
   results.forEach((result, index) => {
     process.stdout.write(`${colors.green(index + 1)}. `);
     console.log(resultMap(result));
   });
 }
-
-module.exports = resultsFormatter;

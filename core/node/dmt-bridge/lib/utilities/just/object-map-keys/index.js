@@ -1,4 +1,4 @@
-module.exports = map;
+export default map;
 
 function map(obj, predicate) {
   var result = {};

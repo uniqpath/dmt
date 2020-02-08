@@ -1,11 +1,11 @@
-var clean = require('./toNoCase');
+import clean from './toNoCase';
 
-module.exports = toSpaceCase;
+export default toSpaceCase;
 
 function toSpaceCase(string) {
   return clean(string)
-    .replace(/[\W_]+(.|$)/g, function(matches, match) {
-      return match ? ' ' + match : '';
+    .replace(/[\W_]+(.|$)/g, (matches, match) => {
+      return match ? ` ${match}` : '';
     })
     .trim();
 }

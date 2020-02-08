@@ -1,7 +1,4 @@
-const powerLog = require('./powerLog');
-const PowerMonitor = require('./powerMonitor');
+import powerLog from './powerLog';
+import PowerMonitor from './powerMonitor';
 
-module.exports = {
-  PowerMonitor,
-  powerLog
-};
+export { PowerMonitor, powerLog };

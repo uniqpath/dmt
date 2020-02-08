@@ -1,12 +1,12 @@
-const path = require('path');
-const colors = require('colors');
+import path from 'path';
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const { exec } = require('child_process');
+import { exec } from 'child_process';
 
-module.exports = ({ scriptsPath }) => {
+export default ({ scriptsPath }) => {
   const bashAction = 'dmt_next';
 
   exec(path.join(scriptsPath, bashAction), (error, stdout, stderr) => {

@@ -50,4 +50,4 @@ function cleanupLegacyStateVariables(state) {
   return state;
 }
 
-module.exports = { cleanupStateOnLoad, cleanupStateOnSave };
+export { cleanupStateOnLoad, cleanupStateOnSave };

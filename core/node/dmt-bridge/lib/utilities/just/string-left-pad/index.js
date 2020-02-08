@@ -1,4 +1,4 @@
-module.exports = leftPad;
+export default leftPad;
 
 var surrogatePairRegEx = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
 

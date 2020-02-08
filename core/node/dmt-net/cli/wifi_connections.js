@@ -1,13 +1,12 @@
-const dmt = require('dmt-bridge');
-const { log } = dmt;
-const { currentNetworkDef } = require('../index');
-const wifi = require('node-wifi');
+import dmt from 'dmt-bridge';
+import { currentNetworkDef } from '../index';
+import wifi from 'node-wifi';
 
 wifi.init({
   iface: null
 });
 
-wifi.getCurrentConnections(function(err, currentConnections) {
+wifi.getCurrentConnections((err, currentConnections) => {
   if (err) {
     console.log(err);
   }

@@ -1,8 +1,7 @@
-const fs = require('fs');
-const helper = require('../parsers/def/dmtHelper');
-const def = require('../parsers/def/parser');
-
-const DbAccess = require('./dbAccess');
+import fs from 'fs';
+import helper from '../parsers/def/dmtHelper';
+import def from '../parsers/def/parser';
+import DbAccess from './dbAccess';
 
 let dbDef;
 
@@ -36,4 +35,4 @@ function databases(dbName) {
   }
 }
 
-module.exports = databases;
+export default databases;

@@ -1,12 +1,9 @@
-const LanBus = require('./lib/lanbus');
+import LanBus from './lib/lanbus';
 
-const UdpBus = require('./lib/udpbus');
+import UdpBus from './lib/udpbus';
 
 function init(program) {
   return { bus: new LanBus({ program }) };
 }
 
-module.exports = {
-  init,
-  UdpBus
-};
+export { init, UdpBus };

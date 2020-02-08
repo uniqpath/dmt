@@ -40,7 +40,31 @@ function compile {
   cd "$cwd"
 }
 
-if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
+function check_node_js_version {
+  which node > /dev/null 2>&1
+
+  if [ $? -eq 0 ]; then # node command exists
+    node_version=$(node -v | sed "s/v//")
+
+    a=( ${node_version//./ } ) # replace points, split into array
+    major=${a[0]}
+    minor=${a[1]}
+
+    b=( ${DMT_MIN_NODEJS_VERSION//./ } ) # DMT_MIN_NODEJS_VERSION comes from .bash_dmt_vars
+    min_major=${b[0]}
+    min_minor=${b[1]}
+
+    if (( ${major} < $min_major )) || ( (( ${major} == $min_major )) && (( ${minor} < $min_minor )) ); then
+      echo
+      printf "⚠️  ${RED}Your ${CYAN}node.js ${RED}version is ${YELLOW}${node_version}${RED}, please install ${CYAN}${DMT_MIN_NODEJS_VERSION} ${RED}or higher${NC}\n"
+    fi
+  else
+    echo
+    printf "⚠️  ${CYAN}node.js ${RED}is not installed${GRAY}, please install ${YELLOW}node.js v${DMT_MIN_NODEJS_VERSION} ${GRAY}or higher${NC}\n"
+  fi
+}
+
+if [ -z "$arg" ]; then # install here
 
     COMPILED_BASH_ALIASES="$HOME/.dmt/etc/.bash_aliases_bundle"
 
@@ -101,8 +125,10 @@ if [ -z "$arg" ] || [ "$arg" == "full" ]; then # install here
     printf "Enter ${GREEN}dmt${NC} command to see the options 💡${YELLOW}\n"
     printf "${GRAY}----------------------------------------${NC}\n"
     printf "To start ${CYAN}dmt-proc${NC} with visible log output enter ${GREEN}dmt startfg${NC} 🚀\nand to start normally in background enter ${GREEN}dmt start${NC} 🚀\n\n"
-    printf "⚠️  If ${GREEN}dmt ${GRAY}command doesn't work ${MAGENTA}open new terminal${GRAY} or ${CYAN}source ~/.dmt/shell/.bash_dmt_loader ${GRAY}${NC}\n\n"
+    printf "⚠️  If ${GREEN}dmt ${GRAY}command doesn't work ${MAGENTA}open new terminal${GRAY} or ${CYAN}source ~/.dmt/shell/.loader ${GRAY}${NC}\n"
 
+    check_node_js_version
+    echo
 
 else # clone to and install on remote device
 

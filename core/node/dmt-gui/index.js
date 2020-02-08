@@ -1,19 +1,19 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const wsServer = require('./gui-backend/ws_servers');
-const staticServer = require('./gui-backend/subcomponent-static-http-server');
-const guiServerOptions = require('./guiServerOptions');
+import wsServer from './gui-backend/ws_servers';
+import staticServer from './gui-backend/subcomponent-static-http-server';
+import guiServerOptions from './guiServerOptions';
 
-const loadGuiViewsDef = require('./loadGuiViewsDef');
+import loadGuiViewsDef from './loadGuiViewsDef';
 
-const reduceSizeOfStateForGUI = require('./gui-backend/reduceSizeOfStateForGUI');
+import reduceSizeOfStateForGUI from './gui-backend/reduceSizeOfStateForGUI';
 
 function init(program) {
   loadGuiViewsDef(program);
 
   try {
-    wsServer.listen(program);
+    wsServer(program);
   } catch (e) {
     log.red(e);
   }
@@ -25,8 +25,4 @@ function init(program) {
   }
 }
 
-module.exports = {
-  init,
-  staticServer,
-  reduceSizeOfStateForGUI
-};
+export { init, staticServer, reduceSizeOfStateForGUI };

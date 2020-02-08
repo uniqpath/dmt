@@ -1,5 +1,5 @@
-const dmt = require('dmt-bridge');
-const jayson = require('jayson');
+import dmt from 'dmt-bridge';
+import jayson from 'jayson';
 
 class PlayerRemote {
   constructor({ host, port = dmt.services('rpc').port, mediaType = 'music' }) {
@@ -21,4 +21,4 @@ class PlayerRemote {
   }
 }
 
-module.exports = PlayerRemote;
+export default PlayerRemote;

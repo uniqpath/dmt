@@ -1,9 +1,9 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
-const colors = require('colors');
-const EventEmitter = require('events');
+import colors from 'colors';
+import EventEmitter from 'events';
 
-const dgram = require('dgram');
+import dgram from 'dgram';
 
 const BROADCAST_ADDR = '255.255.255.255';
 const PORT = 27770;
@@ -68,4 +68,4 @@ class UdpBus extends EventEmitter {
   }
 }
 
-module.exports = UdpBus;
+export default UdpBus;

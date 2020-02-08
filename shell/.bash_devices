@@ -40,7 +40,7 @@ function get_remote_device_ip_and_name_and_user_and_network {
     local resolverPath
     getDMTDeviceResolverPath resolverPath
 
-    local result=$(node "$resolverPath" "$deviceName")
+    local result=$($DMT_NODEJS_EXEC "$resolverPath" "$deviceName")
     local _dmt_device=true
 
     # ip
@@ -96,7 +96,7 @@ function get_remote_device_ip_and_name_and_user_and_network {
       local lastScanResolverPath
       getLastScanSearchScriptPath lastScanResolverPath
 
-      result=$(node "$lastScanResolverPath" "$deviceName")
+      result=$($DMT_NODEJS_EXEC "$lastScanResolverPath" "$deviceName")
 
       # ip
       line=$(echo "$result" | grep "ip:")

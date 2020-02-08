@@ -1,27 +1,28 @@
-const fs = require('fs');
-const path = require('path');
-const colors = require('colors');
+import fs from 'fs';
+import path from 'path';
+import colors from 'colors';
+import dmt from 'dmt-bridge';
 
-const arpscanner = require('./arpscanner-promise.js');
-const deviceIdentifier = require('./deviceIdentifier');
-const deviceDiffer = require('./deviceDiffer');
-const deviceFilter = require('./deviceFilter');
-const deviceSorter = require('./deviceSorter');
+import arpscanner from './arpscanner-promise';
+import { identify } from './deviceIdentifier';
+import deviceDiffer from './deviceDiffer';
+import deviceFilter from './deviceFilter';
+import deviceSorter from './deviceSorter';
 
-const currentNetworkDef = require('../currentNetworkDef');
-const networkInterfaces = require('../networkInterfaces');
+import currentNetworkDef from '../currentNetworkDef';
+import networkInterfaces from '../networkInterfaces';
 
 async function netScan(term = '', { rescan = true, silent = true } = {}) {
   try {
     const networkDef = await currentNetworkDef();
-    const dmtStateDir = require('dmt-bridge').stateDir;
+    const dmtStateDir = dmt.stateDir;
     const stateDir = networkDef ? path.join(dmtStateDir, networkDef.id.toLowerCase()) : dmtStateDir;
 
     if (!rescan) {
       const lastScanPath = path.join(stateDir, 'lastScan.json');
 
       if (fs.existsSync(lastScanPath)) {
-        const devices = deviceIdentifier.identify(require(lastScanPath));
+        const devices = identify(JSON.parse(fs.readFileSync(lastScanPath)));
         return deviceSorter(deviceFilter(term, devices));
       }
     }
@@ -33,10 +34,10 @@ async function netScan(term = '', { rescan = true, silent = true } = {}) {
 
     const scanResults = await arpscanner({ interface: _interfaces[0].name });
 
-    return deviceSorter(deviceFilter(term, deviceIdentifier.identify(deviceDiffer(stateDir, scanResults))));
+    return deviceSorter(deviceFilter(term, identify(deviceDiffer(stateDir, scanResults))));
   } catch (err) {
     console.log(colors.red(err));
   }
 }
 
-module.exports = netScan;
+export default netScan;

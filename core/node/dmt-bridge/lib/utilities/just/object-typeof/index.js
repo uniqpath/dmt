@@ -1,4 +1,4 @@
-module.exports = typeOf;
+export default typeOf;
 
 function typeOf(obj) {
   if (obj === null) {

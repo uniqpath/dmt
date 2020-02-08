@@ -1,4 +1,4 @@
-module.exports = flatten;
+export default flatten;
 
 function flatten(arr) {
   if (!Array.isArray(arr)) {

@@ -4,4 +4,4 @@ class NetStatus {
   }
 }
 
-module.exports = new NetStatus();
+export default new NetStatus();

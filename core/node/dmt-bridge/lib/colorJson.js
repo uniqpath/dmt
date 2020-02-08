@@ -1,4 +1,4 @@
-const colorer = require('colors');
+import colorer from 'colors';
 
 const defaultColors = {
   separator: 'gray',
@@ -8,6 +8,8 @@ const defaultColors = {
   null: 'gray',
   key: 'green'
 };
+
+export default syntaxHighlight;
 
 function syntaxHighlight(json, colors = defaultColors) {
   if (typeof json != 'string') {
@@ -33,10 +35,4 @@ function syntaxHighlight(json, colors = defaultColors) {
       return `${colorer[color](match)}`;
     })
   );
-}
-
-module.exports = syntaxHighlight;
-
-if (require.main === module) {
-  console.log(syntaxHighlight({ a: 1, b: 2, c: 'lala', d: null, e: true }));
 }

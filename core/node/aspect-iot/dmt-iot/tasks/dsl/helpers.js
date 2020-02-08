@@ -1,5 +1,5 @@
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+import dmt from 'dmt-bridge';
 
 const { log } = dmt;
 
@@ -29,4 +29,4 @@ function iotMsg({ program, topicAndMsg, context }) {
   }
 }
 
-module.exports = { iotMsg, compareTopicAndMsg };
+export { iotMsg, compareTopicAndMsg };

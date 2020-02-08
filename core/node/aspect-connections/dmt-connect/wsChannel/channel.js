@@ -1,9 +1,9 @@
-const EventEmitter = require('events');
+import EventEmitter from 'events';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const getRemoteIp = require('./getRemoteIp');
+import getRemoteIp from './getRemoteIp';
 
 class Channel extends EventEmitter {
   constructor(ws) {
@@ -58,4 +58,4 @@ class Channel extends EventEmitter {
   }
 }
 
-module.exports = Channel;
+export default Channel;

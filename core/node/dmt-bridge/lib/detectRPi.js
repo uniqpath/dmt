@@ -1,19 +1,21 @@
-var fs = require('fs');
-var PI_MODEL_NO = ['BCM2708', 'BCM2709', 'BCM2710', 'BCM2835', 'BCM2837B0'];
+import fs from 'fs';
+const PI_MODEL_NO = ['BCM2708', 'BCM2709', 'BCM2710', 'BCM2835', 'BCM2837B0'];
 
 function isPi(model) {
   return PI_MODEL_NO.indexOf(model) > -1;
 }
 
-module.exports = function() {
-  var cpuInfo;
+export default detectRPi;
+
+function detectRPi() {
+  let cpuInfo;
   try {
     cpuInfo = fs.readFileSync('/proc/cpuinfo', { encoding: 'utf8' });
   } catch (e) {
     return false;
   }
 
-  var model = cpuInfo
+  const model = cpuInfo
     .split('\n')
     .map(line => line.replace(/\t/g, ''))
     .filter(line => line.length > 0)
@@ -25,6 +27,6 @@ module.exports = function() {
     return false;
   }
 
-  var number = model[0][1];
+  const number = model[0][1];
   return isPi(number);
-};
+}

@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const dmt = require('dmt-bridge');
+import fs from 'fs';
+import path from 'path';
+import dmt from 'dmt-bridge';
 
 async function init(program) {
   function coreReady(results) {
@@ -23,6 +23,4 @@ async function init(program) {
   }
 }
 
-module.exports = {
-  init
-};
+export { init };

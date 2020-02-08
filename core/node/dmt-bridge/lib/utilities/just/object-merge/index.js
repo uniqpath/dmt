@@ -1,4 +1,4 @@
-module.exports = merge;
+export default merge;
 
 function merge() {
   var args = [].slice.call(arguments);

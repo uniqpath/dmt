@@ -76,7 +76,7 @@ You need it to clone this repo to your machine. If you get `dmt-system` by other
 
 ## 2.) Node.js eventful framework
 
-- node.js > v12.8
+- node.js > v13.8
 
 Suggested install via https://github.com/tj/n
 

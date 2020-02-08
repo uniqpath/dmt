@@ -1,6 +1,6 @@
-const fs = require('fs');
+import fs from 'fs';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log, util } = dmt;
 
 const pulseaudio = fs.existsSync('/etc/pulse/default.pa');
@@ -48,4 +48,4 @@ function resetAlsa(mpv, playerState) {
   return new Promise(success => success());
 }
 
-module.exports = { resetAlsa, resetAlsaIfLongIdle };
+export { resetAlsa, resetAlsaIfLongIdle };

@@ -1,7 +1,7 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { util } = dmt;
 
-function reduceSizeOfStateForGUI(state) {
+export default function reduceSizeOfStateForGUI(state) {
   const PLAYLIST_MAX_SIZE = 50;
 
   if (state.playlist && state.playlist.length > PLAYLIST_MAX_SIZE) {
@@ -11,5 +11,3 @@ function reduceSizeOfStateForGUI(state) {
 
   return state;
 }
-
-module.exports = reduceSizeOfStateForGUI;

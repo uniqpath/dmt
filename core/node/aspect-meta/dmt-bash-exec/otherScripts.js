@@ -1,4 +1,4 @@
-const wpaStatus = require('./lib/wpa_cli_status');
-const macosAirport = require('./lib/macos_airport');
+import wpaStatus from './lib/wpa_cli_status';
+import macosAirport from './lib/macos_airport';
 
-module.exports = { wpaStatus, macosAirport };
+export { wpaStatus, macosAirport };

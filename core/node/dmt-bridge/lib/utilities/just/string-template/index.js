@@ -1,4 +1,4 @@
-module.exports = template;
+export default template;
 
 function template(string, data) {
   var proxyRegEx = /\{\{([^\}]+)?\}\}/g;

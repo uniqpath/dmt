@@ -1,8 +1,9 @@
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const { spawnServer } = require('dmt-rpc');
+import { spawnServer } from 'dmt-rpc';
 
 class MetaRPC {
   constructor(program) {
@@ -34,4 +35,4 @@ class MetaRPC {
   }
 }
 
-module.exports = MetaRPC;
+export default MetaRPC;

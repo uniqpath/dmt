@@ -226,5 +226,5 @@ function dmt_parsedef {
     return
   fi
 
-  node "$DEF_PARSER_PATH" "$matching_file"
+  $DMT_NODEJS_EXEC "$DEF_PARSER_PATH" "$matching_file"
 }

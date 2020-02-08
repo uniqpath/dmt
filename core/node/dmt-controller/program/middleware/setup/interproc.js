@@ -1,3 +1,3 @@
-module.exports = (program, { bus }) => {
+export default (program, { bus }) => {
   program.initInterprocBus(bus);
 };

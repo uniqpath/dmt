@@ -1,9 +1,5 @@
-const colors = require('colors');
-const dmt = require('dmt-bridge');
-const { log } = dmt;
-
-const definition = require('./defineService');
+import actions from './actions';
 
 const serviceName = 'controller';
 
-module.exports = { definition, serviceName };
+export { actions, serviceName };

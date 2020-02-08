@@ -1,5 +1,3 @@
-function setup(program, { bus }) {
+export default (program, { bus }) => {
   program.initIot(bus);
-}
-
-module.exports = setup;
+};

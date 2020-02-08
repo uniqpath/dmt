@@ -1,9 +1,15 @@
-const path = require('path');
-const fs = require('fs');
-const { easterMonday, getDataForCorrectYear } = require('./helpers');
+import path from 'path';
+import fs from 'fs';
+import { easterMonday, getDataForCorrectYear } from './helpers';
+
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const COUNTRY_HOLIDAYS = {};
 
 function filePath(country) {
-  return path.join(__dirname, `data/${country}/holidays.json`);
+  return path.join(__dirname, `data/${country}.holidays.json`);
 }
 
 function holidayDataExists(country) {
@@ -11,9 +17,13 @@ function holidayDataExists(country) {
 }
 
 function holidaysForYear(year, { country }) {
-  const HOLIDAYS = require(filePath(country));
+  if (!COUNTRY_HOLIDAYS[country]) {
+    COUNTRY_HOLIDAYS[country] = JSON.parse(fs.readFileSync(filePath(country)));
+  }
 
-  const holidays = getDataForCorrectYear(HOLIDAYS[country], year);
+  const HOLIDAYS = COUNTRY_HOLIDAYS[country];
+
+  const holidays = getDataForCorrectYear(HOLIDAYS, year);
 
   if (holidays.EASTER) {
     const _easterMonday = easterMonday(year);
@@ -38,12 +48,4 @@ function isHoliday(y, m, d, { country }) {
   return false;
 }
 
-module.exports = {
-  holidayDataExists,
-  holidaysForYear,
-  holidayName
-};
-
-if (require.main === module) {
-  console.log(holidayName(2019, 1, 1, { country: 'si' }));
-}
+export { holidayDataExists, holidaysForYear, holidayName };

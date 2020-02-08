@@ -45,12 +45,4 @@ function parse({ topic, msg }) {
   }
 }
 
-module.exports = { extractIdentifier, parse, Type };
-
-if (require.main === module) {
-  const info = parse({
-    topic: 'tele/ID-ddffd-15/SENSOR',
-    msg: '{"Time":"2019-04-13T22:20:13","AM2301":{"Temperature":8.5,"Humidity":85.9},"TempUnit":"C"}'
-  });
-  console.log(info);
-}
+export { extractIdentifier, parse, Type };

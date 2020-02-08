@@ -1,4 +1,4 @@
-function publishRequest({ udpBus, iotBus, msg }) {
+export default function publishRequest({ udpBus, iotBus, msg }) {
   if (iotBus) {
     iotBus.publish({ topic: msg.request, msg });
   }
@@ -7,5 +7,3 @@ function publishRequest({ udpBus, iotBus, msg }) {
     udpBus.publish(msg).catch(e => {});
   }
 }
-
-module.exports = publishRequest;

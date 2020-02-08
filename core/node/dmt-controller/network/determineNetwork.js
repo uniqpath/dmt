@@ -1,9 +1,9 @@
-const colors = require('colors');
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log, def, loop } = dmt;
 
-const determineNetworkSegment = require('./determineNetworkSegment');
+import determineNetworkSegment from './determineNetworkSegment';
 
 class DetermineNetwork {
   constructor({ program, obj }) {
@@ -81,4 +81,4 @@ class DetermineNetwork {
   }
 }
 
-module.exports = DetermineNetwork;
+export default DetermineNetwork;

@@ -1,6 +1,7 @@
-const path = require('path');
-const fs = require('fs');
-const dmt = require('dmt-bridge');
+import path from 'path';
+import fs from 'fs';
+
+import dmt from 'dmt-bridge';
 const { def } = dmt;
 
 function serveWallpaper(req, res) {
@@ -27,4 +28,4 @@ function serveWallpaper(req, res) {
   res.sendFile(path.join(commonAssetsPath, '/wallpapers/missing.jpg'));
 }
 
-module.exports = serveWallpaper;
+export default serveWallpaper;

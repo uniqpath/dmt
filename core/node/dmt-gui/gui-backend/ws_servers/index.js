@@ -1,10 +1,10 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const name = 'gui websocket';
-const GuiResponder = require('./wsResponder');
+import GuiResponder from './wsResponder';
 
-function listen(program) {
+const name = 'gui websocket';
+export default function listen(program) {
   const port = dmt.services('gui').wsPort;
 
   log.green('%s listening at ws://%s:%s', name || 'Server', 'localhost', port);
@@ -12,5 +12,3 @@ function listen(program) {
   const guiResponder = new GuiResponder();
   guiResponder.init({ program, port });
 }
-
-module.exports = { listen };

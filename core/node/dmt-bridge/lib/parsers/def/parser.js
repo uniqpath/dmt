@@ -1,6 +1,7 @@
-const colors = require('colors');
-const path = require('path');
-const fs = require('fs');
+import colors from 'colors';
+import path from 'path';
+import fs from 'fs';
+import inlineValueParser from './inlineValueParser';
 
 const cache = {};
 const basicParsingCache = {};
@@ -255,8 +256,7 @@ function parseSimpleValue(str, { cwd, onlyBasicParsing }) {
     return str;
   }
 
-  const inlineParser = require('./inlineValueParser');
-  return inlineParser(str, { cwd });
+  return inlineValueParser(str, { cwd, parseFile });
 }
 
 function checkSpacing(lines, { filePathInfo }) {
@@ -342,7 +342,7 @@ function isTruthy(defval) {
   return true;
 }
 
-module.exports = {
+export default {
   parse,
   parseFile,
   makeTryable,

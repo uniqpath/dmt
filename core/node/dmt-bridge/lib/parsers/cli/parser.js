@@ -1,3 +1,5 @@
+export default parseCommandArguments;
+
 function parseAt(keyword) {
   const data = { type: 'attr' };
 
@@ -102,5 +104,3 @@ function parseCommandArguments(args) {
 
   return parsedArgs;
 }
-
-module.exports = parseCommandArguments;

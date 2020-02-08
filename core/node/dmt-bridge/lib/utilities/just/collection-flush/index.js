@@ -1,4 +1,4 @@
-module.exports = flush;
+export default flush;
 
 function flush(collection) {
   var result, len, i;

@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const dmt = require('dmt-bridge');
-const { log, util, numberRanges, search, stopwatch } = dmt;
+import fs from 'fs';
+import path from 'path';
+import dmt from 'dmt-bridge';
+const { log, util, numberRanges, search } = dmt;
 
-const homedir = require('homedir');
-const stripAnsi = require('strip-ansi');
+import homedir from 'homedir';
+import stripAnsi from 'strip-ansi';
 
 const MAX_LOOK_BEHIND = 3;
 
@@ -232,7 +232,7 @@ class Playlist {
     let found = false;
 
     for (const songInfo of this.playlist) {
-      if (songInfo.id != this.currentSongId() && search.match(songInfo.title, terms)) {
+      if (songInfo.id != this.currentSongId() && search(songInfo.title, terms)) {
         songInfo.aboutToBeCut = true;
         found = true;
       }
@@ -336,7 +336,7 @@ class Playlist {
   bumpSearch(terms) {
     const currentSongId = this.currentSongId();
 
-    const songIDs = this.playlist.filter(songInfo => songInfo.id > currentSongId && search.match(songInfo.title, terms)).map(songInfo => songInfo.id);
+    const songIDs = this.playlist.filter(songInfo => songInfo.id > currentSongId && search(songInfo.title, terms)).map(songInfo => songInfo.id);
     this.bumpSongIDs(songIDs);
   }
 
@@ -549,4 +549,4 @@ class Playlist {
   }
 }
 
-module.exports = Playlist;
+export default Playlist;

@@ -1,4 +1,4 @@
-function getRemoteIp(ws) {
+export default function getRemoteIp(ws) {
   let remoteIp = ws._socket.remoteAddress;
 
   if (remoteIp) {
@@ -9,5 +9,3 @@ function getRemoteIp(ws) {
 
   return remoteIp == '::1' || remoteIp == '127.0.0.1' ? 'localhost' : remoteIp;
 }
-
-module.exports = getRemoteIp;

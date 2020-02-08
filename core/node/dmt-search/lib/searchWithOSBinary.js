@@ -1,10 +1,10 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const colors = require('colors');
-const { spawn } = require('child_process');
+import colors from 'colors';
+import { spawn } from 'child_process';
 
-function searchWithOSBinary(binary, { terms, path, noColor, mediaType, maxResults }, processLineCallback) {
+export default function searchWithOSBinary(binary, { terms, path, noColor, mediaType, maxResults }, processLineCallback) {
   if (!maxResults) {
     throw new Error('searchWithOSBinary: maxResults is undefined, must provide maxResults argument');
   }
@@ -58,5 +58,3 @@ function searchWithOSBinary(binary, { terms, path, noColor, mediaType, maxResult
     }
   });
 }
-
-module.exports = searchWithOSBinary;

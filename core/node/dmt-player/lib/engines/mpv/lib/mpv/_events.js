@@ -1,9 +1,6 @@
 const net = require('net');
 const colors = require('colors');
 
-const dmt = require('dmt-bridge');
-const { log } = dmt;
-
 const events = {
   closeHandler(errorCode) {
     this.mpvPlayer.removeAllListeners('close');
@@ -57,10 +54,6 @@ const events = {
     }
   },
   messageHandler(message) {
-    if (message.event != 'property-change' && message.name != 'time-pos' && message.name != 'percent-pos') {
-      log.debug(colors.cyan(`Received ipc message from mpv: ${JSON.stringify(message, null, 2)}`), { cat: 'mpv-ipc' });
-    }
-
     if ('event' in message) {
       switch (message.event) {
         case 'idle':

@@ -1,5 +1,5 @@
-const apn = require('./lib/apn');
-const macos = require('./lib/macos');
-const email = require('./lib/email');
+import * as push from './lib/apn';
+import * as desktop from './lib/macos';
+import * as email from './lib/email';
 
-module.exports = { push: apn, desktop: macos, email: email };
+export { push, desktop, email };

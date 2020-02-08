@@ -1,4 +1,4 @@
-module.exports = demethodize;
+export default demethodize;
 
 function demethodize(fn) {
   if (typeof fn != 'function') {

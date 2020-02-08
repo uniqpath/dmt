@@ -1,5 +1,5 @@
-const colors = require('colors');
-const apn = require('../lib/apn');
+import colors from 'colors';
+import { sendAdminRaw } from '../lib/apn';
 
 function help() {
   console.log(colors.green('Send message to Apple push notifications server'));
@@ -10,11 +10,9 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
   help();
   process.exit();
 }
-function cli(argv, apn) {
-  apn
-    .sendAdminRaw(argv[2])
+function cli(argv) {
+  sendAdminRaw(argv[2])
     .then(result => {
-      console.log(result);
       console.log(colors.green('Push message sent'));
       process.exit();
     })
@@ -24,8 +22,6 @@ function cli(argv, apn) {
     });
 }
 
-if (require.main === module) {
-  help();
-  console.log();
-  cli(process.argv, apn);
-}
+help();
+console.log();
+cli(process.argv);

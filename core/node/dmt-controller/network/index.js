@@ -1,4 +1,4 @@
-const DetermineNetwork = require('./determineNetwork');
+import DetermineNetwork from './determineNetwork';
 
 class Network {
   constructor(program) {
@@ -30,4 +30,4 @@ class Network {
   }
 }
 
-module.exports = Network;
+export default Network;

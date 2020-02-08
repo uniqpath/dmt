@@ -1,12 +1,12 @@
 let lastDetectedMinute;
 
-const helpers = require('./helpers');
+import { determineTimeAndDate } from './helpers';
 
 function updateTime(program, { announce = false } = {}) {
   const latlng = program.latlng();
   const lang = program.lang();
 
-  const update = helpers.determineTimeAndDate({ latlng, lang });
+  const update = determineTimeAndDate({ latlng, lang });
 
   program.updateState({ controller: update }, { announce });
 }
@@ -51,4 +51,4 @@ function setupTimeUpdater(program) {
   updater();
 }
 
-module.exports = { setupTimeUpdater };
+export { setupTimeUpdater };

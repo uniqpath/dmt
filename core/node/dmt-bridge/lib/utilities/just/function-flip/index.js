@@ -1,4 +1,4 @@
-module.exports = flip;
+export default flip;
 
 function flip(fn) {
   return function() {

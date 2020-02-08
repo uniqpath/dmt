@@ -1,5 +1,8 @@
+import dmt from 'dmt-bridge';
+
+const { fsState } = dmt;
+
 const alarmOnStateLabel = 'alarm_on';
-const { fsState } = require('dmt-bridge');
 
 class Alarm {
   constructor(program) {
@@ -31,4 +34,4 @@ class Alarm {
   }
 }
 
-module.exports = Alarm;
+export default Alarm;

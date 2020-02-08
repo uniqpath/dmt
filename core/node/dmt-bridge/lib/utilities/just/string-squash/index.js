@@ -1,4 +1,4 @@
-module.exports = squash;
+export default squash;
 
 var escapeSequencesRegex = /\s/g;
 var spacesRegex = / /g;

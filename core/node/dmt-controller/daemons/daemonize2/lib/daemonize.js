@@ -1,30 +1,37 @@
-'use strict';
+import fs from 'fs';
+import path from 'path';
+import util from 'util';
 
-var fs = require('fs'),
-  path = require('path'),
-  util = require('util'),
-  constants = require('./constants'),
-  spawn = require('child_process').spawn,
-  EventEmitter = require('events').EventEmitter;
+import { spawn } from 'child_process';
 
-exports.setup = function(options) {
+import EventEmitter from 'events';
+
+import * as constants from './constants';
+
+export default function daemonize(options) {
   return new Daemon(options);
-};
+}
 
-var Daemon = function(options) {
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const Daemon = function(options) {
   EventEmitter.call(this);
 
   if (!options.main) throw new Error("Expected 'main' option for daemonize");
 
-  var dir = path.dirname(module.parent.filename),
-    main = path.resolve(dir, options.main),
-    name = options.name || path.basename(main, '.js');
+  const dir = path.dirname(options.filename);
+  const main = path.resolve(dir, options.main);
+  const name = options.name || path.basename(main, '.js');
 
   if (!this._isFile(main)) throw new Error("Can't find daemon main module: '" + main + "'");
 
   this._options = {};
 
-  for (var arg in options) this._options[arg] = options[arg];
+  for (const arg in options) this._options[arg] = options[arg];
 
   this._options.main = main;
   this._options.name = this.name = name;
@@ -51,7 +58,7 @@ var Daemon = function(options) {
 util.inherits(Daemon, EventEmitter);
 
 Daemon.prototype.start = function(listener) {
-  var pid = this._sendSignal(this._getpid());
+  let pid = this._sendSignal(this._getpid());
 
   if (pid) {
     this.emit('running', pid);
@@ -60,7 +67,8 @@ Daemon.prototype.start = function(listener) {
   }
 
   if (listener) {
-    var errorFunc, startedFunc;
+    let errorFunc;
+    let startedFunc;
 
     this.once(
       'error',
@@ -81,19 +89,19 @@ Daemon.prototype.start = function(listener) {
 
   this.emit('starting');
 
-  var err = this._savepid('');
+  const err = this._savepid('');
   if (err) {
     this.emit('error', new Error('Failed to write pidfile (' + err + ')'));
     return this;
   }
 
-  const cmd = [__dirname + '/wrapper.js'];
+  const cmd = [`${__dirname}/wrapper.js`];
 
   for (const flag of this._options.nodeFlags || []) {
     cmd.unshift(flag);
   }
 
-  var child = spawn(process.execPath, (this._options.args || []).concat(cmd).concat(this._options.argv), {
+  const child = spawn(process.execPath, (this._options.args || []).concat(cmd).concat(this._options.argv), {
     env: process.env,
     stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
     detached: true
@@ -102,7 +110,10 @@ Daemon.prototype.start = function(listener) {
 
   this._savepid(pid);
 
-  child.on('message', function(msg) {
+  child.on('message', msg => {
+    if (msg.type == 'wrapper_loaded') {
+      child.send({ type: 'init', options: this._options });
+    }
     if (msg.type == 'error') throw new Error(msg.error);
   });
 
@@ -137,8 +148,6 @@ Daemon.prototype.start = function(listener) {
       );
     }.bind(this))
   );
-
-  child.send({ type: 'init', options: this._options });
 
   child.unref();
 
@@ -239,7 +248,7 @@ Daemon.prototype._tryKill = function(pid, signals, timeout, callback) {
 
 Daemon.prototype._isFile = function(path) {
   try {
-    var stat = fs.statSync(path);
+    const stat = fs.statSync(path);
     if (stat && !stat.isDirectory()) return true;
   } catch (err) {}
 
@@ -247,25 +256,25 @@ Daemon.prototype._isFile = function(path) {
 };
 
 Daemon.prototype._bindConsole = function() {
-  this.on('starting', function() {
-    console.log('Starting ' + this.name + ' daemon...');
+  this.on('starting', () => {
+    console.log(`Starting ${this.name} daemon...`);
   })
-    .on('started', function(pid) {
-      console.log(this.name + ' daemon started. PID: ' + pid);
+    .on('started', pid => {
+      console.log(`${this.name} daemon started. PID: ${pid}`);
     })
-    .on('stopping', function() {
-      console.log('Stopping ' + this.name + ' daemon...');
+    .on('stopping', () => {
+      console.log(`Stopping ${this.name} daemon...`);
     })
-    .on('stopped', function(pid) {
-      console.log(this.name + ' daemon stopped.');
+    .on('stopped', pid => {
+      console.log(`${this.name} daemon stopped.`);
     })
-    .on('running', function(pid) {
-      console.log(this.name + ' daemon already running. PID: ' + pid);
+    .on('running', pid => {
+      console.log(`${this.name} daemon already running. PID: ${pid}`);
     })
-    .on('notrunning', function() {
-      console.log(this.name + ' daemon is not running');
+    .on('notrunning', () => {
+      console.log(`${this.name} daemon is not running`);
     })
-    .on('error', function(err) {
-      console.log(this.name + ' daemon failed to start:  ' + err.message);
+    .on('error', err => {
+      console.log(`${this.name} daemon failed to start: ${err.message}`);
     });
 };

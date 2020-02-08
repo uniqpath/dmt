@@ -1,4 +1,4 @@
-module.exports = extend;
+export default extend;
 
 function extend() {
   var args = [].slice.call(arguments);

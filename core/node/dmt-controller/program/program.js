@@ -1,34 +1,23 @@
-const EventEmitter = require('events');
-const colors = require('colors');
+import EventEmitter from 'events';
+import colors from 'colors';
 
-const { push, desktop } = require('dmt-notify');
+import dmt from 'dmt-bridge';
+const { log } = dmt;
 
-const dmt = require('dmt-bridge');
-const path = require('path');
-const { log, scan, def } = dmt;
+import * as controllerRPCService from '../rpc/service';
+import MetaRPC from './metaRPC';
 
-const controllerRPCService = require('../rpc/service');
-const MetaRPC = require('./metaRPC');
+import initIntervalTicker from './interval';
+import { setupTimeUpdater } from './interval/timeUpdater';
+import onProgramTick from './interval/onProgramTick';
 
-const Store = require('./state/store');
+import Network from '../network';
 
-const MidLoader = require('./middleware');
-
-const initIntervalTicker = require('./interval');
-const { setupTimeUpdater } = require('./interval/timeUpdater');
-const onProgramTick = require('./interval/onProgramTick');
-
-const Network = require('../network');
-
-function ensureDirectories() {
-  const dirs = [];
-  dirs.push('log');
-  dirs.push('state');
-  dirs.push('user/wallpapers');
-  for (const dir of dirs) {
-    scan.ensureDirSync(path.join(dmt.dmtPath, dir));
-  }
-}
+import ensureDirectories from './boot/ensureDirectories';
+import getDeviceInfo from './boot/getDeviceInfo';
+import initStore from './boot/initStore';
+import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
+import loadMiddleware from './boot/loadMiddleware';
 
 class Program extends EventEmitter {
   constructor({ mids }) {
@@ -39,88 +28,22 @@ class Program extends EventEmitter {
     this.sideStore = {};
 
     this.log = dmt.log;
-
-    this.device = dmt.device();
-    if (this.device.empty) {
-      log.red(`missing device definition, please use ${colors.green('dmt device select')}`);
-      log.red('EXITING, bye ✋');
-      process.exit();
-    }
-
+    this.device = getDeviceInfo();
     this.network = new Network(this);
 
     this.state = { notifications: [] };
 
-    this.store = new Store(this, {
-      initState: {
-        controller: {
-          deviceName: this.device.id,
-          devMachine: dmt.isDevMachine(),
-          devCluster: dmt.isDevCluster(),
-          apMode: this.apMode()
-        }
-      }
-    });
+    this.store = initStore(this, this.device);
 
-    if (this.apMode()) {
-      this.updateState({ controller: { apInfo: dmt.apInfo() } }, { announce: false });
-    }
-
-    if (def.isTruthy(this.device.demo)) {
-      this.updateState({ controller: { demoDevice: this.device.demo } }, { announce: false });
-    } else {
-      this.removeStoreElement({ storeName: 'controller', key: 'demoDevice' }, { announce: false });
-    }
-
-    const guiServiceDef = dmt.services('gui');
-    this.updateState({ services: { gui: guiServiceDef } }, { announce: false });
-
-    if (def.isTruthy(this.device.serverMode)) {
-      this.updateState({ controller: { serverMode: true } }, { announce: false });
-    } else {
-      this.removeStoreElement({ storeName: 'controller', key: 'serverMode' }, { announce: false });
-    }
-
-    process.on('uncaughtException', err => {
-      const msg = `Caught global exception: ${err}`;
-      log.red(msg);
-      log.red(err.stack);
-      log.red('EXITING, bye ✋');
-
-      push.notify(`${dmt.deviceGeneralIdentifier()}: ${msg} → PROCESS TERMINATED`, () => {
-        process.exit();
-      });
-    });
-
-    if (!this.device.id) {
-      log.red('⚠️  Device definition is missing (device.def).');
-    }
+    setupGlobalErrorHandler();
 
     log.cyan('Program booting ...');
 
     this.metaRPC = new MetaRPC(this);
 
-    log.gray('Starting to load middleware ...');
-
-    const midLoader = new MidLoader();
-
-    if (mids.includes('user')) {
-      midLoader.load({ program: this, mids: mids.filter(mid => mid != 'user') });
-      midLoader.setup(this);
-
-      midLoader.load({ program: this, mids: ['user'] });
-
+    loadMiddleware(this, mids).then(() => {
       this.continueBooting();
-    } else {
-      midLoader.load({ program: this, mids });
-      midLoader.setup(this);
-
-      this.emit('user_core_ready');
-
-      this.continueBooting();
-    }
-
-    setupTimeUpdater(this);
+    });
   }
 
   setResponsibleNode(isResponsible) {
@@ -166,6 +89,8 @@ class Program extends EventEmitter {
     if (dmt.isDevCluster()) {
       log.cyan(`${colors.magenta('DEV CLUSTER: ')}: true`);
     }
+
+    setupTimeUpdater(this);
   }
 
   latlng() {
@@ -253,6 +178,6 @@ class Program extends EventEmitter {
   initInterprocBus(InterprocBus) {}
 }
 
-module.exports = (...args) => {
+export default (...args) => {
   return new Program(...args);
 };

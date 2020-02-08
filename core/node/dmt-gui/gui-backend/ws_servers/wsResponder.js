@@ -1,16 +1,13 @@
-const EventEmitter = require('events');
-const dmt = require('dmt-bridge');
-const os = require('os');
+import EventEmitter from 'events';
 
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const { Server } = require('dmt-connect');
-
-const reduceSizeOfStateForGUI = require('../reduceSizeOfStateForGUI');
-
-const frameworkInternalActionReponses = require('./frameworkInternalActionReponses');
-
-const constructAction = require('./constructAction');
+import os from 'os';
+import { Server } from 'dmt-connect';
+import reduceSizeOfStateForGUI from '../reduceSizeOfStateForGUI';
+import frameworkInternalActionReponses from './frameworkInternalActionReponses';
+import constructAction from './constructAction';
 
 function enumerateConnections({ server, program }, { announce = false } = {}) {
   program.updateState({ sysinfo: { connections: server.enumerateConnections() } }, { announce });
@@ -71,4 +68,4 @@ class WSResponder extends EventEmitter {
   }
 }
 
-module.exports = WSResponder;
+export default WSResponder;

@@ -1,7 +1,4 @@
-module.exports = {
-  diffApply: diffApply,
-  jsonPatchPathConverter: jsonPatchPathConverter
-};
+export { diffApply, jsonPatchPathConverter };
 
 var REMOVE = 'remove';
 var REPLACE = 'replace';

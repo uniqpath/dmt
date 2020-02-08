@@ -1,41 +1,34 @@
-const fs = require('fs');
-const path = require('path');
-const moment = require('moment');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+import fs from 'fs';
+import path from 'path';
+import dates from 'date-fns';
+import apn from 'apn';
+import stripColor from 'strip-color';
+
+import dmt from 'dmt-bridge';
 const { log } = dmt;
-
-const stripColor = require('strip-color');
-
-const apn = require('apn');
 
 const apnConfigDir = path.join(dmt.accessTokensDir, 'apple_push');
 
 const configFile = path.join(apnConfigDir, 'config.json');
 
-if (!fs.existsSync(configFile)) {
-  module.exports = {
-    notify(msg, onFinishedCallback) {
-      if (onFinishedCallback) {
-        onFinishedCallback();
-      }
-    },
-    notifyAll(msg) {}
+let config;
+let serverAuth;
+let apnOptions;
+
+if (fs.existsSync(configFile)) {
+  config = JSON.parse(fs.readFileSync(configFile));
+
+  serverAuth = config.server_auth;
+  if (serverAuth) {
+    serverAuth.token.key = path.join(apnConfigDir, serverAuth.token.key);
+  }
+
+  apnOptions = {
+    token: serverAuth.token,
+    production: true
   };
-
-  return;
 }
-
-const config = require(configFile);
-
-const serverAuth = config.server_auth;
-if (serverAuth) {
-  serverAuth.token.key = path.join(apnConfigDir, serverAuth.token.key);
-}
-
-const apnOptions = {
-  token: serverAuth.token,
-  production: true
-};
 
 function createNote(msg) {
   const note = new apn.Notification();
@@ -43,113 +36,71 @@ function createNote(msg) {
   note.expiry = Math.floor(Date.now() / 1000) + 3600;
   note.badge = 3;
   note.sound = 'ping.aiff';
-  note.alert = `${moment().format('HH:mm')} ${msg}`;
+  note.alert = `${dates.format(new Date(), 'HH:mm')} ${msg}`;
   note.payload = { messageFrom: 'Notifier333' };
   note.topic = serverAuth.topic;
 
   return note;
 }
 
-module.exports = {
-  notifyAll(msg) {
+export { notify, notifyAll, sendAdminRaw };
+
+function notifyAll(msg) {
+  if (!config) {
+    return;
+  }
+
+  const note = createNote(msg);
+
+  const apnProvider = new apn.Provider(apnOptions);
+
+  for (const device of config.devices) {
+    apnProvider.send(note, device.token).then(result => {});
+  }
+
+  apnProvider.shutdown();
+}
+
+function sendAdminRaw(msg) {
+  return new Promise((success, reject) => {
     const note = createNote(msg);
-
-    const apnProvider = new apn.Provider(apnOptions);
-
-    for (const device of config.devices) {
-      apnProvider.send(note, device.token).then(result => {});
+    const device = config.devices.find(d => d.admin);
+    if (device) {
+      const apnProvider = new apn.Provider(apnOptions);
+      apnProvider.send(note, device.token).then(result => {
+        if (result.failed.length == 0) {
+          success(result);
+          apnProvider.shutdown();
+        } else {
+          reject(result);
+          apnProvider.shutdown();
+        }
+      });
+    } else {
+      reject(new Error('No defined admin device'));
     }
-    apnProvider.shutdown();
-  },
+  });
+}
 
-  sendAdminRaw(msg) {
-    return new Promise((success, reject) => {
-      const note = createNote(msg);
-      const device = config.devices.find(d => d.admin);
-      if (device) {
-        const apnProvider = new apn.Provider(apnOptions);
-        apnProvider.send(note, device.token).then(result => {
-          if (result.failed.length == 0) {
-            success(result);
-          } else {
-            reject(result);
-          }
-        });
-      } else {
-        reject(new Error('No defined admin device'));
+function notify(msg, onFinishedCallback) {
+  if (!config) {
+    if (onFinishedCallback) {
+      onFinishedCallback();
+    }
+    return;
+  }
+
+  sendAdminRaw(msg)
+    .then(result => {
+      if (onFinishedCallback) {
+        onFinishedCallback({ result });
+      }
+    })
+    .catch(error => {
+      log.write(colors.red('Problem sending the push message:'));
+      console.log(JSON.stringify(error, null, 2));
+      if (onFinishedCallback) {
+        onFinishedCallback({ error });
       }
     });
-  },
-
-  notify(msg, onFinishedCallback) {
-    module.exports
-      .sendAdminRaw(msg)
-      .then(result => {
-        if (onFinishedCallback) {
-          onFinishedCallback({ result });
-        }
-      })
-      .catch(error => {
-        log.write(colors.red('Problem sending the push message:'));
-        console.log(JSON.stringify(error, null, 2));
-        if (onFinishedCallback) {
-          onFinishedCallback({ error });
-        }
-      });
-  }
-};
-
-if (require.main === module) {
-  const colors = require('colors');
-
-  const args = process.argv.slice(2);
-
-  (async () => {
-    if (args.length == 0) {
-      var readline = require('readline');
-      var rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-        terminal: false
-      });
-
-      const buffer = [];
-
-      rl.on('line', function(line) {
-        if (line.trim() != '') {
-          buffer.push(line);
-        }
-      });
-
-      rl.on('close', function() {
-        if (buffer.length > 0) {
-          module.exports
-            .sendAdminRaw(stripColor(buffer.join(' / ')))
-            .then(result => {
-              log.write(colors.green('Push message sent'));
-              process.exit();
-            })
-            .catch(error => {
-              log.write(colors.red('Problem sending the push message:'));
-              console.log(error);
-            });
-        } else {
-          log.write(colors.red('Arguments not given and nothing piped on stdin'));
-        }
-      });
-
-      return;
-    }
-
-    module.exports
-      .sendAdminRaw(args[0])
-      .then(result => {
-        log.write(colors.green('Push message sent'));
-        process.exit();
-      })
-      .catch(error => {
-        log.write(colors.red('Problem sending the push message:'));
-        console.log(error);
-      });
-  })();
 }

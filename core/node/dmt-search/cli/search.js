@@ -1,11 +1,11 @@
-const colors = require('colors');
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { cli } = dmt;
 
-const rpc = require('dmt-rpc');
+import rpc from 'dmt-rpc';
 
-const { SearchClient, aggregateSearchResultsFormatter } = require('../index');
+import { SearchClient, aggregateSearchResultsFormatter } from '../index';
 
 function help() {
   console.log(colors.cyan('\n'));
@@ -15,40 +15,38 @@ function help() {
   );
 }
 
-if (require.main === module) {
-  if (process.argv.length > 2 && process.argv[2] == '-h') {
-    help();
-    process.exit();
-  }
+if (process.argv.length > 2 && process.argv[2] == '-h') {
+  help();
+  process.exit();
+}
 
-  try {
-    const allArgs = process.argv.slice(2);
+try {
+  const allArgs = process.argv.slice(2);
 
-    const { terms, atDevices, attributeOptions } = cli(allArgs);
+  const { terms, atDevices, attributeOptions } = cli(allArgs);
 
-    const clientMaxResults = attributeOptions.count;
+  const clientMaxResults = attributeOptions.count;
 
-    (async () => {
-      const promises = [];
+  (async () => {
+    const promises = [];
 
-      for (const device of atDevices) {
-        const client = new SearchClient(device, { mediaType: attributeOptions.media });
-        promises.push(client.search({ terms, clientMaxResults, contentRef: device.contentRef }));
-      }
+    for (const device of atDevices) {
+      const client = new SearchClient(device, { mediaType: attributeOptions.media });
+      promises.push(client.search({ terms, clientMaxResults, contentRef: device.contentRef }));
+    }
 
-      Promise.all(promises)
-        .then(allResults => {
-          for (const results of allResults) {
-            aggregateSearchResultsFormatter(results);
-          }
-          process.exit();
-        })
-        .catch(e => {
-          rpc.errorFormatter(e, { host: '' });
-          process.exit();
-        });
-    })();
-  } catch (e) {
-    console.log(colors.red(e.message));
-  }
+    Promise.all(promises)
+      .then(allResults => {
+        for (const results of allResults) {
+          aggregateSearchResultsFormatter(results);
+        }
+        process.exit();
+      })
+      .catch(e => {
+        rpc.errorFormatter(e, { host: '' });
+        process.exit();
+      });
+  })();
+} catch (e) {
+  console.log(colors.red(e.message));
 }

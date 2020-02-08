@@ -48,8 +48,4 @@ function getCurrentYearMonthDay() {
   return { year, month, day };
 }
 
-module.exports = {
-  getDataForCorrectYear,
-  easterMonday,
-  getCurrentYearMonthDay
-};
+export { getDataForCorrectYear, easterMonday, getCurrentYearMonthDay };

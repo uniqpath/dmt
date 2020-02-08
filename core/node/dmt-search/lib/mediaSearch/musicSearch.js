@@ -1,4 +1,4 @@
-const SearchClient = require('../searchClient.js');
+import SearchClient from '../searchClient';
 
 class MusicSearch {
   constructor(providers) {
@@ -15,4 +15,4 @@ class MusicSearch {
   }
 }
 
-module.exports = MusicSearch;
+export default MusicSearch;

@@ -1,4 +1,4 @@
-module.exports = partition;
+export default partition;
 
 function partition(arr, fn) {
   if (!Array.isArray(arr)) {

@@ -1,4 +1,4 @@
-const colors = require('colors');
+import colors from 'colors';
 
 class ScreenOutput {
   write(...args) {
@@ -38,4 +38,4 @@ class ScreenOutput {
   }
 }
 
-module.exports = ScreenOutput;
+export default ScreenOutput;

@@ -1,4 +1,4 @@
-module.exports = compose;
+export default compose;
 
 function compose(fn1, fn2) {
   if (!arguments.length) {

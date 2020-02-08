@@ -1,5 +1,5 @@
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+import dmt from 'dmt-bridge';
 
 function errorFormatter(e, { host }) {
   if (dmt.isDevMachine()) {
@@ -30,4 +30,4 @@ function errorFormatter(e, { host }) {
   }
 }
 
-module.exports = errorFormatter;
+export default errorFormatter;

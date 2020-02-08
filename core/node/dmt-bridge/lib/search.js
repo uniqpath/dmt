@@ -1,4 +1,6 @@
-function match(line, terms) {
+export default search;
+
+function search(line, terms) {
   if (typeof terms === 'string') {
     terms = terms.split(' ');
   }
@@ -14,10 +16,4 @@ function match(line, terms) {
   }
 
   return true;
-}
-
-module.exports = { match };
-
-if (require.main === module) {
-  console.log(match('a Bb c d', 'A b'));
 }

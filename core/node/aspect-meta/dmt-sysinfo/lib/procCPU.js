@@ -1,7 +1,7 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
-const si = require('systeminformation');
-const { push } = require('dmt-notify');
+import si from 'systeminformation';
+import { push } from 'dmt-notify';
 
 const maxCPU = 30;
 const maxCPUHigher = 50;
@@ -36,4 +36,4 @@ class ProcCPU {
   }
 }
 
-module.exports = ProcCPU;
+export default ProcCPU;

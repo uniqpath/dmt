@@ -1,7 +1,14 @@
-const fs = require('fs');
-const path = require('path');
-const dmt = require('dmt-bridge');
-const { push } = require('dmt-notify');
+import fs from 'fs';
+import path from 'path';
+import dmt from 'dmt-bridge';
+
+import daemonize from './daemonize2/lib/daemonize';
+
+import { push } from 'dmt-notify';
+
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
 
 function usage() {
   console.log('Usage: daemon [start|stop] [script.js]');
@@ -31,11 +38,12 @@ function removeStalePidFile() {
   }
 }
 
-const daemon = require('./daemonize2/lib/daemonize').setup({
+const daemon = daemonize({
+  filename: __filename,
   main: `${proc}`,
   name: `${procName}`,
   pidfile: pidFilePath,
-  nodeFlags: ['--experimental-modules']
+  nodeFlags: ['--experimental-modules', '--experimental-specifier-resolution=node']
 });
 
 function restart({ notifyOnFail = false } = {}) {

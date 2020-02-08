@@ -1,4 +1,4 @@
-module.exports = once;
+export default once;
 
 function once(fn) {
   var called, value;

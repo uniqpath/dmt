@@ -1,6 +1,9 @@
-var fs = require('fs');
-var exec = require('child_process').exec;
-exports.quotePath = function(path) {
+import fs from 'fs';
+import { exec } from 'child_process';
+
+export { quotePath, isMounted, mount, umount };
+
+function quotePath(path) {
   var pieces = path.split("'");
   var output = '';
   var n = pieces.length;
@@ -9,9 +12,9 @@ exports.quotePath = function(path) {
     if (i < n - 1) output = output + "\\'";
   }
   return output;
-};
+}
 
-exports.isMounted = function(path, isDevice) {
+function isMounted(path, isDevice) {
   if (!isDevice && !fs.existsSync(path)) {
     return { mounted: false, error: 'Path does not exist' };
   }
@@ -34,9 +37,9 @@ exports.isMounted = function(path, isDevice) {
     }
   }
   return { mounted: false };
-};
+}
 
-exports.mount = function(dev, path, options, callback) {
+function mount(dev, path, options, callback) {
   var mountInfo = this.isMounted(path, false);
   if (mountInfo.mounted) {
     callback({ error: 'Something is already mounted on ' + path });
@@ -80,9 +83,9 @@ exports.mount = function(dev, path, options, callback) {
       callback({ OK: true });
     }
   });
-};
+}
 
-exports.umount = function(path, isDevice, options, callback) {
+function umount(path, isDevice, options, callback) {
   var mountInfo = this.isMounted(path, isDevice);
   if (!mountInfo.mounted) {
     callback({ OK: true });
@@ -106,4 +109,4 @@ exports.umount = function(path, isDevice, options, callback) {
       callback({ OK: true });
     }
   });
-};
+}

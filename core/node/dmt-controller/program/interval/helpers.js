@@ -1,4 +1,4 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { def, suntime } = dmt;
 
 const _months = {
@@ -50,4 +50,4 @@ function determineTimeAndDate({ latlng, lang }) {
   return data;
 }
 
-module.exports = { determineTimeAndDate };
+export { determineTimeAndDate };

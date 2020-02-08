@@ -1,4 +1,4 @@
-module.exports = zip;
+export default zip;
 
 function zip() {
   var result = [];

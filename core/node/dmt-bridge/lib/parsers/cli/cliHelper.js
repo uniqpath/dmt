@@ -1,10 +1,7 @@
-const colors = require('colors');
-
-const def = require('../def/parser');
-const dmt = require('../def/dmtHelper');
-const util = require('../../util.js');
-
-const parser = require('./parser');
+import colors from 'colors';
+import util from '../../util';
+import dmt from '../def/dmtHelper';
+import parser from './parser';
 
 function parseArgs(allArgs) {
   const parsedArgs = parser(allArgs);
@@ -63,4 +60,4 @@ function parseArgs(allArgs) {
   return { terms, attributeOptions, atDevices };
 }
 
-module.exports = parseArgs;
+export default parseArgs;

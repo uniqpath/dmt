@@ -1,29 +1,23 @@
-const colors = require('colors');
-const moment = require('moment');
+import colors from 'colors';
+import stopwatch from './stopwatch';
 
-const stopwatch = require('./stopwatch');
+import colorJson from './colorJson';
+import deepmerge from './utilities/deepmerge';
 
-const colorJson = require('./colorJson');
-const deepmerge = require('./utilities/deepmerge');
-const random = require('./utilities/just/array-random');
-const hexutils = require('./utilities/hexutils');
-const snakeCaseKeys = require('./utilities/snakecasekeys');
+import random from './utilities/just/array-random';
+import compare from './utilities/just/collection-compare';
+import clone from './utilities/just/collection-clone';
+import last from './utilities/just/array-last';
+
+import * as hexutils from './utilities/hexutils';
+import snakeCaseKeys from './utilities/snakecasekeys';
+
+import { diff } from './utilities/just/collection-diff';
+
+import rfc6902 from 'rfc6902';
+const generateJsonPatch = rfc6902.createPatch;
 
 const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
-
-const generateJsonPatch = require('rfc6902').createPatch;
-
-const { diff, jsonPatchPathConverter } = require('./utilities/just/collection-diff');
-function nodeVersion() {
-  const re = new RegExp(/^v(.*?)\.(.*?)\./);
-  const matches = re.exec(process.version);
-  if (matches) {
-    return {
-      major: parseInt(matches[1]),
-      minor: parseInt(matches[2])
-    };
-  }
-}
 
 function measure(func, { desc = ' ', disable = false } = {}) {
   if (disable) {
@@ -57,8 +51,8 @@ function normalizeMac(mac) {
   return mac.toLowerCase().replace(/\b0(\d|[a-f])\b/g, '$1');
 }
 
-module.exports = {
-  compare: require('./utilities/just/collection-compare'),
+export default {
+  compare,
   diff,
   generateJsonPatch,
   deepmerge: (a, b) => {
@@ -71,8 +65,8 @@ module.exports = {
   periodicRepeat,
   autoDetectEOLMarker,
   normalizeMac,
-  clone: require('./utilities/just/collection-clone'),
-  last: require('./utilities/just/array-last'),
+  clone,
+  last,
   pad: (number, digits = 2) => {
     return Array(Math.max(digits - String(number).length + 1, 0)).join(0) + number;
   },
@@ -86,29 +80,6 @@ module.exports = {
   },
   epoch: () => {
     return Math.floor(new Date() / 1000);
-  },
-  relativeTimeSince(timestamp) {
-    if (timestamp) {
-      const idleTime = Date.now() - timestamp;
-      const n = 24 * 60 * 60 * 1000;
-      const days = Math.floor(idleTime / n);
-      const str = moment.utc(idleTime % n).format('H [h] mm [min]');
-      return `${days > 0 ? `${days} ${days == 1 ? 'day' : 'days'} ` : ''}${str}`;
-    }
-  },
-  flatten: arr => {
-    if (!Array.isArray(arr)) {
-      return arr;
-    }
-
-    const { major, minor } = nodeVersion();
-
-    if (major > 11 || (major == 11 && minor >= 4)) {
-      return arr.flat();
-    }
-
-    const flatten = require('./utilities/just/array-flatten');
-    return flatten(arr);
   },
   unique: items => {
     return [...new Set(items)];

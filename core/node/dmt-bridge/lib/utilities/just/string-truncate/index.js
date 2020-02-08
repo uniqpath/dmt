@@ -1,4 +1,4 @@
-module.exports = truncate;
+export default truncate;
 
 function truncate(str, length, end) {
   if (length == null || length >= str.length) {

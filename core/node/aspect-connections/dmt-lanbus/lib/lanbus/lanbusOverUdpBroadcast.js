@@ -1,9 +1,9 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
-const colors = require('colors');
-const EventEmitter = require('events');
+import colors from 'colors';
+import EventEmitter from 'events';
 
-const UdpBus = require('../udpbus');
+import UdpBus from '../udpbus';
 
 class LanBusOverUdpBroadcast extends EventEmitter {
   constructor({ program }) {
@@ -58,4 +58,4 @@ class LanBusOverUdpBroadcast extends EventEmitter {
   }
 }
 
-module.exports = LanBusOverUdpBroadcast;
+export default LanBusOverUdpBroadcast;

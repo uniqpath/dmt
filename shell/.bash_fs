@@ -819,7 +819,7 @@ function r {
       if [ -f "./truffle.js" ]; then
         executable="truffle exec"
       else
-        executable=node
+        executable="$DMT_NODEJS_EXEC"
       fi
     fi
 
@@ -1173,7 +1173,7 @@ function cli_helper() {
   local NC='\033[0m' # No Color
   local text=$(echo "$1" | sed "s/cli\///g" | sed "s/.js//g")
   printf "${MAGENTA}${text}${NC} >>> "
-  node "$1" -h
+  $DMT_NODEJS_EXEC "$1" -h
   echo
 }
 
@@ -1212,7 +1212,7 @@ function cli {
       shift
       local fileName=$(echo $matching_file | sed 's/.js//g')
       >&2 printf "cli/${MAGENTA}${fileName}${NC} \n" # output to stderr so that piping the output to file doesn't contain this header
-      node "cli/$matching_file" "$@"
+      $DMT_NODEJS_EXEC "cli/$matching_file" "$@"
       found=true
     else
       printf "${RED}Unknown cli command${NC}\n"
@@ -1227,7 +1227,7 @@ function cli {
 
     if [ -n "$matching_file" ]; then
       shift
-      >&2 node "lib/$matching_file" "$@"
+      >&2 $DMT_NODEJS_EXEC "lib/$matching_file" "$@"
       found=true
     else
       printf "${RED}Unknown cli command${NC}\n"

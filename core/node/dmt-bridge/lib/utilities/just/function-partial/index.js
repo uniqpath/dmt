@@ -1,4 +1,4 @@
-module.exports = partial;
+export default partial;
 
 function partial(fn) {
   var partialArgs = [].slice.call(arguments, 1);

@@ -1,4 +1,4 @@
-module.exports = entries;
+export default entries;
 
 function entries(obj) {
   if ((typeof obj != 'object' && typeof obj != 'function') || obj == null) {

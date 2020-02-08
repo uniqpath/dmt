@@ -1,6 +1,6 @@
-const path = require('path');
-const fs = require('fs');
-const dmt = require('dmt-bridge');
+import path from 'path';
+import fs from 'fs';
+import dmt from 'dmt-bridge';
 
 function serveLogo(req, res) {
   const commonAssetsPath = path.join(dmt.dmtPath, 'core/node/dmt-gui/gui-frontend-core/common_assets');
@@ -15,4 +15,4 @@ function serveLogo(req, res) {
   }
 }
 
-module.exports = serveLogo;
+export default serveLogo;

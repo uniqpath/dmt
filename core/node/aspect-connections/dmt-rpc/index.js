@@ -1,9 +1,5 @@
-const Client = require('./lib/rpcClient');
-const spawnServer = require('./lib/rpcServer');
-const errorFormatter = require('./lib/rpcErrorFormatter');
+import Client from './lib/rpcClient';
+import spawnServer from './lib/rpcServer';
+import errorFormatter from './lib/rpcErrorFormatter';
 
-module.exports = {
-  Client,
-  spawnServer,
-  errorFormatter
-};
+export { Client, spawnServer, errorFormatter };

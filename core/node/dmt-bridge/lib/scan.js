@@ -1,23 +1,14 @@
-const fs = require('fs');
-const fse = require('fs-extra');
-const path = require('path');
-const stopwatch = require('./stopwatch');
-const homedir = require('homedir');
+import path from 'path';
+
+import fs from 'fs';
+import fse from 'fs-extra';
+import homedir from 'homedir';
 
 function ensureDirSync(directory) {
   const options = {
     mode: 0o2775
   };
   fse.ensureDir(directory, options);
-}
-
-function flat(arr) {
-  if (!Array.isArray(arr)) {
-    return arr;
-  }
-
-  const flatten = require('./utilities/just/array-flatten');
-  return flatten(arr);
 }
 
 function flattenTree(tree) {
@@ -33,7 +24,7 @@ function flattenTree(tree) {
     }
   }
 
-  return flat(files);
+  return files.flat();
 }
 
 function absolutizePath(path) {
@@ -183,16 +174,4 @@ function mediaFilter({ mediaType }) {
   }
 }
 
-module.exports = { dir, recursive, flattenTree, syncDir, readFileLines, ensureDirSync, mediaFilter, absolutizePath };
-
-if (require.main === module) {
-  const homedir = require('homedir');
-
-  const start = stopwatch.start();
-
-  const tree = recursive(`${homedir()}/.dmt/etc/sounds`, { flatten: true });
-
-  console.log(stopwatch.stop(start));
-
-  console.log(JSON.stringify(tree, null, 2));
-}
+export default { dir, recursive, flattenTree, syncDir, readFileLines, ensureDirSync, mediaFilter, absolutizePath };

@@ -1,4 +1,4 @@
-const path = require('path');
+import path from 'path';
 
 const extensions = {
   music: ['mp3', 'm4a', 'flac', 'ogg'],
@@ -22,9 +22,4 @@ function detectMediaType(filePath) {
   }
 }
 
-module.exports = detectMediaType;
-
-if (require.main === module) {
-  const mediaType = detectMediaType(null);
-  console.log(mediaType);
-}
+export default detectMediaType;

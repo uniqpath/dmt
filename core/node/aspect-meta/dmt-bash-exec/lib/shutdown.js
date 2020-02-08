@@ -1,13 +1,13 @@
-const colors = require('colors');
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const { exec } = require('child_process');
+import { exec } from 'child_process';
 
 const bashAction = '/sbin/shutdown -h now';
 
-module.exports = ({ program }) => {
+export default ({ program }) => {
   program.store.persistState();
 
   log.yellow(`Executing bash action: ${colors.green(bashAction)} ...`);

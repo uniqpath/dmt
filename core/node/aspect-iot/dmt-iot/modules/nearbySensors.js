@@ -1,8 +1,4 @@
-import dmt from 'dmt-bridge';
-
-const { log, def } = dmt;
-
-import sensorMsg from '../lib/sensorMessageFormats/index.js';
+import * as sensorMsg from '../lib/sensorMessageFormats';
 
 function handleIotEvent({ program, topic, msg }) {
   const parsedMsg = sensorMsg.parse({ topic, msg });

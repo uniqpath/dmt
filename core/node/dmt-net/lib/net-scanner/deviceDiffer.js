@@ -1,11 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-const deviceIdentifier = require('./deviceIdentifier');
+import fs from 'fs';
+import path from 'path';
+import { findByMac } from './deviceIdentifier';
 
-module.exports = function deviceDiffer(stateDir, devices) {
+export default function deviceDiffer(stateDir, devices) {
   const lastScanPath = path.join(stateDir, 'lastScan.json');
 
-  const lastScan = fs.existsSync(lastScanPath) ? require(lastScanPath) : [];
+  const lastScan = fs.existsSync(lastScanPath) ? JSON.parse(fs.readFileSync(lastScanPath)) : [];
 
   if (!fs.existsSync(stateDir)) {
     fs.mkdirSync(stateDir);
@@ -13,9 +13,9 @@ module.exports = function deviceDiffer(stateDir, devices) {
 
   fs.writeFileSync(lastScanPath, JSON.stringify(devices), 'utf8');
 
-  const missingDevices = lastScan.filter(device => !deviceIdentifier.findByMac(devices, device.mac));
+  const missingDevices = lastScan.filter(device => !findByMac(devices, device.mac));
 
   return devices
-    .map(device => (deviceIdentifier.findByMac(lastScan, device.mac) ? device : Object.assign(device, { new: true })))
+    .map(device => (findByMac(lastScan, device.mac) ? device : Object.assign(device, { new: true })))
     .concat(missingDevices.map(device => Object.assign(device, { missing: true })));
-};
+}

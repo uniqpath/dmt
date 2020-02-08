@@ -1,7 +1,7 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const msgLanbusChatter = require('./messages/lanbusChatter');
+import msgLanbusChatter from './messages/lanbusChatter';
 
 class Nearby {
   constructor(program) {
@@ -118,4 +118,4 @@ class Nearby {
   }
 }
 
-module.exports = Nearby;
+export default Nearby;

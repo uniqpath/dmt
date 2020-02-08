@@ -1,4 +1,6 @@
-const { Pool } = require('pg');
+import pg from 'pg';
+
+const { Pool } = pg;
 
 class DbAccess {
   constructor(creds) {
@@ -21,4 +23,4 @@ class DbAccess {
   }
 }
 
-module.exports = DbAccess;
+export default DbAccess;

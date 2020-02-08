@@ -1,4 +1,4 @@
-module.exports = isCircular;
+export default isCircular;
 
 var errorKeywords = ['circular', 'cyclic'];
 

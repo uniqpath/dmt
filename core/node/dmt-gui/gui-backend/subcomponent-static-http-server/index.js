@@ -1,10 +1,13 @@
-const colors = require('colors');
-const dmt = require('dmt-bridge');
-const { log } = dmt;
-const express = require('express');
-const servingStrategy = require('./servingStrategy');
+import colors from 'colors';
 
-const { desktop } = require('dmt-notify');
+import express from 'express';
+
+import dmt from 'dmt-bridge';
+const { log } = dmt;
+
+import { desktop } from 'dmt-notify';
+
+import servingStrategy from './servingStrategy';
 
 function listen({ program, name, description, port, expressOptions = {}, servingOptions = {}, redirects = {}, app }) {
   if (!app) {
@@ -41,4 +44,4 @@ function configureRedirects(app, redirects) {
   return app;
 }
 
-module.exports = listen;
+export default listen;

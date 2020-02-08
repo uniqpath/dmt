@@ -1,4 +1,4 @@
-module.exports = unique;
+export default unique;
 
 function unique(arr, sorted, strings) {
   if (!Array.isArray(arr)) {

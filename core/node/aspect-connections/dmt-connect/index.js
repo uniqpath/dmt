@@ -1,16 +1,5 @@
-const Server = require('./wsServer/server');
-const Channel = require('./wsChannel/channel');
+import connect from './wsClient-doublescript/nodejs/connect';
+import Server from './wsServer/server';
+import Channel from './wsChannel/channel';
 
-async function connect(options) {
-  const connectFunction = await import('./wsClient-doublescript/nodejs/connect.js');
-  connectFunction.default(options);
-}
-
-module.exports = {
-  connect,
-  Server,
-  Channel
-};
-
-if (require.main === module) {
-}
+export { connect, Server, Channel };

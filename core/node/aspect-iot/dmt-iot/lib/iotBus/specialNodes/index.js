@@ -1,7 +1,7 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { def } = dmt;
 
-const check = require('./checks');
+import { staticIP, firstPriority, atLeastOneSpecialNode, hasNetworkId } from './checks';
 
 function allSpecialNodes() {
   return dmt
@@ -57,12 +57,12 @@ function sortByIP(nodes) {
 function specialNodes() {
   let nodes = allSpecialNodes();
 
-  nodes = check.staticIP(nodes);
-  nodes = check.firstPriority(nodes);
-  nodes = check.atLeastOneSpecialNode(nodes);
-  nodes = check.hasNetworkId(nodes);
+  nodes = staticIP(nodes);
+  nodes = firstPriority(nodes);
+  nodes = atLeastOneSpecialNode(nodes);
+  nodes = hasNetworkId(nodes);
 
   return assignPriorities(nodes);
 }
 
-module.exports = specialNodes;
+export default specialNodes;

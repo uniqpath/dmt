@@ -1,6 +1,6 @@
-const fs = require('fs');
-const scan = require('../../scan');
-const util = require('../../util');
+import fs from 'fs';
+import scan from '../../scan';
+import util from '../../util';
 
 function valueForKey({ lines, key, delimiter }) {
   const line = lines.find(line => line.trim().startsWith(`${key}${delimiter}`));
@@ -40,17 +40,4 @@ function parser({ filePath, content, lines, keys, keyMap = {}, delimiter = '=' }
   return obj;
 }
 
-module.exports = parser;
-
-if (require.main === module) {
-  const keys = ['ssid', 'wpa_passphrase'];
-  const keyMap = { wpa_passphrase: 'password' };
-
-  const content = `
-interface=wlan0
-ssid=DMT-AP
-wpa_passphrase=password
-`;
-  const result = parser({ content, keys, keyMap });
-  console.log(result);
-}
+export default parser;

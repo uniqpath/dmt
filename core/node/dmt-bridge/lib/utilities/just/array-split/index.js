@@ -1,4 +1,4 @@
-module.exports = split;
+export default split;
 
 function split(arr, n) {
   if (!Array.isArray(arr)) {

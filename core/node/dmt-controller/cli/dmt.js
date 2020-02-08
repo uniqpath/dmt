@@ -1,12 +1,11 @@
-const colors = require('colors');
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { util, cli } = dmt;
 
-const rpc = require('dmt-rpc');
-const Remote = rpc.Client;
+import { Client as Remote, errorFormatter } from 'dmt-rpc';
 
-const { cliResolveIp } = require('dmt-nearby');
+import { cliResolveIp } from 'dmt-nearby';
 
 function printSuccessOrErrorStatus(response) {
   if (response.error) {
@@ -46,41 +45,39 @@ async function executeRpcCommands({ command, device, address, terms }) {
     const response = await dmt.promiseTimeout(dmt.globals.networkLimit.maxTimeOneHop, remote.action(command, terms));
     printResponse(command, response);
   } catch (e) {
-    rpc.errorFormatter(e, { host: address });
+    errorFormatter(e, { host: address });
     console.log(
       colors.gray(`   If ${colors.cyan('DMT Controller')} is not running on ${colors.cyan(address)}, please start it with ${colors.green('dmt start')}`)
     );
   }
 }
 
-if (require.main === module) {
-  try {
-    const allArgs = process.argv.slice(2);
-    const { terms, atDevices } = cli(allArgs);
+try {
+  const allArgs = process.argv.slice(2);
+  const { terms, atDevices } = cli(allArgs);
 
-    if (atDevices.length > 1) {
-      console.log(colors.red('TODO -- easy to implement, not sure if useful... worked before with previous non-dynamic device resolution'));
-      process.exit();
-    }
-
-    const command = terms.shift() || 'help';
-
-    (async () => {
-      const device = atDevices[0];
-
-      if (device.localhost) {
-        await executeRpcCommands({ command, device, address: 'localhost', terms });
-        process.exit();
-      } else {
-        cliResolveIp({ deviceId: device.host }).then(ip => {
-          (async () => {
-            await executeRpcCommands({ command, device, address: ip, terms });
-            process.exit();
-          })();
-        });
-      }
-    })();
-  } catch (e) {
-    console.log(colors.red(e.message));
+  if (atDevices.length > 1) {
+    console.log(colors.red('TODO -- easy to implement, not sure if useful... worked before with previous non-dynamic device resolution'));
+    process.exit();
   }
+
+  const command = terms.shift() || 'help';
+
+  (async () => {
+    const device = atDevices[0];
+
+    if (device.localhost) {
+      await executeRpcCommands({ command, device, address: 'localhost', terms });
+      process.exit();
+    } else {
+      cliResolveIp({ deviceId: device.host }).then(ip => {
+        (async () => {
+          await executeRpcCommands({ command, device, address: ip, terms });
+          process.exit();
+        })();
+      });
+    }
+  })();
+} catch (e) {
+  console.log(colors.red(e.message));
 }

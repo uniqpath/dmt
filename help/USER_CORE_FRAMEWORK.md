@@ -141,8 +141,7 @@ This is different from `program.showNotification(...)` because it sends a push n
 Usage:
 
 ```JavaScript
-import dmtNotify from 'dmt-notify';
-const { push } = dmtNotify;
+import { push } from 'dmt-notify';
 
 function init(program) {
   program.on('tick', () => push.notify('tick event')); // you'll get a lot of push messages on your phone :)

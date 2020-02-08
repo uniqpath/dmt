@@ -1,4 +1,4 @@
-const network = require('network');
+import network from 'network';
 
 async function privateIp() {
   return new Promise((success, reject) => {
@@ -12,4 +12,4 @@ async function privateIp() {
   });
 }
 
-module.exports = { privateIp };
+export { privateIp };

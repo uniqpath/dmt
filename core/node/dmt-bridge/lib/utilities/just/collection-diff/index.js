@@ -1,7 +1,4 @@
-module.exports = {
-  diff: diff,
-  jsonPatchPathConverter: jsonPatchPathConverter
-};
+export { diff, jsonPatchPathConverter };
 
 function diff(obj1, obj2, pathConverter) {
   if (!obj1 || typeof obj1 != 'object' || !obj2 || typeof obj2 != 'object') {

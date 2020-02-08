@@ -1,6 +1,6 @@
-const Task = require('./task');
-const parser = require('./parser');
-const responsibleNode = require('./responsibleNode');
+import Task from './task';
+import * as parser from './parser';
+import * as responsibleNode from './responsibleNode';
 
 class TaskInvoker {
   constructor(program) {
@@ -22,4 +22,4 @@ class TaskInvoker {
   }
 }
 
-module.exports = TaskInvoker;
+export default TaskInvoker;

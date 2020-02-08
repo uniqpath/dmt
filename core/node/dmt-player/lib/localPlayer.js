@@ -1,12 +1,11 @@
-const path = require('path');
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
-const colors = require('colors');
+import colors from 'colors';
 
-const Playlist = require('./playlist');
-const Mpv = require('./engines/mpv');
+import Playlist from './playlist';
+import Mpv from './engines/mpv';
 
-const setupUserActionHandlers = require('./userActionHandlers');
+import setupUserActionHandlers from './userActionHandlers';
 
 class LocalPlayer {
   constructor({ program }) {
@@ -591,27 +590,4 @@ class LocalPlayer {
   }
 }
 
-module.exports = LocalPlayer;
-
-if (require.main === module) {
-  log.magenta('Please make sure that you run this soundtest without dmt process running in background');
-
-  const engine = new Mpv();
-
-  log.yellow('Playing ~/.dmt/etc/sounds/soundtest/music.mp3 ...');
-
-  engine
-    .setEngineVolume(75)
-    .then(() => {
-      engine
-        .play(path.join(dmt.dmtPath, '/etc/sounds/soundtest/music.mp3'))
-        .then(() => {
-          engine.on('song_finished', () => {
-            log.cyan('Finished playing');
-            process.exit();
-          });
-        })
-        .catch(() => {});
-    })
-    .catch(() => {});
-}
+export default LocalPlayer;

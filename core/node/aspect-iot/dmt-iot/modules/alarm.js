@@ -1,10 +1,7 @@
 import dmt from 'dmt-bridge';
-import dmtNotify from 'dmt-notify';
+import { push } from 'dmt-notify';
 
-const { util } = dmt;
-const { push } = dmtNotify;
-
-import Alarm from '../lib/alarm/index.js';
+import Alarm from '../lib/alarm';
 
 let alarm;
 

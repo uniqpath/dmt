@@ -1,7 +1,6 @@
-const { push } = require('dmt-notify');
+import { push } from 'dmt-notify';
 
-const powerline = require('../powerline');
-const { PowerMonitor, powerLog } = powerline;
+import { PowerMonitor, powerLog } from '../powerline';
 
 function notify({ msg, program, notifyOnlyAdmin }) {
   if (program.isResponsibleNode()) {
@@ -35,4 +34,5 @@ class OnOffMonitor {
     this.pm.handleReading({ topic, msg });
   }
 }
-module.exports = OnOffMonitor;
+
+export default OnOffMonitor;

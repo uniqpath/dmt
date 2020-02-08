@@ -1,5 +1,6 @@
-const colors = require('colors');
-const Table = require('cli-table2');
+import colors from 'colors';
+
+import Table from 'cli-table2';
 
 function colorizeDevice(device) {
   return text => (device.name ? colors.white(text) : colors.gray(text));
@@ -37,9 +38,9 @@ function makeTable(devices) {
   return table.toString();
 }
 
-module.exports = function output(devices) {
+export default function output(devices) {
   console.log('Devices:'.cyan);
 
   const output = makeTable(devices);
   console.log(output);
-};
+}

@@ -1,4 +1,4 @@
-module.exports = range;
+export default range;
 
 function range(start, stop, step) {
   if (start != null && typeof start != 'number') {

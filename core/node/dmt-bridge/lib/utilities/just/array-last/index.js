@@ -1,4 +1,4 @@
-module.exports = last;
+export default last;
 
 function last(arr) {
   if (!Array.isArray(arr)) {

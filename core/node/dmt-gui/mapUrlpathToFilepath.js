@@ -1,6 +1,6 @@
-const path = require('path');
+import path from 'path';
 
-function mapUrlpathToFilepath({ urlPath, staticServerOptions }) {
+export default function mapUrlpathToFilepath({ urlPath, staticServerOptions }) {
   const { rootDir, assetsSubdir, subServings } = staticServerOptions.servingOptions;
 
   for (const subServing of subServings) {
@@ -11,5 +11,3 @@ function mapUrlpathToFilepath({ urlPath, staticServerOptions }) {
 
   return path.join(path.join(rootDir, assetsSubdir), urlPath);
 }
-
-module.exports = mapUrlpathToFilepath;

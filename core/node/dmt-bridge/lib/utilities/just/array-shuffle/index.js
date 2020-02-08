@@ -1,4 +1,4 @@
-module.exports = shuffle;
+export default shuffle;
 
 function shuffle(arr) {
   if (!Array.isArray(arr)) {

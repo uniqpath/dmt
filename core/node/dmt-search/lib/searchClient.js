@@ -1,6 +1,7 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
-const ProviderSearch = require('./providerSearch');
+
+import ProviderSearch from './providerSearch';
 
 class SearchClient {
   constructor(providers, { mediaType } = {}) {
@@ -47,4 +48,4 @@ class SearchClient {
   }
 }
 
-module.exports = SearchClient;
+export default SearchClient;

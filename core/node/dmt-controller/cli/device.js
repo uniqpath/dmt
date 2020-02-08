@@ -1,4 +1,4 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { util } = dmt;
 
 util.dir(dmt.device());

@@ -1,5 +1,5 @@
-const nodemailer = require('nodemailer');
-const dmt = require('dmt-bridge');
+import nodemailer from 'nodemailer';
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
 const user = dmt.user();
@@ -13,23 +13,23 @@ let transporter = nodemailer.createTransport({
   }
 });
 
-module.exports = {
-  notify(msg) {
-    let mailOptions = {
-      from: `"${user.try('server.name')}" <${user.try('server.email')}>`,
-      to: `${user.email}`,
-      subject: msg,
-      text: msg
-    };
+function notify(msg) {
+  let mailOptions = {
+    from: `"${user.try('server.name')}" <${user.try('server.email')}>`,
+    to: `${user.email}`,
+    subject: msg,
+    text: msg
+  };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return console.log(error);
-      }
-    });
-  },
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+  });
+}
 
-  notifyAll(msg) {
-    console.log('Sending email...');
-  }
-};
+function notifyAll(msg) {
+  console.log('Sending email...');
+}
+
+export { notify, notifyAll };

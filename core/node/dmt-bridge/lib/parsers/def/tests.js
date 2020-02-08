@@ -1,4 +1,4 @@
-const def = require('./parser');
+import def from './parser';
 
 const example = `
 country: tuva

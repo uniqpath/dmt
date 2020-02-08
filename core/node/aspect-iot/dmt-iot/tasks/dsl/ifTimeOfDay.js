@@ -1,8 +1,8 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 
-const { def, util, suntime } = dmt;
+const { def, suntime } = dmt;
 
-const helpers = require('./helpers');
+import * as helpers from './helpers';
 
 const eveningRE = new RegExp(/\bevening\b/i);
 const lateEveningRE = new RegExp(/\blate-evening\b/i);
@@ -55,4 +55,4 @@ class IfTimeOfDay {
   }
 }
 
-module.exports = IfTimeOfDay;
+export default IfTimeOfDay;

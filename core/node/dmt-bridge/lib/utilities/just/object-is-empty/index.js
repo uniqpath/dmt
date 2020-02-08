@@ -1,4 +1,4 @@
-module.exports = isEmpty;
+export default isEmpty;
 
 function isEmpty(obj) {
   if (obj == null) {

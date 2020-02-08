@@ -1,4 +1,4 @@
-module.exports = debounce;
+export default debounce;
 
 function debounce(fn, wait, callFirst) {
   var timeout;

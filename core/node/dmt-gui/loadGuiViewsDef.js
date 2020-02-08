@@ -1,15 +1,15 @@
-const path = require('path');
-const fs = require('fs');
-const dmt = require('dmt-bridge');
+import path from 'path';
+import fs from 'fs';
+import dmt from 'dmt-bridge';
 
-const colors = require('colors');
+import colors from 'colors';
 const { log, def } = dmt;
 
-const mapUrlpathToFilepath = require('./mapUrlpathToFilepath');
+import mapUrlpathToFilepath from './mapUrlpathToFilepath';
 
-const serverOptions = require('./guiServerOptions');
+import serverOptions from './guiServerOptions';
 
-module.exports = program => {
+export default program => {
   const guiServerOptions = serverOptions();
 
   const _global = path.join(dmt.dmtPath, 'def/gui_views.def');

@@ -1,4 +1,4 @@
-module.exports = camelCase;
+export default camelCase;
 
 var wordSeparatorsRegEx = /[\s\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]+/;
 

@@ -1,8 +1,8 @@
 import dmt from 'dmt-bridge';
 
-const { log, def } = dmt;
+const { def } = dmt;
 
-import sensorMsg from '../lib/sensorMessageFormats/index.js';
+import * as sensorMsg from '../lib/sensorMessageFormats';
 const updateFrequencyMin = 2;
 const dataStaleMin = 10;
 

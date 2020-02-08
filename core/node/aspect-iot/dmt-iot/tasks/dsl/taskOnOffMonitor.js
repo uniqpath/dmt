@@ -1,4 +1,4 @@
-const OnOffMonitor = require('../../lib/onOffMonitor');
+import OnOffMonitor from '../../lib/onOffMonitor';
 
 const statementName = 'on-off-monitor';
 
@@ -24,4 +24,4 @@ class TaskOnOffMonitor {
   }
 }
 
-module.exports = TaskOnOffMonitor;
+export default TaskOnOffMonitor;

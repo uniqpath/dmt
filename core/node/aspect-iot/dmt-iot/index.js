@@ -1,18 +1,24 @@
-const path = require('path');
+import path from 'path';
+
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const modulesPath = path.join(__dirname, 'modules');
 
-const powerline = require('./lib/powerline');
+import * as powerline from './lib/powerline';
 
-const IotBus = require('./lib/iotBus');
+import IotBus from './lib/iotBus';
 
-const removeStaleNearbySensorsData = require('./removeStaleNearbySensorsData');
+import removeStaleNearbySensorsData from './removeStaleNearbySensorsData';
 
-const specialNodes = require('./lib/iotBus/specialNodes');
+import specialNodes from './lib/iotBus/specialNodes';
 
-const Alarm = require('./lib/alarm');
+import Alarm from './lib/alarm';
 
 const iotBus = new IotBus();
+
+import loadIotModules from './loadIotModules';
 
 function init(program) {
   program.specialNodes = specialNodes();
@@ -25,9 +31,7 @@ function init(program) {
     program.emit('iot:message', msg);
   });
 
-  import('./loadIotModules.mjs').then(exp => {
-    exp.default({ program, modulesPath });
-  });
+  loadIotModules({ program, modulesPath });
 
   program.on('iot:message', ({ topic, msg }) => {
     if (topic == 'onoff_monitor_safety_off_warning') {
@@ -45,10 +49,4 @@ function init(program) {
   return { bus: iotBus };
 }
 
-module.exports = {
-  init,
-  iotBus,
-  specialNodes,
-  Alarm,
-  powerline
-};
+export { init, loadIotModules, iotBus, specialNodes, Alarm, powerline };

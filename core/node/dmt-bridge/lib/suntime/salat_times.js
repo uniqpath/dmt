@@ -381,4 +381,4 @@ var DMath = {
   }
 };
 
-module.exports = new PrayTimes();
+export default new PrayTimes();

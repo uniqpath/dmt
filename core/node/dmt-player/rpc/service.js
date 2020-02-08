@@ -1,10 +1,10 @@
-const definition = require('./defineService');
-const setup = require('./setupService');
+import actions from './actions';
+import setup from './setupService';
 
 const serviceName = 'player';
 
 function init(program) {
-  program.registerRpcService({ serviceName, definition, setup });
+  program.registerRpcService({ serviceName, actions, setup });
 }
 
-module.exports = init;
+export default init;

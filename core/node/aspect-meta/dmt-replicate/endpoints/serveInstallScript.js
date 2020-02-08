@@ -1,8 +1,12 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { util } = dmt;
+
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function install({ req, res, isCurl, program, port }) {
   let host;
@@ -89,4 +93,4 @@ function install({ req, res, isCurl, program, port }) {
   }
 }
 
-module.exports = install;
+export default install;

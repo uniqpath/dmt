@@ -1,4 +1,4 @@
-module.exports = remove;
+export default remove;
 
 function remove(arr1, arr2) {
   if (!Array.isArray(arr1) || !Array.isArray(arr2)) {

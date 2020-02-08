@@ -1,7 +1,7 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-const { networkInterfaces } = require('dmt-net');
+import { networkInterfaces } from 'dmt-net';
 
 function onTick(program) {
   const now = Date.now();
@@ -44,4 +44,4 @@ function onTick(program) {
   program.updateState(state, { announce: false });
 }
 
-module.exports = onTick;
+export default onTick;

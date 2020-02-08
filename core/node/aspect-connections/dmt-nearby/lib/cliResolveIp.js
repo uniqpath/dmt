@@ -1,12 +1,12 @@
-const colors = require('colors');
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { stopwatch } = dmt;
 
-const { iotBus, specialNodes } = require('dmt-iot');
-const { UdpBus } = require('dmt-lanbus');
+import { iotBus, specialNodes } from 'dmt-iot';
+import { UdpBus } from 'dmt-lanbus';
 
-const publishRequest = require('./publishRequest');
+import publishRequest from './publishRequest';
 
 function requestIpMsg(deviceId) {
   return { request: 'lanbus-ping-request', targetDeviceId: deviceId };
@@ -112,4 +112,4 @@ function combined({ deviceId }) {
   });
 }
 
-module.exports = combined;
+export default combined;

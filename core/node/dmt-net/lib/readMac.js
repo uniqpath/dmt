@@ -1,19 +1,26 @@
-const { spawn } = require('child_process');
-const colors = require('colors');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-module.exports.getMAC = (ipaddress, cb) => {
-  if (process.platform.indexOf('linux') == 0) {
-    exports.readMACLinux(ipaddress, cb);
-  } else if (process.platform.indexOf('win') == 0) {
-    exports.readMACWindows(ipaddress, cb);
-  } else if (process.platform.indexOf('darwin') == 0) {
-    exports.readMACMac(ipaddress, cb);
-  }
-};
+import { spawn } from 'child_process';
 
-module.exports.readMACLinux = (ipaddress, cb) => {
+export default getMAC;
+
+function getMAC(ipaddress, cb) {
+  if (process.platform.indexOf('linux') == 0) {
+    return readMACLinux(ipaddress, cb);
+  }
+
+  if (process.platform.indexOf('win') == 0) {
+    return readMACWindows(ipaddress, cb);
+  }
+
+  if (process.platform.indexOf('darwin') == 0) {
+    return readMACMac(ipaddress, cb);
+  }
+}
+
+function readMACLinux(ipaddress, cb) {
   const ping = spawn('ping', ['-c', '1', ipaddress]);
 
   ping.on('close', code => {
@@ -49,9 +56,9 @@ module.exports.readMACLinux = (ipaddress, cb) => {
       cb(false, mac);
     });
   });
-};
+}
 
-module.exports.readMACWindows = function(ipaddress, cb) {
+function readMACWindows(ipaddress, cb) {
   var ping = spawn('ping', ['-n', '1', ipaddress]);
 
   ping.on('close', function(code) {
@@ -86,8 +93,8 @@ module.exports.readMACWindows = function(ipaddress, cb) {
       cb(true, `Could not find ip in arp table: ${ipaddress}`);
     });
   });
-};
-module.exports.readMACMac = function(ipaddress, cb) {
+}
+function readMACMac(ipaddress, cb) {
   const ping = spawn('ping', ['-c', '1', ipaddress]);
 
   ping.on('close', function(code) {
@@ -129,4 +136,4 @@ module.exports.readMACMac = function(ipaddress, cb) {
       cb(true, `Could not find ip in arp table: ${ipaddress}`);
     });
   });
-};
+}

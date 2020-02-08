@@ -1,7 +1,7 @@
-const EventEmitter = require('events');
+import EventEmitter from 'events';
 
-const OverUDP = require('./lanbusOverUdpBroadcast');
-const OverIot = require('./lanbusOverIotBus');
+import OverUDP from './lanbusOverUdpBroadcast';
+import OverIot from './lanbusOverIotBus';
 
 class LanBus extends EventEmitter {
   constructor({ program }) {
@@ -31,4 +31,4 @@ class LanBus extends EventEmitter {
   }
 }
 
-module.exports = LanBus;
+export default LanBus;

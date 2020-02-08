@@ -1,5 +1,5 @@
-const path = require('path');
-const fs = require('fs');
+import fs from 'fs';
+import path from 'path';
 
 class FsState {
   constructor(stateDir) {
@@ -28,4 +28,4 @@ class FsState {
   }
 }
 
-module.exports = FsState;
+export default FsState;

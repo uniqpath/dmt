@@ -14,4 +14,4 @@ function removeStaleNearbySensorsData(program) {
   }
 }
 
-module.exports = removeStaleNearbySensorsData;
+export default removeStaleNearbySensorsData;

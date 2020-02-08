@@ -1,6 +1,6 @@
-const path = require('path');
-const fs = require('fs');
-const dmt = require('dmt-bridge');
+import path from 'path';
+import fs from 'fs';
+import dmt from 'dmt-bridge';
 const { def } = dmt;
 
 function getTasks() {
@@ -12,4 +12,4 @@ function getTasks() {
   return [];
 }
 
-module.exports = { getTasks };
+export { getTasks };

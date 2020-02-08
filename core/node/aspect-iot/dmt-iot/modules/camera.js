@@ -1,7 +1,6 @@
-import dmtNotify from 'dmt-notify';
-const { push } = dmtNotify;
+import { push } from 'dmt-notify';
 
-import CameraRecorder from '../lib/camera/pi_camera.js';
+import CameraRecorder from '../lib/camera/pi_camera';
 let camera;
 
 function setup(program) {

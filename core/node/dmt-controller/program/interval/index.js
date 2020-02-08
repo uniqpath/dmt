@@ -1,4 +1,4 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 
 const intervalPeriod = dmt.globals.tickerPeriod * 1000;
 
@@ -16,4 +16,4 @@ function oneTick(program) {
   }, intervalPeriod);
 }
 
-module.exports = startTicker;
+export default startTicker;

@@ -1,14 +1,15 @@
-const path = require('path');
-const fs = require('fs');
-const retrace = require('retrace');
-const dmt = require('dmt-bridge');
+import path from 'path';
+import fs from 'fs';
+import retrace from 'retrace';
+
+import dmt from 'dmt-bridge';
 const { util, log } = dmt;
 
-const { reduceSizeOfStateForGUI } = require('dmt-gui');
-const removeStateChangeFalseTriggers = require('./removeStateChangeFalseTriggers');
+import { reduceSizeOfStateForGUI } from 'dmt-gui';
+import removeStateChangeFalseTriggers from './removeStateChangeFalseTriggers';
 
-const UpdateState = require('./updateState');
-const SaveLoadState = require('./saveLoadState');
+import UpdateState from './updateState';
+import SaveLoadState from './saveLoadState';
 
 class Store {
   constructor(program, { initState }) {
@@ -79,4 +80,4 @@ class Store {
   }
 }
 
-module.exports = Store;
+export default Store;

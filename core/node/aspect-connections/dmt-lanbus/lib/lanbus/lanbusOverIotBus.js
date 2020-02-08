@@ -1,9 +1,9 @@
-const colors = require('colors');
-const EventEmitter = require('events');
+import colors from 'colors';
+import EventEmitter from 'events';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
-const { iotBus } = require('dmt-iot');
+import { iotBus } from 'dmt-iot';
 
 class LanBusOverIotBus extends EventEmitter {
   constructor({ program }) {
@@ -56,4 +56,4 @@ class LanBusOverIotBus extends EventEmitter {
   }
 }
 
-module.exports = LanBusOverIotBus;
+export default LanBusOverIotBus;

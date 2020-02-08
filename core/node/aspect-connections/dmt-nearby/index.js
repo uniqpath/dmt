@@ -1,6 +1,6 @@
-const cliResolveIp = require('./lib/cliResolveIp');
+import cliResolveIp from './lib/cliResolveIp';
 
-const Nearby = require('./lib/nearby');
+import Nearby from './lib/nearby';
 
 function init(program) {
   const nearby = new Nearby(program);
@@ -8,7 +8,4 @@ function init(program) {
   program.on('lanbus:ready', lanbus => nearby.registerLanbus(lanbus));
 }
 
-module.exports = {
-  init,
-  cliResolveIp
-};
+export { init, cliResolveIp };

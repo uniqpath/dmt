@@ -1,8 +1,8 @@
-const path = require('path');
-const stripAnsi = require('strip-ansi');
+import path from 'path';
+import stripAnsi from 'strip-ansi';
 
-const dmt = require('dmt-bridge');
-const { def, log } = dmt;
+import dmt from 'dmt-bridge';
+const { def } = dmt;
 
 function mapToLocal(providerResults, shareMappings) {
   if (!shareMappings.multi) {
@@ -32,4 +32,4 @@ function mapToLocal(providerResults, shareMappings) {
   return Object.assign(JSON.parse(JSON.stringify(providerResults)), { results: mappedResults });
 }
 
-module.exports = mapToLocal;
+export default mapToLocal;

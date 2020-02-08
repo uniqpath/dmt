@@ -1,44 +1,42 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 
-const colors = require('colors');
+import colors from 'colors';
 
-if (require.main === module) {
-  const args = process.argv.slice(2);
+const args = process.argv.slice(2);
 
-  if (args.length == 0) {
-    console.log(colors.red('Missing arguments'));
-    process.exit();
-  }
+if (args.length == 0) {
+  console.log(colors.red('Missing arguments'));
+  process.exit();
+}
 
-  const arg = args.shift(1);
+const arg = args.shift(1);
 
-  const deviceName = arg.startsWith('@') ? arg.replace('@', '') : arg;
+const deviceName = arg.startsWith('@') ? arg.replace('@', '') : arg;
 
-  const ip = dmt.getIp({ deviceName });
-  if (ip.error) {
-    console.error(ip.error);
-    process.exit();
-  }
+const ip = dmt.getIp({ deviceName });
+if (ip.error) {
+  console.error(ip.error);
+  process.exit();
+}
 
-  const globalIp = dmt.getGlobalIp({ deviceName });
+const globalIp = dmt.getGlobalIp({ deviceName });
 
-  console.log(`name: ${deviceName}`);
-  console.log(`ip: ${ip}`);
-  if (globalIp && !globalIp.error) {
-    console.log(`globalIp: ${globalIp}`);
-  }
+console.log(`name: ${deviceName}`);
+console.log(`ip: ${ip}`);
+if (globalIp && !globalIp.error) {
+  console.log(`globalIp: ${globalIp}`);
+}
 
-  const device = dmt.device({ deviceId: deviceName, onlyBasicParsing: true });
+const device = dmt.device({ deviceId: deviceName, onlyBasicParsing: true });
 
-  if (device && device.try('network.user')) {
-    console.log(`user: ${device.network.user}`);
-  }
+if (device && device.try('network.user')) {
+  console.log(`user: ${device.network.user}`);
+}
 
-  if (device && device.try('network.id')) {
-    console.log(`network: ${device.network.id}`);
-  }
+if (device && device.try('network.id')) {
+  console.log(`network: ${device.network.id}`);
+}
 
-  if (device && device.try('network.globalSSHPort')) {
-    console.log(`globalSSHPort: ${device.network.globalSSHPort}`);
-  }
+if (device && device.try('network.globalSSHPort')) {
+  console.log(`globalSSHPort: ${device.network.globalSSHPort}`);
 }

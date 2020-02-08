@@ -1,12 +1,9 @@
-const { scriptActionHandler } = require('./scriptsThroughUserActions');
+import { scriptActionHandler } from './scriptsThroughUserActions';
 
-const platformTools = require('./platformTools');
+import platformTools from './platformTools';
 
 function init(program) {
   program.on('action', ({ action, storeName }) => scriptActionHandler({ program, action, storeName }));
 }
 
-module.exports = {
-  init,
-  platformTools
-};
+export { init, platformTools };

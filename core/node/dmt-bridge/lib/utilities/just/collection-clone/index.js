@@ -1,4 +1,4 @@
-module.exports = clone;
+export default clone;
 
 function clone(obj) {
   if (typeof obj == 'function') {

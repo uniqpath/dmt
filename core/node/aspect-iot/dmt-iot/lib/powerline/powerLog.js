@@ -1,6 +1,6 @@
-const dmt = require('dmt-bridge');
-const fs = require('fs');
-const path = require('path');
+import dmt from 'dmt-bridge';
+import fs from 'fs';
+import path from 'path';
 
 let stream;
 
@@ -24,4 +24,4 @@ function powerLog({ topic, msg }) {
   }
 }
 
-module.exports = powerLog;
+export default powerLog;

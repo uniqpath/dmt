@@ -1,21 +1,19 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-if (!dmt.isRPi()) {
-  const blankFn = function() {
-    log.write("Calling stub function on led.js because it's not RaspberryPi");
-  };
-  module.exports = { blink: blankFn, turnOn: blankFn };
-  return;
-}
+import onoff from 'onoff';
+const { Gpio } = onoff;
 
-var Gpio = require('onoff').Gpio;
-var LED = new Gpio(16, 'out');
+const LED = new Gpio(16, 'out');
 
 let blinkInterval;
 
 class LEDClass {
   blink() {
+    if (!this.nonrpi()) {
+      return;
+    }
+
     blinkInterval = setInterval(blink, 150);
 
     let count = 0;
@@ -41,11 +39,22 @@ class LEDClass {
     }
   }
 
+  nonrpi() {
+    if (!dmt.isRPi()) {
+      log.write("Calling stub function on led.js because it's not RaspberryPi");
+      return true;
+    }
+  }
+
   holdForOneCycle() {
     this.quickBlink = true;
   }
 
   turnOn() {
+    if (!this.nonrpi()) {
+      return;
+    }
+
     if (blinkInterval) {
       clearInterval(blinkInterval);
       blinkInterval = null;
@@ -55,6 +64,10 @@ class LEDClass {
   }
 
   turnOff() {
+    if (!this.nonrpi()) {
+      return;
+    }
+
     if (blinkInterval) {
       clearInterval(blinkInterval);
       blinkInterval = null;
@@ -64,4 +77,4 @@ class LEDClass {
   }
 }
 
-module.exports = new LEDClass();
+export default new LEDClass();

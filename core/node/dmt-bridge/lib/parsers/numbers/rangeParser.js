@@ -1,3 +1,5 @@
+export { parse, numberMatches, orderedMatchingNumbers };
+
 function parse(pattern) {
   if (Array.isArray(pattern)) {
     pattern = pattern.join(' ');
@@ -82,17 +84,4 @@ function orderedMatchingNumbers({ rangePattern, parsed }) {
   }
 
   return list.sort((a, b) => a - b);
-}
-
-module.exports = {
-  parse,
-  numberMatches,
-  orderedMatchingNumbers
-};
-
-if (require.main === module) {
-  const rangePattern = '1, 2, 9-  15, 7';
-
-  console.log(numberMatches(8, { rangePattern }));
-  console.log(orderedMatchingNumbers({ rangePattern }));
 }

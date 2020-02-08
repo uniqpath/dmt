@@ -1,14 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-const util = require('util');
-const colors = require('colors');
-const colorJson = require('./colorJson');
-const dmt = require('./parsers/def/dmtHelper');
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import util from 'util';
+import colors from 'colors';
 
-const dmtUtil = require('./util');
-const scan = require('./scan');
+import dmt from './parsers/def/dmtHelper';
+import dmtUtil from './util';
+import scan from './scan';
 
-const ScreenOutput = require('./loggerScreenOutput');
+import colorJson from './colorJson';
+import ScreenOutput from './loggerScreenOutput';
 
 const device = dmt.device({ onlyBasicParsing: true });
 
@@ -45,7 +46,7 @@ class Logger {
       if (fs.existsSync(logfilePath)) {
         const currentLog = scan.readFileLines(logfilePath);
         if (currentLog.length > LIMIT) {
-          fs.writeFileSync(logfilePath, currentLog.slice(-LIMIT).join(require('os').EOL));
+          fs.writeFileSync(logfilePath, currentLog.slice(-LIMIT).join(os.EOL));
         }
       }
 
@@ -146,4 +147,4 @@ class Logger {
   }
 }
 
-module.exports = Logger;
+export default Logger;

@@ -1,9 +1,11 @@
-const fs = require('fs');
-const dmt = require('dmt-bridge');
-const { log } = dmt;
-const stopwatch = require('pretty-hrtime');
+import fs from 'fs';
 
-const searchWithOSBinary = require('./searchWithOSBinary');
+import dmt from 'dmt-bridge';
+const { log } = dmt;
+
+import stopwatch from 'pretty-hrtime';
+
+import searchWithOSBinary from './searchWithOSBinary';
 
 function contentSearch(contentId, { terms, mediaType, clientMaxResults, maxResults }) {
   log.debug('Search called with:', { obj: { contentId, terms, mediaType, clientMaxResults, maxResults } });
@@ -48,7 +50,7 @@ function multipathSearch({ contentPaths, terms, maxResults, mediaType }) {
 
     Promise.all(promises)
       .then(allResultsAndErrors => {
-        const results = dmt.util.flatten(allResultsAndErrors).slice(0, maxResults);
+        const results = allResultsAndErrors.flat().slice(0, maxResults);
         success(results);
       })
       .catch(e => {
@@ -76,18 +78,4 @@ function searchOnePath({ path, terms, maxResults, mediaType }) {
   });
 }
 
-module.exports = contentSearch;
-
-if (require.main === module) {
-  const terms = process.argv.slice(2);
-
-  contentSearch('music', { terms, mediaType: 'music' })
-    .then(results => {
-      console.log(results);
-      process.exit();
-    })
-    .catch(e => {
-      console.log(e);
-      process.exit();
-    });
-}
+export default contentSearch;

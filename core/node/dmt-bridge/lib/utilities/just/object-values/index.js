@@ -1,4 +1,4 @@
-module.exports = values;
+export default values;
 
 function values(obj) {
   var result = [];

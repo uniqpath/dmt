@@ -1,7 +1,7 @@
-const parseIfUserAction = require('./dsl/ifUserAction');
-const IfTimeOfDay = require('./dsl/ifTimeOfDay');
-const IfMsg = require('./dsl/ifMsg');
-const TaskOnOffMonitor = require('./dsl/taskOnOffMonitor');
+import parseIfUserAction from './dsl/ifUserAction';
+import IfTimeOfDay from './dsl/ifTimeOfDay';
+import IfMsg from './dsl/ifMsg';
+import TaskOnOffMonitor from './dsl/taskOnOffMonitor';
 
 class Task {
   constructor({ program, taskDef }) {
@@ -34,4 +34,4 @@ class Task {
   }
 }
 
-module.exports = Task;
+export default Task;

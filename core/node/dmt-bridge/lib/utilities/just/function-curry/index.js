@@ -1,4 +1,4 @@
-module.exports = curry;
+export default curry;
 
 function curry(fn, arity) {
   return function curried() {

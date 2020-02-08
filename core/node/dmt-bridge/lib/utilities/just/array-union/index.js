@@ -1,4 +1,4 @@
-module.exports = union;
+export default union;
 
 function union(arr1, arr2) {
   if (!Array.isArray(arr1) || !Array.isArray(arr2)) {

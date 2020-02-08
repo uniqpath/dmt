@@ -1,4 +1,4 @@
-function attachNearbyDeviceAttributes({ program = null, msg }) {
+export default function attachNearbyDeviceAttributes({ program = null, msg }) {
   if (program) {
     const playerState = program.state.player;
 
@@ -37,5 +37,3 @@ function attachNearbyDeviceAttributes({ program = null, msg }) {
 
   return msg;
 }
-
-module.exports = attachNearbyDeviceAttributes;

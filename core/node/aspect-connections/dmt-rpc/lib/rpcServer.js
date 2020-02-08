@@ -1,8 +1,8 @@
-const colors = require('colors');
+import colors from 'colors';
 
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { log } = dmt;
-const jayson = require('jayson');
+import jayson from 'jayson';
 
 function jaysonCallbackWrapper({ data, error, jaysonCallback }) {
   if (error) {
@@ -31,12 +31,12 @@ function spawnServer({ program, port, symbol, serviceName, services }) {
 
   const setupResults = {};
 
-  for (const { serviceName, definition, setup } of services) {
+  for (const { serviceName, actions, setup } of services) {
     if (setup && !setupResults[serviceName]) {
       setupResults[serviceName] = setup({ program, serviceName });
     }
 
-    for (const action of definition.actions) {
+    for (const action of actions) {
       methods[`${serviceName}/${action.command}`] = createHandler({ action, symbol, serviceName, program }, setupResults[serviceName]);
     }
   }
@@ -52,4 +52,4 @@ function spawnServer({ program, port, symbol, serviceName, services }) {
   });
 }
 
-module.exports = spawnServer;
+export default spawnServer;

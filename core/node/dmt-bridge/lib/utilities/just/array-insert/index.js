@@ -1,4 +1,4 @@
-module.exports = insert;
+export default insert;
 
 function insert(arr1, arr2, index) {
   if (!Array.isArray(arr1)) {

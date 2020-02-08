@@ -1,4 +1,4 @@
-module.exports = snakeCase;
+export default snakeCase;
 
 var wordSeparators = /[\s\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]+/;
 var capitals = /[A-Z\u00C0-\u00D6\u00D9-\u00DD]/g;

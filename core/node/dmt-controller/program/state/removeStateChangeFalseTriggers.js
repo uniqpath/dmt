@@ -9,4 +9,4 @@ function removeStateChangeFalseTriggers(stateClone) {
   delete stateClone.integrations;
 }
 
-module.exports = removeStateChangeFalseTriggers;
+export default removeStateChangeFalseTriggers;

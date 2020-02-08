@@ -1,4 +1,4 @@
-module.exports = intersect;
+export default intersect;
 
 function intersect(arr1, arr2) {
   if (!Array.isArray(arr1) || !Array.isArray(arr2)) {

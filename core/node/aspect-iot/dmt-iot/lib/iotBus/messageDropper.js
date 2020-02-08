@@ -1,5 +1,4 @@
-const dmt = require('dmt-bridge');
-const { log } = dmt;
+import dmt from 'dmt-bridge';
 
 class MessageDropper {
   constructor() {
@@ -39,4 +38,4 @@ class MessageDropper {
   }
 }
 
-module.exports = MessageDropper;
+export default MessageDropper;

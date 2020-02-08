@@ -1,6 +1,5 @@
-const dmt = require('dmt-bridge');
-
-const { wpaStatus, macosAirport } = require('./otherScripts');
+import dmt from 'dmt-bridge';
+import { wpaStatus, macosAirport } from './otherScripts';
 
 function wifiAccessPointMAC() {
   if (dmt.isMacOS()) {
@@ -16,4 +15,4 @@ function wifiAccessPointMAC() {
   }
 }
 
-module.exports = { wifiAccessPointMAC };
+export default { wifiAccessPointMAC };

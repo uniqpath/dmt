@@ -1,6 +1,9 @@
-const fs = require('fs');
-const scan = require('./scan');
-const { textfileKeyValueParser } = require('./parsers/textfiles');
+import fs from 'fs';
+import scan from './scan';
+
+import { textfileKeyValueParser } from './parsers/textfiles';
+
+export { apMode, apInfo, accessPointIP };
 
 function apMode() {
   const filePath = '/etc/network/interfaces';
@@ -25,11 +28,3 @@ function apInfo() {
 }
 
 const accessPointIP = '192.168.1.1';
-
-module.exports = { apMode, apInfo, accessPointIP };
-
-if (require.main === module) {
-  console.log(`AP MODE: ${apMode()}`);
-  console.log('AP INFO:');
-  console.log(apInfo());
-}

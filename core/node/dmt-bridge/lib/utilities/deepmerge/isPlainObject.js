@@ -1,3 +1,5 @@
+export default isPlainObject;
+
 function isObject(val) {
   return val != null && typeof val === 'object' && Array.isArray(val) === false;
 }
@@ -6,7 +8,7 @@ function isObjectObject(o) {
   return isObject(o) === true && Object.prototype.toString.call(o) === '[object Object]';
 }
 
-module.exports = function isPlainObject(o) {
+function isPlainObject(o) {
   var ctor, prot;
 
   if (isObjectObject(o) === false) return false;
@@ -22,4 +24,4 @@ module.exports = function isPlainObject(o) {
   }
 
   return true;
-};
+}

@@ -1,4 +1,4 @@
-module.exports = filter;
+export default filter;
 
 function filter(obj, predicate) {
   var result = {};

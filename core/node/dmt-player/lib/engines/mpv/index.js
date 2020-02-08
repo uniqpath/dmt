@@ -1,16 +1,18 @@
-const colors = require('colors');
-const EventEmitter = require('events');
-const fs = require('fs');
-const dmt = require('dmt-bridge');
+import colors from 'colors';
+import EventEmitter from 'events';
+import fs from 'fs';
+import dmt from 'dmt-bridge';
 const { log, util } = dmt;
 
-const { detectMediaType } = require('dmt-meta');
+import pathModule from 'path';
 
-const { spawn } = require('child_process');
+import { detectMediaType } from 'dmt-meta';
 
-const MpvAPI = require('./lib/mpv/mpv.js');
+import { spawn } from 'child_process';
 
-const { resetAlsa, resetAlsaIfLongIdle } = require('./mpvBugWorkarounds');
+import MpvAPI from './lib/mpv/mpv';
+
+import { resetAlsa, resetAlsaIfLongIdle } from './mpvBugWorkarounds';
 
 class MpvEngine extends EventEmitter {
   constructor(program) {
@@ -186,11 +188,9 @@ class MpvEngine extends EventEmitter {
 
   enableMpvLogging(opts, { enable = true } = {}) {
     if (enable) {
-      const fs = require('fs');
-      const path = require('path');
-      const logDir = path.join(dmt.dmtPath, 'log');
+      const logDir = pathModule.join(dmt.dmtPath, 'log');
       if (fs.existsSync(logDir)) {
-        opts.log = path.join(logDir, 'mpv.log');
+        opts.log = pathModule.join(logDir, 'mpv.log');
       }
     }
   }
@@ -454,4 +454,4 @@ class MpvEngine extends EventEmitter {
   }
 }
 
-module.exports = MpvEngine;
+export default MpvEngine;

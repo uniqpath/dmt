@@ -1,4 +1,4 @@
-module.exports = compact;
+export default compact;
 
 function compact(arr) {
   if (!Array.isArray(arr)) {

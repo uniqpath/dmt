@@ -6,9 +6,6 @@ const eventsModule = require('./_events');
 const ErrorHandler = require('../error');
 const ipcRequest = require('./ipcRequest');
 
-const dmt = require('dmt-bridge');
-const { log } = dmt;
-
 function ipcInterface(options) {
   this.options = options;
 
@@ -87,8 +84,6 @@ ipcInterface.prototype = Object.assign(
           command,
           request_id
         };
-
-        log.debug(`Sending ipc command to mpv: ${JSON.stringify(messageJson, null, 2)}`, { cat: 'mpv-ipc' });
 
         this.ipcRequests[request_id] = new ipcRequest(resolve, reject, Object.values(command).splice(1));
         try {

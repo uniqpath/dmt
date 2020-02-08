@@ -1,8 +1,8 @@
-const dmt = require('dmt-bridge');
+import dmt from 'dmt-bridge';
 const { scan } = dmt;
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
 
 function osData(data) {
   Object.assign(data, {
@@ -79,4 +79,4 @@ function systemPeriodic(program) {
   return data;
 }
 
-module.exports = { systemOnce, systemPeriodic };
+export { systemOnce, systemPeriodic };
