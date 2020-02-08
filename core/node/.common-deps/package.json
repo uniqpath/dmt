@@ -12,7 +12,7 @@
     "acorn": "^6.1.1",
     "apn": "^2.2.0",
     "archiver": "^3.0.0",
-    "axios": "^0.18.1",
+    "axios": "^0.19.2",
     "body-parser": "^1.18.3",
     "clean-deep": "^3.2.0",
     "cli-table2": "^0.2.0",
