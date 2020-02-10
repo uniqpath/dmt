@@ -1,16 +1,16 @@
-import fs from 'fs';
-import scan from '../../scan';
 import util from '../../util';
 
+import { getLines } from './helpers';
+
 function valueForKey({ lines, key, delimiter }) {
-  const line = lines.find(line => line.trim().startsWith(`${key}${delimiter}`));
-  return line
-    ? line
-        .split(delimiter)
-        .slice(1)
-        .join(delimiter)
-        .trim()
-    : undefined;
+  const re = new RegExp(`^${key}\\s*${delimiter}\\s*(.*?)$`);
+
+  for (const line of lines) {
+    const matches = re.exec(line.trim());
+    if (matches) {
+      return matches[1].trim();
+    }
+  }
 }
 
 function mapKey(key, keyMap) {
@@ -18,18 +18,7 @@ function mapKey(key, keyMap) {
 }
 
 function parser({ filePath, content, lines, keys, keyMap = {}, delimiter = '=' }) {
-  if (filePath && fs.existsSync(filePath)) {
-    try {
-      lines = scan.readFileLines(filePath);
-    } catch (e) {
-      return {};
-    }
-  }
-
-  if (content) {
-    const EOL = util.autoDetectEOLMarker(content);
-    lines = content.split(EOL);
-  }
+  lines = getLines({ filePath, content, lines });
 
   const obj = {};
 

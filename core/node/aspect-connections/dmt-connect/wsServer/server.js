@@ -38,7 +38,11 @@ class WsServer extends EventEmitter {
         ws.isAlive = true;
 
         if (message == 'ping') {
-          ws.send('pong');
+          if (ws.readyState == ws.OPEN) {
+            try {
+              ws.send('pong');
+            } catch (e) {}
+          }
           return;
         }
 

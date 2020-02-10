@@ -99,8 +99,7 @@ function addHandler({ args, action }, { searchClient, player }) {
             );
           });
 
-        const shareMappings = dmt.remoteShareMappings();
-        const mappedResults = successfulResults.map(results => mapToLocal(results, shareMappings));
+        const mappedResults = successfulResults.map(results => mapToLocal(results));
         const playableResults = mappedResults.map(res => res.results).flat();
 
         player[action.command]({ files: playableResults });
@@ -115,8 +114,7 @@ function insertplayHandler({ args }, { searchClient, player }) {
   return new Promise((success, reject) => {
     searchHandler({ args }, { searchClient })
       .then(aggregateResults => {
-        const shareMappings = dmt.remoteShareMappings();
-        const mappedResults = aggregateResults.map(results => mapToLocal(results, shareMappings));
+        const mappedResults = aggregateResults.map(results => mapToLocal(results));
         const playableResults = mappedResults.map(res => res.results).flat();
 
         player.insert({ files: playableResults }).then(() => {

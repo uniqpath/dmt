@@ -4,13 +4,15 @@ import { exec } from 'child_process';
 export { quotePath, isMounted, mount, umount };
 
 function quotePath(path) {
-  var pieces = path.split("'");
-  var output = '';
-  var n = pieces.length;
-  for (var i = 0; i < n; i++) {
-    output = output + "'" + pieces[i] + "'";
-    if (i < n - 1) output = output + "\\'";
+  const pieces = path.split("'");
+  const n = pieces.length;
+
+  let output = '';
+  for (let i = 0; i < n; i++) {
+    output = `${output}'${pieces[i]}'`;
+    if (i < n - 1) output = `${output}\\'`;
   }
+
   return output;
 }
 
@@ -22,9 +24,9 @@ function isMounted(path, isDevice) {
     return { mounted: false, error: "Can't read mtab" };
   }
 
-  var mtab = fs.readFileSync('/etc/mtab', { encoding: 'ascii' }).split('\n');
+  const mtab = fs.readFileSync('/etc/mtab', { encoding: 'ascii' }).split('\n');
   for (const line of mtab) {
-    var mountDetail = line.split(' ');
+    const mountDetail = line.split(' ');
 
     if ((isDevice && mountDetail[0] == path) || (!isDevice && mountDetail[1] == path)) {
       return {
@@ -40,7 +42,7 @@ function isMounted(path, isDevice) {
 }
 
 function mount(dev, path, options, callback) {
-  var mountInfo = this.isMounted(path, false);
+  const mountInfo = this.isMounted(path, false);
   if (mountInfo.mounted) {
     callback({ error: 'Something is already mounted on ' + path });
     return;
@@ -48,7 +50,7 @@ function mount(dev, path, options, callback) {
 
   if (!fs.existsSync(path)) {
     if (options.createDir) {
-      var mode = '0777';
+      let mode = '0777';
       if (options.dirMode) {
         mode = options.dirMode;
       }
@@ -63,9 +65,9 @@ function mount(dev, path, options, callback) {
     return;
   }
 
-  var qdev = this.quotePath(dev);
-  var qpath = this.quotePath(path);
-  var cmd =
+  const qdev = this.quotePath(dev);
+  const qpath = this.quotePath(path);
+  const cmd =
     (options.noSudo ? '' : (options.sudoPath ? options.sudoPath : '/usr/bin/sudo') + ' ') +
     (options.mountPath ? options.mountPath : '/bin/mount') +
     ' ' +
@@ -76,7 +78,7 @@ function mount(dev, path, options, callback) {
     ' ' +
     qpath;
 
-  var mountProc = exec(cmd, function(error, stdout, stderr) {
+  const mountProc = exec(cmd, (error, stdout, stderr) => {
     if (error !== null) {
       callback({ error: 'exec error ' + error });
     } else {
@@ -86,20 +88,20 @@ function mount(dev, path, options, callback) {
 }
 
 function umount(path, isDevice, options, callback) {
-  var mountInfo = this.isMounted(path, isDevice);
+  const mountInfo = this.isMounted(path, isDevice);
   if (!mountInfo.mounted) {
     callback({ OK: true });
     return;
   }
 
-  var qpath = this.quotePath(path);
-  var cmd =
+  const qpath = this.quotePath(path);
+  const cmd =
     (options.noSudo ? '' : (options.sudoPath ? options.sudoPath : '/usr/bin/sudo') + ' ') +
     (options.umountPath ? options.umountPath : '/bin/umount') +
     ' ' +
     qpath;
 
-  var umountProc = exec(cmd, function(error, stdout, stderr) {
+  const umountProc = exec(cmd, (error, stdout, stderr) => {
     if (error !== null) {
       callback({ error: 'exec error ' + error });
     } else {

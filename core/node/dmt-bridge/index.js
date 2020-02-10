@@ -21,8 +21,6 @@ import { apMode, apInfo, accessPointIP } from './lib/apTools';
 import * as suntime from './lib/suntime';
 import db from './lib/databases';
 
-import * as mountutils from './lib/utilities/mountutils';
-
 if (!fs.existsSync(helper.dmtPath)) {
   console.log(
     `${colors.magenta('~/.dmt')} directory doesn't exist, please create it manually 🚀 ${colors.green('mkdir ~/.dmt')} — or via ${colors.cyan(
@@ -191,12 +189,16 @@ export default {
     return helper.providersFromContentRefs(contentRefs);
   },
 
-  contentPaths({ contentId, whichDevice }) {
-    return helper.contentPaths({ contentId, whichDevice });
+  getContentIDs() {
+    return helper.getContentIDs();
   },
 
-  remoteShareMappings() {
-    return helper.remoteShareMappings();
+  contentPaths({ contentId, deviceId, returnSambaSharesInfo }) {
+    return helper.contentPaths({ contentId, deviceId, returnSambaSharesInfo });
+  },
+
+  getReferencedSambaShares() {
+    return helper.getReferencedSambaShares();
   },
 
   getIp({ deviceName }) {
@@ -248,6 +250,5 @@ export default {
   globals: helper.globals,
   promiseTimeout,
   listify: util.listify,
-  accessProperty: (obj, acc) => def.tryOnTheFly(obj, acc),
-  mountutils
+  accessProperty: (obj, acc) => def.tryOnTheFly(obj, acc)
 };

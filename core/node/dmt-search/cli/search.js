@@ -3,7 +3,7 @@ import colors from 'colors';
 import dmt from 'dmt-bridge';
 const { cli } = dmt;
 
-import rpc from 'dmt-rpc';
+import { errorFormatter } from 'dmt-rpc';
 
 import { SearchClient, aggregateSearchResultsFormatter } from '../index';
 
@@ -43,7 +43,7 @@ try {
         process.exit();
       })
       .catch(e => {
-        rpc.errorFormatter(e, { host: '' });
+        errorFormatter(e, { host: '' });
         process.exit();
       });
   })();

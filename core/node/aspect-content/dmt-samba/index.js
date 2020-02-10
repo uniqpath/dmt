@@ -1,15 +1,13 @@
 import dmt from 'dmt-bridge';
-const { def } = dmt;
 
-import sambaMount from './lib/samba';
+import checkServerSambaSharesConfig from './lib/checkServerSambaSharesConfig';
+import prepareMountpoints from './lib/prepareMountpoints';
+import mount from './lib/mount';
 
-function init(program) {
-  if (program.network.try('samba.automount')) {
-    const sambaDef = program.network.def.samba;
-
-    for (const share of def.listify(sambaDef.automount.share)) {
-      sambaMount({ share: def.id(share), mountpoint: sambaDef.automount.mountpoint, serverIp: sambaDef.server, writable: share.writable });
-    }
+function init() {
+  if (dmt.isLinux()) {
+    checkServerSambaSharesConfig();
+    prepareMountpoints().forEach(mountInfo => mount(mountInfo));
   }
 }
 

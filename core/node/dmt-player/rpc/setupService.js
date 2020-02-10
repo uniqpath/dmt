@@ -69,8 +69,7 @@ function addOrPlay(action, { args, searchClient, channel, requestId, player }) {
           );
         });
 
-      const shareMappings = dmt.remoteShareMappings();
-      const mappedResults = successfulResults.map(results => mapToLocal(results, shareMappings));
+      const mappedResults = successfulResults.map(results => mapToLocal(results));
       const playableResults = mappedResults.map(res => res.results).flat();
 
       player[action]({ files: playableResults });

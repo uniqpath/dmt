@@ -2,30 +2,25 @@ import path from 'path';
 import stripAnsi from 'strip-ansi';
 
 import dmt from 'dmt-bridge';
-const { def } = dmt;
 
-function mapToLocal(providerResults, shareMappings) {
-  if (!shareMappings.multi) {
+function mapToLocal(providerResults) {
+  const { providerHost, contentId } = providerResults.meta;
+
+  const share = dmt.getReferencedSambaShares().find(shareInfo => shareInfo.deviceId == providerHost && shareInfo.contentId == contentId);
+
+  if (!share) {
     return providerResults;
   }
 
-  const mappings = shareMappings.multi.find(provider => provider.id == providerResults.meta.providerHost);
-
-  if (!mappings) {
-    return providerResults;
-  }
-
-  const mappingList = def.listify(mappings.map).sort((a, b) => b.from.length - a.from.length);
+  const mapping = { from: share.sambaPath, to: share.mountPath };
 
   const mappedResults = providerResults.results.map(file => {
-    for (const mapping of mappingList) {
-      const re = new RegExp(`^${mapping.from}/`);
-      const str = stripAnsi(file);
+    const re = new RegExp(`^${mapping.from}/`);
+    const str = stripAnsi(file);
 
-      if (str.match(re)) {
-        const relativePath = str.replace(re, './');
-        return path.join(mapping.to, relativePath);
-      }
+    if (str.match(re)) {
+      const relativePath = str.replace(re, './');
+      return path.join(mapping.to, relativePath);
     }
   });
 

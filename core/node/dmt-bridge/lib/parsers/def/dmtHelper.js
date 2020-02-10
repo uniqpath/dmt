@@ -6,6 +6,7 @@ import homedir from 'homedir';
 import isRPi from '../../detectRPi';
 import def from './parser';
 import cliParser from '../cli/parser';
+
 import scan from '../../scan';
 import util from '../../util';
 
@@ -19,6 +20,8 @@ const DEF_EXTENSION = '.def';
 
 const devices = [];
 const devicesBasic = [];
+
+let cachedReferencedSambaShares;
 
 function isDevMachine() {
   return fs.existsSync(path.join(dmtUserDir, 'devices/this/.dev-machine'));
@@ -596,28 +599,19 @@ export default {
 
   services(serviceId) {
     const name = 'services';
+    const deviceId = 'this';
 
     const fileList = [];
     fileList.push(path.join(dmtPath, `def/${name}.def`));
     fileList.push(path.join(dmtUserDir, `def/${name}.def`));
-    fileList.push(path.join(dmtUserDir, `devices/this/def/${name}.def`));
-    fileList.push({ filePath: path.join(dmtUserDir, 'devices/this/def/device.def'), secondLevel: true });
+    fileList.push(path.join(dmtUserDir, `devices/${deviceId}/def/${name}.def`));
+    fileList.push({ filePath: path.join(dmtUserDir, `devices/${deviceId}/def/device.def`), secondLevel: true });
 
     const services = this.defMerge({ fileList, key: 'service' });
 
     const match = services.find(s => s.id == serviceId);
     const service = match || { empty: true };
     return serviceId ? def.makeTryable(service) : services;
-  },
-
-  remoteShareMappings() {
-    const shareMappings = path.join(dmtUserDir, 'devices/this/def/mountpoints.def');
-
-    if (!fs.existsSync(shareMappings)) {
-      return {};
-    }
-
-    return def.parseFile(shareMappings);
   },
 
   absolutizePath({ path, catalog, device }) {
@@ -630,9 +624,16 @@ export default {
     }
   },
 
-  contentPaths({ contentId, whichDevice = 'this' }) {
-    const device = this.device({ deviceId: whichDevice });
-    const filePath = this.deviceDefFile(whichDevice, 'content');
+  getContentIDs() {
+    const filePath = this.deviceDefFile('this', 'content');
+    const contentDef = readContentDef({ filePath });
+
+    return def.values(contentDef.multi).filter(id => id);
+  },
+
+  contentPaths({ contentId, deviceId = 'this', returnSambaSharesInfo = false }) {
+    const device = this.device({ deviceId });
+    const filePath = this.deviceDefFile(deviceId, 'content');
     const contentDef = readContentDef({ filePath });
 
     if (contentDef.empty) {
@@ -641,9 +642,92 @@ export default {
 
     const content = contentDef.multi.find(c => c.id == contentId);
 
+    this.sambaDefinitionErrorCheck(content, { filePath, contentId });
+
+    if (content.sambaShare) {
+      if (returnSambaSharesInfo) {
+        return { sambaShare: content.sambaShare, sambaPath: content.sambaPath };
+      }
+
+      return [content.sambaPath];
+    }
+
     if (content) {
       return def.values(content.path).map(path => this.absolutizePath({ path, device }));
     }
+  },
+
+  sambaDefinitionErrorCheck(content, { filePath, contentId }) {
+    const ident = `${filePath} -- content:${contentId}`;
+
+    const device = this.device({ onlyBasicParsing: true });
+
+    if (!content) {
+      throw new Error(`${ident} is not defined but is referenced from ${device.id}/def/device.def`);
+    }
+
+    if (content.sambaShare) {
+      if (Array.isArray(content.sambaShare)) {
+        throw new Error(`${ident} has multiple sambaShares instead of at most one (${def.values(content.sambaShare)})`);
+      }
+
+      if (content.path) {
+        throw new Error(`${ident} is a sambaShare, it cannot also have paths (eg. ${def.values(content.path)})`);
+      }
+
+      if (!content.sambaPath || Array.isArray(content.sambaPath)) {
+        throw new Error(
+          `${ident} is a sambaShare, it has to have exactly one sambaPath which matches the path in smb.conf, this one has ${
+            util.listify(content.sambaPath).length
+          }`
+        );
+      }
+
+      if (!content.sambaPath.match(/^\//)) {
+        throw new Error(`${ident} sambaPath has to be absolute path but is ${content.sambaPath} instead`);
+      }
+    }
+  },
+
+  getReferencedSambaShares() {
+    if (cachedReferencedSambaShares) {
+      return cachedReferencedSambaShares;
+    }
+
+    const playerInfo = this.services('player');
+
+    if (!playerInfo) {
+      return [];
+    }
+
+    const device = this.device({ onlyBasicParsing: true });
+
+    const contentRefs = def.values(playerInfo.contentRef);
+    const providers = this.providersFromContentRefs(contentRefs);
+
+    const list = [];
+
+    for (const provider of providers.filter(p => !p.localhost && p.hostType == 'dmt')) {
+      const deviceId = provider.host;
+      const contentId = provider.contentRef;
+
+      const { sambaShare, sambaPath } = this.contentPaths({ contentId, deviceId, returnSambaSharesInfo: true });
+
+      if (!sambaShare) {
+        throw new Error(
+          `@${deviceId}/${contentId} should be a sambaShare, not a list of paths. This is because it is referenced from player in ${device.id}/def/device.def`
+        );
+      }
+
+      const mountBase = `${homedir()}/DMTMountedMedia/${deviceId}`;
+      const mountPath = path.join(mountBase, sambaShare);
+
+      list.push({ deviceId, sambaServerIp: provider.ip, contentId, mountPath, sambaShare, sambaPath });
+    }
+
+    cachedReferencedSambaShares = list;
+
+    return list;
   },
 
   getIp({ deviceName }) {

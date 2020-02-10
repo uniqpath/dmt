@@ -6,7 +6,7 @@ function wifiAccessPointMAC() {
     return macosAirport();
   }
 
-  if (dmt.isLinux) {
+  if (dmt.isLinux()) {
     return wpaStatus();
   }
 
