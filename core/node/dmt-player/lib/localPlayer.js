@@ -1,6 +1,8 @@
 import dmt from 'dmt-bridge';
 const { log } = dmt;
+
 import colors from 'colors';
+import fs from 'fs';
 
 import Playlist from './playlist';
 import Mpv from './engines/mpv';
@@ -123,7 +125,6 @@ class LocalPlayer {
       if (files.length == 0) {
         if (this.hasLoadedMedia()) {
           this.engine.play().then(() => {
-            this.playlist.detectMissingMedia();
             success();
           });
         } else {
@@ -335,13 +336,14 @@ class LocalPlayer {
 
   playCurrent() {
     return new Promise((success, reject) => {
-      this.playlist.detectMissingMedia();
-
       const song = this.playlist.currentSong();
       log.green('Playing song 🎵');
 
-      if (song.error) {
+      if (!fs.existsSync(song.path)) {
+        this.playlist.detectMissingMedia();
         log.red(`${colors.gray(song.path)} doesn't exist`);
+        this.playlist.stuckOnMissingMedia();
+
         reject(new Error("Song doesn't exist on disk"));
         return;
       }

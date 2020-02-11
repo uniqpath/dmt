@@ -67,6 +67,75 @@ function port2 {
   lsof -n -i4UDP:$1
 }
 
+function srv {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+
+    printf "${GREEN}srv [service]${NC} ${GRAY}show status${NC}\n"
+    printf "${GREEN}srv [service] [command]${NC} ${GRAY}run command, ex.: start|stop|reload|restart|enable|disable${NC}\n"
+    printf "${GREEN}srv [service] cat${NC} ${GRAY}show service specification${NC}\n"
+    printf "${GREEN}srv [service] edit${NC} ${GRAY}edit service specification${NC}\n"
+    printf "${GREEN}srv [service] log${NC} ${GRAY}see service log${NC}\n"
+    echo
+    printf "${GREEN}srv ls${NC} ${GRAY}show services in /etc/systemd/system${NC}\n"
+    printf "${GREEN}srv cd${NC} ${GRAY}move to /etc/systemd/system${NC}\n"
+    printf "${GREEN}srv cd2${NC} ${GRAY}move to /lib/systemd/system${NC}\n"
+
+    #printf "${GREEN}${NC} ${GRAY}${NC}\n"
+
+    echo
+
+    printf "Dir: ${MAGENTA}/etc/systemd/system${NC}\n"
+    printf "Dir (system): ${MAGENTA}/lib/systemd/system${NC}\n"
+
+    return
+  fi
+
+  if [ -z "$2" ]; then
+    if [ "$1" == "ls" ]; then
+      ls -la /etc/systemd/system/*.service
+    elif [ "$1" == "cd" ]; then
+      cd /etc/systemd/system
+    elif [ "$1" == "cd2" ]; then
+      cd /lib/systemd/system
+    else
+      sudo systemctl status "$1"
+    fi
+  elif [ "$2" == "cat" ]; then
+    local loc1="/etc/systemd/system/${1}.service"
+    local loc2="/lib/systemd/system/${1}.service"
+
+    if [ -f "$loc1" ]; then
+      printf "${YELLOW}Found${NC} ${GREEN}$loc1${NC}\n\n"
+      cat "$loc1"
+    elif [ -f "$loc2" ]; then
+      printf "${YELLOW}Found${NC} ${GREEN}$loc2${NC}\n\n"
+      cat "$loc2"
+    else
+      printf "${RED}unknown service $1${NC}\n"
+    fi
+  elif [ "$2" == "edit" ]; then
+    local loc1="/etc/systemd/system/${1}.service"
+    local loc2="/lib/systemd/system/${1}.service"
+
+    if [ -f "$loc1" ]; then
+      printf "${YELLOW}Found${NC} ${GREEN}$loc1${NC}\n\n"
+      sudo nano "$loc1"
+      sudo systemctl daemon-reload
+    elif [ -f "$loc2" ]; then
+      printf "${YELLOW}Found${NC} ${GREEN}$loc2${NC}\n\n"
+      sudo nano "$loc2"
+      sudo systemctl daemon-reload
+    else
+      printf "${RED}unknown service $1${NC}\n"
+    fi
+  elif [ "$2" == "log" ]; then
+    journalctl -u "${1}.service"
+  else
+    sudo systemctl "$2" "$1"
+  fi
+}
+
 # list all the executable files in folder
 function exe {
   if dmt_macos; then

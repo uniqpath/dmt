@@ -69,6 +69,10 @@ function u {
   dmt_update "$@"
 }
 
+function k() {
+  mkdir -p "$@" && cd "$_";
+}
+
 function re {
   dmt_renew "$@"
 }

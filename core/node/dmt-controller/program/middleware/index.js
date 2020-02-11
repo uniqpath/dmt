@@ -50,8 +50,9 @@ class MidLoader {
         .catch(e => {
           const msg = `Problem loading ${colors.cyan(midPkg)} middleware — ${colors.gray(e)}`;
           log.red(msg);
-
           push.notify(`${dmt.deviceGeneralIdentifier()}: ${stripAnsi(msg)}`);
+
+          success();
         });
     });
   }
@@ -68,20 +69,49 @@ class MidLoader {
       const midDirectory = path.join(dmt.dmtPath, `core/node/${dir}`);
       if (!fs.existsSync(midDirectory)) {
         log.cyan(`${colors.red('✖')} ${colors.magenta(midPkgName)} middleware ${colors.white('is not present')}`);
+        success();
         return;
       }
 
-      import(midDirectory).then(mid => {
-        try {
-          const midData = mid.init(program) || {};
-          this.loadedMidsWithMidData[midPkgName] = midData;
-        } catch (e) {
+      this.importComplex({ program, midDirectory, midPkgName })
+        .then(success)
+        .catch(reject);
+    });
+  }
+
+  importComplex({ program, midDirectory, midPkgName }) {
+    return new Promise((success, reject) => {
+      import(midDirectory)
+        .then(mid => {
+          let promiseOrData;
+          let isPromise;
+
+          try {
+            promiseOrData = mid.init(program);
+            isPromise = promiseOrData instanceof Promise;
+          } catch (e) {
+            reject(e);
+            return;
+          }
+
+          if (isPromise) {
+            const promise = promiseOrData;
+            promise
+              .then(midData => {
+                this.loadedMidsWithMidData[midPkgName] = midData || {};
+                success();
+              })
+              .catch(reject);
+          } else {
+            const midData = promiseOrData;
+            this.loadedMidsWithMidData[midPkgName] = midData || {};
+            success();
+          }
+        })
+        .catch(e => {
           reject(e);
           return;
-        }
-
-        success();
-      });
+        });
     });
   }
 

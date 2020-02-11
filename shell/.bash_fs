@@ -176,7 +176,14 @@ function awesome_cd {
     else
       # first try only directories that start exactly with our input
       for d in ${dirlist[@]} ; do
-        if [[ "$d" == $pattern* ]] && [ -d "$d" ]; then
+        # https://stackoverflow.com/a/4763159/458177
+        # The easiest way to delete something from the start of a variable is to use ${var#pattern}.
+        # $ FILENAME=.bashrc;    echo "${FILENAME#.}"
+        # bashrc
+        #
+        # we remove leading dot from directories so that for example "c dmt" or "c dm" moves to ~/.dmt even in the presence of ~/DMTMountedMedia
+        # otherwise it wouldn't because DMTMountedMedia technically starts with "dm" and ".dmt" doesn't
+        if [[ "${d#.}" == $pattern* ]] && [ -d "$d" ]; then
           local size=${#d}
           if [[ $size -lt $min_size ]]; then
             match="$d"
@@ -191,7 +198,7 @@ function awesome_cd {
       # search case-insensitive now
       shopt -s nocasematch # case insensitive regex
       for d in ${dirlist[@]} ; do
-        if [[ "$d" == $pattern* ]] && [ -d "$d" ]; then
+        if [[ "${d#.}" == $pattern* ]] && [ -d "$d" ]; then
           local size=${#d}
           if [[ $size -lt $min_size ]]; then
             match="$d"

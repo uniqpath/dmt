@@ -71,8 +71,6 @@ class Playlist {
       this.engine.clearState();
     }
 
-    this.detectMissingMedia();
-
     return { updatedFromMpvPlayerState };
   }
 

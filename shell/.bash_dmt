@@ -391,7 +391,6 @@ function dmt {
       local dmt_fg_bg=''
       get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
 
-
       if [[ $dmt_fg_bg == 'fg' ]]; then
         printf "${MAGENTA}dmt-proc${NC} ${RED}is already running in 'foreground'${NC}, it was started with ${CYAN}dmt startfg${NC} in another terminal tab.\n"
         printf "${YELLOW}Please go to the other terminal tab and press ${GREEN}CTRL+C${NC}\n"
@@ -501,7 +500,7 @@ function reload_shell {
 
 function get_dmt_proc_pid {
   # space in " dmt-proc" is required
-  local proc=$(ps -ef | grep " dmt-proc" | grep -v "eslint" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local proc=$(ps -ef | grep " dmt-proc" | grep -v "nano dmt-proc" | grep -v "eslint" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
   local procFG=$(ps -ef | grep "dmt-controller/daemons/dmt-proc.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
 
   if [ -n "$proc" ]; then
@@ -1128,8 +1127,11 @@ function dmt_next {
 
   dmt start
 
-  printf "${GRAY}Waiting 1s ...${NC}\n"
-  sleep 1
+  # todo: 1s was not always enough on raspberry pi
+  # 3s is slow ... and probably also not guaranteed to work
+  # implement in another way: touch some file in state and gui should be reloaded on boot, file then removed
+  printf "${GRAY}Waiting 3s ...${NC}\n"
+  sleep 3
 
   printf "${YELLOW}Sending gui reload request ...${NC}\n"
   dmt_gui reload
