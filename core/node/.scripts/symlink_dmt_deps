@@ -29,34 +29,22 @@ declare -a DepList=(
   "dmt-notify"
   "dmt-crypto"
 
-  "dmt-fasterix"
-
   "aspect-connections/dmt-lanbus"
   "aspect-connections/dmt-nearby"
   "aspect-connections/dmt-connect"
   "aspect-connections/dmt-beats"
   "aspect-connections/dmt-rpc"
 
-  "aspect-protocol/fasterix-protocol"
+  "aspect-iot/dmt-iot"
 
   "aspect-content/dmt-content"
-  "aspect-content/dmt-photo"
   "aspect-content/dmt-samba"
-  "aspect-content/dmt-slideshow"
-
-  "aspect-iot/dmt-climate"
-  "aspect-iot/dmt-iot"
-  "aspect-iot/dmt-interproc"
 
   "aspect-meta/dmt-bash-exec"
-  "aspect-meta/dmt-meta"
-  "aspect-meta/dmt-replicate"
   "aspect-meta/dmt-sysinfo"
   "aspect-meta/dmt-holidays"
-
-  "dmt-integrations"
-  "aspect-integrations/dmt-twitter"
-  "aspect-integrations/dmt-ultimaker"
+  "aspect-meta/dmt-meta"
+  "aspect-meta/dmt-replicate"
 )
 
 # HELPER FUNCTIONS
@@ -240,4 +228,4 @@ else
   echo "Missing $dir"
 fi
 
-./symlink_user_core_deps "$arg"
+./symlink_user_core "$arg"

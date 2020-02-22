@@ -339,13 +339,18 @@ class LocalPlayer {
       const song = this.playlist.currentSong();
       log.green('Playing song 🎵');
 
-      if (!fs.existsSync(song.path)) {
-        this.playlist.detectMissingMedia();
-        log.red(`${colors.gray(song.path)} doesn't exist`);
-        this.playlist.stuckOnMissingMedia();
+      const exists = fs.existsSync(song.path);
 
+      if (!exists) {
+        this.playlist.detectMissingMedia();
+
+        log.red(`${colors.gray(song.path)} doesn't exist`);
         reject(new Error("Song doesn't exist on disk"));
         return;
+      }
+
+      if (song.error && exists) {
+        this.playlist.detectMissingMedia();
       }
 
       log.dir(song);

@@ -72,22 +72,25 @@ class WsServer extends EventEmitter {
     });
   }
 
+  connectionsList() {
+    const list = this.enumerateConnections();
+
+    list.push({ num: Object.keys(list).length });
+
+    return list.reverse();
+  }
+
   enumerateConnections() {
-    let num = 0;
     const list = [];
 
     this.wss.clients.forEach(ws => {
-      num += 1;
       list.push({
-        ip: getRemoteIp(ws)
+        ip: getRemoteIp(ws),
+        readyState: ws.readyState
       });
     });
 
-    if (list.length > 0) {
-      list.push({ num });
-    }
-
-    return list.reverse();
+    return list;
   }
 
   periodicCleanupAndPing() {

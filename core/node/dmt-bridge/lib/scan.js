@@ -4,6 +4,8 @@ import fs from 'fs';
 import fse from 'fs-extra';
 import homedir from 'homedir';
 
+import { commandExists, commandExistsSync } from './utilities/command-exists/command-exists';
+
 function ensureDirSync(directory) {
   const options = {
     mode: 0o2775
@@ -174,4 +176,4 @@ function mediaFilter({ mediaType }) {
   }
 }
 
-export default { dir, recursive, flattenTree, syncDir, readFileLines, ensureDirSync, mediaFilter, absolutizePath };
+export default { dir, recursive, flattenTree, syncDir, readFileLines, ensureDirSync, mediaFilter, absolutizePath, commandExists, commandExistsSync };

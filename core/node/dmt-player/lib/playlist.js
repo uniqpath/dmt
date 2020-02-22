@@ -6,6 +6,9 @@ const { log, util, numberRanges, search } = dmt;
 import homedir from 'homedir';
 import stripAnsi from 'strip-ansi';
 
+import MetadataReader from './metadataReader';
+import MissingFiles from './missingFiles';
+
 const MAX_LOOK_BEHIND = 3;
 
 const DIRECT_PLAY_ROLLOVER_TRIGGERING_INDEX = 15;
@@ -13,6 +16,9 @@ const DIRECT_PLAY_ROLLOVER_TRIGGERING_INDEX = 15;
 class Playlist {
   constructor({ program }) {
     this.program = program;
+
+    this.metadataReader = new MetadataReader({ playlist: this });
+    this.missingFiles = new MissingFiles({ playlist: this });
 
     program.on('tick', () => {
       const { playlistMetadata } = program.state;
@@ -417,45 +423,18 @@ class Playlist {
     }
   }
 
-  detectMissingMedia({ force = false } = {}) {
-    const { changed, numberOfMissingMedia } = this.markAndCountMissingMedia();
-    if (changed || force) {
-      this.program.updateState({ player: { hasMissingMedia: numberOfMissingMedia > 0 }, playlistMetadata: { numberOfMissingMedia } }, { announce: false });
-      this.broadcastPlaylistState();
-    }
-  }
-
-  markAndCountMissingMedia() {
-    let numberOfMissingMedia = 0;
-
-    let changed = false;
-
-    for (const song of this.playlist) {
-      if (!fs.existsSync(song.path)) {
-        if (!song.error) {
-          changed = true;
-        }
-        song.error = true;
-        numberOfMissingMedia += 1;
-      } else {
-        if (song.error) {
-          changed = true;
-        }
-        delete song.error;
-      }
-    }
-
-    return { changed, numberOfMissingMedia };
+  detectMissingMedia() {
+    this.missingFiles.detect(this.playlist);
   }
 
   removeMissingMedia() {
-    function removeMissing(playlist) {
-      return playlist.filter(song => fs.existsSync(song.path));
+    function excludeMissing(playlist) {
+      return playlist.filter(song => !song.error);
     }
 
     if (this.playlist.length > 0) {
-      const beforeCurrent = removeMissing(this.playlist.slice(0, this.currentIndex));
-      const fromCurrent = removeMissing(this.playlist.slice(this.currentIndex));
+      const beforeCurrent = excludeMissing(this.playlist.slice(0, this.currentIndex));
+      const fromCurrent = excludeMissing(this.playlist.slice(this.currentIndex));
 
       this.playlist = beforeCurrent.concat(fromCurrent);
 
@@ -468,18 +447,21 @@ class Playlist {
     }
 
     this.renumberPlaylist();
-
-    this.detectMissingMedia({ force: true });
+    this.broadcastPlaylistState();
   }
 
   broadcastPlaylistState() {
-    this.updatePlaylistDerivedData();
+    const numberOfMissingMedia = this.playlist.filter(song => song.error).length;
+    const { metadataReadCount } = this.updatePlaylistDerivedData();
     const playlistHasSelectedEntries = !!this.playlist.find(songInfo => songInfo.selected && !songInfo.aboutToBeCut && songInfo.id != this.currentSongId());
     const currentSongIsSelected = !!this.playlist.find(songInfo => songInfo.selected && songInfo.id == this.currentSongId());
     this.program.updateState({
+      player: { hasMissingMedia: numberOfMissingMedia > 0 },
       playlist: this.playlist,
       playlistMetadata: {
         playlistLength: this.playlist.length,
+        numberOfMissingMedia,
+        metadataReadCount,
         playlistHasSelectedEntries,
         currentSongIsSelected,
         playlistClipboard: !!this.clipboard
@@ -491,9 +473,18 @@ class Playlist {
     const { limit } = this.program.state.player;
 
     let prevSong;
+    let metadataReadCount = 0;
 
     for (const song of this.playlist) {
-      song.title = song.path.split('/').slice(-1)[0];
+      const titleFromFilePath = song.path.split('/').slice(-1)[0];
+
+      if (!song.metadata || song.metadata.error) {
+        song.title = titleFromFilePath;
+      }
+
+      if (song.metadata) {
+        metadataReadCount += 1;
+      }
 
       song.past = song.id < this.currentSongId();
       song.current = song.id == this.currentSongId();
@@ -502,18 +493,33 @@ class Playlist {
         delete song.withinLimit;
       }
 
+      const assignAlbumTitle = song => {
+        if (song.metadata && !song.metadata.error && song.metadata.artist && song.metadata.album) {
+          const title = `${song.metadata.artist} - ${song.metadata.album}`;
+          song.albumTitle = song.metadata.year ? `${title} (${song.metadata.year})` : title;
+        }
+      };
+
+      delete song.albumTitle;
+
       if (prevSong) {
         if (path.dirname(prevSong.path) == path.dirname(song.path)) {
           song.directoryTogetherness = prevSong.directoryTogetherness;
         } else {
           song.directoryTogetherness = 1 - prevSong.directoryTogetherness;
+          assignAlbumTitle(song);
         }
       } else {
         song.directoryTogetherness = 0;
+        assignAlbumTitle(song);
       }
 
       prevSong = song;
     }
+
+    setTimeout(() => {
+      this.metadataReader.readTags(this.playlist);
+    }, 100);
 
     let offset = 0;
     for (const song of this.playlist.filter(songInfo => songInfo.id >= this.currentSongId())) {
@@ -527,6 +533,8 @@ class Playlist {
         offset += 1;
       }
     }
+
+    return { metadataReadCount };
   }
 
   rollover() {

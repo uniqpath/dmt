@@ -10,7 +10,7 @@ import frameworkInternalActionReponses from './frameworkInternalActionReponses';
 import constructAction from './constructAction';
 
 function enumerateConnections({ server, program }, { announce = false } = {}) {
-  program.updateState({ sysinfo: { connections: server.enumerateConnections() } }, { announce });
+  program.updateState({ sysinfo: { connections: server.connectionsList() } }, { announce });
 }
 
 class WSResponder extends EventEmitter {

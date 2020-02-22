@@ -59,7 +59,7 @@ if [ -z "$1" ]; then
   printf "${YELLOW}Usage:${NC}\n"
   printf "${GREEN}daemons start${NC} ${GRAY}starts or restarts daemons if already running${NC}\n"
   printf "${GREEN}daemons stop${NC} ${GRAY}stops deamons${NC}\n"
-  return
+  exit
 fi
 
 proc=$(ps -ef | grep "manager.js" | grep "dmt-proc" | grep -v grep | awk '{print $2}')

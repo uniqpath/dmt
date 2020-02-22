@@ -8,38 +8,38 @@ function userActionHandlers({ program, player }) {
     if (storeName == 'player') {
       switch (action) {
         case 'play':
-          player.play().catch(() => {});
+          player.play().catch(log.red);
           break;
         case 'pause':
-          player.pause().catch(() => {});
+          player.pause().catch(log.red);
           break;
         case 'toggle':
           if (program.state.player.paused) {
-            player.play().catch(() => {});
+            player.play().catch(log.red);
           } else {
-            player.pause().catch(() => {});
+            player.pause().catch(log.red);
           }
           break;
         case 'volume_up':
-          player.volume('up').catch(() => {});
+          player.volume('up').catch(log.red);
           break;
         case 'volume_down':
-          player.volume('down').catch(() => {});
+          player.volume('down').catch(log.red);
           break;
         case 'forward':
-          player.forward(payload.seconds).catch(() => {});
+          player.forward(payload.seconds).catch(log.red);
           break;
         case 'play_next':
-          player.next().catch(() => {});
+          player.next().catch(log.red);
           break;
         case 'shuffle_playlist':
-          player.shuffle().catch(() => {});
+          player.shuffle().catch(log.red);
           break;
         case 'repeat_increase':
           player.repeatIncrease();
           break;
         case 'stop':
-          player.stop().catch(() => {});
+          player.stop().catch(log.red);
           break;
         case 'insert_selected':
           player.insertSelected();

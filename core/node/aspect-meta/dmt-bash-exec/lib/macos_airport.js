@@ -23,9 +23,11 @@ export default () => {
         return;
       }
 
+      const content = stdout || '';
+
       const keys = 'BSSID';
       const keyMap = { BSSID: 'bssid' };
-      const result = textfileKeyValueParser({ content: stdout, keys, keyMap, delimiter: ':' });
+      const result = textfileKeyValueParser({ content, keys, keyMap, delimiter: ':' });
       success(result);
     });
   });

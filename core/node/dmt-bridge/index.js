@@ -7,6 +7,7 @@ import scan from './lib/scan';
 import search from './lib/search';
 import stopwatch from './lib/stopwatch';
 import FsState from './lib/fsState';
+import processBatch from './lib/processBatch';
 
 import def from './lib/parsers/def/parser';
 import cli from './lib/parsers/cli/cliHelper';
@@ -57,9 +58,11 @@ export default {
   log,
   util,
   scan,
+  colors,
   search,
   def,
   cli,
+  processBatch,
   FMLParser,
   textfileParsers,
   numberRanges,

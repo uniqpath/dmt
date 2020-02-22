@@ -13,7 +13,7 @@ function getLines({ filePath, content, lines }) {
     }
   }
 
-  if (content) {
+  if (content != null) {
     const EOL = util.autoDetectEOLMarker(content);
     resultingLines = content.split(EOL);
   }

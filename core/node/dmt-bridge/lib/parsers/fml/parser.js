@@ -124,13 +124,6 @@ class FMLParser {
 
             let linesProcessor;
 
-            if (scriptDir) {
-              const scriptPath = path.join(sitePath, scriptDir);
-              if (fs.existsSync(scriptPath)) {
-                linesProcessor = require(scriptPath);
-              }
-            }
-
             const result = this.parse({ file: includeFile, linesProcessor });
             content = `${content}${result.html}`;
             assetList.push(...result.assetList);
