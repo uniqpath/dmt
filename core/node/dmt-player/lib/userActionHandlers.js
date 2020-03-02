@@ -41,8 +41,8 @@ function userActionHandlers({ program, player }) {
         case 'stop':
           player.stop().catch(log.red);
           break;
-        case 'insert_selected':
-          player.insertSelected();
+        case 'set_next':
+          player.setNext();
           break;
         case 'cut_selected':
           player.cutSelected();

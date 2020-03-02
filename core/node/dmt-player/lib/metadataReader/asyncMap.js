@@ -8,9 +8,6 @@ export default function asyncMap(song) {
       .then(metadata => {
         if (metadata.title && metadata.artist) {
           song.metadata = { ...metadata, ...{ schemaVersion } };
-
-          const { artist, title } = metadata;
-          song.title = `${artist} - ${title}`;
         } else if (metadata.duration) {
           song.metadata = { duration: metadata.duration, schemaVersion };
         } else {

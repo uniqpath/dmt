@@ -14,6 +14,7 @@ function getActions() {
   actions.push({ command: 'add', handler: addHandler });
   actions.push({ command: 'insert', handler: addHandler });
   actions.push({ command: 'insplay', handler: insertplayHandler });
+
   actions.push({ command: 'pause', handler });
   actions.push({ command: 'next', handler });
   actions.push({ command: 'list', handler });

@@ -2,8 +2,6 @@ import dmt from 'dmt-bridge';
 
 const { processBatch } = dmt;
 
-import { detectMediaType } from 'dmt-meta';
-
 import asyncMap from './asyncMap';
 
 class MetadataReader {
@@ -20,7 +18,6 @@ class MetadataReader {
 
     entries.forEach(song => {
       song.asyncReadingMetadata = true;
-      song.mediaType = detectMediaType(song.path);
     });
 
     processBatch({

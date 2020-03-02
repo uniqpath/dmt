@@ -1,10 +1,11 @@
-import fs from 'fs';
 import path from 'path';
 import dmt from 'dmt-bridge';
 const { log, util, numberRanges, search } = dmt;
 
 import homedir from 'homedir';
 import stripAnsi from 'strip-ansi';
+
+import { detectMediaType } from 'dmt-meta';
 
 import MetadataReader from './metadataReader';
 import MissingFiles from './missingFiles';
@@ -282,7 +283,8 @@ class Playlist {
       .filter(songInfo => songInfo.aboutToBeCut)
       .map(songInfo => {
         return {
-          path: songInfo.path
+          path: songInfo.path,
+          metadata: songInfo.metadata
         };
       });
 
@@ -478,8 +480,17 @@ class Playlist {
     for (const song of this.playlist) {
       const titleFromFilePath = song.path.split('/').slice(-1)[0];
 
-      if (!song.metadata || song.metadata.error) {
+      const { metadata } = song;
+
+      if (metadata && metadata.artist && metadata.title) {
+        const { artist, title } = song.metadata;
+        song.title = `${artist} - ${title}`;
+      } else {
         song.title = titleFromFilePath;
+      }
+
+      if (!song.mediaType) {
+        song.mediaType = detectMediaType(song.path);
       }
 
       if (song.metadata) {

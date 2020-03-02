@@ -224,7 +224,7 @@ class LocalPlayer {
     this.playlist.paste();
   }
 
-  insertSelected() {
+  setNext() {
     this.cutSelected();
     this.paste();
   }
@@ -444,14 +444,6 @@ class LocalPlayer {
 
       this.program.updateState({ player: { timeLimit } });
       this.playlist.broadcastPlaylistState();
-
-      success();
-    });
-  }
-
-  clone(num) {
-    return new Promise((success, reject) => {
-      log.green(`CLONED ${num}`);
 
       success();
     });
