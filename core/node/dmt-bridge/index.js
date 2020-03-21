@@ -2,6 +2,11 @@ import os from 'os';
 import fs from 'fs';
 import path from 'path';
 import colors from 'colors';
+import xstate from 'xstate';
+import quantum from 'quantum-generator';
+import nacl from 'tweetnacl';
+import naclutil from 'tweetnacl-util';
+
 import util from './lib/util';
 import scan from './lib/scan';
 import search from './lib/search';
@@ -21,6 +26,8 @@ import { apMode, apInfo, accessPointIP } from './lib/apTools';
 
 import * as suntime from './lib/suntime';
 import db from './lib/databases';
+
+nacl.util = naclutil;
 
 if (!fs.existsSync(helper.dmtPath)) {
   console.log(
@@ -58,6 +65,9 @@ export default {
   log,
   util,
   scan,
+  nacl,
+  xstate,
+  quantum,
   colors,
   search,
   def,
@@ -125,6 +135,8 @@ export default {
     return helper.networks(network);
   },
 
+  determineGUIPort: helper.determineGUIPort,
+
   services(service) {
     return helper.services(service);
   },
@@ -159,6 +171,10 @@ export default {
     }
 
     return result;
+  },
+
+  keypair() {
+    return helper.keypair();
   },
 
   keys() {

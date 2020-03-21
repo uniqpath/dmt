@@ -96,16 +96,6 @@ function printResponse(command, response, rpcArgs) {
         printSuccessOrErrorStatus(response);
         break;
 
-      case 'spaced':
-        printSpacedResponse(response.result);
-        printSuccessOrErrorStatus(response);
-        break;
-
-      case 'unspaced':
-        printSpacedResponse(response.result);
-        printSuccessOrErrorStatus(response);
-        break;
-
       case 'next':
         if (response.result && response.result.song) {
           console.log(formatSong(response.result.song));

@@ -2,7 +2,7 @@ import path from 'path';
 
 import fs from 'fs';
 import fse from 'fs-extra';
-import homedir from 'homedir';
+import { homedir } from 'os';
 
 import { commandExists, commandExistsSync } from './utilities/command-exists/command-exists';
 

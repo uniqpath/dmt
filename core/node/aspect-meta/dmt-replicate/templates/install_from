@@ -166,6 +166,16 @@ if [ -f dmt.zip ]; then
 
   ./install
 
+  # add dmtSource pointer to user.def so that "dmt next" updates work correctly
+  user_def=~/.dmt/user/def/user.def
+  if [ -f "$user_def" ]; then
+    if [ -n "{{dmtSource}}" ]; then
+      if ! grep -Fq "dmtSource" "$user_def"; then
+        echo "  dmtSource: {{dmtSource}}" >> "$user_def"
+      fi
+    fi
+  fi
+
 else
   printf "${RED}Failed to fetch dmt.zip, aborting ...${NC}\n"
 fi

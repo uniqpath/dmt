@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import colors from 'colors';
-import homedir from 'homedir';
+
+import os from 'os';
+const { homedir } = os;
+const { username } = os.userInfo();
 
 import isRPi from '../../detectRPi';
 import def from './parser';
@@ -9,6 +12,8 @@ import cliParser from '../cli/parser';
 
 import scan from '../../scan';
 import util from '../../util';
+
+const { hexToBuffer } = util.hexutils;
 
 const dmtPath = path.join(homedir(), '.dmt');
 const dmtUserDir = path.join(dmtPath, 'user');
@@ -122,7 +127,7 @@ function readKeysDef({ filePath }) {
 
     return keysDef.multi.length > 0
       ? keysDef.multi.map(keyInfo => {
-          const result = { ...keyInfo, ...{ privateKey: keyInfo.private, publicKey: keyInfo.public } };
+          const result = { ...keyInfo, ...{ privateKeyHex: keyInfo.private, publicKeyHex: keyInfo.public } };
 
           delete result.private;
           delete result.public;
@@ -368,6 +373,16 @@ export default {
     return readFiberDef({ filePath });
   },
 
+  keypair() {
+    const keys = this.keys();
+    if (!keys.empty) {
+      const keypair = util.listify(keys).find(keypair => !keypair.id);
+      if (keypair) {
+        return { ...keypair, ...{ privateKey: hexToBuffer(keypair.privateKeyHex), publicKey: hexToBuffer(keypair.publicKeyHex) } };
+      }
+    }
+  },
+
   keys() {
     const filePath = this.deviceDefFile('this', 'keys');
     return readKeysDef({ filePath });
@@ -595,6 +610,24 @@ export default {
     }
 
     return results;
+  },
+
+  determineGUIPort() {
+    const isRootUser = username == 'root';
+
+    const ports = def.listify(this.services('gui').port);
+
+    const portForRootUser = ports.find(port => port.whenRootUser == 'true');
+
+    if (isRootUser && portForRootUser) {
+      return portForRootUser.id;
+    }
+
+    const normalPorts = ports.filter(port => port.whenRootUser != 'true');
+
+    if (normalPorts.length > 0) {
+      return def.id(normalPorts[0]);
+    }
   },
 
   services(serviceId) {

@@ -752,7 +752,7 @@ function gui_send_action_to_frontend {
     #action="${action}:${2}"
     payload="$2"
   fi
-  $DMT_NODEJS_EXEC "${cliGUI}" localhost "$action" gui "$payload"
+  $DMT_NODEJS_EXEC "${cliGUI}" "$action" "$payload"
 }
 
 function dmt_gui {
@@ -1048,7 +1048,7 @@ function dmt_next {
     fi
   else
     if $dry_run; then
-      printf "${CYAN}1)${NC} ${MAGENTA}dmtSource ${GRAY}not provided as bash argument to this command ${NC}...\n"
+      printf "${CYAN}1)${NC} ${MAGENTA}dmtSource ${GRAY}not provided as argument to this command ${NC}...\n"
       printf "${CYAN}2)${NC} ${GRAY}Checking ~/.dmt/user/def/user.def for ${MAGENTA}dmtSource ${NC} ...\n"
     fi
 
@@ -1125,16 +1125,10 @@ function dmt_next {
   # we move to it again ....
   cd "$cwd"
 
+  mkdir -p ~/.dmt/state
+  touch ~/.dmt/state/gui_reload.txt
+
   dmt start
-
-  # todo: 1s was not always enough on raspberry pi
-  # 3s is slow ... and probably also not guaranteed to work
-  # implement in another way: touch some file in state and gui should be reloaded on boot, file then removed
-  printf "${GRAY}Waiting 3s ...${NC}\n"
-  sleep 3
-
-  printf "${YELLOW}Sending gui reload request ...${NC}\n"
-  dmt_gui reload
 
   printf "${GREEN}Done.${NC}\n"
 }

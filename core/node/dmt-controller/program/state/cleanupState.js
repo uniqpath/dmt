@@ -22,6 +22,7 @@ function cleanupStateOnSave(state) {
   }
 
   delete state.services;
+  delete state.appList;
 
   delete state.log;
   delete state.nearbySensors;

@@ -1,9 +1,10 @@
+import { homedir } from 'os';
 import path from 'path';
+
+import stripAnsi from 'strip-ansi';
+
 import dmt from 'dmt-bridge';
 const { log, util, numberRanges, search } = dmt;
-
-import homedir from 'homedir';
-import stripAnsi from 'strip-ansi';
 
 import { detectMediaType } from 'dmt-meta';
 

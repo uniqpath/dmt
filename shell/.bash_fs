@@ -347,13 +347,6 @@ function p {
   fi
 }
 
-function app {
-  awesome_cd /Applications "$1"
-  if [ $? -eq 0 ] && [ -d "Contents" ]; then
-    cd Contents
-  fi
-}
-
 # TREE:
 # red
 #   blue

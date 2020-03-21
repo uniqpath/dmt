@@ -107,7 +107,9 @@ if [ -z "$arg" ]; then # install here
     # general deploy hooks -- all devices
     after_update_hook="$HOME/.dmt/etc/deploy_hooks/after-update"
     if [ -f "$after_update_hook" ]; then
-      "$after_update_hook" > /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
+      echo "RUN HOOK:"
+      cat "$after_update_hook"
+      "$after_update_hook" #> /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
     fi
 
     # (possibly defined) for each particular device

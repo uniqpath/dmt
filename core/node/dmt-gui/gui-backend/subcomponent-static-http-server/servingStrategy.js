@@ -1,12 +1,11 @@
 import express from 'express';
-import colors from 'colors';
 import fs from 'fs';
 import pathModule from 'path';
 
 import dmt from 'dmt-bridge';
-const { scan, log } = dmt;
+const { scan } = dmt;
 
-function setFileSystemRoutes(app, serverName, { rootDir, publicDir, assetsSubdir, subServings = [] }) {
+function setFileSystemRoutes(app, { rootDir, publicDir, assetsSubdir, subServings = [] }) {
   const components = dmt.scan
     .dir(rootDir, { onlyDirs: true })
     .filter(path => pathModule.basename(path) != assetsSubdir)
@@ -44,13 +43,10 @@ function setFileSystemRoutes(app, serverName, { rootDir, publicDir, assetsSubdir
       }
     }
 
-    log.gray(`${colors.cyan(serverName)}: component ${colors.magenta(handle)} at /${handle}`);
     app.use(`/${handle}`, express.static(staticContentPath));
   });
 
   for (const sub of subServings) {
-    log.gray(`Additional static route for server ${colors.cyan(serverName)} created: ${sub.mountpoint} ■ serving ${sub.dir}`);
-
     if (sub.recursive) {
       const docsApp = express();
 

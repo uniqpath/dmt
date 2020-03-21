@@ -1,3 +1,5 @@
+import dmt from 'dmt-bridge';
+
 export default function attachNearbyDeviceAttributes({ program = null, msg }) {
   if (program) {
     const playerState = program.state.player;
@@ -14,6 +16,14 @@ export default function attachNearbyDeviceAttributes({ program = null, msg }) {
 
   if (program) {
     msg.hasGui = program.hasGui();
+  }
+
+  if (program) {
+    const keypair = dmt.keypair();
+    if (keypair) {
+      const { publicKey: pubkey } = keypair;
+      msg.pubkey = pubkey;
+    }
   }
 
   if (program) {

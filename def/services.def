@@ -7,11 +7,11 @@ service: rpc
 
 service: gui
   port: 7777
+  wsPort: 7780
 
   port: 80
     whenRootUser: true
 
-  wsPort: 7780
   symbol: 🌐
 
 service: player

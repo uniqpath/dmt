@@ -33,12 +33,14 @@ class CodeTransform extends Transform {
 
 function replicateAllowed(entry) {
   return (
+    entry.basename != '.DS_Store' &&
     entry.reldir != 'user' &&
     entry.reldir != 'state' &&
     entry.reldir != 'log' &&
     entry.relpath != 'todo.txt' &&
     entry.relpath != 'tagversion' &&
     entry.relpath != 'core/node/.gitignore' &&
+    entry.relpath != 'core/node/connectome/.gitignore' &&
     entry.relpath != 'shell/.bash_staging' &&
     entry.relpath != 'etc/.bash_aliases_bundle' &&
     entry.relpath != 'etc/.bash_aliases_slim' &&

@@ -20,7 +20,7 @@ async function loadIntegrations(program) {
 }
 
 async function init(program) {
-  program.on('program_ready', () => {
+  program.on('ready', () => {
     loadIntegrations(program);
   });
 }

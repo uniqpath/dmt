@@ -28,11 +28,12 @@ declare -a DepList=(
   "dmt-player"
   "dmt-notify"
   "dmt-crypto"
+  "dmt-apps"
+
+  "connectome"
 
   "aspect-connections/dmt-lanbus"
   "aspect-connections/dmt-nearby"
-  "aspect-connections/dmt-connect"
-  "aspect-connections/dmt-beats"
   "aspect-connections/dmt-rpc"
 
   "aspect-iot/dmt-iot"
@@ -140,17 +141,19 @@ if [ -d "$dir" ]; then
     echo
   fi
 
-  for dep in "${Deps[@]}"; do
-    dmt_dep_without_aspect=''
-    aspect=''
-    parse_dep_aspect dmt_dep_without_aspect aspect "$dep"
-
-    if [ "$arg" == "remove" ]; then
-      if [ -L "$dmt_dep_without_aspect" ]; then
-        # if ! $silent; then echo "Removing $dmt_dep_without_aspect symlink from .common-deps"; fi
-        rm $dmt_dep_without_aspect
+  if [ "$arg" == "remove" ]; then
+    # just remove all symlinks
+    for dep in *; do
+      if [ -L "$dep" ]; then
+        rm "$dep"
       fi
-    else
+    done
+  else
+    for dep in "${Deps[@]}"; do
+      dmt_dep_without_aspect=''
+      aspect=''
+      parse_dep_aspect dmt_dep_without_aspect aspect "$dep"
+
       if [ ! -L "$dmt_dep_without_aspect" ]; then
         # if ! $silent; then echo "Symlinking $dep from .common-deps"; fi
         ln -s ../../$dep . # $dep insludes aspect if it's present ...
@@ -158,8 +161,8 @@ if [ -d "$dir" ]; then
         #if ! $silent;
         if $check; then printf "  Symlink ${YELLOW}.common-deps/$dmt_dep_without_aspect${NC} ${GREEN}→${NC} ${CYAN}$dep${NC} ${GREEN}✓${NC}\n"; fi
       fi
-    fi
-  done
+    done
+  fi
 
   # symlinks to .common-deps from each dmt package
 
@@ -192,8 +195,8 @@ if [ -d "$dir" ]; then
       else
         pkg="$pkg_or_aspect"
 
-        # special treatment for this bellow since dmt-external has its own node_modules and doesn't link to .common-deps
-        if [ "$pkg" != "dmt-external" ]; then
+        # special treatment for this bellow since connectome, dmt-js and dmt-external have their own node_modules and don't link to .common-deps
+        if [ "$pkg" != "dmt-external" ] && [ "$pkg" != "connectome" ] && [ "$pkg" != "dmt-js" ]; then
           manage_symlink_pkg_node_modules_to_common_deps_node_modules "$arg" "$pkg" "$check"
         fi
       fi
@@ -204,11 +207,11 @@ if [ -d "$dir" ]; then
     fi
   done
 
-  if $check; then
-    echo
-    printf "${GREEN}● Checking if dmt-external/node_modules includes a symlink to dmt-bridge:${NC}\n"
-    echo
-  fi
+  # if $check; then
+  #   echo
+  #   printf "${GREEN}● Checking if dmt-external/node_modules includes a symlink to dmt-bridge:${NC}\n"
+  #   echo
+  # fi
 
   # if ! $check; then
   #   if [ "$arg" == "remove" ]; then
@@ -227,5 +230,7 @@ if [ -d "$dir" ]; then
 else
   echo "Missing $dir"
 fi
+
+./symlink_apps "$arg"
 
 ./symlink_user_core "$arg"

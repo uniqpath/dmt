@@ -1,6 +1,6 @@
 import colors from 'colors';
 import dmt from 'dmt-bridge';
-const { log } = dmt;
+const { log, cli } = dmt;
 
 import mapToLocal from '../lib/mapToLocal';
 
@@ -40,6 +40,22 @@ function infoHandler() {
   });
 }
 
+function parseArgs(args) {
+  if (typeof args === 'string') {
+    const { terms, atDevices, attributeOptions } = cli(args.trim().split(/\s+/));
+
+    const clientMaxResults = attributeOptions.count;
+    const mediaType = attributeOptions.media || 'music';
+
+    args = { terms, clientMaxResults, mediaType };
+  }
+
+  const { serverMaxResults } = dmt.maxResults('player');
+  const clientMaxResults = args.clientMaxResults ? args.clientMaxResults : serverMaxResults;
+
+  return { terms: args.terms, mediaType: args.mediaType || 'music', clientMaxResults };
+}
+
 function handler({ args, action }, { player }) {
   return new Promise((success, reject) => {
     player[action.command](action.argsMapper ? action.argsMapper(args) : args)
@@ -50,11 +66,10 @@ function handler({ args, action }, { player }) {
 
 function searchHandler({ args, action }, { searchClient }) {
   return new Promise((success, reject) => {
-    const { serverMaxResults } = dmt.maxResults('player');
-    const clientMaxResults = args.clientMaxResults ? args.clientMaxResults : serverMaxResults;
+    args = parseArgs(args);
 
     searchClient
-      .search({ terms: args.terms, mediaType: args.mediaType || 'music', clientMaxResults })
+      .search(args)
       .then(aggregateResults => {
         success(aggregateResults);
       })
@@ -63,6 +78,8 @@ function searchHandler({ args, action }, { searchClient }) {
 }
 
 function playHandler({ args, action }, { searchClient, player }) {
+  args = parseArgs(args);
+
   return new Promise((success, reject) => {
     if (action.command == 'play') {
       if (args.terms.length == 0) {

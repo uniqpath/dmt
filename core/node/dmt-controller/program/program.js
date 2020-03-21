@@ -12,12 +12,18 @@ import { setupTimeUpdater } from './interval/timeUpdater';
 import onProgramTick from './interval/onProgramTick';
 
 import Network from '../network';
+import Channels from './channels';
+import Server from '../server/mainHttpServer';
+import AppCustomPortHttpServer from '../server/appCustomPortHttpServer';
+import WsServer from '../server/mainWsServer';
 
 import ensureDirectories from './boot/ensureDirectories';
 import getDeviceInfo from './boot/getDeviceInfo';
 import initStore from './boot/initStore';
 import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
 import loadMiddleware from './boot/loadMiddleware';
+
+import ipcServe from './ipc/server';
 
 class Program extends EventEmitter {
   constructor({ mids }) {
@@ -29,7 +35,16 @@ class Program extends EventEmitter {
 
     this.log = dmt.log;
     this.device = getDeviceInfo();
+
     this.network = new Network(this);
+    this.server = new Server(this);
+    this.appCustomPortHttpServer = new AppCustomPortHttpServer(this);
+    this.wsServer = new WsServer(this);
+    this.channels = new Channels();
+
+    this.on('state_diff', ({ diff }) => {
+      this.channels.sendToAll('dmt_gui', { diff });
+    });
 
     this.state = { notifications: [] };
 
@@ -41,9 +56,33 @@ class Program extends EventEmitter {
 
     this.metaRPC = new MetaRPC(this);
 
-    loadMiddleware(this, mids).then(() => {
-      this.continueBooting();
-    });
+    if (dmt.isRPi()) {
+      this.updateState({ controller: { isRPi: true } }, { announce: false });
+    } else if (this.state.controller) {
+      delete this.state.controller.isRPi;
+    }
+
+    if (mids.includes('apps')) {
+      let callCount = 0;
+      const afterTwoCalls = callback => {
+        callCount += 1;
+        if (callCount == 2) {
+          callback();
+        }
+      };
+
+      this.on('apps_loaded', () => {
+        afterTwoCalls(() => this.continueBooting());
+      });
+
+      loadMiddleware(this, mids).then(() => {
+        afterTwoCalls(() => this.continueBooting());
+      });
+    } else {
+      loadMiddleware(this, mids).then(() => {
+        this.continueBooting();
+      });
+    }
   }
 
   setResponsibleNode(isResponsible) {
@@ -59,6 +98,10 @@ class Program extends EventEmitter {
     this.metaRPC.registerService(service);
   }
 
+  addWsProtocol(protocol, wsEndpoint) {
+    this.wsServer.addProtocol(protocol, wsEndpoint);
+  }
+
   continueBooting() {
     this.on('tick', () => onProgramTick(this));
 
@@ -67,15 +110,19 @@ class Program extends EventEmitter {
     this.registerRpcService(controllerRPCService);
     this.metaRPC.registrationsFinished();
 
-    log.green('✓✓ Program ready');
+    this.wsServer.start();
 
-    if (dmt.isRPi()) {
-      this.updateState({ controller: { isRPi: true } }, { announce: false });
-    } else if (this.state.controller) {
-      delete this.state.controller.isRPi;
+    this.server.listen();
+
+    if (dmt.isDevMachine() || this.device.id == 'f-david') {
+      this.appCustomPortHttpServer.listen();
     }
 
-    this.emit('program_ready');
+    ipcServe(this);
+    log.green('Started IPC server');
+
+    log.green('✓✓ Program ready');
+    this.emit('ready');
 
     const debugInstructions = dmt.debugMode()
       ? colors.gray(`→ disable with: ${colors.yellow('dmt debug off')}`)
@@ -138,11 +185,6 @@ class Program extends EventEmitter {
 
   updateState(newState, { announce = true } = {}) {
     this.store.updateState(newState, { announce });
-  }
-
-  updateIntegrationsState(integrationsState) {
-    this.updateState({ integrations: integrationsState }, { announce: false });
-    this.emit('integrations_state_updated', this.state.integrations);
   }
 
   replaceState(replacement, { announce = true } = {}) {

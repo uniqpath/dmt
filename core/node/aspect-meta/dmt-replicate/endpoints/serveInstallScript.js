@@ -8,6 +8,15 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+function dmtSource(host) {
+  if (host.includes(':')) {
+    const source = dmt.user().dmtSource;
+    return source ? source : '';
+  } else {
+    return host;
+  }
+}
+
 function install({ req, res, isCurl, program, port }) {
   let host;
   let protocol = 'http';
@@ -24,7 +33,8 @@ function install({ req, res, isCurl, program, port }) {
     .readFileSync(path.join(__dirname, '../templates/install_from'))
     .toString()
     .replace(new RegExp('{{protocol}}', 'g'), protocol)
-    .replace(new RegExp('{{host}}', 'g'), host);
+    .replace(new RegExp('{{host}}', 'g'), host)
+    .replace(new RegExp('{{dmtSource}}', 'g'), dmtSource(host));
 
   if (isCurl) {
     res.setHeader('Content-type', 'text/plain');

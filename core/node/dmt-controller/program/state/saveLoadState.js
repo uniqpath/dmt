@@ -1,5 +1,5 @@
 import fs from 'fs';
-
+import writeFileAtomic from 'write-file-atomic';
 import dmt from 'dmt-bridge';
 const { util, log } = dmt;
 
@@ -14,8 +14,10 @@ class SaveLoadState {
     state.schemaVersion = STATE_SCHEMA_VERSION;
 
     if (!this.lastPersistedState || !util.compare(this.lastPersistedState, state)) {
-      fs.writeFileSync(dmt.programStateFile, JSON.stringify(state, null, 2));
-      this.lastPersistedState = state;
+      writeFileAtomic(dmt.programStateFile, JSON.stringify(state, null, 2), err => {
+        if (err) throw err;
+        this.lastPersistedState = state;
+      });
     }
   }
 

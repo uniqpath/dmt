@@ -1,0 +1,23 @@
+{
+  "name": "connectome",
+  "version": "0.0.40",
+  "description": "Adventures in the simple and the complex",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uniqpath/connectome"
+  },
+  "author": "davidhq",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "quantum-generator": "^1.9.1",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "ws": "^7.2.3"
+  }
+}

@@ -60,6 +60,17 @@ view: clock
 
 ---
 
+view: apps
+  wallpaper: /wallpapers/abstract/connecting.jpg
+    theme: dmt_default
+
+  sidebar: top-only-transparent
+  deviceSelector: false
+
+---
+
+---
+
 view: device
   wallpaper: /wallpapers/fantasy/mr_robot3.jpg
     theme: dmt_default

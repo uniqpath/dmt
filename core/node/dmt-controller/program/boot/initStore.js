@@ -25,6 +25,10 @@ export default function initStore(program, device) {
     store.removeStoreElement({ storeName: 'controller', key: 'demoDevice' }, { announce: false });
   }
 
+  if (dmt.keypair()) {
+    store.updateState({ controller: { pubkey: dmt.keypair().publicKeyHex } }, { announce: false });
+  }
+
   const guiServiceDef = dmt.services('gui');
   store.updateState({ services: { gui: guiServiceDef } }, { announce: false });
 
