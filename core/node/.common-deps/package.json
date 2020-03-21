@@ -9,6 +9,7 @@
   "author": "davidhq",
   "license": "ISC",
   "dependencies": {
+    "@small-tech/express-ws": "^1.0.1",
     "acorn": "^6.1.1",
     "apn": "^2.2.0",
     "archiver": "^3.0.0",
@@ -33,12 +34,14 @@
     "mqtt": "^2.18.8",
     "multihashes": "^0.4.14",
     "network": "^0.4.1",
+    "node-ipc": "^9.1.1",
     "node-wifi": "^2.0.5",
     "nodemailer": "^5.1.1",
     "pg": "^7.12.1",
     "pi-camera-connect": "^0.2.0",
     "portfinder": "^1.0.20",
     "pretty-hrtime": "^1.0.3",
+    "quantum-generator": "^1.9.3",
     "redis": "^2.8.0",
     "request-digest": "^1.0.13",
     "retrace": "^1.0.0",
@@ -46,12 +49,12 @@
     "strip-ansi": "^5.0.0",
     "strip-color": "^0.1.0",
     "suspawn": "^0.2.2",
-    "systeminformation": "^4.16.0",
     "tweetnacl": "^1.0.1",
     "tweetnacl-util": "^0.15.0",
     "twitter": "^1.7.1",
     "unzipper": "^0.10.5",
     "urlencode": "^1.1.0",
-    "ws": "^6.1.4"
+    "write-file-atomic": "^3.0.3",
+    "xstate": "^4.8.0"
   }
 }
