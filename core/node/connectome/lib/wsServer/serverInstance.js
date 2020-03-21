@@ -12,7 +12,7 @@ function heartbeat() {
 }
 
 class WsServer extends EventEmitter {
-  constructor({ port }) {
+  constructor({ port, verbose }) {
     super();
 
     process.nextTick(() => {
@@ -25,7 +25,7 @@ class WsServer extends EventEmitter {
       this.wss.on('connection', (ws, req) => {
         ws.remoteIp = getRemoteIp(req);
 
-        const channel = new Channel(ws);
+        const channel = new Channel(ws, { verbose });
 
         channel.on('channel_closed', () => {
           this.emit('connection_closed', channel);

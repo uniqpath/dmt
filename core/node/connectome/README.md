@@ -9,23 +9,40 @@ It provides code for the initiator of connections and it works transparently bet
 - two node.js processes
 - between in-browser JavaScript and a node.js process
 
-Receiver side is not yet fully open-sourced but will be soon after it is further tested and developed. Receiver can asynchronously compose and pipeline communication to further parallel connections.
-
-## Address structure
-
-**Example dialup address:**
-
-```
-connectome://spacefish.io:7780:fiber:4d41beb083a102f527965d94e2379003d969726b0ebb1c6db86cf24c37686176
-```
-
-**Components:**
-
-- server node ip / url
-- WebSocket port
-- WebSocket protocol
-- Public key of the endpoint
-
 ## How to start?
 
-[INFO COMING SOON]
+Get the library on your computer:
+```
+git clone https://github.com/uniqpath/connectome.git
+cd connectome
+npm install
+```
+
+### Run a sample server and client:
+
+```
+cd examples
+```
+
+Run connection receiver in first terminal tab:
+```
+node --experimental-modules --experimental-specifier-resolution=node server.js
+```
+
+Run one connection initiator in another terminal tab:
+```
+node --experimental-modules --experimental-specifier-resolution=node client.js
+```
+
+You can try running more than one as well. Each one will set a connection with receiver with a different shared key.
+
+## Warning
+
+⚠️ ⚠️ ⚠️
+
+Experimental, not for production use. It will be worked on and improved.
+
+What library doesn't do yet but will soon:
+
+- properly use nonces (for now it is a constant nonce for each sent message) - this is easy to update and will be done soon
+- consider man-in-the middle attacks, we will add this soon so that connection receiver public key is optinally checked against a known value

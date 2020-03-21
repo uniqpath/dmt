@@ -1,4 +1,4 @@
-import Channel from './moleChannel';
+import MoleChannel from './moleChannel';
 
 import * as mole from './mole';
 
@@ -27,7 +27,7 @@ class RpcClient {
 
 class SpecificRpcClient {
   constructor(connectorOrServersideChannel, methodPrefix) {
-    this.moleChannel = new Channel(connectorOrServersideChannel);
+    this.moleChannel = new MoleChannel(connectorOrServersideChannel);
     this.methodPrefix = methodPrefix;
 
     this.connectorOrServersideChannel = connectorOrServersideChannel;

@@ -33,7 +33,11 @@ class Channels {
     }
   }
 
-  reportCount() {}
+  reportCount() {
+    if (dmt.isDevMachine()) {
+      console.log(`Open channels: ${this.channels.filter(ch => !ch.closed()).length}`);
+    }
+  }
 }
 
 export default Channels;

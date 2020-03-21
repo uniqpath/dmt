@@ -14,7 +14,7 @@ console.log(colors.cyan(`  — Private key: ${colors.gray(privateKeyHex)}`));
 console.log(colors.cyan(`  — Public key: ${colors.gray(publicKeyHex)}`));
 console.log();
 
-connect({ endpoint, protocol, clientPrivateKey: privateKey, clientPublicKey: publicKey, remotePubkey: undefined, debug: true }).then(connector => {
+connect({ endpoint, protocol, clientPrivateKey: privateKey, clientPublicKey: publicKey, remotePubkey: undefined, verbose: 'extra' }).then(connector => {
   connector.registerRemoteObject('ClientTestObject', { hello: () => 'CLIENT WORLD' });
   connector.registerRemoteObject('WisdomReceiver', { wisdom: msg => console.log(`Received quantum wisdom: ${colors.green(msg)}`) });
 

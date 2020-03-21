@@ -5,7 +5,6 @@ import { Server } from 'connectome';
 import { wsEndpoint as wsGuiEndpoint } from 'dmt-gui';
 import dmt from 'dmt-bridge';
 const { log } = dmt;
-const { bufferToHex } = dmt.util.hexutils;
 
 class WsServer {
   constructor(program) {
@@ -17,23 +16,36 @@ class WsServer {
       dmt_gui: wsGuiEndpoint(program)
     };
 
-    const keypair = dmt.keypair();
+    this.keypair = dmt.keypair();
 
-    this.server = new Server({ port, keypair, protocols });
+    if (this.keypair) {
+      log.write(`Initializing wsServer with public key ${colors.gray(this.keypair.publicKeyHex)}`);
 
-    log.cyan(`Starting wsServer on port ${colors.magenta(port)}`);
+      this.server = new Server({ port, keypair: this.keypair, protocols });
 
-    this.server.on('connection', channel => {
-      program.channels.add(channel);
-    });
+      log.cyan(`Starting wsServer on port ${colors.magenta(port)}`);
 
-    this.server.on('connection_closed', channel => {
-      log.gray(`wsServer ${channel.remoteIp()} closed`);
-    });
+      this.server.on('connection', channel => {
+        program.channels.add(channel);
+      });
 
-    this.server.on('protocol_added', protocol => {
-      log.gray(`Setup new ws protocol ${colors.cyan(protocol)}`);
-    });
+      this.server.on('connection_closed', channel => {
+        if (dmt.isDevMachine()) {
+          log.gray(`wsServer ${channel.remoteIp()} closed`);
+        }
+      });
+
+      this.server.on('protocol_added', protocol => {
+        log.gray(`Setup new ws protocol ${colors.cyan(protocol)}`);
+      });
+    } else {
+      log.red('WsServer not started because default keypair was not found for this device.');
+      log.red('GUI for localhost and dmt-apps will not work.');
+    }
+  }
+
+  ok() {
+    return !!this.keypair;
   }
 
   addProtocol(protocol, wsEndpoint) {
@@ -41,7 +53,9 @@ class WsServer {
   }
 
   start() {
-    this.server.start();
+    if (this.keypair) {
+      this.server.start();
+    }
   }
 }
 

@@ -22,7 +22,7 @@ const protocols = {
   quantum: wsEndpointQuantum
 };
 
-const server = new Server({ port: 3500, keypair, protocols });
+const server = new Server({ port: 3500, keypair, protocols, verbose: 'extra' });
 
 server.on('prepare_channel', channel => {
   channel.registerRemoteObject('ServerTestObject', { hello: () => 'WORLD' });

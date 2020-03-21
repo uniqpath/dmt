@@ -20,7 +20,7 @@ function wsEndpoint({ program, channel }) {
     channel.registerRemoteObject(handle, target);
   }
 
-  loadInitialView({ channel });
+  loadInitialView(channel);
 
   const state = reduceSizeOfStateForGUI(program.state);
   channel.send({ state });
@@ -34,7 +34,7 @@ function loadInitialView(channel) {
 
     if (idleView) {
       setTimeout(() => {
-        channel.send({ action: 'load', storeName: 'gui', payload: idleView });
+        channel.remoteObject('Frontend').call('reverseAction', { action: 'load', payload: idleView });
       }, 500);
     }
   }

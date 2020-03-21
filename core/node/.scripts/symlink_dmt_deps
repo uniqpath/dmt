@@ -34,6 +34,7 @@ declare -a DepList=(
 
   "aspect-connections/dmt-lanbus"
   "aspect-connections/dmt-nearby"
+  "aspect-connections/dmt-beats"
   "aspect-connections/dmt-rpc"
 
   "aspect-iot/dmt-iot"
@@ -231,6 +232,8 @@ else
   echo "Missing $dir"
 fi
 
-./symlink_apps "$arg"
+if [ -f ./symlink_apps ]; then
+  ./symlink_apps "$arg"
+fi
 
 ./symlink_user_core "$arg"

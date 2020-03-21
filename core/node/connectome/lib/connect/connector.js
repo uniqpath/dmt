@@ -68,6 +68,12 @@ class Connector extends EventEmitter {
         this.emit('wire_receive', { jsonData, rawMessage });
       }
     } else if (encryptedData) {
+      if (this.verbose == 'extra') {
+        console.log('Received bytes:');
+        console.log(encryptedData);
+        console.log(`Decrypting with shared secret ${this.sharedSecret}...`);
+      }
+
       const decryptedMessage = nacl.secretbox.open(encryptedData, nullNonce, this.sharedSecret);
       const decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
 
@@ -83,14 +89,9 @@ class Connector extends EventEmitter {
             console.log('Received and decrypted rpc result:');
             console.log(jsonData);
           }
+
           this.wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true });
         } else {
-          if (this.verbose) {
-            console.log('Received bytes:');
-            console.log(encryptedData);
-            console.log(`Decrypting with shared secret ${this.sharedSecret}...`);
-          }
-
           this.emit('wire_receive', { jsonData, rawMessage: decodedMessage });
         }
       } else {

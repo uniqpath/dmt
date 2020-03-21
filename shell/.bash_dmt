@@ -1086,7 +1086,10 @@ function dmt_next {
           git checkout master
           git reset --hard origin/master
 
-          printf "${GREEN}✓✓ Done fetching latest version via git.${NC}\n"
+          printf "${GREEN}✓✓ Done fetching latest version via git.${NC}\n\n"
+          printf "${CYAN}Please run ${GREEN}dmt restart${NC} ${CYAN}now${NC} ...\n\n"
+          printf "${GRAY}Sometimes it is recommended to reload the terminal shell as well:\n"
+          printf "→ try ${GREEN}rel${NC} ${GRAY}command or logout and back in.${NC}\n"
         else
           printf "${RED}Aborting fetch from unknown git source.${NC}"
         fi

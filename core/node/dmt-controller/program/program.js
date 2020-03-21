@@ -63,21 +63,32 @@ class Program extends EventEmitter {
     }
 
     if (mids.includes('apps')) {
-      let callCount = 0;
-      const afterTwoCalls = callback => {
-        callCount += 1;
-        if (callCount == 2) {
-          callback();
-        }
-      };
+      if (!this.wsServer.ok()) {
+        log.cyan(`Skipped ${colors.red('dmt-apps')} middleware because wsServer was not properly initialized`);
 
-      this.on('apps_loaded', () => {
-        afterTwoCalls(() => this.continueBooting());
-      });
+        loadMiddleware(
+          this,
+          mids.filter(mid => mid != 'apps')
+        ).then(() => {
+          this.continueBooting();
+        });
+      } else {
+        let callCount = 0;
+        const afterTwoCalls = callback => {
+          callCount += 1;
+          if (callCount == 2) {
+            callback();
+          }
+        };
 
-      loadMiddleware(this, mids).then(() => {
-        afterTwoCalls(() => this.continueBooting());
-      });
+        this.on('apps_loaded', () => {
+          afterTwoCalls(() => this.continueBooting());
+        });
+
+        loadMiddleware(this, mids).then(() => {
+          afterTwoCalls(() => this.continueBooting());
+        });
+      }
     } else {
       loadMiddleware(this, mids).then(() => {
         this.continueBooting();

@@ -4,12 +4,13 @@ import ServerInstance from './serverInstance';
 import AuthTarget from './authTarget';
 
 class Server extends EventEmitter {
-  constructor({ port, keypair, protocols = {} }) {
+  constructor({ port, keypair, protocols = {}, verbose }) {
     super();
 
     this.port = port;
     this.keypair = keypair;
     this.protocols = protocols;
+    this.verbose = verbose;
   }
 
   start() {
@@ -17,7 +18,7 @@ class Server extends EventEmitter {
       this.emit('protocol_added', protocol);
     }
 
-    this.server = new ServerInstance({ port: this.port });
+    this.server = new ServerInstance({ port: this.port, verbose: this.verbose });
 
     this.server.on('connection_closed', channel => this.emit('connection_closed', channel));
 

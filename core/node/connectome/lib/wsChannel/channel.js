@@ -18,9 +18,10 @@ function isObject(obj) {
 }
 
 class Channel extends EventEmitter {
-  constructor(ws) {
+  constructor(ws, { verbose }) {
     super();
     this.ws = ws;
+    this.verbose = verbose;
 
     this.protocol = ws.protocol;
 
@@ -80,6 +81,12 @@ class Channel extends EventEmitter {
 
   messageReceived(message) {
     if (this.sharedSecret) {
+      if (this.verbose == 'extra') {
+        console.log('Received bytes:');
+        console.log(message);
+        console.log(`Decrypting with shared secret ${this.sharedSecret}...`);
+      }
+
       try {
         const decryptedMessage = nacl.secretbox.open(message, nullNonce, this.sharedSecret);
         const decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
@@ -90,6 +97,16 @@ class Channel extends EventEmitter {
     }
 
     const jsonData = JSON.parse(message);
+
+    if (this.verbose) {
+      if (this.sharedSecret) {
+        console.log('Decrypted message:');
+      } else {
+        console.log('Received message:');
+      }
+      console.log(message);
+      console.log();
+    }
 
     if (jsonData.jsonrpc) {
       if (Object.keys(jsonData).includes('result') || Object.keys(jsonData).includes('error')) {
@@ -107,10 +124,29 @@ class Channel extends EventEmitter {
       message = JSON.stringify(message);
     }
 
+    if (this.verbose) {
+      if (this.sharedSecret) {
+        console.log('Sending encrypted message:');
+      } else {
+        console.log('Sending message:');
+      }
+
+      console.log(message);
+    }
+
     if (this.sharedSecret) {
       const encodedMessage = nacl.util.decodeUTF8(message);
       const encryptedMessage = nacl.secretbox(encodedMessage, nullNonce, this.sharedSecret);
       message = encryptedMessage;
+
+      if (this.verbose == 'extra') {
+        console.log('Encrypted bytes:');
+        console.log(encryptedMessage);
+      }
+    }
+
+    if (this.verbose) {
+      console.log();
     }
 
     if (!this.ws.terminated && this.ws.readyState == this.ws.OPEN) {
