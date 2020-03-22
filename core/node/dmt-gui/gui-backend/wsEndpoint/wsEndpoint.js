@@ -6,7 +6,7 @@ import reduceSizeOfStateForGUI from '../reduceSizeOfStateForGUI';
 import GuiRemoteTarget from './rpcTargets/guiRemoteTarget';
 import PlayerRemoteTarget from './rpcTargets/playerRemoteTarget';
 
-function wsEndpointWrapper(program) {
+function wsEndpointWrapper({ program }) {
   return channel => wsEndpoint({ program, channel });
 }
 

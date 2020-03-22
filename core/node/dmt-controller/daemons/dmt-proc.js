@@ -25,6 +25,7 @@ mids.push('iot/iot');
 
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
 
+mids.push('content/content');
 mids.push('content/samba');
 
 mids.push('meta/bash-exec');

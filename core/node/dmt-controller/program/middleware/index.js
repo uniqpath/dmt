@@ -79,6 +79,12 @@ class MidLoader {
     });
   }
 
+  predefinedSetup({ program, midInitData }) {
+    if (midInitData && midInitData.expressAppSetup) {
+      program.server.setupRoutes(midInitData.expressAppSetup);
+    }
+  }
+
   importComplex({ program, midDirectory, midPkgName }) {
     return new Promise((success, reject) => {
       import(midDirectory)
@@ -98,12 +104,14 @@ class MidLoader {
             const promise = promiseOrData;
             promise
               .then(midData => {
+                this.predefinedSetup({ midInitData: midData, program });
                 this.loadedMidsWithMidData[midPkgName] = midData || {};
                 success();
               })
               .catch(reject);
           } else {
             const midData = promiseOrData;
+            this.predefinedSetup({ midInitData: midData, program });
             this.loadedMidsWithMidData[midPkgName] = midData || {};
             success();
           }

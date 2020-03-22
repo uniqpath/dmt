@@ -15,17 +15,16 @@ class AuthTarget extends EventEmitter {
     this.keypair = keypair;
   }
 
-  exchangePubkeys({ pubkey, ackResult }) {
-    if (ackResult) {
-      this.emit('shared_secret', this.sharedSecret);
-      return;
-    }
-
+  exchangePubkeys({ pubkey }) {
     const remoteClientPubkey = hexToBuffer(pubkey);
 
     this.sharedSecret = nacl.box.before(remoteClientPubkey, this.keypair.privateKey);
 
     return this.keypair.publicKeyHex;
+  }
+
+  finalizeHandshake({ protocolLane }) {
+    this.emit('shared_secret', { sharedSecret: this.sharedSecret, protocolLane });
   }
 }
 

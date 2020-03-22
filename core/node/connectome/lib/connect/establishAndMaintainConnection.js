@@ -2,8 +2,11 @@ const browser = typeof window !== 'undefined';
 
 import Connector from './connector';
 
-function establishAndMaintainConnection({ obj, endpoint, protocol, clientPrivateKey, clientPublicKey, remotePubkey, resumeNow, verbose }, { WebSocket, log }) {
-  const connector = obj || new Connector({ verbose, clientPrivateKey, clientPublicKey });
+function establishAndMaintainConnection(
+  { obj, endpoint, protocol, protocolLane, clientPrivateKey, clientPublicKey, remotePubkey, resumeNow, verbose },
+  { WebSocket, log }
+) {
+  const connector = obj || new Connector({ protocolLane, clientPrivateKey, clientPublicKey, verbose });
 
   if (resumeNow) {
     checkConnection({ connector, endpoint, protocol }, { WebSocket, log, resumeNow });

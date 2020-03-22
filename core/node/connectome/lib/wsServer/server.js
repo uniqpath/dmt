@@ -3,19 +3,24 @@ import ServerInstance from './serverInstance';
 
 import AuthTarget from './authTarget';
 
+import ChannelList from '../wsChannel/channelList';
+
 class Server extends EventEmitter {
-  constructor({ port, keypair, protocols = {}, verbose }) {
+  constructor({ port, keypair, verbose }) {
     super();
 
     this.port = port;
     this.keypair = keypair;
-    this.protocols = protocols;
     this.verbose = verbose;
+
+    this.protocols = {};
   }
 
   start() {
     for (const protocol of Object.keys(this.protocols)) {
-      this.emit('protocol_added', protocol);
+      for (const lane of Object.keys(this.protocols[protocol])) {
+        this.emit('protocol_added', { protocol, lane });
+      }
     }
 
     this.server = new ServerInstance({ port: this.port, verbose: this.verbose });
@@ -25,18 +30,24 @@ class Server extends EventEmitter {
     this.server.on('connection', channel => this.initializeConnection({ channel }));
   }
 
-  addProtocol(protocol, wsEndpoint) {
+  addWsEndpoint({ protocol, lane, wsEndpoint }) {
     if (this.server) {
       throw new Error('Please make user to add all protocols before starting ws server.');
     }
 
-    this.emit('protocol_added', protocol);
+    this.emit('protocol_added', { protocol, lane });
 
     if (!this.protocols[protocol]) {
-      this.protocols[protocol] = wsEndpoint;
-    } else {
-      throw new Error(`Protocol ${protocol} already exists`);
+      this.protocols[protocol] = {};
     }
+
+    if (!this.protocols[protocol][lane]) {
+      const channelList = new ChannelList({ protocol, lane });
+      this.protocols[protocol][lane] = { wsEndpoint, channelList };
+      return channelList;
+    }
+
+    throw new Error(`Protocol lane ${protocol}/${lane} already exists`);
   }
 
   initializeConnection({ channel }) {
@@ -46,8 +57,10 @@ class Server extends EventEmitter {
 
     channel.registerRemoteObject('Auth', auth);
 
-    auth.on('shared_secret', sharedSecret => {
+    auth.on('shared_secret', ({ sharedSecret, protocolLane }) => {
       channel.setSharedSecret(sharedSecret);
+      channel.setLane(protocolLane);
+
       this.initializeProtocol(channel);
 
       this.emit('connection', channel);
@@ -55,12 +68,14 @@ class Server extends EventEmitter {
   }
 
   initializeProtocol(channel) {
-    const protocolEndpoint = this.protocols[channel.protocol];
+    if (this.protocols[channel.protocol] && this.protocols[channel.protocol][channel.lane]) {
+      const { wsEndpoint, channelList } = this.protocols[channel.protocol][channel.lane];
+      channelList.add(channel);
+      channel.list = channelList;
 
-    if (protocolEndpoint) {
-      protocolEndpoint(channel);
+      wsEndpoint(channel);
     } else {
-      console.log(`Error: unknown protocol ${channel.protocol}, disconnecting`);
+      console.log(`Error: unknown protocol ${channel.protocol}, lane: ${channel.protocol}, disconnecting`);
       channel.terminate();
     }
   }

@@ -39,6 +39,10 @@ class Channel extends EventEmitter {
     });
   }
 
+  setLane(protocolLane) {
+    this.lane = protocolLane;
+  }
+
   setSharedSecret(sharedSecret) {
     this.sharedSecret = sharedSecret;
   }

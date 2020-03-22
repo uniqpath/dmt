@@ -2,7 +2,6 @@ import colors from 'colors';
 
 import { Server } from 'connectome';
 
-import { wsEndpoint as wsGuiEndpoint } from 'dmt-gui';
 import dmt from 'dmt-bridge';
 const { log } = dmt;
 
@@ -12,31 +11,25 @@ class WsServer {
 
     const port = 7780;
 
-    const protocols = {
-      dmt_gui: wsGuiEndpoint(program)
-    };
-
     this.keypair = dmt.keypair();
 
     if (this.keypair) {
       log.write(`Initializing wsServer with public key ${colors.gray(this.keypair.publicKeyHex)}`);
 
-      this.server = new Server({ port, keypair: this.keypair, protocols });
+      this.server = new Server({ port, keypair: this.keypair });
 
       log.cyan(`Starting wsServer on port ${colors.magenta(port)}`);
 
-      this.server.on('connection', channel => {
-        program.channels.add(channel);
-      });
+      this.server.on('connection', channel => {});
 
       this.server.on('connection_closed', channel => {
         if (dmt.isDevMachine()) {
-          log.gray(`wsServer ${channel.remoteIp()} closed`);
+          console.log(colors.gray(`channel ${channel.protocol}/${channel.lane} from ip ${channel.remoteIp()} closed`));
         }
       });
 
-      this.server.on('protocol_added', protocol => {
-        log.gray(`Setup new ws protocol ${colors.cyan(protocol)}`);
+      this.server.on('protocol_added', ({ protocol, lane }) => {
+        log.gray(`Setup new ws protocol ${colors.cyan(protocol)}, lane: ${colors.cyan(lane)}`);
       });
     } else {
       log.red('WsServer not started because default keypair was not found for this device.');
@@ -48,8 +41,8 @@ class WsServer {
     return !!this.keypair;
   }
 
-  addProtocol(protocol, wsEndpoint) {
-    this.server.addProtocol(protocol, wsEndpoint);
+  addWsEndpoint({ protocol, lane, wsEndpoint }) {
+    return this.server.addWsEndpoint({ protocol, lane, wsEndpoint });
   }
 
   start() {

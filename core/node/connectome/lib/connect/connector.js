@@ -13,9 +13,10 @@ const nullNonce = new Uint8Array(new ArrayBuffer(24), 0);
 const { hexToBuffer, bufferToHex } = util;
 
 class Connector extends EventEmitter {
-  constructor({ verbose = false, clientPrivateKey, clientPublicKey } = {}) {
+  constructor({ protocolLane, clientPrivateKey, clientPublicKey, verbose = false } = {}) {
     super();
     this.verbose = verbose;
+    this.protocolLane = protocolLane;
 
     this.clientPrivateKey = clientPrivateKey;
     this.clientPublicKey = clientPublicKey;
@@ -37,7 +38,7 @@ class Connector extends EventEmitter {
     if (connected) {
       this.sentCounter = 0;
 
-      this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey })
+      this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, protocolLane: this.protocolLane })
         .then(({ sharedSecret, sharedSecretHex }) => {
           this.emit('connected', { sharedSecret, sharedSecretHex });
         })
@@ -138,7 +139,7 @@ class Connector extends EventEmitter {
     new RPCTarget({ serversideChannel: this, serverMethods: obj, methodPrefix: handle });
   }
 
-  diffieHellman({ clientPrivateKey, clientPublicKey }) {
+  diffieHellman({ clientPrivateKey, clientPublicKey, protocolLane }) {
     return new Promise((success, reject) => {
       this.remoteObject('Auth')
         .call('exchangePubkeys', { pubkey: bufferToHex(clientPublicKey) })
@@ -155,7 +156,7 @@ class Connector extends EventEmitter {
           }
 
           this.remoteObject('Auth')
-            .call('exchangePubkeys', { ackResult: true })
+            .call('finalizeHandshake', { protocolLane })
             .then(() => {})
             .catch(reject);
         })

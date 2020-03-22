@@ -12,7 +12,6 @@ import { setupTimeUpdater } from './interval/timeUpdater';
 import onProgramTick from './interval/onProgramTick';
 
 import Network from '../network';
-import Channels from './channels';
 import Server from '../server/mainHttpServer';
 import AppCustomPortHttpServer from '../server/appCustomPortHttpServer';
 import WsServer from '../server/mainWsServer';
@@ -40,11 +39,6 @@ class Program extends EventEmitter {
     this.server = new Server(this);
     this.appCustomPortHttpServer = new AppCustomPortHttpServer(this);
     this.wsServer = new WsServer(this);
-    this.channels = new Channels();
-
-    this.on('state_diff', ({ diff }) => {
-      this.channels.sendToAll('dmt_gui', { diff });
-    });
 
     this.state = { notifications: [] };
 
@@ -109,8 +103,8 @@ class Program extends EventEmitter {
     this.metaRPC.registerService(service);
   }
 
-  addWsProtocol(protocol, wsEndpoint) {
-    this.wsServer.addProtocol(protocol, wsEndpoint);
+  addWsEndpoint({ protocol, lane, wsEndpoint }) {
+    return this.wsServer.addWsEndpoint({ protocol, lane, wsEndpoint });
   }
 
   continueBooting() {
@@ -125,7 +119,7 @@ class Program extends EventEmitter {
 
     this.server.listen();
 
-    if (dmt.isDevMachine() || this.device.id == 'f-david') {
+    if (dmt.isDevMachine() || this.device.id == 'f-david' || this.device.id == 'theta') {
       this.appCustomPortHttpServer.listen();
     }
 

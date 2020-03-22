@@ -5,6 +5,7 @@ import colors from 'colors';
 import xstate from 'xstate';
 import quantum from 'quantum-generator';
 import nacl from 'tweetnacl';
+import * as connectome from 'connectome';
 import naclutil from 'tweetnacl-util';
 
 import util from './lib/util';
@@ -68,6 +69,7 @@ export default {
   nacl,
   xstate,
   quantum,
+  connectome,
   colors,
   search,
   def,

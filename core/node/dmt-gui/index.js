@@ -13,10 +13,21 @@ import loadGuiViewsDef from './loadGuiViewsDef';
 
 import reduceSizeOfStateForGUI from './gui-backend/reduceSizeOfStateForGUI';
 
-import wsEndpoint from './gui-backend/wsEndpoint/wsEndpoint';
+import makeWsEndpoint from './gui-backend/wsEndpoint/wsEndpoint';
 
 function init(program) {
   loadGuiViewsDef(program);
+
+  const protocol = 'dmt';
+  const lane = 'gui';
+
+  const wsEndpoint = makeWsEndpoint({ program });
+
+  const channelList = program.addWsEndpoint({ protocol, lane, wsEndpoint });
+
+  program.on('state_diff', ({ diff }) => {
+    channelList.sendToAll({ diff });
+  });
 
   program.on('send_to_connected_guis', ({ action, payload }) => {
     log.cyan(
@@ -29,7 +40,7 @@ function init(program) {
       loadGuiViewsDef(program);
     }
 
-    program.channels.remoteCallAll('dmt_gui', 'Frontend', 'reverseAction', { action, payload });
+    channelList.remoteCallAll('Frontend', 'reverseAction', { action, payload });
   });
 
   setTimeout(() => {
@@ -47,7 +58,6 @@ function init(program) {
       fs.unlink(reloadFile, err => {
         if (err) {
           log.red(err);
-          return;
         }
       });
     });
@@ -64,4 +74,4 @@ function init(program) {
   return { expressAppSetup };
 }
 
-export { init, reduceSizeOfStateForGUI, wsEndpoint };
+export { init, reduceSizeOfStateForGUI };

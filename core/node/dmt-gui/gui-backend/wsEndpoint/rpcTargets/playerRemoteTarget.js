@@ -1,7 +1,5 @@
 import EventEmitter from 'events';
 
-import dmt from 'dmt-bridge';
-
 class PlayerTarget extends EventEmitter {
   constructor({ program }) {
     super();
