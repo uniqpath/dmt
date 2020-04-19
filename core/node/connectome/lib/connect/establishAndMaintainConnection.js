@@ -3,10 +3,12 @@ const browser = typeof window !== 'undefined';
 import Connector from './connector';
 
 function establishAndMaintainConnection(
-  { obj, endpoint, protocol, protocolLane, clientPrivateKey, clientPublicKey, remotePubkey, resumeNow, verbose },
+  { obj, address, port, protocol, protocolLane, clientPrivateKey, clientPublicKey, clientInitData, remotePubkey, resumeNow, verbose },
   { WebSocket, log }
 ) {
-  const connector = obj || new Connector({ protocolLane, clientPrivateKey, clientPublicKey, verbose });
+  const endpoint = `ws://${address}:${port}`;
+
+  const connector = obj || new Connector({ address, protocolLane, clientPrivateKey, clientPublicKey, clientInitData, verbose });
 
   if (resumeNow) {
     checkConnection({ connector, endpoint, protocol }, { WebSocket, log, resumeNow });
@@ -109,10 +111,11 @@ function addSocketListeners({ ws, connector, openCallback }, { log }) {
   };
 
   const closeCallback = m => {
+    log(`websocket conn ${connector.connection.endpoint} closed`);
+
     if (connector.isConnected()) {
       connector.connectStatus(false);
     }
-    log(`websocket conn ${connector.connection.endpoint} closed`);
   };
 
   const messageCallback = _msg => {

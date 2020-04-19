@@ -444,6 +444,104 @@ export default {
     }
   },
 
+  checkIfIdAlreadyPresentInList(prop, list, _id) {
+    if (list.map(el => def.id(el)).includes(_id)) {
+      throw new Error(`an element of key=${prop} with id=${_id} already exists, please make sure all ids for key=${prop} are unique`);
+    }
+  },
+
+  prepareDefMerge({ fileList, key }) {
+    const toMerge = [];
+
+    for (const entry of fileList) {
+      let filePath = entry;
+      let secondLevel;
+
+      if (typeof entry !== 'string') {
+        filePath = entry.filePath;
+        secondLevel = entry.secondLevel;
+      }
+
+      if (fs.existsSync(filePath)) {
+        const results = secondLevel ? def.listify(def.parseFile(filePath).multi[0][key]) : def.parseFile(filePath).multi;
+
+        toMerge.push(...results);
+      }
+    }
+
+    return toMerge;
+  },
+
+  defMerge({ fileList, key }) {
+    const toMerge = this.prepareDefMerge({ fileList, key });
+
+    const results = [];
+
+    for (const entry of toMerge) {
+      const match = results.find(el => el.id == entry.id);
+
+      if (match) {
+        for (const k of Object.keys(entry)) {
+          match[k] = entry[k];
+        }
+      } else {
+        results.push(entry);
+      }
+    }
+
+    return results;
+  },
+
+  determineGUIPort() {
+    const isRootUser = username == 'root';
+
+    const ports = def.listify(this.services('gui').port);
+
+    const portForRootUser = ports.find(port => port.whenRootUser == 'true');
+
+    if (isRootUser && portForRootUser) {
+      return portForRootUser.id;
+    }
+
+    const normalPorts = ports.filter(port => port.whenRootUser != 'true');
+
+    if (normalPorts.length > 0) {
+      return def.id(normalPorts[0]);
+    }
+  },
+
+  services(serviceId) {
+    const name = 'services';
+    const deviceId = 'this';
+
+    const fileList = [];
+    fileList.push(path.join(dmtPath, `def/${name}.def`));
+    fileList.push(path.join(dmtUserDir, `def/${name}.def`));
+    fileList.push(path.join(dmtUserDir, `devices/${deviceId}/def/${name}.def`));
+    fileList.push({ filePath: path.join(dmtUserDir, `devices/${deviceId}/def/device.def`), secondLevel: true });
+
+    const services = this.defMerge({ fileList, key: 'service' });
+
+    const match = services.find(s => s.id == serviceId);
+    const service = match || { empty: true };
+    return serviceId ? def.makeTryable(service) : services;
+  },
+
+  accessTokens(service) {
+    const tokensDef = def.parseFile(path.resolve(dmtUserDir, 'access_tokens', `${service}.def`));
+    return tokensDef.multi.length > 0 ? tokensDef.multi[0] : null;
+  },
+
+  absolutizePath({ path, catalog, device }) {
+    if (catalog) {
+      return catalog.startsWith('/') ? catalog : require('path').join(dmtCatalogsDir, `${device.id}/${catalog}`);
+    }
+
+    if (path) {
+      return device.id == this.device().id ? path.replace(/^~/, homedir()) : path;
+    }
+  },
+
   thisProvider() {
     return {
       ip: 'localhost',
@@ -536,6 +634,7 @@ export default {
 
       return `@this/${contentRef}`;
     });
+
     return cliParser(contentRefs).map(parsed => this.convertParsedAtAttributeToDmtAccessData(parsed));
   },
 
@@ -562,99 +661,6 @@ export default {
       return 'localhost';
     }
     return hostData.ip || hostData.globalIp || hostData.host;
-  },
-
-  checkIfIdAlreadyPresentInList(prop, list, _id) {
-    if (list.map(el => def.id(el)).includes(_id)) {
-      throw new Error(`an element of key=${prop} with id=${_id} already exists, please make sure all ids for key=${prop} are unique`);
-    }
-  },
-
-  prepareDefMerge({ fileList, key }) {
-    const toMerge = [];
-
-    for (const entry of fileList) {
-      let filePath = entry;
-      let secondLevel;
-
-      if (typeof entry !== 'string') {
-        filePath = entry.filePath;
-        secondLevel = entry.secondLevel;
-      }
-
-      if (fs.existsSync(filePath)) {
-        const results = secondLevel ? def.listify(def.parseFile(filePath).multi[0][key]) : def.parseFile(filePath).multi;
-
-        toMerge.push(...results);
-      }
-    }
-
-    return toMerge;
-  },
-
-  defMerge({ fileList, key }) {
-    const toMerge = this.prepareDefMerge({ fileList, key });
-
-    const results = [];
-
-    for (const entry of toMerge) {
-      const match = results.find(el => el.id == entry.id);
-
-      if (match) {
-        for (const k of Object.keys(entry)) {
-          match[k] = entry[k];
-        }
-      } else {
-        results.push(entry);
-      }
-    }
-
-    return results;
-  },
-
-  determineGUIPort() {
-    const isRootUser = username == 'root';
-
-    const ports = def.listify(this.services('gui').port);
-
-    const portForRootUser = ports.find(port => port.whenRootUser == 'true');
-
-    if (isRootUser && portForRootUser) {
-      return portForRootUser.id;
-    }
-
-    const normalPorts = ports.filter(port => port.whenRootUser != 'true');
-
-    if (normalPorts.length > 0) {
-      return def.id(normalPorts[0]);
-    }
-  },
-
-  services(serviceId) {
-    const name = 'services';
-    const deviceId = 'this';
-
-    const fileList = [];
-    fileList.push(path.join(dmtPath, `def/${name}.def`));
-    fileList.push(path.join(dmtUserDir, `def/${name}.def`));
-    fileList.push(path.join(dmtUserDir, `devices/${deviceId}/def/${name}.def`));
-    fileList.push({ filePath: path.join(dmtUserDir, `devices/${deviceId}/def/device.def`), secondLevel: true });
-
-    const services = this.defMerge({ fileList, key: 'service' });
-
-    const match = services.find(s => s.id == serviceId);
-    const service = match || { empty: true };
-    return serviceId ? def.makeTryable(service) : services;
-  },
-
-  absolutizePath({ path, catalog, device }) {
-    if (catalog) {
-      return catalog.startsWith('/') ? catalog : require('path').join(dmtCatalogsDir, `${device.id}/${catalog}`);
-    }
-
-    if (path) {
-      return device.id == this.device().id ? path.replace(/^~/, homedir()) : path;
-    }
   },
 
   getContentIDs() {
@@ -795,10 +801,5 @@ export default {
     }
 
     return { error: colors.gray(`DMT Resolver is not recognizing hostname ${colors.yellow(deviceName)}`) };
-  },
-
-  accessTokens(service) {
-    const tokensDef = def.parseFile(path.resolve(dmtUserDir, 'access_tokens', `${service}.def`));
-    return tokensDef.multi.length > 0 ? tokensDef.multi[0] : null;
   }
 };

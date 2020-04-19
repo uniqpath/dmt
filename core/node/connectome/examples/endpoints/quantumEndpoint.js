@@ -1,6 +1,6 @@
 import quantum from 'quantum-generator';
 
-function setupEndpoint(channel) {
+function setupEndpoint({ channel }) {
   const send = () => {
     if (!channel.closed()) {
       channel

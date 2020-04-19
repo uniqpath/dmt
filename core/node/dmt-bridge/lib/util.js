@@ -1,7 +1,7 @@
 import colors from 'colors';
 import stopwatch from './stopwatch';
 
-import colorJson from './colorJson';
+import colorJSON from './colorJSON';
 import deepmerge from './utilities/deepmerge';
 
 import random from './utilities/just/array-random';
@@ -71,7 +71,7 @@ export default {
     return Array(Math.max(digits - String(number).length + 1, 0)).join(0) + number;
   },
   dir(obj) {
-    console.log(colorJson(obj));
+    console.log(colorJSON(obj));
   },
   round(value, decimals = 2) {
     const factor = 10 ** decimals;

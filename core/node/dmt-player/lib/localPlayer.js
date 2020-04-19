@@ -229,23 +229,25 @@ class LocalPlayer {
     this.paste();
   }
 
-  async bump(args) {
-    const rangePatternOrStr = args.join(' ');
+  async bump(args = '') {
+    const rangePatternOrStr = args;
 
     if (rangePatternOrStr.match(/[a-zA-Z]/)) {
-      this.playlist.bumpSearch(rangePatternOrStr);
-    } else if (rangePatternOrStr.trim() == '') {
-      this.playlist.bumpSelected();
-    } else {
-      this.playlist.bump(rangePatternOrStr);
+      return this.playlist.bumpSearch(rangePatternOrStr);
     }
+
+    if (rangePatternOrStr.trim() == '') {
+      return this.playlist.bumpSelected();
+    }
+
+    return this.playlist.bump(rangePatternOrStr);
   }
 
   async shuffle() {
     this.playlist.shuffle();
   }
 
-  repeatIncrease() {
+  async repeat() {
     const maxRepeat = 3;
 
     let { repeatCount } = this.program.state.player;
@@ -261,6 +263,8 @@ class LocalPlayer {
     }
 
     this.program.updateState({ player: { repeatCount } });
+
+    return { repeatCount };
   }
 
   decrementLimit() {
@@ -411,7 +415,7 @@ class LocalPlayer {
 
       this.playlist.broadcastPlaylistState();
 
-      success();
+      success({ limit });
     });
   }
 

@@ -1,16 +1,16 @@
 import EventEmitter from '../emitter';
 
 class ChannelList extends EventEmitter {
-  constructor({ protocol, lane }) {
+  constructor({ protocol, protocolLane }) {
     super();
 
     this.protocol = protocol;
-    this.lane = lane;
+    this.protocolLane = protocolLane;
 
     this.channels = [];
 
     process.nextTick(() => {
-      this.reportCount();
+      this.reportStatus();
     });
   }
 
@@ -19,12 +19,12 @@ class ChannelList extends EventEmitter {
 
     channel.on('channel_closed', () => {
       this.channels.splice(this.channels.indexOf(channel), 1);
-      this.reportCount();
+      this.reportStatus();
     });
 
     this.emit('new_channel', channel);
 
-    this.reportCount();
+    this.reportStatus();
   }
 
   sendToAll(msg) {
@@ -44,9 +44,28 @@ class ChannelList extends EventEmitter {
     }
   }
 
-  reportCount() {
-    const num = this.channels.length;
-    this.emit('status', { num });
+  multiCall(remoteObjectHandle, method, args) {
+    const promises = this.channels.map(channel => channel.remoteObject(remoteObjectHandle).call(method, args));
+    return Promise.all(promises);
+  }
+
+  reportStatus() {
+    const connList = this.channels.map(channel => {
+      const result = { ip: channel.remoteIp(), remotePubkey: channel.remotePubkey() };
+
+      const clientInitData = channel.clientInitData();
+      if (clientInitData) {
+        for (const key of Object.keys(result)) {
+          delete clientInitData[key];
+        }
+
+        Object.assign(result, clientInitData);
+      }
+
+      return result;
+    });
+
+    this.emit('status', { connList });
   }
 }
 

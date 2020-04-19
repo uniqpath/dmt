@@ -8,7 +8,7 @@ import dmt from './parsers/def/dmtHelper';
 import dmtUtil from './util';
 import scan from './scan';
 
-import colorJson from './colorJson';
+import colorJSON from './colorJSON';
 import ScreenOutput from './loggerScreenOutput';
 
 const device = dmt.device({ onlyBasicParsing: true });
@@ -122,7 +122,7 @@ class Logger {
 
   dir(obj) {
     if (obj) {
-      const cj = colorJson(obj);
+      const cj = colorJSON(obj);
       this.logOutput(colors.white, { skipMeta: true }, cj);
     }
   }
@@ -141,7 +141,7 @@ class Logger {
 
       if (obj) {
         this.logOutput(colors.gray, Object.assign(commonOpts, { onlyToFile: true }), obj);
-        console.log(colorJson(obj));
+        console.log(colorJSON(obj));
       }
     }
   }

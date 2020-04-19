@@ -1,15 +1,5 @@
 #!/bin/bash
 
-function build_essential {
-  sudo apt-get update
-  sudo apt-get -y install build-essential tar unzip curl git screen ntp zip tree lsof colordiff rsync
-}
-
-function build_essential_full {
-  sudo apt-get update
-  sudo apt-get -y install build-essential zlib1g-dev libpcre3 libpcre3-dev libbz2-dev libssl-dev libreadline-dev tar unzip curl git screen dh-autoreconf make pkg-config cmake lsof ntp highlight net-tools zip tree lsof colordiff rsync
-}
-
 #######################################
 ### DEVICE DISCOVERY AND NETWORKING ###
 #######################################

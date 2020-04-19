@@ -3,11 +3,9 @@ import _establishAndMaintainConnection from './establishAndMaintainConnection';
 
 const { log } = util;
 
-function establishAndMaintainConnection({ obj, endpoint, protocol, protocolLane, clientPrivateKey, clientPublicKey, resumeNow, verbose }) {
+function establishAndMaintainConnection(opts) {
   return new Promise(success => {
-    success(
-      _establishAndMaintainConnection({ obj, endpoint, protocol, protocolLane, clientPrivateKey, clientPublicKey, resumeNow, verbose }, { WebSocket, log })
-    );
+    success(_establishAndMaintainConnection(opts, { WebSocket, log }));
   });
 }
 

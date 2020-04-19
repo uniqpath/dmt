@@ -1,5 +1,5 @@
 import colors from 'colors';
-import colorJson from '../lib/colorJson';
+import colorJSON from '../lib/colorJSON';
 import def from '../lib/parsers/def/parser';
 
 function help() {
@@ -25,7 +25,7 @@ const args = process.argv.slice(2);
   try {
     const parsed = def.parseFile(args[0]).multi;
     const obj = parsed.length == 1 ? parsed[0] : parsed;
-    console.log(colorJson(obj));
+    console.log(colorJSON(obj));
   } catch (e) {
     console.log(colors.red(e.toString()));
   }

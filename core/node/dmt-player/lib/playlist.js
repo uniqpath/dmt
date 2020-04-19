@@ -331,20 +331,22 @@ class Playlist {
   bump(rangePattern) {
     if (rangePattern) {
       const songIDs = numberRanges.orderedMatchingNumbers({ rangePattern });
-      this.bumpSongIDs(songIDs);
+      return this.bumpSongIDs(songIDs);
     }
   }
 
   bumpSelected() {
-    this.bumpSongIDs(this.selectedIDs());
+    const result = this.bumpSongIDs(this.selectedIDs());
     this.deselectAll();
+    return result;
   }
 
   bumpSearch(terms) {
     const currentSongId = this.currentSongId();
 
     const songIDs = this.playlist.filter(songInfo => songInfo.id > currentSongId && search(songInfo.title, terms)).map(songInfo => songInfo.id);
-    this.bumpSongIDs(songIDs);
+
+    return this.bumpSongIDs(songIDs);
   }
 
   bumpSongIDs(songIDs) {
@@ -360,6 +362,10 @@ class Playlist {
 
     this.renumberPlaylist();
     this.broadcastPlaylistState();
+
+    return insertSongList.map(song => {
+      return { title: song.title, path: song.path };
+    });
   }
 
   insert(files) {

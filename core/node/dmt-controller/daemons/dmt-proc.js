@@ -18,7 +18,6 @@ mids.push('user');
 mids.push('player');
 mids.push('search');
 mids.push('apps');
-mids.push('crypto');
 mids.push('connections/lanbus');
 mids.push('connections/nearby');
 mids.push('iot/iot');

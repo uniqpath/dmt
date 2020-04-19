@@ -31,6 +31,7 @@ declare -a DepList=(
   "dmt-apps"
 
   "connectome"
+  "dmt-js"
 
   "aspect-connections/dmt-lanbus"
   "aspect-connections/dmt-nearby"
@@ -47,6 +48,7 @@ declare -a DepList=(
   "aspect-meta/dmt-holidays"
   "aspect-meta/dmt-meta"
   "aspect-meta/dmt-replicate"
+  "aspect-meta/dmt-cli"
 )
 
 # HELPER FUNCTIONS

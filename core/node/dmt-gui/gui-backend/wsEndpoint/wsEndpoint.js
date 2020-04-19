@@ -7,7 +7,7 @@ import GuiRemoteTarget from './rpcTargets/guiRemoteTarget';
 import PlayerRemoteTarget from './rpcTargets/playerRemoteTarget';
 
 function wsEndpointWrapper({ program }) {
-  return channel => wsEndpoint({ program, channel });
+  return ({ channel }) => wsEndpoint({ program, channel });
 }
 
 function wsEndpoint({ program, channel }) {

@@ -1,52 +1,23 @@
 import colors from 'colors';
 
-import dmt from 'dmt-bridge';
-const { cli } = dmt;
+import { ipcClient } from 'dmt-cli';
 
-import { errorFormatter } from 'dmt-rpc';
+const args = process.argv.slice(2);
 
-import { SearchClient, aggregateSearchResultsFormatter } from '../index';
-
-function help() {
-  console.log(colors.cyan('\n'));
+if (args.length < 1) {
   console.log(colors.yellow('Usage:'));
-  console.log(
-    `${colors.green('search [terms] [depth=1]')} ${colors.gray('Searches local and remote providers (and their providers up to depth n) for file resources')}`
-  );
-}
-
-if (process.argv.length > 2 && process.argv[2] == '-h') {
-  help();
   process.exit();
 }
 
+const action = 'search';
+
+const payload = args.join(' ');
+
 try {
-  const allArgs = process.argv.slice(2);
-
-  const { terms, atDevices, attributeOptions } = cli(allArgs);
-
-  const clientMaxResults = attributeOptions.count;
-
-  (async () => {
-    const promises = [];
-
-    for (const device of atDevices) {
-      const client = new SearchClient(device, { mediaType: attributeOptions.media });
-      promises.push(client.search({ terms, clientMaxResults, contentRef: device.contentRef }));
-    }
-
-    Promise.all(promises)
-      .then(allResults => {
-        for (const results of allResults) {
-          aggregateSearchResultsFormatter(results);
-        }
-        process.exit();
-      })
-      .catch(e => {
-        errorFormatter(e, { host: '' });
-        process.exit();
-      });
-  })();
+  ipcClient({ actorName: 'search', action, payload }).then(response => {
+    console.log(response);
+    process.exit();
+  });
 } catch (e) {
-  console.log(colors.red(e.message));
+  console.log(e);
 }

@@ -5,6 +5,8 @@ import EventEmitter from '../emitter';
 
 nacl.util = naclutil;
 
+import streamFile from '../binary/streamFile';
+
 const nullNonce = new Uint8Array(new ArrayBuffer(24), 0);
 
 import util from '../util';
@@ -39,16 +41,32 @@ class Channel extends EventEmitter {
     });
   }
 
-  setLane(protocolLane) {
-    this.lane = protocolLane;
+  setProtocolLane(protocolLane) {
+    this.protocolLane = protocolLane;
   }
 
   setSharedSecret(sharedSecret) {
     this.sharedSecret = sharedSecret;
   }
 
+  setClientInitData(clientInitData) {
+    this._clientInitData = clientInitData;
+  }
+
+  clientInitData() {
+    return this._clientInitData;
+  }
+
   remoteIp() {
     return this.ws.remoteIp;
+  }
+
+  setRemotePubkey(remotePubkeyHex) {
+    this.remotePubkeyHex = remotePubkeyHex;
+  }
+
+  remotePubkey() {
+    return this.remotePubkeyHex;
   }
 
   remoteObject(handle) {
@@ -57,6 +75,10 @@ class Channel extends EventEmitter {
         return this.reverseRpcClient.remoteObject(handle).call(methodName, util.listify(params));
       }
     };
+  }
+
+  streamFile({ filePath, sessionId }) {
+    streamFile({ filePath, sessionId, channel: this });
   }
 
   terminate() {
@@ -118,6 +140,8 @@ class Channel extends EventEmitter {
       } else {
         this.emit('json_rpc', message);
       }
+    } else if (jsonData.tag == 'request_file') {
+      this.streamFile(jsonData);
     } else {
       this.emit('message', message);
     }
@@ -139,7 +163,7 @@ class Channel extends EventEmitter {
     }
 
     if (this.sharedSecret) {
-      const encodedMessage = nacl.util.decodeUTF8(message);
+      const encodedMessage = typeof message == 'string' ? nacl.util.decodeUTF8(message) : message;
       const encryptedMessage = nacl.secretbox(encodedMessage, nullNonce, this.sharedSecret);
       message = encryptedMessage;
 

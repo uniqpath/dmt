@@ -299,28 +299,34 @@ function dmt {
       dmt_renew "$@"
       ;;
 
-    install)
-      dmt_install "$@"
-      ;;
+    # install)
+    #   dmt_update "$@"
+    #   ;;
 
     deactivate)
       dmt_deactivate
       ;;
 
     link)
-      local cwd="`pwd`"
-      cd "$DMT_NODE_CORE/.scripts"
-      ./symlink_dmt_deps
-      printf "${GREEN}Linked.${NC}\n"
-      cd "$cwd"
+      local dir="$DMT_NODE_CORE/.scripts"
+      if [ -d "$dir" ]; then
+        local cwd="`pwd`"
+        cd "$dir"
+        ./symlink_dmt_deps
+        printf "${GREEN}Linked.${NC}\n"
+        cd "$cwd"
+      fi
       ;;
 
     unlink)
-      local cwd="`pwd`"
-      cd "$DMT_NODE_CORE/.scripts"
-      ./symlink_dmt_deps "remove"
-      printf "${MAGENTA}Unlinked.${NC}\n"
-      cd "$cwd"
+      local dir="$DMT_NODE_CORE/.scripts"
+      if [ -d "$dir" ]; then
+        local cwd="`pwd`"
+        cd "$dir"
+        ./symlink_dmt_deps "remove"
+        printf "${MAGENTA}Unlinked.${NC}\n"
+        cd "$cwd"
+      fi
       ;;
 
     checklink)
@@ -484,15 +490,18 @@ function reload_shell {
   # if [ -f "$DMT_PATH/shell/compile" ]; then
   #   compile
   # fi
+  # if [ -f ~/.bash_aliases ]; then
+  #   . ~/.bash_aliases
+  # fi
 
-  if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-  fi
   if [ -f ~/.bashrc ]; then
     . ~/.bashrc
   fi
   if [ -f ~/.bash_profile ]; then
     . ~/.bash_profile
+  fi
+  if [ -f ~/.profile ]; then
+    . ~/.profile
   fi
 
   printf "${GREEN}Shell reloaded ✓${NC}\n"
@@ -1161,22 +1170,6 @@ function dmt_next_help {
   # OPTION D - regular url with port included: dmt next dmt-system.com:1111
 }
 
-function dmt_install {
-  # multi install: dmt update dev1 dev2 ... devn
-  if [ -n "$2" ]; then
-    for dev in "$@"
-    do
-      dmt_install "$dev"
-    done
-    return
-  fi
-
-  local cwd="`pwd`"
-  cd "$DMT_PATH"
-  . ./install "$@" # calling with . preserves the newly loaded env
-  cd "$cwd"
-}
-
 function dmt_update {
   dmt_symlink_nodejs_deps
 
@@ -1187,50 +1180,15 @@ function dmt_update {
   else
     compile_gui_if_missing
 
-    dmt_install "$@"
+    local cwd="`pwd`"
+    cd "$DMT_PATH"
+    . ./install "$@" # calling with . preserves the newly loaded env
+    cd "$cwd"
   fi
 }
 
 function dmt_renew {
-  dmt_symlink_nodejs_deps
-
-  # supports multi install: dmt renew dev1 dev2 ... devN
-  if [ -z "$2" ]; then
-    dmt_update "$1"
-    restart_remote_device "$1"
-  else
-    #dmt_symlink_nodejs_deps
-    compile_gui_if_missing
-
-    for device in "$@"
-    do
-      dmt_renew "$device"
-    done
-  fi
-}
-
-function restart_remote_device {
-  local cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-renew ]; then ~/.dmt/etc/deploy_hooks/before-renew; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
-
-  local host="$1"
-
-  if [ "$host" == "ap" ]; then
-    host="$DMT_AP_DEFAULT_HOST"
-  else
-    local matching_host=''
-    local ssh_port=''
-    get_full_host matching_host ssh_port "$host"
-    if [ $? -ne 1 ]; then # not error
-      host="$matching_host"
-    fi
-  fi
-
-  if [ -n "$host" ]; then
-    remote -h "$host" --port "$ssh_port" "$cmd"
-  else
-    printf "${RED}Unknown host${NC}\n"
-  fi
-  #fi
+  dmt_update --restart "$@"
 }
 
 function dmt_deactivate {
