@@ -9,7 +9,6 @@
   "author": "davidhq",
   "license": "ISC",
   "dependencies": {
-    "@small-tech/express-ws": "^1.0.1",
     "acorn": "^6.1.1",
     "apn": "^2.2.0",
     "archiver": "^3.0.0",
@@ -26,10 +25,8 @@
     "fs-extra": "^7.0.1",
     "gextend": "^0.3.0",
     "handlebars": "^4.1.0",
-    "homedir": "^0.6.0",
     "ip": "^1.1.5",
     "isbinaryfile": "^4.0.0",
-    "jayson": "^2.1.2",
     "mime-types": "^2.1.24",
     "mqtt": "^2.18.8",
     "multihashes": "^0.4.14",
