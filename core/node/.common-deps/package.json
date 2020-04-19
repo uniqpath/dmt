@@ -9,7 +9,7 @@
   "author": "davidhq",
   "license": "ISC",
   "dependencies": {
-    "acorn": "^6.1.1",
+    "acorn": "^6.4.1",
     "apn": "^2.2.0",
     "archiver": "^3.0.0",
     "axios": "^0.18.1",
