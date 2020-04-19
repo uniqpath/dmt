@@ -1,8 +1,10 @@
 import parse from './parser';
 
 function example(argsStr) {
-  console.log(parse(argsStr.split(' ')));
+  console.log(parse(argsStr));
 }
+
+example('');
 
 example('@lunar');
 example('@lunar/music');

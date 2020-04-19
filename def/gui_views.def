@@ -69,8 +69,6 @@ view: apps
 
 ---
 
----
-
 view: device
   wallpaper: /wallpapers/fantasy/mr_robot3.jpg
     theme: dmt_default

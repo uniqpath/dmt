@@ -1,6 +1,6 @@
 import colors from 'colors';
 
-import ipcCall from '../../dmt-controller/program/ipc/client';
+import { ipcClient } from 'dmt-cli';
 
 const args = process.argv.slice(2);
 
@@ -10,14 +10,14 @@ if (args.length < 1) {
   process.exit();
 }
 
-let payload;
-
-if (args.length > 1) {
-  payload = args[1];
-}
+const action = args[0];
+const payload = args.slice(1).join(' ');
 
 try {
-  ipcCall({ storeName: 'gui', action: args[0], payload });
+  ipcClient({ storeName: 'gui', action, payload }).then(response => {
+    console.log(colors.green('ok'));
+    process.exit();
+  });
 } catch (e) {
   console.log(e);
 }

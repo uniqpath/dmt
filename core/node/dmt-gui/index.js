@@ -19,11 +19,11 @@ function init(program) {
   loadGuiViewsDef(program);
 
   const protocol = 'dmt';
-  const lane = 'gui';
+  const protocolLane = 'gui';
 
   const wsEndpoint = makeWsEndpoint({ program });
 
-  const channelList = program.addWsEndpoint({ protocol, lane, wsEndpoint });
+  const channelList = program.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
 
   program.on('state_diff', ({ diff }) => {
     channelList.sendToAll({ diff });

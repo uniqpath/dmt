@@ -12,16 +12,26 @@ const nullNonce = new Uint8Array(new ArrayBuffer(24), 0);
 
 const { hexToBuffer, bufferToHex } = util;
 
+function isObject(obj) {
+  return obj !== undefined && obj !== null && obj.constructor == Object;
+}
+
 class Connector extends EventEmitter {
-  constructor({ protocolLane, clientPrivateKey, clientPublicKey, verbose = false } = {}) {
+  constructor({ protocolLane, clientPrivateKey, clientPublicKey, clientInitData, verbose = false, address } = {}) {
     super();
-    this.verbose = verbose;
+
     this.protocolLane = protocolLane;
 
     this.clientPrivateKey = clientPrivateKey;
     this.clientPublicKey = clientPublicKey;
+    this.clientPublicKeyHex = bufferToHex(clientPublicKey);
+
+    this.clientInitData = clientInitData;
 
     this.rpcClient = new RpcClient(this);
+
+    this.address = address;
+    this.verbose = verbose;
   }
 
   isConnected() {
@@ -76,15 +86,14 @@ class Connector extends EventEmitter {
       }
 
       const decryptedMessage = nacl.secretbox.open(encryptedData, nullNonce, this.sharedSecret);
-      const decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
-
-      let jsonData;
+      let decodedMessage;
 
       try {
-        jsonData = JSON.parse(decodedMessage);
+        decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
       } catch (e) {}
 
-      if (jsonData) {
+      if (decodedMessage) {
+        const jsonData = JSON.parse(decodedMessage);
         if (jsonData.jsonrpc) {
           if (this.verbose) {
             console.log('Received and decrypted rpc result:');
@@ -92,19 +101,39 @@ class Connector extends EventEmitter {
           }
 
           this.wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true });
+        } else if (jsonData.tag) {
+          const msg = jsonData;
+
+          if (msg.tag == 'binary_start') {
+            this.emit(msg.tag, { mimeType: msg.mimeType, fileName: msg.fileName, sessionId: msg.sessionId });
+          } else if (msg.tag == 'binary_end') {
+            this.emit(msg.tag, { sessionId: msg.sessionId });
+          } else {
+            this.emit('wire_receive', { jsonData, rawMessage: decodedMessage });
+          }
         } else {
           this.emit('wire_receive', { jsonData, rawMessage: decodedMessage });
         }
       } else {
-        this.wireReceive({ binaryData: decodedMessage });
+        const binaryData = decryptedMessage;
+
+        const sessionId = Buffer.from(binaryData.buffer, binaryData.byteOffset, 64).toString();
+        const binaryPayload = Buffer.from(binaryData.buffer, binaryData.byteOffset + 64);
+
+        this.emit('binary_data', { sessionId, data: binaryPayload });
       }
     }
   }
 
   send(data) {
+    if (isObject(data)) {
+      data = JSON.stringify(data);
+    }
+
     if (this.isConnected()) {
       if (this.sentCounter > 1) {
-        const encodedMessage = nacl.util.decodeUTF8(data);
+        const encodedMessage = typeof data == 'string' ? nacl.util.decodeUTF8(data) : data;
+
         const encryptedMessage = nacl.secretbox(encodedMessage, nullNonce, this.sharedSecret);
 
         if (this.verbose) {
@@ -142,11 +171,13 @@ class Connector extends EventEmitter {
   diffieHellman({ clientPrivateKey, clientPublicKey, protocolLane }) {
     return new Promise((success, reject) => {
       this.remoteObject('Auth')
-        .call('exchangePubkeys', { pubkey: bufferToHex(clientPublicKey) })
+        .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
         .then(remotePubkey => {
           const sharedSecret = nacl.box.before(hexToBuffer(remotePubkey), clientPrivateKey);
           const sharedSecretHex = bufferToHex(sharedSecret);
           this.sharedSecret = sharedSecret;
+
+          this.remotePubkeyHex = remotePubkey;
 
           success({ sharedSecret, sharedSecretHex });
 
@@ -156,12 +187,30 @@ class Connector extends EventEmitter {
           }
 
           this.remoteObject('Auth')
-            .call('finalizeHandshake', { protocolLane })
-            .then(() => {})
+            .call('finalizeHandshake', { protocolLane, expectHelloData: !!this.clientInitData })
+            .then(() => {
+              if (this.clientInitData) {
+                this.remoteObject('Hello')
+                  .call('hello', this.clientInitData)
+                  .catch(reject);
+              }
+            })
             .catch(reject);
         })
         .catch(reject);
     });
+  }
+
+  clientPubkey() {
+    return this.clientPublicKeyHex;
+  }
+
+  remotePubkey() {
+    return this.remotePubkeyHex;
+  }
+
+  remoteIp() {
+    return this.address;
   }
 
   close() {

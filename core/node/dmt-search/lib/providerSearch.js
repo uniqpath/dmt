@@ -1,13 +1,15 @@
-import jayson from 'jayson';
 import stopwatch from 'pretty-hrtime';
 
 import dmt from 'dmt-bridge';
 
+import { serializeArgs } from 'dmt-search';
+
 import contentSearch from './contentSearch';
 
 class ProviderSearch {
-  constructor({ provider, mediaType }) {
+  constructor({ provider, connector, mediaType }) {
     this.mediaType = mediaType;
+    this.connector = connector;
 
     this.providerHost = provider.host;
     this.providerAddress = dmt.hostAddress(provider);
@@ -15,31 +17,14 @@ class ProviderSearch {
     this.localContentId = provider.contentRef;
 
     this.localhost = provider.localhost;
-
-    if (!this.localhost) {
-      let port;
-      if (provider.hostType == 'dns') {
-        port = 80;
-      } else {
-        port = provider.port || dmt.services('rpc').port;
-      }
-      this.rpcClient = jayson.client.http(`http://${this.providerAddress}:${port}`);
-    }
   }
 
-  searchResponse({ results, contentId }) {
-    if (results.error) {
-      return results;
+  searchResponse({ response, contentId }) {
+    if (!response.error) {
+      Object.assign(response.meta, { totalCount: response.results.length, providerHost: this.providerHost, providerAddress: this.providerAddress, contentId });
     }
 
-    if (Array.isArray(results)) {
-      if (results.length == 1) {
-        return results[0];
-      }
-      return { meta: {}, results };
-    }
-
-    return { meta: Object.assign(results.meta, { totalCount: results.results.length, contentId }), results: results.results };
+    return response;
   }
 
   promisifyRpcRequest(command, options) {
@@ -60,8 +45,8 @@ class ProviderSearch {
   localSearch(contentId, { terms, clientMaxResults, mediaType, onlySearchCatalogs }) {
     return new Promise((success, reject) => {
       contentSearch(contentId, { terms, clientMaxResults, mediaType: mediaType || this.mediaType, onlySearchCatalogs })
-        .then(results => {
-          success(this.searchResponse({ results, contentId }));
+        .then(response => {
+          success(this.searchResponse({ response, contentId }));
         })
         .catch(reject);
     });
@@ -91,10 +76,17 @@ class ProviderSearch {
           .then(success)
           .catch(reject);
       } else {
-        dmt
-          .promiseTimeout(dmt.globals.networkLimit.maxTimeOneHop, this.promisifyRpcRequest('search', Object.assign(options, { contentRef: contentId })))
+        const args = serializeArgs({ terms, mediaType, count: clientMaxResults, contentRef: contentId });
+
+        this.connector
+          .remoteObject('actors')
+          .call('call', ['search', 'search', args])
           .then(response => {
-            success(this.searchResponse({ results: response.result, contentId }));
+            if (Array.isArray(response) && response.length == 1) {
+              response = response[0];
+            }
+
+            success(this.searchResponse({ response, contentId }));
           })
           .catch(error => {
             success({ error: error.message });

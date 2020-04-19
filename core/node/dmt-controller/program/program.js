@@ -4,8 +4,8 @@ import colors from 'colors';
 import dmt from 'dmt-bridge';
 const { log } = dmt;
 
-import * as controllerRPCService from '../rpc/service';
-import MetaRPC from './metaRPC';
+import initControllerActor from '../actor';
+import Actors from './actors';
 
 import initIntervalTicker from './interval';
 import { setupTimeUpdater } from './interval/timeUpdater';
@@ -22,7 +22,9 @@ import initStore from './boot/initStore';
 import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
 import loadMiddleware from './boot/loadMiddleware';
 
-import ipcServe from './ipc/server';
+import generateKeypair from './generateKeypair';
+import ipcServer from './ipcServer/server';
+import wsEndpoint from './wsEndpoint/wsEndpoint';
 
 class Program extends EventEmitter {
   constructor({ mids }) {
@@ -38,7 +40,6 @@ class Program extends EventEmitter {
     this.network = new Network(this);
     this.server = new Server(this);
     this.appCustomPortHttpServer = new AppCustomPortHttpServer(this);
-    this.wsServer = new WsServer(this);
 
     this.state = { notifications: [] };
 
@@ -48,7 +49,15 @@ class Program extends EventEmitter {
 
     log.cyan('Program booting ...');
 
-    this.metaRPC = new MetaRPC(this);
+    generateKeypair();
+
+    this.actors = new Actors(this);
+
+    this.wsServer = new WsServer(this);
+
+    const protocol = 'dmt';
+    const protocolLane = 'fiber';
+    this.addWsEndpoint({ protocol, protocolLane, wsEndpoint: wsEndpoint({ program: this, actors: this.actors }) });
 
     if (dmt.isRPi()) {
       this.updateState({ controller: { isRPi: true } }, { announce: false });
@@ -99,12 +108,16 @@ class Program extends EventEmitter {
     return this.responsibleNode;
   }
 
-  registerRpcService(service) {
-    this.metaRPC.registerService(service);
+  registerActor(actor) {
+    this.actors.register(actor);
   }
 
-  addWsEndpoint({ protocol, lane, wsEndpoint }) {
-    return this.wsServer.addWsEndpoint({ protocol, lane, wsEndpoint });
+  actor(name) {
+    return this.actors.get(name);
+  }
+
+  addWsEndpoint({ protocol, protocolLane, wsEndpoint }) {
+    return this.wsServer.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
   }
 
   continueBooting() {
@@ -112,18 +125,19 @@ class Program extends EventEmitter {
 
     initIntervalTicker(this);
 
-    this.registerRpcService(controllerRPCService);
-    this.metaRPC.registrationsFinished();
+    initControllerActor(this);
 
     this.wsServer.start();
 
     this.server.listen();
 
-    if (dmt.isDevMachine() || this.device.id == 'f-david' || this.device.id == 'theta') {
+    const { allowFollowers } = dmt.fiberInfo();
+
+    if (allowFollowers) {
       this.appCustomPortHttpServer.listen();
     }
 
-    ipcServe(this);
+    ipcServer(this);
     log.green('Started IPC server');
 
     log.green('✓✓ Program ready');

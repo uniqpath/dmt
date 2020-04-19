@@ -382,12 +382,17 @@ function dirsync {
     local full_delete=false
     local ssh_port
 
-    for arg in "$@"
-    do
+    local excludes=""
+
+    for arg in "$@"; do
       case "$arg" in
         "--dmt_with_user" )
           dmt_with_user=true
           shift
+          ;;
+        "--exclude" )
+          excludes="${excludes} --exclude ${2}"
+          shift 2
           ;;
         "--dry" )
           dry="--dry-run"
@@ -451,7 +456,9 @@ function dirsync {
     # --protect-args :: https://unix.stackexchange.com/questions/104618/how-to-rsync-over-ssh-when-directory-names-have-spaces
     # haven't encountered a problem here yet (only in a backup script where directory name had a space in argument), not sure if the problem would apply here: todo - check
     # just in case, we include this option because it doesn't hurt
-    local params="-a $symlinks $checksum $dry --protect-args --progress --exclude .DS_Store"
+    local params="-a $symlinks $checksum $dry --protect-args --progress"
+
+    excludes="${excludes} --exclude .DS_Store"
 
     if ! $no_delete ; then
       params="${params} --delete"
@@ -507,12 +514,12 @@ function dirsync {
       # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules/optimist
       # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules
       # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules
-      rsync $params --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$" | grep -v ".gitignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+      rsync $params $excludes --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$" | grep -v ".gitignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
       return
     fi
 
     if $total; then
-      rsync $params  -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+      rsync $params $excludes -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
       return
     fi
 
@@ -524,7 +531,7 @@ function dirsync {
       params="${params} --exclude-from ./.deployignore"
     fi
 
-    rsync $params -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+    rsync $params $excludes -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
 
     echo
   fi

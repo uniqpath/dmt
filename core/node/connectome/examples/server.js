@@ -18,11 +18,12 @@ console.log(colors.cyan(`  — Private key: ${colors.gray(privateKeyHex)}`));
 console.log(colors.cyan(`  — Public key: ${colors.gray(publicKeyHex)}`));
 console.log();
 
-const protocols = {
-  quantum: wsEndpointQuantum
-};
+const protocol = 'quantum';
+const protocolLane = 'generator';
 
-const server = new Server({ port: 3500, keypair, protocols, verbose: 'extra' });
+const server = new Server({ port: 3500, keypair, verbose: 'extra' });
+
+server.addWsEndpoint({ protocol, protocolLane, wsEndpoint: wsEndpointQuantum });
 
 server.on('prepare_channel', channel => {
   channel.registerRemoteObject('ServerTestObject', { hello: () => 'WORLD' });

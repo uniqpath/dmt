@@ -1,13 +1,53 @@
 import dmt from 'dmt-bridge';
-const { log } = dmt;
+import stopwatch from 'pretty-hrtime';
 
 import ProviderSearch from './providerSearch';
+import contentSearch from './contentSearch';
+const { log } = dmt;
+
+const { Fanout } = dmt.connectome;
 
 class SearchClient {
   constructor(providers, { mediaType } = {}) {
-    this.providers = providers;
+    this.providers = providers.map(provider => Object.assign(provider, { providerAddress: dmt.hostAddress(provider) }));
 
-    this.searchArray = dmt.util.listify(providers).map(provider => new ProviderSearch({ provider, mediaType }));
+    const port = 7780;
+    const protocol = 'dmt';
+    const protocolLane = 'fiber';
+
+    const keypair = dmt.keypair();
+    if (!keypair) {
+      console.log('Missing keypair, not connecting fibers...');
+      return;
+    }
+
+    const localProviders = dmt.util.listify(providers).filter(provider => provider.localhost);
+    const remoteProviders = dmt.util.listify(providers).filter(provider => !provider.localhost);
+
+    this.searchArray = localProviders.map(provider => new ProviderSearch({ provider, mediaType }));
+
+    const addressList = [
+      ...new Set(
+        remoteProviders.map(provider => {
+          return provider.providerAddress;
+        })
+      )
+    ];
+
+    const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
+
+    this.fanout = new Fanout({ addressList, protocol, protocolLane, port, clientPrivateKey, clientPublicKey });
+
+    this.fanout.connect().then(connectors => {
+      for (const provider of remoteProviders) {
+        const connector = connectors.find(({ address }) => provider.providerAddress == address);
+        if (connector) {
+          this.searchArray.push(new ProviderSearch({ provider, mediaType, connector }));
+        } else {
+          throw new Error(`Connector with address ${provider.providerAddress} couldn't be found -- shouldn't happen`);
+        }
+      }
+    });
   }
 
   async search({ terms, clientMaxResults, mediaType, contentRef }) {
@@ -22,26 +62,7 @@ class SearchClient {
         .then(allResults => {
           log.debug('All results from search client', { obj: allResults });
 
-          const aggregateResults = this.searchArray.map((providerSearch, index) => {
-            const addedMetadata = {
-              providerHost: providerSearch.providerHost,
-              providerAddress: providerSearch.providerAddress
-            };
-
-            if (allResults[index].error) {
-              return {
-                meta: addedMetadata,
-                error: allResults[index].error
-              };
-            }
-
-            return {
-              meta: Object.assign(allResults[index].meta, addedMetadata),
-              results: allResults[index].results
-            };
-          });
-
-          success(aggregateResults);
+          success(allResults);
         })
         .catch(reject);
     });

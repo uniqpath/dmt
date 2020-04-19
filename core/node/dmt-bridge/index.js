@@ -5,8 +5,10 @@ import colors from 'colors';
 import xstate from 'xstate';
 import quantum from 'quantum-generator';
 import nacl from 'tweetnacl';
-import * as connectome from 'connectome';
 import naclutil from 'tweetnacl-util';
+
+import * as connectome from 'connectome';
+import { stores } from 'dmt-js';
 
 import util from './lib/util';
 import scan from './lib/scan';
@@ -65,11 +67,12 @@ function memoryUsage() {
 export default {
   log,
   util,
+  connectome,
+  stores,
   scan,
   nacl,
   xstate,
   quantum,
-  connectome,
   colors,
   search,
   def,
@@ -163,11 +166,11 @@ export default {
     const fiber = helper.fiber();
 
     const connections = def.listify(fiber.connect);
-    const hasFiberServer = def.id(fiber.server) == 'true';
+    const allowFollowers = def.id(fiber.server) == 'true';
 
-    const result = { hasFiberServer, connections, fiber };
+    const result = { allowFollowers, connections, fiber };
 
-    if (hasFiberServer) {
+    if (allowFollowers) {
       const authorizedKeys = def.values(fiber.try('server.authorizedKeys.pubkey'));
       Object.assign(result, { authorizedKeys });
     }

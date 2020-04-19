@@ -3,9 +3,7 @@
 # basic functions -- we need this for color definitions etc.
 . ./shell/.shell_basic
 
-arg="$1"
-
-if [ "$arg" == "--help" ] || [  "$arg" == "-h" ]; then
+if [ "$1" == "--help" ] || [  "$1" == "-h" ]; then
   printf "${MAGENTA}∞ DMT ∞ ${CYAN}v$(cat "$DMT_PATH/.version")${NC}\n"
   echo
   printf "${WHITE}Install or update ${MAGENTA}.dmt${NC} scripts and shortcuts on this or any remote ${CYAN}Linux / macOS ${NC}machine (by using ssh).\n"
@@ -64,7 +62,7 @@ function check_node_js_version {
   fi
 }
 
-if [ -z "$arg" ]; then # install here
+if [ -z "$1" ]; then # install here
 
     COMPILED_BASH_ALIASES="$HOME/.dmt/etc/.bash_aliases_bundle"
 
@@ -137,31 +135,83 @@ else # clone to and install on remote device
     # we need this for dirsync, remote and get_full_host functions
     . ./shell/.shell_advanced
 
-    host="$arg"
+    flags=""
+    excludes=""
+    RESTART=false
 
-    if [ "$host" == "ap" ]; then
-      host="$DMT_AP_DEFAULT_HOST"
-      ssh_port=22
-    else
-      matching_host=''
-      ssh_port=''
-      get_full_host matching_host ssh_port "$host"
-      if [ $? -ne 1 ]; then # not error
-        host="$matching_host"
+    # bash cli parser, source: https://medium.com/@Drew_Stokes/bash-argument-parsing-54f3b81a6a8f
+    ARGS=()
+    while (( "$#" )); do
+      case "$1" in
+        --shell)
+          excludes="${excludes} --exclude core --exclude bin --exclude user/wallpapers --exclude etc/sounds --exclude etc/videotest"
+          flags="${flags} --shell"
+          shift 1
+          ;;
+        --no-apps)
+          excludes="${excludes} --exclude core/node/aspect-apps" # wrapping directory in single quotes won't work in this case by the time it reaches rsync command inside dirsync.. but it's ok, we don't need it
+          flags="${flags} --no-apps"
+          shift 1
+          ;;
+        --restart)
+          flags="${flags} --restart"
+          RESTART=true
+          shift 1
+          ;;
+        --) # end argument parsing
+          shift
+          break
+          ;;
+        -*|--*=) # unsupported flags
+          echo "Error: Unsupported flag $1" >&2
+          exit 1
+          ;;
+        *) # preserve positional arguments
+          ARGS+=($1)
+          shift
+          ;;
+      esac
+    done
+
+    len=${#ARGS[@]}
+
+    if [ $len == 1 ]; then
+      host=${ARGS[0]}
+
+      if [ "$host" == "ap" ]; then
+        host="$DMT_AP_DEFAULT_HOST"
+        ssh_port=22
+      else
+        matching_host=''
+        ssh_port=''
+        get_full_host matching_host ssh_port "$host"
+        if [ $? -ne 1 ]; then # not error
+          host="$matching_host"
+        fi
       fi
+
+      if [ -z "$host" ]; then
+        printf "${RED}Host not known${NC}\n"
+        return
+      fi
+
+      target="${host}:.dmt"
+
+      printf "${CYAN}Installing on ${YELLOW}$host:$ssh_port${NC}\n"
+
+      dirsync $excludes --port $ssh_port ~/.dmt "$target"
+
+      remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
+
+      if $RESTART; then
+        restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-renew ]; then ~/.dmt/etc/deploy_hooks/before-renew; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
+        remote -h "$host" --port "$ssh_port" "$restart_cmd"
+      fi
+    else
+      for host in "${ARGS[@]}"
+      do
+        ./install $flags "$host"
+      done
     fi
-
-    if [ -z "$host" ]; then
-      printf "${RED}Host not known${NC}\n"
-      return
-    fi
-
-    target="${host}:.dmt"
-
-    printf "${CYAN}Installing on ${YELLOW}$host:$ssh_port${NC}\n"
-
-    dirsync --port $ssh_port ~/.dmt "$target"
-
-    remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
 
 fi

@@ -92,15 +92,9 @@ function parseArg(arg) {
 }
 
 function parseCommandArguments(args) {
-  let parsedArgs = [];
-
-  for (const arg of args) {
-    if (arg.includes(' ')) {
-      parsedArgs.push(...arg.split(' ').map(arg => parseArg(arg)));
-    } else {
-      parsedArgs.push(parseArg(arg));
-    }
+  if (typeof args == 'string') {
+    args = args.split(' ').filter(str => str != '');
   }
 
-  return parsedArgs;
+  return args.map(arg => parseArg(arg));
 }

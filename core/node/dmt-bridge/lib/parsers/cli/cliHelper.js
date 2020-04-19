@@ -20,7 +20,7 @@ function parseArgs(allArgs) {
   }
 
   const atArguments = parsedArgs.filter(arg => arg.type == 'attr');
-  const terms = parsedArgs.map(arg => (arg.term ? arg.originalArg : arg)).filter(arg => typeof arg == 'string');
+  const terms = parsedArgs.map(arg => (arg.term ? arg.originalArg : arg)).filter(arg => typeof arg == 'string' && arg.trim() != '');
 
   const atDevices = [];
 

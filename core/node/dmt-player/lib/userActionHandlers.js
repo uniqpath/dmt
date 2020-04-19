@@ -36,7 +36,7 @@ function userActionHandlers({ program, player }) {
           player.shuffle().catch(log.red);
           break;
         case 'repeat_increase':
-          player.repeatIncrease();
+          player.repeat();
           break;
         case 'stop':
           player.stop().catch(log.red);

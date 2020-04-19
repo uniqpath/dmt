@@ -45,7 +45,7 @@ class SpecificRpcClient {
   call(methodName, params) {
     if (this.connectorOrServersideChannel.closed()) {
       return new Promise((success, reject) => {
-        reject(new Error(`Method call [${methodName}] on closed channel ignored. Please add a check for closed channel in your code.`));
+        reject(new Error(`Method call [${methodName}] on closed channel or connector ignored. Please add a check for closed channel in your code.`));
       });
     } else {
       return this.client.callMethod(`${this.methodPrefix}::${methodName}`, params);

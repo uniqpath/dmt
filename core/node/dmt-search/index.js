@@ -1,12 +1,12 @@
 import SearchClient from './lib/searchClient';
 import MusicSearch from './lib/mediaSearch/musicSearch';
 import VideoSearch from './lib/mediaSearch/videoSearch';
-import aggregateSearchResultsFormatter from './lib/presenters/aggregateResultsFormatter';
+import { parseArgs, serializeArgs } from './lib/args';
 
-import rpcService from './rpc/service';
+import initActor from './actor';
 
 function init(program) {
-  rpcService(program);
+  initActor(program);
 }
 
-export { init, SearchClient, MusicSearch, VideoSearch, aggregateSearchResultsFormatter };
+export { init, parseArgs, serializeArgs, SearchClient, MusicSearch, VideoSearch };

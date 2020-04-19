@@ -8,8 +8,9 @@ class PlayerTarget extends EventEmitter {
 
   action(action, args) {
     return new Promise((success, reject) => {
-      this.program.metaRPC
-        .call('player', action, args)
+      this.program
+        .actor('player')
+        .call(action, args)
         .then(success)
         .catch(reject);
     });

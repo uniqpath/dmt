@@ -24,12 +24,12 @@ class WsServer {
 
       this.server.on('connection_closed', channel => {
         if (dmt.isDevMachine()) {
-          console.log(colors.gray(`channel ${channel.protocol}/${channel.lane} from ip ${channel.remoteIp()} closed`));
+          console.log(colors.gray(`channel ${channel.protocol}/${channel.protocolLane} from ip ${channel.remoteIp()} closed`));
         }
       });
 
-      this.server.on('protocol_added', ({ protocol, lane }) => {
-        log.gray(`Setup new ws protocol ${colors.cyan(protocol)}, lane: ${colors.cyan(lane)}`);
+      this.server.on('protocol_added', ({ protocol, protocolLane }) => {
+        log.gray(`Setup new ws protocol ${colors.cyan(protocol)}/${colors.cyan(protocolLane)}`);
       });
     } else {
       log.red('WsServer not started because default keypair was not found for this device.');
@@ -41,8 +41,8 @@ class WsServer {
     return !!this.keypair;
   }
 
-  addWsEndpoint({ protocol, lane, wsEndpoint }) {
-    return this.server.addWsEndpoint({ protocol, lane, wsEndpoint });
+  addWsEndpoint({ protocol, protocolLane, wsEndpoint }) {
+    return this.server.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
   }
 
   start() {

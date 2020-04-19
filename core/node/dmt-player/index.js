@@ -1,7 +1,7 @@
-import rpcService from './rpc/service';
+import initActor from './actor';
 
 function init(program) {
-  rpcService(program);
+  initActor(program);
 }
 
 export { init };
