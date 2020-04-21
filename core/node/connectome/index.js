@@ -5,6 +5,8 @@ import util from './lib/util';
 import connect from './lib/connect/connectNode';
 import connectBrowser from './lib/connect/connectBrowser';
 
+import FiberPool from './lib/fiberPool/fiberPool';
+
 import Fanout from './lib/graph/fanout';
 
 import Server from './lib/wsServer/server';
@@ -21,4 +23,4 @@ function newKeypair() {
   return { privateKey: keys.secretKey, publicKey: keys.publicKey, privateKeyHex, publicKeyHex };
 }
 
-export { connect, connectBrowser, Server, newKeypair, Fanout };
+export { connect, connectBrowser, FiberPool, Server, newKeypair, Fanout };

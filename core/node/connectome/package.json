@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "colors": "^1.4.0",
+    "pretty-hrtime": "^1.0.3",
     "quantum-generator": "^1.9.1",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",

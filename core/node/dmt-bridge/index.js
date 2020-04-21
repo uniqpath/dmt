@@ -201,8 +201,8 @@ export default {
     return helper.deviceDefFile('this', 'keys');
   },
 
-  convertParsedAtAttributeToDmtAccessData(attrData) {
-    return helper.convertParsedAtAttributeToDmtAccessData(attrData);
+  parseProviderReference(attrData) {
+    return helper.parseProviderReference(attrData);
   },
 
   constructProvider(device) {
@@ -256,7 +256,6 @@ export default {
   dmtPath: helper.dmtPath,
   userDir: helper.userDir,
   catalogsDir: helper.catalogsDir,
-  thisProvider: helper.thisProvider,
   assetsDir: path.join(helper.dmtPath, 'core/assets'),
   accessTokensDir: path.join(helper.userDir, 'access_tokens'),
   isMacOS: () => {

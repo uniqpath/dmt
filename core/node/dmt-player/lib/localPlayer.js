@@ -125,7 +125,9 @@ class LocalPlayer {
       if (files.length == 0) {
         if (this.hasLoadedMedia()) {
           this.engine.play().then(() => {
-            success();
+            this.status()
+              .then(success)
+              .catch(reject);
           });
         } else {
           if (this.playlist.isEmpty()) {
@@ -135,7 +137,9 @@ class LocalPlayer {
 
           this.playCurrent()
             .then(() => {
-              success();
+              this.status()
+                .then(success)
+                .catch(reject);
             })
             .catch(() => {
               log.red('Playback error');

@@ -20,6 +20,10 @@ function generate() {
   if (!fs.existsSync(keyDefFilePath)) {
     log.write('Default keypair for this device not present. Generating ...');
     generateKeyPair(keyDefFilePath);
+
+    if (!dmt.keypair()) {
+      log.red('Warning: keypair generation failed...');
+    }
   }
 }
 

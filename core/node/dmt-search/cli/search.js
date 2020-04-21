@@ -1,6 +1,6 @@
 import colors from 'colors';
 
-import { ipcClient } from 'dmt-cli';
+import { ipcClient, aggregateSearchResultsFormatter, colorJSON } from 'dmt-cli';
 
 const args = process.argv.slice(2);
 
@@ -13,11 +13,12 @@ const action = 'search';
 
 const payload = args.join(' ');
 
-try {
-  ipcClient({ actorName: 'search', action, payload }).then(response => {
-    console.log(response);
+ipcClient({ actorName: 'search', action, payload })
+  .then(response => {
+    aggregateSearchResultsFormatter(response);
+    process.exit();
+  })
+  .catch(e => {
+    console.log(colors.red(e.message));
     process.exit();
   });
-} catch (e) {
-  console.log(e);
-}

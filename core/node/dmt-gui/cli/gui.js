@@ -13,11 +13,11 @@ if (args.length < 1) {
 const action = args[0];
 const payload = args.slice(1).join(' ');
 
-try {
-  ipcClient({ storeName: 'gui', action, payload }).then(response => {
+ipcClient({ storeName: 'gui', action, payload })
+  .then(response => {
     console.log(colors.green('ok'));
     process.exit();
+  })
+  .catch(() => {
+    process.exit();
   });
-} catch (e) {
-  console.log(e);
-}

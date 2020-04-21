@@ -87,8 +87,10 @@ function playHandler({ args, action }, { searchClient, player }) {
   return new Promise((success, reject) => {
     if (action.command == 'play') {
       if (args.terms.length == 0) {
-        player.play();
-        success([]);
+        player
+          .play()
+          .then(success)
+          .catch(reject);
         return;
       }
 

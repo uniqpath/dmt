@@ -542,15 +542,7 @@ export default {
     }
   },
 
-  thisProvider() {
-    return {
-      ip: 'localhost',
-      localhost: true,
-      address: 'localhost'
-    };
-  },
-
-  convertParsedAtAttributeToDmtAccessData(attrData) {
+  parseProviderReference(attrData) {
     let host = attrData.name;
 
     const deviceDefPresent = !this.deviceDefIsMissing(host);
@@ -635,7 +627,7 @@ export default {
       return `@this/${contentRef}`;
     });
 
-    return cliParser(contentRefs).map(parsed => this.convertParsedAtAttributeToDmtAccessData(parsed));
+    return cliParser(contentRefs).map(parsed => this.parseProviderReference(parsed));
   },
 
   maxResults(serviceId = 'search') {

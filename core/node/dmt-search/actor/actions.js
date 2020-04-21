@@ -3,6 +3,8 @@ const { log } = dmt;
 
 import { parseArgs } from '../lib/args';
 
+import MultiProviderSearch from '../lib/multiProviderSearch';
+
 function getActions() {
   const actions = [];
 
@@ -19,9 +21,15 @@ function infoHandler() {
   });
 }
 
-function searchHandler({ args, action }, { searchClient }) {
+function searchHandler({ args, action }, { program }) {
   return new Promise((success, reject) => {
     const options = parseArgs({ args, actorName: 'search' });
+
+    const { atDevices } = options;
+
+    delete options.atDevices;
+
+    const searchClient = new MultiProviderSearch({ program, providers: atDevices });
 
     searchClient
       .search(options)
@@ -31,7 +39,8 @@ function searchHandler({ args, action }, { searchClient }) {
       .catch(e => {
         log.red('Error in search service:');
         log.red(e);
-        reject(new Error(e.error));
+
+        reject(e);
       });
   });
 }

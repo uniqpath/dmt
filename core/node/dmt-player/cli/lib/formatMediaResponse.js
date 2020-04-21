@@ -51,8 +51,14 @@ function printResponse(command, response, args) {
   }
 
   if (searchRelatedCommands.includes(command)) {
-    aggregateSearchResultsFormatter(response, resultMap);
-    printSuccessOrErrorStatus(response);
+    if (command == 'play' && args == '') {
+      console.log(colors.green(`Song   : ${response.status.currentMedia.song}`));
+      console.log(colors.cyan(`Volume : ${response.status.volume}`));
+
+      printSuccessOrErrorStatus(response);
+    } else {
+      aggregateSearchResultsFormatter(response, resultMap);
+    }
   } else if (printResponseOutputCommands.includes(command)) {
     console.log(colorJSON(response));
     printSuccessOrErrorStatus(response);

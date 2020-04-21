@@ -8,19 +8,24 @@ function aggregateResultsFormatter(aggregateResults, resultMap) {
     const cnt = meta.contentId ? `${colors.gray('/')}${colors.cyan(meta.contentId)}` : '';
 
     console.log(
-      `\n${colors.green('Provider')}: ${colors.magenta(`@${meta.providerHost}`)}${cnt} ${
+      `\n${colors.green('Content')} → ${colors.magenta(`@${meta.providerHost}`)}${cnt} ${
         providerResponse.providerAddress ? colors.gray(`(${meta.providerAddress})`) : ''
       } ${colors.yellow(meta && meta.fallbackMsg ? `● ${meta.fallbackMsg}` : '')}`
     );
     if (providerResponse.error) {
-      console.log(`⮑ ${meta.providerHost} ${colors.red(providerResponse.error.toString())}`);
+      console.log(colors.red(`⮑  ⚠️  Error: ${providerResponse.error}`));
     } else {
       resultsFormatter(providerResponse.results, resultMap);
-      const { totalCount, searchTime } = meta;
+      const { totalCount, searchTime, totalDuration } = meta;
 
       let time = '';
       if (searchTime) {
-        time = colors.gray(` ■ ${colors.green(searchTime)}`);
+        const tag = meta.providerAddress == 'localhost' ? 'local' : 'remote';
+        time += colors.gray(` ■ ${colors.green(searchTime)} (${tag} fs)`);
+      }
+
+      if (totalDuration) {
+        time += colors.gray(` ■ ${colors.cyan(totalDuration)} (total roundtrip)`);
       }
 
       if (totalCount > 0) {
@@ -32,6 +37,7 @@ function aggregateResultsFormatter(aggregateResults, resultMap) {
       } else {
         console.log(colors.gray(`No results${time}`));
       }
+      console.log(colors.green('⮑  Success'));
     }
   }
 }

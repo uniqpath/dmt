@@ -15,11 +15,12 @@ const action = args[0];
 
 const payload = args.slice(1).join(' ');
 
-try {
-  ipcClient({ actorName: 'player', action, payload }).then(response => {
+ipcClient({ actorName: 'player', action, payload })
+  .then(response => {
     formatMediaResponse(action, response, payload);
     process.exit();
+  })
+  .catch(e => {
+    console.log(colors.red(e.message));
+    process.exit();
   });
-} catch (e) {
-  console.log(e);
-}

@@ -27,12 +27,12 @@ function parseArgs(allArgs) {
   atDevices.push(
     ...atArguments
       .filter(arg => !arg.value)
-      .map(device => dmt.convertParsedAtAttributeToDmtAccessData(device))
+      .map(device => dmt.parseProviderReference(device))
       .filter(k => k.host)
   );
 
   if (atDevices.length == 0) {
-    atDevices.push(dmt.convertParsedAtAttributeToDmtAccessData(parser(['@this'])[0]));
+    atDevices.push(dmt.parseProviderReference(parser(['@this'])[0]));
   }
 
   atDevices.forEach(device => {

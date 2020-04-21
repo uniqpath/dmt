@@ -6,6 +6,7 @@ const { log } = dmt;
 
 import initControllerActor from '../actor';
 import Actors from './actors';
+import { FiberPool } from 'connectome';
 
 import initIntervalTicker from './interval';
 import { setupTimeUpdater } from './interval/timeUpdater';
@@ -23,7 +24,7 @@ import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
 import loadMiddleware from './boot/loadMiddleware';
 
 import generateKeypair from './generateKeypair';
-import ipcServer from './ipcServer/server';
+import ipcServer from './ipcServer/ipcServer';
 import wsEndpoint from './wsEndpoint/wsEndpoint';
 
 class Program extends EventEmitter {
@@ -55,9 +56,7 @@ class Program extends EventEmitter {
 
     this.wsServer = new WsServer(this);
 
-    const protocol = 'dmt';
-    const protocolLane = 'fiber';
-    this.addWsEndpoint({ protocol, protocolLane, wsEndpoint: wsEndpoint({ program: this, actors: this.actors }) });
+    this.setupFiberNet();
 
     if (dmt.isRPi()) {
       this.updateState({ controller: { isRPi: true } }, { announce: false });
@@ -118,6 +117,24 @@ class Program extends EventEmitter {
 
   addWsEndpoint({ protocol, protocolLane, wsEndpoint }) {
     return this.wsServer.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
+  }
+
+  setupFiberNet() {
+    const port = 7780;
+    const protocol = 'dmt';
+    const protocolLane = 'fiber';
+
+    this.addWsEndpoint({ protocol, protocolLane, wsEndpoint: wsEndpoint({ program: this, actors: this.actors }) });
+
+    const keypair = dmt.keypair();
+    if (!keypair) {
+      log.red('Missing keypair, not preparing fiber pool...');
+      return;
+    }
+
+    const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
+
+    this.fiberPool = new FiberPool({ protocol, protocolLane, port, clientPrivateKey, clientPublicKey });
   }
 
   continueBooting() {

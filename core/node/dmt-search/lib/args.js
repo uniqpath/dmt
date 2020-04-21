@@ -9,7 +9,7 @@ function parseArgs({ args, actorName, defaultMediaType }) {
     const clientMaxResults = attributeOptions.count;
     const { contentRef } = attributeOptions;
 
-    args = { terms, mediaType, clientMaxResults, contentRef };
+    args = { terms, mediaType, clientMaxResults, atDevices, contentRef };
   }
 
   const { serverMaxResults } = dmt.maxResults(actorName);

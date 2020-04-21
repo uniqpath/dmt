@@ -18,6 +18,7 @@ function call(request) {
       });
 
       ipc.of.server.on('disconnect', () => {
+        reject(new Error('DISCONNECTED: Is dmt-proc running?'));
         ipc.log('disconnected from world'.notice);
       });
 

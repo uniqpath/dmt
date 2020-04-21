@@ -1,7 +1,7 @@
 import dmt from 'dmt-bridge';
 const { def } = dmt;
 
-import { SearchClient } from 'dmt-search';
+import { MultiProviderSearch } from 'dmt-search';
 import LocalPlayer from '../lib/localPlayer';
 
 function setup({ program }) {
@@ -13,7 +13,7 @@ function setup({ program }) {
   const contentRefs = def.values(playerInfo.contentRef);
   const providers = dmt.providersFromContentRefs(contentRefs);
 
-  const searchClient = new SearchClient(providers);
+  const searchClient = new MultiProviderSearch({ program, providers });
   const player = new LocalPlayer({ program });
 
   return { searchClient, player };
