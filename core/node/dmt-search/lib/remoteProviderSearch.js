@@ -1,5 +1,5 @@
 import dmt from 'dmt-bridge';
-const { stopwatch } = dmt;
+const { log, stopwatchAdv, prettyTime } = dmt;
 
 import { serializeArgs } from 'dmt-search';
 
@@ -23,7 +23,7 @@ class RemoteProviderSearch {
       if (!this.localhost) {
         const args = serializeArgs({ terms, mediaType: mediaType || this.mediaType, count: clientMaxResults, contentRef: contentId });
 
-        const start = stopwatch.start();
+        const start = stopwatchAdv.start();
 
         this.connector
           .remoteObject('actors')
@@ -33,19 +33,28 @@ class RemoteProviderSearch {
               response = response[0];
             }
 
-            const duration = stopwatch.stop(start);
+            const { duration: totalDuration } = stopwatchAdv.stop(start);
 
-            success(this.searchResponse({ response, contentId, duration }));
+            const { searchTime } = response.meta;
+
+            const networkTime = totalDuration - searchTime;
+            const networkTimePretty = prettyTime(networkTime);
+
+            success(this.searchResponse({ response, contentId, networkTime, networkTimePretty }));
           })
           .catch(error => {
             let message;
             if (error.errorCode == 'CLOSED_CHANNEL') {
               message = 'provider currently unreachable';
-              success({ error: message || error.message, meta: this.basicMetaInfo() });
+              success({ meta: this.basicMetaInfo(), error: message || error.message });
+            } else {
+              log.red('Unexpected error');
+              log.red(error);
+              throw error;
             }
           });
       } else {
-        throw new Error('Bug in code: this provider should be remove!');
+        throw new Error('Bug in code: this provider should be remote!');
       }
     });
   }
@@ -54,9 +63,9 @@ class RemoteProviderSearch {
     return { providerHost: this.providerHost, providerAddress: this.providerAddress, contentId: this.localContentId };
   }
 
-  searchResponse({ response, contentId, duration }) {
+  searchResponse({ response, contentId, networkTime, networkTimePretty }) {
     if (!response.error) {
-      Object.assign(response.meta, this.basicMetaInfo(), { totalCount: response.results.length, contentId, totalDuration: duration });
+      Object.assign(response.meta, this.basicMetaInfo(), { totalCount: response.results.length, contentId, networkTime, networkTimePretty });
     }
 
     return response;

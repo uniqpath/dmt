@@ -10,10 +10,6 @@ function help() {
   console.log(`${colors.green('')} ${colors.gray('')}`);
 }
 
-function resultMap(result) {
-  return result;
-}
-
 function printSuccessOrErrorStatus(response) {
   if (response.error) {
     console.log(colors.red(`⮑  ${response.error}`));
@@ -46,7 +42,7 @@ const printResponseOutputCommands = ['repeat', 'limit', 'status', 'bump'];
 
 function printResponse(command, response, args) {
   if (response.error) {
-    console.log(colors.red(response.error));
+    console.log(colors.red(`⚠️  Error: ${response.error}`));
     return;
   }
 
@@ -57,7 +53,7 @@ function printResponse(command, response, args) {
 
       printSuccessOrErrorStatus(response);
     } else {
-      aggregateSearchResultsFormatter(response, resultMap);
+      aggregateSearchResultsFormatter(response);
     }
   } else if (printResponseOutputCommands.includes(command)) {
     console.log(colorJSON(response));

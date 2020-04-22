@@ -13,8 +13,14 @@ import { stores } from 'dmt-js';
 import util from './lib/util';
 import scan from './lib/scan';
 import search from './lib/search';
+
 import stopwatch from './lib/stopwatch';
+import stopwatchAdv from './lib/stopwatchAdv';
+import prettyTime from './lib/prettyTime';
+import prettyFileSize from './lib/prettyFileSize';
+
 import FsState from './lib/fsState';
+
 import processBatch from './lib/processBatch';
 
 import def from './lib/parsers/def/parser';
@@ -23,8 +29,6 @@ import helper from './lib/parsers/def/dmtHelper';
 
 import * as numberRanges from './lib/parsers/numbers/rangeParser';
 import * as textfileParsers from './lib/parsers/textfiles';
-import FMLParser from './lib/parsers/fml/parser';
-
 import { apMode, apInfo, accessPointIP } from './lib/apTools';
 
 import * as suntime from './lib/suntime';
@@ -78,10 +82,12 @@ export default {
   def,
   cli,
   processBatch,
-  FMLParser,
   textfileParsers,
   numberRanges,
+  prettyFileSize,
+  prettyTime,
   stopwatch,
+  stopwatchAdv,
   apMode,
   apInfo,
   accessPointIP,

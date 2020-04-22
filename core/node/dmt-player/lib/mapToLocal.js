@@ -1,5 +1,4 @@
 import path from 'path';
-import stripAnsi from 'strip-ansi';
 
 import dmt from 'dmt-bridge';
 
@@ -14,14 +13,17 @@ function mapToLocal(providerResults) {
 
   const mapping = { from: share.sambaPath, to: share.mountPath };
 
-  const mappedResults = providerResults.results.map(file => {
+  const mappedResults = providerResults.results.map(result => {
     const re = new RegExp(`^${mapping.from}/`);
-    const str = stripAnsi(file);
 
-    if (str.match(re)) {
-      const relativePath = str.replace(re, './');
-      return path.join(mapping.to, relativePath);
+    const { filePath } = result;
+
+    if (filePath.match(re)) {
+      const relativePath = filePath.replace(re, './');
+      return { ...result, ...{ filePath: path.join(mapping.to, relativePath) } };
     }
+
+    return result;
   });
 
   return Object.assign(JSON.parse(JSON.stringify(providerResults)), { results: mappedResults });

@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import mime from '../../mime/mime-types';
 
@@ -6,7 +7,9 @@ import BinaryReader from './binaryReader';
 function streamFile({ channel, filePath, sessionId }) {
   const mimeType = mime.lookup(filePath);
 
-  channel.send(JSON.stringify({ tag: 'binary_start', fileName: path.basename(filePath), mimeType, sessionId }));
+  const contentLength = fs.statSync(filePath).size;
+
+  channel.send(JSON.stringify({ tag: 'binary_start', fileName: path.basename(filePath), mimeType, contentLength, sessionId }));
 
   const binaryReader = new BinaryReader(channel);
 

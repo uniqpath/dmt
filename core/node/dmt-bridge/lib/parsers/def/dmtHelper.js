@@ -666,6 +666,7 @@ export default {
     const device = this.device({ deviceId });
     const filePath = this.deviceDefFile(deviceId, 'content');
     const contentDef = readContentDef({ filePath });
+    const ident = `${filePath} -- contentId ${contentId}`;
 
     if (contentDef.empty) {
       return;
@@ -673,7 +674,11 @@ export default {
 
     const content = contentDef.multi.find(c => c.id == contentId);
 
-    this.sambaDefinitionErrorCheck(content, { filePath, contentId });
+    if (!content) {
+      throw new Error(`${ident} is not defined. It was requested dynamically or from ${device.id}/def/device.def`);
+    }
+
+    this.sambaDefinitionErrorCheck(content, ident);
 
     if (content.sambaShare) {
       if (returnSambaSharesInfo) {
@@ -688,15 +693,7 @@ export default {
     }
   },
 
-  sambaDefinitionErrorCheck(content, { filePath, contentId }) {
-    const ident = `${filePath} -- content:${contentId}`;
-
-    const device = this.device({ onlyBasicParsing: true });
-
-    if (!content) {
-      throw new Error(`${ident} is not defined but is referenced from ${device.id}/def/device.def`);
-    }
-
+  sambaDefinitionErrorCheck(content, ident) {
     if (content.sambaShare) {
       if (Array.isArray(content.sambaShare)) {
         throw new Error(`${ident} has multiple sambaShares instead of at most one (${def.values(content.sambaShare)})`);

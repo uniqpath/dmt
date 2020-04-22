@@ -1,6 +1,6 @@
 import dmt from 'dmt-bridge';
 
-const { stopwatch } = dmt;
+const { stopwatchAdv } = dmt;
 
 import contentSearch from './contentSearch';
 
@@ -24,7 +24,9 @@ class LocalProviderSearch {
       if (this.localhost) {
         this.timedLocalSearch(contentId, options)
           .then(success)
-          .catch(reject);
+          .catch(e => {
+            reject(e);
+          });
       } else {
         throw new Error('Bug in code: this provider should be local!');
       }
@@ -54,12 +56,15 @@ class LocalProviderSearch {
   }
 
   timedLocalSearch(contentId, options) {
-    const start = stopwatch.start();
+    const start = stopwatchAdv.start();
 
     return new Promise((success, reject) => {
       this.localSearch(contentId, options)
         .then(results => {
-          results.meta.searchTime = stopwatch.stop(start);
+          const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
+
+          Object.assign(results.meta, { searchTime, searchTimePretty });
+
           success(results);
         })
         .catch(reject);

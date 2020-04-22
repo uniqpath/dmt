@@ -1,7 +1,6 @@
 import ipcClient from './lib/ipcClient';
 
 import colorJSON from './lib/colorJSON';
-
 import resultsFormatter from './lib/resultsFormatter';
 import aggregateSearchResultsFormatter from './lib/aggregateSearchResultsFormatter';
 

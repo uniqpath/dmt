@@ -16,6 +16,7 @@ const payload = args.join(' ');
 ipcClient({ actorName: 'search', action, payload })
   .then(response => {
     aggregateSearchResultsFormatter(response);
+
     process.exit();
   })
   .catch(e => {

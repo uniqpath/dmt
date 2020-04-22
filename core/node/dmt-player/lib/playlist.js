@@ -1,8 +1,6 @@
 import { homedir } from 'os';
 import path from 'path';
 
-import stripAnsi from 'strip-ansi';
-
 import dmt from 'dmt-bridge';
 const { log, util, numberRanges, search } = dmt;
 
@@ -163,7 +161,7 @@ class Playlist {
   }
 
   fixFilePath(f) {
-    return stripAnsi(f).replace(/^~/, homedir());
+    return f.replace(/^~/, homedir());
   }
 
   add(files) {

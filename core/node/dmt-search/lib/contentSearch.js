@@ -1,9 +1,9 @@
 import fs from 'fs';
 
 import dmt from 'dmt-bridge';
-const { log } = dmt;
+const { stopwatchAdv, prettyFileSize, log } = dmt;
 
-import stopwatch from 'pretty-hrtime';
+import stripAnsi from 'strip-ansi';
 
 import searchWithOSBinary from './searchWithOSBinary';
 
@@ -12,26 +12,29 @@ function contentSearch(contentId, { terms, mediaType, clientMaxResults, maxResul
 
   const _maxResults = clientMaxResults || maxResults || dmt.globals.searchLimit.maxResults;
 
-  const contentPaths = dmt.contentPaths({ contentId });
-
   const searchPromise = new Promise((success, reject) => {
-    if (!contentPaths) {
-      reject({ error: `undefined local content ref: ${dmt.device().id}/${contentId}` });
+    let contentPaths;
+
+    try {
+      contentPaths = dmt.contentPaths({ contentId });
+    } catch (e) {
+      reject(e);
       return;
     }
 
-    const start = process.hrtime();
+    const start = stopwatchAdv.start();
 
     multipathSearch({ contentPaths, terms, maxResults: _maxResults, mediaType })
-      .then(resultLines => {
-        const end = process.hrtime(start);
+      .then(results => {
+        const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
 
         success({
           meta: {
-            searchTime: stopwatch(end),
+            searchTime,
+            searchTimePretty,
             maxResults: _maxResults
           },
-          results: resultLines
+          results
         });
       })
       .catch(reject);
@@ -61,7 +64,7 @@ function multipathSearch({ contentPaths, terms, maxResults, mediaType }) {
 
 function searchOnePath({ path, terms, maxResults, mediaType }) {
   return new Promise((success, reject) => {
-    let results = [];
+    const results = [];
 
     searchWithOSBinary(dmt.globals.searchBinary, { path, terms, maxResults, mediaType }, resultBatch => {
       if (resultBatch) {
@@ -69,6 +72,20 @@ function searchOnePath({ path, terms, maxResults, mediaType }) {
           success({ error: resultBatch.error });
           return;
         }
+
+        resultBatch = resultBatch
+          .map(filePathANSI => {
+            const filePath = stripAnsi(filePathANSI);
+            const fileSize = fs.statSync(filePath).size;
+
+            return {
+              filePath,
+              filePathANSI,
+              fileSize,
+              fileSizePretty: prettyFileSize(fileSize)
+            };
+          })
+          .filter(Boolean);
 
         results.push(...resultBatch);
       } else {

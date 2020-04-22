@@ -1,7 +1,7 @@
 import colors from 'colors';
 import resultsFormatter from './resultsFormatter';
 
-function aggregateResultsFormatter(aggregateResults, resultMap) {
+function aggregateResultsFormatter(aggregateResults) {
   for (const providerResponse of aggregateResults) {
     const { meta } = providerResponse;
 
@@ -15,17 +15,16 @@ function aggregateResultsFormatter(aggregateResults, resultMap) {
     if (providerResponse.error) {
       console.log(colors.red(`⮑  ⚠️  Error: ${providerResponse.error}`));
     } else {
-      resultsFormatter(providerResponse.results, resultMap);
-      const { totalCount, searchTime, totalDuration } = meta;
+      resultsFormatter(providerResponse.results);
+      const { totalCount, searchTime, searchTimePretty, networkTime, networkTimePretty } = meta;
 
       let time = '';
       if (searchTime) {
-        const tag = meta.providerAddress == 'localhost' ? 'local' : 'remote';
-        time += colors.gray(` ■ ${colors.green(searchTime)} (${tag} fs)`);
+        time += colors.gray(` ■ ${colors.green(searchTimePretty)} fs`);
       }
 
-      if (totalDuration) {
-        time += colors.gray(` ■ ${colors.cyan(totalDuration)} (total roundtrip)`);
+      if (networkTime) {
+        time += colors.gray(` ■ ${colors.cyan(networkTimePretty)} network`);
       }
 
       if (totalCount > 0) {

@@ -1,5 +1,5 @@
 import dmt from 'dmt-bridge';
-const { log } = dmt;
+const { log, util } = dmt;
 
 import colors from 'colors';
 import { spawn } from 'child_process';
@@ -9,11 +9,15 @@ export default function searchWithOSBinary(binary, { terms, path, noColor, media
     throw new Error('searchWithOSBinary: maxResults is undefined, must provide maxResults argument');
   }
 
-  const constructedTerms = terms;
+  const constructedTerms = [];
 
   if (noColor) {
     constructedTerms.push('--no-color');
   }
+
+  constructedTerms.push('--only-files');
+
+  constructedTerms.push(...util.clone(terms));
 
   if (mediaType) {
     constructedTerms.push(`@media=${mediaType}`);

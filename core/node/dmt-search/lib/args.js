@@ -19,7 +19,21 @@ function parseArgs({ args, actorName, defaultMediaType }) {
 }
 
 function serializeArgs({ terms, mediaType, count, contentRef }) {
-  return `${terms.join(' ')} @media=${mediaType} @count=${count} @contentRef=${contentRef}`;
+  const list = terms;
+
+  if (mediaType) {
+    list.push(`@media=${mediaType}`);
+  }
+
+  if (count) {
+    list.push(`@count=${count}`);
+  }
+
+  if (contentRef) {
+    list.push(`@contentRef=${contentRef}`);
+  }
+
+  return list.join(' ');
 }
 
 export { parseArgs, serializeArgs };

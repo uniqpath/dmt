@@ -85,34 +85,40 @@ class Connector extends EventEmitter {
         console.log(`Decrypting with shared secret ${this.sharedSecret}...`);
       }
 
-      const decryptedMessage = nacl.secretbox.open(encryptedData, nullNonce, this.sharedSecret);
-      let decodedMessage;
+      const _decryptedMessage = nacl.secretbox.open(encryptedData, nullNonce, this.sharedSecret);
 
-      try {
-        decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
-      } catch (e) {}
+      const flag = _decryptedMessage[0];
+      const decryptedMessage = _decryptedMessage.subarray(1);
 
-      if (decodedMessage) {
-        const jsonData = JSON.parse(decodedMessage);
-        if (jsonData.jsonrpc) {
-          if (this.verbose) {
-            console.log('Received and decrypted rpc result:');
-            console.log(jsonData);
-          }
+      if (flag == 1) {
+        const decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
 
-          this.wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true });
-        } else if (jsonData.tag) {
-          const msg = jsonData;
+        try {
+          const jsonData = JSON.parse(decodedMessage);
 
-          if (msg.tag == 'binary_start') {
-            this.emit(msg.tag, { mimeType: msg.mimeType, fileName: msg.fileName, sessionId: msg.sessionId });
-          } else if (msg.tag == 'binary_end') {
-            this.emit(msg.tag, { sessionId: msg.sessionId });
+          if (jsonData.jsonrpc) {
+            if (this.verbose) {
+              console.log('Received and decrypted rpc result:');
+              console.log(jsonData);
+            }
+
+            this.wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true });
+          } else if (jsonData.tag) {
+            const msg = jsonData;
+
+            if (msg.tag == 'binary_start') {
+              this.emit(msg.tag, { ...msg, ...{ tag: undefined } });
+            } else if (msg.tag == 'binary_end') {
+              this.emit(msg.tag, { sessionId: msg.sessionId });
+            } else {
+              this.emit('wire_receive', { jsonData, rawMessage: decodedMessage });
+            }
           } else {
             this.emit('wire_receive', { jsonData, rawMessage: decodedMessage });
           }
-        } else {
-          this.emit('wire_receive', { jsonData, rawMessage: decodedMessage });
+        } catch (e) {
+          console.log("Couldn't parse json message although the flag was for string ...");
+          throw e;
         }
       } else {
         const binaryData = decryptedMessage;
@@ -125,6 +131,18 @@ class Connector extends EventEmitter {
     }
   }
 
+  addHeader(_msg, flag) {
+    const msg = new Uint8Array(_msg.length + 1);
+
+    const header = new Uint8Array(1);
+    header[0] = flag;
+
+    msg.set(header);
+    msg.set(_msg, header.length);
+
+    return msg;
+  }
+
   send(data) {
     if (isObject(data)) {
       data = JSON.stringify(data);
@@ -132,7 +150,14 @@ class Connector extends EventEmitter {
 
     if (this.isConnected()) {
       if (this.sentCounter > 1) {
-        const encodedMessage = typeof data == 'string' ? nacl.util.decodeUTF8(data) : data;
+        let flag = 0;
+
+        if (typeof data == 'string') {
+          flag = 1;
+        }
+
+        const _encodedMessage = flag == 1 ? nacl.util.decodeUTF8(data) : data;
+        const encodedMessage = this.addHeader(_encodedMessage, flag);
 
         const encryptedMessage = nacl.secretbox(encodedMessage, nullNonce, this.sharedSecret);
 

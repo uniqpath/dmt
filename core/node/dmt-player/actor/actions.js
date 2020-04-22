@@ -56,11 +56,17 @@ function handler({ args, action }, { player }) {
 
       player[action.command](...args)
         .then(data => success(data))
-        .catch(reject);
+        .catch(e => {
+          reject(e);
+        });
     } else {
       player[action.command]()
-        .then(data => success(data))
-        .catch(reject);
+        .then(data => {
+          success(data);
+        })
+        .catch(e => {
+          reject(e);
+        });
     }
   });
 }
@@ -76,7 +82,7 @@ function searchHandler({ args, action }, { searchClient }) {
       })
       .catch(e => {
         log.red(e);
-        reject(new Error('Search service probably not running on media provider'));
+        reject(e);
       });
   });
 }
@@ -90,7 +96,9 @@ function playHandler({ args, action }, { searchClient, player }) {
         player
           .play()
           .then(success)
-          .catch(reject);
+          .catch(e => {
+            reject(e);
+          });
         return;
       }
 
@@ -124,9 +132,14 @@ function addHandler({ args, action }, { searchClient, player }) {
           });
 
         const mappedResults = successfulResults.map(results => mapToLocal(results));
-        const playableResults = mappedResults.map(res => res.results).flat();
 
-        player[action.command]({ files: playableResults });
+        const playableResults = mappedResults.map(res => res.results.map(result => result.filePath)).flat();
+
+        player[action.command]({ files: playableResults })
+          .then(success)
+          .catch(e => {
+            reject(e);
+          });
 
         success(successfulResults);
       })
@@ -139,7 +152,7 @@ function insertplayHandler({ args }, { searchClient, player }) {
     searchHandler({ args }, { searchClient })
       .then(aggregateResults => {
         const mappedResults = aggregateResults.map(results => mapToLocal(results));
-        const playableResults = mappedResults.map(res => res.results).flat();
+        const playableResults = mappedResults.map(res => res.results.map(result => result.filePath)).flat();
 
         player.insert({ files: playableResults }).then(() => {
           if (playableResults.length == 0) {

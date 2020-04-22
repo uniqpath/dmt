@@ -18,6 +18,8 @@ console.log(colors.cyan(`  — Private key: ${colors.gray(privateKeyHex)}`));
 console.log(colors.cyan(`  — Public key: ${colors.gray(publicKeyHex)}`));
 console.log();
 
+const SIMPLE = false;
+
 const protocol = 'quantum';
 const protocolLane = 'generator';
 
@@ -32,13 +34,15 @@ server.on('prepare_channel', channel => {
 server.on('connection', channel => {
   console.log(colors.magenta(`Shared secret: ${colors.gray(bufferToHex(channel.sharedSecret))}`));
 
-  channel
-    .remoteObject('ClientTestObject')
-    .call('hello')
-    .then(result => {
-      console.log(`Received HELLO result from client: ${result}`);
-    })
-    .catch(console.log);
+  if (!SIMPLE) {
+    channel
+      .remoteObject('ClientTestObject')
+      .call('hello')
+      .then(result => {
+        console.log(`Received HELLO result from client: ${result}`);
+      })
+      .catch(console.log);
+  }
 });
 
 server.on('connection_closed', channel => {

@@ -114,7 +114,10 @@ class Channel extends EventEmitter {
       }
 
       try {
-        const decryptedMessage = nacl.secretbox.open(message, nullNonce, this.sharedSecret);
+        const _decryptedMessage = nacl.secretbox.open(message, nullNonce, this.sharedSecret);
+        const flag = _decryptedMessage[0];
+        const decryptedMessage = _decryptedMessage.subarray(1);
+
         const decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
         message = decodedMessage;
       } catch (e) {
@@ -147,6 +150,18 @@ class Channel extends EventEmitter {
     }
   }
 
+  addHeader(_msg, flag) {
+    const msg = new Uint8Array(_msg.length + 1);
+
+    const header = new Uint8Array(1);
+    header[0] = flag;
+
+    msg.set(header);
+    msg.set(_msg, header.length);
+
+    return msg;
+  }
+
   send(message) {
     if (isObject(message)) {
       message = JSON.stringify(message);
@@ -163,7 +178,15 @@ class Channel extends EventEmitter {
     }
 
     if (this.sharedSecret) {
-      const encodedMessage = typeof message == 'string' ? nacl.util.decodeUTF8(message) : message;
+      let flag = 0;
+
+      if (typeof message == 'string') {
+        flag = 1;
+      }
+
+      const _encodedMessage = flag == 1 ? nacl.util.decodeUTF8(message) : message;
+      const encodedMessage = this.addHeader(_encodedMessage, flag);
+
       const encryptedMessage = nacl.secretbox(encodedMessage, nullNonce, this.sharedSecret);
       message = encryptedMessage;
 

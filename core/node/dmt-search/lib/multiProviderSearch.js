@@ -1,6 +1,8 @@
 import dmt from 'dmt-bridge';
 
-const { stopwatch } = dmt;
+import path from 'path';
+
+import { fileReferences } from 'dmt-content';
 
 import LocalProviderSearch from './localProviderSearch';
 import RemoteProviderSearch from './remoteProviderSearch';
@@ -24,9 +26,7 @@ class MultiProviderSearch {
     });
 
     remoteProviders.forEach(provider => {
-      const start = stopwatch.start();
-
-      program.fiberPool.getFiber(provider.providerAddress).then(connector => {
+      program.fiberPool.getConnector(provider.providerAddress).then(connector => {
         this.searchArray.push(new RemoteProviderSearch({ provider, mediaType, connector }));
       });
     });
@@ -34,16 +34,49 @@ class MultiProviderSearch {
 
   async search(options) {
     return new Promise((success, reject) => {
-      if (this.remoteProvidersCount + this.localProvidersCount == this.searchArray.length) {
-        const searches = this.searchArray.map(providerSearch => providerSearch.search(options));
+      const allProvidersReady = this.remoteProvidersCount + this.localProvidersCount == this.searchArray.length;
+
+      if (allProvidersReady) {
+        const searches = this.searchArray.map(providerSearch => {
+          return new Promise((success, reject) => {
+            providerSearch
+              .search(options)
+              .then(providerResponse => success({ providerResponse, providerAddress: providerSearch.providerAddress }))
+              .catch(e => {
+                console.log(e);
+                reject(e);
+              });
+          });
+        });
 
         Promise.all(searches)
-          .then(allResults => {
-            log.debug('All results from search client', { obj: allResults });
+          .then(allResponses => {
+            for (const { providerResponse, providerAddress } of allResponses) {
+              if (providerResponse.results) {
+                providerResponse.results.forEach(result => {
+                  const fiberHandle = `${providerAddress}-${fileReferences.encode(result.filePath)}`;
+                  result.fiberHandle = fiberHandle;
 
-            success(allResults);
+                  const urlEncodedFilePath = encodeURI(Buffer.from(path.basename(result.filePath), 'utf-8'));
+
+                  result.fiberContentURL = `http://localhost:${dmt.determineGUIPort()}/file/${urlEncodedFilePath}?id=${fiberHandle}`;
+
+                  if (result.fiberContentURL.length > 2000) {
+                    log.read(
+                      `Warning: URL seems to long, limit is 2048 ${result.fiberContentURL}, todo: use better encoding to reduce the file system path size, as well as trim file name if really long?`
+                    );
+                  }
+                });
+              }
+            }
+
+            success(allResponses.map(resp => resp.providerResponse));
           })
-          .catch(reject);
+          .catch(e => {
+            console.log('TOTAL REJECT');
+            console.log(e);
+            reject(e);
+          });
       } else {
         setTimeout(() => {
           this.search(options)

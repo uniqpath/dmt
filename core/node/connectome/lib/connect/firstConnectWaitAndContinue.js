@@ -1,4 +1,4 @@
-import stopwatch from '../stopwatch';
+import stopwatch from '../stopwatch/stopwatch';
 import connect from './connectNode';
 
 function promiseTimeout(ms, promise) {

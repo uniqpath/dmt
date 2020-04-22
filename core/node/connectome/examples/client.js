@@ -16,22 +16,28 @@ console.log(colors.cyan(`  — Private key: ${colors.gray(privateKeyHex)}`));
 console.log(colors.cyan(`  — Public key: ${colors.gray(publicKeyHex)}`));
 console.log();
 
+const SIMPLE = false;
+
 connect({ address, port, protocol, protocolLane, clientPrivateKey: privateKey, clientPublicKey: publicKey, remotePubkey: undefined, verbose: 'extra' }).then(
   connector => {
-    connector.registerRemoteObject('ClientTestObject', { hello: () => 'CLIENT WORLD' });
-    connector.registerRemoteObject('WisdomReceiver', { wisdom: msg => console.log(`Received quantum wisdom: ${colors.green(msg)}`) });
+    if (!SIMPLE) {
+      connector.registerRemoteObject('ClientTestObject', { hello: () => 'CLIENT WORLD' });
+      connector.registerRemoteObject('WisdomReceiver', { wisdom: msg => console.log(`Received quantum wisdom: ${colors.green(msg)}`) });
+    }
 
     connector.on('connected', ({ sharedSecretHex }) => {
       console.log(`${colors.gray('Channel connected')} ${colors.green('✓')}`);
       console.log(colors.magenta(`Shared secret: ${colors.gray(sharedSecretHex)}`));
 
-      connector
-        .remoteObject('ServerTestObject')
-        .call('hello')
-        .then(result => {
-          console.log(`Received HELLO result from server: ${result}`);
-        })
-        .catch(console.log);
+      if (!SIMPLE) {
+        connector
+          .remoteObject('ServerTestObject')
+          .call('hello')
+          .then(result => {
+            console.log(`Received HELLO result from server: ${result}`);
+          })
+          .catch(console.log);
+      }
     });
 
     connector.on('disconnected', () => {

@@ -131,7 +131,9 @@ class LocalPlayer {
           });
         } else {
           if (this.playlist.isEmpty()) {
-            log.yellow('Called play on an empty playlist, nothing to do ...');
+            const msg = 'Called play on an empty playlist, nothing to do ...';
+            log.yellow(msg);
+            reject(new Error(msg));
             return;
           }
 
@@ -142,7 +144,7 @@ class LocalPlayer {
                 .catch(reject);
             })
             .catch(() => {
-              log.red('Playback error');
+              reject(new Error('Playback error'));
             });
         }
 

@@ -5,7 +5,7 @@ const { log } = dmt;
 
 function createHandler({ action, actorName, program }, setupData = {}) {
   return args => {
-    return new Promise(success => {
+    return new Promise((success, reject) => {
       const calledWith = args == '' ? '' : `with ${colors.white(args)}`;
       log.gray(`actor method called → ${colors.cyan(actorName)}/${colors.green(action.command)} ${calledWith}`);
 
@@ -13,9 +13,9 @@ function createHandler({ action, actorName, program }, setupData = {}) {
         action
           .handler({ args, action, actorName, program }, setupData)
           .then(success)
-          .catch(err => {
-            log.red(err);
-            success({ error: err.message });
+          .catch(e => {
+            log.red(`ERROR IN ACTOR ACTION: ${e.message}, please handle all errors inside actions, no error should land here!`);
+            reject(e);
           });
       }
     });
@@ -60,7 +60,9 @@ class Actors {
     return new Promise((success, reject) => {
       const method = this.methods[ref];
       if (method) {
-        method(args).then(success);
+        method(args)
+          .then(success)
+          .catch(reject);
       } else {
         reject(new Error(`Actor method ${ref} does not exist.`));
       }

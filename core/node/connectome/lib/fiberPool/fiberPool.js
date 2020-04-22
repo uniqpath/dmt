@@ -8,7 +8,7 @@ class FiberPool {
     this.isPreparingConnector = {};
   }
 
-  getFiber(ip) {
+  getConnector(ip) {
     return new Promise((success, reject) => {
       if (this.connectors[ip]) {
         success(this.connectors[ip]);
@@ -17,7 +17,7 @@ class FiberPool {
 
       if (this.isPreparingConnector[ip]) {
         setTimeout(() => {
-          this.getFiber(ip)
+          this.getConnector(ip)
             .then(success)
             .catch(reject);
         }, 10);
