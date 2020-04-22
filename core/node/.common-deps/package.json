@@ -37,7 +37,6 @@
     "pg": "^7.12.1",
     "pi-camera-connect": "^0.2.0",
     "portfinder": "^1.0.20",
-    "pretty-hrtime": "^1.0.3",
     "quantum-generator": "^1.9.3",
     "redis": "^2.8.0",
     "request-digest": "^1.0.13",
