@@ -2,15 +2,12 @@ import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
-import EventEmitter from '../emitter';
+import { EventEmitter, listify, hexToBuffer, bufferToHex } from '../utils';
 
-import util from '../util';
 import RpcClient from '../rpc/client';
 import RPCTarget from '../rpc/RPCTarget';
 
 const nullNonce = new Uint8Array(new ArrayBuffer(24), 0);
-
-const { hexToBuffer, bufferToHex } = util;
 
 function isObject(obj) {
   return obj !== undefined && obj !== null && obj.constructor == Object;
@@ -184,7 +181,7 @@ class Connector extends EventEmitter {
   remoteObject(handle) {
     return {
       call: (methodName, params = []) => {
-        return this.rpcClient.remoteObject(handle).call(methodName, util.listify(params));
+        return this.rpcClient.remoteObject(handle).call(methodName, listify(params));
       }
     };
   }

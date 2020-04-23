@@ -1,15 +1,11 @@
 import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 
-import EventEmitter from '../emitter';
+import { EventEmitter, isBrowser, listify } from '../utils';
 
 nacl.util = naclutil;
 
-import streamFile from '../binary/streamFile';
-
 const nullNonce = new Uint8Array(new ArrayBuffer(24), 0);
-
-import util from '../util';
 
 import RpcClient from '../rpc/client';
 
@@ -72,13 +68,17 @@ class Channel extends EventEmitter {
   remoteObject(handle) {
     return {
       call: (methodName, params = []) => {
-        return this.reverseRpcClient.remoteObject(handle).call(methodName, util.listify(params));
+        return this.reverseRpcClient.remoteObject(handle).call(methodName, listify(params));
       }
     };
   }
 
   streamFile({ filePath, sessionId }) {
-    streamFile({ filePath, sessionId, channel: this });
+    if (isBrowser()) {
+      throw new Error('Cannot stream file from browser, use this only from node.js process!');
+    } else {
+      import('../binary/streamFile').then(streamFile => streamFile({ filePath, sessionId, channel: this }));
+    }
   }
 
   terminate() {

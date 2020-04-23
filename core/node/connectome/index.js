@@ -1,19 +1,16 @@
 import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 
-import util from './lib/util';
+import { bufferToHex } from './lib/utils';
 import connect from './lib/connect/connectNode';
 import connectBrowser from './lib/connect/connectBrowser';
 
-import FiberPool from './lib/fiberPool/fiberPool';
+import Server from './lib/server/server';
 
-import Fanout from './lib/graph/fanout';
-
-import Server from './lib/wsServer/server';
+import FiberPool from './lib/fibers/fiberPool';
+import Fanout from './lib/fibers/fanout';
 
 nacl.util = naclutil;
-
-const { bufferToHex } = util;
 
 function newKeypair() {
   const keys = nacl.box.keyPair();

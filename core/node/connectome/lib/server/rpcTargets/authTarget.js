@@ -1,12 +1,9 @@
 import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 
-import EventEmitter from '../emitter';
-import util from '../util';
+import { EventEmitter, hexToBuffer } from '../../utils';
 
 nacl.util = naclutil;
-
-const { hexToBuffer } = util;
 
 class AuthTarget extends EventEmitter {
   constructor({ keypair, channel }) {

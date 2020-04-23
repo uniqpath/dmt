@@ -1,5 +1,6 @@
-import stopwatch from '../stopwatch/stopwatch';
 import connect from './connectNode';
+
+import { stopwatch } from '../utils';
 
 function promiseTimeout(ms, promise) {
   const timeout = new Promise((resolve, reject) => {

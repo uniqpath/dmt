@@ -1,5 +1,16 @@
+import stopwatch from './stopwatch/stopwatch';
+import EventEmitter from './emitter';
+
+async function loadModule(whichUtil) {
+  return import(`./${whichUtil}`);
+}
+
 function log(msg) {
   console.log(`${new Date().toLocaleString()} → ${msg}`);
+}
+
+function isBrowser() {
+  return typeof window !== 'undefined';
 }
 
 function listify(obj) {
@@ -20,9 +31,4 @@ function hexToBuffer(hex) {
   return new Uint8Array(tokens.map(token => parseInt(token, 16)));
 }
 
-export default {
-  log,
-  listify,
-  bufferToHex,
-  hexToBuffer
-};
+export { stopwatch, EventEmitter, loadModule, log, isBrowser, listify, bufferToHex, hexToBuffer };

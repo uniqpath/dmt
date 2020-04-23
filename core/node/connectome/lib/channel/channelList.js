@@ -1,4 +1,4 @@
-import EventEmitter from '../emitter';
+import { EventEmitter } from '../utils';
 
 class ChannelList extends EventEmitter {
   constructor({ protocol, protocolLane }) {

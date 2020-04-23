@@ -1,6 +1,6 @@
 const browser = typeof window !== 'undefined';
 
-import Connector from './connector';
+import Connector from '../connector/connector';
 
 function establishAndMaintainConnection(
   { obj, address, port, protocol, protocolLane, clientPrivateKey, clientPublicKey, clientInitData, remotePubkey, resumeNow, verbose },

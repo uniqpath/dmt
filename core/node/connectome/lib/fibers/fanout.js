@@ -1,4 +1,4 @@
-import EventEmitter from '../emitter';
+import { EventEmitter } from '../utils';
 import connect from '../connect/connectNode';
 
 class Fanout extends EventEmitter {

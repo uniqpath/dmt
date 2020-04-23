@@ -1,4 +1,4 @@
-import EventEmitter from '../emitter';
+import { EventEmitter } from '../../utils';
 
 class HelloTarget extends EventEmitter {
   hello(clientInitData) {

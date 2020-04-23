@@ -1,10 +1,10 @@
-import EventEmitter from '../emitter';
+import { EventEmitter } from '../utils';
 import ServerInstance from './serverInstance';
 
-import AuthTarget from './authTarget';
-import HelloTarget from './helloTarget';
+import AuthTarget from './rpcTargets/authTarget';
+import HelloTarget from './rpcTargets/helloTarget';
 
-import ChannelList from '../wsChannel/channelList';
+import ChannelList from '../channel/channelList';
 
 class Server extends EventEmitter {
   constructor({ port, keypair, verbose }) {
@@ -20,9 +20,8 @@ class Server extends EventEmitter {
   start() {
     this.server = new ServerInstance({ port: this.port, verbose: this.verbose });
 
-    this.server.on('connection_closed', channel => this.emit('connection_closed', channel));
-
     this.server.on('connection', channel => this.initializeConnection({ channel }));
+    this.server.on('connection_closed', channel => this.emit('connection_closed', channel));
   }
 
   addWsEndpoint({ protocol, protocolLane, wsEndpoint }) {

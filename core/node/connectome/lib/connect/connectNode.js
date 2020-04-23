@@ -1,9 +1,7 @@
 import WebSocket from 'ws';
 
-import util from '../util';
+import { log } from '../utils';
 import _establishAndMaintainConnection from './establishAndMaintainConnection';
-
-const { log } = util;
 
 function establishAndMaintainConnection(opts) {
   return new Promise(success => {

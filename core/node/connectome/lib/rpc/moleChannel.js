@@ -1,6 +1,6 @@
-import Emitter from '../emitter';
+import { EventEmitter } from '../utils';
 
-class Channel extends Emitter {
+class Channel extends EventEmitter {
   constructor(connector) {
     super();
 
