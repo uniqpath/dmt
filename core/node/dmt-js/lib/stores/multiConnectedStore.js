@@ -2,13 +2,13 @@ import SimpleStore from './simpleStore';
 import ConnectedStore from './connectedStore';
 
 class MultiConnectedStore extends SimpleStore {
-  constructor({ port, protocol, protocolLane, session }) {
+  constructor({ port, protocol, protocolLane, session, initialIp }) {
     super();
 
     this.session = session;
 
     this.activeStoreId = 0;
-    this.currentIp = 'localhost';
+    this.currentIp = window.location.hostname;
 
     this.port = port;
     this.protocol = protocol;
@@ -16,6 +16,14 @@ class MultiConnectedStore extends SimpleStore {
 
     this.stores = [];
     this.switch({ ip: this.currentIp });
+
+    if (initialIp) {
+      this.switch({ ip: initialIp });
+    }
+  }
+
+  remoteObject(handle) {
+    return this.activeStore.remoteObject(handle);
   }
 
   switch({ deviceId, ip }) {
@@ -43,6 +51,8 @@ class MultiConnectedStore extends SimpleStore {
     }
 
     this.set(matchingStore.state);
+
+    this.activeStore = matchingStore;
   }
 }
 

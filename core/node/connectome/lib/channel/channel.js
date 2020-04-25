@@ -77,7 +77,7 @@ class Channel extends EventEmitter {
     if (isBrowser()) {
       throw new Error('Cannot stream file from browser, use this only from node.js process!');
     } else {
-      import('../binary/streamFile').then(streamFile => streamFile({ filePath, sessionId, channel: this }));
+      import('../fileTransport/feedBytesIntoChannel/streamFile').then(streamFileModule => streamFileModule.default({ filePath, sessionId, channel: this }));
     }
   }
 
@@ -125,7 +125,16 @@ class Channel extends EventEmitter {
       }
     }
 
-    const jsonData = JSON.parse(message);
+    let jsonData;
+
+    try {
+      jsonData = JSON.parse(message);
+    } catch (e) {
+      console.log('---');
+      console.log(message);
+      console.log('---');
+      return;
+    }
 
     if (this.verbose) {
       if (this.sharedSecret) {

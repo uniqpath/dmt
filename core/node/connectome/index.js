@@ -10,6 +10,9 @@ import Server from './lib/server/server';
 import FiberPool from './lib/fibers/fiberPool';
 import Fanout from './lib/fibers/fanout';
 
+import contentServer from './lib/fileTransport/contentServer/contentServer';
+import * as fiberHandle from './lib/fileTransport/fiberHandle/fiberHandle';
+
 nacl.util = naclutil;
 
 function newKeypair() {
@@ -20,4 +23,4 @@ function newKeypair() {
   return { privateKey: keys.secretKey, publicKey: keys.publicKey, privateKeyHex, publicKeyHex };
 }
 
-export { connect, connectBrowser, FiberPool, Server, newKeypair, Fanout };
+export { connect, connectBrowser, FiberPool, Server, newKeypair, Fanout, contentServer, fiberHandle };

@@ -33,7 +33,7 @@ index_file="${user_node_core}/index.js"
 
 if [ ! -f "$index_file" ]; then
 cat >"$index_file" <<EOL
-import dmt from 'dmt-bridge';
+import dmt from 'dmt/bridge';
 const { log } = dmt;
 
 function init(program) {
@@ -48,9 +48,9 @@ fi
 
 # deps from ~/.dmt/user/core/node/node_modules/[dep] to ~/.dmt/core/node/[aspect/dep]
 declare -a DepList=(
-  "dmt-bridge"
-  "dmt-notify"
-  "aspect-iot/dmt-iot"
+  "bridge"
+  "notify"
+  "iot"
 )
 
 arg="$1"
@@ -72,6 +72,8 @@ if [ -d "$user_core" ]; then
 
     # todo: remove all symlinks, don't traverse the deps list
 
+    # for now we have to use dmt- prefix here so that we import 'dmt-bridge' instead of 'bridge' (?)
+    # ah noo...
     dep_symlink="${user_node_modules}/${dmt_dep_without_aspect}"
     if [ "$arg" == "remove" ]; then
       if [ -L "$dep_symlink" ]; then

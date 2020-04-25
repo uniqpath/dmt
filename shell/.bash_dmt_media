@@ -83,10 +83,10 @@ function dmt_media {
     matching_opt="play" # default command when none specified
   fi
 
-  local playerCmd="$DMT_NODE_CORE/dmt-player/cli/media.js"
+  local playerCmd="$DMT_NODE_CORE/player/cli/media.js"
 
   if [ ! -f "$playerCmd" ]; then # dmt shell before v1.0.79 :::
-    playerCmd="$DMT_NODE_CORE/dmt-controller/cli/music.js"
+    playerCmd="$DMT_NODE_CORE/controller/cli/music.js"
   fi
 
   if [ -z "$hosts" ]; then
@@ -124,7 +124,7 @@ function dmt_soundtest {
   #mpv --no-video "$DMT_PATH/etc/sounds/soundtest/music.mp3"
 
   printf "${GREEN}Soundtest ${MAGENTA}1.${NC}\n"
-  $DMT_NODEJS_EXEC "$DMT_NODE_CORE/dmt-controller/lib/player/localMusicPlayer.js"
+  $DMT_NODEJS_EXEC "$DMT_NODE_CORE/controller/lib/player/localMusicPlayer.js"
 }
 
 
@@ -148,5 +148,5 @@ function dmt_videotest {
   #mpv "$DMT_PATH/etc/videos/videotest/video.mp4"
 
   printf "${GREEN}Videotest ${MAGENTA}1.${NC}\n"
-  $DMT_NODEJS_EXEC "$DMT_NODE_CORE/dmt-controller/lib/player/localVideoPlayer.js"
+  $DMT_NODEJS_EXEC "$DMT_NODE_CORE/controller/lib/player/localVideoPlayer.js"
 }

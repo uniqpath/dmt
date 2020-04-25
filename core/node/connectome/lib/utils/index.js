@@ -13,6 +13,10 @@ function isBrowser() {
   return typeof window !== 'undefined';
 }
 
+function isNodeJs() {
+  return !isBrowser();
+}
+
 function listify(obj) {
   if (typeof obj == 'undefined' || obj == null) {
     return [];
@@ -31,4 +35,4 @@ function hexToBuffer(hex) {
   return new Uint8Array(tokens.map(token => parseInt(token, 16)));
 }
 
-export { stopwatch, EventEmitter, loadModule, log, isBrowser, listify, bufferToHex, hexToBuffer };
+export { stopwatch, EventEmitter, loadModule, log, isBrowser, isNodeJs, listify, bufferToHex, hexToBuffer };

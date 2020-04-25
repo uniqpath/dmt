@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DMT_CLI="$DMT_NODE_CORE/dmt-controller/cli/dmt.js"
+DMT_CLI="$DMT_NODE_CORE/controller/cli/dmt.js"
 
 function dmt {
   if [ -z "$1" ] || [ "$1" == "help" ] || [ "$1" == "version" ]; then
@@ -373,7 +373,7 @@ function dmt {
       compile_gui_if_missing
 
       printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
-      $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+      $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       ;;
 
     startprofiler)
@@ -385,7 +385,7 @@ function dmt {
       compile_gui_if_missing
 
       printf "${MAGENTA}dmt-proc${NC} ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
-      $DMT_NODEJS_EXEC --trace-warnings --prof "${DMT_NODE_CORE}/dmt-controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+      $DMT_NODEJS_EXEC --trace-warnings --prof "${DMT_NODE_CORE}/controller/daemons/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       ;;
 
     state)
@@ -480,7 +480,7 @@ function dmt_symlink_nodejs_deps {
 }
 
 function compile_gui_if_missing {
-  if [ ! -f "$DMT_NODE_CORE/dmt-gui/gui-frontend-core/app/public/bundle.js" ]; then
+  if [ ! -f "$DMT_NODE_CORE/gui/gui-frontend-core/app/public/bundle.js" ]; then
     dmt_gui build
   fi
 }
@@ -510,7 +510,7 @@ function reload_shell {
 function get_dmt_proc_pid {
   # space in " dmt-proc" is required
   local proc=$(ps -ef | grep " dmt-proc" | grep -v "nano dmt-proc" | grep -v "eslint" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
-  local procFG=$(ps -ef | grep "dmt-controller/daemons/dmt-proc.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local procFG=$(ps -ef | grep "controller/daemons/dmt-proc.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
 
   if [ -n "$proc" ]; then
     #ps -ef | grep " dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
@@ -521,7 +521,7 @@ function get_dmt_proc_pid {
 
   # dmt process running in foreground
   if [ -n "$procFG" ]; then
-    #ps -ef | grep "dmt-controller/daemons/dmt-proc.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
+    #ps -ef | grep "controller/daemons/dmt-proc.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
     eval "$1='$procFG'"
     eval "$2='fg'"
   fi
@@ -545,7 +545,7 @@ function report_dmt_running {
 
 # warning: duplicated in ~/.dmt/etc/onboot/daemons
 # function save_dmt_state {
-#   local dmt_cli="${DMT_NODE_CORE}/dmt-controller/cli/dmt.js"
+#   local dmt_cli="${DMT_NODE_CORE}/controller/cli/dmt.js"
 #   if [ -f "$dmt_cli" ]; then
 #     node "$dmt_cli" save_state
 #   fi
@@ -601,7 +601,7 @@ function dmt_device {
 
     def)
       printf "${YELLOW}Showing device definition in json format (parsed from .def):${NC}\n"
-      local cli="$DMT_NODE_CORE/dmt-controller/cli/device.js"
+      local cli="$DMT_NODE_CORE/controller/cli/device.js"
       if [ -n "$hosts" ]; then
         $DMT_NODEJS_EXEC "$cli" "${hosts}" "$@"
       else
@@ -734,7 +734,7 @@ function dmt_state {
 function gui_build_all {
   local cwd="`pwd`"
 
-  local base_dir="$DMT_PATH/core/node/dmt-gui/gui-frontend-core"
+  local base_dir="$DMT_PATH/core/node/gui/gui-frontend-core"
 
   cd "$base_dir"
 
@@ -754,7 +754,7 @@ function gui_build_all {
 }
 
 function gui_send_action_to_frontend {
-  local cliGUI="$DMT_PATH/core/node/dmt-gui/cli/gui.js"
+  local cliGUI="$DMT_PATH/core/node/gui/cli/gui.js"
   local action="$1"
   local payload
   if [ -n "$2" ]; then
@@ -765,8 +765,8 @@ function gui_send_action_to_frontend {
 }
 
 function dmt_gui {
-  local dir="$DMT_PATH/core/node/dmt-gui/gui-frontend-core"
-  local backendDir="$DMT_PATH/core/node/dmt-gui/gui-backend"
+  local dir="$DMT_PATH/core/node/gui/gui-frontend-core"
+  local backendDir="$DMT_PATH/core/node/gui/gui-backend"
 
   # extract host from @ symbol but replace @all with the name of current network !
   local hosts=""

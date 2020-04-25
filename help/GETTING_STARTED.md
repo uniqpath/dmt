@@ -28,7 +28,7 @@ This enables you to use the `dmt` command from anywhere on your system. Examine 
 dmt
 ```
 
-Start the [dmt-proc](https://github.com/uniqpath/dmt/blob/master/core/node/dmt-controller/daemons/dmt-proc.js), your new helpful **multi-device** (because you can install it on all you other devices — except mobile phones) agent:
+Start the [dmt-proc](https://github.com/uniqpath/dmt/blob/master/core/node/controller/daemons/dmt-proc.js), your new helpful **multi-device** (because you can install it on all you other devices — except mobile phones) agent:
 
 ```
 dmt startfg

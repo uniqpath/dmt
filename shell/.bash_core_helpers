@@ -4,7 +4,7 @@
 # [some long process_with_text_result] | push_notify --> not anymore! check code in lib/apn.js and maybe put it back
 # in background: se "space|push_notify"
 function push_notify {
-  local push_notifier="$DMT_NODE_CORE/dmt-notify/cli/push_notify.js"
+  local push_notifier="$DMT_NODE_CORE/notify/cli/push_notify.js"
 
   if [ -f "$push_notifier" ]; then
     # if stdin is passed to nodejs script (happens automatically),
@@ -20,7 +20,7 @@ function push_notify {
 }
 
 function net_scan {
-  local cmd="${DMT_NODE_CORE}/dmt-net/cli/scan.js"
+  local cmd="${DMT_NODE_CORE}/net/cli/scan.js"
 
   if [ -f "$cmd" ]; then
     $DMT_NODEJS_EXEC "$cmd" "$@"

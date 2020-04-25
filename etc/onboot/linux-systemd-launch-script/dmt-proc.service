@@ -8,7 +8,7 @@ After=local-fs.target syslog.target network.target
 [Service]
 User=1000
 Group=1000
-WorkingDirectory=/home/user/.dmt/core/node/dmt-controller
+WorkingDirectory=/home/user/.dmt/core/node/controller
 Environment="NODE_PATH=/home/user/n/bin/node"
 ExecStart=/home/user/.dmt/etc/onboot/onboot
 Type=forking

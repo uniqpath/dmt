@@ -12,6 +12,6 @@
   "dependencies": {
     "ansicolor": "^1.1.93",
     "fast-json-patch": "^3.0.0-1",
-    "xstate": "^4.8.0"
+    "xstate": "^4.9.1"
   }
 }

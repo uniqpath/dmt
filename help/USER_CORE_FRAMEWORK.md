@@ -31,7 +31,7 @@ Program instance emits a few events and we will describe each SOON™ but for no
 ### Event: tick
 
 ```JavaScript
-import dmt from 'dmt-bridge';
+import dmt from 'dmt/bridge';
 const { log } = dmt;
 
 function init(program) {
@@ -68,7 +68,7 @@ Since most of your devices will have exactly the same time down to a few millise
 `dmt-proc` uses this internally to flip the displayed clock on all devices' GUIs at the exact same time.
 
 ```JavaScript
-import dmt from 'dmt-bridge';
+import dmt from 'dmt/bridge';
 const { log } = dmt;
 
 function init(program) {
@@ -141,7 +141,7 @@ This is different from `program.showNotification(...)` because it sends a push n
 Usage:
 
 ```JavaScript
-import { push } from 'dmt-notify';
+import { push } from 'dmt/notify';
 
 function init(program) {
   program.on('tick', () => push.notify('tick event')); // you'll get a lot of push messages on your phone :)

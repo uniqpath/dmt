@@ -11,10 +11,10 @@
 # search @device1 @device2 @device3 terms → searches device1, device2 and device3 ("general" share on each device) and returns aggregate results
 
 function dmt_search {
-  local searchCmd="$DMT_NODE_CORE/dmt-search/cli/search.js"
+  local searchCmd="$DMT_NODE_CORE/search/cli/search.js"
 
   if [ ! -f "$searchCmd" ]; then # dmt shell before v1.0.79 :::
-    searchCmd="$DMT_NODE_CORE/dmt-controller/cli/search.js"
+    searchCmd="$DMT_NODE_CORE/controller/cli/search.js"
   fi
 
   $DMT_NODEJS_EXEC "$searchCmd" "$@"

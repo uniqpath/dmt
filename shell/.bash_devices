@@ -304,11 +304,11 @@ function get_full_host() {
 }
 
 function getDMTDeviceResolverPath {
-  local _deviceResolverPath="${DMT_NODE_CORE}/dmt-controller/cli/deviceResolve.js"
+  local _deviceResolverPath="${DMT_NODE_CORE}/controller/cli/deviceResolve.js"
   eval "$1='$_deviceResolverPath'"
 }
 
 function getLastScanSearchScriptPath {
-  local _lastScanSearchPath="${DMT_NODE_CORE}/dmt-net/lib/net-scanner/lastScanSearch.js"
+  local _lastScanSearchPath="${DMT_NODE_CORE}/net/lib/net-scanner/lastScanSearch.js"
   eval "$1='$_lastScanSearchPath'"
 }
