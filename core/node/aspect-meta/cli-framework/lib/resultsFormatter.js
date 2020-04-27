@@ -11,8 +11,7 @@ export default function resultsFormatter(results) {
     const devMachine = fs.existsSync(`${homedir()}/.dmt/user/devices/this/.dev-machine`);
 
     if (result.fiberContentURL && devMachine) {
-      console.log();
-      console.log(`${colors.gray(result.fiberContentURL)}`);
+      console.log(`🔗 ${colors.gray(result.fiberContentURL)}`);
       console.log();
     }
   });

@@ -19,12 +19,15 @@ function contentServer({ app, fiberPool }) {
     app.use('/file', (req, res) => {
       const { place } = req.query;
 
+      console.log('PLACE:');
+      console.log(place);
+
       log(`Received content request ${place}`);
 
       if (place && place.includes('-')) {
         const [providerAddress, _directory] = place.split('-');
         const directory = decode(_directory);
-        const fileName = decodeURI(req.path.slice(1));
+        const fileName = decodeURIComponent(req.path.slice(1));
         const filePath = path.join(directory, fileName);
 
         if (providerAddress == 'localhost') {
@@ -81,10 +84,8 @@ function dropLingeringConnection() {
 
 function handleBinaryStart({ mimeType, fileName, contentLength, sessionId }) {
   if (this.sessionId == sessionId) {
-    log(fileName);
-
     this.res.set({
-      'Content-Dispositon': `attachment; filename="${fileName}"`,
+      'Content-Dispositon': `attachment; filename="${encodeURIComponent(fileName)}"`,
       'Content-Type': mimeType,
       'Content-Length': contentLength
     });

@@ -4,6 +4,8 @@ const { stopwatchAdv } = dmt;
 
 import contentSearch from './contentSearch';
 
+import { basicMetaInfo } from '../metaInfo';
+
 class LocalProviderSearch {
   constructor({ provider, mediaType }) {
     this.mediaType = mediaType;
@@ -24,22 +26,16 @@ class LocalProviderSearch {
       if (this.localhost) {
         this.timedLocalSearch(contentId, options)
           .then(success)
-          .catch(e => {
-            reject(e);
-          });
+          .catch(reject);
       } else {
         throw new Error('Bug in code: this provider should be local!');
       }
     });
   }
 
-  basicMetaInfo() {
-    return { providerHost: this.providerHost, providerAddress: this.providerAddress, contentId: this.localContentId };
-  }
-
   searchResponse({ response, contentId }) {
     if (!response.error) {
-      Object.assign(response.meta, this.basicMetaInfo(), { totalCount: response.results.length, contentId });
+      Object.assign(response.meta, basicMetaInfo(this), { totalCount: response.results.length, contentId });
     }
 
     return response;
@@ -48,9 +44,7 @@ class LocalProviderSearch {
   localSearch(contentId, { terms, clientMaxResults, mediaType, onlySearchCatalogs }) {
     return new Promise((success, reject) => {
       contentSearch(contentId, { terms, clientMaxResults, mediaType: mediaType || this.mediaType, onlySearchCatalogs })
-        .then(response => {
-          success(this.searchResponse({ response, contentId }));
-        })
+        .then(success)
         .catch(reject);
     });
   }
@@ -60,14 +54,23 @@ class LocalProviderSearch {
 
     return new Promise((success, reject) => {
       this.localSearch(contentId, options)
-        .then(results => {
+        .then(_response => {
+          const response = this.searchResponse({ response: _response, contentId });
+
+          const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
+          Object.assign(response.meta, { searchTime, searchTimePretty });
+
+          success(response);
+        })
+        .catch(e => {
+          const response = { meta: basicMetaInfo(this), error: e.message };
+
           const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
 
-          Object.assign(results.meta, { searchTime, searchTimePretty });
+          Object.assign(response.meta, { contentId, searchTime, searchTimePretty });
 
-          success(results);
-        })
-        .catch(reject);
+          success(response);
+        });
     });
   }
 }

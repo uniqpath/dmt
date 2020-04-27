@@ -1,17 +1,51 @@
 #!/bin/bash
 
-# HELPER FUNCTIONS
-. ./helpers
-
 # DEFINE COLORS
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
-RED='\033[0;31m'
-BLUE='\033[0;94m'
-CYAN='\e[0;36m'
-MAGENTA='\033[0;35m'
-GRAY='\e[1;30m'
-WHITE='\e[33;97m'
 NC='\033[0m' # No Color
 
-./symlink_user_core "$arg"
+# parse cli arguments
+
+arg="$1"
+
+if [ "$arg" == "-h" ] || [ "$arg" == "help" ]; then
+  printf "${GREEN}-h${NC} or ${GREEN}help${NC}\n"
+  printf "${GREEN}remove${NC}\n"
+  exit
+fi
+
+# change working dir to ~/.dmt/core/node
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+cwd="`pwd`"
+cd "$DIR/.."
+
+# the only symlink we have to make:
+#   ~/.dmt/core/node/dmt-js/node_modules/connectome -> ../../connectome
+symlink="dmt-js/node_modules/connectome"
+
+if [ "$arg" == "remove" ]; then
+  if [ -L "$symlink" ]; then
+    rm "$symlink"
+  fi
+else # create symlink
+  if [ ! -L "$symlink" ]; then
+    ln -s ../../connectome "$symlink"
+  fi
+fi
+
+# symlink apps
+
+if [ -f .scripts/symlink_apps ]; then
+  ./.scripts/symlink_apps "$arg"
+fi
+
+# symlink user core
+
+if [ -f .scripts/symlink_user_core ]; then
+  ./.scripts/symlink_user_core "$arg"
+fi
+
+cd "$cwd"

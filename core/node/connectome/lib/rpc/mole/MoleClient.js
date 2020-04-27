@@ -74,7 +74,7 @@ class MoleClient {
         if (this.pendingRequest[id]) {
           delete this.pendingRequest[id];
 
-          reject(new X.RequestTimout(data));
+          reject(new X.RequestTimeout(data));
         }
       }, this.requestTimeout);
 
@@ -193,6 +193,9 @@ class MoleClient {
     const errorBuilder = {
       [errorCodes.METHOD_NOT_FOUND]: () => {
         return new X.MethodNotFound(errorData.message);
+      },
+      [errorCodes.REMOTE_INTERNAL_ERROR]: () => {
+        return new X.RemoteInternalError(errorData.message);
       }
     }[errorData.code];
 

@@ -9,6 +9,14 @@ It provides code for the initiator of connections and it works transparently bet
 - two node.js processes
 - between in-browser JavaScript and a node.js process
 
+## Features
+
+- send and receive json messages
+- RPC calls on objects
+- send and receive files
+
+All messages and chunks are encrypted.
+
 ## How to start?
 
 Get the library on your computer:
@@ -21,20 +29,18 @@ npm install
 ### Run a sample server and client:
 
 ```
-cd examples
+cd samples/simple
 ```
 
-Run connection receiver in first terminal tab:
+Run server in first terminal tab:
 ```
-node --experimental-modules --experimental-specifier-resolution=node server.js
-```
-
-Run one connection initiator in another terminal tab:
-```
-node --experimental-modules --experimental-specifier-resolution=node client.js
+node --experimental-specifier-resolution=node server.js
 ```
 
-You can try running more than one as well. Each one will set a connection with receiver with a different shared key.
+Run client in another terminal tab:
+```
+node --experimental-specifier-resolution=node client.js
+```
 
 ## Warning
 

@@ -32,7 +32,7 @@ function server(program) {
             .catch(error => {
               log.red('IPC server error:');
               log.red(error);
-              ipc.server.emit(socket, 'ack', { error: `ERROR PASSED TO IPC SERVER: ${error.message}` });
+              ipc.server.emit(socket, 'ack', { error: error.message });
             });
         } else {
           log.red(`Cannot process IPC request: ${data}`);

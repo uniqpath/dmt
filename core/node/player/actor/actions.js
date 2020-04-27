@@ -42,7 +42,7 @@ function getActions() {
 
 function infoHandler() {
   return new Promise((success, reject) => {
-    const data = { methods: actions().map(action => action.command) };
+    const data = { methods: getActions().map(action => action.command) };
     success(data);
   });
 }

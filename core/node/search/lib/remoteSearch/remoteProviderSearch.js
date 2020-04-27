@@ -1,7 +1,7 @@
 import dmt from 'dmt/bridge';
 const { log, stopwatchAdv, prettyTime } = dmt;
-
 import { serializeArgs } from 'dmt/search';
+import { basicMetaInfo } from '../metaInfo';
 
 class RemoteProviderSearch {
   constructor({ provider, connector, mediaType }) {
@@ -16,6 +16,14 @@ class RemoteProviderSearch {
     this.localhost = provider.localhost;
   }
 
+  searchResponse({ response, contentId, networkTime, networkTimePretty }) {
+    if (!response.error) {
+      Object.assign(response.meta, basicMetaInfo(this), { totalCount: response.results.length, contentId, networkTime, networkTimePretty });
+    }
+
+    return response;
+  }
+
   search({ terms, clientMaxResults, mediaType, contentRef }) {
     const contentId = contentRef || this.localContentId;
 
@@ -26,8 +34,8 @@ class RemoteProviderSearch {
         const start = stopwatchAdv.start();
 
         this.connector
-          .remoteObject('actors')
-          .call('call', ['search', 'search', args])
+          .remoteObject('search')
+          .call('search', args)
           .then(response => {
             if (Array.isArray(response) && response.length == 1) {
               response = response[0];
@@ -43,32 +51,18 @@ class RemoteProviderSearch {
             success(this.searchResponse({ response, contentId, networkTime, networkTimePretty }));
           })
           .catch(error => {
-            let message;
+            let { message } = error;
+
             if (error.errorCode == 'CLOSED_CHANNEL') {
               message = 'provider currently unreachable';
-              success({ meta: this.basicMetaInfo(), error: message || error.message });
-            } else {
-              log.red('Unexpected error');
-              log.red(error);
-              throw error;
             }
+
+            success({ meta: basicMetaInfo(this), error: message });
           });
       } else {
         throw new Error('Bug in code: this provider should be remote!');
       }
     });
-  }
-
-  basicMetaInfo() {
-    return { providerHost: this.providerHost, providerAddress: this.providerAddress, contentId: this.localContentId };
-  }
-
-  searchResponse({ response, contentId, networkTime, networkTimePretty }) {
-    if (!response.error) {
-      Object.assign(response.meta, this.basicMetaInfo(), { totalCount: response.results.length, contentId, networkTime, networkTimePretty });
-    }
-
-    return response;
   }
 }
 

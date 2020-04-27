@@ -1,10 +1,9 @@
 import MultiProviderSearch from './lib/multiProviderSearch';
 
-import { parseArgs, serializeArgs } from './lib/args';
+import detectMediaType from './lib/utils/detectMediaType';
+import { parseArgs, serializeArgs } from './lib/utils/args';
 
 import initActor from './actor';
-
-import detectMediaType from './lib/detectMediaType';
 
 function init(program) {
   initActor(program);

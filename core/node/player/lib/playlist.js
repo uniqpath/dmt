@@ -200,7 +200,7 @@ class Playlist {
 
     this.cutMarked();
 
-    const rangePatternOrStr = args.join(' ');
+    const rangePatternOrStr = Array.isArray(args) ? args.join(' ') : args;
 
     if (rangePatternOrStr.match(/[a-zA-Z]/)) {
       this.cutSearch(rangePatternOrStr);

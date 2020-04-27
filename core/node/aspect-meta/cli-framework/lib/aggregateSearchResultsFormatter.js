@@ -1,4 +1,5 @@
 import colors from 'colors';
+
 import resultsFormatter from './resultsFormatter';
 
 function aggregateResultsFormatter(aggregateResults) {

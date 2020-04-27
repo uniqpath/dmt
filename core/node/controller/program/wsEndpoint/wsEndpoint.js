@@ -3,7 +3,7 @@ function wsEndpointWrapper({ program, actors }) {
 }
 
 function wsEndpoint({ program, actors, channel }) {
-  channel.registerRemoteObject('actors', actors);
+  actors.setupChannel(channel);
 }
 
 export default wsEndpointWrapper;

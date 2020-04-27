@@ -1,7 +1,7 @@
 import dmt from 'dmt/bridge';
 const { log } = dmt;
 
-import { parseArgs } from '../lib/args';
+import { parseArgs } from '../lib/utils/args';
 
 import MultiProviderSearch from '../lib/multiProviderSearch';
 

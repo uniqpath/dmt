@@ -1,0 +1,79 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+arg="$1"
+
+if [ "$arg" == "-h" ] || [ "$arg" == "help" ]; then
+  printf "${GREEN}-h${NC} or ${GREEN}help${NC}\n"
+  printf "${GREEN}remove${NC}\n"
+  exit
+fi
+
+# function create_app_def() {
+#   local app_name="$1"
+
+#   local app_def_file="./def/app.def"
+#   if [ ! -f "$app_def_file" ]; then
+#     mkdir -p def
+#     cat >"$app_def_file" <<EOL
+# app: ${app_name}
+#   description:
+#   icon:
+# EOL
+#   fi
+# }
+
+function process_app() {
+  local app="$1"
+  #create_app_def "$app_name"
+  #printf "${GREEN}Preparing app ${YELLOW}${app_name} ${GREEN}✓${NC}\n"
+
+  # the only symlink we have to make for each app:
+  #   [app]/front/node_modules/dmt-js -> ../../../../dmt-js
+  symlink="front/node_modules/dmt-js"
+
+  if [ -d "front/node_modules" ]; then
+    if [ "$arg" == "remove" ]; then
+      if [ -L "$symlink" ]; then
+        rm "$symlink"
+      fi
+    else # create symlink
+      if [ ! -L "$symlink" ]; then
+        ln -s ../../../../dmt-js "$symlink"
+      fi
+    fi
+  else
+    DMT_THIS_DEVICE=~/.dmt/user/devices/this
+    if [ -f "$DMT_THIS_DEVICE/.dev-machine" ]; then
+      printf "⚠️  ${GRAY}SYMLINK_APPS${NC} ${YELLOW}Cannot process app ${MAGENTA}${app}${NC} (${GRAY}front/node_modules${NC} directory missing)${NC}\n"
+    fi
+  fi
+}
+
+APPS_DIR="$DIR/../aspect-apps"
+
+if [ ! -d "$APPS_DIR" ]; then
+  exit
+fi
+
+cwd="`pwd`"
+cd "$APPS_DIR"
+
+for app in *; do
+  if [ -d "$app" ]; then
+    cd "$app"
+    process_app "$app"
+    cd ..
+  fi
+done
+
+cd "$cwd"

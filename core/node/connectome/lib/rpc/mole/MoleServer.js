@@ -74,15 +74,29 @@ class MoleServer {
     } else {
       this.currentTransport = transport;
 
-      const result = await this.methods[methodName].apply(this.methods, params);
+      try {
+        const result = await this.methods[methodName].apply(this.methods, params);
 
-      if (!id) return;
+        if (!id) return;
 
-      response = {
-        jsonrpc: '2.0',
-        result: typeof result === 'undefined' ? null : result,
-        id
-      };
+        response = {
+          jsonrpc: '2.0',
+          result: typeof result === 'undefined' ? null : result,
+          id
+        };
+      } catch (e) {
+        console.log(`Exposed RPC method ${method} internal error:`);
+        console.log(e);
+        console.log('Sending this error as a result to calling client ...');
+        response = {
+          jsonrpc: '2.0',
+          error: {
+            code: errorCodes.REMOTE_INTERNAL_ERROR,
+            message: `Method [${method}] internal error: ${e.stack}`
+          },
+          id
+        };
+      }
     }
 
     return response;

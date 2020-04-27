@@ -30,11 +30,11 @@ class InvalidParams extends Base {
   }
 }
 
-class InternalError extends Base {
-  constructor() {
+class RemoteInternalError extends Base {
+  constructor(message) {
     super({
-      code: errorCodes.INTERNAL_ERROR,
-      message: 'Internal error'
+      code: errorCodes.REMOTE_INTERNAL_ERROR,
+      message: `Error originating at remote endpoint: ${message}` || 'Remote Internal error'
     });
   }
 }
@@ -59,7 +59,7 @@ class InvalidRequest extends Base {
 
 class ServerError extends Base {}
 
-class RequestTimout extends ServerError {
+class RequestTimeout extends ServerError {
   constructor(message) {
     super({
       code: -32001,
@@ -73,8 +73,8 @@ export default {
   MethodNotFound,
   InvalidRequest,
   InvalidParams,
-  InternalError,
+  RemoteInternalError,
   ServerError,
   ParseError,
-  RequestTimout
+  RequestTimeout
 };

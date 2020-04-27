@@ -7,7 +7,7 @@ const { log } = dmt;
 import { FiberPool, contentServer } from 'dmt/connectome';
 
 import initControllerActor from '../actor';
-import Actors from './actors';
+import Actors from './actors/actors';
 
 import initIntervalTicker from './interval';
 import { setupTimeUpdater } from './interval/timeUpdater';

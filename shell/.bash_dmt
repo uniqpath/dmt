@@ -66,7 +66,6 @@ function dmt {
     "stop"
     "state"
     "link"
-    "checklink"
     "unlink"
     "relink"
     "deactivate"
@@ -92,7 +91,7 @@ function dmt {
   dmt_opts_matcher matching_opt "$command" "${opts[@]}"
   if [ $? -ne 0 ]; then # error
     if [ -z "$hosts" ]; then
-      printf "Try ${GREEN}dmt help${NC} as well.\n"
+      printf "Try ${GREEN}dmt help${NC}.\n"
       if [ -z "$1" ] && [ -n "$proc" ] ; then
         echo
         printf "${CYAN}This device info:${NC}\n\n"
@@ -104,7 +103,7 @@ function dmt {
     fi
 
     if [ -z "$1" ]; then
-      matching_opt="plain"
+      matching_opt="help"
     else
       return
     fi
@@ -132,26 +131,10 @@ function dmt {
   # ----
 
   case "$matching_opt" in
-    plain)
-      #echo "plain"
-      # printf "${MAGENTA}Enabled aliasing:${NC}\n"
-      # printf "${GREEN}✓${NC} 1) search and play${NC}\n"
-      # printf "${GREEN}✓${NC} 2) networking${NC}\n"
-      # printf "${RED}✖${NC} 3) extended aliases${NC}\n"
-      # echo
-      # printf "${GREEN}Enable group:${NC} dmt enable_al [num] ${WHITE}| ${RED}Disable group:${NC} ${GRAY}dmt disable_al [num]${NC}\n"
-      $DMT_NODEJS_EXEC "$DMT_CLI" help "$@"
-      ;;
-
     help)
       dmt_help
 
-      # echo
-      # printf "${MAGENTA}Available rpc methods: ${NC}\n\n"
-
       if [ -n "$hosts" ]; then
-        #node "$DMT_CLI" "${hosts}" help "$@"
-
         dmt_help_explain_rpc
       else
         dmt_help_explain_rpc
@@ -189,7 +172,7 @@ function dmt {
         # if [ -n "$dmt_proc_pid" ]; then
         #   node "$DMT_CLI" gui_test "$@"
         # fi
-        dmt_gui "@this" "$@"
+        dmt_gui "$@"
       fi
       ;;
 
@@ -313,7 +296,7 @@ function dmt {
         local cwd="`pwd`"
         cd "$dir"
         ./symlink_dmt_deps
-        printf "${GREEN}Linked.${NC}\n"
+        # printf "${GREEN}Linked.${NC}\n"
         cd "$cwd"
       fi
       ;;
@@ -324,17 +307,17 @@ function dmt {
         local cwd="`pwd`"
         cd "$dir"
         ./symlink_dmt_deps "remove"
-        printf "${MAGENTA}Unlinked.${NC}\n"
+        # printf "${MAGENTA}Unlinked.${NC}\n"
         cd "$cwd"
       fi
       ;;
 
-    checklink)
-      local cwd="`pwd`"
-      cd "$DMT_NODE_CORE/.scripts"
-      ./symlink_dmt_deps "check"
-      cd "$cwd"
-      ;;
+    # checklink)
+    #   local cwd="`pwd`"
+    #   cd "$DMT_NODE_CORE/.scripts"
+    #   ./symlink_dmt_deps "check"
+    #   cd "$cwd"
+    #   ;;
 
     relink) #rarely used, usually "dmt link" is enough for this purpose as well... use "dmt relink" only if suddenly symlinks should point somewewhere else... if just some new symlinks have to be added, there is no need to unlink first, the symlinking script (dmt link) will add what's missing
       dmt unlink
@@ -797,7 +780,7 @@ function dmt_gui {
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}dmt gui test${NC} ${GRAY}display a test notification on the gui${NC}\n"
     printf "${GREEN}dmt gui @deviceId test${NC} ${GRAY}display a test notification on remote gui${NC}\n"
-    printf "${GREEN}dmt gui cd [view]${NC} ${GRAY}${NC}\n"
+    #printf "${GREEN}dmt gui cd [view]${NC} ${GRAY}${NC}\n"
     # printf "${GREEN}dmt_gui run${NC} ${GRAY}${NC}\n"
     # printf "${GREEN}dmt_gui build${NC} ${GRAY}build all GUIs${NC}\n"
     # printf "${GREEN}dmt_gui build [gui]${NC} ${GRAY}${NC}\n"
@@ -842,37 +825,43 @@ function dmt_gui {
       ;;
 
     run)
-      dmt_symlink_nodejs_deps
+      dmt_symlink_nodejs_deps # does not have an influence - this builds dmt apps, not dmt core.. will fix later
+      local cwd="`pwd`"
+      cd "$dir/app"
+      npm run dev
+      cd "$cwd"
 
-      if [ -z "$1" ]; then
-        gui run app
-      elif [ "$1" == "." ]; then
-        npm run dev
-      else
-        awesome_cd "$dir" "$1"
-        if [ $? -eq 0 ]; then
-          npm run dev
-        fi
-      fi
+      # if [ -z "$1" ]; then
+      #   gui run app
+      # elif [ "$1" == "." ]; then
+      #   npm run dev
+      # else
+      #   awesome_cd "$dir" "$1"
+      #   if [ $? -eq 0 ]; then
+      #     npm run dev
+      #   fi
+      # fi
       ;;
 
     build)
-      dmt_symlink_nodejs_deps
-
+      dmt_symlink_nodejs_deps # does not have an influence - this builds dmt apps, not dmt core.. will fix later
       local cwd="`pwd`"
-
-      if [ -z "$1" ]; then
-        dmt_gui build app
-        cd "$cwd"
-        return
-      fi
-
-      awesome_cd "$dir" "$1"
-      if [ $? -eq 0 ]; then
-        npm run build
-      fi
-
+      cd "$dir/app"
+      npm run build
       cd "$cwd"
+
+      # if [ -z "$1" ]; then
+      #   dmt_gui build app
+      #   cd "$cwd"
+      #   return
+      # fi
+
+      # awesome_cd "$dir" "$1"
+      # if [ $? -eq 0 ]; then
+      #   npm run build
+      # fi
+
+
       ;;
 
     debug)
@@ -922,17 +911,6 @@ function dmt_help {
   printf "  ${CYAN}■${NC} ${GREEN}dmt device ${GRAY}device configuration and information${NC}\n"
 
   echo
-  printf "${YELLOW}Process replication:${NC}\n"
-  echo
-  printf "  ${GREEN}■${NC} ${GREEN}dmt next ${GRAY}gets the latest dmt-system code from the source${NC}\n"
-  #printf "  ${GREEN}■${NC} ${GREEN}dmt next --dry ${GRAY}show what would ${WHITE}dmt next${GRAY} command do${NC}\n"
-  echo
-  printf "  ${CYAN}■${NC} ${GREEN}dmt update [deviceId|ip_address] ${GRAY}clones or updates ~/.dmt directory at another machine via SSH${NC}\n"
-  printf "  ${CYAN}■${NC} ${GREEN}dmt renew [deviceId|ip_address] ${GRAY}same as above and in addition it restarts the process after update${NC}\n"
-  echo
-  printf "  Another way to clone/update: ${CYAN}curl [machineIp]:1111 | bash ${NC}→ ${GRAY}replicates ~/.dmt directory\n"
-  printf "  ${GRAY}(without ~/.dmt/user|state|log) from [machineIp] to machine where command was executed${NC}\n"
-  echo
   # printf "${YELLOW}Deactivation:${NC}\n"
   # echo
   # printf "  ${CYAN}■${NC} ${GREEN}dmt deactivate ${GRAY}deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY})${NC}\n"
@@ -950,6 +928,18 @@ function dmt_help {
   #printf "  ${CYAN}■${NC} ${GREEN}dmt loglan ${GRAY}starts listening to network log message broadcasts${NC}\n"
 
   echo
+  printf "${YELLOW}Process replication:${NC}\n"
+  echo
+  printf "  ${GREEN}■${NC} ${GREEN}dmt next ${GRAY}gets the latest dmt-system code from the source${NC}\n"
+  #printf "  ${GREEN}■${NC} ${GREEN}dmt next --dry ${GRAY}show what would ${WHITE}dmt next${GRAY} command do${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${GREEN}dmt update [deviceId|ip_address] ${GRAY}clones or updates ~/.dmt directory at another machine via SSH${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt renew [deviceId|ip_address] ${GRAY}same as above and in addition it restarts the process after update${NC}\n"
+  echo
+  printf "  Another way to clone/update: ${CYAN}curl [machineIp]:1111 | bash ${NC}→ ${GRAY}replicates ~/.dmt directory\n"
+  printf "  ${GRAY}(without ~/.dmt/user|state|log) from [machineIp] to machine where command was executed${NC}\n"
+
+  echo
   printf "${YELLOW}Other:\n${NC}"
   echo
   #printf "  ${CYAN}■${NC} ${CYAN}dmt services ${GRAY}shows configured services (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
@@ -959,6 +949,9 @@ function dmt_help {
 }
 
 function dmt_help_explain_rpc {
+  echo
+  return
+
   echo
   printf "${GRAY}_____________________________________________________________________________${NC}\n"
   echo
@@ -976,8 +969,8 @@ function dmt_help_explain_rpc {
 
 function dmt_version {
   printf "${MAGENTA}v$(cat "$DMT_PATH/.version")${NC}\n\n"
-  local NUM=$(cat $HOME/.bash_aliases | grep function | wc -l | xargs)
-  printf "${WHITE}${NUM} bash functions ${GRAY}\nin ~/.bash_aliases${NC}\n"
+  local NUM=$(cat $HOME/.dmt/etc/.bash_aliases_bundle | grep function | wc -l | xargs)
+  printf "${WHITE}${NUM} bash functions\n"
 }
 
 function get_dmt_source_from_user_def {
