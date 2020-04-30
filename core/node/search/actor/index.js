@@ -1,10 +1,8 @@
-import actions from './actions';
+import methods from './methods';
 import setup from './setup';
 
-const actorName = 'search';
-
 function init(program) {
-  program.registerActor({ actorName, actions, setup });
+  program.registerActor({ actorName: 'search', methods, setup });
 }
 
 export default init;

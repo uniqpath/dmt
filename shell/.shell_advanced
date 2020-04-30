@@ -4,6 +4,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 . "$DIR/.bash_fs"
+. "$DIR/.bash_media_tools"
 . "$DIR/.bash_general"
 . "$DIR/.bash_short_useful"
 

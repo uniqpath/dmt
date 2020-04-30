@@ -136,7 +136,7 @@ else # clone to and install on remote device
     . ./shell/.shell_advanced
 
     flags=""
-    excludes=""
+    excludes="--exclude core/node/aspect-apps/**/node_modules --exclude user/apps/**/node_modules"
     RESTART=false
 
     # bash cli parser, source: https://medium.com/@Drew_Stokes/bash-argument-parsing-54f3b81a6a8f

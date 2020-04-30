@@ -10,7 +10,7 @@ class RemoteProviderSearch {
 
     this.providerHost = provider.host;
     this.providerAddress = dmt.hostAddress(provider);
-
+    this.providerPort = provider.port;
     this.localContentId = provider.contentRef;
 
     this.localhost = provider.localhost;
@@ -35,7 +35,7 @@ class RemoteProviderSearch {
 
         this.connector
           .remoteObject('search')
-          .call('search', args)
+          .call('search', { query: args })
           .then(response => {
             if (Array.isArray(response) && response.length == 1) {
               response = response[0];

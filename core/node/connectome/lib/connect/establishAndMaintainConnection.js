@@ -8,6 +8,8 @@ function establishAndMaintainConnection(
 ) {
   const endpoint = `ws://${address}:${port}`;
 
+  log(`Trying to connect to ws endpoint ${endpoint} ...`);
+
   const connector = obj || new Connector({ address, protocolLane, clientPrivateKey, clientPublicKey, clientInitData, verbose });
 
   if (resumeNow) {

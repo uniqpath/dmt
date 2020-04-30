@@ -6,6 +6,10 @@ import stores from './lib/stores';
 import Emitter from './lib/emitter';
 import cssBridge from './lib/cssBridge';
 
+import { executeSearch } from './lib/search';
+
 import Escape from './gui_components/Escape.svelte';
 
-export { stores, Emitter, ansicolor, util, xstate, cssBridge, Escape };
+import mediaTypeIcon from './lib/mediaTypeIcon';
+
+export { stores, executeSearch, Emitter, ansicolor, util, xstate, cssBridge, Escape, mediaTypeIcon };

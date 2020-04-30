@@ -1,16 +1,16 @@
-import path from 'path';
 import dmt from 'dmt/bridge';
-
-import { fiberHandle } from 'dmt/connectome';
 
 import LocalProviderSearch from './localSearch/localProviderSearch';
 import RemoteProviderSearch from './remoteSearch/remoteProviderSearch';
 
+import enhanceResult from './enhanceResult';
+
 const { log, util } = dmt;
 
 class MultiProviderSearch {
-  constructor({ program, providers, mediaType } = {}) {
+  constructor({ program, providers, mediaType, searchOriginHost } = {}) {
     this.program = program;
+    this.searchOriginHost = searchOriginHost;
 
     const providerList = util.listify(providers).map(provider => Object.assign(provider, { providerAddress: dmt.hostAddress(provider) }));
 
@@ -25,7 +25,7 @@ class MultiProviderSearch {
     });
 
     remoteProviders.forEach(provider => {
-      program.fiberPool.getConnector(provider.providerAddress).then(connector => {
+      program.fiberPool.getConnector(provider.providerAddress, provider.port || 7780).then(connector => {
         this.searchArray.push(new RemoteProviderSearch({ provider, mediaType, connector }));
       });
     });
@@ -47,21 +47,10 @@ class MultiProviderSearch {
   }
 
   processResponses(allResponses) {
-    for (const { providerResponse, providerAddress } of allResponses) {
+    for (const { providerResponse, providerAddress, providerPort } of allResponses) {
       if (providerResponse.results) {
         providerResponse.results.forEach(result => {
-          const fileName = path.basename(result.filePath);
-          const directory = path.dirname(result.filePath);
-
-          result.fiberHandle = fiberHandle.create({ fileName, directory, ip: providerAddress });
-
-          result.fiberContentURL = `http://localhost:${dmt.determineGUIPort()}/file/${result.fiberHandle}`;
-
-          if (result.fiberContentURL.length > 2000) {
-            log.read(
-              `Warning: URL seems to long, limit is 2048 ${result.fiberContentURL}, todo: use better encoding to reduce the file system path size, as well as trim file name if really long?`
-            );
-          }
+          enhanceResult({ result, providerAddress, providerPort, searchOriginHost: this.searchOriginHost });
         });
       }
     }

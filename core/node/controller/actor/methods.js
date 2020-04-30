@@ -1,21 +1,21 @@
 import dmt from 'dmt/bridge';
 const { log } = dmt;
 
-function getActions() {
-  const actions = [];
+function getMethods() {
+  const methods = [];
 
-  actions.push({ command: 'info', handler: infoHandler });
-  actions.push({ command: 'gui_test', handler: guiTestHandler });
+  methods.push({ name: 'info', handler: infoHandler });
+  methods.push({ name: 'gui_test', handler: guiTestHandler });
 
-  actions.push({ command: 'services', handler: servicesHandler });
-  actions.push({ command: 'log', handler: logHandler });
+  methods.push({ name: 'services', handler: servicesHandler });
+  methods.push({ name: 'log', handler: logHandler });
 
-  return actions;
+  return methods;
 }
 
 function infoHandler() {
   return new Promise((success, reject) => {
-    const data = { methods: getActions().map(action => action.command) };
+    const data = { methods: getActions().map(action => action.name) };
     success(data);
   });
 }
@@ -56,6 +56,6 @@ function logHandler({ args }) {
   });
 }
 
-const actions = getActions();
+const methods = getMethods();
 
-export default actions;
+export default methods;

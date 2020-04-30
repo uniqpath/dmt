@@ -137,7 +137,11 @@ class Program extends EventEmitter {
 
     this.fiberPool = new FiberPool({ protocol, protocolLane, port, clientPrivateKey, clientPublicKey });
 
-    this.server.setupRoutes(app => contentServer({ app, fiberPool: this.fiberPool }));
+    this.server.setupRoutes(app => contentServer({ app, fiberPool: this.fiberPool, defaultPort: port }));
+
+    if (this.appCustomPortHttpServer) {
+      contentServer({ app: this.appCustomPortHttpServer.app, fiberPool: this.fiberPool, defaultPort: port });
+    }
   }
 
   continueBooting() {
@@ -151,9 +155,7 @@ class Program extends EventEmitter {
 
     this.server.listen();
 
-    const { allowFollowers } = dmt.fiberInfo();
-
-    if (allowFollowers) {
+    if (dmt.device().id == 'zeta') {
       this.appCustomPortHttpServer.listen();
     }
 

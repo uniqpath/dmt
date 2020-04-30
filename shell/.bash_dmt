@@ -282,10 +282,6 @@ function dmt {
       dmt_renew "$@"
       ;;
 
-    # install)
-    #   dmt_update "$@"
-    #   ;;
-
     deactivate)
       dmt_deactivate
       ;;

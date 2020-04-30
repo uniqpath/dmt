@@ -12,8 +12,12 @@ const sha256 = x =>
     .update(x, 'utf8')
     .digest('hex');
 
-function contentServer({ app, fiberPool }) {
+function contentServer({ app, fiberPool, defaultPort }) {
   log('Starting content server ...');
+
+  if (!defaultPort) {
+    throw new Error('Must provide default fiber port for content server ...');
+  }
 
   import('path').then(path => {
     app.use('/file', (req, res) => {
@@ -37,7 +41,19 @@ function contentServer({ app, fiberPool }) {
 
         const sessionId = sha256(Math.random().toString());
 
-        fiberPool.getConnector(providerAddress).then(connector => {
+        let ip;
+        let port;
+
+        if (providerAddress.includes(':')) {
+          const [_ip, _port] = providerAddress.split(':');
+          ip = _ip;
+          port = _port;
+        } else {
+          ip = providerAddress;
+          port = defaultPort;
+        }
+
+        fiberPool.getConnector(ip, port).then(connector => {
           if (!connector.isConnected()) {
             res.status(503).send('Service Unavailable (upstream fiber disconnected)');
             return;

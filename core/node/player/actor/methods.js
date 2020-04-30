@@ -10,68 +10,67 @@ function parseArgs(args) {
 
 import mapToLocal from '../lib/mapToLocal';
 
-function getActions() {
-  const actions = [];
+function getMethods() {
+  const methods = [];
 
-  actions.push({ command: 'info', handler: infoHandler });
+  methods.push({ name: 'info', handler: infoHandler });
 
-  actions.push({ command: 'search', handler: searchHandler });
-  actions.push({ command: 'play', handler: playHandler });
-  actions.push({ command: 'add', handler: addHandler });
-  actions.push({ command: 'insert', handler: addHandler });
-  actions.push({ command: 'insplay', handler: insertplayHandler });
+  methods.push({ name: 'search', handler: searchHandler });
 
-  actions.push({ command: 'pause', handler });
-  actions.push({ command: 'next', handler });
-  actions.push({ command: 'list', handler });
-  actions.push({ command: 'cut', handler });
-  actions.push({ command: 'paste', handler });
-  actions.push({ command: 'bump', handler });
-  actions.push({ command: 'status', handler });
-  actions.push({ command: 'shuffle', handler });
-  actions.push({ command: 'stop', handler });
-  actions.push({ command: 'volume', handler });
-  actions.push({ command: 'forward', handler });
-  actions.push({ command: 'backward', handler });
-  actions.push({ command: 'goto', handler });
-  actions.push({ command: 'limit', handler });
-  actions.push({ command: 'repeat', handler });
+  methods.push({ name: 'play', handler: playHandler });
+  methods.push({ name: 'pause', handler });
+  methods.push({ name: 'stop', handler });
+  methods.push({ name: 'next', handler });
 
-  return actions;
+  methods.push({ name: 'volume', handler });
+  methods.push({ name: 'status', handler });
+  methods.push({ name: 'list', handler });
+
+  methods.push({ name: 'add', handler: addHandler });
+  methods.push({ name: 'insert', handler: addHandler });
+  methods.push({ name: 'insplay', handler: insertplayHandler });
+
+  methods.push({ name: 'bump', handler });
+  methods.push({ name: 'cut', handler });
+  methods.push({ name: 'paste', handler });
+
+  methods.push({ name: 'forward', handler });
+  methods.push({ name: 'backward', handler });
+  methods.push({ name: 'goto', handler });
+
+  methods.push({ name: 'shuffle', handler });
+  methods.push({ name: 'limit', handler });
+  methods.push({ name: 'repeat', handler });
+
+  return methods;
 }
 
 function infoHandler() {
   return new Promise((success, reject) => {
-    const data = { methods: getActions().map(action => action.command) };
+    const data = { methods: getMethods().map(method => method.name) };
     success(data);
   });
 }
 
-function handler({ args, action }, { player }) {
+function handler({ args, method }, { player }) {
   return new Promise((success, reject) => {
     if (args != '') {
       if (!Array.isArray(args) && args != null) {
         args = [args];
       }
 
-      player[action.command](...args)
-        .then(data => success(data))
-        .catch(e => {
-          reject(e);
-        });
+      player[method.name](...args)
+        .then(success)
+        .catch(reject);
     } else {
-      player[action.command]()
-        .then(data => {
-          success(data);
-        })
-        .catch(e => {
-          reject(e);
-        });
+      player[method.name]()
+        .then(success)
+        .catch(reject);
     }
   });
 }
 
-function searchHandler({ args, action }, { searchClient }) {
+function searchHandler({ args, method }, { searchClient }) {
   return new Promise((success, reject) => {
     args = parseArgs(args);
 
@@ -87,18 +86,16 @@ function searchHandler({ args, action }, { searchClient }) {
   });
 }
 
-function playHandler({ args, action }, { searchClient, player }) {
+function playHandler({ args, method }, { searchClient, player }) {
   args = parseArgs(args);
 
   return new Promise((success, reject) => {
-    if (action.command == 'play') {
+    if (method.name == 'play') {
       if (args.terms.length == 0) {
         player
           .play()
           .then(success)
-          .catch(e => {
-            reject(e);
-          });
+          .catch(reject);
         return;
       }
 
@@ -109,13 +106,13 @@ function playHandler({ args, action }, { searchClient, player }) {
       }
     }
 
-    addHandler({ args, action }, { searchClient, player })
+    addHandler({ args, method }, { searchClient, player })
       .then(success)
       .catch(reject);
   });
 }
 
-function addHandler({ args, action }, { searchClient, player }) {
+function addHandler({ args, method }, { searchClient, player }) {
   return new Promise((success, reject) => {
     searchHandler({ args }, { searchClient })
       .then(aggregateResults => {
@@ -135,11 +132,9 @@ function addHandler({ args, action }, { searchClient, player }) {
 
         const playableResults = mappedResults.map(res => res.results.map(result => result.filePath)).flat();
 
-        player[action.command]({ files: playableResults })
+        player[method.name]({ files: playableResults })
           .then(success)
-          .catch(e => {
-            reject(e);
-          });
+          .catch(reject);
 
         success(successfulResults);
       })
@@ -169,6 +164,6 @@ function insertplayHandler({ args }, { searchClient, player }) {
   });
 }
 
-const actions = getActions();
+const methods = getMethods();
 
-export default actions;
+export default methods;

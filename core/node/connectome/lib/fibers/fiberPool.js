@@ -8,25 +8,31 @@ class FiberPool {
     this.isPreparingConnector = {};
   }
 
-  getConnector(ip) {
+  getConnector(ip, port) {
+    const ipWithPort = `${ip}:${port}`;
+
+    if (!ip || !port) {
+      throw new Error(`Must provide both ip and port: ${ipWithPort}`);
+    }
+
     return new Promise((success, reject) => {
-      if (this.connectors[ip]) {
-        success(this.connectors[ip]);
+      if (this.connectors[ipWithPort]) {
+        success(this.connectors[ipWithPort]);
         return;
       }
 
-      if (this.isPreparingConnector[ip]) {
+      if (this.isPreparingConnector[ipWithPort]) {
         setTimeout(() => {
-          this.getConnector(ip)
+          this.getConnector(ip, port)
             .then(success)
             .catch(reject);
         }, 10);
       } else {
-        this.isPreparingConnector[ip] = true;
+        this.isPreparingConnector[ipWithPort] = true;
 
-        firstConnectWaitAndContinue({ ...this.options, ...{ address: ip } }).then(connector => {
-          this.connectors[ip] = connector;
-          this.isPreparingConnector[ip] = false;
+        firstConnectWaitAndContinue({ ...this.options, ...{ address: ip, port } }).then(connector => {
+          this.connectors[ipWithPort] = connector;
+          this.isPreparingConnector[ipWithPort] = false;
 
           success(connector);
         });

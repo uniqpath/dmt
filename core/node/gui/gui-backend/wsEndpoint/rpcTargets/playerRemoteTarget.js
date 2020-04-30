@@ -16,20 +16,21 @@ class PlayerTarget extends EventEmitter {
     });
   }
 
-  search(args) {
-    return this.action('search', args);
+  search({ query }) {
+    console.log(`RECEIVED QUERY: ${query}`);
+    return this.action('search', query);
   }
 
-  add(args) {
-    return this.action('add', args);
+  add({ query }) {
+    return this.action('add', query);
   }
 
-  insert(args) {
-    return this.action('insert', args);
+  insert({ query }) {
+    return this.action('insert', query);
   }
 
-  play(args) {
-    return this.action('play', args);
+  play({ query }) {
+    return this.action('play', query);
   }
 }
 

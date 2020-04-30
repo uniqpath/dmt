@@ -1,5 +1,5 @@
 import dmt from 'dmt/bridge';
-const { cli } = dmt;
+const { cli, util } = dmt;
 
 function parseArgs({ args, actorName, defaultMediaType }) {
   if (typeof args === 'string') {
@@ -19,7 +19,7 @@ function parseArgs({ args, actorName, defaultMediaType }) {
 }
 
 function serializeArgs({ terms, mediaType, count, contentRef }) {
-  const list = terms;
+  const list = util.clone(terms);
 
   if (mediaType) {
     list.push(`@media=${mediaType}`);

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# IMPORTANT: dmt shell loads dynamically via loader and ~/.shell_basic and ~/.shell_advanced
+# Compiled files are needed sometimes when executing on remote machines or when we need to include one file with all functions from some script
+
 source .bash_util
 
 target="../etc/.bash_aliases_bundle"
@@ -42,7 +45,7 @@ cat >> "$target" <<EOF
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 EOF
 
-cat .bash_short_useful .bash_core_helpers .bash_networking .bash_electronics .bash_dmt_search .bash_dmt_media .bash_dep .bash_sbc .bash_dmt >> "$target"
+cat .bash_short_useful .bash_core_helpers .bash_networking .bash_electronics .bash_dmt_search .bash_dmt_media .bash_media_tools .bash_dep .bash_sbc .bash_dmt >> "$target"
 
 printf "${CYAN}💡 DMT SHELL ${GREEN}on ${CYAN}$(hostname) ${GREEN}constructed and ready 🚀🎸${NC}\n"
 

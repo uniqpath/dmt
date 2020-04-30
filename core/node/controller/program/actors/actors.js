@@ -7,17 +7,17 @@ class Actors {
     this.actors = {};
   }
 
-  register({ actorName, actions, setup }) {
+  register({ actorName, methods, setup }) {
     let setupResults;
 
     if (setup) {
       setupResults = setup({ program: this.program, actorName });
     }
 
-    for (const action of actions) {
-      const handler = createHandler({ action, actorName, program: this.program }, setupResults);
+    for (const method of methods) {
+      const handler = createHandler({ method, actorName, program: this.program }, setupResults);
       this.actors[actorName] = this.actors[actorName] || {};
-      this.actors[actorName][action.command] = handler;
+      this.actors[actorName][method.name] = handler;
     }
   }
 
@@ -38,6 +38,7 @@ class Actors {
   call(actorName, methodName, args) {
     return new Promise((success, reject) => {
       const method = this.actors[actorName][methodName];
+
       if (method) {
         method(args)
           .then(success)

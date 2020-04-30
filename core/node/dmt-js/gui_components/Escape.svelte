@@ -4,7 +4,7 @@
 
 <div class="escape">
   <a href="/apps">
-    <img src="/img/icons/home.png" />
+    <img src="/img/zeta_escape.png" />
   </a>
 </div>
 

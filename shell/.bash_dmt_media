@@ -4,7 +4,7 @@
 # music (default), video (@media=video)
 function dmt_media {
   declare -a opts=(
-    "help"
+    "info"
 
     "search"
 
@@ -20,10 +20,8 @@ function dmt_media {
     "add"
     "insert"
     "insplay" # insert-play
-    #"clone" # repeats current song n-times (default: 1)
-    "bump" # moves song to the next position
 
-    "shuffle"
+    "bump" # "set next"
     "cut"
     "paste"
 
@@ -31,69 +29,31 @@ function dmt_media {
     "backward"
     "goto"
 
+    "shuffle"
     "limit"
     "repeat"
-
-    # "spaced"
-    # "unspaced"
   )
 
-  if [ "$1" == "-h" ]; then
-    printf "${YELLOW}Usage:${NC}\n"
-    printf "${GREEN}${opts[@]}${NC}\n"
-    return
-  fi
-
-  # m [command] @hosts [terms]
-  local command=''
-
-  if [[ "$1" != @* ]]; then
-    command="$1"
-    shift
-  fi
-
-  #-----------#-----------#----------- A BIT OF DUPLICATE CODE FROM function dmt
-  local hosts=""
-
-  local args
-  IFS=' ' read -r -a args <<< "$@"
-
-  for arg in "${args[@]}"
-  do
-    if [ "$arg" == "@all" ]; then
-      local network_id=''
-      get_current_network network_id
-      if [ -n "$network_id" ]; then
-        # extract host from @ symbol but replace @all with the name of current network !
-        hosts="${hosts} @@$network_id"
-        shift
-      fi
-    elif [[ "$arg" == @* ]] && [[ ! "$arg" =~ = ]]; then # @count=200 etc. these should not be treated as hostnames
-      hosts="${hosts} ${arg}"
-      shift
-    fi
-  done
-
-  hosts=$(echo "$hosts" | xargs) # remove trailing whitespace
-  #-----------#-----------#-----------
-
   local matching_opt=''
-  dmt_opts_matcher matching_opt "no_warning" "${command}" "${opts[@]}"
-  if [ $? -ne 0 ]; then # error
-    matching_opt="play" # default command when none specified
+
+  if [ "$1" == 'help' ] || [ "$1" == '-h' ] || [ "$1" == '--help' ]; then
+    matching_opt="info"
+  else
+    dmt_opts_matcher matching_opt "$1" "${opts[@]}"
+    if [ $? -ne 0 ]; then # error
+      if [ -z "$1" ]; then
+        matching_opt="info"
+      else
+        return
+      fi
+    fi
   fi
+
+  shift
 
   local playerCmd="$DMT_NODE_CORE/player/cli/media.js"
 
-  if [ ! -f "$playerCmd" ]; then # dmt shell before v1.0.79 :::
-    playerCmd="$DMT_NODE_CORE/controller/cli/music.js"
-  fi
-
-  if [ -z "$hosts" ]; then
-    $DMT_NODEJS_EXEC "$playerCmd" "${matching_opt}" "$@"
-  else
-    $DMT_NODEJS_EXEC "$playerCmd" "${hosts}" "${matching_opt}" "$@"
-  fi
+  $DMT_NODEJS_EXEC "$playerCmd" "${matching_opt}" "$@"
 }
 
 function dmt_save_alsa {

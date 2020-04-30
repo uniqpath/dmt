@@ -1,10 +1,8 @@
-import actions from './actions';
+import methods from './methods';
 import setup from './setup';
 
-const actorName = 'player';
-
 function init(program) {
-  program.registerActor({ actorName, actions, setup });
+  program.registerActor({ actorName: 'player', methods, setup });
 }
 
 export default init;

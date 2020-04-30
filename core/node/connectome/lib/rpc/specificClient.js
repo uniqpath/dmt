@@ -14,7 +14,7 @@ class SpecificRpcClient {
     this.connectorOrServersideChannel = connectorOrServersideChannel;
 
     this.client = new MoleClient({
-      requestTimeout: 1000,
+      requestTimeout: 5000,
       transport: new ClientTransport(this.moleChannel)
     });
   }

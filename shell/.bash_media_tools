@@ -1,0 +1,67 @@
+#!/bin/bash
+
+###############
+# media tools #
+###############
+
+function mp3_convert_helper {
+  local flacFile="$1"
+  local mp3File=$(echo "$flacFile" | sed "s/\.flac/\.mp3/")
+
+  printf "${GREEN}CONVERTING${NC} ${GRAY}$flacFile${NC} → ${YELLOW}$mp3File${NC}\n"
+
+  if [ ! -f "$mp3File" ]; then
+    ffmpeg -i "$flacFile" -acodec libmp3lame -aq 2 "$mp3File"
+  else
+    printf "⚠️  ${RED}Skipping convertsion${NC} of ${YELLOW}${flacFile}${NC} because ${YELLOW}${mp3File}${NC} already exists ...${NC}\n"
+  fi
+}
+
+function convert_to_mp3 {
+  # maybe useful: find *.m4a -type f | xargs -I@ bash -c "$(declare -f mp3_helper) ; mp3_helper \"@\" "
+
+  local fileName="$@"
+
+  if [ -n "$fileName" ]; then
+    if [ -f "$fileName" ] && [[ "$fileName" =~ \.flac ]]; then
+      mp3_convert_helper "$fileName"
+    else
+      printf "Error: ${RED}Passed in an argument which is not an existing flac file ...${NC}\n"
+      echo "Either don't pass any arguments to convert all .flac files in this directory to .mp3 or pass one existing flac file"
+    fi
+    return
+  else
+    printf "${GREEN}Converting all .flac to .mp3 in this directory (original .flac files are not deleted) ...${NC}\n"
+    for flacFile in *.flac; do
+
+      mp3_convert_helper "$flacFile"
+
+      echo
+    done
+  fi
+}
+
+function swarm_upload {
+  for mp3File in *.mp3; do
+    printf "Uploading ${YELLOW}mp3File${NC} to ${MAGENTA}Swarm${NC}\n"
+    local result=$(swarm up "$mp3File")
+    echo "$result"
+  done
+}
+
+# function mp4 {
+#   if [ -n "$1" ]; then
+#     for file in "$@"
+#     do
+#       if [ -f "$file" ]; then
+#         # http://www.bugcodemaster.com/article/convert-videos-mp4-format-using-ffmpeg
+#         ffmpeg -i "$file" "$file".mp4 -preset veryfast
+#       else
+#         echo "File $file doesn't exist"
+#       fi
+#     done
+#   else
+#     printf "${YELLOW}Usage:${NC}\n"
+#     printf "${GREEN}mp4 file1 file2 file3 ...${NC} ${GRAY}convert different video formats to mp4${NC}\n"
+#   fi
+# }

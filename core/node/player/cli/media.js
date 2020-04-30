@@ -15,7 +15,7 @@ let action;
 
 const args = process.argv.slice(2);
 
-if (args.length < 1 || args[0] == '-h') {
+if (args.length < 1 || ['-h', '--help', 'help'].includes(args[0])) {
   action = 'info';
 } else {
   action = args[0];
@@ -37,5 +37,6 @@ ipcClient({ actorName: 'player', action, payload })
   })
   .catch(e => {
     console.log(colors.red(e.message));
+    console.log(`If ${colors.cyan('dmt-proc')} is not running, please start it with ${colors.green('dmt start')}.`);
     process.exit();
   });

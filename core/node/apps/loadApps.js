@@ -8,9 +8,6 @@ const { log } = dmt;
 
 import { push } from 'dmt/notify';
 
-const { dirname } = path;
-import { fileURLToPath } from 'url';
-
 class AppLoader {
   constructor(program) {
     this.program = program;
@@ -63,7 +60,7 @@ class AppLoader {
           let isPromise;
 
           try {
-            promiseOrData = app.init({ dmt, program });
+            promiseOrData = app.init({ program });
             isPromise = promiseOrData instanceof Promise;
           } catch (e) {
             reject(e);
