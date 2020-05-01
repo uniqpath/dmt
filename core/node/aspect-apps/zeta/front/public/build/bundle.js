@@ -5647,7 +5647,9 @@ var app = (function (crypto) {
                   const lastTimeTag = timeTags[timeTags.length - 1];
 
                   if (timeTag == lastTimeTag) {
-                    searchStatusCallback({ searching: false, noHits: false }); // searchResults && searchResults.length == 0 -- todo: fix this since we now return aggregate results
+                    const noHits = searchResults.filter(response => response.error || response.results.length == 0).length == searchResults.length;
+
+                    searchStatusCallback({ searching: false, noHits }); // searchResults && searchResults.length == 0 -- todo: fix this since we now return aggregate results
                     success(searchResults);
                   } else {
                     console.log('Discarding search result which came out of order because a more recent result is due ...');
@@ -5883,6 +5885,8 @@ var app = (function (crypto) {
             block.o(local);
         }
     }
+
+    const globals = (typeof window !== 'undefined' ? window : global);
     function create_component(block) {
         block && block.c();
     }
@@ -6088,12 +6092,12 @@ var app = (function (crypto) {
     			div = element("div");
     			a = element("a");
     			img = element("img");
-    			if (img.src !== (img_src_value = "/img/zeta_escape.png")) attr_dev(img, "src", img_src_value);
-    			attr_dev(img, "class", "svelte-1r6htor");
-    			add_location(img, file, 6, 4, 65);
+    			if (img.src !== (img_src_value = "/img/icons/home.png")) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "class", "svelte-1imf61r");
+    			add_location(img, file, 7, 4, 113);
     			attr_dev(a, "href", "/apps");
     			add_location(a, file, 5, 2, 44);
-    			attr_dev(div, "class", "escape svelte-1r6htor");
+    			attr_dev(div, "class", "escape svelte-1imf61r");
     			add_location(div, file, 4, 0, 21);
     		},
     		l: function claim(nodes) {
@@ -6154,7 +6158,7 @@ var app = (function (crypto) {
     function mediaTypeIcon(mediaType) {
       switch (mediaType) {
         case 'photo':
-          return '✪';
+          return '';
         //return '[image]';
 
         case 'music':
@@ -6162,7 +6166,7 @@ var app = (function (crypto) {
         //return '[sound]';
 
         case 'video':
-          return '☯';
+          return '';
         //return '[video]';
 
         default:
@@ -6185,8 +6189,13 @@ var app = (function (crypto) {
     	let p1;
     	let b1;
     	let t7;
-    	let a;
+    	let a0;
     	let t9;
+    	let t10;
+    	let p2;
+    	let a1;
+    	let t12;
+    	let a2;
 
     	const block = {
     		c: function create() {
@@ -6195,7 +6204,7 @@ var app = (function (crypto) {
     			b0.textContent = "Zeta";
     			t1 = space();
     			span = element("span");
-    			span.textContent = "PoC v0.1.0";
+    			span.textContent = "PoC v0.1.1";
     			t3 = space();
     			p0 = element("p");
     			p0.textContent = "A new p2p digital era is slowly arriving.";
@@ -6203,22 +6212,37 @@ var app = (function (crypto) {
     			p1 = element("p");
     			b1 = element("b");
     			b1.textContent = "Zeta";
-    			t7 = text(" is first app built on top of ");
-    			a = element("a");
-    			a.textContent = "DMT-SYSTEM";
-    			t9 = text(", Swarm and Ethereum.");
+    			t7 = text(" is an experimental app built with ");
+    			a0 = element("a");
+    			a0.textContent = "dmt-system";
+    			t9 = text(" and Swarm.");
+    			t10 = space();
+    			p2 = element("p");
+    			a1 = element("a");
+    			a1.textContent = "[zeta frontend code]";
+    			t12 = text(" | ");
+    			a2 = element("a");
+    			a2.textContent = "[dmt backend code]";
     			add_location(b0, file$1, 6, 2, 63);
-    			attr_dev(span, "class", "svelte-1baigw7");
+    			attr_dev(span, "class", "svelte-1vn6uc8");
     			add_location(span, file$1, 6, 14, 75);
-    			attr_dev(p0, "class", "svelte-1baigw7");
+    			attr_dev(p0, "class", "svelte-1vn6uc8");
     			add_location(p0, file$1, 8, 2, 102);
     			add_location(b1, file$1, 13, 4, 170);
-    			attr_dev(a, "href", "https://dmt-system.com");
-    			attr_dev(a, "class", "svelte-1baigw7");
-    			add_location(a, file$1, 13, 45, 211);
-    			attr_dev(p1, "class", "svelte-1baigw7");
+    			attr_dev(a0, "href", "https://dmt-system.com");
+    			attr_dev(a0, "class", "svelte-1vn6uc8");
+    			add_location(a0, file$1, 13, 50, 216);
+    			attr_dev(p1, "class", "svelte-1vn6uc8");
     			add_location(p1, file$1, 12, 2, 162);
-    			attr_dev(div, "class", "about svelte-1baigw7");
+    			attr_dev(a1, "href", "https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta/front");
+    			attr_dev(a1, "class", "svelte-1vn6uc8");
+    			add_location(a1, file$1, 17, 4, 293);
+    			attr_dev(a2, "href", "https://github.com/uniqpath/dmt/tree/master/core/node");
+    			attr_dev(a2, "class", "svelte-1vn6uc8");
+    			add_location(a2, file$1, 17, 118, 407);
+    			attr_dev(p2, "class", "svelte-1vn6uc8");
+    			add_location(p2, file$1, 16, 2, 285);
+    			attr_dev(div, "class", "about svelte-1vn6uc8");
     			add_location(div, file$1, 5, 0, 41);
     		},
     		l: function claim(nodes) {
@@ -6235,8 +6259,13 @@ var app = (function (crypto) {
     			append_dev(div, p1);
     			append_dev(p1, b1);
     			append_dev(p1, t7);
-    			append_dev(p1, a);
+    			append_dev(p1, a0);
     			append_dev(p1, t9);
+    			append_dev(div, t10);
+    			append_dev(div, p2);
+    			append_dev(p2, a1);
+    			append_dev(p2, t12);
+    			append_dev(p2, a2);
     		},
     		p: noop$2,
     		i: noop$2,
@@ -6528,32 +6557,40 @@ var app = (function (crypto) {
     }
 
     /* src/App.svelte generated by Svelte v3.19.2 */
+
+    const { console: console_1 } = globals;
     const file$3 = "src/App.svelte";
 
     function get_each_context_2(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[21] = list[i];
+    	child_ctx[31] = list[i];
     	return child_ctx;
     }
 
     function get_each_context_1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[14] = list[i].filePath;
-    	child_ctx[15] = list[i].mediaType;
-    	child_ctx[16] = list[i].filePathANSI;
-    	child_ctx[17] = list[i].fiberContentURL;
-    	child_ctx[18] = list[i].fileSizePretty;
+    	child_ctx[18] = list[i].filePath;
+    	child_ctx[19] = list[i].name;
+    	child_ctx[20] = list[i].context;
+    	child_ctx[21] = list[i].swarmBzzHash;
+    	child_ctx[22] = list[i].mediaType;
+    	child_ctx[23] = list[i].entryType;
+    	child_ctx[24] = list[i].prettyTime;
+    	child_ctx[25] = list[i].filePathANSI;
+    	child_ctx[26] = list[i].playableUrl;
+    	child_ctx[27] = list[i].fiberContentURL;
+    	child_ctx[28] = list[i].fileSizePretty;
     	return child_ctx;
     }
 
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[11] = list[i];
+    	child_ctx[15] = list[i];
     	return child_ctx;
     }
 
-    // (61:2) {#if window.location.hostname == 'localhost'}
-    function create_if_block_4(ctx) {
+    // (72:2) {#if isLocalhost}
+    function create_if_block_24(ctx) {
     	let current;
     	const escape_1 = new Escape({ $$inline: true });
 
@@ -6581,17 +6618,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_4.name,
+    		id: create_if_block_24.name,
     		type: "if",
-    		source: "(61:2) {#if window.location.hostname == 'localhost'}",
+    		source: "(72:2) {#if isLocalhost}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (78:4) {:else}
-    function create_else_block_3(ctx) {
+    // (89:4) {:else}
+    function create_else_block_5(ctx) {
     	let t;
 
     	const block = {
@@ -6611,22 +6648,22 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_3.name,
+    		id: create_else_block_5.name,
     		type: "else",
-    		source: "(78:4) {:else}",
+    		source: "(89:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (72:4) {#if connected}
-    function create_if_block_2(ctx) {
+    // (83:4) {#if connected}
+    function create_if_block_22(ctx) {
     	let current_block_type_index;
     	let if_block;
     	let if_block_anchor;
     	let current;
-    	const if_block_creators = [create_if_block_3, create_else_block_2];
+    	const if_block_creators = [create_if_block_23, create_else_block_4];
     	const if_blocks = [];
 
     	function select_block_type_1(ctx, dirty) {
@@ -6687,17 +6724,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_2.name,
+    		id: create_if_block_22.name,
     		type: "if",
-    		source: "(72:4) {#if connected}",
+    		source: "(83:4) {#if connected}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (75:6) {:else}
-    function create_else_block_2(ctx) {
+    // (86:6) {:else}
+    function create_else_block_4(ctx) {
     	let t;
 
     	const block = {
@@ -6716,17 +6753,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_2.name,
+    		id: create_else_block_4.name,
     		type: "else",
-    		source: "(75:6) {:else}",
+    		source: "(86:6) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (73:6) {#if isSearching}
-    function create_if_block_3(ctx) {
+    // (84:6) {#if isSearching}
+    function create_if_block_23(ctx) {
     	let current;
 
     	const spinner = new Src({
@@ -6765,16 +6802,16 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_3.name,
+    		id: create_if_block_23.name,
     		type: "if",
-    		source: "(73:6) {#if isSearching}",
+    		source: "(84:6) {#if isSearching}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (89:4) {#if searchResults}
+    // (100:4) {#if searchResults}
     function create_if_block(ctx) {
     	let each_1_anchor;
     	let each_value = /*searchResults*/ ctx[5];
@@ -6801,7 +6838,7 @@ var app = (function (crypto) {
     			insert_dev(target, each_1_anchor, anchor);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*JSON, searchResults, mediaTypeIcon, ansicolor*/ 32) {
+    			if (dirty[0] & /*searchResults, play, isZetaSeek*/ 2592) {
     				each_value = /*searchResults*/ ctx[5];
     				validate_each_argument(each_value);
     				let i;
@@ -6835,17 +6872,268 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(89:4) {#if searchResults}",
+    		source: "(100:4) {#if searchResults}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (101:10) {:else}
+    // (104:8) {#if providerResponse.results && providerResponse.results.length > 0}
+    function create_if_block_1(ctx) {
+    	let div;
+    	let h3;
+    	let t0_value = /*providerResponse*/ ctx[15].meta.providerHost + "";
+    	let t0;
+    	let span;
+    	let t1;
+    	let t2;
+    	let t3;
+    	let if_block0 = /*providerResponse*/ ctx[15].meta.contentId && create_if_block_21(ctx);
+    	let if_block1 = !/*providerResponse*/ ctx[15].error && create_if_block_19(ctx);
+
+    	function select_block_type_2(ctx, dirty) {
+    		if (/*providerResponse*/ ctx[15].error) return create_if_block_2;
+    		return create_else_block;
+    	}
+
+    	let current_block_type = select_block_type_2(ctx);
+    	let if_block2 = current_block_type(ctx);
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			h3 = element("h3");
+    			t0 = text(t0_value);
+    			span = element("span");
+    			if (if_block0) if_block0.c();
+    			t1 = space();
+    			if (if_block1) if_block1.c();
+    			t2 = space();
+    			if_block2.c();
+    			t3 = space();
+    			attr_dev(span, "class", "contentId svelte-17kl44o");
+    			add_location(span, file$3, 108, 50, 3023);
+    			add_location(h3, file$3, 107, 12, 2968);
+    			attr_dev(div, "class", "results svelte-17kl44o");
+    			add_location(div, file$3, 105, 10, 2893);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, h3);
+    			append_dev(h3, t0);
+    			append_dev(h3, span);
+    			if (if_block0) if_block0.m(span, null);
+    			append_dev(h3, t1);
+    			if (if_block1) if_block1.m(h3, null);
+    			append_dev(div, t2);
+    			if_block2.m(div, null);
+    			append_dev(div, t3);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*searchResults*/ 32 && t0_value !== (t0_value = /*providerResponse*/ ctx[15].meta.providerHost + "")) set_data_dev(t0, t0_value);
+
+    			if (/*providerResponse*/ ctx[15].meta.contentId) {
+    				if (if_block0) {
+    					if_block0.p(ctx, dirty);
+    				} else {
+    					if_block0 = create_if_block_21(ctx);
+    					if_block0.c();
+    					if_block0.m(span, null);
+    				}
+    			} else if (if_block0) {
+    				if_block0.d(1);
+    				if_block0 = null;
+    			}
+
+    			if (!/*providerResponse*/ ctx[15].error) {
+    				if (if_block1) {
+    					if_block1.p(ctx, dirty);
+    				} else {
+    					if_block1 = create_if_block_19(ctx);
+    					if_block1.c();
+    					if_block1.m(h3, null);
+    				}
+    			} else if (if_block1) {
+    				if_block1.d(1);
+    				if_block1 = null;
+    			}
+
+    			if (current_block_type === (current_block_type = select_block_type_2(ctx)) && if_block2) {
+    				if_block2.p(ctx, dirty);
+    			} else {
+    				if_block2.d(1);
+    				if_block2 = current_block_type(ctx);
+
+    				if (if_block2) {
+    					if_block2.c();
+    					if_block2.m(div, t3);
+    				}
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			if (if_block0) if_block0.d();
+    			if (if_block1) if_block1.d();
+    			if_block2.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1.name,
+    		type: "if",
+    		source: "(104:8) {#if providerResponse.results && providerResponse.results.length > 0}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (109:74) {#if providerResponse.meta.contentId}
+    function create_if_block_21(ctx) {
+    	let t0;
+    	let t1_value = /*providerResponse*/ ctx[15].meta.contentId + "";
+    	let t1;
+
+    	const block = {
+    		c: function create() {
+    			t0 = text("/");
+    			t1 = text(t1_value);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, t1, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*searchResults*/ 32 && t1_value !== (t1_value = /*providerResponse*/ ctx[15].meta.contentId + "")) set_data_dev(t1, t1_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(t1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_21.name,
+    		type: "if",
+    		source: "(109:74) {#if providerResponse.meta.contentId}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (111:14) {#if !providerResponse.error}
+    function create_if_block_19(ctx) {
+    	let span1;
+    	let t0;
+    	let span0;
+    	let t1_value = /*providerResponse*/ ctx[15].meta.searchTimePretty + "";
+    	let t1;
+    	let t2;
+    	let if_block = /*providerResponse*/ ctx[15].meta.networkTimePretty && create_if_block_20(ctx);
+
+    	const block = {
+    		c: function create() {
+    			span1 = element("span");
+    			t0 = text("fs ");
+    			span0 = element("span");
+    			t1 = text(t1_value);
+    			t2 = space();
+    			if (if_block) if_block.c();
+    			attr_dev(span0, "class", "value svelte-17kl44o");
+    			add_location(span0, file$3, 111, 44, 3220);
+    			attr_dev(span1, "class", "searchTime svelte-17kl44o");
+    			add_location(span1, file$3, 111, 16, 3192);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span1, anchor);
+    			append_dev(span1, t0);
+    			append_dev(span1, span0);
+    			append_dev(span0, t1);
+    			append_dev(span1, t2);
+    			if (if_block) if_block.m(span1, null);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*searchResults*/ 32 && t1_value !== (t1_value = /*providerResponse*/ ctx[15].meta.searchTimePretty + "")) set_data_dev(t1, t1_value);
+
+    			if (/*providerResponse*/ ctx[15].meta.networkTimePretty) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block_20(ctx);
+    					if_block.c();
+    					if_block.m(span1, null);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span1);
+    			if (if_block) if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_19.name,
+    		type: "if",
+    		source: "(111:14) {#if !providerResponse.error}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (113:18) {#if providerResponse.meta.networkTimePretty}
+    function create_if_block_20(ctx) {
+    	let t0;
+    	let span;
+    	let t1_value = /*providerResponse*/ ctx[15].meta.networkTimePretty + "";
+    	let t1;
+
+    	const block = {
+    		c: function create() {
+    			t0 = text("· network ");
+    			span = element("span");
+    			t1 = text(t1_value);
+    			attr_dev(span, "class", "value svelte-17kl44o");
+    			add_location(span, file$3, 113, 30, 3382);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t1);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*searchResults*/ 32 && t1_value !== (t1_value = /*providerResponse*/ ctx[15].meta.networkTimePretty + "")) set_data_dev(t1, t1_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_20.name,
+    		type: "if",
+    		source: "(113:18) {#if providerResponse.meta.networkTimePretty}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (126:12) {:else}
     function create_else_block(ctx) {
-    	let each_1_anchor;
-    	let each_value_1 = /*providerResponse*/ ctx[11].results;
+    	let t;
+    	let if_block_anchor;
+    	let each_value_1 = /*providerResponse*/ ctx[15].results;
     	validate_each_argument(each_value_1);
     	let each_blocks = [];
 
@@ -6856,8 +7144,10 @@ var app = (function (crypto) {
     	let each_1_else = null;
 
     	if (!each_value_1.length) {
-    		each_1_else = create_else_block_1(ctx);
+    		each_1_else = create_else_block_3(ctx);
     	}
+
+    	let if_block = /*providerResponse*/ ctx[15].meta.pageNumber && create_if_block_3(ctx);
 
     	const block = {
     		c: function create() {
@@ -6865,26 +7155,30 @@ var app = (function (crypto) {
     				each_blocks[i].c();
     			}
 
-    			each_1_anchor = empty();
-
     			if (each_1_else) {
     				each_1_else.c();
     			}
+
+    			t = space();
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
     		},
     		m: function mount(target, anchor) {
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].m(target, anchor);
     			}
 
-    			insert_dev(target, each_1_anchor, anchor);
-
     			if (each_1_else) {
     				each_1_else.m(target, anchor);
     			}
+
+    			insert_dev(target, t, anchor);
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*searchResults, mediaTypeIcon, ansicolor*/ 32) {
-    				each_value_1 = /*providerResponse*/ ctx[11].results;
+    			if (dirty[0] & /*searchResults, play, isZetaSeek*/ 2592) {
+    				each_value_1 = /*providerResponse*/ ctx[15].results;
     				validate_each_argument(each_value_1);
     				let i;
 
@@ -6896,7 +7190,7 @@ var app = (function (crypto) {
     					} else {
     						each_blocks[i] = create_each_block_1(child_ctx);
     						each_blocks[i].c();
-    						each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
+    						each_blocks[i].m(t.parentNode, t);
     					}
     				}
 
@@ -6913,15 +7207,30 @@ var app = (function (crypto) {
     					each_1_else = null;
     				}
     			} else if (!each_1_else) {
-    				each_1_else = create_else_block_1(ctx);
+    				each_1_else = create_else_block_3(ctx);
     				each_1_else.c();
-    				each_1_else.m(each_1_anchor.parentNode, each_1_anchor);
+    				each_1_else.m(t.parentNode, t);
+    			}
+
+    			if (/*providerResponse*/ ctx[15].meta.pageNumber) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block_3(ctx);
+    					if_block.c();
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
     			}
     		},
     		d: function destroy(detaching) {
     			destroy_each(each_blocks, detaching);
-    			if (detaching) detach_dev(each_1_anchor);
     			if (each_1_else) each_1_else.d(detaching);
+    			if (detaching) detach_dev(t);
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
     		}
     	};
 
@@ -6929,31 +7238,31 @@ var app = (function (crypto) {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(101:10) {:else}",
+    		source: "(126:12) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (96:10) {#if providerResponse.error}
-    function create_if_block_1(ctx) {
+    // (121:12) {#if providerResponse.error}
+    function create_if_block_2(ctx) {
     	let div;
     	let t0;
     	let span;
-    	let t1_value = JSON.stringify(/*providerResponse*/ ctx[11].error) + "";
+    	let t1_value = JSON.stringify(/*providerResponse*/ ctx[15].error) + "";
     	let t1;
 
     	const block = {
     		c: function create() {
     			div = element("div");
-    			t0 = text("Error:\n              ");
+    			t0 = text("Error:\n                ");
     			span = element("span");
     			t1 = text(t1_value);
-    			attr_dev(span, "class", "svelte-16qmud9");
-    			add_location(span, file$3, 98, 14, 2412);
-    			attr_dev(div, "class", "resultError svelte-16qmud9");
-    			add_location(div, file$3, 96, 12, 2353);
+    			attr_dev(span, "class", "svelte-17kl44o");
+    			add_location(span, file$3, 123, 16, 3657);
+    			attr_dev(div, "class", "resultError svelte-17kl44o");
+    			add_location(div, file$3, 121, 14, 3594);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -6962,7 +7271,7 @@ var app = (function (crypto) {
     			append_dev(span, t1);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*searchResults*/ 32 && t1_value !== (t1_value = JSON.stringify(/*providerResponse*/ ctx[11].error) + "")) set_data_dev(t1, t1_value);
+    			if (dirty[0] & /*searchResults*/ 32 && t1_value !== (t1_value = JSON.stringify(/*providerResponse*/ ctx[15].error) + "")) set_data_dev(t1, t1_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
@@ -6971,17 +7280,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1.name,
+    		id: create_if_block_2.name,
     		type: "if",
-    		source: "(96:10) {#if providerResponse.error}",
+    		source: "(121:12) {#if providerResponse.error}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (110:12) {:else}
-    function create_else_block_1(ctx) {
+    // (196:14) {:else}
+    function create_else_block_3(ctx) {
     	let t;
 
     	const block = {
@@ -6998,40 +7307,28 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_1.name,
+    		id: create_else_block_3.name,
     		type: "else",
-    		source: "(110:12) {:else}",
+    		source: "(196:14) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (104:44) {#each ansicolor.parse(filePathANSI).spans as span}
-    function create_each_block_2(ctx) {
+    // (130:18) {#if mediaType == 'video'}
+    function create_if_block_18(ctx) {
     	let span;
-    	let t_value = /*span*/ ctx[21].text + "";
-    	let t;
-    	let span_style_value;
 
     	const block = {
     		c: function create() {
     			span = element("span");
-    			t = text(t_value);
-    			attr_dev(span, "style", span_style_value = /*span*/ ctx[21].css);
-    			attr_dev(span, "class", "svelte-16qmud9");
-    			add_location(span, file$3, 103, 95, 2750);
+    			span.textContent = "VIDEO";
+    			attr_dev(span, "class", "tag videoTag svelte-17kl44o");
+    			add_location(span, file$3, 130, 20, 4039);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
-    			append_dev(span, t);
-    		},
-    		p: function update(ctx, dirty) {
-    			if (dirty & /*ansicolor, searchResults*/ 32 && t_value !== (t_value = /*span*/ ctx[21].text + "")) set_data_dev(t, t_value);
-
-    			if (dirty & /*ansicolor, searchResults*/ 32 && span_style_value !== (span_style_value = /*span*/ ctx[21].css)) {
-    				attr_dev(span, "style", span_style_value);
-    			}
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(span);
@@ -7040,30 +7337,111 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_each_block_2.name,
-    		type: "each",
-    		source: "(104:44) {#each ansicolor.parse(filePathANSI).spans as span}",
+    		id: create_if_block_18.name,
+    		type: "if",
+    		source: "(130:18) {#if mediaType == 'video'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (102:12) {#each providerResponse.results as {filePath, mediaType, filePathANSI, fiberContentURL, fileSizePretty}}
-    function create_each_block_1(ctx) {
+    // (134:18) {#if mediaType == 'photo'}
+    function create_if_block_17(ctx) {
+    	let span;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			span.textContent = "IMAGE";
+    			attr_dev(span, "class", "tag imageTag svelte-17kl44o");
+    			add_location(span, file$3, 134, 20, 4169);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_17.name,
+    		type: "if",
+    		source: "(134:18) {#if mediaType == 'photo'}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (138:18) {#if mediaType == 'pdf'}
+    function create_if_block_16(ctx) {
+    	let span;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			span.textContent = "PDF";
+    			attr_dev(span, "class", "tag pdfTag svelte-17kl44o");
+    			add_location(span, file$3, 138, 20, 4297);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_16.name,
+    		type: "if",
+    		source: "(138:18) {#if mediaType == 'pdf'}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (175:18) {:else}
+    function create_else_block_2(ctx) {
     	let div;
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			div.textContent = "Unsupported search results format.";
+    			attr_dev(div, "class", "resultError");
+    			add_location(div, file$3, 175, 20, 5583);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    		},
+    		p: noop$2,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block_2.name,
+    		type: "else",
+    		source: "(175:18) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (171:37) 
+    function create_if_block_15(ctx) {
     	let a;
     	let a_href_value;
-    	let t0;
-    	let span0;
-    	let t1_value = mediaTypeIcon(/*mediaType*/ ctx[15]) + "";
-    	let t1;
-    	let t2;
-    	let span1;
-    	let t3_value = /*fileSizePretty*/ ctx[18] + "";
-    	let t3;
-    	let t4;
-    	let each_value_2 = ansicolor.parse(/*filePathANSI*/ ctx[16]).spans;
+    	let each_value_2 = ansicolor.parse(/*filePathANSI*/ ctx[25]).spans;
     	validate_each_argument(each_value_2);
     	let each_blocks = [];
 
@@ -7073,49 +7451,26 @@ var app = (function (crypto) {
 
     	const block = {
     		c: function create() {
-    			div = element("div");
     			a = element("a");
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
-    			t0 = space();
-    			span0 = element("span");
-    			t1 = text(t1_value);
-    			t2 = space();
-    			span1 = element("span");
-    			t3 = text(t3_value);
-    			t4 = space();
-    			attr_dev(a, "href", a_href_value = /*fiberContentURL*/ ctx[17]);
-    			attr_dev(a, "class", "svelte-16qmud9");
-    			add_location(a, file$3, 103, 16, 2671);
-    			attr_dev(span0, "class", "mediaType svelte-16qmud9");
-    			add_location(span0, file$3, 105, 16, 2822);
-    			attr_dev(span1, "class", "svelte-16qmud9");
-    			add_location(span1, file$3, 107, 16, 2897);
-    			attr_dev(div, "class", "result svelte-16qmud9");
-    			add_location(div, file$3, 102, 14, 2634);
+    			attr_dev(a, "href", a_href_value = /*playableUrl*/ ctx[26]);
+    			attr_dev(a, "class", "svelte-17kl44o");
+    			add_location(a, file$3, 171, 20, 5363);
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, div, anchor);
-    			append_dev(div, a);
+    			insert_dev(target, a, anchor);
 
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].m(a, null);
     			}
-
-    			append_dev(div, t0);
-    			append_dev(div, span0);
-    			append_dev(span0, t1);
-    			append_dev(div, t2);
-    			append_dev(div, span1);
-    			append_dev(span1, t3);
-    			append_dev(div, t4);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*ansicolor, searchResults*/ 32) {
-    				each_value_2 = ansicolor.parse(/*filePathANSI*/ ctx[16]).spans;
+    			if (dirty[0] & /*searchResults*/ 32) {
+    				each_value_2 = ansicolor.parse(/*filePathANSI*/ ctx[25]).spans;
     				validate_each_argument(each_value_2);
     				let i;
 
@@ -7138,16 +7493,723 @@ var app = (function (crypto) {
     				each_blocks.length = each_value_2.length;
     			}
 
-    			if (dirty & /*searchResults*/ 32 && a_href_value !== (a_href_value = /*fiberContentURL*/ ctx[17])) {
+    			if (dirty[0] & /*searchResults*/ 32 && a_href_value !== (a_href_value = /*playableUrl*/ ctx[26])) {
+    				attr_dev(a, "href", a_href_value);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(a);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_15.name,
+    		type: "if",
+    		source: "(171:37) ",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (142:18) {#if swarmBzzHash}
+    function create_if_block_8(ctx) {
+    	let span;
+    	let t1;
+    	let t2;
+    	let a;
+    	let b;
+    	let t3_value = /*name*/ ctx[19] + "";
+    	let t3;
+    	let a_href_value;
+    	let t4;
+    	let t5;
+    	let t6;
+    	let if_block3_anchor;
+    	let if_block0 = /*entryType*/ ctx[23] == "ens" && create_if_block_14(ctx);
+    	let if_block1 = /*prettyTime*/ ctx[24] && create_if_block_13(ctx);
+
+    	function select_block_type_4(ctx, dirty) {
+    		if (/*entryType*/ ctx[23] == "ens") return create_if_block_12;
+    		return create_else_block_1;
+    	}
+
+    	let current_block_type = select_block_type_4(ctx);
+    	let if_block2 = current_block_type(ctx);
+    	let if_block3 = /*context*/ ctx[20] && create_if_block_9(ctx);
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			span.textContent = "SWARM";
+    			t1 = space();
+    			if (if_block0) if_block0.c();
+    			t2 = space();
+    			a = element("a");
+    			b = element("b");
+    			t3 = text(t3_value);
+    			t4 = space();
+    			if (if_block1) if_block1.c();
+    			t5 = space();
+    			if_block2.c();
+    			t6 = space();
+    			if (if_block3) if_block3.c();
+    			if_block3_anchor = empty();
+    			attr_dev(span, "class", "tag swarmTag svelte-17kl44o");
+    			add_location(span, file$3, 142, 20, 4415);
+    			add_location(b, file$3, 149, 22, 4725);
+    			attr_dev(a, "href", a_href_value = /*playableUrl*/ ctx[26]);
+    			attr_dev(a, "class", "svelte-17kl44o");
+    			add_location(a, file$3, 148, 20, 4678);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    			insert_dev(target, t1, anchor);
+    			if (if_block0) if_block0.m(target, anchor);
+    			insert_dev(target, t2, anchor);
+    			insert_dev(target, a, anchor);
+    			append_dev(a, b);
+    			append_dev(b, t3);
+    			insert_dev(target, t4, anchor);
+    			if (if_block1) if_block1.m(target, anchor);
+    			insert_dev(target, t5, anchor);
+    			if_block2.m(target, anchor);
+    			insert_dev(target, t6, anchor);
+    			if (if_block3) if_block3.m(target, anchor);
+    			insert_dev(target, if_block3_anchor, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*entryType*/ ctx[23] == "ens") {
+    				if (!if_block0) {
+    					if_block0 = create_if_block_14(ctx);
+    					if_block0.c();
+    					if_block0.m(t2.parentNode, t2);
+    				}
+    			} else if (if_block0) {
+    				if_block0.d(1);
+    				if_block0 = null;
+    			}
+
+    			if (dirty[0] & /*searchResults*/ 32 && t3_value !== (t3_value = /*name*/ ctx[19] + "")) set_data_dev(t3, t3_value);
+
+    			if (dirty[0] & /*searchResults*/ 32 && a_href_value !== (a_href_value = /*playableUrl*/ ctx[26])) {
     				attr_dev(a, "href", a_href_value);
     			}
 
-    			if (dirty & /*searchResults*/ 32 && t1_value !== (t1_value = mediaTypeIcon(/*mediaType*/ ctx[15]) + "")) set_data_dev(t1, t1_value);
-    			if (dirty & /*searchResults*/ 32 && t3_value !== (t3_value = /*fileSizePretty*/ ctx[18] + "")) set_data_dev(t3, t3_value);
+    			if (/*prettyTime*/ ctx[24]) {
+    				if (if_block1) {
+    					if_block1.p(ctx, dirty);
+    				} else {
+    					if_block1 = create_if_block_13(ctx);
+    					if_block1.c();
+    					if_block1.m(t5.parentNode, t5);
+    				}
+    			} else if (if_block1) {
+    				if_block1.d(1);
+    				if_block1 = null;
+    			}
+
+    			if (current_block_type !== (current_block_type = select_block_type_4(ctx))) {
+    				if_block2.d(1);
+    				if_block2 = current_block_type(ctx);
+
+    				if (if_block2) {
+    					if_block2.c();
+    					if_block2.m(t6.parentNode, t6);
+    				}
+    			}
+
+    			if (/*context*/ ctx[20]) {
+    				if (if_block3) {
+    					if_block3.p(ctx, dirty);
+    				} else {
+    					if_block3 = create_if_block_9(ctx);
+    					if_block3.c();
+    					if_block3.m(if_block3_anchor.parentNode, if_block3_anchor);
+    				}
+    			} else if (if_block3) {
+    				if_block3.d(1);
+    				if_block3 = null;
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    			if (detaching) detach_dev(t1);
+    			if (if_block0) if_block0.d(detaching);
+    			if (detaching) detach_dev(t2);
+    			if (detaching) detach_dev(a);
+    			if (detaching) detach_dev(t4);
+    			if (if_block1) if_block1.d(detaching);
+    			if (detaching) detach_dev(t5);
+    			if_block2.d(detaching);
+    			if (detaching) detach_dev(t6);
+    			if (if_block3) if_block3.d(detaching);
+    			if (detaching) detach_dev(if_block3_anchor);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_8.name,
+    		type: "if",
+    		source: "(142:18) {#if swarmBzzHash}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (173:22) {#each ansicolor.parse(filePathANSI).spans as span}
+    function create_each_block_2(ctx) {
+    	let span;
+    	let t_value = /*span*/ ctx[31].text + "";
+    	let t;
+    	let span_style_value;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			t = text(t_value);
+    			attr_dev(span, "style", span_style_value = /*span*/ ctx[31].css);
+    			attr_dev(span, "class", "svelte-17kl44o");
+    			add_location(span, file$3, 172, 73, 5461);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*searchResults*/ 32 && t_value !== (t_value = /*span*/ ctx[31].text + "")) set_data_dev(t, t_value);
+
+    			if (dirty[0] & /*searchResults*/ 32 && span_style_value !== (span_style_value = /*span*/ ctx[31].css)) {
+    				attr_dev(span, "style", span_style_value);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block_2.name,
+    		type: "each",
+    		source: "(173:22) {#each ansicolor.parse(filePathANSI).spans as span}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (145:20) {#if entryType == 'ens'}
+    function create_if_block_14(ctx) {
+    	let span;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			span.textContent = "ENS";
+    			attr_dev(span, "class", "tag ensTag svelte-17kl44o");
+    			add_location(span, file$3, 145, 22, 4595);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_14.name,
+    		type: "if",
+    		source: "(145:20) {#if entryType == 'ens'}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (153:20) {#if prettyTime}
+    function create_if_block_13(ctx) {
+    	let t0;
+    	let t1_value = /*prettyTime*/ ctx[24] + "";
+    	let t1;
+
+    	const block = {
+    		c: function create() {
+    			t0 = text("·\n                      ");
+    			t1 = text(t1_value);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, t1, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*searchResults*/ 32 && t1_value !== (t1_value = /*prettyTime*/ ctx[24] + "")) set_data_dev(t1, t1_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(t1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_13.name,
+    		type: "if",
+    		source: "(153:20) {#if prettyTime}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (160:20) {:else}
+    function create_else_block_1(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text("·");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block_1.name,
+    		type: "else",
+    		source: "(160:20) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (158:20) {#if entryType == 'ens'}
+    function create_if_block_12(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text("∞");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_12.name,
+    		type: "if",
+    		source: "(158:20) {#if entryType == 'ens'}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (164:20) {#if context}
+    function create_if_block_9(ctx) {
+    	let t_value = /*context*/ ctx[20] + "";
+    	let t;
+    	let if_block1_anchor;
+    	let if_block0 = /*entryType*/ ctx[23] != "ens" && create_if_block_11(ctx);
+    	let if_block1 = /*entryType*/ ctx[23] != "ens" && create_if_block_10(ctx);
+
+    	const block = {
+    		c: function create() {
+    			if (if_block0) if_block0.c();
+    			t = text(t_value);
+    			if (if_block1) if_block1.c();
+    			if_block1_anchor = empty();
+    		},
+    		m: function mount(target, anchor) {
+    			if (if_block0) if_block0.m(target, anchor);
+    			insert_dev(target, t, anchor);
+    			if (if_block1) if_block1.m(target, anchor);
+    			insert_dev(target, if_block1_anchor, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*entryType*/ ctx[23] != "ens") {
+    				if (!if_block0) {
+    					if_block0 = create_if_block_11(ctx);
+    					if_block0.c();
+    					if_block0.m(t.parentNode, t);
+    				}
+    			} else if (if_block0) {
+    				if_block0.d(1);
+    				if_block0 = null;
+    			}
+
+    			if (dirty[0] & /*searchResults*/ 32 && t_value !== (t_value = /*context*/ ctx[20] + "")) set_data_dev(t, t_value);
+
+    			if (/*entryType*/ ctx[23] != "ens") {
+    				if (!if_block1) {
+    					if_block1 = create_if_block_10(ctx);
+    					if_block1.c();
+    					if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
+    				}
+    			} else if (if_block1) {
+    				if_block1.d(1);
+    				if_block1 = null;
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (if_block0) if_block0.d(detaching);
+    			if (detaching) detach_dev(t);
+    			if (if_block1) if_block1.d(detaching);
+    			if (detaching) detach_dev(if_block1_anchor);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_9.name,
+    		type: "if",
+    		source: "(164:20) {#if context}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (165:22) {#if entryType != 'ens'}
+    function create_if_block_11(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text("(");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_11.name,
+    		type: "if",
+    		source: "(165:22) {#if entryType != 'ens'}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (165:61) {#if entryType != 'ens'}
+    function create_if_block_10(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text(")");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_10.name,
+    		type: "if",
+    		source: "(165:61) {#if entryType != 'ens'}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (179:18) {#if mediaType && mediaTypeIcon(mediaType)}
+    function create_if_block_7(ctx) {
+    	let span;
+    	let t_value = mediaTypeIcon(/*mediaType*/ ctx[22]) + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			t = text(t_value);
+    			attr_dev(span, "class", "mediaType svelte-17kl44o");
+    			add_location(span, file$3, 179, 20, 5756);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*searchResults*/ 32 && t_value !== (t_value = mediaTypeIcon(/*mediaType*/ ctx[22]) + "")) set_data_dev(t, t_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_7.name,
+    		type: "if",
+    		source: "(179:18) {#if mediaType && mediaTypeIcon(mediaType)}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (183:18) {#if !isZetaSeek && mediaType == 'music'}
+    function create_if_block_6(ctx) {
+    	let a;
+    	let dispose;
+
+    	function click_handler(...args) {
+    		return /*click_handler*/ ctx[14](/*playableUrl*/ ctx[26], ...args);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			a = element("a");
+    			a.textContent = "PLAY";
+    			attr_dev(a, "class", "button svelte-17kl44o");
+    			add_location(a, file$3, 183, 20, 5919);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, a, anchor);
+    			dispose = listen_dev(a, "click", click_handler, false, false, false);
+    		},
+    		p: function update(new_ctx, dirty) {
+    			ctx = new_ctx;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(a);
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_6.name,
+    		type: "if",
+    		source: "(183:18) {#if !isZetaSeek && mediaType == 'music'}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (187:18) {#if fileSizePretty}
+    function create_if_block_5(ctx) {
+    	let span;
+    	let t_value = /*fileSizePretty*/ ctx[28] + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			t = text(t_value);
+    			attr_dev(span, "class", "svelte-17kl44o");
+    			add_location(span, file$3, 187, 20, 6070);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*searchResults*/ 32 && t_value !== (t_value = /*fileSizePretty*/ ctx[28] + "")) set_data_dev(t, t_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_5.name,
+    		type: "if",
+    		source: "(187:18) {#if fileSizePretty}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (127:14) {#each providerResponse.results as {filePath, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty}}
+    function create_each_block_1(ctx) {
+    	let div;
+    	let t0;
+    	let t1;
+    	let t2;
+    	let t3;
+    	let show_if = /*mediaType*/ ctx[22] && mediaTypeIcon(/*mediaType*/ ctx[22]);
+    	let t4;
+    	let t5;
+    	let if_block0 = /*mediaType*/ ctx[22] == "video" && create_if_block_18(ctx);
+    	let if_block1 = /*mediaType*/ ctx[22] == "photo" && create_if_block_17(ctx);
+    	let if_block2 = /*mediaType*/ ctx[22] == "pdf" && create_if_block_16(ctx);
+
+    	function select_block_type_3(ctx, dirty) {
+    		if (/*swarmBzzHash*/ ctx[21]) return create_if_block_8;
+    		if (/*filePath*/ ctx[18]) return create_if_block_15;
+    		return create_else_block_2;
+    	}
+
+    	let current_block_type = select_block_type_3(ctx);
+    	let if_block3 = current_block_type(ctx);
+    	let if_block4 = show_if && create_if_block_7(ctx);
+    	let if_block5 = !/*isZetaSeek*/ ctx[9] && /*mediaType*/ ctx[22] == "music" && create_if_block_6(ctx);
+    	let if_block6 = /*fileSizePretty*/ ctx[28] && create_if_block_5(ctx);
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			if (if_block0) if_block0.c();
+    			t0 = space();
+    			if (if_block1) if_block1.c();
+    			t1 = space();
+    			if (if_block2) if_block2.c();
+    			t2 = space();
+    			if_block3.c();
+    			t3 = space();
+    			if (if_block4) if_block4.c();
+    			t4 = space();
+    			if (if_block5) if_block5.c();
+    			t5 = space();
+    			if (if_block6) if_block6.c();
+    			attr_dev(div, "class", "result svelte-17kl44o");
+    			add_location(div, file$3, 127, 16, 3952);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			if (if_block0) if_block0.m(div, null);
+    			append_dev(div, t0);
+    			if (if_block1) if_block1.m(div, null);
+    			append_dev(div, t1);
+    			if (if_block2) if_block2.m(div, null);
+    			append_dev(div, t2);
+    			if_block3.m(div, null);
+    			append_dev(div, t3);
+    			if (if_block4) if_block4.m(div, null);
+    			append_dev(div, t4);
+    			if (if_block5) if_block5.m(div, null);
+    			append_dev(div, t5);
+    			if (if_block6) if_block6.m(div, null);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*mediaType*/ ctx[22] == "video") {
+    				if (!if_block0) {
+    					if_block0 = create_if_block_18(ctx);
+    					if_block0.c();
+    					if_block0.m(div, t0);
+    				}
+    			} else if (if_block0) {
+    				if_block0.d(1);
+    				if_block0 = null;
+    			}
+
+    			if (/*mediaType*/ ctx[22] == "photo") {
+    				if (!if_block1) {
+    					if_block1 = create_if_block_17(ctx);
+    					if_block1.c();
+    					if_block1.m(div, t1);
+    				}
+    			} else if (if_block1) {
+    				if_block1.d(1);
+    				if_block1 = null;
+    			}
+
+    			if (/*mediaType*/ ctx[22] == "pdf") {
+    				if (!if_block2) {
+    					if_block2 = create_if_block_16(ctx);
+    					if_block2.c();
+    					if_block2.m(div, t2);
+    				}
+    			} else if (if_block2) {
+    				if_block2.d(1);
+    				if_block2 = null;
+    			}
+
+    			if (current_block_type === (current_block_type = select_block_type_3(ctx)) && if_block3) {
+    				if_block3.p(ctx, dirty);
+    			} else {
+    				if_block3.d(1);
+    				if_block3 = current_block_type(ctx);
+
+    				if (if_block3) {
+    					if_block3.c();
+    					if_block3.m(div, t3);
+    				}
+    			}
+
+    			if (dirty[0] & /*searchResults*/ 32) show_if = /*mediaType*/ ctx[22] && mediaTypeIcon(/*mediaType*/ ctx[22]);
+
+    			if (show_if) {
+    				if (if_block4) {
+    					if_block4.p(ctx, dirty);
+    				} else {
+    					if_block4 = create_if_block_7(ctx);
+    					if_block4.c();
+    					if_block4.m(div, t4);
+    				}
+    			} else if (if_block4) {
+    				if_block4.d(1);
+    				if_block4 = null;
+    			}
+
+    			if (!/*isZetaSeek*/ ctx[9] && /*mediaType*/ ctx[22] == "music") {
+    				if (if_block5) {
+    					if_block5.p(ctx, dirty);
+    				} else {
+    					if_block5 = create_if_block_6(ctx);
+    					if_block5.c();
+    					if_block5.m(div, t5);
+    				}
+    			} else if (if_block5) {
+    				if_block5.d(1);
+    				if_block5 = null;
+    			}
+
+    			if (/*fileSizePretty*/ ctx[28]) {
+    				if (if_block6) {
+    					if_block6.p(ctx, dirty);
+    				} else {
+    					if_block6 = create_if_block_5(ctx);
+    					if_block6.c();
+    					if_block6.m(div, null);
+    				}
+    			} else if (if_block6) {
+    				if_block6.d(1);
+    				if_block6 = null;
+    			}
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
-    			destroy_each(each_blocks, detaching);
+    			if (if_block0) if_block0.d();
+    			if (if_block1) if_block1.d();
+    			if (if_block2) if_block2.d();
+    			if_block3.d();
+    			if (if_block4) if_block4.d();
+    			if (if_block5) if_block5.d();
+    			if (if_block6) if_block6.d();
     		}
     	};
 
@@ -7155,68 +8217,136 @@ var app = (function (crypto) {
     		block,
     		id: create_each_block_1.name,
     		type: "each",
-    		source: "(102:12) {#each providerResponse.results as {filePath, mediaType, filePathANSI, fiberContentURL, fileSizePretty}}",
+    		source: "(127:14) {#each providerResponse.results as {filePath, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty}}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (91:6) {#each searchResults as providerResponse}
-    function create_each_block(ctx) {
+    // (200:14) {#if providerResponse.meta.pageNumber}
+    function create_if_block_3(ctx) {
     	let div;
-    	let h3;
-    	let t0_value = /*providerResponse*/ ctx[11].meta.providerHost + "";
     	let t0;
+    	let span;
+    	let t1_value = /*providerResponse*/ ctx[15].meta.pageNumber + "";
     	let t1;
     	let t2;
-
-    	function select_block_type_2(ctx, dirty) {
-    		if (/*providerResponse*/ ctx[11].error) return create_if_block_1;
-    		return create_else_block;
-    	}
-
-    	let current_block_type = select_block_type_2(ctx);
-    	let if_block = current_block_type(ctx);
+    	let if_block = /*providerResponse*/ ctx[15].meta.hasMore && create_if_block_4(ctx);
 
     	const block = {
     		c: function create() {
     			div = element("div");
-    			h3 = element("h3");
-    			t0 = text(t0_value);
-    			t1 = space();
-    			if_block.c();
+    			t0 = text("Page: ");
+    			span = element("span");
+    			t1 = text(t1_value);
     			t2 = space();
-    			add_location(h3, file$3, 93, 10, 2255);
-    			attr_dev(div, "class", "results svelte-16qmud9");
-    			add_location(div, file$3, 92, 8, 2223);
+    			if (if_block) if_block.c();
+    			attr_dev(span, "class", "svelte-17kl44o");
+    			add_location(span, file$3, 200, 49, 6552);
+    			attr_dev(div, "class", "results_count svelte-17kl44o");
+    			add_location(div, file$3, 200, 16, 6519);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
-    			append_dev(div, h3);
-    			append_dev(h3, t0);
-    			append_dev(div, t1);
-    			if_block.m(div, null);
+    			append_dev(div, t0);
+    			append_dev(div, span);
+    			append_dev(span, t1);
     			append_dev(div, t2);
+    			if (if_block) if_block.m(div, null);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*searchResults*/ 32 && t0_value !== (t0_value = /*providerResponse*/ ctx[11].meta.providerHost + "")) set_data_dev(t0, t0_value);
+    			if (dirty[0] & /*searchResults*/ 32 && t1_value !== (t1_value = /*providerResponse*/ ctx[15].meta.pageNumber + "")) set_data_dev(t1, t1_value);
 
-    			if (current_block_type === (current_block_type = select_block_type_2(ctx)) && if_block) {
-    				if_block.p(ctx, dirty);
-    			} else {
-    				if_block.d(1);
-    				if_block = current_block_type(ctx);
-
-    				if (if_block) {
+    			if (/*providerResponse*/ ctx[15].meta.hasMore) {
+    				if (!if_block) {
+    					if_block = create_if_block_4(ctx);
     					if_block.c();
-    					if_block.m(div, t2);
+    					if_block.m(div, null);
     				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
     			}
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
-    			if_block.d();
+    			if (if_block) if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_3.name,
+    		type: "if",
+    		source: "(200:14) {#if providerResponse.meta.pageNumber}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (202:18) {#if providerResponse.meta.hasMore}
+    function create_if_block_4(ctx) {
+    	let a;
+
+    	const block = {
+    		c: function create() {
+    			a = element("a");
+    			a.textContent = "Next page";
+    			attr_dev(a, "href", "next_page");
+    			add_location(a, file$3, 202, 20, 6674);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, a, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(a);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_4.name,
+    		type: "if",
+    		source: "(202:18) {#if providerResponse.meta.hasMore}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (102:6) {#each searchResults as providerResponse}
+    function create_each_block(ctx) {
+    	let if_block_anchor;
+    	let if_block = /*providerResponse*/ ctx[15].results && /*providerResponse*/ ctx[15].results.length > 0 && create_if_block_1(ctx);
+
+    	const block = {
+    		c: function create() {
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		m: function mount(target, anchor) {
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*providerResponse*/ ctx[15].results && /*providerResponse*/ ctx[15].results.length > 0) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block_1(ctx);
+    					if_block.c();
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
     		}
     	};
 
@@ -7224,7 +8354,7 @@ var app = (function (crypto) {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(91:6) {#each searchResults as providerResponse}",
+    		source: "(102:6) {#each searchResults as providerResponse}",
     		ctx
     	});
 
@@ -7259,8 +8389,8 @@ var app = (function (crypto) {
     			$$inline: true
     		});
 
-    	let if_block0 = window.location.hostname == "localhost" && create_if_block_4(ctx);
-    	const if_block_creators = [create_if_block_2, create_else_block_3];
+    	let if_block0 = /*isLocalhost*/ ctx[8] && create_if_block_24(ctx);
+    	const if_block_creators = [create_if_block_22, create_else_block_5];
     	const if_blocks = [];
 
     	function select_block_type(ctx, dirty) {
@@ -7291,29 +8421,29 @@ var app = (function (crypto) {
     			input = element("input");
     			t6 = space();
     			div1 = element("div");
-    			div1.textContent = "NO RESULTS :(";
+    			div1.textContent = "NO RESULTS :( ... Yet ;)";
     			t8 = space();
     			if (if_block2) if_block2.c();
-    			if (img.src !== (img_src_value = "/img/zeta_logo.png")) attr_dev(img, "src", img_src_value);
+    			if (img.src !== (img_src_value = "/apps/zeta/img/zeta_logo.png")) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "zeta logo");
-    			attr_dev(img, "class", "svelte-16qmud9");
-    			add_location(img, file$3, 65, 4, 1493);
-    			attr_dev(div0, "class", "logo svelte-16qmud9");
-    			add_location(div0, file$3, 64, 2, 1470);
-    			attr_dev(p, "class", "connection_status svelte-16qmud9");
+    			attr_dev(img, "class", "svelte-17kl44o");
+    			add_location(img, file$3, 76, 4, 2061);
+    			attr_dev(div0, "class", "logo svelte-17kl44o");
+    			add_location(div0, file$3, 75, 2, 2038);
+    			attr_dev(p, "class", "connection_status svelte-17kl44o");
     			toggle_class(p, "ok", /*connected*/ ctx[7]);
-    			add_location(p, file$3, 68, 2, 1552);
+    			add_location(p, file$3, 79, 2, 2130);
     			attr_dev(input, "id", "searchInput");
     			attr_dev(input, "placeholder", "Please type your query ...");
-    			attr_dev(input, "class", "svelte-16qmud9");
-    			add_location(input, file$3, 84, 4, 1888);
-    			attr_dev(div1, "class", "noResults svelte-16qmud9");
+    			attr_dev(input, "class", "svelte-17kl44o");
+    			add_location(input, file$3, 95, 4, 2466);
+    			attr_dev(div1, "class", "noResults svelte-17kl44o");
     			toggle_class(div1, "visible", /*noSearchHits*/ ctx[2]);
-    			add_location(div1, file$3, 86, 4, 2068);
-    			attr_dev(div2, "class", "search svelte-16qmud9");
-    			add_location(div2, file$3, 82, 2, 1862);
-    			attr_dev(main, "class", "svelte-16qmud9");
-    			add_location(main, file$3, 58, 0, 1388);
+    			add_location(div1, file$3, 97, 4, 2646);
+    			attr_dev(div2, "class", "search svelte-17kl44o");
+    			add_location(div2, file$3, 93, 2, 2440);
+    			attr_dev(main, "class", "svelte-17kl44o");
+    			add_location(main, file$3, 69, 0, 1984);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -7335,7 +8465,7 @@ var app = (function (crypto) {
     			append_dev(main, div2);
     			append_dev(div2, input);
     			set_input_value(input, /*searchQuery*/ ctx[3]);
-    			/*input_binding*/ ctx[10](input);
+    			/*input_binding*/ ctx[13](input);
     			append_dev(div2, t6);
     			append_dev(div2, div1);
     			append_dev(div2, t8);
@@ -7343,16 +8473,16 @@ var app = (function (crypto) {
     			current = true;
 
     			dispose = [
-    				listen_dev(input, "input", /*input_input_handler*/ ctx[9]),
-    				listen_dev(input, "keyup", /*searchInputChanged*/ ctx[8], false, false, false),
-    				listen_dev(input, "paste", /*searchInputChanged*/ ctx[8], false, false, false)
+    				listen_dev(input, "input", /*input_input_handler*/ ctx[12]),
+    				listen_dev(input, "keyup", /*searchInputChanged*/ ctx[10], false, false, false),
+    				listen_dev(input, "paste", /*searchInputChanged*/ ctx[10], false, false, false)
     			];
     		},
-    		p: function update(ctx, [dirty]) {
+    		p: function update(ctx, dirty) {
     			const about_changes = {};
-    			if (dirty & /*store*/ 1) about_changes.store = /*store*/ ctx[0];
+    			if (dirty[0] & /*store*/ 1) about_changes.store = /*store*/ ctx[0];
     			about.$set(about_changes);
-    			if ((!current || dirty & /*$store*/ 64) && t3_value !== (t3_value = (/*$store*/ ctx[6].deviceName || "") + "")) set_data_dev(t3, t3_value);
+    			if ((!current || dirty[0] & /*$store*/ 64) && t3_value !== (t3_value = (/*$store*/ ctx[6].deviceName || "") + "")) set_data_dev(t3, t3_value);
     			let previous_block_index = current_block_type_index;
     			current_block_type_index = select_block_type(ctx);
 
@@ -7377,15 +8507,15 @@ var app = (function (crypto) {
     				if_block1.m(p, null);
     			}
 
-    			if (dirty & /*connected*/ 128) {
+    			if (dirty[0] & /*connected*/ 128) {
     				toggle_class(p, "ok", /*connected*/ ctx[7]);
     			}
 
-    			if (dirty & /*searchQuery*/ 8 && input.value !== /*searchQuery*/ ctx[3]) {
+    			if (dirty[0] & /*searchQuery*/ 8 && input.value !== /*searchQuery*/ ctx[3]) {
     				set_input_value(input, /*searchQuery*/ ctx[3]);
     			}
 
-    			if (dirty & /*noSearchHits*/ 4) {
+    			if (dirty[0] & /*noSearchHits*/ 4) {
     				toggle_class(div1, "visible", /*noSearchHits*/ ctx[2]);
     			}
 
@@ -7421,7 +8551,7 @@ var app = (function (crypto) {
     			if (detaching) detach_dev(main);
     			if (if_block0) if_block0.d();
     			if_blocks[current_block_type_index].d();
-    			/*input_binding*/ ctx[10](null);
+    			/*input_binding*/ ctx[13](null);
     			if (if_block2) if_block2.d();
     			run_all(dispose);
     		}
@@ -7454,9 +8584,14 @@ var app = (function (crypto) {
     	let { store } = $$props;
     	validate_store(store, "store");
     	$$subscribe_store();
+    	const isLocalhost = window.location.hostname == "localhost";
+
+    	// ugly hack for now:
+    	const isZetaSeek = window.location.hostname == "zetaseek.com";
+
     	let isSearching;
     	let noSearchHits;
-    	cssBridge.setWallpaper("/wallpapers/landscape/foggy_forest.jpg");
+    	cssBridge.setWallpaper("/apps/zeta/wallpapers/hilly_dark_forest_river_fog.jpg");
     	let searchQuery = "";
     	let searchInput;
 
@@ -7469,8 +8604,9 @@ var app = (function (crypto) {
     				searchInputChanged();
     			},
     			300
-    		);
-    	});
+    		); // todo: fix -- handle back inside our app ? then read last results from localstorate ?!
+    	}); // when we go back in browser history and search query is kept for us (by default)
+    	// we need small delay because otherwiser "store" is not yet setup
 
     	function searchInputChanged() {
     		const remoteObject = store.remoteObject("GUISearchObject");
@@ -7495,10 +8631,15 @@ var app = (function (crypto) {
     		}
     	}
 
+    	function play(playableUrl) {
+    		console.log(`Loading ${playableUrl} into mpv on localhost ...`);
+    		store.remoteObject("GUIPlayerObject").call("playUrl", { playableUrl });
+    	}
+
     	const writable_props = ["store"];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<App> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn(`<App> was created with unknown prop '${key}'`);
     	});
 
     	let { $$slots = {}, $$scope } = $$props;
@@ -7515,6 +8656,10 @@ var app = (function (crypto) {
     		});
     	}
 
+    	const click_handler = playableUrl => {
+    		play(playableUrl);
+    	};
+
     	$$self.$set = $$props => {
     		if ("store" in $$props) $$subscribe_store($$invalidate(0, store = $$props.store));
     	};
@@ -7529,11 +8674,14 @@ var app = (function (crypto) {
     		About,
     		Spinner: Src,
     		store,
+    		isLocalhost,
+    		isZetaSeek,
     		isSearching,
     		noSearchHits,
     		searchQuery,
     		searchInput,
     		searchInputChanged,
+    		play,
     		searchResults,
     		$store,
     		connected
@@ -7557,15 +8705,15 @@ var app = (function (crypto) {
     	}
 
     	$$self.$$.update = () => {
-    		if ($$self.$$.dirty & /*$store*/ 64) {
+    		if ($$self.$$.dirty[0] & /*$store*/ 64) {
     			 $$invalidate(5, searchResults = $store.searchResults);
     		}
 
-    		if ($$self.$$.dirty & /*$store*/ 64) {
+    		if ($$self.$$.dirty[0] & /*$store*/ 64) {
     			 $$invalidate(7, connected = $store.connected);
     		}
 
-    		if ($$self.$$.dirty & /*$store*/ 64) {
+    		if ($$self.$$.dirty[0] & /*$store*/ 64) {
     			 document.title = $store.deviceName || document.title;
     		}
     	};
@@ -7579,16 +8727,20 @@ var app = (function (crypto) {
     		searchResults,
     		$store,
     		connected,
+    		isLocalhost,
+    		isZetaSeek,
     		searchInputChanged,
+    		play,
     		input_input_handler,
-    		input_binding
+    		input_binding,
+    		click_handler
     	];
     }
 
     class App extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$3, create_fragment$3, safe_not_equal, { store: 0 });
+    		init(this, options, instance$3, create_fragment$3, safe_not_equal, { store: 0 }, [-1, -1]);
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
@@ -7601,7 +8753,7 @@ var app = (function (crypto) {
     		const props = options.props || {};
 
     		if (/*store*/ ctx[0] === undefined && !("store" in props)) {
-    			console.warn("<App> was created without expected prop 'store'");
+    			console_1.warn("<App> was created without expected prop 'store'");
     		}
     	}
 

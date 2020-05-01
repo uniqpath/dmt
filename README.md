@@ -1,6 +1,6 @@
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt_banner.png?raw=true">
 
-**Website →** [dmt-system.com](https://dmt-system.com) 💡🚀🎸
+**Website →** [dmt-system.com](https://dmt-system.com)
 
 ## Table of Contents
 
@@ -8,16 +8,15 @@
 
 - [Background and motivation](#background-and-motivation)
 - [DMT PROCESS 💡↻](#dmt-process)
-- **[Install](#install)** 💡🚀🎸
+- **[Install](#install)**
   - [Update](#update)
   - [Uninstall](#uninstall)
-- [Development plans for 2020](#development-plans-for-2020)
 - [We are glad to help you get started](#we-are-glad-to-help-you-get-started)
 - [License](#license)
 
-## USAGE MANUAL
+## STRAIGHT TO THE POINT?
 
-[See here](USAGE_MANUAL.md)
+💡🚀🎸 [HOW TO INSTALL](help/GETTING_STARTED.md) 💡🚀🎸
 
 # Background and motivation
 
@@ -25,11 +24,9 @@ We like computers and this project runs on computers of various kinds.
 
 **It is (broadly speaking) about storage, transmission and manipulation of information.**
 
-The system is distributed and time handling with synchronisation is important.
-
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/screens/screen4.jpg?raw=true">
 
-It has a long-term vision of simplicity, composability and structural layering of modules to achieve almost infinite set of functionalities within a particular design space in an usable and understandable way. For now it is an early — working — experiment.
+It has a long-term vision of simplicity, composability and structural layering of modules to achieve almost infinite set of functionalities within a particular design space in an usable and understandable way.
 
 # DMT PROCESS
 
@@ -48,12 +45,13 @@ Short, simple and effective install 💡🚀🎸 —
 git clone https://github.com/uniqpath/dmt.git ~/.dmt; cd ~/.dmt; ./install
 ```
 
-See [complete install instructions](help/GETTING_STARTED.md) (you need a few dependencies like `node.js` ...).
+or even
 
-<hr>
+```
+curl get-dmt.com | bash
+```
 
-![bttf](https://github.com/uniqpath/info/blob/master/assets/img/bttf.jpg?raw=true)
-
+See [HOW TO INSTALL DEPS - NODE.JS and MPV](help/GETTING_STARTED.md).
 
 ## Update
 
@@ -69,21 +67,25 @@ Everything needed for the entire project lives inside this **one directory**.
 
 ⚠️ Be careful if you want to preserve your settings and other data inside `~/.dmt/user`.
 
-## More explaining
+## Freedom to imagine
 
-This system (of code and data philosophy) is designed to save you time and effort in longterm instead of wasting it. It does require some initial setup and thought, of course. Systems with nearly zero initial effort tend to squeeze you "for something" in the longer term. This is quite obvious — if others keep doing all the effort and thinking for you, you owe them something for their (continued) work. If you do most of it yourself through open hardware and freely available software, then you don't owe anything to anyone and it should feel great.
+This is the world we are living in:
 
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/alternity.jpg?raw=true">
 
 # We are glad to help you get started
 
-There is enough material on our <a href="https://github.com/uniqpath">GitHub</a> to get you started. In case you do need assistance, we are available for consulting and practical help at <a href="mailto:info@uniqpath.com">info@uniqpath.com</a>. Write us and we will find a solution! We think that during 2020 we can mostly help for free and if there is enough community and practical knowledge built up afterwards, we will then only offer more involved consulting for bigger system planning. All code on GitHub will always remain free.
+There is enough material on our <a href="https://github.com/uniqpath">GitHub</a> to get you started. In case you do need assistance, we are available for consulting and practical help at <a href="mailto:info@uniqpath.com">info@uniqpath.com</a>. Write us and we will find a solution!
 
-## dmt-system v1.0 release
+## dmt-system v1.0 (NAUTILUS) release
 
 **Jan 1st 2020 was just a slow, a bit uneventful start.**
 
 Expect a steady stream of useful updates during 2020 and onwards.
+
+## dmt-system v1.1 (PLANKTON) release with Zeta app v0.1.0
+
+May 1 2020 we released a first app, one instance is running at <a href="http://zetaseek.com">ZetaSeek.com</a>. You get the same app locally on your machine at http://localhost:7777/apps/zeta.
 
 # License
 

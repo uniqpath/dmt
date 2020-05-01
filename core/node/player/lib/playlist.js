@@ -2,9 +2,9 @@ import { homedir } from 'os';
 import path from 'path';
 
 import dmt from 'dmt/bridge';
-const { log, util, numberRanges, search } = dmt;
+const { log, util, numberRanges } = dmt;
 
-import { detectMediaType } from 'dmt/search';
+import { detectMediaType, searchPredicate } from 'dmt/search';
 
 import MetadataReader from './metadataReader';
 import MissingFiles from './missingFiles';
@@ -236,7 +236,7 @@ class Playlist {
     let found = false;
 
     for (const songInfo of this.playlist) {
-      if (songInfo.id != this.currentSongId() && search(songInfo.title, terms)) {
+      if (songInfo.id != this.currentSongId() && searchPredicate(songInfo.title, terms)) {
         songInfo.aboutToBeCut = true;
         found = true;
       }
@@ -341,9 +341,7 @@ class Playlist {
 
   bumpSearch(terms) {
     const currentSongId = this.currentSongId();
-
-    const songIDs = this.playlist.filter(songInfo => songInfo.id > currentSongId && search(songInfo.title, terms)).map(songInfo => songInfo.id);
-
+    const songIDs = this.playlist.filter(songInfo => songInfo.id != currentSongId && searchPredicate(songInfo.title, terms)).map(songInfo => songInfo.id);
     return this.bumpSongIDs(songIDs);
   }
 

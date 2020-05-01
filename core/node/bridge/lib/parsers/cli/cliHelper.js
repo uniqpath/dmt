@@ -1,6 +1,6 @@
 import colors from 'colors';
 import util from '../../util';
-import dmt from '../def/dmtHelper';
+import dmt from '../../dmtHelper';
 import parser from './parser';
 
 function parseArgs(allArgs) {

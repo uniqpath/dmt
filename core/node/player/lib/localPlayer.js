@@ -167,6 +167,18 @@ class LocalPlayer {
     });
   }
 
+  playUrl(url) {
+    return new Promise((success, reject) => {
+      this.engine
+        .play(url)
+        .then(success)
+        .catch(e => {
+          log.red(`Problem playing url ${colors.yellow(url)}: ${e.message}`);
+          reject(e);
+        });
+    });
+  }
+
   playRadio(radioId) {
     let url = '';
     switch (radioId) {
@@ -196,14 +208,9 @@ class LocalPlayer {
     }
 
     if (url) {
-      this.engine
-        .play(url)
-        .then(() => {
-          log.green(`Play radio: ${colors.yellow(radioId)}`);
-        })
-        .catch(e => {
-          log.red(`Problem playing radio ${colors.yellow(radioId)}: ${e.message}`);
-        });
+      this.playUrl(url).then(() => {
+        log.green(`Play radio: ${colors.yellow(radioId)}`);
+      });
     }
   }
 

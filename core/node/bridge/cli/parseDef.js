@@ -14,6 +14,7 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
   help();
   process.exit();
 }
+
 const args = process.argv.slice(2);
 
 (async () => {

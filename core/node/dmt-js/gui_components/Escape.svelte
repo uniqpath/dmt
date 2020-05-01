@@ -4,17 +4,18 @@
 
 <div class="escape">
   <a href="/apps">
-    <img src="/img/zeta_escape.png" />
+    <!-- <img src="/img/zeta_escape.png" /> -->
+    <img src="/img/icons/home.png" />
   </a>
 </div>
 
 <style>
   .escape img {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 0px;
     width: 120px;
-    /*padding: 5px 20px;*/
+    padding: 5px 20px;
   }
 
   .escape:hover {

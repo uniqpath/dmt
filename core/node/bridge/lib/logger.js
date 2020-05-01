@@ -4,7 +4,7 @@ import os from 'os';
 import util from 'util';
 import colors from 'colors';
 
-import dmt from './parsers/def/dmtHelper';
+import dmt from './dmtHelper';
 import dmtUtil from './util';
 import scan from './scan';
 

@@ -1,5 +1,5 @@
 import fs from 'fs';
-import helper from '../parsers/def/dmtHelper';
+import helper from '../dmtHelper';
 import def from '../parsers/def/parser';
 import DbAccess from './dbAccess';
 

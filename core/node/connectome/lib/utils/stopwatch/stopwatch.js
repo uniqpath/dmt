@@ -1,4 +1,4 @@
-import prettyTime from './prettyTime';
+import prettyMicroTime from './prettyMicroTime';
 
 const browser = typeof window !== 'undefined';
 
@@ -16,7 +16,7 @@ function stop(start) {
   }
 
   const duration = Number(process.hrtime.bigint() - start);
-  return prettyTime(duration);
+  return prettyMicroTime(duration);
 }
 
 export default { start, stop };

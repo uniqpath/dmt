@@ -45,7 +45,9 @@ function executeSearch({ searchQuery, remoteObject, remoteMethod, searchDelay = 
               const lastTimeTag = timeTags[timeTags.length - 1];
 
               if (timeTag == lastTimeTag) {
-                searchStatusCallback({ searching: false, noHits: false });
+                const noHits = searchResults.filter(response => response.error || response.results.length == 0).length == searchResults.length;
+
+                searchStatusCallback({ searching: false, noHits });
                 success(searchResults);
               } else {
                 console.log('Discarding search result which came out of order because a more recent result is due ...');

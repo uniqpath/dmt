@@ -15,7 +15,6 @@ import onProgramTick from './interval/onProgramTick';
 
 import Network from '../network';
 import Server from '../server/mainHttpServer';
-import AppCustomPortHttpServer from '../server/appCustomPortHttpServer';
 import WsServer from '../server/mainWsServer';
 
 import ensureDirectories from './boot/ensureDirectories';
@@ -41,8 +40,6 @@ class Program extends EventEmitter {
 
     this.network = new Network(this);
     this.server = new Server(this);
-    this.appCustomPortHttpServer = new AppCustomPortHttpServer(this);
-
     this.state = { notifications: [] };
 
     this.store = initStore(this, this.device);
@@ -138,10 +135,6 @@ class Program extends EventEmitter {
     this.fiberPool = new FiberPool({ protocol, protocolLane, port, clientPrivateKey, clientPublicKey });
 
     this.server.setupRoutes(app => contentServer({ app, fiberPool: this.fiberPool, defaultPort: port }));
-
-    if (this.appCustomPortHttpServer) {
-      contentServer({ app: this.appCustomPortHttpServer.app, fiberPool: this.fiberPool, defaultPort: port });
-    }
   }
 
   continueBooting() {
@@ -154,10 +147,6 @@ class Program extends EventEmitter {
     this.wsServer.start();
 
     this.server.listen();
-
-    if (dmt.device().id == 'zeta') {
-      this.appCustomPortHttpServer.listen();
-    }
 
     ipcServer(this);
     log.green('Started IPC server');

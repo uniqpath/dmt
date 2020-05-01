@@ -23,7 +23,7 @@ function appFrontendList() {
       return {
         appName,
         publicDir: path.join(appDir, 'front/public'),
-        appUrl: `http://localhost:${dmt.determineGUIPort()}/apps/${appName}`
+        appUrl: `/apps/${appName}`
       };
     });
 }

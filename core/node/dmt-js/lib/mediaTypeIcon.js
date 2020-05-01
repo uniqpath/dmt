@@ -1,11 +1,11 @@
 function mediaTypeIcon(mediaType) {
   switch (mediaType) {
     case 'photo':
-      return '✪';
+      return '';
     case 'music':
       return '♬';
     case 'video':
-      return '☯';
+      return '';
     default:
       return '';
   }

@@ -4,14 +4,18 @@ import fs from 'fs';
 import { homedir } from 'os';
 
 export default function resultsFormatter(results) {
+  const devMachine = fs.existsSync(`${homedir()}/.dmt/user/devices/this/.dev-machine`);
+
   results.forEach((result, index) => {
     process.stdout.write(`${colors.green(index + 1)}. `);
-    console.log(`${result.filePathANSI} [${colors.cyan(result.fileSizePretty)}]`);
+    if (result.filePath) {
+      console.log(`${result.filePathANSI} [${colors.cyan(result.fileSizePretty)}]`);
+    } else if (result.swarmBzzHash) {
+      console.log(`${colors.gray('[SWARM]')} ${result.name} (${result.context}) [${colors.gray(result.swarmBzzHash)}]`);
+    }
 
-    const devMachine = fs.existsSync(`${homedir()}/.dmt/user/devices/this/.dev-machine`);
-
-    if (result.fiberContentURL && devMachine) {
-      console.log(`🔗 ${colors.gray(result.fiberContentURL)}`);
+    if (result.playableUrl && devMachine) {
+      console.log(`🔗 ${colors.gray(result.playableUrl)}`);
       console.log();
     }
   });

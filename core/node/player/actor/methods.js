@@ -18,6 +18,7 @@ function getMethods() {
   methods.push({ name: 'search', handler: searchHandler });
 
   methods.push({ name: 'play', handler: playHandler });
+  methods.push({ name: 'playUrl', handler });
   methods.push({ name: 'pause', handler });
   methods.push({ name: 'stop', handler });
   methods.push({ name: 'next', handler });

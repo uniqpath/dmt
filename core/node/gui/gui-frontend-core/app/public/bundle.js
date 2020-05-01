@@ -11331,19 +11331,14 @@ var app = (function (crypto) {
 
 	// (15:4) {:else}
 	function create_else_block$1(component, ctx) {
-		var div, text, if_block1_anchor, current;
+		var div, current;
 
-		var if_block0 = (ctx.homeButtonImgInline) && create_if_block_4$2(component, ctx);
-
-		var if_block1 = (ctx.isDevMachine) && create_if_block_3$2(component, ctx);
+		var if_block = (ctx.homeButtonImgInline) && create_if_block_3$2(component, ctx);
 
 		return {
 			c: function create() {
 				div = createElement("div");
-				if (if_block0) if_block0.c();
-				text = createText("\n\n      ");
-				if (if_block1) if_block1.c();
-				if_block1_anchor = createComment();
+				if (if_block) if_block.c();
 				div.id = "top_icons";
 				div.className = "svelte-7r85fq";
 				addLoc(div, file$5, 15, 6, 293);
@@ -11351,38 +11346,22 @@ var app = (function (crypto) {
 
 			m: function mount(target, anchor) {
 				insert(target, div, anchor);
-				if (if_block0) if_block0.m(div, null);
-				insert(target, text, anchor);
-				if (if_block1) if_block1.m(target, anchor);
-				insert(target, if_block1_anchor, anchor);
+				if (if_block) if_block.m(div, null);
 				current = true;
 			},
 
 			p: function update(changed, ctx) {
 				if (ctx.homeButtonImgInline) {
-					if (if_block0) {
-						if_block0.p(changed, ctx);
+					if (if_block) {
+						if_block.p(changed, ctx);
 					} else {
-						if_block0 = create_if_block_4$2(component, ctx);
-						if_block0.c();
-						if_block0.m(div, null);
+						if_block = create_if_block_3$2(component, ctx);
+						if_block.c();
+						if_block.m(div, null);
 					}
-				} else if (if_block0) {
-					if_block0.d(1);
-					if_block0 = null;
-				}
-
-				if (ctx.isDevMachine) {
-					if (if_block1) {
-						if_block1.p(changed, ctx);
-					} else {
-						if_block1 = create_if_block_3$2(component, ctx);
-						if_block1.c();
-						if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
-					}
-				} else if (if_block1) {
-					if_block1.d(1);
-					if_block1 = null;
+				} else if (if_block) {
+					if_block.d(1);
+					if_block = null;
 				}
 			},
 
@@ -11399,15 +11378,7 @@ var app = (function (crypto) {
 					detachNode(div);
 				}
 
-				if (if_block0) if_block0.d();
-				if (detach) {
-					detachNode(text);
-				}
-
-				if (if_block1) if_block1.d(detach);
-				if (detach) {
-					detachNode(if_block1_anchor);
-				}
+				if (if_block) if_block.d();
 			}
 		};
 	}
@@ -11477,7 +11448,7 @@ var app = (function (crypto) {
 	}
 
 	// (17:8) {#if homeButtonImgInline}
-	function create_if_block_4$2(component, ctx) {
+	function create_if_block_3$2(component, ctx) {
 		var div, img;
 
 		function click_handler(event) {
@@ -11528,38 +11499,6 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (25:6) {#if isDevMachine}
-	function create_if_block_3$2(component, ctx) {
-		var div, text;
-
-		return {
-			c: function create() {
-				div = createElement("div");
-				text = createText(ctx.$stateChangeCounter);
-				div.id = "state_received_indicator";
-				div.className = "svelte-7r85fq";
-				addLoc(div, file$5, 25, 8, 687);
-			},
-
-			m: function mount(target, anchor) {
-				insert(target, div, anchor);
-				append(div, text);
-			},
-
-			p: function update(changed, ctx) {
-				if (changed.$stateChangeCounter) {
-					setData(text, ctx.$stateChangeCounter);
-				}
-			},
-
-			d: function destroy(detach) {
-				if (detach) {
-					detachNode(div);
-				}
-			}
-		};
-	}
-
 	function ActionBar(options) {
 		this._debugName = '<ActionBar>';
 		if (!options || (!options.target && !options.root)) {
@@ -11570,16 +11509,14 @@ var app = (function (crypto) {
 		}
 
 		init(this, options);
-		this._state = assign(this.store._init(["connected","view","stateChangeCounter"]), options.data);
-		this.store._add(this, ["connected","view","stateChangeCounter"]);
+		this._state = assign(this.store._init(["connected","view"]), options.data);
+		this.store._add(this, ["connected","view"]);
 		if (!('loaded' in this._state)) console.warn("<ActionBar> was created without expected data property 'loaded'");
 		if (!('$connected' in this._state)) console.warn("<ActionBar> was created without expected data property '$connected'");
 		if (!('$view' in this._state)) console.warn("<ActionBar> was created without expected data property '$view'");
 		if (!('homeButtonImgInline' in this._state)) console.warn("<ActionBar> was created without expected data property 'homeButtonImgInline'");
 		if (!('touchPressed' in this._state)) console.warn("<ActionBar> was created without expected data property 'touchPressed'");
 		if (!('atRPi' in this._state)) console.warn("<ActionBar> was created without expected data property 'atRPi'");
-		if (!('isDevMachine' in this._state)) console.warn("<ActionBar> was created without expected data property 'isDevMachine'");
-		if (!('$stateChangeCounter' in this._state)) console.warn("<ActionBar> was created without expected data property '$stateChangeCounter'");
 		this._intro = !!options.intro;
 
 		this._handlers.destroy = [removeFromStore];
@@ -11910,7 +11847,7 @@ var app = (function (crypto) {
 
 		var if_block_creators = [
 			create_if_block_3$3,
-			create_if_block_4$3,
+			create_if_block_4$2,
 			create_else_block$2
 		];
 
@@ -12095,7 +12032,7 @@ var app = (function (crypto) {
 	}
 
 	// (9:8) {#if _demoTime}
-	function create_if_block_4$3(component, ctx) {
+	function create_if_block_4$2(component, ctx) {
 		var text, current;
 
 		return {
@@ -12791,7 +12728,7 @@ var app = (function (crypto) {
 
 		function select_block_type(ctx) {
 			if (ctx.$controller.demoDevice && ctx.$controller.demoDevice.notification) return create_if_block_2$5;
-			if (!ctx.$controller.demoDevice) return create_if_block_4$4;
+			if (!ctx.$controller.demoDevice) return create_if_block_4$3;
 		}
 
 		var current_block_type = select_block_type(ctx);
@@ -12829,7 +12766,7 @@ var app = (function (crypto) {
 	}
 
 	// (24:41) 
-	function create_if_block_4$4(component, ctx) {
+	function create_if_block_4$3(component, ctx) {
 		var each_anchor;
 
 		var each_value_1 = ctx.$guiNotifications.reverse();
@@ -14773,7 +14710,7 @@ var app = (function (crypto) {
 
 		var if_block0 = (ctx.$player.bitrate) && create_if_block_5$3(component, ctx);
 
-		var if_block1 = (ctx.$playlist) && create_if_block_4$5(component, ctx);
+		var if_block1 = (ctx.$playlist) && create_if_block_4$4(component, ctx);
 
 		return {
 			c: function create() {
@@ -14828,7 +14765,7 @@ var app = (function (crypto) {
 					if (if_block1) {
 						if_block1.p(changed, ctx);
 					} else {
-						if_block1 = create_if_block_4$5(component, ctx);
+						if_block1 = create_if_block_4$4(component, ctx);
 						if_block1.c();
 						if_block1.m(div1, null);
 					}
@@ -15080,7 +15017,7 @@ var app = (function (crypto) {
 	}
 
 	// (15:10) {#if $playlist}
-	function create_if_block_4$5(component, ctx) {
+	function create_if_block_4$4(component, ctx) {
 		var br, text0, div, text1, text2_value = ctx.$playlistMetadata.playlistLength, text2, text3;
 
 		return {
@@ -15608,7 +15545,7 @@ var app = (function (crypto) {
 	function create_if_block_3$6(component, ctx) {
 		var if_block_anchor;
 
-		var if_block = (!ctx.disableDeviceSelector) && create_if_block_4$6(component, ctx);
+		var if_block = (!ctx.disableDeviceSelector) && create_if_block_4$5(component, ctx);
 
 		return {
 			c: function create() {
@@ -15626,7 +15563,7 @@ var app = (function (crypto) {
 					if (if_block) {
 						if_block.p(changed, ctx);
 					} else {
-						if_block = create_if_block_4$6(component, ctx);
+						if_block = create_if_block_4$5(component, ctx);
 						if_block.c();
 						if_block.m(if_block_anchor.parentNode, if_block_anchor);
 					}
@@ -15646,7 +15583,7 @@ var app = (function (crypto) {
 	}
 
 	// (9:2) {#if !disableDeviceSelector}
-	function create_if_block_4$6(component, ctx) {
+	function create_if_block_4$5(component, ctx) {
 		var if_block_anchor;
 
 		var if_block = (ctx.$nearbyDevices && ctx.Object.keys(ctx.$nearbyDevices).length > 0) && create_if_block_5$4(component, ctx);
@@ -16863,7 +16800,7 @@ var app = (function (crypto) {
 		var div, text;
 
 		function select_block_type_1(ctx) {
-			if (ctx.$player.paused) return create_if_block_4$7;
+			if (ctx.$player.paused) return create_if_block_4$6;
 			return create_else_block$5;
 		}
 
@@ -16938,7 +16875,7 @@ var app = (function (crypto) {
 	}
 
 	// (12:10) {#if $player.paused}
-	function create_if_block_4$7(component, ctx) {
+	function create_if_block_4$6(component, ctx) {
 		var text;
 
 		return {
@@ -17639,7 +17576,7 @@ var app = (function (crypto) {
 
 		var if_block_creators = [
 			create_if_block_3$a,
-			create_if_block_4$8
+			create_if_block_4$7
 		];
 
 		var if_blocks = [];
@@ -17766,7 +17703,7 @@ var app = (function (crypto) {
 	}
 
 	// (13:21) 
-	function create_if_block_4$8(component, ctx) {
+	function create_if_block_4$7(component, ctx) {
 		var current_block_type_index, if_block, if_block_anchor, current;
 
 		var if_block_creators = [
@@ -18134,7 +18071,7 @@ var app = (function (crypto) {
 	          const timeTag = Date.now();
 	          timeTags.push(timeTag);
 
-	          //console.log(`Search executed: ${searchQuery}`);
+	          console.log(`Search executed: ${searchQuery}`);
 
 	          remoteObject
 	            .call(remoteMethod, { query: normalizeQuery(searchQuery), searchOriginHost: window.location.host })
@@ -18165,6 +18102,8 @@ var app = (function (crypto) {
 	              reject(e);
 	            });
 	        }, searchDelay);
+	      } else {
+	        console.log('Query not different enough');
 	      }
 	    } catch (e) {
 	      console.log('This error should not happen: bug in dmt-js');
@@ -18457,7 +18396,7 @@ var app = (function (crypto) {
 	function create_if_block_3$b(component, ctx) {
 		var if_block_anchor;
 
-		var if_block = (!ctx.$controller.apMode) && create_if_block_4$9(component);
+		var if_block = (!ctx.$controller.apMode) && create_if_block_4$8(component);
 
 		return {
 			c: function create() {
@@ -18473,7 +18412,7 @@ var app = (function (crypto) {
 			p: function update(changed, ctx) {
 				if (!ctx.$controller.apMode) {
 					if (!if_block) {
-						if_block = create_if_block_4$9(component);
+						if_block = create_if_block_4$8(component);
 						if_block.c();
 						if_block.m(if_block_anchor.parentNode, if_block_anchor);
 					}
@@ -18493,7 +18432,7 @@ var app = (function (crypto) {
 	}
 
 	// (25:12) {#if !$controller.apMode}
-	function create_if_block_4$9(component, ctx) {
+	function create_if_block_4$8(component, ctx) {
 		var div;
 
 		function click_handler(event) {
@@ -19176,10 +19115,15 @@ var app = (function (crypto) {
 	    const { prevQuery, prevMediaType } = queries[selectedDeviceId];
 
 	    if(searchQuery.trim()) {
+	      // console.log("AAA");
+	      // console.log(searchQuery);
 	      // we do these comparisons here althout basic comparisons if search query is different enough are also done in
 	      // executeSearch ... here we have a specific situation because we query multiple devices as we switch between them, we need separate context for each
 	      if(this.queryDifferentEnough({ searchQuery, prevQuery, mediaType, prevMediaType })) {
 	        // console.log(`Sent ${searchQuery} with mediaType=${mediaType} to rpc/player/search`);
+
+	        // console.log("BBB");
+	        // console.log(this.getSearchQuery());
 
 	        const remoteObject = this.store.remoteObject('player');
 	        const remoteMethod = 'search';
@@ -19187,6 +19131,7 @@ var app = (function (crypto) {
 	        const searchDelay = 120;
 
 	        executeSearch({ searchQuery: this.getSearchQuery(), remoteObject, remoteMethod, searchDelay }).then(searchResults => {
+	          console.log("GOT SEARCH RESULTS");
 	          this.store.currentStore().set({ searchResults });
 	        }).catch(console.log);
 
@@ -20391,7 +20336,7 @@ var app = (function (crypto) {
 
 		var if_block6 = (!ctx.$player.isStream && ctx.$playlist) && create_if_block_6$4(component, ctx);
 
-		var if_block7 = (ctx.$player.isStream && ctx.$player.currentMedia && ctx.$player.currentMedia.song) && create_if_block_4$a(component, ctx);
+		var if_block7 = (ctx.$player.isStream && ctx.$player.currentMedia && ctx.$player.currentMedia.song) && create_if_block_4$9(component, ctx);
 
 		var ribbon = new Ribbon({
 			root: component.root,
@@ -20592,7 +20537,7 @@ var app = (function (crypto) {
 					if (if_block7) {
 						if_block7.p(changed, ctx);
 					} else {
-						if_block7 = create_if_block_4$a(component, ctx);
+						if_block7 = create_if_block_4$9(component, ctx);
 						if_block7.c();
 						if_block7.m(div2, null);
 					}
@@ -22088,7 +22033,7 @@ var app = (function (crypto) {
 	}
 
 	// (198:8) {#if $player.isStream && $player.currentMedia && $player.currentMedia.song}
-	function create_if_block_4$a(component, ctx) {
+	function create_if_block_4$9(component, ctx) {
 		var div2, div0, text1, div1, text2, text3_value = ctx.$player.currentMedia.song, text3;
 
 		var if_block = (!ctx.$player.paused) && create_if_block_5$7();
@@ -24213,7 +24158,7 @@ var app = (function (crypto) {
 			component.action('reboot');
 		}
 
-		var if_block = (ctx.$controller) && create_if_block_4$b(component, ctx);
+		var if_block = (ctx.$controller) && create_if_block_4$a(component, ctx);
 
 		return {
 			c: function create() {
@@ -24245,7 +24190,7 @@ var app = (function (crypto) {
 					if (if_block) {
 						if_block.p(changed, ctx);
 					} else {
-						if_block = create_if_block_4$b(component, ctx);
+						if_block = create_if_block_4$a(component, ctx);
 						if_block.c();
 						if_block.m(if_block_anchor.parentNode, if_block_anchor);
 					}
@@ -24276,7 +24221,7 @@ var app = (function (crypto) {
 	}
 
 	// (6:4) {#if $controller}
-	function create_if_block_4$b(component, ctx) {
+	function create_if_block_4$a(component, ctx) {
 		var text, button;
 
 		function select_block_type_1(ctx) {
@@ -25410,7 +25355,7 @@ var app = (function (crypto) {
 	function create_if_block_3$e(component, ctx) {
 		var if_block_anchor, current;
 
-		var if_block = (ctx.$log) && create_if_block_4$c(component, ctx);
+		var if_block = (ctx.$log) && create_if_block_4$b(component, ctx);
 
 		return {
 			c: function create() {
@@ -25429,7 +25374,7 @@ var app = (function (crypto) {
 					if (if_block) {
 						if_block.p(changed, ctx);
 					} else {
-						if_block = create_if_block_4$c(component, ctx);
+						if_block = create_if_block_4$b(component, ctx);
 						if_block.c();
 						if_block.m(if_block_anchor.parentNode, if_block_anchor);
 					}
@@ -25960,7 +25905,7 @@ var app = (function (crypto) {
 	}
 
 	// (16:6) {#if $log}
-	function create_if_block_4$c(component, ctx) {
+	function create_if_block_4$b(component, ctx) {
 		var pre, ul;
 
 		var each_value = ctx.$log;
@@ -27225,7 +27170,7 @@ var app = (function (crypto) {
 	function create_if_block_3$f(component, ctx) {
 		var if_block_anchor, current;
 
-		var if_block = (ctx.$controller) && create_if_block_4$d(component);
+		var if_block = (ctx.$controller) && create_if_block_4$c(component);
 
 		return {
 			c: function create() {
@@ -27242,7 +27187,7 @@ var app = (function (crypto) {
 			p: function update(changed, ctx) {
 				if (ctx.$controller) {
 					if (!if_block) {
-						if_block = create_if_block_4$d(component);
+						if_block = create_if_block_4$c(component);
 						if_block.c();
 					}
 					if_block.i(if_block_anchor.parentNode, if_block_anchor);
@@ -27589,7 +27534,7 @@ var app = (function (crypto) {
 	}
 
 	// (41:4) {#if $controller}
-	function create_if_block_4$d(component, ctx) {
+	function create_if_block_4$c(component, ctx) {
 		var current;
 
 		var home = new Home({

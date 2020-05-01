@@ -5,8 +5,10 @@ import { parseArgs, serializeArgs } from './lib/utils/args';
 
 import initActor from './actor';
 
+import searchPredicate from './lib/jsonObjectSearch/simpleSearchPredicate';
+
 function init(program) {
   initActor(program);
 }
 
-export { init, MultiProviderSearch, detectMediaType, parseArgs, serializeArgs };
+export { init, MultiProviderSearch, detectMediaType, parseArgs, serializeArgs, searchPredicate };

@@ -2,14 +2,17 @@ import dmt from 'dmt/bridge';
 
 import path from 'path';
 
-import { detectMediaType } from 'dmt/search';
 import { fiberHandle as makeFiberHandle } from 'dmt/connectome';
 
-const { log } = dmt;
+import { detectMediaType } from 'dmt/search';
 
-function enhanceResult({ result, providerAddress, providerPort, searchOriginHost }) {
-  const fileName = path.basename(result.filePath);
-  const directory = path.dirname(result.filePath);
+const { prettyMacroTime, log } = dmt;
+
+function enhanceFS(result, { providerAddress, providerPort, searchOriginHost }) {
+  const { filePath } = result;
+
+  const fileName = path.basename(filePath);
+  const directory = path.dirname(filePath);
 
   const mediaType = detectMediaType(fileName);
 
@@ -24,7 +27,49 @@ function enhanceResult({ result, providerAddress, providerPort, searchOriginHost
     );
   }
 
-  Object.assign(result, { mediaType, fiberHandle, fiberContentURL });
+  Object.assign(result, { mediaType, fiberHandle, fiberContentURL, playableUrl: fiberContentURL });
+}
+
+function enhanceSwarm(result, { swarmGateway }) {
+  const { swarmBzzHash } = result;
+
+  const playableUrl = `${swarmGateway}/bzz:/${swarmBzzHash}`;
+
+  const { name, date } = result;
+
+  const mediaType = detectMediaType(name);
+
+  if (mediaType) {
+    result.mediaType = mediaType;
+  }
+
+  if (date) {
+    try {
+      result.prettyTime = prettyMacroTime(new Date(date));
+    } catch (e) {
+      log.red(`Warning: cannot parse date: ${date}`);
+      log.red(result);
+    }
+  }
+
+  Object.assign(result, { swarmBzzHash, playableUrl });
+}
+
+function enhanceResult({ result, providerAddress, providerPort, searchOriginHost }) {
+  const { filePath, swarmBzzHash } = result;
+
+  if (filePath) {
+    enhanceFS(result, { providerAddress, providerPort, searchOriginHost });
+    return;
+  }
+
+  if (swarmBzzHash) {
+    enhanceSwarm(result, { swarmGateway: 'https://swarm-gateways.net' });
+    return;
+  }
+
+  log.red('Unknown search result type:');
+  log.red(result);
 }
 
 export default enhanceResult;

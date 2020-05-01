@@ -9,11 +9,10 @@ import naclutil from 'tweetnacl-util';
 
 import util from './lib/util';
 import scan from './lib/scan';
-import search from './lib/search';
-
-import stopwatch from './lib/stopwatch';
-import stopwatchAdv from './lib/stopwatchAdv';
-import prettyTime from './lib/prettyTime';
+import stopwatch from './lib/timeutils/stopwatch';
+import stopwatchAdv from './lib/timeutils/stopwatchAdv';
+import prettyMicroTime from './lib/timeutils/prettyMicroTime';
+import prettyMacroTime from './lib/timeutils/prettyMacroTime';
 import prettyFileSize from './lib/prettyFileSize';
 
 import FsState from './lib/fsState';
@@ -22,13 +21,14 @@ import processBatch from './lib/processBatch';
 
 import def from './lib/parsers/def/parser';
 import cli from './lib/parsers/cli/cliHelper';
-import helper from './lib/parsers/def/dmtHelper';
+import helper from './lib/dmtHelper';
 
 import * as numberRanges from './lib/parsers/numbers/rangeParser';
 import * as textfileParsers from './lib/parsers/textfiles';
+
 import { apMode, apInfo, accessPointIP } from './lib/apTools';
 
-import * as suntime from './lib/suntime';
+import * as suntime from './lib/timeutils/suntime';
 import db from './lib/databases';
 
 nacl.util = naclutil;
@@ -73,14 +73,14 @@ export default {
   xstate,
   quantum,
   colors,
-  search,
   def,
   cli,
   processBatch,
   textfileParsers,
   numberRanges,
   prettyFileSize,
-  prettyTime,
+  prettyMicroTime,
+  prettyMacroTime,
   stopwatch,
   stopwatchAdv,
   apMode,
@@ -93,7 +93,6 @@ export default {
     const viewsDefFile = path.join(helper.dmtPath, 'def/gui_views.def');
     return def.values(helper.parseDef(viewsDefFile, { caching: false }).multi);
   },
-  commonTruthSource: helper.commonTruthSource,
 
   isInstalled() {
     return fs.existsSync(helper.dmtPath);

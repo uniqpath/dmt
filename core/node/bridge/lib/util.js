@@ -1,6 +1,3 @@
-import colors from 'colors';
-import stopwatch from './stopwatch';
-
 import colorJSON from './colorJSON';
 import deepmerge from './utilities/deepmerge';
 
@@ -18,20 +15,6 @@ import rfc6902 from 'rfc6902';
 const generateJsonPatch = rfc6902.createPatch;
 
 const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
-
-function measure(func, { desc = ' ', disable = false } = {}) {
-  if (disable) {
-    return func();
-  }
-
-  const start = stopwatch.start();
-  const result = func();
-  const duration = stopwatch.stop(start);
-  const line = colors.gray(`Measured ${colors.cyan(desc)} -`);
-  console.log(`${line} ${colors.green(duration)}`);
-
-  return result;
-}
 
 function periodicRepeat(callback, timeMs) {
   const update = () => {
@@ -61,7 +44,6 @@ export default {
   random,
   hexutils,
   snakeCaseKeys,
-  measure,
   periodicRepeat,
   autoDetectEOLMarker,
   normalizeMac,

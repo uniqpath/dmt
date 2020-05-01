@@ -6,12 +6,12 @@ import os from 'os';
 const { homedir } = os;
 const { username } = os.userInfo();
 
-import isRPi from '../../detectRPi';
-import def from './parser';
-import cliParser from '../cli/parser';
+import isRPi from './detectRPi';
+import def from './parsers/def/parser';
+import cliParser from './parsers/cli/parser';
 
-import scan from '../../scan';
-import util from '../../util';
+import scan from './scan';
+import util from './util';
 
 const { hexToBuffer } = util.hexutils;
 
@@ -141,15 +141,6 @@ function readKeysDef({ filePath }) {
   }
 }
 
-function commonTruthSource() {
-  if (this.user()) {
-    const ts = this.user().commonTruthSource;
-    if (ts) {
-      return ts;
-    }
-  }
-}
-
 let checkedForDuplicateMacs = false;
 
 export default {
@@ -161,7 +152,6 @@ export default {
   isDevMachine,
   isDevCluster,
   includeModule,
-  commonTruthSource,
 
   debugMode(category = null) {
     const debugInfoFile = path.join(stateDir, '.debug-mode');

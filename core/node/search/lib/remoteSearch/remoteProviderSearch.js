@@ -1,7 +1,7 @@
 import dmt from 'dmt/bridge';
-const { log, stopwatchAdv, prettyTime } = dmt;
+const { log, stopwatchAdv, prettyMicroTime } = dmt;
 import { serializeArgs } from 'dmt/search';
-import { basicMetaInfo } from '../metaInfo';
+import { basicMetaInfo } from '../basicMetaInfo';
 
 class RemoteProviderSearch {
   constructor({ provider, connector, mediaType }) {
@@ -46,7 +46,7 @@ class RemoteProviderSearch {
             const { searchTime } = response.meta;
 
             const networkTime = totalDuration - searchTime;
-            const networkTimePretty = prettyTime(networkTime);
+            const networkTimePretty = prettyMicroTime(networkTime);
 
             success(this.searchResponse({ response, contentId, networkTime, networkTimePretty }));
           })

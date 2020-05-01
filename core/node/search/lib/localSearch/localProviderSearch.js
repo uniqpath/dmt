@@ -4,7 +4,9 @@ const { stopwatchAdv } = dmt;
 
 import contentSearch from './contentSearch';
 
-import { basicMetaInfo } from '../metaInfo';
+import { basicMetaInfo } from '../basicMetaInfo';
+
+import SwarmSearch from '../swarmSearch/swarmSearch';
 
 class LocalProviderSearch {
   constructor({ provider, mediaType }) {
@@ -16,15 +18,28 @@ class LocalProviderSearch {
     this.localContentId = provider.contentRef;
 
     this.localhost = provider.localhost;
+    this.swarmSearch = new SwarmSearch(this);
   }
 
   search({ terms, clientMaxResults, mediaType, contentRef }) {
     const options = { terms, clientMaxResults, mediaType: mediaType || this.mediaType };
     const contentId = contentRef || this.localContentId;
 
+    if (contentId == 'swarm') {
+      return new Promise((success, reject) => {
+        if (this.localhost) {
+          this.timedLocalSwarmSearch(contentId, options)
+            .then(success)
+            .catch(reject);
+        } else {
+          throw new Error('Bug in code: this provider should be local!');
+        }
+      });
+    }
+
     return new Promise((success, reject) => {
       if (this.localhost) {
-        this.timedLocalSearch(contentId, options)
+        this.timedLocalFSSearch(contentId, options)
           .then(success)
           .catch(reject);
       } else {
@@ -49,7 +64,35 @@ class LocalProviderSearch {
     });
   }
 
-  timedLocalSearch(contentId, options) {
+  timedLocalSwarmSearch(contentId, options) {
+    const start = stopwatchAdv.start();
+
+    return new Promise((success, reject) => {
+      this.swarmSearch
+        .search(options)
+        .then(({ results, maxResults }) => {
+          const _response = { meta: { pageNumber: options.pageNumber, hasMore: false }, results };
+
+          const response = this.searchResponse({ response: _response, contentId });
+
+          const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
+          Object.assign(response.meta, { searchTime, searchTimePretty });
+
+          success(response);
+        })
+        .catch(e => {
+          const response = { meta: basicMetaInfo(this), error: e.message };
+
+          const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
+
+          Object.assign(response.meta, { contentId, searchTime, searchTimePretty });
+
+          success(response);
+        });
+    });
+  }
+
+  timedLocalFSSearch(contentId, options) {
     const start = stopwatchAdv.start();
 
     return new Promise((success, reject) => {

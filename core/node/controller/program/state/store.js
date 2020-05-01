@@ -3,7 +3,7 @@ import fs from 'fs';
 import retrace from 'retrace';
 
 import dmt from 'dmt/bridge';
-const { util, log } = dmt;
+const { util, stopwatch, log } = dmt;
 
 import { reduceSizeOfStateForGUI } from 'dmt/gui';
 import removeStateChangeFalseTriggers from './removeStateChangeFalseTriggers';
@@ -30,9 +30,9 @@ class Store {
   }
 
   announceStateChange() {
-    const stateClone = util.measure(() => reduceSizeOfStateForGUI(util.clone(this.program.state)), { desc: 'cloning state', disable: true });
+    const stateClone = stopwatch.measureHelper(() => reduceSizeOfStateForGUI(util.clone(this.program.state)), { desc: 'cloning state', disable: true });
     removeStateChangeFalseTriggers(stateClone);
-    const diff = util.measure(() => util.generateJsonPatch(this.prevAnnouncedState, stateClone), { desc: 'creating state diff', disable: true });
+    const diff = stopwatch.measureHelper(() => util.generateJsonPatch(this.prevAnnouncedState, stateClone), { desc: 'creating state diff', disable: true });
 
     if (diff.length > 0) {
       this.persistState();

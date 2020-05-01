@@ -14,10 +14,14 @@
 
   export let store;
 
+  const isLocalhost = window.location.hostname == 'localhost';
+  // ugly hack for now:
+  const isZetaSeek = window.location.hostname == 'zetaseek.com';
+
   let isSearching;
   let noSearchHits;
 
-  cssBridge.setWallpaper('/wallpapers/landscape/foggy_forest.jpg');
+  cssBridge.setWallpaper('/apps/zeta/wallpapers/hilly_dark_forest_river_fog.jpg');
 
   $: searchResults = $store.searchResults;
   $: connected = $store.connected;
@@ -32,7 +36,9 @@
     setTimeout(() => {
       searchQuery = document.getElementById('searchInput').value;
       searchInputChanged();
-    }, 300);
+    }, 300); // todo: fix -- handle back inside our app ? then read last results from localstorate ?!
+    // when we go back in browser history and search query is kept for us (by default)
+    // we need small delay because otherwiser "store" is not yet setup
   });
 
   function searchInputChanged() {
@@ -52,18 +58,23 @@
       });
     }
   }
+
+  function play(playableUrl) {
+    console.log(`Loading ${playableUrl} into mpv on localhost ...`);
+    store.remoteObject('GUIPlayerObject').call('playUrl', { playableUrl });
+  }
 </script>
 
 <About {store} />
 
 <main>
 
-  {#if window.location.hostname == 'localhost'}
+  {#if isLocalhost}
     <Escape />
   {/if}
 
   <div class="logo">
-    <img src="/img/zeta_logo.png" alt="zeta logo">
+    <img src="/apps/zeta/img/zeta_logo.png" alt="zeta logo">
   </div>
 
   <p class="connection_status" class:ok={connected}>
@@ -84,34 +95,118 @@
 
     <input id="searchInput" bind:value={searchQuery} bind:this={searchInput} on:keyup={searchInputChanged} on:paste={searchInputChanged} placeholder="Please type your query ...">
 
-    <div class="noResults" class:visible={noSearchHits}>NO RESULTS :(</div>
+    <div class="noResults" class:visible={noSearchHits}>NO RESULTS :( ... Yet ;)</div>
 
     {#if searchResults}
 
       {#each searchResults as providerResponse}
 
-        <div class="results">
-          <h3>{providerResponse.meta.providerHost}</h3>
+        {#if providerResponse.results && providerResponse.results.length > 0}
 
-          {#if providerResponse.error}
-            <div class="resultError">
-            Error:
-              <span>{JSON.stringify(providerResponse.error)}</span>
-            </div>
-          {:else}
-            {#each providerResponse.results as {filePath, mediaType, filePathANSI, fiberContentURL, fileSizePretty}}
-              <div class="result">
-                <a href="{fiberContentURL}">{#each ansicolor.parse(filePathANSI).spans as span}<span style="{span.css}">{span.text}</span>{/each}</a>
+          <div class="results">
+            <!-- @provider/contentId -->
+            <h3>
+              {providerResponse.meta.providerHost}<span class="contentId">{#if providerResponse.meta.contentId}/{providerResponse.meta.contentId}{/if}</span>
 
-                <span class="mediaType">{mediaTypeIcon(mediaType)}</span>
+              {#if !providerResponse.error}
+                <span class="searchTime">fs <span class="value">{providerResponse.meta.searchTimePretty}</span>
+                  {#if providerResponse.meta.networkTimePretty}
+                    · network <span class="value">{providerResponse.meta.networkTimePretty}</span>
+                  {/if}
+                </span>
+              {/if}
 
-                <span>{fileSizePretty}</span>
+            </h3>
+
+            {#if providerResponse.error}
+              <div class="resultError">
+              Error:
+                <span>{JSON.stringify(providerResponse.error)}</span>
               </div>
             {:else}
-              NO RESULTS
-            {/each}
-          {/if}
-        </div>
+              {#each providerResponse.results as {filePath, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty}}
+                <div class="result">
+
+                  {#if mediaType == 'video'}
+                    <span class="tag videoTag">VIDEO</span>
+                  {/if}
+
+                  {#if mediaType == 'photo'}
+                    <span class="tag imageTag">IMAGE</span>
+                  {/if}
+
+                  {#if mediaType == 'pdf'}
+                    <span class="tag pdfTag">PDF</span>
+                  {/if}
+
+                  {#if swarmBzzHash}
+                    <span class="tag swarmTag">SWARM</span>
+
+                    {#if entryType == 'ens'} <!-- hackish + todo: make sure to update hashes from ENS registry!! -->
+                      <span class="tag ensTag">ENS</span>
+                    {/if}
+
+                    <a href="{playableUrl}">
+                      <b>{name}</b>
+                    </a>
+
+                    {#if prettyTime}
+                      ·
+                      {prettyTime}
+                    {/if}
+
+                    {#if entryType == 'ens'}
+                      ∞
+                    {:else}
+                      ·
+                    {/if}
+
+                    {#if context}
+                      {#if entryType != 'ens'}({/if}{context}{#if entryType != 'ens'}){/if}
+                    {/if}
+
+                    <!-- <a href="{playableUrl}">
+                      {swarmBzzHash}
+                    </a> -->
+                  {:else if filePath}
+                    <a href="{playableUrl}">
+                      {#each ansicolor.parse(filePathANSI).spans as span}<span style="{span.css}">{span.text}</span>{/each}
+                    </a>
+                  {:else}
+                    <div class="resultError">Unsupported search results format.</div>
+                  {/if}
+
+                  {#if mediaType && mediaTypeIcon(mediaType)}
+                    <span class="mediaType">{mediaTypeIcon(mediaType)}</span>
+                  {/if}
+
+                  {#if !isZetaSeek && mediaType == 'music'}
+                    <a class="button" on:click={() => { play(playableUrl); }}>PLAY</a>
+                  {/if}
+
+                  {#if fileSizePretty}
+                    <span>{fileSizePretty}</span>
+                  {/if}
+                </div>
+                <!-- if (totalCount == meta.maxResults) {
+                  explain = ' or more';
+                }
+                console.log(colors.gray(`All results → ${colors.yellow(`${totalCount}${explain}`)}${time}`)); -->
+
+              {:else}
+                NO RESULTS
+              {/each}
+
+              {#if providerResponse.meta.pageNumber}
+                <div class="results_count">Page: <span>{providerResponse.meta.pageNumber}</span>
+                  {#if providerResponse.meta.hasMore}
+                    <a href="next_page">Next page</a>
+                  {/if}
+                </div>
+              {/if}
+            {/if}
+          </div>
+        {/if}
 
       {/each}
     {/if}
@@ -132,6 +227,38 @@
     width: 200px;
     margin: 0 auto;
     margin-bottom: 30px;
+  }
+
+  .results a.button, .results .tag {
+    background-color: #ddd;
+    border-radius: 2px;
+    color: #555;
+    padding: 0 2px;
+  }
+
+  .results .swarmTag {
+    color: #555;
+    background-color: #FFA500;
+  }
+
+  .results .ensTag {
+    background-color: #5284FF;
+    color: white;
+  }
+
+  .results .videoTag {
+    color: white;
+    background-color: #2C581A;
+  }
+
+  .results .imageTag {
+    color: white;
+    background-color: #C76479;
+  }
+
+  .results .pdfTag {
+    color: white;
+    background-color: #575DC9;
   }
 
   #searchInput {
@@ -159,16 +286,35 @@
     width: 100%;
   }
 
+  .results .results_count {
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #CCC;
+  }
+
+  .results .results_count span {
+    color: white;
+  }
+
+  .results h3 span.contentId {
+    color: #DDD;
+  }
+
   .results span {
     color: #DDD;
   }
 
-  .result {
-    padding: 3px 0;
+  .results span.searchTime {
+    font-size: 0.7em;
+    color: #ddd;
   }
 
-  .result a {
+  .results span.searchTime span.value {
     color: white;
+  }
+
+  .result {
+    padding: 3px 0;
   }
 
   .resultError span {
@@ -182,8 +328,23 @@
     color: white;
   }
 
+  .result a {
+    color: white;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    padding: 0 2px;
+  }
+
   .result a:hover {
-    color: #FFE8DF;
+    /*color: #FFE8DF;*/
+    color: #FFA500;
+    background-color: #444;
+  }
+
+  a.button:hover {
+    background-color: white;
+    color: black;
+    cursor: pointer;
   }
 
   .noResults {
