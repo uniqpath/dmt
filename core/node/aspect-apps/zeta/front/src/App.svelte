@@ -21,7 +21,11 @@
   let isSearching;
   let noSearchHits;
 
-  cssBridge.setWallpaper('/apps/zeta/wallpapers/hilly_dark_forest_river_fog.jpg');
+  if (isZetaSeek) {
+    cssBridge.setWallpaper('/apps/zeta/wallpapers/hilly_dark_forest_river_fog.jpg');
+  } else {
+    cssBridge.setWallpaper('/apps/zeta/wallpapers/black_triangles.jpg');
+  }
 
   $: searchResults = $store.searchResults;
   $: connected = $store.connected;
@@ -108,23 +112,31 @@
     <img src="/apps/zeta/img/zeta_logo.png" alt="zeta logo">
   </div>
 
-  <p class="connection_status" class:ok={connected}>
-    {$store.deviceName || ''} connected:
-
+  <p class="connection_status" class:ok={connected} class:isLocalhost>
     {#if connected}
+      {$store.deviceName || ''} connected:
+
       {#if isSearching}
         <Spinner id="search_spinner" size="15" speed="400" color="#fff" thickness="2" gap="40"/>
       {:else}
         ✓
       {/if}
     {:else}
-      ✖
+      — disconnected —
+      <!-- ✖ -->
     {/if}
   </p>
 
   <div class="search">
 
     <input id="searchInput" bind:value={searchQuery} bind:this={searchInput} on:keyup={searchInputChanged} on:paste={searchInputChanged} placeholder="Please type your query ...">
+
+    {#if !connected}
+      <p class="connection_status_help">
+        Operator, please start <span>dmt-proc</span>.
+      </p>
+    {/if}
+
 
     <div class="noResults" class:visible={noSearchHits}>NO RESULTS :( ... Yet ;)</div>
 
@@ -300,11 +312,25 @@
   }
 
   p.connection_status {
-    color: #777;
+    color: #41479F;
+  }
+
+  p.connection_status.isLocalhost {
+    color: #9F4051;
+    color: #FEBCBC;
   }
 
   p.connection_status.ok {
     color: #fff;
+  }
+
+  .connection_status_help {
+    color: #5DF699;
+    font-size: 0.8em;
+  }
+
+  .connection_status_help span {
+    color: #51F5C8;
   }
 
   .results {

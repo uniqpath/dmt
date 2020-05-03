@@ -1,23 +1,34 @@
 <script>
   export let store;
 
+// ugly hack for now:
+const isZetaSeek = window.location.hostname == 'zetaseek.com';
+
 </script>
 
-<div class="about">
-  <b>Zeta</b> <span>PoC v0.1.1</span>
+{#if isZetaSeek}
 
-  <p>
-    A new p2p digital era is slowly arriving.
-  </p>
+  <div class="about">
+    <b>Zeta</b> <span>PoC v0.1.1</span>
 
-  <p>
-    <b>Zeta</b> is an experimental app built with <a href="https://dmt-system.com">dmt-system</a> and Swarm.
-  </p>
+    <p>
+      A new p2p digital era is slowly arriving.
+    </p>
 
-  <p>
-    <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta/front">[zeta frontend code]</a> | <a href="https://github.com/uniqpath/dmt/tree/master/core/node">[dmt backend code]</a>
-  </p>
-</div>
+    <p>
+      <b>Zeta</b> is a fast evolving search technology on <b>modern web3 stack</b>.
+    </p>
+
+    <p>
+      <b>zetaseek.com</b> is one useful instance of Zeta knowledge node.
+    </p>
+
+    <!-- <p>
+      <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta/front">[zeta frontend code]</a> | <a href="https://github.com/uniqpath/dmt/tree/master/core/node">[dmt backend code]</a>
+    </p> -->
+  </div>
+
+{/if}
 
 <style>
 .about {

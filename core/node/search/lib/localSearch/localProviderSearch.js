@@ -1,3 +1,4 @@
+import colors from 'colors';
 import dmt from 'dmt/bridge';
 
 const { log, stopwatchAdv } = dmt;
@@ -64,9 +65,8 @@ class LocalProviderSearch {
           success(response);
         })
         .catch(e => {
-          log.red(e);
-
           const response = { meta: basicMetaInfo(this), error: e.message };
+          log.yellow(`Local search was invalid: ${colors.red(e.message)}`);
           const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
           Object.assign(response.meta, { contentId, searchTime, searchTimePretty });
 
