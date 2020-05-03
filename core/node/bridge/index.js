@@ -31,8 +31,6 @@ import * as textfileParsers from './lib/parsers/textfiles';
 
 import { apMode, apInfo, accessPointIP } from './lib/apTools';
 
-import db from './lib/databases';
-
 nacl.util = naclutil;
 
 if (!fs.existsSync(helper.dmtPath)) {
@@ -89,7 +87,6 @@ export default {
   apMode,
   apInfo,
   accessPointIP,
-  db,
   suntime,
   loop: util.periodicRepeat,
   guiViews: () => {

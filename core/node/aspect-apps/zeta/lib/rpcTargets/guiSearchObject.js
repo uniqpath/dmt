@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import getContentProviders from '../getContentProviders';
 
 class GUISearchObject {
   constructor({ program, channel }) {
@@ -7,17 +7,8 @@ class GUISearchObject {
   }
 
   search({ query, searchOriginHost }) {
-    return new Promise((success, reject) => {
-      const providers = [];
-
-      if (dmt.isDevMachine()) {
-        providers.push('@this/swarm');
-        providers.push('@solar');
-      } else {
-        providers.push('@134.122.75.242:7780/swarm');
-      }
-
-      providers.push(...['@134.122.75.242:7780', '@this']);
+    return new Promise(success => {
+      const providers = getContentProviders();
 
       this.program
         .actor('search')

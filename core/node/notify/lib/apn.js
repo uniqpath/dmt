@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import dates from 'date-fns';
 import apn from 'apn';
-import stripColor from 'strip-color';
 
 import dmt from 'dmt/bridge';
 const { log } = dmt;
