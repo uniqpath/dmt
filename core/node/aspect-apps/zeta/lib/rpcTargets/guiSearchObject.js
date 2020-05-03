@@ -1,5 +1,7 @@
 import dmt from 'dmt/bridge';
 
+import { push } from 'dmt/notify';
+
 class GUISearchObject {
   constructor({ program, channel }) {
     this.program = program;
@@ -23,6 +25,10 @@ class GUISearchObject {
         .actor('search')
         .call('search', { query: `${providers.join(' ')} ${query} @count=10`, searchOriginHost })
         .then(response => {
+          if (dmt.device().id == 'zeta') {
+            push.notify(`ZetaSeek: ${query}, results count: ${response[0].results.length}`);
+          }
+
           success(response);
         })
         .catch(error => {

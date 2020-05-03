@@ -1,6 +1,8 @@
 import dmt from 'dmt/bridge';
 const { cli, util } = dmt;
 
+import maxResults from './maxResults';
+
 function parseArgs({ args, actorName, defaultMediaType }) {
   if (typeof args === 'string') {
     const { terms, atDevices, attributeOptions } = cli(args.trim().split(/\s+/));
@@ -12,7 +14,7 @@ function parseArgs({ args, actorName, defaultMediaType }) {
     args = { terms, mediaType, clientMaxResults, atDevices, contentRef };
   }
 
-  const { serverMaxResults } = dmt.maxResults(actorName);
+  const { serverMaxResults } = maxResults(actorName);
   const clientMaxResults = args.clientMaxResults ? args.clientMaxResults : serverMaxResults;
 
   return { ...args, ...{ clientMaxResults } };

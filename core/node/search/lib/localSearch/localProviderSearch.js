@@ -2,27 +2,24 @@ import dmt from 'dmt/bridge';
 
 const { stopwatchAdv } = dmt;
 
-import contentSearch from './contentSearch';
+import contentSearch from './fsSearch/contentSearch';
 
-import { basicMetaInfo } from '../basicMetaInfo';
+import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
 
-import SwarmSearch from '../swarmSearch/swarmSearch';
+import swarmSearch from './swarmSearch/swarmSearch';
 
 class LocalProviderSearch {
-  constructor({ provider, mediaType }) {
-    this.mediaType = mediaType;
-
+  constructor({ provider }) {
     this.providerHost = provider.host;
-    this.providerAddress = dmt.hostAddress(provider);
+    this.providerAddress = provider.address;
 
     this.localContentId = provider.contentRef;
 
     this.localhost = provider.localhost;
-    this.swarmSearch = new SwarmSearch(this);
   }
 
   search({ terms, clientMaxResults, mediaType, contentRef }) {
-    const options = { terms, clientMaxResults, mediaType: mediaType || this.mediaType };
+    const options = { terms, clientMaxResults, mediaType };
     const contentId = contentRef || this.localContentId;
 
     if (contentId == 'swarm') {
@@ -58,7 +55,7 @@ class LocalProviderSearch {
 
   localSearch(contentId, { terms, clientMaxResults, mediaType, onlySearchCatalogs }) {
     return new Promise((success, reject) => {
-      contentSearch(contentId, { terms, clientMaxResults, mediaType: mediaType || this.mediaType, onlySearchCatalogs })
+      contentSearch(contentId, { terms, clientMaxResults, mediaType, onlySearchCatalogs })
         .then(success)
         .catch(reject);
     });
@@ -68,8 +65,7 @@ class LocalProviderSearch {
     const start = stopwatchAdv.start();
 
     return new Promise((success, reject) => {
-      this.swarmSearch
-        .search(options)
+      swarmSearch(options)
         .then(({ results, maxResults }) => {
           const _response = { meta: { pageNumber: options.pageNumber, hasMore: false }, results };
 

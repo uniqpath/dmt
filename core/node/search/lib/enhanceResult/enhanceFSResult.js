@@ -6,7 +6,7 @@ import { fiberHandle as makeFiberHandle } from 'dmt/connectome';
 
 import { detectMediaType } from 'dmt/search';
 
-const { prettyMacroTime, log } = dmt;
+const { log } = dmt;
 
 function enhanceFS(result, { providerAddress, providerPort, searchOriginHost }) {
   const { filePath } = result;
@@ -30,46 +30,4 @@ function enhanceFS(result, { providerAddress, providerPort, searchOriginHost }) 
   Object.assign(result, { mediaType, fiberHandle, fiberContentURL, playableUrl: fiberContentURL });
 }
 
-function enhanceSwarm(result, { swarmGateway }) {
-  const { swarmBzzHash } = result;
-
-  const playableUrl = `${swarmGateway}/bzz:/${swarmBzzHash}`;
-
-  const { name, date } = result;
-
-  const mediaType = detectMediaType(name);
-
-  if (mediaType) {
-    result.mediaType = mediaType;
-  }
-
-  if (date) {
-    try {
-      result.prettyTime = prettyMacroTime(new Date(date));
-    } catch (e) {
-      log.red(`Warning: cannot parse date: ${date}`);
-      log.red(result);
-    }
-  }
-
-  Object.assign(result, { swarmBzzHash, playableUrl });
-}
-
-function enhanceResult({ result, providerAddress, providerPort, searchOriginHost }) {
-  const { filePath, swarmBzzHash } = result;
-
-  if (filePath) {
-    enhanceFS(result, { providerAddress, providerPort, searchOriginHost });
-    return;
-  }
-
-  if (swarmBzzHash) {
-    enhanceSwarm(result, { swarmGateway: 'https://swarm-gateways.net' });
-    return;
-  }
-
-  log.red('Unknown search result type:');
-  log.red(result);
-}
-
-export default enhanceResult;
+export default enhanceFS;

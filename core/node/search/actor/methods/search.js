@@ -3,7 +3,7 @@ const { log } = dmt;
 
 import { parseArgs } from '../../lib/utils/args';
 
-import MultiProviderSearch from '../../lib/multiProviderSearch';
+import ZetaSearch from '../../lib/zetaSearch';
 
 function search({ args, method }, { program }) {
   const { query, searchOriginHost } = args;
@@ -11,13 +11,15 @@ function search({ args, method }, { program }) {
   return new Promise((success, reject) => {
     const options = parseArgs({ args: query, actorName: 'search' });
 
-    const { atDevices } = options;
+    const { atDevices: contentProviders } = options;
 
     delete options.atDevices;
 
-    const searchClient = new MultiProviderSearch({ program, providers: atDevices, searchOriginHost });
+    const { fiberPool } = program;
 
-    searchClient
+    const zetaSearch = new ZetaSearch({ fiberPool, contentProviders, searchOriginHost });
+
+    zetaSearch
       .search(options)
       .then(success)
       .catch(e => {

@@ -1,47 +1,13 @@
 import fs from 'fs';
 
+import { settings } from 'dmt/search';
+
 import dmt from 'dmt/bridge';
-const { stopwatchAdv, prettyFileSize, log, util } = dmt;
+const { prettyFileSize, log, util } = dmt;
 
 import stripAnsi from 'strip-ansi';
 
 import searchWithOSBinary from './searchWithOSBinary';
-
-function contentSearch(contentId, { terms, mediaType, clientMaxResults, maxResults }) {
-  log.debug('Search called with:', { obj: { contentId, terms, mediaType, clientMaxResults, maxResults } });
-
-  const _maxResults = clientMaxResults || maxResults || dmt.globals.searchLimit.maxResults;
-
-  const searchPromise = new Promise((success, reject) => {
-    let contentPaths;
-
-    try {
-      contentPaths = dmt.contentPaths({ contentId });
-    } catch (e) {
-      reject(e);
-      return;
-    }
-
-    const start = stopwatchAdv.start();
-
-    multipathSearch({ contentPaths, terms, maxResults: _maxResults, mediaType })
-      .then(results => {
-        const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
-
-        success({
-          meta: {
-            searchTime,
-            searchTimePretty,
-            maxResults: _maxResults
-          },
-          results
-        });
-      })
-      .catch(reject);
-  });
-
-  return dmt.promiseTimeout(dmt.globals.searchLimit.maxTimeLocalBinaryExecution, searchPromise);
-}
 
 function multipathSearch({ contentPaths, terms, maxResults, mediaType }) {
   return new Promise((success, reject) => {
@@ -66,7 +32,7 @@ function searchOnePath({ path, terms, maxResults, mediaType }) {
   return new Promise((success, reject) => {
     const results = [];
 
-    searchWithOSBinary(dmt.globals.searchBinary, { path, terms, maxResults, mediaType }, resultBatch => {
+    searchWithOSBinary(settings().searchBinary, { path, terms, maxResults, mediaType }, resultBatch => {
       if (resultBatch) {
         if (resultBatch.error) {
           success({ error: resultBatch.error });
@@ -95,4 +61,4 @@ function searchOnePath({ path, terms, maxResults, mediaType }) {
   });
 }
 
-export default contentSearch;
+export default multipathSearch;

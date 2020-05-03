@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import dmt from 'dmt/bridge';
+import getReferencedSambaShares from './getReferencedSambaShares';
 
 function mkdir(dir) {
   if (!fs.existsSync(dir)) {
@@ -9,7 +9,7 @@ function mkdir(dir) {
 }
 
 export default function prepareMountpoints() {
-  const list = dmt.getReferencedSambaShares();
+  const list = getReferencedSambaShares();
 
   for (const { mountPath } of list) {
     mkdir(mountPath);

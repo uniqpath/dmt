@@ -5,28 +5,25 @@ import RemoteProviderSearch from './remoteSearch/remoteProviderSearch';
 
 import enhanceResult from './enhanceResult';
 
-const { log, util } = dmt;
+const { log } = dmt;
 
-class MultiProviderSearch {
-  constructor({ program, providers, mediaType, searchOriginHost } = {}) {
-    this.program = program;
+class ZetaSearch {
+  constructor({ fiberPool, contentProviders, searchOriginHost } = {}) {
     this.searchOriginHost = searchOriginHost;
 
-    const providerList = util.listify(providers).map(provider => Object.assign(provider, { providerAddress: dmt.hostAddress(provider) }));
-
-    const localProviders = providerList.filter(provider => provider.localhost);
+    const localProviders = contentProviders.filter(provider => provider.localhost);
     this.localProvidersCount = localProviders.length;
 
-    const remoteProviders = providerList.filter(provider => !provider.localhost);
+    const remoteProviders = contentProviders.filter(provider => !provider.localhost);
     this.remoteProvidersCount = remoteProviders.length;
 
     this.searchArray = localProviders.map(provider => {
-      return new LocalProviderSearch({ provider, mediaType });
+      return new LocalProviderSearch({ provider });
     });
 
     remoteProviders.forEach(provider => {
-      program.fiberPool.getConnector(provider.providerAddress, provider.port || 7780).then(connector => {
-        this.searchArray.push(new RemoteProviderSearch({ provider, mediaType, connector }));
+      fiberPool.getConnector(provider.address, provider.port || 7780).then(connector => {
+        this.searchArray.push(new RemoteProviderSearch({ provider, connector }));
       });
     });
   }
@@ -83,4 +80,4 @@ class MultiProviderSearch {
   }
 }
 
-export default MultiProviderSearch;
+export default ZetaSearch;

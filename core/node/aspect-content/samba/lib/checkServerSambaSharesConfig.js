@@ -4,15 +4,15 @@ import { push } from 'dmt/notify';
 
 import dmt from 'dmt/bridge';
 
-const { log, textfileParsers } = dmt;
+const { log, textfileParsers, dmtContent } = dmt;
 
 const { sambaConfigParser } = textfileParsers;
 
 export default function checkServerSambaSharesConfig() {
   const sambaConfigFile = '/etc/samba/smb.conf';
 
-  for (const contentId of dmt.getContentIDs()) {
-    const content = dmt.contentPaths({ contentId, returnSambaSharesInfo: true });
+  for (const contentId of dmtContent.getContentIDs()) {
+    const content = dmtContent.contentPaths({ contentId, returnSambaSharesInfo: true });
 
     if (content.sambaShare) {
       if (!fs.existsSync(sambaConfigFile)) {

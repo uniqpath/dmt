@@ -2,6 +2,7 @@ import colors from 'colors';
 import util from '../../util';
 import dmt from '../../dmtHelper';
 import parser from './parser';
+import parseDeviceMention from './parseDeviceMention';
 
 function parseArgs(allArgs) {
   const parsedArgs = parser(allArgs);
@@ -27,21 +28,13 @@ function parseArgs(allArgs) {
   atDevices.push(
     ...atArguments
       .filter(arg => !arg.value)
-      .map(device => dmt.parseProviderReference(device))
+      .map(device => parseDeviceMention(device))
       .filter(k => k.host)
   );
 
   if (atDevices.length == 0) {
-    atDevices.push(dmt.parseProviderReference(parser(['@this'])[0]));
+    atDevices.push(parseDeviceMention(parser(['@this'])[0]));
   }
-
-  atDevices.forEach(device => {
-    device.address = dmt.hostAddress(device);
-
-    if (!device.port && device.hostType == 'dns') {
-      device.port = '80';
-    }
-  });
 
   const attributeOptions = {};
 

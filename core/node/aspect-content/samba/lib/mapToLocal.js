@@ -1,11 +1,11 @@
 import path from 'path';
 
-import dmt from 'dmt/bridge';
+import getReferencedSambaShares from './getReferencedSambaShares';
 
 function mapToLocal(providerResults) {
   const { providerHost, contentId } = providerResults.meta;
 
-  const share = dmt.getReferencedSambaShares().find(shareInfo => shareInfo.deviceId == providerHost && shareInfo.contentId == contentId);
+  const share = getReferencedSambaShares().find(shareInfo => shareInfo.deviceId == providerHost && shareInfo.contentId == contentId);
 
   if (!share) {
     return providerResults;

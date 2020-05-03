@@ -1,7 +1,7 @@
 import dmt from 'dmt/bridge';
-const { def } = dmt;
+const { def, dmtContent } = dmt;
 
-import { MultiProviderSearch } from 'dmt/search';
+import { ZetaSearch } from 'dmt/search';
 import LocalPlayer from '../lib/localPlayer';
 
 function setup({ program }) {
@@ -11,12 +11,14 @@ function setup({ program }) {
   }
 
   const contentRefs = def.values(playerInfo.contentRef);
-  const providers = dmt.providersFromContentRefs(contentRefs);
+  const contentProviders = dmtContent.parseContentRefs(contentRefs);
 
-  const searchClient = new MultiProviderSearch({ program, providers });
+  const { fiberPool } = program;
+
+  const zetaSearch = new ZetaSearch({ fiberPool, contentProviders });
   const player = new LocalPlayer({ program });
 
-  return { searchClient, player };
+  return { zetaSearch, player };
 }
 
 export default setup;

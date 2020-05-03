@@ -13,6 +13,8 @@ import stopwatch from './lib/timeutils/stopwatch';
 import stopwatchAdv from './lib/timeutils/stopwatchAdv';
 import prettyMicroTime from './lib/timeutils/prettyMicroTime';
 import prettyMacroTime from './lib/timeutils/prettyMacroTime';
+import * as suntime from './lib/timeutils/suntime';
+
 import prettyFileSize from './lib/prettyFileSize';
 
 import FsState from './lib/fsState';
@@ -22,13 +24,13 @@ import processBatch from './lib/processBatch';
 import def from './lib/parsers/def/parser';
 import cli from './lib/parsers/cli/cliHelper';
 import helper from './lib/dmtHelper';
+import * as dmtContent from './lib/dmtContent';
 
 import * as numberRanges from './lib/parsers/numbers/rangeParser';
 import * as textfileParsers from './lib/parsers/textfiles';
 
 import { apMode, apInfo, accessPointIP } from './lib/apTools';
 
-import * as suntime from './lib/timeutils/suntime';
 import db from './lib/databases';
 
 nacl.util = naclutil;
@@ -75,6 +77,7 @@ export default {
   colors,
   def,
   cli,
+  dmtContent,
   processBatch,
   textfileParsers,
   numberRanges,
@@ -146,14 +149,6 @@ export default {
     return helper.services(service);
   },
 
-  maxResults(serviceId, cliArgs) {
-    return helper.maxResults(serviceId, cliArgs);
-  },
-
-  hostAddress(hostData) {
-    return helper.hostAddress(hostData);
-  },
-
   device(options) {
     return helper.device(options);
   },
@@ -199,30 +194,6 @@ export default {
 
   deviceKeyDefFile() {
     return helper.deviceDefFile('this', 'keys');
-  },
-
-  parseProviderReference(attrData) {
-    return helper.parseProviderReference(attrData);
-  },
-
-  constructProvider(device) {
-    return helper.constructProvider(device);
-  },
-
-  providersFromContentRefs(contentRefs) {
-    return helper.providersFromContentRefs(contentRefs);
-  },
-
-  getContentIDs() {
-    return helper.getContentIDs();
-  },
-
-  contentPaths({ contentId, deviceId, returnSambaSharesInfo }) {
-    return helper.contentPaths({ contentId, deviceId, returnSambaSharesInfo });
-  },
-
-  getReferencedSambaShares() {
-    return helper.getReferencedSambaShares();
   },
 
   getIp({ deviceName }) {

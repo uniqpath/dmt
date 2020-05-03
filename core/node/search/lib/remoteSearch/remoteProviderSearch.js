@@ -1,15 +1,16 @@
 import dmt from 'dmt/bridge';
-const { log, stopwatchAdv, prettyMicroTime } = dmt;
 import { serializeArgs } from 'dmt/search';
-import { basicMetaInfo } from '../basicMetaInfo';
+
+import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
+
+const { log, stopwatchAdv, prettyMicroTime } = dmt;
 
 class RemoteProviderSearch {
-  constructor({ provider, connector, mediaType }) {
-    this.mediaType = mediaType;
+  constructor({ provider, connector }) {
     this.connector = connector;
 
     this.providerHost = provider.host;
-    this.providerAddress = dmt.hostAddress(provider);
+    this.providerAddress = provider.address;
     this.providerPort = provider.port;
     this.localContentId = provider.contentRef;
 
@@ -29,7 +30,7 @@ class RemoteProviderSearch {
 
     return new Promise((success, reject) => {
       if (!this.localhost) {
-        const args = serializeArgs({ terms, mediaType: mediaType || this.mediaType, count: clientMaxResults, contentRef: contentId });
+        const args = serializeArgs({ terms, mediaType, count: clientMaxResults, contentRef: contentId });
 
         const start = stopwatchAdv.start();
 

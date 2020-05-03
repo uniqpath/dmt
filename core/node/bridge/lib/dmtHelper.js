@@ -8,7 +8,6 @@ const { username } = os.userInfo();
 
 import isRPi from './detectRPi';
 import def from './parsers/def/parser';
-import cliParser from './parsers/cli/parser';
 
 import scan from './scan';
 import util from './util';
@@ -26,8 +25,6 @@ const DEF_EXTENSION = '.def';
 const devices = [];
 const devicesBasic = [];
 
-let cachedReferencedSambaShares;
-
 function isDevMachine() {
   return fs.existsSync(path.join(dmtUserDir, 'devices/this/.dev-machine'));
 }
@@ -37,29 +34,8 @@ function isDevCluster() {
 }
 
 const globals = {
-  tickerPeriod: 2,
-  searchBinary: 'walksearch',
-  searchLimit: {
-    maxResults: 100,
-    maxTimeLocalBinaryExecution: 30000
-  },
-  networkLimit: {
-    maxTimeOneHop: 45000
-  },
-  fallbackToLocalCatalogs: false
+  tickerPeriod: 2
 };
-
-function isValidIPv4Address(ipaddress) {
-  if (
-    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
-      ipaddress
-    )
-  ) {
-    return true;
-  }
-
-  return false;
-}
 
 function getAllFuncs(obj) {
   return Object.getOwnPropertyNames(obj.prototype).filter(prop => prop != 'constructor' && typeof obj.prototype[prop] == 'function');
@@ -81,21 +57,6 @@ function readDeviceDef({ filePath, onlyBasicParsing, caching = true }) {
     const deviceDef = def.parseFile(filePath, { onlyBasicParsing, caching });
 
     return def.makeTryable(deviceDef.multi.length > 0 ? deviceDef.device : { empty: true });
-  } catch (e) {
-    console.log(colors.red(e.message));
-    process.exit();
-  }
-}
-
-function readContentDef({ filePath }) {
-  try {
-    if (!fs.existsSync(filePath)) {
-      return def.makeTryable({ empty: true });
-    }
-
-    const contentDef = def.parseFile(filePath);
-
-    return def.makeTryable(contentDef);
   } catch (e) {
     console.log(colors.red(e.message));
     process.exit();
@@ -530,223 +491,6 @@ export default {
     if (path) {
       return device.id == this.device().id ? path.replace(/^~/, homedir()) : path;
     }
-  },
-
-  parseProviderReference(attrData) {
-    let host = attrData.name;
-
-    const deviceDefPresent = !this.deviceDefIsMissing(host);
-
-    const thisDeviceId = this.device().id;
-
-    let thisHost = false;
-
-    if (deviceDefPresent) {
-      if (host == 'this' || host == thisDeviceId) {
-        host = thisDeviceId;
-        thisHost = true;
-
-        if (!thisDeviceId) {
-          throw new Error(`Missing device name, probably the device is not selected ${colors.yellow('→ use')} ${colors.green('dev select')}`);
-        }
-      }
-    }
-
-    const data = { host };
-
-    if (isValidIPv4Address(host)) {
-      if (host.startsWith('192.168.')) {
-        data.ip = host;
-      } else {
-        data.globalIp = host;
-      }
-    } else if (host.includes('.')) {
-      if (host.toLowerCase().endsWith('.eth')) {
-        data.hostType = 'ens';
-      } else {
-        data.hostType = 'dns';
-      }
-    }
-
-    if (deviceDefPresent && !data.hostType && this.device({ deviceId: host }).id) {
-      data.hostType = 'dmt';
-    }
-
-    if (attrData.afterSlash) {
-      data.contentRef = attrData.afterSlash;
-    }
-
-    if (attrData.afterColon) {
-      data.port = attrData.afterColon;
-    }
-
-    const isDmtDefinedDevice = data.hostType == 'dmt';
-
-    if (thisHost) {
-      data.ip = 'localhost';
-      data.localhost = true;
-    } else if (isDmtDefinedDevice) {
-      if (!data.ip) {
-        const ip = this.getIp({ deviceName: host });
-        if (ip && !ip.error) {
-          data.ip = ip;
-        }
-      }
-
-      if (!data.globalIp) {
-        const globalIp = this.getGlobalIp({ deviceName: host });
-        if (globalIp && !globalIp.error) {
-          data.globalIp = globalIp;
-        }
-      }
-    }
-
-    return data;
-  },
-
-  providersFromContentRefs(contentRefs) {
-    contentRefs = contentRefs.map(contentRef => {
-      if (contentRef.includes('/')) {
-        return contentRef;
-      }
-
-      if (contentRef.startsWith('@')) {
-        return contentRef;
-      }
-
-      return `@this/${contentRef}`;
-    });
-
-    return cliParser(contentRefs).map(parsed => this.parseProviderReference(parsed));
-  },
-
-  maxResults(serviceId = 'search') {
-    const globalHardcodedLimit = this.globals.searchLimit.maxResults;
-
-    let serverMaxResults = this.services(serviceId) && (this.services(serviceId).serverMaxResults || this.services(serviceId).maxResults);
-    if (serverMaxResults) {
-      serverMaxResults = Math.min(globalHardcodedLimit, serverMaxResults);
-    }
-
-    let serverMaxResultsForSearchService = this.services('search') && (this.services('search').serverMaxResults || this.services('search').maxResults);
-    if (serverMaxResultsForSearchService) {
-      serverMaxResultsForSearchService = Math.min(globalHardcodedLimit, serverMaxResultsForSearchService);
-    }
-
-    return {
-      serverMaxResults: Math.min(globalHardcodedLimit, serverMaxResults || serverMaxResultsForSearchService)
-    };
-  },
-
-  hostAddress(hostData) {
-    if (hostData.localhost) {
-      return 'localhost';
-    }
-    return hostData.ip || hostData.globalIp || hostData.host;
-  },
-
-  getContentIDs() {
-    const filePath = this.deviceDefFile('this', 'content');
-    const contentDef = readContentDef({ filePath });
-
-    return def.values(contentDef.multi).filter(id => id);
-  },
-
-  contentPaths({ contentId, deviceId = 'this', returnSambaSharesInfo = false }) {
-    const device = this.device({ deviceId });
-    const filePath = this.deviceDefFile(deviceId, 'content');
-    const contentDef = readContentDef({ filePath });
-
-    if (contentDef.empty) {
-      return;
-    }
-
-    const content = contentDef.multi.find(c => c.id == contentId);
-
-    if (!content) {
-      throw new Error(`@${device.id}/${contentId} is not defined.`);
-    }
-
-    this.sambaDefinitionErrorCheck(content, filePath);
-
-    if (content.sambaShare) {
-      if (returnSambaSharesInfo) {
-        return { sambaShare: content.sambaShare, sambaPath: content.sambaPath };
-      }
-
-      return [content.sambaPath];
-    }
-
-    if (content) {
-      return def.values(content.path).map(path => this.absolutizePath({ path, device }));
-    }
-  },
-
-  sambaDefinitionErrorCheck(content, filePath) {
-    if (content.sambaShare) {
-      const ident = `${filePath} -- contentId ${content.id}`;
-
-      if (Array.isArray(content.sambaShare)) {
-        throw new Error(`${ident} has multiple sambaShares instead of at most one (${def.values(content.sambaShare)})`);
-      }
-
-      if (content.path) {
-        throw new Error(`${ident} is a sambaShare, it cannot also have paths (eg. ${def.values(content.path)})`);
-      }
-
-      if (!content.sambaPath || Array.isArray(content.sambaPath)) {
-        throw new Error(
-          `${ident} is a sambaShare, it has to have exactly one sambaPath which matches the path in smb.conf, this one has ${
-            util.listify(content.sambaPath).length
-          }`
-        );
-      }
-
-      if (!content.sambaPath.match(/^\//)) {
-        throw new Error(`${ident} sambaPath has to be absolute path but is ${content.sambaPath} instead`);
-      }
-    }
-  },
-
-  getReferencedSambaShares() {
-    if (cachedReferencedSambaShares) {
-      return cachedReferencedSambaShares;
-    }
-
-    const playerInfo = this.services('player');
-
-    if (!playerInfo) {
-      return [];
-    }
-
-    const device = this.device({ onlyBasicParsing: true });
-
-    const contentRefs = def.values(playerInfo.contentRef);
-    const providers = this.providersFromContentRefs(contentRefs);
-
-    const list = [];
-
-    for (const provider of providers.filter(p => !p.localhost && p.hostType == 'dmt')) {
-      const deviceId = provider.host;
-      const contentId = provider.contentRef;
-
-      const { sambaShare, sambaPath } = this.contentPaths({ contentId, deviceId, returnSambaSharesInfo: true });
-
-      if (!sambaShare) {
-        throw new Error(
-          `@${deviceId}/${contentId} should be a sambaShare, not a list of paths. This is because it is referenced from player in ${device.id}/def/device.def`
-        );
-      }
-
-      const mountBase = `${homedir()}/DMTMountedMedia/${deviceId}`;
-      const mountPath = path.join(mountBase, sambaShare);
-
-      list.push({ deviceId, sambaServerIp: provider.ip, contentId, mountPath, sambaShare, sambaPath });
-    }
-
-    cachedReferencedSambaShares = list;
-
-    return list;
   },
 
   getIp({ deviceName }) {

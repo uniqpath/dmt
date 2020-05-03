@@ -8,8 +8,6 @@ function parseArgs(args) {
   return parseSearchArgs({ args, actorName: 'player', defaultMediaType: 'music' });
 }
 
-import mapToLocal from '../lib/mapToLocal';
-
 function getMethods() {
   const methods = [];
 
@@ -71,11 +69,11 @@ function handler({ args, method }, { player }) {
   });
 }
 
-function searchHandler({ args, method }, { searchClient }) {
+function searchHandler({ args, method }, { zetaSearch }) {
   return new Promise((success, reject) => {
     args = parseArgs(args);
 
-    searchClient
+    zetaSearch
       .search(args)
       .then(aggregateResults => {
         success(aggregateResults);
@@ -87,7 +85,7 @@ function searchHandler({ args, method }, { searchClient }) {
   });
 }
 
-function playHandler({ args, method }, { searchClient, player }) {
+function playHandler({ args, method }, { zetaSearch, player }) {
   args = parseArgs(args);
 
   return new Promise((success, reject) => {
@@ -107,15 +105,15 @@ function playHandler({ args, method }, { searchClient, player }) {
       }
     }
 
-    addHandler({ args, method }, { searchClient, player })
+    addHandler({ args, method }, { zetaSearch, player })
       .then(success)
       .catch(reject);
   });
 }
 
-function addHandler({ args, method }, { searchClient, player }) {
+function addHandler({ args, method }, { zetaSearch, player }) {
   return new Promise((success, reject) => {
-    searchHandler({ args }, { searchClient })
+    searchHandler({ args }, { zetaSearch })
       .then(aggregateResults => {
         const successfulResults = aggregateResults.filter(res => !res.error);
 
@@ -129,7 +127,7 @@ function addHandler({ args, method }, { searchClient, player }) {
             );
           });
 
-        const mappedResults = successfulResults.map(results => mapToLocal(results));
+        const mappedResults = successfulResults.map(results => player.mapToLocal(results));
 
         const playableResults = mappedResults.map(res => res.results.map(result => result.filePath)).flat();
 
@@ -143,11 +141,11 @@ function addHandler({ args, method }, { searchClient, player }) {
   });
 }
 
-function insertplayHandler({ args }, { searchClient, player }) {
+function insertplayHandler({ args }, { zetaSearch, player }) {
   return new Promise((success, reject) => {
-    searchHandler({ args }, { searchClient })
+    searchHandler({ args }, { zetaSearch })
       .then(aggregateResults => {
-        const mappedResults = aggregateResults.map(results => mapToLocal(results));
+        const mappedResults = aggregateResults.map(results => player.mapToLocal(results));
         const playableResults = mappedResults.map(res => res.results.map(result => result.filePath)).flat();
 
         player.insert({ files: playableResults }).then(() => {

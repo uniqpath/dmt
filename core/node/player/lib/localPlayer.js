@@ -41,6 +41,10 @@ class LocalPlayer {
     });
   }
 
+  mapToLocal(providerResults) {
+    return this.program.mapToLocal ? this.program.mapToLocal(providerResults) : providerResults;
+  }
+
   onSongFinished() {
     if (this.isStream()) {
       log.magenta('stream finished (either network conditions or user stopped it by manual action)');
