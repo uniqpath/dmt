@@ -1,6 +1,9 @@
 import colors from 'colors';
 import express from 'express';
 
+import fs from 'fs';
+import path from 'path';
+
 import dmt from 'dmt/bridge';
 const { log } = dmt;
 
@@ -8,6 +11,16 @@ import serveDmtZip from './endpoints/serveDmtZip';
 import serveInstallScript from './endpoints/serveInstallScript';
 import serveLogo from './endpoints/serveLogo';
 import serveWallpaper from './endpoints/serveWallpaper';
+
+function dmtVersion() {
+  const versionFile = path.join(dmt.dmtPath, '.version');
+  if (fs.existsSync(versionFile)) {
+    return fs
+      .readFileSync(versionFile)
+      .toString()
+      .trim();
+  }
+}
 
 function serverInit({ app, program, port, replicateUserCodeTransform, replicateExcludedByUser }) {
   const files = [];
@@ -20,6 +33,10 @@ function serverInit({ app, program, port, replicateUserCodeTransform, replicateE
 
   app.get('/dmt.zip', (req, res) => {
     serveDmtZip({ req, res, program, files, replicateUserCodeTransform, replicateExcludedByUser });
+  });
+
+  app.get('/version', (req, res) => {
+    res.send(dmtVersion());
   });
 
   app.get('/wallpaper.jpg', serveWallpaper);

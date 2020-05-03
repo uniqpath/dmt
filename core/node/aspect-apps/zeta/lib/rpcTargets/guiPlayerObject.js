@@ -1,5 +1,3 @@
-import dmt from 'dmt/bridge';
-
 class GUIPlayerObject {
   constructor({ program, channel }) {
     this.program = program;

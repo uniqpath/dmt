@@ -1001,6 +1001,9 @@ function stop_dmt_if_running {
 }
 
 function dmt_next {
+
+  #return
+
   # if dev_machine; then
   #   printf "${RED}Prevented on dev machine${NC}\n"
   #   return
@@ -1113,6 +1116,46 @@ function dmt_next {
     printf "${RED}Prevented operation because ~/.dmt/.prevent_dmt_next file is present, please remove it to continue${NC}\n"
     return
   fi
+
+  # ------------
+
+  if [ "$dmt_source" == "get-dmt.com" ]; then
+
+    local remoteVersion=$(curl http://get-dmt.com/version 2>/dev/null)
+    #local remoteVersion=$(curl http://localhost:1111/version 2>/dev/null)
+
+    if [[ ! "$remoteVersion" =~ "■" ]]; then # 1.1.2 ■ 2020-05-03
+      printf "${MAGENTA}get-dmt.com${NC} ${RED}server is currently not accessible...\n"
+      printf "${YELLOW}Please try again later.${NC}\n"
+      return
+    fi
+
+    local localVersion=$(cat ~/.dmt/.version)
+
+    if [ "$localVersion" == "$remoteVersion" ]; then
+      echo
+      printf "${CYAN}Your version ${MAGENTA}${localVersion}${NC} ${CYAN}is current!${NC}\n"
+      echo
+      printf "${GREEN}No need to update 😊${NC}\n"
+      return
+    fi
+
+    printf "You have    : ${GRAY}${localVersion}${NC}\n"
+    printf "New version : ${MAGENTA}${remoteVersion}${NC}\n"
+
+    echo
+
+    printf "${YELLOW}Do you want to update?${NC}...\n"
+    read -r -p "[Y/n] " response
+    if [[ $response =~ ^([nN])$ ]]
+    then
+      printf "${RED}Aborting ...${NC}\n"
+      return
+    fi
+
+  fi
+
+  # ------------
 
   stop_dmt_if_running
 
