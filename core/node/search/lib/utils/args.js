@@ -7,11 +7,13 @@ function parseArgs({ args, actorName, defaultMediaType }) {
   if (typeof args === 'string') {
     const { terms, atDevices, attributeOptions } = cli(args.trim().split(/\s+/));
 
+    const { page } = attributeOptions;
+
     const mediaType = attributeOptions.media || defaultMediaType;
     const clientMaxResults = attributeOptions.count;
     const { contentRef } = attributeOptions;
 
-    args = { terms, mediaType, clientMaxResults, atDevices, contentRef };
+    args = { terms, mediaType, page, clientMaxResults, atDevices, contentRef };
   }
 
   const { serverMaxResults } = maxResults(actorName);
@@ -20,11 +22,15 @@ function parseArgs({ args, actorName, defaultMediaType }) {
   return { ...args, ...{ clientMaxResults } };
 }
 
-function serializeArgs({ terms, mediaType, count, contentRef }) {
+function serializeArgs({ terms, mediaType, page, count, contentRef }) {
   const list = util.clone(terms);
 
   if (mediaType) {
     list.push(`@media=${mediaType}`);
+  }
+
+  if (page) {
+    list.push(`@page=${page}`);
   }
 
   if (count) {

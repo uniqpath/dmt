@@ -17,25 +17,27 @@ function aggregateResultsFormatter(aggregateResults) {
       console.log(colors.red(`⮑  ⚠️  Error: ${providerResponse.error}`));
     } else {
       resultsFormatter(providerResponse.results);
-      const { totalCount, searchTime, searchTimePretty, networkTime, networkTimePretty } = meta;
+      const { page, noMorePages, resultCount, resultsFrom, resultsTo, searchTime, searchTimePretty, networkTime, networkTimePretty } = meta;
 
       let time = '';
       if (searchTime) {
-        time += colors.gray(` ■ ${colors.green(searchTimePretty)} fs`);
+        time += colors.gray(` ■ fs ${colors.green(searchTimePretty)}`);
       }
 
       if (networkTime) {
-        time += colors.gray(` ■ ${colors.cyan(networkTimePretty)} network`);
+        time += colors.gray(` ■ network ${colors.cyan(networkTimePretty)}`);
       }
 
-      if (totalCount > 0) {
-        let explain = '';
-        if (totalCount == meta.maxResults) {
-          explain = ' or more';
+      if (resultCount > 0) {
+        if (page == 1 && noMorePages) {
+          console.log(colors.yellow(`${resultCount} ${resultCount == 1 ? 'result' : 'results'}${time}`));
+        } else {
+          const isLastPage = noMorePages ? colors.gray(' (last page)') : '';
+          const resultsDescription = `${colors.cyan(`Results ${resultsFrom} to ${resultsTo}`)}`;
+          console.log(colors.gray(`${colors.magenta(`Page ${page}`)}${isLastPage} → ${resultsDescription}${time}`));
         }
-        console.log(colors.gray(`All results → ${colors.yellow(`${totalCount}${explain}`)}${time}`));
       } else {
-        console.log(colors.gray(`No results${time}`));
+        console.log(colors.gray(`No ${page > 1 ? 'more ' : ''}results${time}`));
       }
       console.log(colors.green('⮑  Success'));
     }

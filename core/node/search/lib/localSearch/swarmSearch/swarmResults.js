@@ -8,6 +8,7 @@ function swarmResults(queryStr, indices) {
     .filter(entry =>
       searchPredicate(`${entry.name} ${entry.context} ${entry.hiddenContext} ${entry.people ? entry.people.join(' ') : ''} ${entry.language}`, queryStr)
     );
+
   return checkForDuplicates(results);
 }
 

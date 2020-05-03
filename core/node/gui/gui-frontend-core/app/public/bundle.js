@@ -18040,7 +18040,7 @@ var app = (function (crypto) {
 	let executeQueryTimeout;
 	const timeTags = []; // we can keep this growing (for now ?)  probably forever, todo: OPTIMIZE LATER and be careful when reassigning this array, learn more about event loops!
 
-	const SEARCH_LAG_MS = 300; // 300 -- best value ->> if user presses the next key within this much from the last one, previous search query is cancelled
+	const SEARCH_LAG_MS = 300;
 
 	function executeSearch({ searchQuery, remoteObject, remoteMethod, searchDelay = SEARCH_LAG_MS, searchStatusCallback = () => {} }) {
 	  return new Promise((success, reject) => {
@@ -19054,34 +19054,36 @@ var app = (function (crypto) {
 	function formatProviderMeta(providerResponse) {
 	  const { meta } = providerResponse;
 	  const cnt = meta.contentId ? `${colors.gray('/')}${colors.cyan(meta.contentId)}` : '';
-	  const provider = `${colors.green('Provider')}: ${colors.magenta(`@${meta.providerHost}`)}${cnt} ${
+	  const provider = `${colors.green('Content')} → ${colors.magenta(`@${meta.providerHost}`)}${cnt} ${
     providerResponse.providerAddress ? colors.gray(`(${meta.providerAddress})`) : ''
   }`;
 	  return provider;
 	}
 	function formatProviderMetaBottom(providerResponse) {
 	  const { meta } = providerResponse;
-	  const { totalCount, searchTimePretty, networkTimePretty } = meta;
+	  const { page, noMorePages, resultCount, resultsFrom, resultsTo, searchTimePretty, networkTimePretty } = meta;
 
 	  let time = '';
 
 	  if (searchTimePretty) {
-	    time += colors.gray(` · ${colors.green(searchTimePretty)} ${colors.gray('fs')}`);
+	    time += colors.gray(` · ${colors.gray('fs')} ${colors.green(searchTimePretty)}`);
 	  }
 
 	  if (networkTimePretty) {
-	    time += colors.cyan(` · ${colors.cyan(networkTimePretty)} ${colors.gray('network')}`);
+	    time += colors.gray(` · ${colors.gray('network')} ${colors.cyan(networkTimePretty)}`);
 	  }
 
-	  if (totalCount > 0) {
-	    let explain = '';
-	    if (totalCount == meta.maxResults) {
-	      explain = ' or more';
+	  if (resultCount > 0) {
+	    if (page == 1 && noMorePages) {
+	      return colors.yellow(`${resultCount} ${resultCount == 1 ? 'result' : 'results'}${time}`);
 	    }
-	    return colors.gray(`All results → ${colors.yellow(`${totalCount}${explain}`)}${time}`);
-	  } else {
-	    return colors.gray(`No results${time}`);
+
+	    const isLastPage = noMorePages ? colors.gray(' (last page)') : '';
+	    const resultsDescription = `${colors.cyan(`Results ${resultsFrom} to ${resultsTo}`)}`;
+	    return colors.gray(`${colors.magenta(`Page ${page}`)}${isLastPage} → ${resultsDescription}${time}`);
 	  }
+
+	  return colors.gray(`No ${page > 1 ? 'more ' : ''}results${time}`);
 	}
 	var methods$c = {
 	  selectedDeviceChanged(deviceId) {
@@ -19642,30 +19644,30 @@ var app = (function (crypto) {
 				addListener(input, "input", input_input_handler);
 				addListener(input, "keyup", keyup_handler);
 				addListener(input, "paste", paste_handler);
-				input.className = "search_input svelte-3l7dvj";
+				input.className = "search_input svelte-1k1p7bj";
 				input.placeholder = "Search media";
 				addLoc(input, file$m, 6, 6, 142);
 				addListener(button0, "click", click_handler);
-				button0.className = "media_type svelte-3l7dvj";
+				button0.className = "media_type svelte-1k1p7bj";
 				toggleClass(button0, "selected", ctx.mediaType != 'video');
 				addLoc(button0, file$m, 8, 6, 292);
 				addListener(button1, "click", click_handler_1);
-				button1.className = "media_type svelte-3l7dvj";
+				button1.className = "media_type svelte-1k1p7bj";
 				toggleClass(button1, "selected", ctx.mediaType == 'video');
 				addLoc(button1, file$m, 9, 6, 414);
 				addListener(button2, "click", click_handler_2);
-				button2.className = "action svelte-3l7dvj";
+				button2.className = "action svelte-1k1p7bj";
 				toggleClass(button2, "hidden", !hasSearchResults(ctx.$searchResults));
 				addLoc(button2, file$m, 11, 6, 537);
 				addListener(button3, "click", click_handler_3);
-				button3.className = "action svelte-3l7dvj";
+				button3.className = "action svelte-1k1p7bj";
 				toggleClass(button3, "hidden", !hasSearchResults(ctx.$searchResults));
 				addLoc(button3, file$m, 12, 6, 656);
 				addListener(button4, "click", click_handler_4);
-				button4.className = "action svelte-3l7dvj";
+				button4.className = "action svelte-1k1p7bj";
 				toggleClass(button4, "hidden", !hasSearchResults(ctx.$searchResults));
 				addLoc(button4, file$m, 13, 6, 771);
-				div.className = "search svelte-3l7dvj";
+				div.className = "search svelte-1k1p7bj";
 				addLoc(div, file$m, 5, 4, 115);
 			},
 
@@ -19761,7 +19763,7 @@ var app = (function (crypto) {
 				button = createElement("button");
 				button.textContent = "Clear";
 				addListener(button, "click", click_handler);
-				button.className = "clear svelte-3l7dvj";
+				button.className = "clear svelte-1k1p7bj";
 				addLoc(button, file$m, 16, 8, 941);
 			},
 
@@ -19798,7 +19800,7 @@ var app = (function (crypto) {
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
-				div.className = "search_results svelte-3l7dvj";
+				div.className = "search_results svelte-1k1p7bj";
 				addLoc(div, file$m, 20, 8, 1089);
 			},
 
@@ -19843,9 +19845,9 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (30:12) {:else}
+	// (32:12) {:else}
 	function create_else_block_6(component, ctx) {
-		var each_anchor;
+		var text, div, raw_value = formatProviderMetaBottom(ctx.providerResponse);
 
 		var each_value_1 = ctx.providerResponse.results;
 
@@ -19861,7 +19863,10 @@ var app = (function (crypto) {
 					each_blocks[i].c();
 				}
 
-				each_anchor = createComment();
+				text = createText("\n\n              ");
+				div = createElement("div");
+				div.className = "results_info_bottom svelte-1k1p7bj";
+				addLoc(div, file$m, 39, 14, 1930);
 			},
 
 			m: function mount(target, anchor) {
@@ -19869,7 +19874,9 @@ var app = (function (crypto) {
 					each_blocks[i].m(target, anchor);
 				}
 
-				insert(target, each_anchor, anchor);
+				insert(target, text, anchor);
+				insert(target, div, anchor);
+				div.innerHTML = raw_value;
 			},
 
 			p: function update(changed, ctx) {
@@ -19884,7 +19891,7 @@ var app = (function (crypto) {
 						} else {
 							each_blocks[i] = create_each_block_2(component, child_ctx);
 							each_blocks[i].c();
-							each_blocks[i].m(each_anchor.parentNode, each_anchor);
+							each_blocks[i].m(text.parentNode, text);
 						}
 					}
 
@@ -19893,29 +19900,34 @@ var app = (function (crypto) {
 					}
 					each_blocks.length = each_value_1.length;
 				}
+
+				if ((changed.$searchResults) && raw_value !== (raw_value = formatProviderMetaBottom(ctx.providerResponse))) {
+					div.innerHTML = raw_value;
+				}
 			},
 
 			d: function destroy(detach) {
 				destroyEach(each_blocks, detach);
 
 				if (detach) {
-					detachNode(each_anchor);
+					detachNode(text);
+					detachNode(div);
 				}
 			}
 		};
 	}
 
-	// (26:12) {#if providerResponse.error}
+	// (28:12) {#if providerResponse.error}
 	function create_if_block_28(component, ctx) {
 		var div, text0, text1_value = ctx.providerResponse.error, text1;
 
 		return {
 			c: function create() {
 				div = createElement("div");
-				text0 = createText("Error: ");
+				text0 = createText("⚠️  Error: ");
 				text1 = createText(text1_value);
-				div.className = "provider_error svelte-3l7dvj";
-				addLoc(div, file$m, 26, 14, 1354);
+				div.className = "provider_error svelte-1k1p7bj";
+				addLoc(div, file$m, 28, 14, 1416);
 			},
 
 			m: function mount(target, anchor) {
@@ -19938,7 +19950,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (33:36) {#each parseAnsi(filePathANSI).spans as span}
+	// (35:36) {#each parseAnsi(filePathANSI).spans as span}
 	function create_each_block_3(component, ctx) {
 		var span, text_value = ctx.span.text, text, span_style_value;
 
@@ -19947,8 +19959,8 @@ var app = (function (crypto) {
 				span = createElement("span");
 				text = createText(text_value);
 				span.style.cssText = span_style_value = ctx.span.css;
-				span.className = "svelte-3l7dvj";
-				addLoc(span, file$m, 32, 81, 1682);
+				span.className = "svelte-1k1p7bj";
+				addLoc(span, file$m, 34, 81, 1748);
 			},
 
 			m: function mount(target, anchor) {
@@ -19974,7 +19986,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (31:14) {#each providerResponse.results as { filePathANSI }}
+	// (33:14) {#each providerResponse.results as { filePathANSI }}
 	function create_each_block_2(component, ctx) {
 		var div;
 
@@ -19993,8 +20005,8 @@ var app = (function (crypto) {
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
-				div.className = "result svelte-3l7dvj";
-				addLoc(div, file$m, 32, 16, 1617);
+				div.className = "result svelte-1k1p7bj";
+				addLoc(div, file$m, 34, 16, 1683);
 			},
 
 			m: function mount(target, anchor) {
@@ -20040,7 +20052,7 @@ var app = (function (crypto) {
 
 	// (22:10) {#each $searchResults as providerResponse}
 	function create_each_block_1$1(component, ctx) {
-		var raw0_value = formatProviderMeta(ctx.providerResponse), raw0_before, raw0_after, text0, text1, div, raw1_value = formatProviderMetaBottom(ctx.providerResponse);
+		var div, raw_value = formatProviderMeta(ctx.providerResponse), text, if_block_anchor;
 
 		function select_block_type(ctx) {
 			if (ctx.providerResponse.error) return create_if_block_28;
@@ -20052,31 +20064,25 @@ var app = (function (crypto) {
 
 		return {
 			c: function create() {
-				raw0_before = createElement('noscript');
-				raw0_after = createElement('noscript');
-				text0 = createText("\n\n            ");
-				if_block.c();
-				text1 = createText("\n\n            ");
 				div = createElement("div");
-				div.className = "results_info_bottom svelte-3l7dvj";
-				addLoc(div, file$m, 38, 12, 1880);
+				text = createText("\n\n            ");
+				if_block.c();
+				if_block_anchor = createComment();
+				div.className = "provider_title svelte-1k1p7bj";
+				addLoc(div, file$m, 23, 12, 1253);
 			},
 
 			m: function mount(target, anchor) {
-				insert(target, raw0_before, anchor);
-				raw0_before.insertAdjacentHTML("afterend", raw0_value);
-				insert(target, raw0_after, anchor);
-				insert(target, text0, anchor);
-				if_block.m(target, anchor);
-				insert(target, text1, anchor);
 				insert(target, div, anchor);
-				div.innerHTML = raw1_value;
+				div.innerHTML = raw_value;
+				insert(target, text, anchor);
+				if_block.m(target, anchor);
+				insert(target, if_block_anchor, anchor);
 			},
 
 			p: function update(changed, ctx) {
-				if ((changed.$searchResults) && raw0_value !== (raw0_value = formatProviderMeta(ctx.providerResponse))) {
-					detachBetween(raw0_before, raw0_after);
-					raw0_before.insertAdjacentHTML("afterend", raw0_value);
+				if ((changed.$searchResults) && raw_value !== (raw_value = formatProviderMeta(ctx.providerResponse))) {
+					div.innerHTML = raw_value;
 				}
 
 				if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
@@ -20085,32 +20091,25 @@ var app = (function (crypto) {
 					if_block.d(1);
 					if_block = current_block_type(component, ctx);
 					if_block.c();
-					if_block.m(text1.parentNode, text1);
-				}
-
-				if ((changed.$searchResults) && raw1_value !== (raw1_value = formatProviderMetaBottom(ctx.providerResponse))) {
-					div.innerHTML = raw1_value;
+					if_block.m(if_block_anchor.parentNode, if_block_anchor);
 				}
 			},
 
 			d: function destroy(detach) {
 				if (detach) {
-					detachBetween(raw0_before, raw0_after);
-					detachNode(raw0_before);
-					detachNode(raw0_after);
-					detachNode(text0);
+					detachNode(div);
+					detachNode(text);
 				}
 
 				if_block.d(detach);
 				if (detach) {
-					detachNode(text1);
-					detachNode(div);
+					detachNode(if_block_anchor);
 				}
 			}
 		};
 	}
 
-	// (52:19) 
+	// (54:19) 
 	function create_if_block_2$d(component, ctx) {
 		var current_block_type_index, if_block, if_block_anchor, current;
 
@@ -20185,7 +20184,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (48:2) {#if $controller.serverMode}
+	// (50:2) {#if $controller.serverMode}
 	function create_if_block_1$h(component, ctx) {
 		var div, h1, current;
 
@@ -20194,10 +20193,10 @@ var app = (function (crypto) {
 				div = createElement("div");
 				h1 = createElement("h1");
 				h1.textContent = "There is no player available in serverMode";
-				h1.className = "svelte-3l7dvj";
-				addLoc(h1, file$m, 49, 6, 2125);
-				div.className = "player svelte-3l7dvj";
-				addLoc(div, file$m, 48, 4, 2098);
+				h1.className = "svelte-1k1p7bj";
+				addLoc(h1, file$m, 51, 6, 2197);
+				div.className = "player svelte-1k1p7bj";
+				addLoc(div, file$m, 50, 4, 2170);
 			},
 
 			m: function mount(target, anchor) {
@@ -20224,7 +20223,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (218:4) {:else}
+	// (220:4) {:else}
 	function create_else_block_4(component, ctx) {
 		var div, h1, text0_value = ctx.$player.error.msg, text0, text1, current;
 
@@ -20237,10 +20236,10 @@ var app = (function (crypto) {
 				text0 = createText(text0_value);
 				text1 = createText("\n        ");
 				if (if_block) if_block.c();
-				h1.className = "error svelte-3l7dvj";
-				addLoc(h1, file$m, 219, 8, 11303);
-				div.className = "player svelte-3l7dvj";
-				addLoc(div, file$m, 218, 6, 11274);
+				h1.className = "error svelte-1k1p7bj";
+				addLoc(h1, file$m, 221, 8, 11375);
+				div.className = "player svelte-1k1p7bj";
+				addLoc(div, file$m, 220, 6, 11346);
 			},
 
 			m: function mount(target, anchor) {
@@ -20289,7 +20288,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (54:4) {#if !$player.error}
+	// (56:4) {#if !$player.error}
 	function create_if_block_3$c(component, ctx) {
 		var div2, div0, text0, text1, text2, button0, text3, button0_disabled_value, text4, button1, text5, button1_disabled_value, text6, text7, text8, div1, text9, text10, text11, text12, div3, current;
 
@@ -20379,25 +20378,25 @@ var app = (function (crypto) {
 				div3 = createElement("div");
 				ribbon._fragment.c();
 				addListener(button0, "click", click_handler);
-				button0.className = "volume svelte-3l7dvj";
+				button0.className = "volume svelte-1k1p7bj";
 				button0.disabled = button0_disabled_value = !ctx.$connected || ctx.$player.volume == 0;
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'volume_down');
-				addLoc(button0, file$m, 91, 10, 4685);
+				addLoc(button0, file$m, 93, 10, 4757);
 				addListener(button1, "click", click_handler_1);
-				button1.className = "volume svelte-3l7dvj";
+				button1.className = "volume svelte-1k1p7bj";
 				button1.disabled = button1_disabled_value = !ctx.$connected || ctx.$player.volume == 100;
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'volume_up');
-				addLoc(button1, file$m, 92, 10, 4856);
-				div0.className = "control svelte-3l7dvj";
-				addLoc(div0, file$m, 56, 8, 2292);
-				div1.className = "time_position svelte-3l7dvj";
-				addLoc(div1, file$m, 116, 8, 6619);
-				div2.className = "player svelte-3l7dvj";
+				addLoc(button1, file$m, 94, 10, 4928);
+				div0.className = "control svelte-1k1p7bj";
+				addLoc(div0, file$m, 58, 8, 2364);
+				div1.className = "time_position svelte-1k1p7bj";
+				addLoc(div1, file$m, 118, 8, 6691);
+				div2.className = "player svelte-1k1p7bj";
 				toggleClass(div2, "nonRPi", !ctx.atRPi);
-				addLoc(div2, file$m, 55, 6, 2241);
+				addLoc(div2, file$m, 57, 6, 2313);
 				div3.id = "player_ribbon";
-				div3.className = "svelte-3l7dvj";
-				addLoc(div3, file$m, 214, 6, 11140);
+				div3.className = "svelte-1k1p7bj";
+				addLoc(div3, file$m, 216, 6, 11212);
 			},
 
 			m: function mount(target, anchor) {
@@ -20593,7 +20592,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (221:8) {#if $player.error.type == 'mpv_binary_missing'}
+	// (223:8) {#if $player.error.type == 'mpv_binary_missing'}
 	function create_if_block_24(component, ctx) {
 		var if_block_anchor;
 
@@ -20634,7 +20633,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (224:10) {:else}
+	// (226:10) {:else}
 	function create_else_block_5(component, ctx) {
 		var a;
 
@@ -20643,8 +20642,8 @@ var app = (function (crypto) {
 				a = createElement("a");
 				a.textContent = "Please install from here";
 				a.href = "https://mpv.io/installation/";
-				a.className = "svelte-3l7dvj";
-				addLoc(a, file$m, 224, 12, 11532);
+				a.className = "svelte-1k1p7bj";
+				addLoc(a, file$m, 226, 12, 11604);
 			},
 
 			m: function mount(target, anchor) {
@@ -20659,7 +20658,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (222:10) {#if atRPi}
+	// (224:10) {#if atRPi}
 	function create_if_block_25(component, ctx) {
 		var text;
 
@@ -20680,7 +20679,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (59:10) {#if $player.isStream || ($playlist && $playlist.length > 0)}
+	// (61:10) {#if $player.isStream || ($playlist && $playlist.length > 0)}
 	function create_if_block_21(component, ctx) {
 		var if_block_anchor;
 
@@ -20723,7 +20722,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (68:12) {:else}
+	// (70:12) {:else}
 	function create_else_block_3(component, ctx) {
 		var button, text, button_disabled_value;
 
@@ -20736,10 +20735,10 @@ var app = (function (crypto) {
 				button = createElement("button");
 				text = createText("● Pause");
 				addListener(button, "click", click_handler);
-				button.className = "pause svelte-3l7dvj";
+				button.className = "pause svelte-1k1p7bj";
 				button.disabled = button_disabled_value = !ctx.$connected;
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'pause');
-				addLoc(button, file$m, 68, 14, 2951);
+				addLoc(button, file$m, 70, 14, 3023);
 			},
 
 			m: function mount(target, anchor) {
@@ -20767,7 +20766,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (60:12) {#if $player.paused}
+	// (62:12) {#if $player.paused}
 	function create_if_block_22(component, ctx) {
 		var if_block_anchor;
 
@@ -20810,7 +20809,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (64:14) {:else}
+	// (66:14) {:else}
 	function create_else_block_2$1(component, ctx) {
 		var button, text, button_disabled_value;
 
@@ -20823,10 +20822,10 @@ var app = (function (crypto) {
 				button = createElement("button");
 				text = createText("▶ Play");
 				addListener(button, "click", click_handler);
-				button.className = "play foreign svelte-3l7dvj";
+				button.className = "play foreign svelte-1k1p7bj";
 				button.disabled = button_disabled_value = !ctx.$connected;
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'play');
-				addLoc(button, file$m, 65, 16, 2764);
+				addLoc(button, file$m, 67, 16, 2836);
 			},
 
 			m: function mount(target, anchor) {
@@ -20854,7 +20853,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (62:14) {#if homebase}
+	// (64:14) {#if homebase}
 	function create_if_block_23(component, ctx) {
 		var button, text, button_disabled_value;
 
@@ -20867,10 +20866,10 @@ var app = (function (crypto) {
 				button = createElement("button");
 				text = createText("▶ Play");
 				addListener(button, "click", click_handler);
-				button.className = "play svelte-3l7dvj";
+				button.className = "play svelte-1k1p7bj";
 				button.disabled = button_disabled_value = !ctx.$connected;
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'play');
-				addLoc(button, file$m, 62, 16, 2527);
+				addLoc(button, file$m, 64, 16, 2599);
 			},
 
 			m: function mount(target, anchor) {
@@ -20898,7 +20897,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (73:10) {#if !$player.isStream && $playlist && $playlist.length > 0}
+	// (75:10) {#if !$player.isStream && $playlist && $playlist.length > 0}
 	function create_if_block_19(component, ctx) {
 		var button0, text0, text1_value = ctx.$player.limit || '', text1, button0_disabled_value, text2, button1, text3, button1_disabled_value, text4, button2, text5, button2_disabled_value, text6, button3, text7, button3_disabled_value;
 
@@ -20937,29 +20936,29 @@ var app = (function (crypto) {
 				if (if_block) if_block.c();
 				addListener(button0, "click", click_handler);
 				button0.disabled = button0_disabled_value = !ctx.$connected;
-				button0.className = "svelte-3l7dvj";
+				button0.className = "svelte-1k1p7bj";
 				toggleClass(button0, "limit_active", ctx.$player.limit > 0);
 				toggleClass(button0, "time_limit_active", ctx.$player.timeLimit > 0);
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'limit' || ctx.touchAction == 'time_limit');
-				addLoc(button0, file$m, 73, 12, 3197);
+				addLoc(button0, file$m, 75, 12, 3269);
 				addListener(button1, "click", click_handler_1);
 				button1.disabled = button1_disabled_value = !ctx.$connected;
-				button1.className = "svelte-3l7dvj";
+				button1.className = "svelte-1k1p7bj";
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'next');
-				addLoc(button1, file$m, 74, 12, 3469);
+				addLoc(button1, file$m, 76, 12, 3541);
 				addListener(button2, "click", click_handler_2);
 				button2.disabled = button2_disabled_value = !ctx.$connected;
-				button2.className = "svelte-3l7dvj";
+				button2.className = "svelte-1k1p7bj";
 				toggleClass(button2, "touch_pressed", ctx.touchAction == 'shuffle');
-				addLoc(button2, file$m, 75, 12, 3592);
+				addLoc(button2, file$m, 77, 12, 3664);
 				addListener(button3, "click", click_handler_3);
 				button3.disabled = button3_disabled_value = !ctx.$connected;
-				button3.className = "svelte-3l7dvj";
+				button3.className = "svelte-1k1p7bj";
 				toggleClass(button3, "touch_pressed", ctx.touchAction == 'repeat');
 				toggleClass(button3, "repeat_active1", ctx.$player.repeatCount == 1);
 				toggleClass(button3, "repeat_active2", ctx.$player.repeatCount == 2);
 				toggleClass(button3, "repeat_active3", ctx.$player.repeatCount == 3);
-				addLoc(button3, file$m, 77, 12, 3723);
+				addLoc(button3, file$m, 79, 12, 3795);
 			},
 
 			m: function mount(target, anchor) {
@@ -21069,7 +21068,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (79:12) {#if $player.repeatCount}
+	// (81:12) {#if $player.repeatCount}
 	function create_if_block_20(component, ctx) {
 		var text_value = ctx.$player.repeatCount, text;
 
@@ -21096,7 +21095,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (87:10) {#if $player.isStream}
+	// (89:10) {#if $player.isStream}
 	function create_if_block_18(component, ctx) {
 		var button0, text0, button0_disabled_value, text1, button1, text2, button1_disabled_value;
 
@@ -21117,15 +21116,15 @@ var app = (function (crypto) {
 				text2 = createText("Stop");
 				addListener(button0, "click", click_handler);
 				button0.disabled = button0_disabled_value = !ctx.$connected;
-				button0.className = "svelte-3l7dvj";
+				button0.className = "svelte-1k1p7bj";
 				toggleClass(button0, "time_limit_active", ctx.$player.timeLimit > 0);
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'limit' || ctx.touchAction == 'time_limit');
-				addLoc(button0, file$m, 87, 12, 4338);
+				addLoc(button0, file$m, 89, 12, 4410);
 				addListener(button1, "click", click_handler_1);
 				button1.disabled = button1_disabled_value = !ctx.$connected;
-				button1.className = "svelte-3l7dvj";
+				button1.className = "svelte-1k1p7bj";
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'stop');
-				addLoc(button1, file$m, 88, 12, 4549);
+				addLoc(button1, file$m, 90, 12, 4621);
 			},
 
 			m: function mount(target, anchor) {
@@ -21174,7 +21173,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (97:10) {:else}
+	// (99:10) {:else}
 	function create_else_block_1$3(component, ctx) {
 		var span, text_value = ctx.$player.volume, text;
 
@@ -21182,8 +21181,8 @@ var app = (function (crypto) {
 			c: function create() {
 				span = createElement("span");
 				text = createText(text_value);
-				span.className = "volume foreign svelte-3l7dvj";
-				addLoc(span, file$m, 98, 12, 5255);
+				span.className = "volume foreign svelte-1k1p7bj";
+				addLoc(span, file$m, 100, 12, 5327);
 			},
 
 			m: function mount(target, anchor) {
@@ -21205,7 +21204,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (95:10) {#if homebase}
+	// (97:10) {#if homebase}
 	function create_if_block_17(component, ctx) {
 		var span, text_value = ctx.$player.volume, text;
 
@@ -21213,8 +21212,8 @@ var app = (function (crypto) {
 			c: function create() {
 				span = createElement("span");
 				text = createText(text_value);
-				span.className = "volume svelte-3l7dvj";
-				addLoc(span, file$m, 95, 12, 5110);
+				span.className = "volume svelte-1k1p7bj";
+				addLoc(span, file$m, 97, 12, 5182);
 			},
 
 			m: function mount(target, anchor) {
@@ -21236,7 +21235,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (108:37) 
+	// (110:37) 
 	function create_if_block_16(component, ctx) {
 		var div, span1, text0, span0, text1, text2, a0, text4, a1;
 
@@ -21265,23 +21264,23 @@ var app = (function (crypto) {
 				text4 = createText("\n              ■ ");
 				a1 = createElement("a");
 				a1.textContent = "ADD MORE TIME";
-				span0.className = "limit_num svelte-3l7dvj";
-				addLoc(span0, file$m, 109, 85, 6167);
+				span0.className = "limit_num svelte-1k1p7bj";
+				addLoc(span0, file$m, 111, 85, 6239);
 				addListener(a0, "click", click_handler);
 				a0.href = "#";
-				a0.className = "svelte-3l7dvj";
+				a0.className = "svelte-1k1p7bj";
 				toggleClass(a0, "touch_pressed", ctx.touchAction == 'remove_time_limit');
-				addLoc(a0, file$m, 110, 16, 6226);
+				addLoc(a0, file$m, 112, 16, 6298);
 				addListener(a1, "click", click_handler_1);
 				a1.href = "#";
-				a1.className = "set_time_limit svelte-3l7dvj";
+				a1.className = "set_time_limit svelte-1k1p7bj";
 				toggleClass(a1, "touch_pressed", ctx.touchAction == 'time_limit');
-				addLoc(a1, file$m, 111, 16, 6387);
-				span1.className = "time_limit svelte-3l7dvj";
+				addLoc(a1, file$m, 113, 16, 6459);
+				span1.className = "time_limit svelte-1k1p7bj";
 				toggleClass(span1, "grayed_out", ctx.$player.paused);
-				addLoc(span1, file$m, 109, 14, 6096);
-				div.className = "limit_info svelte-3l7dvj";
-				addLoc(div, file$m, 108, 12, 6057);
+				addLoc(span1, file$m, 111, 14, 6168);
+				div.className = "limit_info svelte-1k1p7bj";
+				addLoc(div, file$m, 110, 12, 6129);
 			},
 
 			m: function mount(target, anchor) {
@@ -21322,7 +21321,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (104:10) {#if !$player.isStream && $player.limit}
+	// (106:10) {#if !$player.isStream && $player.limit}
 	function create_if_block_15(component, ctx) {
 		var div, span1, text0, span0, text1_value = ctx.$player.limit == 1 ? 'current' : ctx.$player.limit, text1, text2, text3_value = ctx.$player.limit == 1 ? 'track' : 'tracks', text3, text4, a0, text6, a1;
 
@@ -21353,22 +21352,22 @@ var app = (function (crypto) {
 				text6 = createText(" ■ ");
 				a1 = createElement("a");
 				a1.textContent = "SET TIME LIMIT";
-				span0.className = "limit_num svelte-3l7dvj";
-				addLoc(span0, file$m, 105, 51, 5553);
+				span0.className = "limit_num svelte-1k1p7bj";
+				addLoc(span0, file$m, 107, 51, 5625);
 				addListener(a0, "click", click_handler);
 				a0.href = "#";
-				a0.className = "svelte-3l7dvj";
+				a0.className = "svelte-1k1p7bj";
 				toggleClass(a0, "touch_pressed", ctx.touchAction == 'remove_limit');
-				addLoc(a0, file$m, 105, 175, 5677);
+				addLoc(a0, file$m, 107, 175, 5749);
 				addListener(a1, "click", click_handler_1);
 				a1.href = "#";
-				a1.className = "set_time_limit svelte-3l7dvj";
+				a1.className = "set_time_limit svelte-1k1p7bj";
 				toggleClass(a1, "touch_pressed", ctx.touchAction == 'time_limit');
-				addLoc(a1, file$m, 105, 313, 5815);
-				span1.className = "track_limit svelte-3l7dvj";
-				addLoc(span1, file$m, 105, 14, 5516);
-				div.className = "limit_info svelte-3l7dvj";
-				addLoc(div, file$m, 104, 12, 5477);
+				addLoc(a1, file$m, 107, 313, 5887);
+				span1.className = "track_limit svelte-1k1p7bj";
+				addLoc(span1, file$m, 107, 14, 5588);
+				div.className = "limit_info svelte-1k1p7bj";
+				addLoc(div, file$m, 106, 12, 5549);
 			},
 
 			m: function mount(target, anchor) {
@@ -21411,7 +21410,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (126:8) {#if !$player.isStream}
+	// (128:8) {#if !$player.isStream}
 	function create_if_block_10$1(component, ctx) {
 		var if_block_anchor;
 
@@ -21454,7 +21453,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (136:10) {:else}
+	// (138:10) {:else}
 	function create_else_block$7(component, ctx) {
 		var div, text;
 
@@ -21474,8 +21473,8 @@ var app = (function (crypto) {
 				if (if_block0) if_block0.c();
 				text = createText("\n              ");
 				if (if_block1) if_block1.c();
-				div.className = "extra_option svelte-3l7dvj";
-				addLoc(div, file$m, 137, 12, 7319);
+				div.className = "extra_option svelte-1k1p7bj";
+				addLoc(div, file$m, 139, 12, 7391);
 			},
 
 			m: function mount(target, anchor) {
@@ -21520,7 +21519,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (128:10) {#if !$playlist || $playlist.length == 0}
+	// (130:10) {#if !$playlist || $playlist.length == 0}
 	function create_if_block_11$1(component, ctx) {
 		var div, h1;
 
@@ -21529,10 +21528,10 @@ var app = (function (crypto) {
 				div = createElement("div");
 				h1 = createElement("h1");
 				h1.textContent = "Playlist is empty";
-				h1.className = "svelte-3l7dvj";
-				addLoc(h1, file$m, 129, 14, 7041);
-				div.className = "player_notice svelte-3l7dvj";
-				addLoc(div, file$m, 128, 12, 6999);
+				h1.className = "svelte-1k1p7bj";
+				addLoc(h1, file$m, 131, 14, 7113);
+				div.className = "player_notice svelte-1k1p7bj";
+				addLoc(div, file$m, 130, 12, 7071);
 			},
 
 			m: function mount(target, anchor) {
@@ -21550,7 +21549,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (139:14) {#if $playlistMetadata.currentSongIsSelected && $player.currentMedia && $player.currentMedia.songPath}
+	// (141:14) {#if $playlistMetadata.currentSongIsSelected && $player.currentMedia && $player.currentMedia.songPath}
 	function create_if_block_14(component, ctx) {
 		var button;
 
@@ -21563,9 +21562,9 @@ var app = (function (crypto) {
 				button = createElement("button");
 				button.textContent = "■ Stop";
 				addListener(button, "click", click_handler);
-				button.className = "svelte-3l7dvj";
+				button.className = "svelte-1k1p7bj";
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'stop');
-				addLoc(button, file$m, 139, 16, 7479);
+				addLoc(button, file$m, 141, 16, 7551);
 			},
 
 			m: function mount(target, anchor) {
@@ -21588,7 +21587,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (149:60) 
+	// (151:60) 
 	function create_if_block_13(component, ctx) {
 		var button;
 
@@ -21601,9 +21600,9 @@ var app = (function (crypto) {
 				button = createElement("button");
 				button.textContent = "Undo";
 				addListener(button, "click", click_handler);
-				button.className = "svelte-3l7dvj";
+				button.className = "svelte-1k1p7bj";
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'paste');
-				addLoc(button, file$m, 149, 16, 8246);
+				addLoc(button, file$m, 151, 16, 8318);
 			},
 
 			m: function mount(target, anchor) {
@@ -21626,7 +21625,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (142:14) {#if $playlistMetadata.playlistHasSelectedEntries}
+	// (144:14) {#if $playlistMetadata.playlistHasSelectedEntries}
 	function create_if_block_12$1(component, ctx) {
 		var button0, text_1, button1;
 
@@ -21646,13 +21645,13 @@ var app = (function (crypto) {
 				button1 = createElement("button");
 				button1.textContent = "Remove";
 				addListener(button0, "click", click_handler);
-				button0.className = "set_next_button svelte-3l7dvj";
+				button0.className = "set_next_button svelte-1k1p7bj";
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'set_next');
-				addLoc(button0, file$m, 142, 16, 7666);
+				addLoc(button0, file$m, 144, 16, 7738);
 				addListener(button1, "click", click_handler_1);
-				button1.className = "svelte-3l7dvj";
+				button1.className = "svelte-1k1p7bj";
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'cut_selected');
-				addLoc(button1, file$m, 143, 16, 7801);
+				addLoc(button1, file$m, 145, 16, 7873);
 			},
 
 			m: function mount(target, anchor) {
@@ -21684,7 +21683,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (162:8) {#if !$player.isStream && $playlist}
+	// (164:8) {#if !$player.isStream && $playlist}
 	function create_if_block_6$4(component, ctx) {
 		var div, ul;
 
@@ -21704,12 +21703,12 @@ var app = (function (crypto) {
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
-				ul.className = "svelte-3l7dvj";
-				addLoc(ul, file$m, 163, 12, 8650);
+				ul.className = "svelte-1k1p7bj";
+				addLoc(ul, file$m, 165, 12, 8722);
 				div.id = "playlist";
-				div.className = "svelte-3l7dvj";
+				div.className = "svelte-1k1p7bj";
 				toggleClass(div, "nonRPi", !ctx.atRPi);
-				addLoc(div, file$m, 162, 10, 8596);
+				addLoc(div, file$m, 164, 10, 8668);
 			},
 
 			m: function mount(target, anchor) {
@@ -21758,7 +21757,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (167:16) {#if song.albumTitle}
+	// (169:16) {#if song.albumTitle}
 	function create_if_block_9$1(component, ctx) {
 		var li, text_value = ctx.song.albumTitle, text;
 
@@ -21766,8 +21765,8 @@ var app = (function (crypto) {
 			c: function create() {
 				li = createElement("li");
 				text = createText(text_value);
-				li.className = "album_title svelte-3l7dvj";
-				addLoc(li, file$m, 167, 18, 8752);
+				li.className = "album_title svelte-1k1p7bj";
+				addLoc(li, file$m, 169, 18, 8824);
 			},
 
 			m: function mount(target, anchor) {
@@ -21789,7 +21788,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (179:20) {#if showDetailedSongInfo && song.metadata && song.metadata.duration && song.mediaType == 'video'}
+	// (181:20) {#if showDetailedSongInfo && song.metadata && song.metadata.duration && song.mediaType == 'video'}
 	function create_if_block_8$3(component, ctx) {
 		var span, text0, text1_value = ctx.song.metadata.duration, text1, text2;
 
@@ -21799,9 +21798,9 @@ var app = (function (crypto) {
 				text0 = createText("[");
 				text1 = createText(text1_value);
 				text2 = createText("]");
-				span.className = "duration svelte-3l7dvj";
+				span.className = "duration svelte-1k1p7bj";
 				toggleClass(span, "non_past", !ctx.song.past);
-				addLoc(span, file$m, 179, 22, 9954);
+				addLoc(span, file$m, 181, 22, 10026);
 			},
 
 			m: function mount(target, anchor) {
@@ -21829,7 +21828,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (186:20) {#if showDetailedSongInfo && song.metadata && song.metadata.duration && song.mediaType == 'music'}
+	// (188:20) {#if showDetailedSongInfo && song.metadata && song.metadata.duration && song.mediaType == 'music'}
 	function create_if_block_7$3(component, ctx) {
 		var span, text0, text1_value = ctx.song.metadata.duration, text1, text2;
 
@@ -21839,9 +21838,9 @@ var app = (function (crypto) {
 				text0 = createText("[");
 				text1 = createText(text1_value);
 				text2 = createText("]");
-				span.className = "duration svelte-3l7dvj";
+				span.className = "duration svelte-1k1p7bj";
 				toggleClass(span, "non_past", !ctx.song.past);
-				addLoc(span, file$m, 186, 22, 10338);
+				addLoc(span, file$m, 188, 22, 10410);
 			},
 
 			m: function mount(target, anchor) {
@@ -21869,7 +21868,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (165:14) {#each $playlist as song}
+	// (167:14) {#each $playlist as song}
 	function create_each_block$3(component, ctx) {
 		var text0, span0, text1_value = ctx.song.current ? (ctx.$player.paused ? '→' : (!ctx.$player.currentMedia || !ctx.$player.currentMedia.mediaType || ctx.$player.currentMedia.mediaType == 'music' ? '♫' : '▶')) : '', text1, text2, div, li, span1, text3_value = util.pad(ctx.song.id), text3, text4, text5, span2, text6_value = ctx.song.title, text6, text7;
 
@@ -21897,18 +21896,18 @@ var app = (function (crypto) {
 				text6 = createText(text6_value);
 				text7 = createText("\n\n                    \n                    ");
 				if (if_block2) if_block2.c();
-				span0.className = "marker svelte-3l7dvj";
+				span0.className = "marker svelte-1k1p7bj";
 				toggleClass(span0, "spaced", ctx.$player.spaced && ctx.$player.paused && (!ctx.$player.currentMedia || (ctx.$player.currentMedia && !ctx.$player.currentMedia.songPath)));
-				addLoc(span0, file$m, 170, 16, 8838);
-				span1.className = "id svelte-3l7dvj";
-				addLoc(span1, file$m, 174, 20, 9622);
-				span2.className = "song svelte-3l7dvj";
-				addLoc(span2, file$m, 182, 20, 10086);
+				addLoc(span0, file$m, 172, 16, 8910);
+				span1.className = "id svelte-1k1p7bj";
+				addLoc(span1, file$m, 176, 20, 9694);
+				span2.className = "song svelte-1k1p7bj";
+				addLoc(span2, file$m, 184, 20, 10158);
 
 				li._svelte = { component, ctx };
 
 				addListener(li, "click", click_handler$2);
-				li.className = "svelte-3l7dvj";
+				li.className = "svelte-1k1p7bj";
 				toggleClass(li, "playing", ctx.song.current && !ctx.$player.paused && !ctx.$player.isStream);
 				toggleClass(li, "past", ctx.song.past);
 				toggleClass(li, "within_limit", ctx.song.withinLimit);
@@ -21917,10 +21916,10 @@ var app = (function (crypto) {
 				toggleClass(li, "just_pasted", ctx.song.justPasted);
 				toggleClass(li, "error", ctx.song.error);
 				toggleClass(li, "metadata_read", ctx.song.metadata);
-				addLoc(li, file$m, 173, 18, 9266);
-				div.className = "li_wrapper svelte-3l7dvj";
+				addLoc(li, file$m, 175, 18, 9338);
+				div.className = "li_wrapper svelte-1k1p7bj";
 				toggleClass(div, "darker", ctx.song.directoryTogetherness);
-				addLoc(div, file$m, 172, 16, 9181);
+				addLoc(div, file$m, 174, 16, 9253);
 			},
 
 			m: function mount(target, anchor) {
@@ -22032,7 +22031,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (198:8) {#if $player.isStream && $player.currentMedia && $player.currentMedia.song}
+	// (200:8) {#if $player.isStream && $player.currentMedia && $player.currentMedia.song}
 	function create_if_block_4$9(component, ctx) {
 		var div2, div0, text1, div1, text2, text3_value = ctx.$player.currentMedia.song, text3;
 
@@ -22048,14 +22047,14 @@ var app = (function (crypto) {
 				if (if_block) if_block.c();
 				text2 = createText("\n\n            ");
 				text3 = createText(text3_value);
-				div0.className = "notice svelte-3l7dvj";
-				addLoc(div0, file$m, 200, 12, 10814);
-				div1.className = "song svelte-3l7dvj";
+				div0.className = "notice svelte-1k1p7bj";
+				addLoc(div0, file$m, 202, 12, 10886);
+				div1.className = "song svelte-1k1p7bj";
 				toggleClass(div1, "bigger", ctx.$player.currentMedia.song.length < 35);
-				addLoc(div1, file$m, 202, 12, 10879);
-				div2.className = "streaming_media_info svelte-3l7dvj";
+				addLoc(div1, file$m, 204, 12, 10951);
+				div2.className = "streaming_media_info svelte-1k1p7bj";
 				toggleClass(div2, "faded", ctx.$player.paused);
-				addLoc(div2, file$m, 198, 10, 10737);
+				addLoc(div2, file$m, 200, 10, 10809);
 			},
 
 			m: function mount(target, anchor) {
@@ -22100,7 +22099,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (205:14) {#if !$player.paused}
+	// (207:14) {#if !$player.paused}
 	function create_if_block_5$7(component, ctx) {
 		var span;
 
@@ -22108,8 +22107,8 @@ var app = (function (crypto) {
 			c: function create() {
 				span = createElement("span");
 				span.textContent = "♪♫♬";
-				span.className = "svelte-3l7dvj";
-				addLoc(span, file$m, 205, 16, 11004);
+				span.className = "svelte-1k1p7bj";
+				addLoc(span, file$m, 207, 16, 11076);
 			},
 
 			m: function mount(target, anchor) {

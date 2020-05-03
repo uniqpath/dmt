@@ -1,5 +1,5 @@
 <script>
-  import { cssBridge, Escape, executeSearch, ansicolor, mediaTypeIcon } from 'dmt-js';
+  import { cssBridge, Escape, executeSearch, ansicolor, colorsHTML as colors, mediaTypeIcon } from 'dmt-js';
 
   import { onMount } from 'svelte';
 
@@ -51,7 +51,7 @@
     };
 
     if (connected) {
-      executeSearch({ searchQuery, remoteObject, remoteMethod, searchStatusCallback }).then(searchResults => {
+      executeSearch({ searchQuery, remoteObject, remoteMethod, searchStatusCallback, searchDelay: 400 }).then(searchResults => {
         store.set({ searchResults });
       }).catch(e => {
         store.set({ searchResults: { error: e.message } });
@@ -62,6 +62,37 @@
   function play(playableUrl) {
     console.log(`Loading ${playableUrl} into mpv on localhost ...`);
     store.remoteObject('GUIPlayerObject').call('playUrl', { playableUrl });
+  }
+
+  function displayResultsMeta(providerResponse) {
+    if (providerResponse.error) {
+      return colors.red(`⚠️  Error: ${providerResponse.error}`);
+    }
+
+    const { meta } = providerResponse;
+    const { page, noMorePages, resultCount, resultsFrom, resultsTo, searchTimePretty, networkTimePretty } = meta;
+
+    let time = '';
+
+    if (searchTimePretty) {
+      time += colors.gray(` · ${colors.gray('fs')} ${colors.white(searchTimePretty)}`);
+    }
+
+    if (networkTimePretty) {
+      time += colors.gray(` · ${colors.gray('network')} ${colors.white(networkTimePretty)}`);
+    }
+
+    if (resultCount > 0) {
+      if (page == 1 && noMorePages) {
+        return colors.white(`${resultCount} ${resultCount == 1 ? 'result' : 'results'}${time}`);
+      }
+
+      const isLastPage = noMorePages ? colors.white(' (last page)') : '';
+      const resultsDescription = `${colors.white(`Results ${resultsFrom} to ${resultsTo}`)}`;
+      return colors.gray(`${colors.white(`Page ${page}`)}${isLastPage} → ${resultsDescription}${time}`);
+    }
+
+    return colors.gray(`No ${page > 1 ? 'more ' : ''}results${time}`);
   }
 </script>
 
@@ -108,13 +139,13 @@
             <h3>
               {providerResponse.meta.providerHost}<span class="contentId">{#if providerResponse.meta.contentId}/{providerResponse.meta.contentId}{/if}</span>
 
-              {#if !providerResponse.error}
+              <!-- {#if !providerResponse.error}
                 <span class="searchTime">fs <span class="value">{providerResponse.meta.searchTimePretty}</span>
                   {#if providerResponse.meta.networkTimePretty}
                     · network <span class="value">{providerResponse.meta.networkTimePretty}</span>
                   {/if}
                 </span>
-              {/if}
+              {/if} -->
 
             </h3>
 
@@ -188,14 +219,11 @@
                     <span>{fileSizePretty}</span>
                   {/if}
                 </div>
-                <!-- if (totalCount == meta.maxResults) {
-                  explain = ' or more';
-                }
-                console.log(colors.gray(`All results → ${colors.yellow(`${totalCount}${explain}`)}${time}`)); -->
-
-              {:else}
-                NO RESULTS
               {/each}
+
+              <div class="results_meta">
+                {@html displayResultsMeta(providerResponse)}
+              </div>
 
               {#if providerResponse.meta.pageNumber}
                 <div class="results_count">Page: <span>{providerResponse.meta.pageNumber}</span>
@@ -204,10 +232,10 @@
                   {/if}
                 </div>
               {/if}
+
             {/if}
           </div>
         {/if}
-
       {/each}
     {/if}
 
@@ -311,6 +339,11 @@
 
   .results span.searchTime span.value {
     color: white;
+  }
+
+  .results .results_meta {
+    margin-top: 5px;
+    font-size: 0.8em;
   }
 
   .result {

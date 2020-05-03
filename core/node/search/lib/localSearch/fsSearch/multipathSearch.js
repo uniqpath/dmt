@@ -7,14 +7,14 @@ const { prettyFileSize, log, util } = dmt;
 
 import stripAnsi from 'strip-ansi';
 
-import searchWithOSBinary from './searchWithOSBinary';
+import executableSearch from './executableSearch';
 
-function multipathSearch({ contentPaths, terms, maxResults, mediaType }) {
+function multipathSearch({ contentPaths, terms, page, maxResults, mediaType }) {
   return new Promise((success, reject) => {
     const promises = contentPaths
       .filter(path => fs.existsSync(path))
       .map(path => {
-        return searchOnePath({ path, terms, maxResults, mediaType });
+        return searchOnePath({ path, terms, page, maxResults, mediaType });
       });
 
     Promise.all(promises)
@@ -28,11 +28,11 @@ function multipathSearch({ contentPaths, terms, maxResults, mediaType }) {
   });
 }
 
-function searchOnePath({ path, terms, maxResults, mediaType }) {
+function searchOnePath({ path, terms, page, maxResults, mediaType }) {
   return new Promise((success, reject) => {
     const results = [];
 
-    searchWithOSBinary(settings().searchBinary, { path, terms, maxResults, mediaType }, resultBatch => {
+    executableSearch(settings().searchBinary, { path, terms, page, maxResults, mediaType }, resultBatch => {
       if (resultBatch) {
         if (resultBatch.error) {
           success({ error: resultBatch.error });

@@ -25,7 +25,6 @@ function search({ args, method }, { program }) {
       .catch(e => {
         log.red('Error in search service:');
         log.red(e);
-
         reject(e);
       });
   });

@@ -1,14 +1,25 @@
 import swarmResults from './swarmResults';
 import readSwarmIndex from './readSwarmIndexLiveAsync';
 
-function swarmSearch({ terms, clientMaxResults }) {
+function swarmSearch({ terms, page = 1, clientMaxResults, mediaType }) {
+  const maxResults = clientMaxResults;
+
+  const initialResultsToIgnore = (page - 1) * maxResults;
+
   return new Promise(success => {
     readSwarmIndex().then(swarmIndex => {
       const allResults = swarmResults(terms, swarmIndex);
 
-      const results = clientMaxResults ? allResults.slice(0, clientMaxResults) : allResults;
+      const results = allResults.slice(initialResultsToIgnore).slice(0, maxResults);
 
-      success({ results, maxResults: allResults.length });
+      const resultsFrom = (page - 1) * maxResults + 1;
+      const resultsTo = resultsFrom + results.length - 1;
+      const noMorePages = results.length < maxResults;
+      const resultCount = results.length;
+
+      const meta = { page, resultsFrom, resultsTo, noMorePages, resultCount };
+
+      success({ results, meta });
     });
   });
 }

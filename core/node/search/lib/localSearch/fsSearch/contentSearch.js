@@ -1,13 +1,11 @@
 import { settings } from 'dmt/search';
 
 import dmt from 'dmt/bridge';
-const { stopwatchAdv, log, dmtContent } = dmt;
+const { stopwatchAdv, dmtContent } = dmt;
 
 import multipathSearch from './multipathSearch';
 
-function contentSearch(contentId, { terms, mediaType, clientMaxResults, maxResults }) {
-  log.debug('Search called with:', { obj: { contentId, terms, mediaType, clientMaxResults, maxResults } });
-
+function contentSearch({ contentId, terms, mediaType, page = 1, clientMaxResults, maxResults }) {
   const _maxResults = clientMaxResults || maxResults || settings().searchLimit.maxResults;
 
   const searchPromise = new Promise((success, reject) => {
@@ -22,15 +20,25 @@ function contentSearch(contentId, { terms, mediaType, clientMaxResults, maxResul
 
     const start = stopwatchAdv.start();
 
-    multipathSearch({ contentPaths, terms, maxResults: _maxResults, mediaType })
+    multipathSearch({ contentPaths, terms, page, maxResults: _maxResults, mediaType })
       .then(results => {
         const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
+
+        const resultsFrom = (page - 1) * _maxResults + 1;
+        const resultsTo = resultsFrom + results.length - 1;
+
+        const noMorePages = results.length < _maxResults;
 
         success({
           meta: {
             searchTime,
             searchTimePretty,
-            maxResults: _maxResults
+            page,
+            noMorePages,
+            resultsFrom,
+            resultsTo,
+            maxResults: _maxResults,
+            resultCount: results.length
           },
           results
         });

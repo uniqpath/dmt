@@ -4,9 +4,9 @@ const { log, util } = dmt;
 import colors from 'colors';
 import { spawn } from 'child_process';
 
-export default function searchWithOSBinary(binary, { terms, path, noColor, mediaType, maxResults }, processLineCallback) {
+export default function executableSearch(binary, { terms, path, noColor, mediaType, page = 1, maxResults }, processLineCallback) {
   if (!maxResults) {
-    throw new Error('searchWithOSBinary: maxResults is undefined, must provide maxResults argument');
+    throw new Error('executableSearch: maxResults is undefined, must provide maxResults argument');
   }
 
   const constructedTerms = [];
@@ -32,6 +32,7 @@ export default function searchWithOSBinary(binary, { terms, path, noColor, media
   });
 
   let resultsSoFar = 0;
+  const initialResultsToIgnore = (page - 1) * maxResults;
   let finishedPrematurely = false;
 
   ls.stdout.on('data', data => {
@@ -40,12 +41,14 @@ export default function searchWithOSBinary(binary, { terms, path, noColor, media
       .split('\n')
       .filter(line => line.trim() != '');
 
-    if (resultsSoFar < maxResults) {
-      processLineCallback(lines.slice(0, maxResults - resultsSoFar));
+    if (resultsSoFar < page * maxResults) {
+      const resultsToIgnore = Math.max(0, initialResultsToIgnore - resultsSoFar);
+      processLineCallback(lines.slice(resultsToIgnore).slice(0, page * maxResults - resultsSoFar));
     } else if (!finishedPrematurely) {
       log.debug(`returned ${maxResults} results for terms ${JSON.stringify(constructedTerms)} on ${path}`);
       finishedPrematurely = true;
       processLineCallback(null);
+      ls.kill();
     }
 
     resultsSoFar += lines.length;

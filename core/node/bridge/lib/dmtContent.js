@@ -52,13 +52,15 @@ function contentPaths({ contentId, deviceId = 'this', returnSambaSharesInfo = fa
   const contentDef = readContentDef({ filePath });
 
   if (contentDef.empty) {
-    return;
+    throw new Error(`${colors.gray('content.def')} on ${colors.magenta(`@${device.id}`)} is empty or missing.`);
   }
 
   const content = contentDef.multi.find(c => c.id == contentId);
 
   if (!content) {
-    throw new Error(`@${device.id}/${contentId} is not defined.`);
+    throw new Error(
+      `Content ${colors.magenta(`@${device.id}/`)}${colors.cyan(contentId || `[no-name] ${colors.white('(= default content)')}`)} is not defined.`
+    );
   }
 
   sambaDefinitionErrorCheck(content, filePath);

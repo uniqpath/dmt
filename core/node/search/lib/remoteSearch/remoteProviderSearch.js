@@ -13,24 +13,23 @@ class RemoteProviderSearch {
     this.providerAddress = provider.address;
     this.providerPort = provider.port;
     this.localContentId = provider.contentRef;
-
     this.localhost = provider.localhost;
   }
 
   searchResponse({ response, contentId, networkTime, networkTimePretty }) {
     if (!response.error) {
-      Object.assign(response.meta, basicMetaInfo(this), { totalCount: response.results.length, contentId, networkTime, networkTimePretty });
+      Object.assign(response.meta, basicMetaInfo(this), { resultCount: response.results.length, contentId, networkTime, networkTimePretty });
     }
 
     return response;
   }
 
-  search({ terms, clientMaxResults, mediaType, contentRef }) {
+  search({ terms, clientMaxResults, page, mediaType, contentRef }) {
     const contentId = contentRef || this.localContentId;
 
     return new Promise((success, reject) => {
       if (!this.localhost) {
-        const args = serializeArgs({ terms, mediaType, count: clientMaxResults, contentRef: contentId });
+        const args = serializeArgs({ terms, mediaType, count: clientMaxResults, page, contentRef: contentId });
 
         const start = stopwatchAdv.start();
 
@@ -55,7 +54,7 @@ class RemoteProviderSearch {
             let { message } = error;
 
             if (error.errorCode == 'CLOSED_CHANNEL') {
-              message = 'provider currently unreachable';
+              message = 'incorrect host or host currently unreachable';
             }
 
             success({ meta: basicMetaInfo(this), error: message });

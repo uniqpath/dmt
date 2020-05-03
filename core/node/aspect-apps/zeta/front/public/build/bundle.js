@@ -5594,6 +5594,40 @@ var app = (function (crypto) {
 
     var stores = { SimpleStore: Store, ConnectedStore, MultiConnectedStore, ParallelStore, SessionStore, LogStore };
 
+    function wrap$1(text, color) {
+      return `<span style="color: ${color};">${text}</span>`;
+    }
+
+    function white(text) {
+      return wrap$1(text, 'white');
+    }
+
+    function red(text) {
+      return wrap$1(text, '#E34042');
+    }
+
+    function green(text) {
+      return wrap$1(text, '#5FE02A');
+    }
+
+    function gray(text) {
+      return wrap$1(text, '#C3C6C6');
+    }
+
+    function yellow(text) {
+      return wrap$1(text, '#E5AE34');
+    }
+
+    function cyan(text) {
+      return wrap$1(text, '#29B3BF');
+    }
+
+    function magenta(text) {
+      return wrap$1(text, '#A144E9');
+    }
+
+    var colors = { white, red, green, gray, yellow, cyan, magenta };
+
     function queryDifferentEnough({ searchQuery, prevQuery }) {
       return normalizeQuery(searchQuery) != normalizeQuery(prevQuery);
     }
@@ -6589,8 +6623,8 @@ var app = (function (crypto) {
     	return child_ctx;
     }
 
-    // (72:2) {#if isLocalhost}
-    function create_if_block_24(ctx) {
+    // (103:2) {#if isLocalhost}
+    function create_if_block_22(ctx) {
     	let current;
     	const escape_1 = new Escape({ $$inline: true });
 
@@ -6618,17 +6652,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_24.name,
+    		id: create_if_block_22.name,
     		type: "if",
-    		source: "(72:2) {#if isLocalhost}",
+    		source: "(103:2) {#if isLocalhost}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (89:4) {:else}
-    function create_else_block_5(ctx) {
+    // (120:4) {:else}
+    function create_else_block_4(ctx) {
     	let t;
 
     	const block = {
@@ -6648,22 +6682,22 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_5.name,
+    		id: create_else_block_4.name,
     		type: "else",
-    		source: "(89:4) {:else}",
+    		source: "(120:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (83:4) {#if connected}
-    function create_if_block_22(ctx) {
+    // (114:4) {#if connected}
+    function create_if_block_20(ctx) {
     	let current_block_type_index;
     	let if_block;
     	let if_block_anchor;
     	let current;
-    	const if_block_creators = [create_if_block_23, create_else_block_4];
+    	const if_block_creators = [create_if_block_21, create_else_block_3];
     	const if_blocks = [];
 
     	function select_block_type_1(ctx, dirty) {
@@ -6724,17 +6758,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_22.name,
+    		id: create_if_block_20.name,
     		type: "if",
-    		source: "(83:4) {#if connected}",
+    		source: "(114:4) {#if connected}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (86:6) {:else}
-    function create_else_block_4(ctx) {
+    // (117:6) {:else}
+    function create_else_block_3(ctx) {
     	let t;
 
     	const block = {
@@ -6753,17 +6787,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_4.name,
+    		id: create_else_block_3.name,
     		type: "else",
-    		source: "(86:6) {:else}",
+    		source: "(117:6) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (84:6) {#if isSearching}
-    function create_if_block_23(ctx) {
+    // (115:6) {#if isSearching}
+    function create_if_block_21(ctx) {
     	let current;
 
     	const spinner = new Src({
@@ -6802,16 +6836,16 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_23.name,
+    		id: create_if_block_21.name,
     		type: "if",
-    		source: "(84:6) {#if isSearching}",
+    		source: "(115:6) {#if isSearching}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (100:4) {#if searchResults}
+    // (131:4) {#if searchResults}
     function create_if_block(ctx) {
     	let each_1_anchor;
     	let each_value = /*searchResults*/ ctx[5];
@@ -6872,14 +6906,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(100:4) {#if searchResults}",
+    		source: "(131:4) {#if searchResults}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (104:8) {#if providerResponse.results && providerResponse.results.length > 0}
+    // (135:8) {#if providerResponse.results && providerResponse.results.length > 0}
     function create_if_block_1(ctx) {
     	let div;
     	let h3;
@@ -6888,9 +6922,7 @@ var app = (function (crypto) {
     	let span;
     	let t1;
     	let t2;
-    	let t3;
-    	let if_block0 = /*providerResponse*/ ctx[15].meta.contentId && create_if_block_21(ctx);
-    	let if_block1 = !/*providerResponse*/ ctx[15].error && create_if_block_19(ctx);
+    	let if_block0 = /*providerResponse*/ ctx[15].meta.contentId && create_if_block_19(ctx);
 
     	function select_block_type_2(ctx, dirty) {
     		if (/*providerResponse*/ ctx[15].error) return create_if_block_2;
@@ -6898,7 +6930,7 @@ var app = (function (crypto) {
     	}
 
     	let current_block_type = select_block_type_2(ctx);
-    	let if_block2 = current_block_type(ctx);
+    	let if_block1 = current_block_type(ctx);
 
     	const block = {
     		c: function create() {
@@ -6908,15 +6940,13 @@ var app = (function (crypto) {
     			span = element("span");
     			if (if_block0) if_block0.c();
     			t1 = space();
-    			if (if_block1) if_block1.c();
+    			if_block1.c();
     			t2 = space();
-    			if_block2.c();
-    			t3 = space();
-    			attr_dev(span, "class", "contentId svelte-17kl44o");
-    			add_location(span, file$3, 108, 50, 3023);
-    			add_location(h3, file$3, 107, 12, 2968);
-    			attr_dev(div, "class", "results svelte-17kl44o");
-    			add_location(div, file$3, 105, 10, 2893);
+    			attr_dev(span, "class", "contentId svelte-1yujyek");
+    			add_location(span, file$3, 139, 50, 4173);
+    			add_location(h3, file$3, 138, 12, 4118);
+    			attr_dev(div, "class", "results svelte-1yujyek");
+    			add_location(div, file$3, 136, 10, 4043);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -6924,11 +6954,9 @@ var app = (function (crypto) {
     			append_dev(h3, t0);
     			append_dev(h3, span);
     			if (if_block0) if_block0.m(span, null);
-    			append_dev(h3, t1);
-    			if (if_block1) if_block1.m(h3, null);
+    			append_dev(div, t1);
+    			if_block1.m(div, null);
     			append_dev(div, t2);
-    			if_block2.m(div, null);
-    			append_dev(div, t3);
     		},
     		p: function update(ctx, dirty) {
     			if (dirty[0] & /*searchResults*/ 32 && t0_value !== (t0_value = /*providerResponse*/ ctx[15].meta.providerHost + "")) set_data_dev(t0, t0_value);
@@ -6937,7 +6965,7 @@ var app = (function (crypto) {
     				if (if_block0) {
     					if_block0.p(ctx, dirty);
     				} else {
-    					if_block0 = create_if_block_21(ctx);
+    					if_block0 = create_if_block_19(ctx);
     					if_block0.c();
     					if_block0.m(span, null);
     				}
@@ -6946,36 +6974,22 @@ var app = (function (crypto) {
     				if_block0 = null;
     			}
 
-    			if (!/*providerResponse*/ ctx[15].error) {
-    				if (if_block1) {
-    					if_block1.p(ctx, dirty);
-    				} else {
-    					if_block1 = create_if_block_19(ctx);
-    					if_block1.c();
-    					if_block1.m(h3, null);
-    				}
-    			} else if (if_block1) {
-    				if_block1.d(1);
-    				if_block1 = null;
-    			}
-
-    			if (current_block_type === (current_block_type = select_block_type_2(ctx)) && if_block2) {
-    				if_block2.p(ctx, dirty);
+    			if (current_block_type === (current_block_type = select_block_type_2(ctx)) && if_block1) {
+    				if_block1.p(ctx, dirty);
     			} else {
-    				if_block2.d(1);
-    				if_block2 = current_block_type(ctx);
+    				if_block1.d(1);
+    				if_block1 = current_block_type(ctx);
 
-    				if (if_block2) {
-    					if_block2.c();
-    					if_block2.m(div, t3);
+    				if (if_block1) {
+    					if_block1.c();
+    					if_block1.m(div, t2);
     				}
     			}
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
     			if (if_block0) if_block0.d();
-    			if (if_block1) if_block1.d();
-    			if_block2.d();
+    			if_block1.d();
     		}
     	};
 
@@ -6983,15 +6997,15 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_1.name,
     		type: "if",
-    		source: "(104:8) {#if providerResponse.results && providerResponse.results.length > 0}",
+    		source: "(135:8) {#if providerResponse.results && providerResponse.results.length > 0}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (109:74) {#if providerResponse.meta.contentId}
-    function create_if_block_21(ctx) {
+    // (140:74) {#if providerResponse.meta.contentId}
+    function create_if_block_19(ctx) {
     	let t0;
     	let t1_value = /*providerResponse*/ ctx[15].meta.contentId + "";
     	let t1;
@@ -7016,122 +7030,21 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_21.name,
-    		type: "if",
-    		source: "(109:74) {#if providerResponse.meta.contentId}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (111:14) {#if !providerResponse.error}
-    function create_if_block_19(ctx) {
-    	let span1;
-    	let t0;
-    	let span0;
-    	let t1_value = /*providerResponse*/ ctx[15].meta.searchTimePretty + "";
-    	let t1;
-    	let t2;
-    	let if_block = /*providerResponse*/ ctx[15].meta.networkTimePretty && create_if_block_20(ctx);
-
-    	const block = {
-    		c: function create() {
-    			span1 = element("span");
-    			t0 = text("fs ");
-    			span0 = element("span");
-    			t1 = text(t1_value);
-    			t2 = space();
-    			if (if_block) if_block.c();
-    			attr_dev(span0, "class", "value svelte-17kl44o");
-    			add_location(span0, file$3, 111, 44, 3220);
-    			attr_dev(span1, "class", "searchTime svelte-17kl44o");
-    			add_location(span1, file$3, 111, 16, 3192);
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, span1, anchor);
-    			append_dev(span1, t0);
-    			append_dev(span1, span0);
-    			append_dev(span0, t1);
-    			append_dev(span1, t2);
-    			if (if_block) if_block.m(span1, null);
-    		},
-    		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*searchResults*/ 32 && t1_value !== (t1_value = /*providerResponse*/ ctx[15].meta.searchTimePretty + "")) set_data_dev(t1, t1_value);
-
-    			if (/*providerResponse*/ ctx[15].meta.networkTimePretty) {
-    				if (if_block) {
-    					if_block.p(ctx, dirty);
-    				} else {
-    					if_block = create_if_block_20(ctx);
-    					if_block.c();
-    					if_block.m(span1, null);
-    				}
-    			} else if (if_block) {
-    				if_block.d(1);
-    				if_block = null;
-    			}
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(span1);
-    			if (if_block) if_block.d();
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
     		id: create_if_block_19.name,
     		type: "if",
-    		source: "(111:14) {#if !providerResponse.error}",
+    		source: "(140:74) {#if providerResponse.meta.contentId}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (113:18) {#if providerResponse.meta.networkTimePretty}
-    function create_if_block_20(ctx) {
-    	let t0;
-    	let span;
-    	let t1_value = /*providerResponse*/ ctx[15].meta.networkTimePretty + "";
-    	let t1;
-
-    	const block = {
-    		c: function create() {
-    			t0 = text("· network ");
-    			span = element("span");
-    			t1 = text(t1_value);
-    			attr_dev(span, "class", "value svelte-17kl44o");
-    			add_location(span, file$3, 113, 30, 3382);
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, t0, anchor);
-    			insert_dev(target, span, anchor);
-    			append_dev(span, t1);
-    		},
-    		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*searchResults*/ 32 && t1_value !== (t1_value = /*providerResponse*/ ctx[15].meta.networkTimePretty + "")) set_data_dev(t1, t1_value);
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(t0);
-    			if (detaching) detach_dev(span);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block_20.name,
-    		type: "if",
-    		source: "(113:18) {#if providerResponse.meta.networkTimePretty}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (126:12) {:else}
+    // (157:12) {:else}
     function create_else_block(ctx) {
-    	let t;
+    	let t0;
+    	let div;
+    	let raw_value = displayResultsMeta(/*providerResponse*/ ctx[15]) + "";
+    	let t1;
     	let if_block_anchor;
     	let each_value_1 = /*providerResponse*/ ctx[15].results;
     	validate_each_argument(each_value_1);
@@ -7139,12 +7052,6 @@ var app = (function (crypto) {
 
     	for (let i = 0; i < each_value_1.length; i += 1) {
     		each_blocks[i] = create_each_block_1(get_each_context_1(ctx, each_value_1, i));
-    	}
-
-    	let each_1_else = null;
-
-    	if (!each_value_1.length) {
-    		each_1_else = create_else_block_3(ctx);
     	}
 
     	let if_block = /*providerResponse*/ ctx[15].meta.pageNumber && create_if_block_3(ctx);
@@ -7155,24 +7062,23 @@ var app = (function (crypto) {
     				each_blocks[i].c();
     			}
 
-    			if (each_1_else) {
-    				each_1_else.c();
-    			}
-
-    			t = space();
+    			t0 = space();
+    			div = element("div");
+    			t1 = space();
     			if (if_block) if_block.c();
     			if_block_anchor = empty();
+    			attr_dev(div, "class", "results_meta svelte-1yujyek");
+    			add_location(div, file$3, 223, 14, 7343);
     		},
     		m: function mount(target, anchor) {
     			for (let i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].m(target, anchor);
     			}
 
-    			if (each_1_else) {
-    				each_1_else.m(target, anchor);
-    			}
-
-    			insert_dev(target, t, anchor);
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, div, anchor);
+    			div.innerHTML = raw_value;
+    			insert_dev(target, t1, anchor);
     			if (if_block) if_block.m(target, anchor);
     			insert_dev(target, if_block_anchor, anchor);
     		},
@@ -7190,7 +7096,7 @@ var app = (function (crypto) {
     					} else {
     						each_blocks[i] = create_each_block_1(child_ctx);
     						each_blocks[i].c();
-    						each_blocks[i].m(t.parentNode, t);
+    						each_blocks[i].m(t0.parentNode, t0);
     					}
     				}
 
@@ -7201,17 +7107,7 @@ var app = (function (crypto) {
     				each_blocks.length = each_value_1.length;
     			}
 
-    			if (each_value_1.length) {
-    				if (each_1_else) {
-    					each_1_else.d(1);
-    					each_1_else = null;
-    				}
-    			} else if (!each_1_else) {
-    				each_1_else = create_else_block_3(ctx);
-    				each_1_else.c();
-    				each_1_else.m(t.parentNode, t);
-    			}
-
+    			if (dirty[0] & /*searchResults*/ 32 && raw_value !== (raw_value = displayResultsMeta(/*providerResponse*/ ctx[15]) + "")) div.innerHTML = raw_value;
     			if (/*providerResponse*/ ctx[15].meta.pageNumber) {
     				if (if_block) {
     					if_block.p(ctx, dirty);
@@ -7227,8 +7123,9 @@ var app = (function (crypto) {
     		},
     		d: function destroy(detaching) {
     			destroy_each(each_blocks, detaching);
-    			if (each_1_else) each_1_else.d(detaching);
-    			if (detaching) detach_dev(t);
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(div);
+    			if (detaching) detach_dev(t1);
     			if (if_block) if_block.d(detaching);
     			if (detaching) detach_dev(if_block_anchor);
     		}
@@ -7238,14 +7135,14 @@ var app = (function (crypto) {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(126:12) {:else}",
+    		source: "(157:12) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (121:12) {#if providerResponse.error}
+    // (152:12) {#if providerResponse.error}
     function create_if_block_2(ctx) {
     	let div;
     	let t0;
@@ -7259,10 +7156,10 @@ var app = (function (crypto) {
     			t0 = text("Error:\n                ");
     			span = element("span");
     			t1 = text(t1_value);
-    			attr_dev(span, "class", "svelte-17kl44o");
-    			add_location(span, file$3, 123, 16, 3657);
-    			attr_dev(div, "class", "resultError svelte-17kl44o");
-    			add_location(div, file$3, 121, 14, 3594);
+    			attr_dev(span, "class", "svelte-1yujyek");
+    			add_location(span, file$3, 154, 16, 4816);
+    			attr_dev(div, "class", "resultError svelte-1yujyek");
+    			add_location(div, file$3, 152, 14, 4753);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -7282,41 +7179,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_2.name,
     		type: "if",
-    		source: "(121:12) {#if providerResponse.error}",
+    		source: "(152:12) {#if providerResponse.error}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (196:14) {:else}
-    function create_else_block_3(ctx) {
-    	let t;
-
-    	const block = {
-    		c: function create() {
-    			t = text("NO RESULTS");
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, t, anchor);
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(t);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_else_block_3.name,
-    		type: "else",
-    		source: "(196:14) {:else}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (130:18) {#if mediaType == 'video'}
+    // (161:18) {#if mediaType == 'video'}
     function create_if_block_18(ctx) {
     	let span;
 
@@ -7324,8 +7194,8 @@ var app = (function (crypto) {
     		c: function create() {
     			span = element("span");
     			span.textContent = "VIDEO";
-    			attr_dev(span, "class", "tag videoTag svelte-17kl44o");
-    			add_location(span, file$3, 130, 20, 4039);
+    			attr_dev(span, "class", "tag videoTag svelte-1yujyek");
+    			add_location(span, file$3, 161, 20, 5198);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7339,14 +7209,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_18.name,
     		type: "if",
-    		source: "(130:18) {#if mediaType == 'video'}",
+    		source: "(161:18) {#if mediaType == 'video'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (134:18) {#if mediaType == 'photo'}
+    // (165:18) {#if mediaType == 'photo'}
     function create_if_block_17(ctx) {
     	let span;
 
@@ -7354,8 +7224,8 @@ var app = (function (crypto) {
     		c: function create() {
     			span = element("span");
     			span.textContent = "IMAGE";
-    			attr_dev(span, "class", "tag imageTag svelte-17kl44o");
-    			add_location(span, file$3, 134, 20, 4169);
+    			attr_dev(span, "class", "tag imageTag svelte-1yujyek");
+    			add_location(span, file$3, 165, 20, 5328);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7369,14 +7239,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_17.name,
     		type: "if",
-    		source: "(134:18) {#if mediaType == 'photo'}",
+    		source: "(165:18) {#if mediaType == 'photo'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (138:18) {#if mediaType == 'pdf'}
+    // (169:18) {#if mediaType == 'pdf'}
     function create_if_block_16(ctx) {
     	let span;
 
@@ -7384,8 +7254,8 @@ var app = (function (crypto) {
     		c: function create() {
     			span = element("span");
     			span.textContent = "PDF";
-    			attr_dev(span, "class", "tag pdfTag svelte-17kl44o");
-    			add_location(span, file$3, 138, 20, 4297);
+    			attr_dev(span, "class", "tag pdfTag svelte-1yujyek");
+    			add_location(span, file$3, 169, 20, 5456);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7399,14 +7269,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_16.name,
     		type: "if",
-    		source: "(138:18) {#if mediaType == 'pdf'}",
+    		source: "(169:18) {#if mediaType == 'pdf'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (175:18) {:else}
+    // (206:18) {:else}
     function create_else_block_2(ctx) {
     	let div;
 
@@ -7415,7 +7285,7 @@ var app = (function (crypto) {
     			div = element("div");
     			div.textContent = "Unsupported search results format.";
     			attr_dev(div, "class", "resultError");
-    			add_location(div, file$3, 175, 20, 5583);
+    			add_location(div, file$3, 206, 20, 6742);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -7430,14 +7300,14 @@ var app = (function (crypto) {
     		block,
     		id: create_else_block_2.name,
     		type: "else",
-    		source: "(175:18) {:else}",
+    		source: "(206:18) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (171:37) 
+    // (202:37) 
     function create_if_block_15(ctx) {
     	let a;
     	let a_href_value;
@@ -7458,8 +7328,8 @@ var app = (function (crypto) {
     			}
 
     			attr_dev(a, "href", a_href_value = /*playableUrl*/ ctx[26]);
-    			attr_dev(a, "class", "svelte-17kl44o");
-    			add_location(a, file$3, 171, 20, 5363);
+    			attr_dev(a, "class", "svelte-1yujyek");
+    			add_location(a, file$3, 202, 20, 6522);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, a, anchor);
@@ -7507,14 +7377,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_15.name,
     		type: "if",
-    		source: "(171:37) ",
+    		source: "(202:37) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (142:18) {#if swarmBzzHash}
+    // (173:18) {#if swarmBzzHash}
     function create_if_block_8(ctx) {
     	let span;
     	let t1;
@@ -7557,12 +7427,12 @@ var app = (function (crypto) {
     			t6 = space();
     			if (if_block3) if_block3.c();
     			if_block3_anchor = empty();
-    			attr_dev(span, "class", "tag swarmTag svelte-17kl44o");
-    			add_location(span, file$3, 142, 20, 4415);
-    			add_location(b, file$3, 149, 22, 4725);
+    			attr_dev(span, "class", "tag swarmTag svelte-1yujyek");
+    			add_location(span, file$3, 173, 20, 5574);
+    			add_location(b, file$3, 180, 22, 5884);
     			attr_dev(a, "href", a_href_value = /*playableUrl*/ ctx[26]);
-    			attr_dev(a, "class", "svelte-17kl44o");
-    			add_location(a, file$3, 148, 20, 4678);
+    			attr_dev(a, "class", "svelte-1yujyek");
+    			add_location(a, file$3, 179, 20, 5837);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7654,14 +7524,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_8.name,
     		type: "if",
-    		source: "(142:18) {#if swarmBzzHash}",
+    		source: "(173:18) {#if swarmBzzHash}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (173:22) {#each ansicolor.parse(filePathANSI).spans as span}
+    // (204:22) {#each ansicolor.parse(filePathANSI).spans as span}
     function create_each_block_2(ctx) {
     	let span;
     	let t_value = /*span*/ ctx[31].text + "";
@@ -7673,8 +7543,8 @@ var app = (function (crypto) {
     			span = element("span");
     			t = text(t_value);
     			attr_dev(span, "style", span_style_value = /*span*/ ctx[31].css);
-    			attr_dev(span, "class", "svelte-17kl44o");
-    			add_location(span, file$3, 172, 73, 5461);
+    			attr_dev(span, "class", "svelte-1yujyek");
+    			add_location(span, file$3, 203, 73, 6620);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7696,14 +7566,14 @@ var app = (function (crypto) {
     		block,
     		id: create_each_block_2.name,
     		type: "each",
-    		source: "(173:22) {#each ansicolor.parse(filePathANSI).spans as span}",
+    		source: "(204:22) {#each ansicolor.parse(filePathANSI).spans as span}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (145:20) {#if entryType == 'ens'}
+    // (176:20) {#if entryType == 'ens'}
     function create_if_block_14(ctx) {
     	let span;
 
@@ -7711,8 +7581,8 @@ var app = (function (crypto) {
     		c: function create() {
     			span = element("span");
     			span.textContent = "ENS";
-    			attr_dev(span, "class", "tag ensTag svelte-17kl44o");
-    			add_location(span, file$3, 145, 22, 4595);
+    			attr_dev(span, "class", "tag ensTag svelte-1yujyek");
+    			add_location(span, file$3, 176, 22, 5754);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7726,14 +7596,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_14.name,
     		type: "if",
-    		source: "(145:20) {#if entryType == 'ens'}",
+    		source: "(176:20) {#if entryType == 'ens'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (153:20) {#if prettyTime}
+    // (184:20) {#if prettyTime}
     function create_if_block_13(ctx) {
     	let t0;
     	let t1_value = /*prettyTime*/ ctx[24] + "";
@@ -7761,14 +7631,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_13.name,
     		type: "if",
-    		source: "(153:20) {#if prettyTime}",
+    		source: "(184:20) {#if prettyTime}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (160:20) {:else}
+    // (191:20) {:else}
     function create_else_block_1(ctx) {
     	let t;
 
@@ -7788,14 +7658,14 @@ var app = (function (crypto) {
     		block,
     		id: create_else_block_1.name,
     		type: "else",
-    		source: "(160:20) {:else}",
+    		source: "(191:20) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (158:20) {#if entryType == 'ens'}
+    // (189:20) {#if entryType == 'ens'}
     function create_if_block_12(ctx) {
     	let t;
 
@@ -7815,14 +7685,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_12.name,
     		type: "if",
-    		source: "(158:20) {#if entryType == 'ens'}",
+    		source: "(189:20) {#if entryType == 'ens'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (164:20) {#if context}
+    // (195:20) {#if context}
     function create_if_block_9(ctx) {
     	let t_value = /*context*/ ctx[20] + "";
     	let t;
@@ -7880,14 +7750,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_9.name,
     		type: "if",
-    		source: "(164:20) {#if context}",
+    		source: "(195:20) {#if context}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (165:22) {#if entryType != 'ens'}
+    // (196:22) {#if entryType != 'ens'}
     function create_if_block_11(ctx) {
     	let t;
 
@@ -7907,14 +7777,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_11.name,
     		type: "if",
-    		source: "(165:22) {#if entryType != 'ens'}",
+    		source: "(196:22) {#if entryType != 'ens'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (165:61) {#if entryType != 'ens'}
+    // (196:61) {#if entryType != 'ens'}
     function create_if_block_10(ctx) {
     	let t;
 
@@ -7934,14 +7804,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_10.name,
     		type: "if",
-    		source: "(165:61) {#if entryType != 'ens'}",
+    		source: "(196:61) {#if entryType != 'ens'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (179:18) {#if mediaType && mediaTypeIcon(mediaType)}
+    // (210:18) {#if mediaType && mediaTypeIcon(mediaType)}
     function create_if_block_7(ctx) {
     	let span;
     	let t_value = mediaTypeIcon(/*mediaType*/ ctx[22]) + "";
@@ -7951,8 +7821,8 @@ var app = (function (crypto) {
     		c: function create() {
     			span = element("span");
     			t = text(t_value);
-    			attr_dev(span, "class", "mediaType svelte-17kl44o");
-    			add_location(span, file$3, 179, 20, 5756);
+    			attr_dev(span, "class", "mediaType svelte-1yujyek");
+    			add_location(span, file$3, 210, 20, 6915);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7970,14 +7840,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_7.name,
     		type: "if",
-    		source: "(179:18) {#if mediaType && mediaTypeIcon(mediaType)}",
+    		source: "(210:18) {#if mediaType && mediaTypeIcon(mediaType)}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (183:18) {#if !isZetaSeek && mediaType == 'music'}
+    // (214:18) {#if !isZetaSeek && mediaType == 'music'}
     function create_if_block_6(ctx) {
     	let a;
     	let dispose;
@@ -7990,8 +7860,8 @@ var app = (function (crypto) {
     		c: function create() {
     			a = element("a");
     			a.textContent = "PLAY";
-    			attr_dev(a, "class", "button svelte-17kl44o");
-    			add_location(a, file$3, 183, 20, 5919);
+    			attr_dev(a, "class", "button svelte-1yujyek");
+    			add_location(a, file$3, 214, 20, 7078);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, a, anchor);
@@ -8010,14 +7880,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_6.name,
     		type: "if",
-    		source: "(183:18) {#if !isZetaSeek && mediaType == 'music'}",
+    		source: "(214:18) {#if !isZetaSeek && mediaType == 'music'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (187:18) {#if fileSizePretty}
+    // (218:18) {#if fileSizePretty}
     function create_if_block_5(ctx) {
     	let span;
     	let t_value = /*fileSizePretty*/ ctx[28] + "";
@@ -8027,8 +7897,8 @@ var app = (function (crypto) {
     		c: function create() {
     			span = element("span");
     			t = text(t_value);
-    			attr_dev(span, "class", "svelte-17kl44o");
-    			add_location(span, file$3, 187, 20, 6070);
+    			attr_dev(span, "class", "svelte-1yujyek");
+    			add_location(span, file$3, 218, 20, 7229);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -8046,14 +7916,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_5.name,
     		type: "if",
-    		source: "(187:18) {#if fileSizePretty}",
+    		source: "(218:18) {#if fileSizePretty}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (127:14) {#each providerResponse.results as {filePath, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty}}
+    // (158:14) {#each providerResponse.results as {filePath, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty}}
     function create_each_block_1(ctx) {
     	let div;
     	let t0;
@@ -8095,8 +7965,8 @@ var app = (function (crypto) {
     			if (if_block5) if_block5.c();
     			t5 = space();
     			if (if_block6) if_block6.c();
-    			attr_dev(div, "class", "result svelte-17kl44o");
-    			add_location(div, file$3, 127, 16, 3952);
+    			attr_dev(div, "class", "result svelte-1yujyek");
+    			add_location(div, file$3, 158, 16, 5111);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -8217,14 +8087,14 @@ var app = (function (crypto) {
     		block,
     		id: create_each_block_1.name,
     		type: "each",
-    		source: "(127:14) {#each providerResponse.results as {filePath, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty}}",
+    		source: "(158:14) {#each providerResponse.results as {filePath, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty}}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (200:14) {#if providerResponse.meta.pageNumber}
+    // (228:14) {#if providerResponse.meta.pageNumber}
     function create_if_block_3(ctx) {
     	let div;
     	let t0;
@@ -8242,10 +8112,10 @@ var app = (function (crypto) {
     			t1 = text(t1_value);
     			t2 = space();
     			if (if_block) if_block.c();
-    			attr_dev(span, "class", "svelte-17kl44o");
-    			add_location(span, file$3, 200, 49, 6552);
-    			attr_dev(div, "class", "results_count svelte-17kl44o");
-    			add_location(div, file$3, 200, 16, 6519);
+    			attr_dev(span, "class", "svelte-1yujyek");
+    			add_location(span, file$3, 228, 49, 7555);
+    			attr_dev(div, "class", "results_count svelte-1yujyek");
+    			add_location(div, file$3, 228, 16, 7522);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -8279,14 +8149,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_3.name,
     		type: "if",
-    		source: "(200:14) {#if providerResponse.meta.pageNumber}",
+    		source: "(228:14) {#if providerResponse.meta.pageNumber}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (202:18) {#if providerResponse.meta.hasMore}
+    // (230:18) {#if providerResponse.meta.hasMore}
     function create_if_block_4(ctx) {
     	let a;
 
@@ -8295,7 +8165,7 @@ var app = (function (crypto) {
     			a = element("a");
     			a.textContent = "Next page";
     			attr_dev(a, "href", "next_page");
-    			add_location(a, file$3, 202, 20, 6674);
+    			add_location(a, file$3, 230, 20, 7677);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, a, anchor);
@@ -8309,14 +8179,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_4.name,
     		type: "if",
-    		source: "(202:18) {#if providerResponse.meta.hasMore}",
+    		source: "(230:18) {#if providerResponse.meta.hasMore}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (102:6) {#each searchResults as providerResponse}
+    // (133:6) {#each searchResults as providerResponse}
     function create_each_block(ctx) {
     	let if_block_anchor;
     	let if_block = /*providerResponse*/ ctx[15].results && /*providerResponse*/ ctx[15].results.length > 0 && create_if_block_1(ctx);
@@ -8354,7 +8224,7 @@ var app = (function (crypto) {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(102:6) {#each searchResults as providerResponse}",
+    		source: "(133:6) {#each searchResults as providerResponse}",
     		ctx
     	});
 
@@ -8389,8 +8259,8 @@ var app = (function (crypto) {
     			$$inline: true
     		});
 
-    	let if_block0 = /*isLocalhost*/ ctx[8] && create_if_block_24(ctx);
-    	const if_block_creators = [create_if_block_22, create_else_block_5];
+    	let if_block0 = /*isLocalhost*/ ctx[8] && create_if_block_22(ctx);
+    	const if_block_creators = [create_if_block_20, create_else_block_4];
     	const if_blocks = [];
 
     	function select_block_type(ctx, dirty) {
@@ -8426,24 +8296,24 @@ var app = (function (crypto) {
     			if (if_block2) if_block2.c();
     			if (img.src !== (img_src_value = "/apps/zeta/img/zeta_logo.png")) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "zeta logo");
-    			attr_dev(img, "class", "svelte-17kl44o");
-    			add_location(img, file$3, 76, 4, 2061);
-    			attr_dev(div0, "class", "logo svelte-17kl44o");
-    			add_location(div0, file$3, 75, 2, 2038);
-    			attr_dev(p, "class", "connection_status svelte-17kl44o");
+    			attr_dev(img, "class", "svelte-1yujyek");
+    			add_location(img, file$3, 107, 4, 3211);
+    			attr_dev(div0, "class", "logo svelte-1yujyek");
+    			add_location(div0, file$3, 106, 2, 3188);
+    			attr_dev(p, "class", "connection_status svelte-1yujyek");
     			toggle_class(p, "ok", /*connected*/ ctx[7]);
-    			add_location(p, file$3, 79, 2, 2130);
+    			add_location(p, file$3, 110, 2, 3280);
     			attr_dev(input, "id", "searchInput");
     			attr_dev(input, "placeholder", "Please type your query ...");
-    			attr_dev(input, "class", "svelte-17kl44o");
-    			add_location(input, file$3, 95, 4, 2466);
-    			attr_dev(div1, "class", "noResults svelte-17kl44o");
+    			attr_dev(input, "class", "svelte-1yujyek");
+    			add_location(input, file$3, 126, 4, 3616);
+    			attr_dev(div1, "class", "noResults svelte-1yujyek");
     			toggle_class(div1, "visible", /*noSearchHits*/ ctx[2]);
-    			add_location(div1, file$3, 97, 4, 2646);
-    			attr_dev(div2, "class", "search svelte-17kl44o");
-    			add_location(div2, file$3, 93, 2, 2440);
-    			attr_dev(main, "class", "svelte-17kl44o");
-    			add_location(main, file$3, 69, 0, 1984);
+    			add_location(div1, file$3, 128, 4, 3796);
+    			attr_dev(div2, "class", "search svelte-1yujyek");
+    			add_location(div2, file$3, 124, 2, 3590);
+    			attr_dev(main, "class", "svelte-1yujyek");
+    			add_location(main, file$3, 100, 0, 3134);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -8568,6 +8438,36 @@ var app = (function (crypto) {
     	return block;
     }
 
+    function displayResultsMeta(providerResponse) {
+    	if (providerResponse.error) {
+    		return colors.red(`⚠️  Error: ${providerResponse.error}`);
+    	}
+
+    	const { meta } = providerResponse;
+    	const { page, noMorePages, resultCount, resultsFrom, resultsTo, searchTimePretty, networkTimePretty } = meta;
+    	let time = "";
+
+    	if (searchTimePretty) {
+    		time += colors.gray(` · ${colors.gray("fs")} ${colors.white(searchTimePretty)}`);
+    	}
+
+    	if (networkTimePretty) {
+    		time += colors.gray(` · ${colors.gray("network")} ${colors.white(networkTimePretty)}`);
+    	}
+
+    	if (resultCount > 0) {
+    		if (page == 1 && noMorePages) {
+    			return colors.white(`${resultCount} ${resultCount == 1 ? "result" : "results"}${time}`);
+    		}
+
+    		const isLastPage = noMorePages ? colors.white(" (last page)") : "";
+    		const resultsDescription = `${colors.white(`Results ${resultsFrom} to ${resultsTo}`)}`;
+    		return colors.gray(`${colors.white(`Page ${page}`)}${isLastPage} → ${resultsDescription}${time}`);
+    	}
+
+    	return colors.gray(`No ${page > 1 ? "more " : ""}results${time}`);
+    }
+
     function instance$3($$self, $$props, $$invalidate) {
     	let $store,
     		$$unsubscribe_store = noop$2,
@@ -8622,7 +8522,8 @@ var app = (function (crypto) {
     				searchQuery,
     				remoteObject,
     				remoteMethod,
-    				searchStatusCallback
+    				searchStatusCallback,
+    				searchDelay: 400
     			}).then(searchResults => {
     				store.set({ searchResults });
     			}).catch(e => {
@@ -8669,6 +8570,7 @@ var app = (function (crypto) {
     		Escape,
     		executeSearch,
     		ansicolor,
+    		colors,
     		mediaTypeIcon,
     		onMount,
     		About,
@@ -8682,6 +8584,7 @@ var app = (function (crypto) {
     		searchInput,
     		searchInputChanged,
     		play,
+    		displayResultsMeta,
     		searchResults,
     		$store,
     		connected
