@@ -2,8 +2,4 @@ zeta:
 
   contentProviders:
 
-    content: @this
-
-    content: @this/swarm
-
     content: zeta.eth

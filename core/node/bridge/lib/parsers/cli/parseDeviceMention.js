@@ -54,7 +54,7 @@ function parseDeviceMention(attrData) {
   }
 
   if (attrData.afterSlash) {
-    data.contentRef = attrData.afterSlash;
+    data.contentId = attrData.afterSlash;
   }
 
   if (attrData.afterColon) {

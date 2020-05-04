@@ -3,7 +3,7 @@ function basicMetaInfo(provider) {
     providerHost: provider.providerHost,
     providerAddress: provider.providerAddress,
     providerPort: provider.providerPort,
-    contentId: provider.localContentId
+    contentId: provider.contentId
   };
 }
 

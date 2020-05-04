@@ -32,10 +32,6 @@ function parseArgs(allArgs) {
       .filter(k => k.host)
   );
 
-  if (atDevices.length == 0) {
-    atDevices.push(parseDeviceMention(parser(['@this'])[0]));
-  }
-
   const attributeOptions = {};
 
   atArguments

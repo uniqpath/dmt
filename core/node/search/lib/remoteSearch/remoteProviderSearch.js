@@ -12,7 +12,7 @@ class RemoteProviderSearch {
     this.providerHost = provider.host;
     this.providerAddress = provider.address;
     this.providerPort = provider.port;
-    this.localContentId = provider.contentRef;
+    this.contentId = provider.contentId;
     this.localhost = provider.localhost;
   }
 
@@ -24,12 +24,12 @@ class RemoteProviderSearch {
     return response;
   }
 
-  search({ terms, clientMaxResults, page, mediaType, contentRef }) {
-    const contentId = contentRef || this.localContentId;
+  search({ terms, clientMaxResults, page, mediaType }) {
+    const { contentId } = this;
 
     return new Promise((success, reject) => {
       if (!this.localhost) {
-        const args = serializeArgs({ terms, mediaType, count: clientMaxResults, page, contentRef: contentId });
+        const args = serializeArgs({ terms, mediaType, count: clientMaxResults, page, contentId });
 
         const start = stopwatchAdv.start();
 

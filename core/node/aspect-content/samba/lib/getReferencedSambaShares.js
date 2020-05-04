@@ -27,7 +27,7 @@ function getReferencedSambaShares() {
 
   for (const provider of providers.filter(p => !p.localhost && p.hostType == 'dmt')) {
     const deviceId = provider.host;
-    const contentId = provider.contentRef;
+    const { contentId } = provider;
 
     const { sambaShare, sambaPath } = dmtContent.contentPaths({ contentId, deviceId, returnSambaSharesInfo: true });
 

@@ -1,5 +1,5 @@
 import dmt from 'dmt/bridge';
-const { log } = dmt;
+const { log, dmtContent } = dmt;
 
 import { parseArgs } from '../../lib/utils/args';
 
@@ -12,6 +12,10 @@ function search({ args, method }, { program }) {
     const options = parseArgs({ args: query, actorName: 'search' });
 
     const { atDevices: contentProviders } = options;
+
+    if (contentProviders.length == 0) {
+      contentProviders.push(dmtContent.localDefaultContent());
+    }
 
     delete options.atDevices;
 

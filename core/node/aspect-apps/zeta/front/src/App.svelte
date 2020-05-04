@@ -6,10 +6,13 @@
   import About from './components/About.svelte';
   import Spinner from 'svelte-spinner';
 
+  // use: https://www.rgbtohex.net/hextorgb/
   ansicolor.rgb = {
     black: [0, 0, 0],
     darkGray: [180, 180, 180],
-    cyan: [255, 255, 255]
+    //cyan: [255, 255, 255]
+    cyan:         [37,176,188],
+    lightCyan:    [0, 204, 255]
   };
 
   export let store;
@@ -149,7 +152,7 @@
           <div class="results">
             <!-- @provider/contentId -->
             <h3>
-              {providerResponse.meta.providerHost}<span class="contentId">{#if providerResponse.meta.contentId}/{providerResponse.meta.contentId}{/if}</span>
+              @{providerResponse.meta.providerHost}<span class="contentId">{#if providerResponse.meta.contentId}/{providerResponse.meta.contentId}{/if}</span>
 
               <!-- {#if !providerResponse.error}
                 <span class="searchTime">fs <span class="value">{providerResponse.meta.searchTimePretty}</span>

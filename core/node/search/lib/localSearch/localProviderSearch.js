@@ -13,7 +13,7 @@ class LocalProviderSearch {
   constructor({ provider }) {
     this.providerHost = provider.host;
     this.providerAddress = provider.address;
-    this.localContentId = provider.contentRef;
+    this.contentId = provider.contentId;
     this.localhost = provider.localhost;
   }
 
@@ -26,8 +26,8 @@ class LocalProviderSearch {
     }
   }
 
-  search({ terms, page, clientMaxResults, mediaType, contentRef }) {
-    const contentId = contentRef || this.localContentId;
+  search({ terms, page, clientMaxResults, mediaType }) {
+    const { contentId } = this;
     const options = { terms, clientMaxResults, page, mediaType, contentId };
 
     return new Promise((success, reject) => {

@@ -88,7 +88,9 @@ export default {
   apInfo,
   accessPointIP,
   suntime,
+
   loop: util.periodicRepeat,
+
   guiViews: () => {
     const viewsDefFile = path.join(helper.dmtPath, 'def/gui_views.def');
     return def.values(helper.parseDef(viewsDefFile, { caching: false }).multi);
@@ -97,6 +99,8 @@ export default {
   isInstalled() {
     return fs.existsSync(helper.dmtPath);
   },
+
+  deviceDefFile: helper.deviceDefFile,
 
   parseDef(...args) {
     return helper.parseDef(...args);

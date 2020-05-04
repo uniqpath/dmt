@@ -11,9 +11,8 @@ function parseArgs({ args, actorName, defaultMediaType }) {
 
     const mediaType = attributeOptions.media || defaultMediaType;
     const clientMaxResults = attributeOptions.count;
-    const { contentRef } = attributeOptions;
 
-    args = { terms, mediaType, page, clientMaxResults, atDevices, contentRef };
+    args = { terms, mediaType, page, clientMaxResults, atDevices };
   }
 
   const { serverMaxResults } = maxResults(actorName);
@@ -22,7 +21,7 @@ function parseArgs({ args, actorName, defaultMediaType }) {
   return { ...args, ...{ clientMaxResults } };
 }
 
-function serializeArgs({ terms, mediaType, page, count, contentRef }) {
+function serializeArgs({ terms, mediaType, page, count, contentId }) {
   const list = util.clone(terms);
 
   if (mediaType) {
@@ -37,11 +36,29 @@ function serializeArgs({ terms, mediaType, page, count, contentRef }) {
     list.push(`@count=${count}`);
   }
 
-  if (contentRef) {
-    list.push(`@contentRef=${contentRef}`);
+  if (contentId) {
+    list.push(`@this/${contentId}`);
   }
 
   return list.join(' ');
 }
 
-export { parseArgs, serializeArgs };
+function serializeContentRefs(atDevices) {
+  return atDevices
+    .map(({ address, port, contentId, hostType, host }) => {
+      let contentRef = hostType == 'dmt' ? `@${host}` : `@${address}`;
+
+      if (port) {
+        contentRef = `${contentRef}:${port}`;
+      }
+
+      if (contentId) {
+        contentRef = `${contentRef}/${contentId}`;
+      }
+
+      return contentRef;
+    })
+    .join(' ');
+}
+
+export { parseArgs, serializeArgs, serializeContentRefs };

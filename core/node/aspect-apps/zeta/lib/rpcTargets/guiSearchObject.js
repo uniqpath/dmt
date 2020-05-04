@@ -1,3 +1,5 @@
+import dmt from 'dmt/bridge';
+import { parseArgs, serializeContentRefs } from 'dmt/search';
 import getContentProviders from '../getContentProviders';
 
 class GUISearchObject {
@@ -8,11 +10,19 @@ class GUISearchObject {
 
   search({ query, searchOriginHost }) {
     return new Promise(success => {
-      const providers = getContentProviders();
+      const { terms, mediaType, clientMaxResults, page, atDevices } = parseArgs({ args: query });
+
+      let providers = '';
+
+      if (atDevices.length > 0 && dmt.isDevMachine()) {
+        providers = serializeContentRefs(atDevices);
+      } else {
+        providers = getContentProviders().join(' ');
+      }
 
       this.program
         .actor('search')
-        .call('search', { query: `${providers.join(' ')} @count=10 ${query}`, searchOriginHost })
+        .call('search', { query: `${terms} ${providers} @count=10`, searchOriginHost })
         .then(responses => {
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           this.program.emit('zeta::user_search', { query, totalHits });

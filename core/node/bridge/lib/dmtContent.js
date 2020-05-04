@@ -24,6 +24,10 @@ function parseContentRefs(contentRefs) {
   return cliParser(contentRefs).map(parsed => parseDeviceMention(parsed));
 }
 
+function localDefaultContent() {
+  return parseDeviceMention(cliParser(['@this'])[0]);
+}
+
 function readContentDef({ filePath }) {
   try {
     if (!fs.existsSync(filePath)) {
@@ -78,4 +82,4 @@ function contentPaths({ contentId, deviceId = 'this', returnSambaSharesInfo = fa
   }
 }
 
-export { parseDeviceMention, parseContentRefs, getContentIDs, contentPaths };
+export { parseDeviceMention, localDefaultContent, parseContentRefs, getContentIDs, contentPaths };
