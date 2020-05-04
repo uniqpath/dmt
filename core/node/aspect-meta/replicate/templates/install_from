@@ -100,11 +100,10 @@ cwd="`pwd`"
 
 cd $(mktemp -d)
 
-printf "${MAGENTA}Fetching from ${CYAN}{{host}}${NC} ...\n\n"
+printf "${MAGENTA}Streaming file from ${CYAN}{{host}}${NC} ...\n\n"
 printf "${YELLOW}Please wait for up to a minute even if nothing seems to be happening ...${NC}\n"
-curl -L {{protocol}}://{{host}}/dmt.zip -o dmt.zip
 
-if [ -f dmt.zip ]; then
+if curl -L --fail {{protocol}}://{{host}}/dmt.zip -o dmt.zip; then
 
   now=$(date +"%Y-%m-%dT%H-%M-%S")
 

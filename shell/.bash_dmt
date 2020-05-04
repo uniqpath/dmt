@@ -1015,37 +1015,73 @@ function dmt_next {
   # user:
   #  dmtSource: [dmtSource]
 
-  if [ "$1" == "--help" ] || [  "$1" == "-h" ]; then
-    dmt_next_help
-    return
-  else
-    printf "${GRAY}To read help for this command use: ${GREEN}dmt next -h${NC}\n"
-    echo
-  fi
-
   local dry_run=false
+  local fetch=false
+  local reflect_version=false
+
+  ARGS=()
+  while (( "$#" )); do
+    case "$1" in
+      --dry)
+        dry_run=true
+        shift 1
+        ;;
+      --fetch)
+        fetch=true
+        shift 1
+        ;;
+      --help)
+        dmt_next_help
+        return
+        ;;
+      -h)
+        dmt_next_help
+        return
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        printf "${RED}Error: Unsupported flag ${YELLOW}$1${NC}\n"
+        #echo ""
+        return
+        ;;
+      *) # preserve positional arguments
+        ARGS+=($1)
+        shift
+        ;;
+    esac
+  done
 
   # dmt next --dry
   # dmt next --dry url.com
-  if [ "$1" == "--dry" ]; then
-    dry_run=true
-    shift
-  fi
+  # if [ "$1" == "--dry" ]; then
+  #   dry_run=true
+  #   shift
+  # fi
 
-  # dmt next url.com --dry
-  if [ "$2" == "--dry" ]; then
-    dry_run=true
-  fi
+  # # dmt next url.com --dry
+  # if [ "$2" == "--dry" ]; then
+  #   dry_run=true
+  # fi
 
   # 1) dmtSource from argument
-  local arg="$1"
+  local arg=${ARGS[0]}
+
+  # if [ "$arg" == "--help" ] || [  "$arg" == "-h" ]; then
+  #   #dmt_next_help
+  #   return
+  # else
+  #   printf "${GRAY}To read help for this command use: ${GREEN}dmt next -h${NC}\n"
+  # fi
 
   # 2) dmtSource from user.def
   local dmt_source="$arg"
 
   if [ -n "$dmt_source" ]; then
     if $dry_run; then
-      printf "${CYAN}1)${NC} ${MAGENTA}dmtSource${NC} provided as argument: ${MAGENTA}${dmt_source}${NC}.\n"
+      printf "${CYAN}1)${NC} ${MAGENTA}dmtSource${NC} provided as argument: ${MAGENTA}${dmt_source}${NC}\n"
     fi
   else
     if $dry_run; then
@@ -1111,18 +1147,66 @@ function dmt_next {
     return
   fi
 
-  # possible safeguard
+  # FETCHING ONLY ------------
+
+  if $fetch; then
+    local dir=~/.dmt/state
+
+    if [ -d "$dir" ]; then
+      local cwd="`pwd`"
+      cd "$dir"
+
+      local fetched_file="dmt_in_progress.zip"
+
+      if [ -f $fetched_file ]; then
+        printf "${YELLOW}REMOVING FIRST${NC}\n"
+        rm $fetched_file
+      fi
+
+      printf "${GREEN}Fetching ${MAGENTA}dmt.zip${NC} from ${CYAN}${dmt_source}${NC} → ${YELLOW}${dir}${NC} ... ${NC}\n"
+
+      if curl -L --fail "${dmt_source}/dmt.zip" -o $fetched_file; then
+        mv $fetched_file dmt.zip
+        echo
+        printf "${GREEN}✓ Fetched file ${YELLOW}${dir}/dmt.zip${NC}\n"
+        printf "${GRAY}It will be served on ${dmt_source}/dmt.zip requests as long as it stays in this folder${NC}\n"
+        printf "${GRAY}instead of process self-replication via streaming archiver.${NC}\n"
+        echo
+        printf "${GRAY}Saving corresponding version number of dmt.zip contents...${NC}\n"
+        # a bit of duplication
+        local remoteVersion=$(curl "$dmt_source"/version 2>/dev/null)
+
+        if [[ "$remoteVersion" =~ "■" ]]; then # 1.1.2 ■ 2020-05-03
+          echo "$remoteVersion" > dmt.zip.version.txt
+        else
+          printf "⚠️  ${YELLOW}Failed to fetch remote version ...${NC}\n"
+        fi
+      else
+        echo
+        printf "${RED}Failed to fetch ${YELLOW}${dir}/dmt.zip ${RED}✖${NC}\n"
+      fi
+
+      cd "$cwd"
+    else
+      printf "${RED}${dir} directory does not exist, aborting.${NC}\n"
+    fi
+
+    # end of fetch option
+    return
+  fi
+
+  # Safeguard
   if [ -f ~/.dmt/.prevent_dmt_next ]; then
     printf "${RED}Prevented operation because ~/.dmt/.prevent_dmt_next file is present, please remove it to continue${NC}\n"
     return
   fi
 
-  # ------------
+  # ---------------------------
 
   if [ "$dmt_source" == "get-dmt.com" ]; then
 
+    # a bit of duplication
     local remoteVersion=$(curl http://get-dmt.com/version 2>/dev/null)
-    #local remoteVersion=$(curl http://localhost:1111/version 2>/dev/null)
 
     if [[ ! "$remoteVersion" =~ "■" ]]; then # 1.1.2 ■ 2020-05-03
       printf "${MAGENTA}get-dmt.com${NC} ${RED}server is currently not accessible...\n"

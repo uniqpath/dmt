@@ -7,13 +7,12 @@ import path from 'path';
 import dmt from 'dmt/bridge';
 const { log } = dmt;
 
-import serveDmtZip from './endpoints/serveDmtZip';
+import streamDmtZip from './endpoints/streamDmtZip';
 import serveInstallScript from './endpoints/serveInstallScript';
 import serveLogo from './endpoints/serveLogo';
 import serveWallpaper from './endpoints/serveWallpaper';
 
-function dmtVersion() {
-  const versionFile = path.join(dmt.dmtPath, '.version');
+function dmtVersion(versionFile = path.join(dmt.dmtPath, '.version')) {
   if (fs.existsSync(versionFile)) {
     return fs
       .readFileSync(versionFile)
@@ -32,11 +31,23 @@ function serverInit({ app, program, port, replicateUserCodeTransform, replicateE
   });
 
   app.get('/dmt.zip', (req, res) => {
-    serveDmtZip({ req, res, program, files, replicateUserCodeTransform, replicateExcludedByUser });
+    const existingDmtZipFilePath = path.join(dmt.dmtPath, 'state/dmt.zip');
+    if (fs.existsSync(existingDmtZipFilePath)) {
+      log.green(`Serving existing dmt.zip file from ${existingDmtZipFilePath}`);
+      res.sendFile(existingDmtZipFilePath);
+      program.emit('replicate:finished', { host: req.headers.host });
+    } else {
+      streamDmtZip({ req, res, program, files, replicateUserCodeTransform, replicateExcludedByUser });
+    }
   });
 
   app.get('/version', (req, res) => {
-    res.send(dmtVersion());
+    const fetchedVersion = dmtVersion(path.join(dmt.dmtPath, 'state/dmt.zip.version.txt'));
+    if (fs.existsSync(path.join(dmt.dmtPath, 'state/dmt.zip')) && fetchedVersion) {
+      res.send(fetchedVersion);
+    } else {
+      res.send(dmtVersion());
+    }
   });
 
   app.get('/wallpaper.jpg', serveWallpaper);

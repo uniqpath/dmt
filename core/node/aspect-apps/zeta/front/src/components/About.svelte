@@ -12,7 +12,7 @@ const isZetaSeek = window.location.hostname == 'zetaseek.com';
     <b>Zeta</b> <span>PoC v0.1.1</span>
 
     <p>
-      A new p2p digital era is slowly arriving.
+      Search with <b>maximum speed and convenience</b>.
     </p>
 
     <p>
@@ -20,7 +20,35 @@ const isZetaSeek = window.location.hostname == 'zetaseek.com';
     </p>
 
     <p>
-      <b>zetaseek.com</b> is one useful instance of Zeta knowledge node.
+      <i>— A new p2p digital era is slowly arriving —</i>
+    </p>
+
+    <p>
+      Search your computers first — fast and secure:
+    </p>
+
+    <p>
+      <b>Zeta</b> works best as a local app → <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta">try it today</a> and improve your life.
+    </p>
+
+    <!-- <p>
+      <b>zetaseek.com</b> is one example Zeta node which searches a few computers.
+    </p> -->
+
+    <!-- <h3>Coming this year in v2.0</h3>
+
+    <p>
+      Share information with people you trust securely.
+    </p> -->
+
+
+
+    <!-- <b style="color: #50806C;">
+      Next level:
+    </b> -->
+
+    <p>
+
     </p>
 
     <!-- <p>

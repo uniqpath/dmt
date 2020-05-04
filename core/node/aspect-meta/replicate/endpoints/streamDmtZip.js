@@ -111,7 +111,7 @@ function filterOutDevGui(fileInfo) {
   return true;
 }
 
-function deliverDmtZip({ req, res, program, files, replicateExcludedByUser, replicateUserCodeTransform }) {
+function streamDmtZip({ req, res, program, files, replicateExcludedByUser, replicateUserCodeTransform }) {
   if (files.length == 0) {
     files.push(...dmtFilesAndSymlinks({ replicateExcludedByUser }));
   }
@@ -154,4 +154,4 @@ function deliverDmtZip({ req, res, program, files, replicateExcludedByUser, repl
   archive.finalize();
 }
 
-export default deliverDmtZip;
+export default streamDmtZip;

@@ -1434,7 +1434,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (70:2) {:else}
+	// (72:2) {:else}
 	function create_else_block_2(component, ctx) {
 		var div, current;
 
@@ -1443,8 +1443,8 @@ var app = (function (crypto) {
 				div = createElement("div");
 				div.textContent = "✖";
 				div.id = "broken_connection";
-				div.className = "svelte-1l1ebh5";
-				addLoc(div, file$3, 70, 4, 2516);
+				div.className = "svelte-1e014dh";
+				addLoc(div, file$3, 72, 4, 2622);
 			},
 
 			m: function mount(target, anchor) {
@@ -1518,26 +1518,26 @@ var app = (function (crypto) {
 				text7 = createText("\n\n      ");
 				div5 = createElement("div");
 				if (if_block2) if_block2.c();
-				text8 = createText("\n\n      ");
+				text8 = createText("\n\n      \n\n      ");
 				addListener(div0, "click", click_handler);
-				div0.className = "player svelte-1l1ebh5";
+				div0.className = "player svelte-1e014dh";
 				toggleClass(div0, "touch_pressed", ctx.touchPressed == 'player');
 				addLoc(div0, file$3, 6, 8, 134);
 				addListener(div1, "click", click_handler_1);
-				div1.className = "clock svelte-1l1ebh5";
+				div1.className = "clock svelte-1e014dh";
 				toggleClass(div1, "touch_pressed", ctx.touchPressed == 'clock');
 				addLoc(div1, file$3, 7, 8, 250);
-				div2.className = "options svelte-1l1ebh5";
+				div2.className = "options svelte-1e014dh";
 				addLoc(div2, file$3, 5, 6, 104);
 				addListener(div3, "click", click_handler_2);
-				div3.className = "device svelte-1l1ebh5";
+				div3.className = "device svelte-1e014dh";
 				toggleClass(div3, "touch_pressed", ctx.touchPressed == 'device');
 				addLoc(div3, file$3, 33, 8, 1237);
-				div4.className = "options svelte-1l1ebh5";
+				div4.className = "options svelte-1e014dh";
 				addLoc(div4, file$3, 27, 6, 936);
-				div5.className = "deviceInfo svelte-1l1ebh5";
+				div5.className = "deviceInfo svelte-1e014dh";
 				addLoc(div5, file$3, 36, 6, 1365);
-				div6.className = "selector svelte-1l1ebh5";
+				div6.className = "selector svelte-1e014dh";
 				toggleClass(div6, "nonRPi", !ctx.atRPi);
 				addLoc(div6, file$3, 3, 4, 52);
 			},
@@ -1676,14 +1676,14 @@ var app = (function (crypto) {
 				div1 = createElement("div");
 				div1.textContent = "Ambience";
 				addListener(div0, "click", click_handler);
-				div0.className = "calendar svelte-1l1ebh5";
+				div0.className = "calendar svelte-1e014dh";
 				toggleClass(div0, "touch_pressed", ctx.touchPressed == 'calendar');
 				addLoc(div0, file$3, 12, 10, 433);
 				addListener(div1, "click", click_handler_1);
-				div1.className = "ambience svelte-1l1ebh5";
+				div1.className = "ambience svelte-1e014dh";
 				toggleClass(div1, "touch_pressed", ctx.touchPressed == 'ambience');
 				addLoc(div1, file$3, 13, 10, 559);
-				div2.className = "options svelte-1l1ebh5";
+				div2.className = "options svelte-1e014dh";
 				addLoc(div2, file$3, 11, 8, 401);
 			},
 
@@ -1725,7 +1725,7 @@ var app = (function (crypto) {
 				div = createElement("div");
 				div.textContent = "Help";
 				addListener(div, "click", click_handler);
-				div.className = "help svelte-1l1ebh5";
+				div.className = "help svelte-1e014dh";
 				toggleClass(div, "touch_pressed", ctx.touchPressed == 'help');
 				addLoc(div, file$3, 31, 10, 1115);
 			},
@@ -1763,7 +1763,7 @@ var app = (function (crypto) {
 				div = createElement("div");
 				div.textContent = "Apps";
 				addListener(div, "click", click_handler);
-				div.className = "apps svelte-1l1ebh5";
+				div.className = "apps svelte-1e014dh";
 				toggleClass(div, "touch_pressed", ctx.touchPressed == 'apps');
 				addLoc(div, file$3, 29, 10, 989);
 			},
@@ -1879,9 +1879,9 @@ var app = (function (crypto) {
 				text3 = createText("\n\n            ");
 				if (if_block) if_block.c();
 				if_block_anchor = createComment();
-				span.className = "ap_mode svelte-1l1ebh5";
+				span.className = "ap_mode svelte-1e014dh";
 				addLoc(span, file$3, 42, 53, 1672);
-				div.className = "deviceId svelte-1l1ebh5";
+				div.className = "deviceId svelte-1e014dh";
 				addLoc(div, file$3, 42, 12, 1631);
 			},
 
@@ -1963,9 +1963,9 @@ var app = (function (crypto) {
 				text1 = createText("\n            ");
 				div1 = createElement("div");
 				text2 = createText(text2_value);
-				div0.className = "deviceId svelte-1l1ebh5";
+				div0.className = "deviceId svelte-1e014dh";
 				addLoc(div0, file$3, 39, 12, 1472);
-				div1.className = "ip svelte-1l1ebh5";
+				div1.className = "ip svelte-1e014dh";
 				addLoc(div1, file$3, 40, 12, 1546);
 			},
 
@@ -2028,7 +2028,7 @@ var app = (function (crypto) {
 				text1 = createText("\n\n              ");
 				if (if_block1) if_block1.c();
 				if_block1_anchor = createComment();
-				div.className = "ip svelte-1l1ebh5";
+				div.className = "ip svelte-1e014dh";
 				addLoc(div, file$3, 45, 14, 1787);
 			},
 
@@ -2153,7 +2153,7 @@ var app = (function (crypto) {
 			c: function create() {
 				div = createElement("div");
 				apwificredentials._fragment.c();
-				div.className = "ap_wifi_info svelte-1l1ebh5";
+				div.className = "ap_wifi_info svelte-1e014dh";
 				addLoc(div, file$3, 57, 16, 2198);
 			},
 
