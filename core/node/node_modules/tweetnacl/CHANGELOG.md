@@ -1,6 +1,33 @@
 TweetNaCl.js Changelog
 ======================
 
+v1.0.3
+------
+
+***IMPORTANT BUG FIX***. Due to a bug in calculating carry in
+modulo reduction that used bit operations on integers larger than
+32 bits, `nacl.sign` or `nacl.sign.detached` could have created
+incorrect signatures.
+
+This only affects signing, not verification.
+
+Thanks to @valerini on GitHub for finding and reporting the bug.
+
+
+v1.0.2
+------
+
+Exported more internal undocumented functions for
+third-party projects that rely on low-level interface,
+(something users of TweetNaCl shouldn't care about).
+
+
+v1.0.1
+------
+
+Updated documentation and typings.
+
+
 v1.0.0
 ------
 
