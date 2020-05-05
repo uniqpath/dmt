@@ -80,6 +80,7 @@ export default {
   textfileParsers,
   numberRanges,
   prettyFileSize,
+  suntime,
   prettyMicroTime,
   prettyMacroTime,
   stopwatch,
@@ -87,7 +88,6 @@ export default {
   apMode,
   apInfo,
   accessPointIP,
-  suntime,
 
   loop: util.periodicRepeat,
 
@@ -101,6 +101,7 @@ export default {
   },
 
   deviceDefFile: helper.deviceDefFile,
+  dateFns: helper.dateFns,
 
   parseDef(...args) {
     return helper.parseDef(...args);

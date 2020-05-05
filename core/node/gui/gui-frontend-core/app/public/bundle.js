@@ -5756,7 +5756,7 @@ var app = (function (crypto) {
 	    carry = 0;
 	    for (j = i - 32, k = i - 12; j < k; ++j) {
 	      x[j] += carry - 16 * x[i] * L[j - (i - 32)];
-	      carry = (x[j] + 128) >> 8;
+	      carry = Math.floor((x[j] + 128) / 256);
 	      x[j] -= carry * 256;
 	    }
 	    x[j] += carry;
@@ -5857,12 +5857,11 @@ var app = (function (crypto) {
 	}
 
 	function crypto_sign_open(m, sm, n, pk) {
-	  var i, mlen;
+	  var i;
 	  var t = new Uint8Array(32), h = new Uint8Array(64);
 	  var p = [gf(), gf(), gf(), gf()],
 	      q = [gf(), gf(), gf(), gf()];
 
-	  mlen = -1;
 	  if (n < 64) return -1;
 
 	  if (unpackneg(q, pk)) return -1;
@@ -5884,8 +5883,7 @@ var app = (function (crypto) {
 	  }
 
 	  for (i = 0; i < n; i++) m[i] = sm[i + 64];
-	  mlen = n;
-	  return mlen;
+	  return n;
 	}
 
 	var crypto_secretbox_KEYBYTES = 32,
@@ -5946,7 +5944,23 @@ var app = (function (crypto) {
 	  crypto_sign_PUBLICKEYBYTES: crypto_sign_PUBLICKEYBYTES,
 	  crypto_sign_SECRETKEYBYTES: crypto_sign_SECRETKEYBYTES,
 	  crypto_sign_SEEDBYTES: crypto_sign_SEEDBYTES,
-	  crypto_hash_BYTES: crypto_hash_BYTES
+	  crypto_hash_BYTES: crypto_hash_BYTES,
+
+	  gf: gf,
+	  D: D,
+	  L: L,
+	  pack25519: pack25519,
+	  unpack25519: unpack25519,
+	  M: M,
+	  A: A,
+	  S: S,
+	  Z: Z,
+	  pow2523: pow2523,
+	  add: add,
+	  set25519: set25519,
+	  modL: modL,
+	  scalarmult: scalarmult,
+	  scalarbase: scalarbase,
 	};
 
 	/* High-level API */
@@ -6208,7 +6222,7 @@ var app = (function (crypto) {
 	  var util = {};
 
 	  function validateBase64(s) {
-	    if (!(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(s))) {
+	    if (!(/^(?:[A-Za-z0-9+\/]{2}[A-Za-z0-9+\/]{2})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/.test(s))) {
 	      throw new TypeError('invalid encoding');
 	    }
 	  }
@@ -19332,9 +19346,6 @@ var app = (function (crypto) {
 	  paste() {
 	    this.action('paste');
 	  },
-	  spaced() {
-	    this.action('toggle_spaced');
-	  },
 	  calculateTimeLimit(player) {
 	    return player.timeLimit > 2 ? `${Math.round(player.timeLimit)} min` : `${Math.round(player.timeLimit*60)} s`;
 	  }
@@ -19644,30 +19655,30 @@ var app = (function (crypto) {
 				addListener(input, "input", input_input_handler);
 				addListener(input, "keyup", keyup_handler);
 				addListener(input, "paste", paste_handler);
-				input.className = "search_input svelte-1k1p7bj";
+				input.className = "search_input svelte-pekjif";
 				input.placeholder = "Search media";
 				addLoc(input, file$m, 6, 6, 142);
 				addListener(button0, "click", click_handler);
-				button0.className = "media_type svelte-1k1p7bj";
+				button0.className = "media_type svelte-pekjif";
 				toggleClass(button0, "selected", ctx.mediaType != 'video');
 				addLoc(button0, file$m, 8, 6, 292);
 				addListener(button1, "click", click_handler_1);
-				button1.className = "media_type svelte-1k1p7bj";
+				button1.className = "media_type svelte-pekjif";
 				toggleClass(button1, "selected", ctx.mediaType == 'video');
 				addLoc(button1, file$m, 9, 6, 414);
 				addListener(button2, "click", click_handler_2);
-				button2.className = "action svelte-1k1p7bj";
+				button2.className = "action svelte-pekjif";
 				toggleClass(button2, "hidden", !hasSearchResults(ctx.$searchResults));
 				addLoc(button2, file$m, 11, 6, 537);
 				addListener(button3, "click", click_handler_3);
-				button3.className = "action svelte-1k1p7bj";
+				button3.className = "action svelte-pekjif";
 				toggleClass(button3, "hidden", !hasSearchResults(ctx.$searchResults));
 				addLoc(button3, file$m, 12, 6, 656);
 				addListener(button4, "click", click_handler_4);
-				button4.className = "action svelte-1k1p7bj";
+				button4.className = "action svelte-pekjif";
 				toggleClass(button4, "hidden", !hasSearchResults(ctx.$searchResults));
 				addLoc(button4, file$m, 13, 6, 771);
-				div.className = "search svelte-1k1p7bj";
+				div.className = "search svelte-pekjif";
 				addLoc(div, file$m, 5, 4, 115);
 			},
 
@@ -19763,7 +19774,7 @@ var app = (function (crypto) {
 				button = createElement("button");
 				button.textContent = "Clear";
 				addListener(button, "click", click_handler);
-				button.className = "clear svelte-1k1p7bj";
+				button.className = "clear svelte-pekjif";
 				addLoc(button, file$m, 16, 8, 941);
 			},
 
@@ -19800,7 +19811,7 @@ var app = (function (crypto) {
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
-				div.className = "search_results svelte-1k1p7bj";
+				div.className = "search_results svelte-pekjif";
 				addLoc(div, file$m, 20, 8, 1089);
 			},
 
@@ -19865,7 +19876,7 @@ var app = (function (crypto) {
 
 				text = createText("\n\n              ");
 				div = createElement("div");
-				div.className = "results_info_bottom svelte-1k1p7bj";
+				div.className = "results_info_bottom svelte-pekjif";
 				addLoc(div, file$m, 39, 14, 1930);
 			},
 
@@ -19926,7 +19937,7 @@ var app = (function (crypto) {
 				div = createElement("div");
 				text0 = createText("⚠️  Error: ");
 				text1 = createText(text1_value);
-				div.className = "provider_error svelte-1k1p7bj";
+				div.className = "provider_error svelte-pekjif";
 				addLoc(div, file$m, 28, 14, 1416);
 			},
 
@@ -19959,7 +19970,7 @@ var app = (function (crypto) {
 				span = createElement("span");
 				text = createText(text_value);
 				span.style.cssText = span_style_value = ctx.span.css;
-				span.className = "svelte-1k1p7bj";
+				span.className = "svelte-pekjif";
 				addLoc(span, file$m, 34, 81, 1748);
 			},
 
@@ -20005,7 +20016,7 @@ var app = (function (crypto) {
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
-				div.className = "result svelte-1k1p7bj";
+				div.className = "result svelte-pekjif";
 				addLoc(div, file$m, 34, 16, 1683);
 			},
 
@@ -20068,7 +20079,7 @@ var app = (function (crypto) {
 				text = createText("\n\n            ");
 				if_block.c();
 				if_block_anchor = createComment();
-				div.className = "provider_title svelte-1k1p7bj";
+				div.className = "provider_title svelte-pekjif";
 				addLoc(div, file$m, 23, 12, 1253);
 			},
 
@@ -20193,9 +20204,9 @@ var app = (function (crypto) {
 				div = createElement("div");
 				h1 = createElement("h1");
 				h1.textContent = "There is no player available in serverMode";
-				h1.className = "svelte-1k1p7bj";
+				h1.className = "svelte-pekjif";
 				addLoc(h1, file$m, 51, 6, 2197);
-				div.className = "player svelte-1k1p7bj";
+				div.className = "player svelte-pekjif";
 				addLoc(div, file$m, 50, 4, 2170);
 			},
 
@@ -20223,7 +20234,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (220:4) {:else}
+	// (218:4) {:else}
 	function create_else_block_4(component, ctx) {
 		var div, h1, text0_value = ctx.$player.error.msg, text0, text1, current;
 
@@ -20236,10 +20247,10 @@ var app = (function (crypto) {
 				text0 = createText(text0_value);
 				text1 = createText("\n        ");
 				if (if_block) if_block.c();
-				h1.className = "error svelte-1k1p7bj";
-				addLoc(h1, file$m, 221, 8, 11375);
-				div.className = "player svelte-1k1p7bj";
-				addLoc(div, file$m, 220, 6, 11346);
+				h1.className = "error svelte-pekjif";
+				addLoc(h1, file$m, 219, 8, 11059);
+				div.className = "player svelte-pekjif";
+				addLoc(div, file$m, 218, 6, 11030);
 			},
 
 			m: function mount(target, anchor) {
@@ -20378,25 +20389,25 @@ var app = (function (crypto) {
 				div3 = createElement("div");
 				ribbon._fragment.c();
 				addListener(button0, "click", click_handler);
-				button0.className = "volume svelte-1k1p7bj";
+				button0.className = "volume svelte-pekjif";
 				button0.disabled = button0_disabled_value = !ctx.$connected || ctx.$player.volume == 0;
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'volume_down');
-				addLoc(button0, file$m, 93, 10, 4757);
+				addLoc(button0, file$m, 91, 10, 4576);
 				addListener(button1, "click", click_handler_1);
-				button1.className = "volume svelte-1k1p7bj";
+				button1.className = "volume svelte-pekjif";
 				button1.disabled = button1_disabled_value = !ctx.$connected || ctx.$player.volume == 100;
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'volume_up');
-				addLoc(button1, file$m, 94, 10, 4928);
-				div0.className = "control svelte-1k1p7bj";
+				addLoc(button1, file$m, 92, 10, 4747);
+				div0.className = "control svelte-pekjif";
 				addLoc(div0, file$m, 58, 8, 2364);
-				div1.className = "time_position svelte-1k1p7bj";
-				addLoc(div1, file$m, 118, 8, 6691);
-				div2.className = "player svelte-1k1p7bj";
+				div1.className = "time_position svelte-pekjif";
+				addLoc(div1, file$m, 116, 8, 6510);
+				div2.className = "player svelte-pekjif";
 				toggleClass(div2, "nonRPi", !ctx.atRPi);
 				addLoc(div2, file$m, 57, 6, 2313);
 				div3.id = "player_ribbon";
-				div3.className = "svelte-1k1p7bj";
-				addLoc(div3, file$m, 216, 6, 11212);
+				div3.className = "svelte-pekjif";
+				addLoc(div3, file$m, 214, 6, 10896);
 			},
 
 			m: function mount(target, anchor) {
@@ -20592,7 +20603,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (223:8) {#if $player.error.type == 'mpv_binary_missing'}
+	// (221:8) {#if $player.error.type == 'mpv_binary_missing'}
 	function create_if_block_24(component, ctx) {
 		var if_block_anchor;
 
@@ -20633,7 +20644,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (226:10) {:else}
+	// (224:10) {:else}
 	function create_else_block_5(component, ctx) {
 		var a;
 
@@ -20642,8 +20653,8 @@ var app = (function (crypto) {
 				a = createElement("a");
 				a.textContent = "Please install from here";
 				a.href = "https://mpv.io/installation/";
-				a.className = "svelte-1k1p7bj";
-				addLoc(a, file$m, 226, 12, 11604);
+				a.className = "svelte-pekjif";
+				addLoc(a, file$m, 224, 12, 11288);
 			},
 
 			m: function mount(target, anchor) {
@@ -20658,7 +20669,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (224:10) {#if atRPi}
+	// (222:10) {#if atRPi}
 	function create_if_block_25(component, ctx) {
 		var text;
 
@@ -20735,7 +20746,7 @@ var app = (function (crypto) {
 				button = createElement("button");
 				text = createText("● Pause");
 				addListener(button, "click", click_handler);
-				button.className = "pause svelte-1k1p7bj";
+				button.className = "pause svelte-pekjif";
 				button.disabled = button_disabled_value = !ctx.$connected;
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'pause');
 				addLoc(button, file$m, 70, 14, 3023);
@@ -20822,7 +20833,7 @@ var app = (function (crypto) {
 				button = createElement("button");
 				text = createText("▶ Play");
 				addListener(button, "click", click_handler);
-				button.className = "play foreign svelte-1k1p7bj";
+				button.className = "play foreign svelte-pekjif";
 				button.disabled = button_disabled_value = !ctx.$connected;
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'play');
 				addLoc(button, file$m, 67, 16, 2836);
@@ -20866,7 +20877,7 @@ var app = (function (crypto) {
 				button = createElement("button");
 				text = createText("▶ Play");
 				addListener(button, "click", click_handler);
-				button.className = "play svelte-1k1p7bj";
+				button.className = "play svelte-pekjif";
 				button.disabled = button_disabled_value = !ctx.$connected;
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'play');
 				addLoc(button, file$m, 64, 16, 2599);
@@ -20936,24 +20947,24 @@ var app = (function (crypto) {
 				if (if_block) if_block.c();
 				addListener(button0, "click", click_handler);
 				button0.disabled = button0_disabled_value = !ctx.$connected;
-				button0.className = "svelte-1k1p7bj";
+				button0.className = "svelte-pekjif";
 				toggleClass(button0, "limit_active", ctx.$player.limit > 0);
 				toggleClass(button0, "time_limit_active", ctx.$player.timeLimit > 0);
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'limit' || ctx.touchAction == 'time_limit');
 				addLoc(button0, file$m, 75, 12, 3269);
 				addListener(button1, "click", click_handler_1);
 				button1.disabled = button1_disabled_value = !ctx.$connected;
-				button1.className = "svelte-1k1p7bj";
+				button1.className = "svelte-pekjif";
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'next');
 				addLoc(button1, file$m, 76, 12, 3541);
 				addListener(button2, "click", click_handler_2);
 				button2.disabled = button2_disabled_value = !ctx.$connected;
-				button2.className = "svelte-1k1p7bj";
+				button2.className = "svelte-pekjif";
 				toggleClass(button2, "touch_pressed", ctx.touchAction == 'shuffle');
 				addLoc(button2, file$m, 77, 12, 3664);
 				addListener(button3, "click", click_handler_3);
 				button3.disabled = button3_disabled_value = !ctx.$connected;
-				button3.className = "svelte-1k1p7bj";
+				button3.className = "svelte-pekjif";
 				toggleClass(button3, "touch_pressed", ctx.touchAction == 'repeat');
 				toggleClass(button3, "repeat_active1", ctx.$player.repeatCount == 1);
 				toggleClass(button3, "repeat_active2", ctx.$player.repeatCount == 2);
@@ -21095,7 +21106,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (89:10) {#if $player.isStream}
+	// (87:10) {#if $player.isStream}
 	function create_if_block_18(component, ctx) {
 		var button0, text0, button0_disabled_value, text1, button1, text2, button1_disabled_value;
 
@@ -21116,15 +21127,15 @@ var app = (function (crypto) {
 				text2 = createText("Stop");
 				addListener(button0, "click", click_handler);
 				button0.disabled = button0_disabled_value = !ctx.$connected;
-				button0.className = "svelte-1k1p7bj";
+				button0.className = "svelte-pekjif";
 				toggleClass(button0, "time_limit_active", ctx.$player.timeLimit > 0);
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'limit' || ctx.touchAction == 'time_limit');
-				addLoc(button0, file$m, 89, 12, 4410);
+				addLoc(button0, file$m, 87, 12, 4229);
 				addListener(button1, "click", click_handler_1);
 				button1.disabled = button1_disabled_value = !ctx.$connected;
-				button1.className = "svelte-1k1p7bj";
+				button1.className = "svelte-pekjif";
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'stop');
-				addLoc(button1, file$m, 90, 12, 4621);
+				addLoc(button1, file$m, 88, 12, 4440);
 			},
 
 			m: function mount(target, anchor) {
@@ -21173,7 +21184,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (99:10) {:else}
+	// (97:10) {:else}
 	function create_else_block_1$3(component, ctx) {
 		var span, text_value = ctx.$player.volume, text;
 
@@ -21181,8 +21192,8 @@ var app = (function (crypto) {
 			c: function create() {
 				span = createElement("span");
 				text = createText(text_value);
-				span.className = "volume foreign svelte-1k1p7bj";
-				addLoc(span, file$m, 100, 12, 5327);
+				span.className = "volume foreign svelte-pekjif";
+				addLoc(span, file$m, 98, 12, 5146);
 			},
 
 			m: function mount(target, anchor) {
@@ -21204,7 +21215,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (97:10) {#if homebase}
+	// (95:10) {#if homebase}
 	function create_if_block_17(component, ctx) {
 		var span, text_value = ctx.$player.volume, text;
 
@@ -21212,8 +21223,8 @@ var app = (function (crypto) {
 			c: function create() {
 				span = createElement("span");
 				text = createText(text_value);
-				span.className = "volume svelte-1k1p7bj";
-				addLoc(span, file$m, 97, 12, 5182);
+				span.className = "volume svelte-pekjif";
+				addLoc(span, file$m, 95, 12, 5001);
 			},
 
 			m: function mount(target, anchor) {
@@ -21235,7 +21246,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (110:37) 
+	// (108:37) 
 	function create_if_block_16(component, ctx) {
 		var div, span1, text0, span0, text1, text2, a0, text4, a1;
 
@@ -21264,23 +21275,23 @@ var app = (function (crypto) {
 				text4 = createText("\n              ■ ");
 				a1 = createElement("a");
 				a1.textContent = "ADD MORE TIME";
-				span0.className = "limit_num svelte-1k1p7bj";
-				addLoc(span0, file$m, 111, 85, 6239);
+				span0.className = "limit_num svelte-pekjif";
+				addLoc(span0, file$m, 109, 85, 6058);
 				addListener(a0, "click", click_handler);
 				a0.href = "#";
-				a0.className = "svelte-1k1p7bj";
+				a0.className = "svelte-pekjif";
 				toggleClass(a0, "touch_pressed", ctx.touchAction == 'remove_time_limit');
-				addLoc(a0, file$m, 112, 16, 6298);
+				addLoc(a0, file$m, 110, 16, 6117);
 				addListener(a1, "click", click_handler_1);
 				a1.href = "#";
-				a1.className = "set_time_limit svelte-1k1p7bj";
+				a1.className = "set_time_limit svelte-pekjif";
 				toggleClass(a1, "touch_pressed", ctx.touchAction == 'time_limit');
-				addLoc(a1, file$m, 113, 16, 6459);
-				span1.className = "time_limit svelte-1k1p7bj";
+				addLoc(a1, file$m, 111, 16, 6278);
+				span1.className = "time_limit svelte-pekjif";
 				toggleClass(span1, "grayed_out", ctx.$player.paused);
-				addLoc(span1, file$m, 111, 14, 6168);
-				div.className = "limit_info svelte-1k1p7bj";
-				addLoc(div, file$m, 110, 12, 6129);
+				addLoc(span1, file$m, 109, 14, 5987);
+				div.className = "limit_info svelte-pekjif";
+				addLoc(div, file$m, 108, 12, 5948);
 			},
 
 			m: function mount(target, anchor) {
@@ -21321,7 +21332,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (106:10) {#if !$player.isStream && $player.limit}
+	// (104:10) {#if !$player.isStream && $player.limit}
 	function create_if_block_15(component, ctx) {
 		var div, span1, text0, span0, text1_value = ctx.$player.limit == 1 ? 'current' : ctx.$player.limit, text1, text2, text3_value = ctx.$player.limit == 1 ? 'track' : 'tracks', text3, text4, a0, text6, a1;
 
@@ -21352,22 +21363,22 @@ var app = (function (crypto) {
 				text6 = createText(" ■ ");
 				a1 = createElement("a");
 				a1.textContent = "SET TIME LIMIT";
-				span0.className = "limit_num svelte-1k1p7bj";
-				addLoc(span0, file$m, 107, 51, 5625);
+				span0.className = "limit_num svelte-pekjif";
+				addLoc(span0, file$m, 105, 51, 5444);
 				addListener(a0, "click", click_handler);
 				a0.href = "#";
-				a0.className = "svelte-1k1p7bj";
+				a0.className = "svelte-pekjif";
 				toggleClass(a0, "touch_pressed", ctx.touchAction == 'remove_limit');
-				addLoc(a0, file$m, 107, 175, 5749);
+				addLoc(a0, file$m, 105, 175, 5568);
 				addListener(a1, "click", click_handler_1);
 				a1.href = "#";
-				a1.className = "set_time_limit svelte-1k1p7bj";
+				a1.className = "set_time_limit svelte-pekjif";
 				toggleClass(a1, "touch_pressed", ctx.touchAction == 'time_limit');
-				addLoc(a1, file$m, 107, 313, 5887);
-				span1.className = "track_limit svelte-1k1p7bj";
-				addLoc(span1, file$m, 107, 14, 5588);
-				div.className = "limit_info svelte-1k1p7bj";
-				addLoc(div, file$m, 106, 12, 5549);
+				addLoc(a1, file$m, 105, 313, 5706);
+				span1.className = "track_limit svelte-pekjif";
+				addLoc(span1, file$m, 105, 14, 5407);
+				div.className = "limit_info svelte-pekjif";
+				addLoc(div, file$m, 104, 12, 5368);
 			},
 
 			m: function mount(target, anchor) {
@@ -21410,7 +21421,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (128:8) {#if !$player.isStream}
+	// (126:8) {#if !$player.isStream}
 	function create_if_block_10$1(component, ctx) {
 		var if_block_anchor;
 
@@ -21453,7 +21464,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (138:10) {:else}
+	// (136:10) {:else}
 	function create_else_block$7(component, ctx) {
 		var div, text;
 
@@ -21473,8 +21484,8 @@ var app = (function (crypto) {
 				if (if_block0) if_block0.c();
 				text = createText("\n              ");
 				if (if_block1) if_block1.c();
-				div.className = "extra_option svelte-1k1p7bj";
-				addLoc(div, file$m, 139, 12, 7391);
+				div.className = "extra_option svelte-pekjif";
+				addLoc(div, file$m, 137, 12, 7210);
 			},
 
 			m: function mount(target, anchor) {
@@ -21519,7 +21530,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (130:10) {#if !$playlist || $playlist.length == 0}
+	// (128:10) {#if !$playlist || $playlist.length == 0}
 	function create_if_block_11$1(component, ctx) {
 		var div, h1;
 
@@ -21528,10 +21539,10 @@ var app = (function (crypto) {
 				div = createElement("div");
 				h1 = createElement("h1");
 				h1.textContent = "Playlist is empty";
-				h1.className = "svelte-1k1p7bj";
-				addLoc(h1, file$m, 131, 14, 7113);
-				div.className = "player_notice svelte-1k1p7bj";
-				addLoc(div, file$m, 130, 12, 7071);
+				h1.className = "svelte-pekjif";
+				addLoc(h1, file$m, 129, 14, 6932);
+				div.className = "player_notice svelte-pekjif";
+				addLoc(div, file$m, 128, 12, 6890);
 			},
 
 			m: function mount(target, anchor) {
@@ -21549,7 +21560,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (141:14) {#if $playlistMetadata.currentSongIsSelected && $player.currentMedia && $player.currentMedia.songPath}
+	// (139:14) {#if $playlistMetadata.currentSongIsSelected && $player.currentMedia && $player.currentMedia.songPath}
 	function create_if_block_14(component, ctx) {
 		var button;
 
@@ -21562,9 +21573,9 @@ var app = (function (crypto) {
 				button = createElement("button");
 				button.textContent = "■ Stop";
 				addListener(button, "click", click_handler);
-				button.className = "svelte-1k1p7bj";
+				button.className = "svelte-pekjif";
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'stop');
-				addLoc(button, file$m, 141, 16, 7551);
+				addLoc(button, file$m, 139, 16, 7370);
 			},
 
 			m: function mount(target, anchor) {
@@ -21587,7 +21598,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (151:60) 
+	// (149:60) 
 	function create_if_block_13(component, ctx) {
 		var button;
 
@@ -21600,9 +21611,9 @@ var app = (function (crypto) {
 				button = createElement("button");
 				button.textContent = "Undo";
 				addListener(button, "click", click_handler);
-				button.className = "svelte-1k1p7bj";
+				button.className = "svelte-pekjif";
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'paste');
-				addLoc(button, file$m, 151, 16, 8318);
+				addLoc(button, file$m, 149, 16, 8137);
 			},
 
 			m: function mount(target, anchor) {
@@ -21625,7 +21636,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (144:14) {#if $playlistMetadata.playlistHasSelectedEntries}
+	// (142:14) {#if $playlistMetadata.playlistHasSelectedEntries}
 	function create_if_block_12$1(component, ctx) {
 		var button0, text_1, button1;
 
@@ -21645,13 +21656,13 @@ var app = (function (crypto) {
 				button1 = createElement("button");
 				button1.textContent = "Remove";
 				addListener(button0, "click", click_handler);
-				button0.className = "set_next_button svelte-1k1p7bj";
+				button0.className = "set_next_button svelte-pekjif";
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'set_next');
-				addLoc(button0, file$m, 144, 16, 7738);
+				addLoc(button0, file$m, 142, 16, 7557);
 				addListener(button1, "click", click_handler_1);
-				button1.className = "svelte-1k1p7bj";
+				button1.className = "svelte-pekjif";
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'cut_selected');
-				addLoc(button1, file$m, 145, 16, 7873);
+				addLoc(button1, file$m, 143, 16, 7692);
 			},
 
 			m: function mount(target, anchor) {
@@ -21683,7 +21694,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (164:8) {#if !$player.isStream && $playlist}
+	// (162:8) {#if !$player.isStream && $playlist}
 	function create_if_block_6$4(component, ctx) {
 		var div, ul;
 
@@ -21703,12 +21714,12 @@ var app = (function (crypto) {
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
-				ul.className = "svelte-1k1p7bj";
-				addLoc(ul, file$m, 165, 12, 8722);
+				ul.className = "svelte-pekjif";
+				addLoc(ul, file$m, 163, 12, 8541);
 				div.id = "playlist";
-				div.className = "svelte-1k1p7bj";
+				div.className = "svelte-pekjif";
 				toggleClass(div, "nonRPi", !ctx.atRPi);
-				addLoc(div, file$m, 164, 10, 8668);
+				addLoc(div, file$m, 162, 10, 8487);
 			},
 
 			m: function mount(target, anchor) {
@@ -21757,7 +21768,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (169:16) {#if song.albumTitle}
+	// (167:16) {#if song.albumTitle}
 	function create_if_block_9$1(component, ctx) {
 		var li, text_value = ctx.song.albumTitle, text;
 
@@ -21765,8 +21776,8 @@ var app = (function (crypto) {
 			c: function create() {
 				li = createElement("li");
 				text = createText(text_value);
-				li.className = "album_title svelte-1k1p7bj";
-				addLoc(li, file$m, 169, 18, 8824);
+				li.className = "album_title svelte-pekjif";
+				addLoc(li, file$m, 167, 18, 8643);
 			},
 
 			m: function mount(target, anchor) {
@@ -21788,7 +21799,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (181:20) {#if showDetailedSongInfo && song.metadata && song.metadata.duration && song.mediaType == 'video'}
+	// (179:20) {#if showDetailedSongInfo && song.metadata && song.metadata.duration && song.mediaType == 'video'}
 	function create_if_block_8$3(component, ctx) {
 		var span, text0, text1_value = ctx.song.metadata.duration, text1, text2;
 
@@ -21798,9 +21809,9 @@ var app = (function (crypto) {
 				text0 = createText("[");
 				text1 = createText(text1_value);
 				text2 = createText("]");
-				span.className = "duration svelte-1k1p7bj";
+				span.className = "duration svelte-pekjif";
 				toggleClass(span, "non_past", !ctx.song.past);
-				addLoc(span, file$m, 181, 22, 10026);
+				addLoc(span, file$m, 179, 22, 9710);
 			},
 
 			m: function mount(target, anchor) {
@@ -21828,7 +21839,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (188:20) {#if showDetailedSongInfo && song.metadata && song.metadata.duration && song.mediaType == 'music'}
+	// (186:20) {#if showDetailedSongInfo && song.metadata && song.metadata.duration && song.mediaType == 'music'}
 	function create_if_block_7$3(component, ctx) {
 		var span, text0, text1_value = ctx.song.metadata.duration, text1, text2;
 
@@ -21838,9 +21849,9 @@ var app = (function (crypto) {
 				text0 = createText("[");
 				text1 = createText(text1_value);
 				text2 = createText("]");
-				span.className = "duration svelte-1k1p7bj";
+				span.className = "duration svelte-pekjif";
 				toggleClass(span, "non_past", !ctx.song.past);
-				addLoc(span, file$m, 188, 22, 10410);
+				addLoc(span, file$m, 186, 22, 10094);
 			},
 
 			m: function mount(target, anchor) {
@@ -21868,7 +21879,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (167:14) {#each $playlist as song}
+	// (165:14) {#each $playlist as song}
 	function create_each_block$3(component, ctx) {
 		var text0, span0, text1_value = ctx.song.current ? (ctx.$player.paused ? '→' : (!ctx.$player.currentMedia || !ctx.$player.currentMedia.mediaType || ctx.$player.currentMedia.mediaType == 'music' ? '♫' : '▶')) : '', text1, text2, div, li, span1, text3_value = util.pad(ctx.song.id), text3, text4, text5, span2, text6_value = ctx.song.title, text6, text7;
 
@@ -21896,18 +21907,17 @@ var app = (function (crypto) {
 				text6 = createText(text6_value);
 				text7 = createText("\n\n                    \n                    ");
 				if (if_block2) if_block2.c();
-				span0.className = "marker svelte-1k1p7bj";
-				toggleClass(span0, "spaced", ctx.$player.spaced && ctx.$player.paused && (!ctx.$player.currentMedia || (ctx.$player.currentMedia && !ctx.$player.currentMedia.songPath)));
-				addLoc(span0, file$m, 172, 16, 8910);
-				span1.className = "id svelte-1k1p7bj";
-				addLoc(span1, file$m, 176, 20, 9694);
-				span2.className = "song svelte-1k1p7bj";
-				addLoc(span2, file$m, 184, 20, 10158);
+				span0.className = "marker svelte-pekjif";
+				addLoc(span0, file$m, 170, 16, 8729);
+				span1.className = "id svelte-pekjif";
+				addLoc(span1, file$m, 174, 20, 9378);
+				span2.className = "song svelte-pekjif";
+				addLoc(span2, file$m, 182, 20, 9842);
 
 				li._svelte = { component, ctx };
 
 				addListener(li, "click", click_handler$2);
-				li.className = "svelte-1k1p7bj";
+				li.className = "svelte-pekjif";
 				toggleClass(li, "playing", ctx.song.current && !ctx.$player.paused && !ctx.$player.isStream);
 				toggleClass(li, "past", ctx.song.past);
 				toggleClass(li, "within_limit", ctx.song.withinLimit);
@@ -21916,10 +21926,10 @@ var app = (function (crypto) {
 				toggleClass(li, "just_pasted", ctx.song.justPasted);
 				toggleClass(li, "error", ctx.song.error);
 				toggleClass(li, "metadata_read", ctx.song.metadata);
-				addLoc(li, file$m, 175, 18, 9338);
-				div.className = "li_wrapper svelte-1k1p7bj";
+				addLoc(li, file$m, 173, 18, 9022);
+				div.className = "li_wrapper svelte-pekjif";
 				toggleClass(div, "darker", ctx.song.directoryTogetherness);
-				addLoc(div, file$m, 174, 16, 9253);
+				addLoc(div, file$m, 172, 16, 8937);
 			},
 
 			m: function mount(target, anchor) {
@@ -21958,10 +21968,6 @@ var app = (function (crypto) {
 
 				if ((changed.$playlist || changed.$player) && text1_value !== (text1_value = ctx.song.current ? (ctx.$player.paused ? '→' : (!ctx.$player.currentMedia || !ctx.$player.currentMedia.mediaType || ctx.$player.currentMedia.mediaType == 'music' ? '♫' : '▶')) : '')) {
 					setData(text1, text1_value);
-				}
-
-				if (changed.$player) {
-					toggleClass(span0, "spaced", ctx.$player.spaced && ctx.$player.paused && (!ctx.$player.currentMedia || (ctx.$player.currentMedia && !ctx.$player.currentMedia.songPath)));
 				}
 
 				if ((changed.$playlist) && text3_value !== (text3_value = util.pad(ctx.song.id))) {
@@ -22031,7 +22037,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (200:8) {#if $player.isStream && $player.currentMedia && $player.currentMedia.song}
+	// (198:8) {#if $player.isStream && $player.currentMedia && $player.currentMedia.song}
 	function create_if_block_4$9(component, ctx) {
 		var div2, div0, text1, div1, text2, text3_value = ctx.$player.currentMedia.song, text3;
 
@@ -22047,14 +22053,14 @@ var app = (function (crypto) {
 				if (if_block) if_block.c();
 				text2 = createText("\n\n            ");
 				text3 = createText(text3_value);
-				div0.className = "notice svelte-1k1p7bj";
-				addLoc(div0, file$m, 202, 12, 10886);
-				div1.className = "song svelte-1k1p7bj";
+				div0.className = "notice svelte-pekjif";
+				addLoc(div0, file$m, 200, 12, 10570);
+				div1.className = "song svelte-pekjif";
 				toggleClass(div1, "bigger", ctx.$player.currentMedia.song.length < 35);
-				addLoc(div1, file$m, 204, 12, 10951);
-				div2.className = "streaming_media_info svelte-1k1p7bj";
+				addLoc(div1, file$m, 202, 12, 10635);
+				div2.className = "streaming_media_info svelte-pekjif";
 				toggleClass(div2, "faded", ctx.$player.paused);
-				addLoc(div2, file$m, 200, 10, 10809);
+				addLoc(div2, file$m, 198, 10, 10493);
 			},
 
 			m: function mount(target, anchor) {
@@ -22099,7 +22105,7 @@ var app = (function (crypto) {
 		};
 	}
 
-	// (207:14) {#if !$player.paused}
+	// (205:14) {#if !$player.paused}
 	function create_if_block_5$7(component, ctx) {
 		var span;
 
@@ -22107,8 +22113,8 @@ var app = (function (crypto) {
 			c: function create() {
 				span = createElement("span");
 				span.textContent = "♪♫♬";
-				span.className = "svelte-1k1p7bj";
-				addLoc(span, file$m, 207, 16, 11076);
+				span.className = "svelte-pekjif";
+				addLoc(span, file$m, 205, 16, 10760);
 			},
 
 			m: function mount(target, anchor) {

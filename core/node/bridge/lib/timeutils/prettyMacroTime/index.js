@@ -1,6 +1,6 @@
-import dateFns from 'date-fns';
+import dmt from '../../dmtHelper';
 
-const { format, parse, formatDistance, formatDistanceToNow } = dateFns;
+const { formatDistanceToNow } = dmt.dateFns;
 
 function prettyMacroTime(referenceDate) {
   return formatDistanceToNow(referenceDate, { addSuffix: true });

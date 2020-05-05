@@ -12,6 +12,8 @@ import def from './parsers/def/parser';
 import scan from './scan';
 import util from './util';
 
+import * as dateFns from './timeutils/dateFnsCompacted';
+
 const { hexToBuffer } = util.hexutils;
 
 const dmtPath = path.join(homedir(), '.dmt');
@@ -113,6 +115,7 @@ export default {
   isDevMachine,
   isDevCluster,
   includeModule,
+  dateFns,
 
   debugMode(category = null) {
     const debugInfoFile = path.join(stateDir, '.debug-mode');

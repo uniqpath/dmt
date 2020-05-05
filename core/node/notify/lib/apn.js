@@ -1,11 +1,12 @@
 import colors from 'colors';
 import fs from 'fs';
 import path from 'path';
-import dates from 'date-fns';
 import apn from 'apn';
 
 import dmt from 'dmt/bridge';
 const { log } = dmt;
+
+const { format } = dmt.dateFns;
 
 const apnConfigDir = path.join(dmt.accessTokensDir, 'apple_push');
 
@@ -35,7 +36,7 @@ function createNote(msg) {
   note.expiry = Math.floor(Date.now() / 1000) + 3600;
   note.badge = 3;
   note.sound = 'ping.aiff';
-  note.alert = `${dates.format(new Date(), 'HH:mm')} ${msg}`;
+  note.alert = `${format(new Date(), 'HH:mm')} ${msg}`;
   note.payload = { messageFrom: 'Notifier333' };
   note.topic = serverAuth.topic;
 
