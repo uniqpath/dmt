@@ -26,8 +26,11 @@ function userActionHandlers({ program, player }) {
         case 'volume_down':
           player.volume('down').catch(log.red);
           break;
+        case 'backward':
+          player.backward(payload ? payload.seconds : undefined).catch(log.red);
+          break;
         case 'forward':
-          player.forward(payload.seconds).catch(log.red);
+          player.forward(payload ? payload.seconds : undefined).catch(log.red);
           break;
         case 'next':
           player.next().catch(log.red);

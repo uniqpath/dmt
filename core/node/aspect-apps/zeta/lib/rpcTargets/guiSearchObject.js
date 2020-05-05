@@ -22,7 +22,7 @@ class GUISearchObject {
 
       this.program
         .actor('search')
-        .call('search', { query: `${terms} ${providers} @count=10`, searchOriginHost })
+        .call('search', { query: `${terms.join(' ')} ${providers} @count=10`, searchOriginHost })
         .then(responses => {
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           this.program.emit('zeta::user_search', { query, totalHits });

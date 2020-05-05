@@ -127,6 +127,9 @@
         <button on:click={() => action('next')} class="next" disabled={!connected}>→ Next</button>
         <button on:click={() => action('shuffle')} class="shuffle" disabled={!connected}>Shuffle</button>
         <button on:click={() => action('repeat')} class="repeat" disabled={!connected}>Repeat {player.repeatCount || ''}</button>
+
+        <button on:click={() => action('backward')} class="backward" disabled={!connected}>↞ RWD</button>
+        <button on:click={() => action('forward')} class="forward" disabled={!connected}>↠ FWD</button>
       </div>
 
     {/if}

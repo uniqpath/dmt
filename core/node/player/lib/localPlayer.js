@@ -470,9 +470,7 @@ class LocalPlayer {
     });
   }
 
-  forward(seconds) {
-    seconds = seconds || 60;
-
+  forward(seconds = 30) {
     return new Promise((success, reject) => {
       this.engine
         .forward({ seconds })
@@ -481,8 +479,8 @@ class LocalPlayer {
     });
   }
 
-  backward(seconds) {
-    return this.forward(-seconds);
+  backward(seconds = 30) {
+    return this.forward(-Math.abs(seconds));
   }
 
   goto(seconds) {

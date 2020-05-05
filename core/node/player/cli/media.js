@@ -18,12 +18,18 @@ const args = process.argv.slice(2);
 if (args.length < 1 || ['-h', '--help', 'help'].includes(args[0])) {
   action = 'info';
 } else {
-  action = args[0];
+  action = args.shift();
 }
 
-const payload = args.slice(1).join(' ');
+let atDevice;
 
-ipcClient({ actorName: 'player', action, payload })
+if (args.length > 0 && args[0].startsWith('@')) {
+  atDevice = args.shift();
+}
+
+const payload = args.join(' ');
+
+ipcClient({ actorName: 'player', action, payload, atDevice })
   .then(response => {
     console.log(`${colors.cyan('dmt-player')} ${colors.green(`Ξ ${action.toUpperCase()}`)}`);
 

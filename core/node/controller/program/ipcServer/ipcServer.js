@@ -1,5 +1,5 @@
 import dmt from 'dmt/bridge';
-const { log } = dmt;
+const { log, cli } = dmt;
 
 import path from 'path';
 import { homedir } from 'os';
@@ -16,24 +16,41 @@ function server(program) {
   ipc.serve(() => {
     ipc.server.on('message', (data, socket) => {
       try {
-        const { actorName, storeName, action, payload } = JSON.parse(data);
+        const { actorName, storeName, action, payload, atDevice } = JSON.parse(data);
 
         if (storeName == 'gui') {
           program.emit('send_to_connected_guis', { action, payload });
 
           ipc.server.emit(socket, 'ack', 'empty');
         } else if (actorName) {
-          program
-            .actor(actorName)
-            .call(action, payload)
-            .then(response => {
-              ipc.server.emit(socket, 'ack', response);
-            })
-            .catch(error => {
-              log.red('IPC server error:');
-              log.red(error);
-              ipc.server.emit(socket, 'ack', { error: error.message });
+          if (atDevice) {
+            const { address, port } = cli(atDevice).atDevices[0];
+            program.fiberPool.getConnector(address, port || 7780).then(connector => {
+              connector
+                .remoteObject(actorName)
+                .call(action, payload)
+                .then(response => {
+                  ipc.server.emit(socket, 'ack', response);
+                })
+                .catch(error => {
+                  log.red('IPC server error:');
+                  log.red(error);
+                  ipc.server.emit(socket, 'ack', { error: error.message });
+                });
             });
+          } else {
+            program
+              .actor(actorName)
+              .call(action, payload)
+              .then(response => {
+                ipc.server.emit(socket, 'ack', response);
+              })
+              .catch(error => {
+                log.red('IPC server error:');
+                log.red(error);
+                ipc.server.emit(socket, 'ack', { error: error.message });
+              });
+          }
         } else {
           log.red(`Cannot process IPC request: ${data}`);
         }
