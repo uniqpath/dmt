@@ -1,15 +1,18 @@
 import SpecificRpcClient from './specificClient';
 
+const DEFAULT_REQUEST_TIMEOUT = 5000;
+
 class RpcClient {
-  constructor(connectorOrServersideChannel) {
+  constructor(connectorOrServersideChannel, requestTimeout) {
     this.connectorOrServersideChannel = connectorOrServersideChannel;
     this.remoteObjects = {};
+    this.requestTimeout = requestTimeout || DEFAULT_REQUEST_TIMEOUT;
   }
 
   remoteObject(methodPrefix) {
     const remoteObject = this.remoteObjects[methodPrefix];
     if (!remoteObject) {
-      this.remoteObjects[methodPrefix] = new SpecificRpcClient(this.connectorOrServersideChannel, methodPrefix);
+      this.remoteObjects[methodPrefix] = new SpecificRpcClient(this.connectorOrServersideChannel, methodPrefix, this.requestTimeout);
     }
     return this.remoteObjects[methodPrefix];
   }

@@ -153,6 +153,11 @@ else # clone to and install on remote device
           flags="${flags} --no-apps"
           shift 1
           ;;
+        # --no-user)
+        #   excludes="${excludes} --exclude user"
+        #   flags="${flags} --no-user"
+        #   shift 1
+        #   ;;
         --restart)
           flags="${flags} --restart"
           RESTART=true

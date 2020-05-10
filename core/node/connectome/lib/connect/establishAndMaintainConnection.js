@@ -3,14 +3,29 @@ const browser = typeof window !== 'undefined';
 import Connector from '../connector/connector';
 
 function establishAndMaintainConnection(
-  { obj, address, port, protocol, protocolLane, clientPrivateKey, clientPublicKey, clientInitData, remotePubkey, resumeNow, verbose },
+  {
+    obj,
+    address,
+    ssl = false,
+    port,
+    protocol,
+    protocolLane,
+    rpcRequestTimeout,
+    clientPrivateKey,
+    clientPublicKey,
+    clientInitData,
+    remotePubkey,
+    resumeNow,
+    verbose
+  },
   { WebSocket, log }
 ) {
-  const endpoint = `ws://${address}:${port}`;
+  const wsProtocol = ssl ? 'wss' : 'ws';
+  const endpoint = `${wsProtocol}://${address}:${port}`;
 
   log(`Trying to connect to ws endpoint ${endpoint} ...`);
 
-  const connector = obj || new Connector({ address, protocolLane, clientPrivateKey, clientPublicKey, clientInitData, verbose });
+  const connector = obj || new Connector({ address, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, clientInitData, verbose });
 
   if (resumeNow) {
     checkConnection({ connector, endpoint, protocol }, { WebSocket, log, resumeNow });

@@ -2,10 +2,10 @@ import colors from 'colors';
 import dmt from 'dmt/bridge';
 const { log } = dmt;
 
-import { parseArgs as parseSearchArgs } from 'dmt/search';
+import { parseSearchQuery as _parseSearchQuery } from 'dmt/search';
 
-function parseArgs(args) {
-  return parseSearchArgs({ args, actorName: 'player', defaultMediaType: 'music' });
+function parseSearchQuery(query) {
+  return _parseSearchQuery({ query, actorName: 'player', defaultMediaType: 'music' });
 }
 
 function getMethods() {
@@ -51,8 +51,17 @@ function infoHandler() {
   });
 }
 
+function playerNotReadyError() {
+  return new Error('Player was not yet initialized, please try again.');
+}
+
 function handler({ args, method }, { player }) {
   return new Promise((success, reject) => {
+    if (!player.isInitialized()) {
+      reject(playerNotReadyError());
+      return;
+    }
+
     if (args != '') {
       if (!Array.isArray(args) && args != null) {
         args = [args];
@@ -71,10 +80,9 @@ function handler({ args, method }, { player }) {
 
 function searchHandler({ args, method }, { zetaSearch }) {
   return new Promise((success, reject) => {
-    args = parseArgs(args);
-
+    const query = args;
     zetaSearch
-      .search(args)
+      .search(parseSearchQuery(query))
       .then(aggregateResults => {
         success(aggregateResults);
       })
@@ -86,11 +94,18 @@ function searchHandler({ args, method }, { zetaSearch }) {
 }
 
 function playHandler({ args, method }, { zetaSearch, player }) {
-  args = parseArgs(args);
+  const query = args;
+
+  const { terms } = parseSearchQuery(query);
 
   return new Promise((success, reject) => {
+    if (!player.isInitialized()) {
+      reject(playerNotReadyError());
+      return;
+    }
+
     if (method.name == 'play') {
-      if (args.terms.length == 0) {
+      if (terms.length == 0) {
         player
           .play()
           .then(success)
@@ -98,8 +113,8 @@ function playHandler({ args, method }, { zetaSearch, player }) {
         return;
       }
 
-      if (args.terms.length == 1 && args.terms[0].match(new RegExp(/^\d+$/))) {
-        player.next({ songId: args.terms[0] });
+      if (terms.length == 1 && terms[0].match(new RegExp(/^\d+$/))) {
+        player.next({ songId: terms[0] });
         success([]);
         return;
       }
@@ -143,6 +158,11 @@ function addHandler({ args, method }, { zetaSearch, player }) {
 
 function insertplayHandler({ args }, { zetaSearch, player }) {
   return new Promise((success, reject) => {
+    if (!player.isInitialized()) {
+      reject(playerNotReadyError());
+      return;
+    }
+
     searchHandler({ args }, { zetaSearch })
       .then(aggregateResults => {
         const mappedResults = aggregateResults.map(results => player.mapToLocal(results));

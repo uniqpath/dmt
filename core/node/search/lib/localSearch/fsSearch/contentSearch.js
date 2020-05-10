@@ -5,8 +5,8 @@ const { stopwatchAdv, dmtContent } = dmt;
 
 import multipathSearch from './multipathSearch';
 
-function contentSearch({ contentId, terms, mediaType, page = 1, clientMaxResults, maxResults }) {
-  const _maxResults = clientMaxResults || maxResults || settings().searchLimit.maxResults;
+function contentSearch({ contentId, terms, mediaType, page = 1, count, maxResults }) {
+  const _maxResults = count || maxResults || settings().searchLimit.maxResults;
 
   const searchPromise = new Promise((success, reject) => {
     let contentPaths;

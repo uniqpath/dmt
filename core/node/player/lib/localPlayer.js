@@ -98,6 +98,12 @@ class LocalPlayer {
     this.program.updateState({ player: { paused, currentMedia: { songPath: currentSongPath } } });
 
     this.program.emit('player:initialized', this.program.state.player);
+
+    this.initialized = true;
+  }
+
+  isInitialized() {
+    return this.initialized;
   }
 
   initVolume() {

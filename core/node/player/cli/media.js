@@ -23,7 +23,7 @@ if (args.length < 1 || ['-h', '--help', 'help'].includes(args[0])) {
 
 let atDevice;
 
-if (args.length > 0 && args[0].startsWith('@')) {
+if (args.length > 0 && args[0].startsWith('@') && !args[0].includes('=')) {
   atDevice = args.shift();
 }
 

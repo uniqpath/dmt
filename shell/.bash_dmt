@@ -1002,13 +1002,6 @@ function stop_dmt_if_running {
 
 function dmt_next {
 
-  #return
-
-  # if dev_machine; then
-  #   printf "${RED}Prevented on dev machine${NC}\n"
-  #   return
-  # fi
-
     # option 1: specify from where to fetch via an argument:
   # dmt next [dmtSource]
   # or from user.def ->

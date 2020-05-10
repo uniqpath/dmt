@@ -22,7 +22,7 @@ import FsState from './lib/fsState';
 import processBatch from './lib/processBatch';
 
 import def from './lib/parsers/def/parser';
-import cli from './lib/parsers/cli/cliHelper';
+import parseCliArgs from './lib/parsers/cli/cliHelper';
 import helper from './lib/dmtHelper';
 import * as dmtContent from './lib/dmtContent';
 
@@ -74,7 +74,7 @@ export default {
   quantum,
   colors,
   def,
-  cli,
+  parseCliArgs,
   dmtContent,
   processBatch,
   textfileParsers,

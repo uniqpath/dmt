@@ -14,7 +14,6 @@ function createHandler({ method, actorName, program }, setupData = {}) {
           .handler({ args, method, actorName, program }, setupData)
           .then(success)
           .catch(e => {
-            log.red(`ERROR IN ACTOR ACTION: please handle all errors inside actions, no error should land here!`);
             log.red(e);
             reject(e);
           });

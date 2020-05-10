@@ -1,7 +1,7 @@
 import dmt from 'dmt/bridge';
 const { log, dmtContent } = dmt;
 
-import { parseArgs } from '../../lib/utils/args';
+import { parseSearchQuery } from '../../lib/utils/query';
 
 import ZetaSearch from '../../lib/zetaSearch';
 
@@ -9,7 +9,7 @@ function search({ args, method }, { program }) {
   const { query, searchOriginHost } = args;
 
   return new Promise((success, reject) => {
-    const options = parseArgs({ args: query, actorName: 'search' });
+    const options = parseSearchQuery({ query, actorName: 'search' });
 
     const { atDevices: contentProviders } = options;
 

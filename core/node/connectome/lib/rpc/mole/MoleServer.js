@@ -16,12 +16,8 @@ class MoleServer {
     this.methods = methods;
   }
 
-  async registerTransport(transport) {
-    await transport.onData(this._processRequest.bind(this, transport));
-  }
-
-  async removeTransport(transport) {
-    await transport.shutdown();
+  registerTransport(transport) {
+    transport.onData(this._processRequest.bind(this, transport));
   }
 
   async _processRequest(transport, data) {
@@ -102,7 +98,7 @@ class MoleServer {
     return response;
   }
 
-  async run() {
+  run() {
     for (const transport of this.transportsToRegister) {
       this.registerTransport(transport);
     }

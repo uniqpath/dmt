@@ -100,7 +100,7 @@ cwd="`pwd`"
 
 cd $(mktemp -d)
 
-printf "${MAGENTA}Streaming file from ${CYAN}{{host}}${NC} ...\n\n"
+printf "${MAGENTA}Fetching file from ${CYAN}{{host}}${NC} ...\n\n"
 printf "${YELLOW}Please wait for up to a minute even if nothing seems to be happening ...${NC}\n"
 
 if curl -L --fail {{protocol}}://{{host}}/dmt.zip -o dmt.zip; then

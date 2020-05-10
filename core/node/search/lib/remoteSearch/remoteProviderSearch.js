@@ -1,5 +1,5 @@
 import dmt from 'dmt/bridge';
-import { serializeArgs } from 'dmt/search';
+import { reconstructSearchQuery } from 'dmt/search';
 
 import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
 
@@ -24,12 +24,12 @@ class RemoteProviderSearch {
     return response;
   }
 
-  search({ terms, clientMaxResults, page, mediaType }) {
+  search({ terms, count, page, mediaType }) {
     const { contentId } = this;
 
     return new Promise((success, reject) => {
       if (!this.localhost) {
-        const args = serializeArgs({ terms, mediaType, count: clientMaxResults, page, contentId });
+        const args = reconstructSearchQuery({ terms, mediaType, page, count, contentId });
 
         const start = stopwatchAdv.start();
 

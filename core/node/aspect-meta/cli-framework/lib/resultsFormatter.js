@@ -12,6 +12,8 @@ export default function resultsFormatter(results) {
       console.log(`${result.filePathANSI} [${colors.cyan(result.fileSizePretty)}]`);
     } else if (result.swarmBzzHash) {
       console.log(`${colors.gray('[SWARM]')} ${result.name} (${result.context}) [${colors.gray(result.swarmBzzHash)}]`);
+    } else if (result.isNote) {
+      console.log(`${colors.gray('[NOTE]')} ${result.noteTags} ${colors.gray(result.notePreview)}`);
     }
 
     if (result.playableUrl && devMachine) {

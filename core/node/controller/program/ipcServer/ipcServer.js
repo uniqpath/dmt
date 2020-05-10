@@ -1,5 +1,5 @@
 import dmt from 'dmt/bridge';
-const { log, cli } = dmt;
+const { log, parseCliArgs } = dmt;
 
 import path from 'path';
 import { homedir } from 'os';
@@ -24,7 +24,7 @@ function server(program) {
           ipc.server.emit(socket, 'ack', 'empty');
         } else if (actorName) {
           if (atDevice) {
-            const { address, port } = cli(atDevice).atDevices[0];
+            const { address, port } = parseCliArgs(atDevice).atDevices[0];
             program.fiberPool.getConnector(address, port || 7780).then(connector => {
               connector
                 .remoteObject(actorName)

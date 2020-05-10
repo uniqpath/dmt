@@ -3,12 +3,12 @@ class TransportClientChannel {
     this.channel = channel;
   }
 
-  async onData(callback) {
+  onData(callback) {
     this.channel.on('json_rpc', callback);
   }
 
-  async sendData(data) {
-    await this.channel.send(data);
+  sendData(data) {
+    this.channel.send(data);
   }
 }
 

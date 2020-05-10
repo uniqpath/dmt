@@ -1,59 +1,25 @@
 <script>
-  export let store;
-
-// ugly hack for now:
-const isZetaSeek = window.location.hostname == 'zetaseek.com';
-
+  import { getContext } from 'svelte';
+  const app = getContext('app');
 </script>
 
-{#if isZetaSeek}
+{#if app.isZetaSeek}
 
   <div class="about">
-    <b>Zeta</b> <span>PoC v0.1.1</span>
+    <b>Zeta</b> <span>PoC v0.1.2</span>
 
     <p>
-      Search with <b>maximum speed and convenience</b>.
+      <b>Zeta</b> is an evolving search technology on <b>modern web3 stack</b>.
     </p>
 
     <p>
-      <b>Zeta</b> is a fast evolving search technology on <b>modern web3 stack</b>.
+      Principal use is as an installed engine (desktop or server).
     </p>
 
     <p>
-      <i>— A new p2p digital era is slowly arriving —</i>
+      Instructions coming soon.
+      <!-- <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta">[INSTALL]</a> -->
     </p>
-
-    <p>
-      Search your computers first — fast and secure:
-    </p>
-
-    <p>
-      <b>Zeta</b> works best as a local app → <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta">try it today</a> and improve your life.
-    </p>
-
-    <!-- <p>
-      <b>zetaseek.com</b> is one example Zeta node which searches a few computers.
-    </p> -->
-
-    <!-- <h3>Coming this year in v2.0</h3>
-
-    <p>
-      Share information with people you trust securely.
-    </p> -->
-
-
-
-    <!-- <b style="color: #50806C;">
-      Next level:
-    </b> -->
-
-    <p>
-
-    </p>
-
-    <!-- <p>
-      <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta/front">[zeta frontend code]</a> | <a href="https://github.com/uniqpath/dmt/tree/master/core/node">[dmt backend code]</a>
-    </p> -->
   </div>
 
 {/if}

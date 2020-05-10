@@ -1,4 +1,6 @@
 import { stores } from 'dmt-js';
+import * as metamask from './metamask';
+import appHelper from './app';
 
 const { SessionStore, ConnectedStore, LogStore } = stores;
 
@@ -28,12 +30,16 @@ console.log = (...args) => {
 
 const verbose = false;
 const session = new SessionStore({ verbose });
-const store = new ConnectedStore({ port, protocol, protocolLane, rpcObjectsSetup, verbose, session, logStore });
+
+const rpcRequestTimeout = 5500;
+const store = new ConnectedStore({ port, ssl: appHelper.ssl, protocol, protocolLane, rpcRequestTimeout, rpcObjectsSetup, verbose, session, logStore });
 
 const app = new App({
   target: document.body,
   props: {
-    store
+    store,
+    appHelper,
+    metamask
   }
 });
 

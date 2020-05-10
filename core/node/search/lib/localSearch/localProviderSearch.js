@@ -8,6 +8,7 @@ import contentSearch from './fsSearch/contentSearch';
 import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
 
 import swarmSearch from './swarmSearch/swarmSearch';
+import noteSearch from './noteSearch/noteSearch';
 
 class LocalProviderSearch {
   constructor({ provider }) {
@@ -21,14 +22,16 @@ class LocalProviderSearch {
     switch (options.contentId) {
       case 'swarm':
         return this.timedLocalSearch({ func: swarmSearch, options });
+      case 'notes':
+        return this.timedLocalSearch({ func: noteSearch, options });
       default:
         return this.timedLocalSearch({ func: contentSearch, options });
     }
   }
 
-  search({ terms, page, clientMaxResults, mediaType }) {
+  search({ terms, page, count, mediaType }) {
     const { contentId } = this;
-    const options = { terms, clientMaxResults, page, mediaType, contentId };
+    const options = { terms, count, page, mediaType, contentId };
 
     return new Promise((success, reject) => {
       if (this.localhost) {

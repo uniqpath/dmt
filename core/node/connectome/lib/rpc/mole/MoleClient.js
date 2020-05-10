@@ -17,7 +17,7 @@ class MoleClient {
   }
 
   async callMethod(methodName, params) {
-    await this._init();
+    this._init();
 
     const method = this.methodPrefix ? `${this.methodPrefix}::${methodName}` : methodName;
 
@@ -25,11 +25,11 @@ class MoleClient {
     return this._sendRequest({ object: request, id: request.id });
   }
 
-  async notify(method, params) {
-    await this._init();
+  notify(method, params) {
+    this._init();
 
     const request = this._makeRequestObject({ method, params, mode: 'notify' });
-    await this.transport.sendData(JSON.stringify(request));
+    this.transport.sendData(JSON.stringify(request));
     return true;
   }
 
@@ -56,10 +56,10 @@ class MoleClient {
     return this._sendRequest({ object: batchRequest, id: batchId });
   }
 
-  async _init() {
+  _init() {
     if (this.initialized) return;
 
-    await this.transport.onData(this._processResponse.bind(this));
+    this.transport.onData(this._processResponse.bind(this));
 
     this.initialized = true;
   }
@@ -78,10 +78,12 @@ class MoleClient {
         }
       }, this.requestTimeout);
 
-      return this.transport.sendData(data).catch(error => {
+      try {
+        this.transport.sendData(data);
+      } catch (e) {
         delete this.pendingRequest[id];
-        reject(error);
-      });
+        reject(e);
+      }
     });
   }
 

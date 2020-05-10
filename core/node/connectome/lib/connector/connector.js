@@ -11,7 +11,7 @@ import RpcClient from '../rpc/client';
 import RPCTarget from '../rpc/RPCTarget';
 
 class Connector extends EventEmitter {
-  constructor({ protocolLane, clientPrivateKey, clientPublicKey, clientInitData, verbose = false, address } = {}) {
+  constructor({ protocolLane, clientPrivateKey, clientPublicKey, clientInitData, rpcRequestTimeout, verbose = false, address } = {}) {
     super();
 
     this.protocolLane = protocolLane;
@@ -22,7 +22,7 @@ class Connector extends EventEmitter {
 
     this.clientInitData = clientInitData;
 
-    this.rpcClient = new RpcClient(this);
+    this.rpcClient = new RpcClient(this, rpcRequestTimeout);
 
     this.address = address;
     this.verbose = verbose;

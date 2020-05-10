@@ -1,5 +1,5 @@
 import dmt from 'dmt/bridge';
-import { parseArgs, serializeContentRefs } from 'dmt/search';
+import { parseSearchQuery, serializeContentRefs } from 'dmt/search';
 import getContentProviders from '../getContentProviders';
 
 class GUISearchObject {
@@ -10,7 +10,7 @@ class GUISearchObject {
 
   search({ query, searchOriginHost }) {
     return new Promise(success => {
-      const { terms, mediaType, clientMaxResults, page, atDevices } = parseArgs({ args: query });
+      const { terms, mediaType, count, page, atDevices } = parseSearchQuery({ query });
 
       let providers = '';
 

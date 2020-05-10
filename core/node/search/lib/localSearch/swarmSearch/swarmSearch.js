@@ -1,8 +1,8 @@
 import swarmResults from './swarmResults';
 import readSwarmIndex from './readSwarmIndexLiveAsync';
 
-function swarmSearch({ terms, page = 1, clientMaxResults, mediaType }) {
-  const maxResults = clientMaxResults;
+function swarmSearch({ terms, page = 1, count, mediaType }) {
+  const maxResults = count;
 
   const initialResultsToIgnore = (page - 1) * maxResults;
 

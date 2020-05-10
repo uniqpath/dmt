@@ -39,7 +39,7 @@ export default function executableSearch(binary, { terms, path, noColor, mediaTy
     const lines = data
       .toString()
       .split('\n')
-      .filter(line => line.trim() != '');
+      .filter(line => line.trim() != '' && !line.endsWith('.DS_Store'));
 
     if (resultsSoFar < page * maxResults) {
       const resultsToIgnore = Math.max(0, initialResultsToIgnore - resultsSoFar);

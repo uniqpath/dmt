@@ -7,14 +7,14 @@ const { MoleClient, ClientTransport } = mole;
 import ConnectomeError from '../error/ConnectomeError';
 
 class SpecificRpcClient {
-  constructor(connectorOrServersideChannel, methodPrefix) {
+  constructor(connectorOrServersideChannel, methodPrefix, requestTimeout) {
     this.moleChannel = new MoleChannel(connectorOrServersideChannel);
     this.methodPrefix = methodPrefix;
 
     this.connectorOrServersideChannel = connectorOrServersideChannel;
 
     this.client = new MoleClient({
-      requestTimeout: 5000,
+      requestTimeout,
       transport: new ClientTransport(this.moleChannel)
     });
   }

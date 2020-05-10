@@ -1,27 +1,22 @@
 import dmt from 'dmt/bridge';
-const { cli, util } = dmt;
+const { parseCliArgs, util } = dmt;
 
 import maxResults from './maxResults';
 
-function parseArgs({ args, actorName, defaultMediaType }) {
-  if (typeof args === 'string') {
-    const { terms, atDevices, attributeOptions } = cli(args.trim().split(/\s+/));
-
-    const { page } = attributeOptions;
-
-    const mediaType = attributeOptions.media || defaultMediaType;
-    const clientMaxResults = attributeOptions.count;
-
-    args = { terms, mediaType, page, clientMaxResults, atDevices };
+function parseSearchQuery({ query, actorName, defaultMediaType }) {
+  if (typeof query !== 'string') {
+    throw new Error('parseSearchQuery:query must be string!');
   }
 
   const { serverMaxResults } = maxResults(actorName);
-  const clientMaxResults = args.clientMaxResults ? args.clientMaxResults : serverMaxResults;
 
-  return { ...args, ...{ clientMaxResults } };
+  const { terms, atDevices, attributeOptions } = parseCliArgs(query.trim().split(/\s+/));
+  const { page, mediaType, count } = attributeOptions;
+
+  return { terms, page, mediaType: mediaType || defaultMediaType, count: count || serverMaxResults, atDevices };
 }
 
-function serializeArgs({ terms, mediaType, page, count, contentId }) {
+function reconstructSearchQuery({ terms, mediaType, page, count, contentId }) {
   const list = util.clone(terms);
 
   if (mediaType) {
@@ -61,4 +56,4 @@ function serializeContentRefs(atDevices) {
     .join(' ');
 }
 
-export { parseArgs, serializeArgs, serializeContentRefs };
+export { parseSearchQuery, reconstructSearchQuery, serializeContentRefs };

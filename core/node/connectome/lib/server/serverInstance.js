@@ -12,7 +12,7 @@ function heartbeat() {
 }
 
 class WsServer extends EventEmitter {
-  constructor({ port, verbose }) {
+  constructor({ ssl = false, port, verbose }) {
     super();
 
     process.nextTick(() => {
@@ -20,44 +20,66 @@ class WsServer extends EventEmitter {
         return protocols[0];
       };
 
-      this.wss = new WebSocket.Server({ port, handleProtocols });
+      if (ssl) {
+        import('fs').then(fs => {
+          import('https').then(https => {
+            const { certPath, keyPath } = ssl;
 
-      this.wss.on('connection', (ws, req) => {
-        ws.remoteIp = getRemoteIp(req);
+            const server = https.createServer({
+              cert: fs.readFileSync(certPath),
+              key: fs.readFileSync(keyPath)
+            });
 
-        const channel = new Channel(ws, { verbose });
+            this.wss = new WebSocket.Server({ server, handleProtocols });
 
-        channel.on('channel_closed', () => {
-          this.emit('connection_closed', channel);
+            this.continueSetup({ verbose });
+
+            server.listen(port);
+          });
         });
+      } else {
+        this.wss = new WebSocket.Server({ port, handleProtocols });
+        this.continueSetup({ verbose });
+      }
+    });
+  }
 
-        this.emit('connection', channel);
+  continueSetup({ verbose }) {
+    this.wss.on('connection', (ws, req) => {
+      ws.remoteIp = getRemoteIp(req);
 
-        ws.isAlive = true;
-        ws.on('pong', heartbeat);
+      const channel = new Channel(ws, { verbose });
 
-        ws.on('message', message => {
-          if (ws.terminated) {
-            return;
-          }
-
-          ws.isAlive = true;
-
-          if (message == 'ping') {
-            if (ws.readyState == ws.OPEN) {
-              try {
-                ws.send('pong');
-              } catch (e) {}
-            }
-            return;
-          }
-
-          channel.messageReceived(message);
-        });
+      channel.on('channel_closed', () => {
+        this.emit('connection_closed', channel);
       });
 
-      this.periodicCleanupAndPing();
+      this.emit('connection', channel);
+
+      ws.isAlive = true;
+      ws.on('pong', heartbeat);
+
+      ws.on('message', message => {
+        if (ws.terminated) {
+          return;
+        }
+
+        ws.isAlive = true;
+
+        if (message == 'ping') {
+          if (ws.readyState == ws.OPEN) {
+            try {
+              ws.send('pong');
+            } catch (e) {}
+          }
+          return;
+        }
+
+        channel.messageReceived(message);
+      });
     });
+
+    this.periodicCleanupAndPing();
   }
 
   connectionsList() {

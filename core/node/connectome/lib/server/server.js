@@ -7,9 +7,10 @@ import HelloTarget from './rpcTargets/helloTarget';
 import ChannelList from '../channel/channelList';
 
 class Server extends EventEmitter {
-  constructor({ port, keypair, verbose }) {
+  constructor({ ssl = false, port, keypair, verbose }) {
     super();
 
+    this.ssl = ssl;
     this.port = port;
     this.keypair = keypair;
     this.verbose = verbose;
@@ -18,7 +19,7 @@ class Server extends EventEmitter {
   }
 
   start() {
-    this.server = new ServerInstance({ port: this.port, verbose: this.verbose });
+    this.server = new ServerInstance({ ssl: this.ssl, port: this.port, verbose: this.verbose });
 
     this.server.on('connection', channel => this.initializeConnection({ channel }));
     this.server.on('connection_closed', channel => this.emit('connection_closed', channel));

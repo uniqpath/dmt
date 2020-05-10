@@ -3,7 +3,7 @@ class TransportServerChannel {
     this.channel = channel;
   }
 
-  async onData(callback) {
+  onData(callback) {
     this.channel.on('json_rpc', async reqData => {
       const resData = await callback(reqData);
       if (!resData) return;

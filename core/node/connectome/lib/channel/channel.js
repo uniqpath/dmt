@@ -8,14 +8,14 @@ import RpcClient from '../rpc/client';
 import RPCTarget from '../rpc/RPCTarget';
 
 class Channel extends EventEmitter {
-  constructor(ws, { verbose }) {
+  constructor(ws, { rpcRequestTimeout, verbose }) {
     super();
     this.ws = ws;
     this.verbose = verbose;
 
     this.protocol = ws.protocol;
 
-    this.reverseRpcClient = new RpcClient(this);
+    this.reverseRpcClient = new RpcClient(this, rpcRequestTimeout);
 
     this.sentMessageCount = 0;
     this.receivedMessageCount = 0;

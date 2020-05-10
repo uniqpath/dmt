@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import colors from 'colors';
 
 import { Server } from 'dmt/connectome';
@@ -16,7 +18,14 @@ class WsServer {
     if (this.keypair) {
       log.write(`Initializing wsServer with public key ${colors.gray(this.keypair.publicKeyHex)}`);
 
-      this.server = new Server({ port, keypair: this.keypair });
+      let ssl;
+      const certPath = path.join(dmt.userDir, 'devices/this/ssl/fullchain.pem');
+      const keyPath = path.join(dmt.userDir, 'devices/this/ssl/privkey.pem');
+      if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+        ssl = { certPath, keyPath };
+      }
+
+      this.server = new Server({ ssl, port, keypair: this.keypair });
 
       log.cyan(`Starting wsServer on port ${colors.magenta(port)}`);
 

@@ -2,7 +2,7 @@ import ZetaSearch from './lib/zetaSearch';
 import settings from './settings';
 
 import detectMediaType from './lib/utils/detectMediaType';
-import { parseArgs, serializeArgs, serializeContentRefs } from './lib/utils/args';
+import { parseSearchQuery, reconstructSearchQuery, serializeContentRefs } from './lib/utils/query';
 
 import initActor from './actor';
 
@@ -12,4 +12,4 @@ function init(program) {
   initActor(program);
 }
 
-export { init, ZetaSearch, detectMediaType, parseArgs, serializeArgs, serializeContentRefs, searchPredicate, settings };
+export { init, ZetaSearch, detectMediaType, parseSearchQuery, reconstructSearchQuery, serializeContentRefs, searchPredicate, settings };
