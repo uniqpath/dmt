@@ -21,7 +21,7 @@ function establishAndMaintainConnection(
   { WebSocket, log }
 ) {
   const wsProtocol = ssl ? 'wss' : 'ws';
-  const endpoint = `${wsProtocol}://${address}:${port}`;
+  const endpoint = port.toString().startsWith('/') ? `${wsProtocol}://${address}${port}` : `${wsProtocol}://${address}:${port}`;
 
   log(`Trying to connect to ws endpoint ${endpoint} ...`);
 
@@ -98,7 +98,7 @@ function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
   }
 
   const openCallback = m => {
-    if (!connector.isConnected()) {
+    if (connector.closed()) {
       log(`websocket conn to ${endpoint} open`);
       conn.checkTicker = 0;
 
@@ -130,7 +130,7 @@ function addSocketListeners({ ws, connector, openCallback }, { log }) {
   const closeCallback = m => {
     log(`websocket conn ${connector.connection.endpoint} closed`);
 
-    if (connector.isConnected()) {
+    if (!connector.closed()) {
       connector.connectStatus(false);
     }
   };

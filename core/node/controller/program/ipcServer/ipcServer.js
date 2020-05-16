@@ -12,6 +12,16 @@ ipc.config.socketRoot = path.join(homedir(), '.dmt/state/');
 ipc.config.retry = 1500;
 ipc.config.silent = true;
 
+function emitResponse({ response, socket }) {
+  ipc.server.emit(socket, 'ack', response);
+}
+
+function emitError({ error, socket }) {
+  log.red('IPC server error:');
+  log.red(error);
+  ipc.server.emit(socket, 'ack', { error: error.message });
+}
+
 function server(program) {
   ipc.serve(() => {
     ipc.server.on('message', (data, socket) => {
@@ -25,31 +35,22 @@ function server(program) {
         } else if (actorName) {
           if (atDevice) {
             const { address, port } = parseCliArgs(atDevice).atDevices[0];
-            program.fiberPool.getConnector(address, port || 7780).then(connector => {
-              connector
-                .remoteObject(actorName)
-                .call(action, payload)
-                .then(response => {
-                  ipc.server.emit(socket, 'ack', response);
-                })
-                .catch(error => {
-                  log.red('IPC server error:');
-                  log.red(error);
-                  ipc.server.emit(socket, 'ack', { error: error.message });
-                });
-            });
+            program.fiberPool
+              .getConnector(address, port || 7780)
+              .then(connector => {
+                connector
+                  .remoteObject(actorName)
+                  .call(action, payload)
+                  .then(response => emitResponse({ response, socket }))
+                  .catch(error => emitError({ error, socket }));
+              })
+              .catch(error => emitError({ error, socket }));
           } else {
             program
               .actor(actorName)
               .call(action, payload)
-              .then(response => {
-                ipc.server.emit(socket, 'ack', response);
-              })
-              .catch(error => {
-                log.red('IPC server error:');
-                log.red(error);
-                ipc.server.emit(socket, 'ack', { error: error.message });
-              });
+              .then(response => emitResponse({ response, socket }))
+              .catch(error => emitError({ error, socket }));
           }
         } else {
           log.red(`Cannot process IPC request: ${data}`);

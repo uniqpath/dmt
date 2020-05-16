@@ -1,12 +1,17 @@
-import { stores } from 'dmt-js';
-import * as metamask from './metamask';
-import appHelper from './app';
+import { stores, metamask } from 'dmt-js';
 
-const { SessionStore, ConnectedStore, LogStore } = stores;
+import FrontendStore from './frontendStore';
+import ConnectedStore from './connectedStore';
+
+import appHelper from './appHelper';
+
+const { SessionStore, LogStore } = stores;
+
+const { metamaskInit } = metamask;
 
 import App from './App.svelte';
 
-const port = 7780;
+const port = appHelper.ssl ? '/ws' : 7780;
 const protocol = 'zeta';
 const protocolLane = 'gui';
 
@@ -30,16 +35,32 @@ console.log = (...args) => {
 
 const verbose = false;
 const session = new SessionStore({ verbose });
+const frontendStore = new FrontendStore();
 
 const rpcRequestTimeout = 5500;
-const store = new ConnectedStore({ port, ssl: appHelper.ssl, protocol, protocolLane, rpcRequestTimeout, rpcObjectsSetup, verbose, session, logStore });
+const store = new ConnectedStore(frontendStore, {
+  port,
+  ssl: appHelper.ssl,
+  protocol,
+  protocolLane,
+  rpcRequestTimeout,
+  rpcObjectsSetup,
+  verbose,
+  session,
+  logStore
+});
+
+const metamaskConnect = metamaskInit(ethAddress => {
+  console.log(`Connected ethereum address: ${ethAddress}`);
+  frontendStore.login(ethAddress);
+});
 
 const app = new App({
   target: document.body,
   props: {
     store,
     appHelper,
-    metamask
+    metamaskConnect
   }
 });
 

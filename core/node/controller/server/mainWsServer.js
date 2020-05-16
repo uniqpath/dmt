@@ -18,14 +18,7 @@ class WsServer {
     if (this.keypair) {
       log.write(`Initializing wsServer with public key ${colors.gray(this.keypair.publicKeyHex)}`);
 
-      let ssl;
-      const certPath = path.join(dmt.userDir, 'devices/this/ssl/fullchain.pem');
-      const keyPath = path.join(dmt.userDir, 'devices/this/ssl/privkey.pem');
-      if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-        ssl = { certPath, keyPath };
-      }
-
-      this.server = new Server({ ssl, port, keypair: this.keypair });
+      this.server = new Server({ ssl: false, port, keypair: this.keypair });
 
       log.cyan(`Starting wsServer on port ${colors.magenta(port)}`);
 
@@ -33,7 +26,9 @@ class WsServer {
 
       this.server.on('connection_closed', channel => {
         if (dmt.isDevMachine()) {
-          console.log(colors.gray(`channel ${channel.protocol}/${channel.protocolLane} from ip ${channel.remoteIp()} closed`));
+          console.log(
+            colors.gray(`channel ${channel.protocol}/${channel.protocolLane} from ip ${channel.remoteIp() ? channel.remoteIp() : 'UNKNOWN/STALE'} closed`)
+          );
         }
       });
 

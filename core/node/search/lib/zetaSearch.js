@@ -22,9 +22,14 @@ class ZetaSearch {
     });
 
     remoteProviders.forEach(provider => {
-      fiberPool.getConnector(provider.address, provider.port || 7780).then(connector => {
-        this.searchArray.push(new RemoteProviderSearch({ provider, connector }));
-      });
+      fiberPool
+        .getConnector(provider.address, provider.port || 7780)
+        .then(connector => {
+          this.searchArray.push(new RemoteProviderSearch({ provider, connector }));
+        })
+        .catch(e => {
+          this.searchArray.push(new RemoteProviderSearch({ provider, connector: e.connector }));
+        });
     });
   }
 

@@ -6,20 +6,27 @@
 {#if app.isZetaSeek}
 
   <div class="about">
-    <b>Zeta</b> <span>PoC v0.1.2</span>
+    <b>Zeta</b> <span>PoC v0.1.3</span>
 
     <p>
       <b>Zeta</b> is an evolving search technology on <b>modern web3 stack</b>.
     </p>
 
     <p>
+      [ Imagine all the people sharing all the files. ]
+    </p>
+
+    <p>
+      [ And the network will live as one. ]
+    </p>
+
+    <!-- <p>
       Principal use is as an installed engine (desktop or server).
     </p>
 
     <p>
       Instructions coming soon.
-      <!-- <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta">[INSTALL]</a> -->
-    </p>
+    </p> -->
   </div>
 
 {/if}

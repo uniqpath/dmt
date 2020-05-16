@@ -10,11 +10,11 @@
 
   export let store;
   export let appHelper;
-  export let metamask;
+  export let metamaskConnect;
 
   setContext('app', appHelper);
 
-  const { isZetaSeek, isLocalhost } = appHelper
+  const { isZetaSeek, isLocalhost } = appHelper;
 
   appHelper.on('play', ({ playableUrl }) => {
     console.log(`Loading ${playableUrl} into mpv on localhost ...`);
@@ -22,7 +22,7 @@
   });
   // ---------
 
-  const searchDelay = isLocalhost ? 50 : 70;  // 50 : 400  // zetaseek we spare our own resources and let users wait a little bit so they don't trigger a lot of requests
+  const searchDelay = isLocalhost ? 50 : 70; // 50 : 400  // zetaseek we spare our own resources and let users wait a little bit so they don't trigger a lot of requests
 
   let isSearching;
   let noSearchHits;
@@ -33,9 +33,15 @@
   //   cssBridge.setWallpaper('/apps/zeta/wallpapers/black_triangles.jpg');
   //}
 
+  const frontendStore = store.frontendStore
+
   $: deviceName = $store.deviceName;
   $: searchResults = $store.searchResults;
   $: connected = $store.connected;
+  $: ethAddress = $frontendStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
+  $: userIdentity = $frontendStore.userIdentity;
+  $: loggedIn = $frontendStore.loggedIn;
+  $: isAdmin = $frontendStore.isAdmin; // hmm ...
 
   let searchQuery = '';
 
@@ -82,12 +88,10 @@
 
 <main>
 
-  {#if isLocalhost}
-    {#if deviceName == 'eclipse'}
-      <Login {metamask} />
-    {:else}
-      <Escape />
-    {/if}
+  {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')}
+    <Login {metamaskConnect} {ethAddress} {userIdentity} {isAdmin} />
+  {:else}
+    <Escape />
   {/if}
 
   <div class="logo">
@@ -100,9 +104,19 @@
 
     <input id="search_input" bind:value={searchQuery} bind:this={searchInput} on:keyup={searchInputChanged} on:paste={searchInputChanged} placeholder="Please type your query ...">
 
-    {#if !connected}
+    {#if !connected && isLocalhost}
       <p class="connection_status_help">
         Please start <span>dmt-proc</span>.
+      </p>
+    {/if}
+
+    {#if !isLocalhost && connected && !searchResults}
+      <p class="connection_status_help">
+        {#if loggedIn}
+          Welcome<span>{userIdentity ? ` ${userIdentity}` : ''}</span>, you have found a fine place <span>♪♫♬</span>
+        {:else} <!-- not logged in -->
+          The secret realm awaits.
+        {/if}
       </p>
     {/if}
 

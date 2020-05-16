@@ -19,7 +19,7 @@ printClientInfo({ privateKeyHex, publicKeyHex });
 connect({ address, port, protocol, protocolLane, clientPrivateKey, clientPublicKey, remotePubkey: undefined, verbose }).then(connector => {
   connector.registerRemoteObject('ClientObject', { hello: () => 'world' });
 
-  connector.on('connected', ({ sharedSecretHex }) => {
+  connector.on('ready', ({ sharedSecretHex }) => {
     console.log(`${colors.gray('Channel connected')} ${colors.green('✓')}`);
     console.log(colors.magenta(`Shared secret: ${colors.gray(sharedSecretHex)}`));
   });

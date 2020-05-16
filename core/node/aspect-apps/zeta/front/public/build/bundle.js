@@ -700,7 +700,6 @@ var app = (function (crypto) {
         return this.state;
       }
 
-      // boilerplate
       subscribe(callback) {
         // todo check if the same ID already exists ... small chance but still ;)
         const subscriptionId = Math.random();
@@ -709,6 +708,7 @@ var app = (function (crypto) {
 
         callback(this.state);
 
+        // return unsubscribe function
         return () => {
           this.subscriptions.forEach((el, index) => {
             if (el.subscriptionId == subscriptionId) {
@@ -4125,7 +4125,7 @@ var app = (function (crypto) {
         data = JSON.stringify(data);
       }
 
-      if (connector.isConnected()) {
+      if (!connector.closed()) {
         if (connector.sentCounter > 1) {
           // we don't encrypt first two messags (RPC: exchangePubkeys and exchangePubkeys::ACK)
 
@@ -4156,7 +4156,7 @@ var app = (function (crypto) {
         }
         connector.sentCounter += 1;
       } else {
-        console.log(`Warning: "${data}" was not sent because the store is not yet connected to the backend`);
+        console.log(`Warning: "${data}" was not sent because connector was not yet connected!`);
         // TODO: check if it's better to pass on the "log" function from establishAndMaintainConnection
       }
     }
@@ -4939,8 +4939,12 @@ var app = (function (crypto) {
         this.verbose = verbose;
       }
 
-      isConnected() {
-        return this.connected;
+      // isConnected() {
+      //   return this.connected;
+      // }
+
+      isReady() {
+        return this.ready;
       }
 
       send(data) {
@@ -4953,7 +4957,7 @@ var app = (function (crypto) {
 
       // channel has this method and connector also has to have it so that rpc client can detect and warn us
       closed() {
-        return !this.isConnected();
+        return !this.connected;
       }
 
       connectStatus(connected) {
@@ -4965,7 +4969,8 @@ var app = (function (crypto) {
           this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, protocolLane: this.protocolLane })
             .then(({ sharedSecret, sharedSecretHex }) => {
               //console.log(colors.magenta(`Shared secret: ${colors.gray(sharedSecretHex)}`));
-              this.emit('connected', { sharedSecret, sharedSecretHex });
+              this.ready = true;
+              this.emit('ready', { sharedSecret, sharedSecretHex });
             })
             .catch(e => {
               // Auth::exchangePubkeys request exceeded maximum allowed time... can sometimes happen on RPi ... maybe increase this time
@@ -4974,6 +4979,7 @@ var app = (function (crypto) {
               this.close();
             });
         } else {
+          this.ready = false;
           this.emit('disconnected');
         }
       }
@@ -5109,7 +5115,9 @@ var app = (function (crypto) {
       { WebSocket, log }
     ) {
       const wsProtocol = ssl ? 'wss' : 'ws';
-      const endpoint = `${wsProtocol}://${address}:${port}`;
+      // hack for now!
+      // testing reverse proxy forwarding for websockets on https://uri.com/ws
+      const endpoint = port.toString().startsWith('/') ? `${wsProtocol}://${address}${port}` : `${wsProtocol}://${address}:${port}`;
 
       log(`Trying to connect to ws endpoint ${endpoint} ...`);
 
@@ -5255,7 +5263,7 @@ var app = (function (crypto) {
       const openCallback = m => {
         //log.cyan(`OPEN CALLBACK !!!!!!!!! ${conn.checkTicker}`);
 
-        if (!connector.isConnected()) {
+        if (connector.closed()) {
           // double-checking... ws connection retries could apparently come back and later open MANY connections when backend is accessible
           // this was a bug with 50-200 sudden connections after backend was offline for some little time.. this happened more on rpi than on laptop but it still happened
           // check in: https://tools.ietf.org/html/rfc6455
@@ -5297,8 +5305,8 @@ var app = (function (crypto) {
       const closeCallback = m => {
         log(`websocket conn ${connector.connection.endpoint} closed`);
 
-        if (connector.isConnected()) {
-          // we have to check this because of initial status can be set elsewhere and we don't want to report of disconnection
+        // we have to check this because of initial status can be set elsewhere and we don't want to report of disconnection
+        if (!connector.closed()) {
           connector.connectStatus(false);
         }
       };
@@ -5450,10 +5458,12 @@ var app = (function (crypto) {
           connector.on('wire_receive', ({ jsonData }) => {
             if (jsonData.state) {
               this.wireStateReceived = true;
+
               if (this.verbose) {
                 console.log(`New store ${this.ip} / ${this.protocol} / ${this.protocolLane} state:`);
                 console.log(jsonData.state);
               }
+
               this.set(jsonData.state);
             }
 
@@ -5463,7 +5473,11 @@ var app = (function (crypto) {
             }
           });
 
-          connector.on('connected', ({ sharedSecret, sharedSecretHex }) => {
+          connector.on('ready', ({ sharedSecret, sharedSecretHex }) => {
+            if (!this.connected) {
+              this.emit('connected');
+            }
+
             this.set({ connected: true });
 
             //console.log(`Shared secret: ${sharedSecretHex}`);
@@ -5679,6 +5693,129 @@ var app = (function (crypto) {
 
     var colors = { white, red, green, gray, yellow, cyan, magenta };
 
+    // Running on the page, in the browser
+    // This API will go live in early 2020
+    // It will be the only API available after a 6-week deprecation period
+
+    function metaMaskInstalled() {
+      return typeof ethereum != 'undefined' && ethereum.isMetaMask;
+    }
+
+    function getFirstAccount(accounts) {
+      if (accounts.length > 0) {
+        // console.log(`Accounts:`);
+        // console.log(accounts);
+        return accounts[0];
+      }
+    }
+
+    /***********************************/
+    /* Handle connecting, per EIP 1102 */
+    /***********************************/
+
+    // You should only attempt to connect in response to user interaction,
+    // such as a button click. Otherwise, you're popup-spamming the user
+    // like it's 1999.
+    // If you can't retrieve the user's account(s), you should encourage the user
+    // to initiate a connection attempt.
+    //document.getElementById('connectButton', connect)
+
+    function metamaskConnectWrapper(accountChangedCallback) {
+      const connect = () => {
+        return new Promise((success, reject) => {
+          metamaskConnect()
+            .then(accounts => {
+              accountChangedCallback(getFirstAccount(accounts));
+            })
+            .catch(reject);
+        });
+      };
+
+      return connect;
+    }
+
+    function metamaskConnect() {
+      return new Promise((success, reject) => {
+        if (metaMaskInstalled()) {
+          // This is equivalent to ethereum.enable()
+          ethereum
+            .send('eth_requestAccounts')
+            .then(rpcResult => {
+              success(rpcResult.result);
+            })
+            .catch(err => {
+              if (err.code === 4001) {
+                // EIP 1193 userRejectedRequest error
+                reject(new Error('Please connect to MetaMask.'));
+              } else {
+                reject(err);
+              }
+            });
+        } else {
+          reject(new Error('Metamask not installed! Why was the connect button shown ?'));
+        }
+      });
+    }
+
+    const MAX_RETRIES = 10;
+
+    function metamaskInit(accountChangedCallback = () => {}, { retryCount = MAX_RETRIES } = {}) {
+      const retryInterval = 100; // 10 x 100ms = 1s ! more than enough for metamask to do it's magic!
+
+      const first = retryCount == MAX_RETRIES;
+
+      if (metaMaskInstalled()) {
+        // 1) initial account detection on page load
+        // recurse every 100ms max 10 times to see if ethereum address is known to us
+        // UPS: We strongly discourage the use of this property, which may be removed in the future.
+        // Ask developers: how to make sure ethereum.on('accountsChanged', handleAccountsChanged);
+        // is cought early ... where to attach listener?? then we don't have to use this polling trick
+        if (ethereum.selectedAddress) {
+          console.log(`Success at ${MAX_RETRIES - retryCount}`);
+          accountChangedCallback(ethereum.selectedAddress);
+        } else if (retryCount > 0) {
+          setTimeout(() => metamaskInit(accountChangedCallback, { retryCount: retryCount - 1 }), retryInterval);
+        }
+
+        if (first) {
+          // initial function run
+          // 2) attach handler for all future changes which are not related to manual user action (connect)
+          // SPECIAL COMMENT:
+          // // Note that this event is emitted on page load.
+          // If the array of accounts is non-empty, you're already
+          // connected.
+          //
+          // BUT we decide not to try catch initial event
+          //   ethereum.on('accountsChanged', handleAccountsChanged);
+          // because it's not reliable, we sometimes fail to attach this before it's fired..
+          // we could do it in index.html but it would be ugly! We just use initial and effective "polling" (recurse this function)
+          ethereum.on('accountsChanged', accounts => {
+            // it seems that if not connected we still get this event but with empty value... we don't pass empty value on, dont have to call our handler because empty account is assumed initially outside of this script anyway
+            const acc = getFirstAccount(accounts);
+            if (acc) {
+              accountChangedCallback(acc);
+            }
+          });
+        }
+
+        //console.log('METAMASK INSTALLED');
+
+        // For now, 'eth_accounts' will continue to always return an array
+        //ethereum.on('accountsChanged', handleAccountsChanged);
+      } else {
+        console.log('METAMASK INIT FAILED: not installed');
+        return false;
+      }
+
+      // 3) handle user action (first account connect)
+      return metamaskConnectWrapper(accountChangedCallback);
+    }
+
+    var metamask = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        metamaskInit: metamaskInit
+    });
+
     function queryDifferentEnough({ searchQuery, prevQuery }) {
       return normalizeQuery(searchQuery) != normalizeQuery(prevQuery);
     }
@@ -5796,6 +5933,9 @@ var app = (function (crypto) {
         }
         const unsub = store.subscribe(...callbacks);
         return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
+    }
+    function component_subscribe(component, store, callback) {
+        component.$$.on_destroy.push(subscribe(store, callback));
     }
 
     function append(target, node) {
@@ -6272,99 +6412,66 @@ var app = (function (crypto) {
       }
     }
 
-    // Running on the page, in the browser
-    // This API will go live in early 2020
-    // It will be the only API available after a 6-week deprecation period
+    const { SimpleStore } = stores;
 
-    function metaMaskInstalled() {
-      return typeof ethereum != 'undefined' && ethereum.isMetaMask;
-      // if (!ethereum || !ethereum.isMetaMask) {
-      //   throw new Error('Please install MetaMask.');
-      // }
-    }
+    class FrontendStore extends SimpleStore {
+      constructor({ verbose = false } = {}) {
+        super();
 
-    if (metaMaskInstalled()) {
-      ethereum
-        .send('eth_chainId')
-        .then(handleChainChanged)
-        .catch(err => console.error(err)); // This should never happen
-
-      ethereum.on('chainChanged', handleChainChanged);
-
-      function handleChainChanged(chainId) {
+        this.verbose = verbose;
       }
 
-      /**********************************************************/
-      /* Handle user accounts and accountsChanged, per EIP 1193 */
-      /**********************************************************/
+      login(ethAddress) {
+        this.set({ ethAddress, loggedIn: true });
+        this.emit('login', ethAddress);
+      }
+    }
 
-      let currentAccount = null;
-      ethereum
-        .send('eth_accounts')
-        .then(handleAccountsChanged)
-        .catch(err => {
-          // In the future, maybe in 2020, this will return a 4100 error if
-          // the user has yet to connect
-          if (err.code === 4100) {
-            // EIP 1193 unauthorized error
-            console.log('Please connect to MetaMask.');
-          } else {
-            console.error(err);
+    class ConnectedStore$1 extends stores.ConnectedStore {
+      constructor(frontendStore, options) {
+        super(options);
+
+        this.frontendStore = frontendStore;
+
+        // also reconnects are handled here
+        this.on('connected', () => {
+          const { ethAddress } = this.frontendStore.get();
+
+          if (ethAddress) {
+            this.loginAddress(ethAddress);
           }
         });
 
-      // Note that this event is emitted on page load.
-      // If the array of accounts is non-empty, you're already
-      // connected.
-      ethereum.on('accountsChanged', handleAccountsChanged);
-
-      // For now, 'eth_accounts' will continue to always return an array
-      function handleAccountsChanged(accounts) {
-        if (accounts.length === 0) {
-          // MetaMask is locked or the user has not connected any accounts
-          console.log('Please connect to MetaMask.');
-        } else if (accounts[0] !== currentAccount) {
-          currentAccount = accounts[0];
-
-          // console.log(`Current account: ${currentAccount}`);
-          // console.log(accounts);
-          // Run any other necessary logic...
-        }
+        frontendStore.on('login', ethAddress => {
+          if (this.connected) {
+            this.loginAddress(ethAddress);
+          }
+        });
       }
-    }
-    /***********************************/
-    /* Handle connecting, per EIP 1102 */
-    /***********************************/
 
-    // You should only attempt to connect in response to user interaction,
-    // such as a button click. Otherwise, you're popup-spamming the user
-    // like it's 1999.
-    // If you can't retrieve the user's account(s), you should encourage the user
-    // to initiate a connection attempt.
-    //document.getElementById('connectButton', connect)
-
-    function connect() {
-      if (metaMaskInstalled()) {
-        // This is equivalent to ethereum.enable()
-        ethereum
-          .send('eth_requestAccounts')
-          .then(handleAccountsChanged)
-          .catch(err => {
-            if (err.code === 4001) {
-              // EIP 1193 userRejectedRequest error
-              console.log('Please connect to MetaMask.');
-            } else {
-              console.error(err);
-            }
-          });
+      // only logs in on frontend still... this only gets information and permissions
+      // for this user ..
+      // in future we have to figure out how to actually allow only for correct users.. if they're not logged
+      // into backend currently... assign to connection ? or send ethAddress with every request ??
+      loginAddress(ethAddress) {
+        this.remoteObject('GUIFrontendStateAcceptor')
+          .call('getUserIdentity', ethAddress)
+          .then(identity => {
+            // console.log('RECEIVED: ');
+            // console.log(identity);
+            this.frontendStore.set(identity);
+          })
+          .catch(console.log);
       }
-    }
 
-    var metamask = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        metaMaskInstalled: metaMaskInstalled,
-        connect: connect
-    });
+      // logout() {
+      //   this.remoteObject('GUIFrontendStateAcceptor').call('logout');
+      // }
+
+      // mirrorFrontendState(frontendState) {
+      //   this.remoteObject('GUIFrontendStateAcceptor').call('mirrorFrontendState', frontendState);
+      // }
+    }
 
     class App extends Eev {
       constructor() {
@@ -6407,7 +6514,7 @@ var app = (function (crypto) {
     			b0.textContent = "Zeta";
     			t1 = space();
     			span = element("span");
-    			span.textContent = "PoC v0.1.2";
+    			span.textContent = "PoC v0.1.3";
     			t3 = space();
     			p0 = element("p");
     			b1 = element("b");
@@ -6418,10 +6525,10 @@ var app = (function (crypto) {
     			t7 = text(".");
     			t8 = space();
     			p1 = element("p");
-    			p1.textContent = "Principal use is as an installed engine (desktop or server).";
+    			p1.textContent = "[ Imagine all the people sharing all the files. ]";
     			t10 = space();
     			p2 = element("p");
-    			p2.textContent = "Instructions coming soon.";
+    			p2.textContent = "[ And the network will live as one. ]";
     			add_location(b0, file$1, 8, 4, 140);
     			attr_dev(span, "class", "svelte-1vn6uc8");
     			add_location(span, file$1, 8, 16, 152);
@@ -6432,7 +6539,7 @@ var app = (function (crypto) {
     			attr_dev(p1, "class", "svelte-1vn6uc8");
     			add_location(p1, file$1, 14, 4, 279);
     			attr_dev(p2, "class", "svelte-1vn6uc8");
-    			add_location(p2, file$1, 18, 4, 364);
+    			add_location(p2, file$1, 18, 4, 353);
     			attr_dev(div, "class", "about svelte-1vn6uc8");
     			add_location(div, file$1, 7, 2, 116);
     		},
@@ -6534,13 +6641,85 @@ var app = (function (crypto) {
 
     /* src/components/Login.svelte generated by Svelte v3.19.2 */
 
+    const { console: console_1 } = globals;
     const file$2 = "src/components/Login.svelte";
 
-    function create_fragment$2(ctx) {
+    // (57:2) {:else}
+    function create_else_block_1(ctx) {
+    	let div1;
+    	let t0;
+    	let a0;
+    	let t2;
+    	let div0;
+    	let t4;
+    	let a1;
+    	let img;
+    	let img_src_value;
+
+    	const block = {
+    		c: function create() {
+    			div1 = element("div");
+    			t0 = text("Install ");
+    			a0 = element("a");
+    			a0.textContent = "MetaMask";
+    			t2 = text(" extension to login.\n      ");
+    			div0 = element("div");
+    			div0.textContent = "MetaMask provides the simplest yet most secure way to connect to decentralized applications. You are always in control when interacting on the new decentralized web.";
+    			t4 = space();
+    			a1 = element("a");
+    			img = element("img");
+    			attr_dev(a0, "href", "https://metamask.io");
+    			attr_dev(a0, "class", "svelte-1ejps3w");
+    			add_location(a0, file$2, 58, 14, 1318);
+    			attr_dev(div0, "class", "explain svelte-1ejps3w");
+    			add_location(div0, file$2, 59, 6, 1387);
+    			if (img.src !== (img_src_value = "/apps/zeta/img/metamask.png")) attr_dev(img, "src", img_src_value);
+    			attr_dev(img, "alt", "metamask");
+    			attr_dev(img, "class", "svelte-1ejps3w");
+    			add_location(img, file$2, 62, 37, 1633);
+    			attr_dev(a1, "href", "https://metamask.io");
+    			attr_dev(a1, "class", "svelte-1ejps3w");
+    			add_location(a1, file$2, 62, 6, 1602);
+    			attr_dev(div1, "class", "metamask_missing svelte-1ejps3w");
+    			add_location(div1, file$2, 57, 4, 1273);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div1, anchor);
+    			append_dev(div1, t0);
+    			append_dev(div1, a0);
+    			append_dev(div1, t2);
+    			append_dev(div1, div0);
+    			append_dev(div1, t4);
+    			append_dev(div1, a1);
+    			append_dev(a1, img);
+    		},
+    		p: noop$2,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block_1.name,
+    		type: "else",
+    		source: "(57:2) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (49:2) {#if metamaskConnect}
+    function create_if_block_3(ctx) {
     	let div;
     	let a;
     	let img;
     	let img_src_value;
+    	let t0;
+    	let br;
+    	let t1;
+    	let b;
     	let dispose;
 
     	const block = {
@@ -6548,30 +6727,279 @@ var app = (function (crypto) {
     			div = element("div");
     			a = element("a");
     			img = element("img");
+    			t0 = space();
+    			br = element("br");
+    			t1 = space();
+    			b = element("b");
+    			b.textContent = "CONNECT";
     			if (img.src !== (img_src_value = "/apps/zeta/img/metamask.png")) attr_dev(img, "src", img_src_value);
-    			attr_dev(img, "alt", "metamask");
-    			attr_dev(img, "class", "svelte-sdik89");
-    			add_location(img, file$2, 13, 4, 185);
-    			attr_dev(a, "href", "/apps");
-    			add_location(a, file$2, 11, 2, 117);
-    			attr_dev(div, "class", "login svelte-sdik89");
-    			add_location(div, file$2, 10, 0, 95);
-    		},
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    			attr_dev(img, "alt", "metamask ");
+    			attr_dev(img, "class", "svelte-1ejps3w");
+    			add_location(img, file$2, 51, 8, 1102);
+    			attr_dev(a, "href", "#");
+    			add_location(a, file$2, 50, 6, 1081);
+    			add_location(br, file$2, 53, 6, 1222);
+    			add_location(b, file$2, 54, 6, 1233);
+    			attr_dev(div, "class", "login svelte-1ejps3w");
+    			add_location(div, file$2, 49, 4, 1055);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
     			append_dev(div, a);
     			append_dev(a, img);
-    			dispose = listen_dev(img, "click", prevent_default(/*click_handler*/ ctx[2]), false, true, false);
+    			append_dev(div, t0);
+    			append_dev(div, br);
+    			append_dev(div, t1);
+    			append_dev(div, b);
+    			dispose = listen_dev(img, "click", prevent_default(/*click_handler*/ ctx[5]), false, true, false);
     		},
     		p: noop$2,
-    		i: noop$2,
-    		o: noop$2,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
     			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_3.name,
+    		type: "if",
+    		source: "(49:2) {#if metamaskConnect}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (34:0) {#if ethAddress}
+    function create_if_block$1(ctx) {
+    	let div;
+    	let t;
+
+    	function select_block_type_1(ctx, dirty) {
+    		if (/*userIdentity*/ ctx[2]) return create_if_block_1;
+    		return create_else_block;
+    	}
+
+    	let current_block_type = select_block_type_1(ctx);
+    	let if_block = current_block_type(ctx);
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			t = text("HI ");
+    			if_block.c();
+    			attr_dev(div, "id", "eth_identity");
+    			attr_dev(div, "class", "svelte-1ejps3w");
+    			add_location(div, file$2, 35, 2, 802);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, t);
+    			if_block.m(div, null);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (current_block_type === (current_block_type = select_block_type_1(ctx)) && if_block) {
+    				if_block.p(ctx, dirty);
+    			} else {
+    				if_block.d(1);
+    				if_block = current_block_type(ctx);
+
+    				if (if_block) {
+    					if_block.c();
+    					if_block.m(div, null);
+    				}
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$1.name,
+    		type: "if",
+    		source: "(34:0) {#if ethAddress}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (44:4) {:else}
+    function create_else_block(ctx) {
+    	let span;
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			t = text(/*ethAddress*/ ctx[1]);
+    			attr_dev(span, "class", "svelte-1ejps3w");
+    			add_location(span, file$2, 44, 6, 974);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*ethAddress*/ 2) set_data_dev(t, /*ethAddress*/ ctx[1]);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block.name,
+    		type: "else",
+    		source: "(44:4) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (37:7) {#if userIdentity}
+    function create_if_block_1(ctx) {
+    	let t0;
+    	let t1;
+    	let t2;
+    	let span;
+    	let t3;
+    	let t4;
+    	let if_block = /*isAdmin*/ ctx[3] && create_if_block_2(ctx);
+
+    	const block = {
+    		c: function create() {
+    			t0 = text(/*userIdentity*/ ctx[2]);
+    			t1 = space();
+    			if (if_block) if_block.c();
+    			t2 = text("\n      [");
+    			span = element("span");
+    			t3 = text(/*ethAddress*/ ctx[1]);
+    			t4 = text("]");
+    			attr_dev(span, "class", "svelte-1ejps3w");
+    			add_location(span, file$2, 42, 7, 929);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, t1, anchor);
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, t2, anchor);
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t3);
+    			insert_dev(target, t4, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*userIdentity*/ 4) set_data_dev(t0, /*userIdentity*/ ctx[2]);
+
+    			if (/*isAdmin*/ ctx[3]) {
+    				if (!if_block) {
+    					if_block = create_if_block_2(ctx);
+    					if_block.c();
+    					if_block.m(t2.parentNode, t2);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			if (dirty & /*ethAddress*/ 2) set_data_dev(t3, /*ethAddress*/ ctx[1]);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(t1);
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(t2);
+    			if (detaching) detach_dev(span);
+    			if (detaching) detach_dev(t4);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1.name,
+    		type: "if",
+    		source: "(37:7) {#if userIdentity}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (40:6) {#if isAdmin}
+    function create_if_block_2(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text("(admin)");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_2.name,
+    		type: "if",
+    		source: "(40:6) {#if isAdmin}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$2(ctx) {
+    	let if_block_anchor;
+
+    	function select_block_type(ctx, dirty) {
+    		if (/*ethAddress*/ ctx[1]) return create_if_block$1;
+    		if (/*metamaskConnect*/ ctx[0]) return create_if_block_3;
+    		return create_else_block_1;
+    	}
+
+    	let current_block_type = select_block_type(ctx);
+    	let if_block = current_block_type(ctx);
+
+    	const block = {
+    		c: function create() {
+    			if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
+    				if_block.p(ctx, dirty);
+    			} else {
+    				if_block.d(1);
+    				if_block = current_block_type(ctx);
+
+    				if (if_block) {
+    					if_block.c();
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    				}
+    			}
+    		},
+    		i: noop$2,
+    		o: noop$2,
+    		d: function destroy(detaching) {
+    			if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
     		}
     	};
 
@@ -6587,16 +7015,29 @@ var app = (function (crypto) {
     }
 
     function instance$2($$self, $$props, $$invalidate) {
-    	let { metamask } = $$props;
+    	let { metamaskConnect } = $$props;
+    	let { ethAddress } = $$props;
+    	let { userIdentity } = $$props;
+    	let { isAdmin } = $$props;
 
     	function login() {
-    		metamask.connect();
+    		metamaskConnect().catch(e => {
+    			console.log("Metamask not connected (yet):");
+    			console.log(e);
+    		});
     	}
 
-    	const writable_props = ["metamask"];
+    	onMount(() => {
+    		
+    	}); // todo: http://snapsvg.io/
+    	// included in index.html
+    	// if (ethAddress) {
+    	//   var s = Snap("#eth_address");
+
+    	const writable_props = ["metamaskConnect", "ethAddress", "userIdentity", "isAdmin"];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Login> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn(`<Login> was created with unknown prop '${key}'`);
     	});
 
     	let { $$slots = {}, $$scope } = $$props;
@@ -6607,26 +7048,45 @@ var app = (function (crypto) {
     	};
 
     	$$self.$set = $$props => {
-    		if ("metamask" in $$props) $$invalidate(1, metamask = $$props.metamask);
+    		if ("metamaskConnect" in $$props) $$invalidate(0, metamaskConnect = $$props.metamaskConnect);
+    		if ("ethAddress" in $$props) $$invalidate(1, ethAddress = $$props.ethAddress);
+    		if ("userIdentity" in $$props) $$invalidate(2, userIdentity = $$props.userIdentity);
+    		if ("isAdmin" in $$props) $$invalidate(3, isAdmin = $$props.isAdmin);
     	};
 
-    	$$self.$capture_state = () => ({ metamask, login });
+    	$$self.$capture_state = () => ({
+    		onMount,
+    		metamaskConnect,
+    		ethAddress,
+    		userIdentity,
+    		isAdmin,
+    		login
+    	});
 
     	$$self.$inject_state = $$props => {
-    		if ("metamask" in $$props) $$invalidate(1, metamask = $$props.metamask);
+    		if ("metamaskConnect" in $$props) $$invalidate(0, metamaskConnect = $$props.metamaskConnect);
+    		if ("ethAddress" in $$props) $$invalidate(1, ethAddress = $$props.ethAddress);
+    		if ("userIdentity" in $$props) $$invalidate(2, userIdentity = $$props.userIdentity);
+    		if ("isAdmin" in $$props) $$invalidate(3, isAdmin = $$props.isAdmin);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [login, metamask, click_handler];
+    	return [metamaskConnect, ethAddress, userIdentity, isAdmin, login, click_handler];
     }
 
     class Login extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$2, create_fragment$2, safe_not_equal, { metamask: 1 });
+
+    		init(this, options, instance$2, create_fragment$2, safe_not_equal, {
+    			metamaskConnect: 0,
+    			ethAddress: 1,
+    			userIdentity: 2,
+    			isAdmin: 3
+    		});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
@@ -6638,16 +7098,52 @@ var app = (function (crypto) {
     		const { ctx } = this.$$;
     		const props = options.props || {};
 
-    		if (/*metamask*/ ctx[1] === undefined && !("metamask" in props)) {
-    			console.warn("<Login> was created without expected prop 'metamask'");
+    		if (/*metamaskConnect*/ ctx[0] === undefined && !("metamaskConnect" in props)) {
+    			console_1.warn("<Login> was created without expected prop 'metamaskConnect'");
+    		}
+
+    		if (/*ethAddress*/ ctx[1] === undefined && !("ethAddress" in props)) {
+    			console_1.warn("<Login> was created without expected prop 'ethAddress'");
+    		}
+
+    		if (/*userIdentity*/ ctx[2] === undefined && !("userIdentity" in props)) {
+    			console_1.warn("<Login> was created without expected prop 'userIdentity'");
+    		}
+
+    		if (/*isAdmin*/ ctx[3] === undefined && !("isAdmin" in props)) {
+    			console_1.warn("<Login> was created without expected prop 'isAdmin'");
     		}
     	}
 
-    	get metamask() {
+    	get metamaskConnect() {
     		throw new Error("<Login>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	set metamask(value) {
+    	set metamaskConnect(value) {
+    		throw new Error("<Login>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get ethAddress() {
+    		throw new Error("<Login>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set ethAddress(value) {
+    		throw new Error("<Login>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get userIdentity() {
+    		throw new Error("<Login>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set userIdentity(value) {
+    		throw new Error("<Login>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isAdmin() {
+    		throw new Error("<Login>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isAdmin(value) {
     		throw new Error("<Login>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
@@ -6869,7 +7365,8 @@ var app = (function (crypto) {
     const file$4 = "src/components/ConnectionStatus.svelte";
 
     // (25:2) {:else}
-    function create_else_block_1(ctx) {
+    function create_else_block_1$1(ctx) {
+    	let span;
     	let t0_value = /*displayDeviceName*/ ctx[3](/*deviceName*/ ctx[1]) + "";
     	let t0;
     	let t1;
@@ -6888,12 +7385,16 @@ var app = (function (crypto) {
 
     	const block = {
     		c: function create() {
+    			span = element("span");
     			t0 = text(t0_value);
     			t1 = text(" disconnected ");
     			create_component(spinner.$$.fragment);
+    			attr_dev(span, "class", "device_name svelte-12vdbun");
+    			add_location(span, file$4, 25, 5, 649);
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, t0, anchor);
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t0);
     			insert_dev(target, t1, anchor);
     			mount_component(spinner, target, anchor);
     			current = true;
@@ -6911,7 +7412,7 @@ var app = (function (crypto) {
     			current = false;
     		},
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(span);
     			if (detaching) detach_dev(t1);
     			destroy_component(spinner, detaching);
     		}
@@ -6919,7 +7420,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_1.name,
+    		id: create_else_block_1$1.name,
     		type: "else",
     		source: "(25:2) {:else}",
     		ctx
@@ -6929,7 +7430,7 @@ var app = (function (crypto) {
     }
 
     // (17:2) {#if connected}
-    function create_if_block$1(ctx) {
+    function create_if_block$2(ctx) {
     	let span;
     	let t0_value = /*displayDeviceName*/ ctx[3](/*deviceName*/ ctx[1]) + "";
     	let t0;
@@ -6938,7 +7439,7 @@ var app = (function (crypto) {
     	let if_block;
     	let if_block_anchor;
     	let current;
-    	const if_block_creators = [create_if_block_1, create_else_block];
+    	const if_block_creators = [create_if_block_1$1, create_else_block$1];
     	const if_blocks = [];
 
     	function select_block_type_1(ctx, dirty) {
@@ -6953,7 +7454,7 @@ var app = (function (crypto) {
     		c: function create() {
     			span = element("span");
     			t0 = text(t0_value);
-    			t1 = text(" connected\n\n    ");
+    			t1 = text(" ready\n\n    ");
     			if_block.c();
     			if_block_anchor = empty();
     			attr_dev(span, "class", "device_name svelte-12vdbun");
@@ -7010,7 +7511,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$1.name,
+    		id: create_if_block$2.name,
     		type: "if",
     		source: "(17:2) {#if connected}",
     		ctx
@@ -7020,7 +7521,7 @@ var app = (function (crypto) {
     }
 
     // (22:4) {:else}
-    function create_else_block(ctx) {
+    function create_else_block$1(ctx) {
     	let span;
 
     	const block = {
@@ -7028,7 +7529,7 @@ var app = (function (crypto) {
     			span = element("span");
     			span.textContent = "✓";
     			attr_dev(span, "class", "mark svelte-12vdbun");
-    			add_location(span, file$4, 22, 6, 600);
+    			add_location(span, file$4, 22, 6, 596);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7042,7 +7543,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block.name,
+    		id: create_else_block$1.name,
     		type: "else",
     		source: "(22:4) {:else}",
     		ctx
@@ -7052,7 +7553,7 @@ var app = (function (crypto) {
     }
 
     // (20:4) {#if isSearching}
-    function create_if_block_1(ctx) {
+    function create_if_block_1$1(ctx) {
     	let current;
 
     	const spinner = new Src({
@@ -7090,7 +7591,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1.name,
+    		id: create_if_block_1$1.name,
     		type: "if",
     		source: "(20:4) {#if isSearching}",
     		ctx
@@ -7104,7 +7605,7 @@ var app = (function (crypto) {
     	let current_block_type_index;
     	let if_block;
     	let current;
-    	const if_block_creators = [create_if_block$1, create_else_block_1];
+    	const if_block_creators = [create_if_block$2, create_else_block_1$1];
     	const if_blocks = [];
 
     	function select_block_type(ctx, dirty) {
@@ -7298,7 +7799,7 @@ var app = (function (crypto) {
     const file$5 = "src/components/SearchResults/ResultTag.svelte";
 
     // (11:2) {:else}
-    function create_else_block$1(ctx) {
+    function create_else_block$2(ctx) {
     	let t_value = /*tag*/ ctx[0].toUpperCase() + "";
     	let t;
 
@@ -7319,7 +7820,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block$1.name,
+    		id: create_else_block$2.name,
     		type: "else",
     		source: "(11:2) {:else}",
     		ctx
@@ -7329,7 +7830,7 @@ var app = (function (crypto) {
     }
 
     // (9:2) {#if mediaTypeIcon(tag)}
-    function create_if_block$2(ctx) {
+    function create_if_block$3(ctx) {
     	let t_value = mediaTypeIcon(/*tag*/ ctx[0]) + "";
     	let t;
 
@@ -7350,7 +7851,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$2.name,
+    		id: create_if_block$3.name,
     		type: "if",
     		source: "(9:2) {#if mediaTypeIcon(tag)}",
     		ctx
@@ -7366,8 +7867,8 @@ var app = (function (crypto) {
 
     	function select_block_type(ctx, dirty) {
     		if (show_if == null || dirty & /*tag*/ 1) show_if = !!mediaTypeIcon(/*tag*/ ctx[0]);
-    		if (show_if) return create_if_block$2;
-    		return create_else_block$1;
+    		if (show_if) return create_if_block$3;
+    		return create_else_block$2;
     	}
 
     	let current_block_type = select_block_type(ctx, -1);
@@ -7597,7 +8098,7 @@ var app = (function (crypto) {
     }
 
     // (23:0) {#if mediaType == 'music'}
-    function create_if_block_3(ctx) {
+    function create_if_block_3$1(ctx) {
     	let current;
     	const resulttag = new ResultTag({ props: { tag: "music" }, $$inline: true });
 
@@ -7625,7 +8126,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_3.name,
+    		id: create_if_block_3$1.name,
     		type: "if",
     		source: "(23:0) {#if mediaType == 'music'}",
     		ctx
@@ -7635,7 +8136,7 @@ var app = (function (crypto) {
     }
 
     // (29:0) {#if resultType == 'swarm'}
-    function create_if_block_2(ctx) {
+    function create_if_block_2$1(ctx) {
     	let current;
     	const resulttag = new ResultTag({ props: { tag: "swarm" }, $$inline: true });
 
@@ -7663,7 +8164,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_2.name,
+    		id: create_if_block_2$1.name,
     		type: "if",
     		source: "(29:0) {#if resultType == 'swarm'}",
     		ctx
@@ -7673,7 +8174,7 @@ var app = (function (crypto) {
     }
 
     // (33:0) {#if entryType == 'ens'}
-    function create_if_block_1$1(ctx) {
+    function create_if_block_1$2(ctx) {
     	let current;
     	const resulttag = new ResultTag({ props: { tag: "ens" }, $$inline: true });
 
@@ -7701,7 +8202,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$1.name,
+    		id: create_if_block_1$2.name,
     		type: "if",
     		source: "(33:0) {#if entryType == 'ens'}",
     		ctx
@@ -7711,7 +8212,7 @@ var app = (function (crypto) {
     }
 
     // (39:0) {#if resultType == 'note'}
-    function create_if_block$3(ctx) {
+    function create_if_block$4(ctx) {
     	let current;
     	const resulttag = new ResultTag({ props: { tag: "note" }, $$inline: true });
 
@@ -7739,7 +8240,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$3.name,
+    		id: create_if_block$4.name,
     		type: "if",
     		source: "(39:0) {#if resultType == 'note'}",
     		ctx
@@ -7760,10 +8261,10 @@ var app = (function (crypto) {
     	let if_block0 = /*mediaType*/ ctx[0] == "video" && create_if_block_6(ctx);
     	let if_block1 = /*mediaType*/ ctx[0] == "photo" && create_if_block_5(ctx);
     	let if_block2 = /*mediaType*/ ctx[0] == "pdf" && create_if_block_4(ctx);
-    	let if_block3 = /*mediaType*/ ctx[0] == "music" && create_if_block_3(ctx);
-    	let if_block4 = /*resultType*/ ctx[1] == "swarm" && create_if_block_2(ctx);
-    	let if_block5 = /*entryType*/ ctx[2] == "ens" && create_if_block_1$1(ctx);
-    	let if_block6 = /*resultType*/ ctx[1] == "note" && create_if_block$3(ctx);
+    	let if_block3 = /*mediaType*/ ctx[0] == "music" && create_if_block_3$1(ctx);
+    	let if_block4 = /*resultType*/ ctx[1] == "swarm" && create_if_block_2$1(ctx);
+    	let if_block5 = /*entryType*/ ctx[2] == "ens" && create_if_block_1$2(ctx);
+    	let if_block6 = /*resultType*/ ctx[1] == "note" && create_if_block$4(ctx);
 
     	const block = {
     		c: function create() {
@@ -7862,7 +8363,7 @@ var app = (function (crypto) {
 
     			if (/*mediaType*/ ctx[0] == "music") {
     				if (!if_block3) {
-    					if_block3 = create_if_block_3(ctx);
+    					if_block3 = create_if_block_3$1(ctx);
     					if_block3.c();
     					transition_in(if_block3, 1);
     					if_block3.m(t3.parentNode, t3);
@@ -7881,7 +8382,7 @@ var app = (function (crypto) {
 
     			if (/*resultType*/ ctx[1] == "swarm") {
     				if (!if_block4) {
-    					if_block4 = create_if_block_2(ctx);
+    					if_block4 = create_if_block_2$1(ctx);
     					if_block4.c();
     					transition_in(if_block4, 1);
     					if_block4.m(t4.parentNode, t4);
@@ -7900,7 +8401,7 @@ var app = (function (crypto) {
 
     			if (/*entryType*/ ctx[2] == "ens") {
     				if (!if_block5) {
-    					if_block5 = create_if_block_1$1(ctx);
+    					if_block5 = create_if_block_1$2(ctx);
     					if_block5.c();
     					transition_in(if_block5, 1);
     					if_block5.m(t5.parentNode, t5);
@@ -7919,7 +8420,7 @@ var app = (function (crypto) {
 
     			if (/*resultType*/ ctx[1] == "note") {
     				if (!if_block6) {
-    					if_block6 = create_if_block$3(ctx);
+    					if_block6 = create_if_block$4(ctx);
     					if_block6.c();
     					transition_in(if_block6, 1);
     					if_block6.m(if_block6_anchor.parentNode, if_block6_anchor);
@@ -8087,7 +8588,7 @@ var app = (function (crypto) {
     const file$6 = "src/components/SearchResults/PlayMedia.svelte";
 
     // (13:0) {#if !app.isZetaSeek && mediaType == 'music'}
-    function create_if_block$4(ctx) {
+    function create_if_block$5(ctx) {
     	let button;
     	let dispose;
 
@@ -8111,7 +8612,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$4.name,
+    		id: create_if_block$5.name,
     		type: "if",
     		source: "(13:0) {#if !app.isZetaSeek && mediaType == 'music'}",
     		ctx
@@ -8122,7 +8623,7 @@ var app = (function (crypto) {
 
     function create_fragment$7(ctx) {
     	let if_block_anchor;
-    	let if_block = !/*app*/ ctx[2].isZetaSeek && /*mediaType*/ ctx[0] == "music" && create_if_block$4(ctx);
+    	let if_block = !/*app*/ ctx[2].isZetaSeek && /*mediaType*/ ctx[0] == "music" && create_if_block$5(ctx);
 
     	const block = {
     		c: function create() {
@@ -8141,7 +8642,7 @@ var app = (function (crypto) {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
-    					if_block = create_if_block$4(ctx);
+    					if_block = create_if_block$5(ctx);
     					if_block.c();
     					if_block.m(if_block_anchor.parentNode, if_block_anchor);
     				}
@@ -8300,7 +8801,7 @@ var app = (function (crypto) {
     }
 
     // (26:0) {:else}
-    function create_else_block$2(ctx) {
+    function create_else_block$3(ctx) {
     	let t;
 
     	const block = {
@@ -8317,7 +8818,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block$2.name,
+    		id: create_else_block$3.name,
     		type: "else",
     		source: "(26:0) {:else}",
     		ctx
@@ -8327,7 +8828,7 @@ var app = (function (crypto) {
     }
 
     // (24:0) {#if entryType == 'ens'}
-    function create_if_block_3$1(ctx) {
+    function create_if_block_3$2(ctx) {
     	let t;
 
     	const block = {
@@ -8344,7 +8845,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_3$1.name,
+    		id: create_if_block_3$2.name,
     		type: "if",
     		source: "(24:0) {#if entryType == 'ens'}",
     		ctx
@@ -8354,11 +8855,11 @@ var app = (function (crypto) {
     }
 
     // (30:0) {#if context}
-    function create_if_block$5(ctx) {
+    function create_if_block$6(ctx) {
     	let t;
     	let if_block1_anchor;
-    	let if_block0 = /*entryType*/ ctx[3] != "ens" && create_if_block_2$1(ctx);
-    	let if_block1 = /*entryType*/ ctx[3] != "ens" && create_if_block_1$2(ctx);
+    	let if_block0 = /*entryType*/ ctx[3] != "ens" && create_if_block_2$2(ctx);
+    	let if_block1 = /*entryType*/ ctx[3] != "ens" && create_if_block_1$3(ctx);
 
     	const block = {
     		c: function create() {
@@ -8376,7 +8877,7 @@ var app = (function (crypto) {
     		p: function update(ctx, dirty) {
     			if (/*entryType*/ ctx[3] != "ens") {
     				if (!if_block0) {
-    					if_block0 = create_if_block_2$1(ctx);
+    					if_block0 = create_if_block_2$2(ctx);
     					if_block0.c();
     					if_block0.m(t.parentNode, t);
     				}
@@ -8389,7 +8890,7 @@ var app = (function (crypto) {
 
     			if (/*entryType*/ ctx[3] != "ens") {
     				if (!if_block1) {
-    					if_block1 = create_if_block_1$2(ctx);
+    					if_block1 = create_if_block_1$3(ctx);
     					if_block1.c();
     					if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
     				}
@@ -8408,7 +8909,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$5.name,
+    		id: create_if_block$6.name,
     		type: "if",
     		source: "(30:0) {#if context}",
     		ctx
@@ -8418,7 +8919,7 @@ var app = (function (crypto) {
     }
 
     // (31:2) {#if entryType != 'ens'}
-    function create_if_block_2$1(ctx) {
+    function create_if_block_2$2(ctx) {
     	let t;
 
     	const block = {
@@ -8435,7 +8936,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_2$1.name,
+    		id: create_if_block_2$2.name,
     		type: "if",
     		source: "(31:2) {#if entryType != 'ens'}",
     		ctx
@@ -8445,7 +8946,7 @@ var app = (function (crypto) {
     }
 
     // (31:41) {#if entryType != 'ens'}
-    function create_if_block_1$2(ctx) {
+    function create_if_block_1$3(ctx) {
     	let t;
 
     	const block = {
@@ -8462,7 +8963,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$2.name,
+    		id: create_if_block_1$3.name,
     		type: "if",
     		source: "(31:41) {#if entryType != 'ens'}",
     		ctx
@@ -8494,13 +8995,13 @@ var app = (function (crypto) {
     	let if_block0 = /*prettyTime*/ ctx[2] && create_if_block_4$1(ctx);
 
     	function select_block_type(ctx, dirty) {
-    		if (/*entryType*/ ctx[3] == "ens") return create_if_block_3$1;
-    		return create_else_block$2;
+    		if (/*entryType*/ ctx[3] == "ens") return create_if_block_3$2;
+    		return create_else_block$3;
     	}
 
     	let current_block_type = select_block_type(ctx);
     	let if_block1 = current_block_type(ctx);
-    	let if_block2 = /*context*/ ctx[5] && create_if_block$5(ctx);
+    	let if_block2 = /*context*/ ctx[5] && create_if_block$6(ctx);
 
     	const playmedia = new PlayMedia({
     			props: {
@@ -8586,7 +9087,7 @@ var app = (function (crypto) {
     				if (if_block2) {
     					if_block2.p(ctx, dirty);
     				} else {
-    					if_block2 = create_if_block$5(ctx);
+    					if_block2 = create_if_block$6(ctx);
     					if_block2.c();
     					if_block2.m(t5.parentNode, t5);
     				}
@@ -8838,7 +9339,7 @@ var app = (function (crypto) {
     }
 
     // (31:0) {#if fileSizePretty}
-    function create_if_block$6(ctx) {
+    function create_if_block$7(ctx) {
     	let span;
     	let t;
 
@@ -8863,7 +9364,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$6.name,
+    		id: create_if_block$7.name,
     		type: "if",
     		source: "(31:0) {#if fileSizePretty}",
     		ctx
@@ -8901,7 +9402,7 @@ var app = (function (crypto) {
     			$$inline: true
     		});
 
-    	let if_block = /*fileSizePretty*/ ctx[3] && create_if_block$6(ctx);
+    	let if_block = /*fileSizePretty*/ ctx[3] && create_if_block$7(ctx);
 
     	const block = {
     		c: function create() {
@@ -8982,7 +9483,7 @@ var app = (function (crypto) {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
-    					if_block = create_if_block$6(ctx);
+    					if_block = create_if_block$7(ctx);
     					if_block.c();
     					if_block.m(if_block_anchor.parentNode, if_block_anchor);
     				}
@@ -9332,7 +9833,7 @@ var app = (function (crypto) {
     const file$a = "src/components/SearchResults/ResultsMetaTop.svelte";
 
     // (6:46) {#if meta.contentId}
-    function create_if_block$7(ctx) {
+    function create_if_block$8(ctx) {
     	let t0;
     	let t1_value = /*meta*/ ctx[0].contentId + "";
     	let t1;
@@ -9357,7 +9858,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$7.name,
+    		id: create_if_block$8.name,
     		type: "if",
     		source: "(6:46) {#if meta.contentId}",
     		ctx
@@ -9372,7 +9873,7 @@ var app = (function (crypto) {
     	let t1_value = /*meta*/ ctx[0].providerHost + "";
     	let t1;
     	let span;
-    	let if_block = /*meta*/ ctx[0].contentId && create_if_block$7(ctx);
+    	let if_block = /*meta*/ ctx[0].contentId && create_if_block$8(ctx);
 
     	const block = {
     		c: function create() {
@@ -9403,7 +9904,7 @@ var app = (function (crypto) {
     				if (if_block) {
     					if_block.p(ctx, dirty);
     				} else {
-    					if_block = create_if_block$7(ctx);
+    					if_block = create_if_block$8(ctx);
     					if_block.c();
     					if_block.m(span, null);
     				}
@@ -9650,12 +10151,12 @@ var app = (function (crypto) {
     }
 
     // (15:0) {#if searchResults}
-    function create_if_block$8(ctx) {
+    function create_if_block$9(ctx) {
     	let current_block_type_index;
     	let if_block;
     	let if_block_anchor;
     	let current;
-    	const if_block_creators = [create_if_block_1$3, create_else_block$3];
+    	const if_block_creators = [create_if_block_1$4, create_else_block$4];
     	const if_blocks = [];
 
     	function select_block_type(ctx, dirty) {
@@ -9718,7 +10219,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$8.name,
+    		id: create_if_block$9.name,
     		type: "if",
     		source: "(15:0) {#if searchResults}",
     		ctx
@@ -9728,7 +10229,7 @@ var app = (function (crypto) {
     }
 
     // (22:2) {:else}
-    function create_else_block$3(ctx) {
+    function create_else_block$4(ctx) {
     	let each_1_anchor;
     	let current;
     	let each_value = /*searchResults*/ ctx[0];
@@ -9814,7 +10315,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block$3.name,
+    		id: create_else_block$4.name,
     		type: "else",
     		source: "(22:2) {:else}",
     		ctx
@@ -9824,7 +10325,7 @@ var app = (function (crypto) {
     }
 
     // (17:2) {#if searchResults.error}
-    function create_if_block_1$3(ctx) {
+    function create_if_block_1$4(ctx) {
     	let div;
     	let p;
     	let t1;
@@ -9865,7 +10366,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$3.name,
+    		id: create_if_block_1$4.name,
     		type: "if",
     		source: "(17:2) {#if searchResults.error}",
     		ctx
@@ -9945,7 +10446,7 @@ var app = (function (crypto) {
     }
 
     // (37:8) {#if providerResponse.results && providerResponse.results.length > 0}
-    function create_if_block_2$2(ctx) {
+    function create_if_block_2$3(ctx) {
     	let t0;
     	let t1;
     	let current;
@@ -10068,7 +10569,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_2$2.name,
+    		id: create_if_block_2$3.name,
     		type: "if",
     		source: "(37:8) {#if providerResponse.results && providerResponse.results.length > 0}",
     		ctx
@@ -10078,7 +10579,7 @@ var app = (function (crypto) {
     }
 
     // (48:14) {:else}
-    function create_else_block_1$1(ctx) {
+    function create_else_block_1$2(ctx) {
     	let div;
 
     	const block = {
@@ -10101,7 +10602,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_1$1.name,
+    		id: create_else_block_1$2.name,
     		type: "else",
     		source: "(48:14) {:else}",
     		ctx
@@ -10219,7 +10720,7 @@ var app = (function (crypto) {
     }
 
     // (42:14) {#if swarmBzzHash}
-    function create_if_block_3$2(ctx) {
+    function create_if_block_3$3(ctx) {
     	let current;
 
     	const resultswarm = new ResultSwarm({
@@ -10268,7 +10769,7 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_3$2.name,
+    		id: create_if_block_3$3.name,
     		type: "if",
     		source: "(42:14) {#if swarmBzzHash}",
     		ctx
@@ -10283,7 +10784,7 @@ var app = (function (crypto) {
     	let current_block_type_index;
     	let if_block;
     	let current;
-    	const if_block_creators = [create_if_block_3$2, create_if_block_4$2, create_if_block_5$1, create_else_block_1$1];
+    	const if_block_creators = [create_if_block_3$3, create_if_block_4$2, create_if_block_5$1, create_else_block_1$2];
     	const if_blocks = [];
 
     	function select_block_type_1(ctx, dirty) {
@@ -10366,7 +10867,7 @@ var app = (function (crypto) {
     	let t1;
     	let current;
     	let if_block0 = /*providerResponse*/ ctx[2].error && create_if_block_6$1(ctx);
-    	let if_block1 = /*providerResponse*/ ctx[2].results && /*providerResponse*/ ctx[2].results.length > 0 && create_if_block_2$2(ctx);
+    	let if_block1 = /*providerResponse*/ ctx[2].results && /*providerResponse*/ ctx[2].results.length > 0 && create_if_block_2$3(ctx);
 
     	const block = {
     		c: function create() {
@@ -10412,7 +10913,7 @@ var app = (function (crypto) {
     					if_block1.p(ctx, dirty);
     					transition_in(if_block1, 1);
     				} else {
-    					if_block1 = create_if_block_2$2(ctx);
+    					if_block1 = create_if_block_2$3(ctx);
     					if_block1.c();
     					transition_in(if_block1, 1);
     					if_block1.m(div, t1);
@@ -10461,7 +10962,7 @@ var app = (function (crypto) {
     	let t1;
     	let if_block_anchor;
     	let current;
-    	let if_block = /*searchResults*/ ctx[0] && create_if_block$8(ctx);
+    	let if_block = /*searchResults*/ ctx[0] && create_if_block$9(ctx);
 
     	const block = {
     		c: function create() {
@@ -10494,7 +10995,7 @@ var app = (function (crypto) {
     					if_block.p(ctx, dirty);
     					transition_in(if_block, 1);
     				} else {
-    					if_block = create_if_block$8(ctx);
+    					if_block = create_if_block$9(ctx);
     					if_block.c();
     					transition_in(if_block, 1);
     					if_block.m(if_block_anchor.parentNode, if_block_anchor);
@@ -10619,11 +11120,11 @@ var app = (function (crypto) {
 
     /* src/App.svelte generated by Svelte v3.19.2 */
 
-    const { console: console_1, document: document_1 } = globals;
+    const { console: console_1$1, document: document_1 } = globals;
     const file$d = "src/App.svelte";
 
-    // (76:2) {:else}
-    function create_else_block_1$2(ctx) {
+    // (82:2) {:else}
+    function create_else_block_2(ctx) {
     	const block = {
     		c: function create() {
     			document_1.title = "Search";
@@ -10634,17 +11135,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_1$2.name,
+    		id: create_else_block_2.name,
     		type: "else",
-    		source: "(76:2) {:else}",
+    		source: "(82:2) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (74:2) {#if isZetaSeek}
-    function create_if_block_3$3(ctx) {
+    // (80:2) {#if isZetaSeek}
+    function create_if_block_4$3(ctx) {
     	const block = {
     		c: function create() {
     			document_1.title = "ZetaSeek";
@@ -10655,95 +11156,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_3$3.name,
+    		id: create_if_block_4$3.name,
     		type: "if",
-    		source: "(74:2) {#if isZetaSeek}",
+    		source: "(80:2) {#if isZetaSeek}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (85:2) {#if isLocalhost}
-    function create_if_block_1$4(ctx) {
-    	let current_block_type_index;
-    	let if_block;
-    	let if_block_anchor;
-    	let current;
-    	const if_block_creators = [create_if_block_2$3, create_else_block$4];
-    	const if_blocks = [];
-
-    	function select_block_type_1(ctx, dirty) {
-    		if (/*deviceName*/ ctx[6] == "eclipse") return 0;
-    		return 1;
-    	}
-
-    	current_block_type_index = select_block_type_1(ctx);
-    	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-
-    	const block = {
-    		c: function create() {
-    			if_block.c();
-    			if_block_anchor = empty();
-    		},
-    		m: function mount(target, anchor) {
-    			if_blocks[current_block_type_index].m(target, anchor);
-    			insert_dev(target, if_block_anchor, anchor);
-    			current = true;
-    		},
-    		p: function update(ctx, dirty) {
-    			let previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type_1(ctx);
-
-    			if (current_block_type_index === previous_block_index) {
-    				if_blocks[current_block_type_index].p(ctx, dirty);
-    			} else {
-    				group_outros();
-
-    				transition_out(if_blocks[previous_block_index], 1, 1, () => {
-    					if_blocks[previous_block_index] = null;
-    				});
-
-    				check_outros();
-    				if_block = if_blocks[current_block_type_index];
-
-    				if (!if_block) {
-    					if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-    					if_block.c();
-    				}
-
-    				transition_in(if_block, 1);
-    				if_block.m(if_block_anchor.parentNode, if_block_anchor);
-    			}
-    		},
-    		i: function intro(local) {
-    			if (current) return;
-    			transition_in(if_block);
-    			current = true;
-    		},
-    		o: function outro(local) {
-    			transition_out(if_block);
-    			current = false;
-    		},
-    		d: function destroy(detaching) {
-    			if_blocks[current_block_type_index].d(detaching);
-    			if (detaching) detach_dev(if_block_anchor);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block_1$4.name,
-    		type: "if",
-    		source: "(85:2) {#if isLocalhost}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (88:4) {:else}
-    function create_else_block$4(ctx) {
+    // (93:2) {:else}
+    function create_else_block_1$3(ctx) {
     	let current;
     	const escape_1 = new Escape({ $$inline: true });
 
@@ -10772,21 +11195,26 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block$4.name,
+    		id: create_else_block_1$3.name,
     		type: "else",
-    		source: "(88:4) {:else}",
+    		source: "(93:2) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (86:4) {#if deviceName == 'eclipse'}
-    function create_if_block_2$3(ctx) {
+    // (91:2) {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')}
+    function create_if_block_3$4(ctx) {
     	let current;
 
     	const login = new Login({
-    			props: { metamask: /*metamask*/ ctx[1] },
+    			props: {
+    				metamaskConnect: /*metamaskConnect*/ ctx[1],
+    				ethAddress: /*ethAddress*/ ctx[9],
+    				userIdentity: /*userIdentity*/ ctx[10],
+    				isAdmin: /*isAdmin*/ ctx[12]
+    			},
     			$$inline: true
     		});
 
@@ -10800,7 +11228,10 @@ var app = (function (crypto) {
     		},
     		p: function update(ctx, dirty) {
     			const login_changes = {};
-    			if (dirty & /*metamask*/ 2) login_changes.metamask = /*metamask*/ ctx[1];
+    			if (dirty & /*metamaskConnect*/ 2) login_changes.metamaskConnect = /*metamaskConnect*/ ctx[1];
+    			if (dirty & /*ethAddress*/ 512) login_changes.ethAddress = /*ethAddress*/ ctx[9];
+    			if (dirty & /*userIdentity*/ 1024) login_changes.userIdentity = /*userIdentity*/ ctx[10];
+    			if (dirty & /*isAdmin*/ 4096) login_changes.isAdmin = /*isAdmin*/ ctx[12];
     			login.$set(login_changes);
     		},
     		i: function intro(local) {
@@ -10819,17 +11250,17 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_2$3.name,
+    		id: create_if_block_3$4.name,
     		type: "if",
-    		source: "(86:4) {#if deviceName == 'eclipse'}",
+    		source: "(91:2) {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (103:4) {#if !connected}
-    function create_if_block$9(ctx) {
+    // (107:4) {#if !connected && isLocalhost}
+    function create_if_block_2$4(ctx) {
     	let p;
     	let t0;
     	let span;
@@ -10843,9 +11274,9 @@ var app = (function (crypto) {
     			span.textContent = "dmt-proc";
     			t2 = text(".");
     			attr_dev(span, "class", "svelte-1fyz09l");
-    			add_location(span, file$d, 104, 21, 3048);
+    			add_location(span, file$d, 108, 21, 3479);
     			attr_dev(p, "class", "connection_status_help svelte-1fyz09l");
-    			add_location(p, file$d, 103, 6, 2992);
+    			add_location(p, file$d, 107, 6, 3423);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -10860,9 +11291,147 @@ var app = (function (crypto) {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block$9.name,
+    		id: create_if_block_2$4.name,
     		type: "if",
-    		source: "(103:4) {#if !connected}",
+    		source: "(107:4) {#if !connected && isLocalhost}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (113:4) {#if !isLocalhost && connected && !searchResults}
+    function create_if_block$a(ctx) {
+    	let p;
+
+    	function select_block_type_2(ctx, dirty) {
+    		if (/*loggedIn*/ ctx[11]) return create_if_block_1$5;
+    		return create_else_block$5;
+    	}
+
+    	let current_block_type = select_block_type_2(ctx);
+    	let if_block = current_block_type(ctx);
+
+    	const block = {
+    		c: function create() {
+    			p = element("p");
+    			if_block.c();
+    			attr_dev(p, "class", "connection_status_help svelte-1fyz09l");
+    			add_location(p, file$d, 113, 6, 3584);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, p, anchor);
+    			if_block.m(p, null);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (current_block_type === (current_block_type = select_block_type_2(ctx)) && if_block) {
+    				if_block.p(ctx, dirty);
+    			} else {
+    				if_block.d(1);
+    				if_block = current_block_type(ctx);
+
+    				if (if_block) {
+    					if_block.c();
+    					if_block.m(p, null);
+    				}
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(p);
+    			if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$a.name,
+    		type: "if",
+    		source: "(113:4) {#if !isLocalhost && connected && !searchResults}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (117:8) {:else}
+    function create_else_block$5(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text("The secret realm awaits.");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		p: noop$2,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block$5.name,
+    		type: "else",
+    		source: "(117:8) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (115:8) {#if loggedIn}
+    function create_if_block_1$5(ctx) {
+    	let t0;
+    	let span0;
+
+    	let t1_value = (/*userIdentity*/ ctx[10]
+    	? ` ${/*userIdentity*/ ctx[10]}`
+    	: "") + "";
+
+    	let t1;
+    	let t2;
+    	let span1;
+
+    	const block = {
+    		c: function create() {
+    			t0 = text("Welcome");
+    			span0 = element("span");
+    			t1 = text(t1_value);
+    			t2 = text(", you have found a fine place ");
+    			span1 = element("span");
+    			span1.textContent = "♪♫♬";
+    			attr_dev(span0, "class", "svelte-1fyz09l");
+    			add_location(span0, file$d, 115, 17, 3659);
+    			attr_dev(span1, "class", "svelte-1fyz09l");
+    			add_location(span1, file$d, 115, 100, 3742);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, span0, anchor);
+    			append_dev(span0, t1);
+    			insert_dev(target, t2, anchor);
+    			insert_dev(target, span1, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*userIdentity*/ 1024 && t1_value !== (t1_value = (/*userIdentity*/ ctx[10]
+    			? ` ${/*userIdentity*/ ctx[10]}`
+    			: "") + "")) set_data_dev(t1, t1_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(span0);
+    			if (detaching) detach_dev(t2);
+    			if (detaching) detach_dev(span1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1$5.name,
+    		type: "if",
+    		source: "(115:8) {#if loggedIn}",
     		ctx
     	});
 
@@ -10874,6 +11443,8 @@ var app = (function (crypto) {
     	let t0;
     	let t1;
     	let main;
+    	let current_block_type_index;
+    	let if_block1;
     	let t2;
     	let div0;
     	let img;
@@ -10884,18 +11455,28 @@ var app = (function (crypto) {
     	let input;
     	let t5;
     	let t6;
+    	let t7;
     	let current;
     	let dispose;
 
     	function select_block_type(ctx, dirty) {
-    		if (/*isZetaSeek*/ ctx[9]) return create_if_block_3$3;
-    		return create_else_block_1$2;
+    		if (/*isZetaSeek*/ ctx[13]) return create_if_block_4$3;
+    		return create_else_block_2;
     	}
 
     	let current_block_type = select_block_type(ctx);
     	let if_block0 = current_block_type(ctx);
     	const about = new About({ $$inline: true });
-    	let if_block1 = /*isLocalhost*/ ctx[10] && create_if_block_1$4(ctx);
+    	const if_block_creators = [create_if_block_3$4, create_else_block_1$3];
+    	const if_blocks = [];
+
+    	function select_block_type_1(ctx, dirty) {
+    		if (!/*isLocalhost*/ ctx[14] || /*isLocalhost*/ ctx[14] && /*deviceName*/ ctx[6] == "eclipse") return 0;
+    		return 1;
+    	}
+
+    	current_block_type_index = select_block_type_1(ctx);
+    	if_block1 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	const connectionstatus = new ConnectionStatus({
     			props: {
@@ -10906,7 +11487,8 @@ var app = (function (crypto) {
     			$$inline: true
     		});
 
-    	let if_block2 = !/*connected*/ ctx[8] && create_if_block$9(ctx);
+    	let if_block2 = !/*connected*/ ctx[8] && /*isLocalhost*/ ctx[14] && create_if_block_2$4(ctx);
+    	let if_block3 = !/*isLocalhost*/ ctx[14] && /*connected*/ ctx[8] && !/*searchResults*/ ctx[7] && create_if_block$a(ctx);
 
     	const searchresults = new SearchResults({
     			props: {
@@ -10924,7 +11506,7 @@ var app = (function (crypto) {
     			create_component(about.$$.fragment);
     			t1 = space();
     			main = element("main");
-    			if (if_block1) if_block1.c();
+    			if_block1.c();
     			t2 = space();
     			div0 = element("div");
     			img = element("img");
@@ -10936,21 +11518,23 @@ var app = (function (crypto) {
     			t5 = space();
     			if (if_block2) if_block2.c();
     			t6 = space();
+    			if (if_block3) if_block3.c();
+    			t7 = space();
     			create_component(searchresults.$$.fragment);
-    			if (img.src !== (img_src_value = `/apps/zeta/img/${/*isZetaSeek*/ ctx[9] ? "zeta_demo" : "search"}_logo.png`)) attr_dev(img, "src", img_src_value);
+    			if (img.src !== (img_src_value = `/apps/zeta/img/${/*isZetaSeek*/ ctx[13] ? "zeta_demo" : "search"}_logo.png`)) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "zeta logo");
     			attr_dev(img, "class", "svelte-1fyz09l");
-    			add_location(img, file$d, 93, 4, 2594);
+    			add_location(img, file$d, 97, 4, 3010);
     			attr_dev(div0, "class", "logo svelte-1fyz09l");
-    			add_location(div0, file$d, 92, 2, 2571);
+    			add_location(div0, file$d, 96, 2, 2987);
     			attr_dev(input, "id", "search_input");
     			attr_dev(input, "placeholder", "Please type your query ...");
     			attr_dev(input, "class", "svelte-1fyz09l");
-    			add_location(input, file$d, 100, 4, 2788);
+    			add_location(input, file$d, 104, 4, 3204);
     			attr_dev(div1, "class", "search svelte-1fyz09l");
-    			add_location(div1, file$d, 98, 2, 2762);
+    			add_location(div1, file$d, 102, 2, 3178);
     			attr_dev(main, "class", "svelte-1fyz09l");
-    			add_location(main, file$d, 82, 0, 2432);
+    			add_location(main, file$d, 88, 0, 2808);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -10962,7 +11546,7 @@ var app = (function (crypto) {
     			mount_component(about, target, anchor);
     			insert_dev(target, t1, anchor);
     			insert_dev(target, main, anchor);
-    			if (if_block1) if_block1.m(main, null);
+    			if_blocks[current_block_type_index].m(main, null);
     			append_dev(main, t2);
     			append_dev(main, div0);
     			append_dev(div0, img);
@@ -10972,21 +11556,46 @@ var app = (function (crypto) {
     			append_dev(main, div1);
     			append_dev(div1, input);
     			set_input_value(input, /*searchQuery*/ ctx[4]);
-    			/*input_binding*/ ctx[16](input);
+    			/*input_binding*/ ctx[22](input);
     			append_dev(div1, t5);
     			if (if_block2) if_block2.m(div1, null);
     			append_dev(div1, t6);
+    			if (if_block3) if_block3.m(div1, null);
+    			append_dev(div1, t7);
     			mount_component(searchresults, div1, null);
     			current = true;
 
     			dispose = [
-    				listen_dev(input, "input", /*input_input_handler*/ ctx[15]),
-    				listen_dev(input, "keyup", /*searchInputChanged*/ ctx[11], false, false, false),
-    				listen_dev(input, "paste", /*searchInputChanged*/ ctx[11], false, false, false)
+    				listen_dev(input, "input", /*input_input_handler*/ ctx[21]),
+    				listen_dev(input, "keyup", /*searchInputChanged*/ ctx[16], false, false, false),
+    				listen_dev(input, "paste", /*searchInputChanged*/ ctx[16], false, false, false)
     			];
     		},
     		p: function update(ctx, [dirty]) {
-    			if (/*isLocalhost*/ ctx[10]) if_block1.p(ctx, dirty);
+    			let previous_block_index = current_block_type_index;
+    			current_block_type_index = select_block_type_1(ctx);
+
+    			if (current_block_type_index === previous_block_index) {
+    				if_blocks[current_block_type_index].p(ctx, dirty);
+    			} else {
+    				group_outros();
+
+    				transition_out(if_blocks[previous_block_index], 1, 1, () => {
+    					if_blocks[previous_block_index] = null;
+    				});
+
+    				check_outros();
+    				if_block1 = if_blocks[current_block_type_index];
+
+    				if (!if_block1) {
+    					if_block1 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+    					if_block1.c();
+    				}
+
+    				transition_in(if_block1, 1);
+    				if_block1.m(main, t2);
+    			}
+
     			const connectionstatus_changes = {};
     			if (dirty & /*connected*/ 256) connectionstatus_changes.connected = /*connected*/ ctx[8];
     			if (dirty & /*isSearching*/ 4) connectionstatus_changes.isSearching = /*isSearching*/ ctx[2];
@@ -10997,15 +11606,28 @@ var app = (function (crypto) {
     				set_input_value(input, /*searchQuery*/ ctx[4]);
     			}
 
-    			if (!/*connected*/ ctx[8]) {
+    			if (!/*connected*/ ctx[8] && /*isLocalhost*/ ctx[14]) {
     				if (!if_block2) {
-    					if_block2 = create_if_block$9(ctx);
+    					if_block2 = create_if_block_2$4(ctx);
     					if_block2.c();
     					if_block2.m(div1, t6);
     				}
     			} else if (if_block2) {
     				if_block2.d(1);
     				if_block2 = null;
+    			}
+
+    			if (!/*isLocalhost*/ ctx[14] && /*connected*/ ctx[8] && !/*searchResults*/ ctx[7]) {
+    				if (if_block3) {
+    					if_block3.p(ctx, dirty);
+    				} else {
+    					if_block3 = create_if_block$a(ctx);
+    					if_block3.c();
+    					if_block3.m(div1, t7);
+    				}
+    			} else if (if_block3) {
+    				if_block3.d(1);
+    				if_block3 = null;
     			}
 
     			const searchresults_changes = {};
@@ -11035,10 +11657,11 @@ var app = (function (crypto) {
     			destroy_component(about, detaching);
     			if (detaching) detach_dev(t1);
     			if (detaching) detach_dev(main);
-    			if (if_block1) if_block1.d();
+    			if_blocks[current_block_type_index].d();
     			destroy_component(connectionstatus);
-    			/*input_binding*/ ctx[16](null);
+    			/*input_binding*/ ctx[22](null);
     			if (if_block2) if_block2.d();
+    			if (if_block3) if_block3.d();
     			destroy_component(searchresults);
     			run_all(dispose);
     		}
@@ -11058,14 +11681,15 @@ var app = (function (crypto) {
     function instance$e($$self, $$props, $$invalidate) {
     	let $store,
     		$$unsubscribe_store = noop$2,
-    		$$subscribe_store = () => ($$unsubscribe_store(), $$unsubscribe_store = subscribe(store, $$value => $$invalidate(13, $store = $$value)), store);
+    		$$subscribe_store = () => ($$unsubscribe_store(), $$unsubscribe_store = subscribe(store, $$value => $$invalidate(18, $store = $$value)), store);
 
+    	let $frontendStore;
     	$$self.$$.on_destroy.push(() => $$unsubscribe_store());
     	let { store } = $$props;
     	validate_store(store, "store");
     	$$subscribe_store();
     	let { appHelper } = $$props;
-    	let { metamask } = $$props;
+    	let { metamaskConnect } = $$props;
     	setContext("app", appHelper);
     	const { isZetaSeek, isLocalhost } = appHelper;
 
@@ -11079,6 +11703,16 @@ var app = (function (crypto) {
 
     	let isSearching;
     	let noSearchHits;
+
+    	// if (isZetaSeek) {
+    	//   cssBridge.setWallpaper('/apps/zeta/wallpapers/hilly_dark_forest_river_fog.jpg');
+    	// } else {
+    	//   cssBridge.setWallpaper('/apps/zeta/wallpapers/black_triangles.jpg');
+    	//}
+    	const frontendStore = store.frontendStore;
+
+    	validate_store(frontendStore, "frontendStore");
+    	component_subscribe($$self, frontendStore, value => $$invalidate(19, $frontendStore = value));
     	let searchQuery = "";
     	let searchInput;
 
@@ -11119,10 +11753,10 @@ var app = (function (crypto) {
     		}
     	}
 
-    	const writable_props = ["store", "appHelper", "metamask"];
+    	const writable_props = ["store", "appHelper", "metamaskConnect"];
 
     	Object.keys($$props).forEach(key => {
-    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn(`<App> was created with unknown prop '${key}'`);
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1$1.warn(`<App> was created with unknown prop '${key}'`);
     	});
 
     	let { $$slots = {}, $$scope } = $$props;
@@ -11141,8 +11775,8 @@ var app = (function (crypto) {
 
     	$$self.$set = $$props => {
     		if ("store" in $$props) $$subscribe_store($$invalidate(0, store = $$props.store));
-    		if ("appHelper" in $$props) $$invalidate(12, appHelper = $$props.appHelper);
-    		if ("metamask" in $$props) $$invalidate(1, metamask = $$props.metamask);
+    		if ("appHelper" in $$props) $$invalidate(17, appHelper = $$props.appHelper);
+    		if ("metamaskConnect" in $$props) $$invalidate(1, metamaskConnect = $$props.metamaskConnect);
     	};
 
     	$$self.$capture_state = () => ({
@@ -11157,25 +11791,31 @@ var app = (function (crypto) {
     		SearchResults,
     		store,
     		appHelper,
-    		metamask,
+    		metamaskConnect,
     		isZetaSeek,
     		isLocalhost,
     		searchDelay,
     		isSearching,
     		noSearchHits,
+    		frontendStore,
     		searchQuery,
     		searchInput,
     		searchInputChanged,
     		deviceName,
     		$store,
     		searchResults,
-    		connected
+    		connected,
+    		ethAddress,
+    		$frontendStore,
+    		userIdentity,
+    		loggedIn,
+    		isAdmin
     	});
 
     	$$self.$inject_state = $$props => {
     		if ("store" in $$props) $$subscribe_store($$invalidate(0, store = $$props.store));
-    		if ("appHelper" in $$props) $$invalidate(12, appHelper = $$props.appHelper);
-    		if ("metamask" in $$props) $$invalidate(1, metamask = $$props.metamask);
+    		if ("appHelper" in $$props) $$invalidate(17, appHelper = $$props.appHelper);
+    		if ("metamaskConnect" in $$props) $$invalidate(1, metamaskConnect = $$props.metamaskConnect);
     		if ("isSearching" in $$props) $$invalidate(2, isSearching = $$props.isSearching);
     		if ("noSearchHits" in $$props) $$invalidate(3, noSearchHits = $$props.noSearchHits);
     		if ("searchQuery" in $$props) $$invalidate(4, searchQuery = $$props.searchQuery);
@@ -11183,38 +11823,57 @@ var app = (function (crypto) {
     		if ("deviceName" in $$props) $$invalidate(6, deviceName = $$props.deviceName);
     		if ("searchResults" in $$props) $$invalidate(7, searchResults = $$props.searchResults);
     		if ("connected" in $$props) $$invalidate(8, connected = $$props.connected);
+    		if ("ethAddress" in $$props) $$invalidate(9, ethAddress = $$props.ethAddress);
+    		if ("userIdentity" in $$props) $$invalidate(10, userIdentity = $$props.userIdentity);
+    		if ("loggedIn" in $$props) $$invalidate(11, loggedIn = $$props.loggedIn);
+    		if ("isAdmin" in $$props) $$invalidate(12, isAdmin = $$props.isAdmin);
     	};
 
     	let deviceName;
     	let searchResults;
     	let connected;
+    	let ethAddress;
+    	let userIdentity;
+    	let loggedIn;
+    	let isAdmin;
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
     	$$self.$$.update = () => {
-    		if ($$self.$$.dirty & /*$store*/ 8192) {
-    			// if (isZetaSeek) {
-    			//   cssBridge.setWallpaper('/apps/zeta/wallpapers/hilly_dark_forest_river_fog.jpg');
-    			// } else {
-    			//   cssBridge.setWallpaper('/apps/zeta/wallpapers/black_triangles.jpg');
-    			//}
+    		if ($$self.$$.dirty & /*$store*/ 262144) {
     			 $$invalidate(6, deviceName = $store.deviceName);
     		}
 
-    		if ($$self.$$.dirty & /*$store*/ 8192) {
+    		if ($$self.$$.dirty & /*$store*/ 262144) {
     			 $$invalidate(7, searchResults = $store.searchResults);
     		}
 
-    		if ($$self.$$.dirty & /*$store*/ 8192) {
+    		if ($$self.$$.dirty & /*$store*/ 262144) {
     			 $$invalidate(8, connected = $store.connected);
+    		}
+
+    		if ($$self.$$.dirty & /*$frontendStore*/ 524288) {
+    			 $$invalidate(9, ethAddress = $frontendStore.ethAddress); // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
+    		}
+
+    		if ($$self.$$.dirty & /*$frontendStore*/ 524288) {
+    			 $$invalidate(10, userIdentity = $frontendStore.userIdentity);
+    		}
+
+    		if ($$self.$$.dirty & /*$frontendStore*/ 524288) {
+    			 $$invalidate(11, loggedIn = $frontendStore.loggedIn);
+    		}
+
+    		if ($$self.$$.dirty & /*$frontendStore*/ 524288) {
+    			 $$invalidate(12, isAdmin = $frontendStore.isAdmin); // hmm ...
     		}
     	};
 
     	return [
     		store,
-    		metamask,
+    		metamaskConnect,
     		isSearching,
     		noSearchHits,
     		searchQuery,
@@ -11222,11 +11881,17 @@ var app = (function (crypto) {
     		deviceName,
     		searchResults,
     		connected,
+    		ethAddress,
+    		userIdentity,
+    		loggedIn,
+    		isAdmin,
     		isZetaSeek,
     		isLocalhost,
+    		frontendStore,
     		searchInputChanged,
     		appHelper,
     		$store,
+    		$frontendStore,
     		searchDelay,
     		input_input_handler,
     		input_binding
@@ -11236,7 +11901,12 @@ var app = (function (crypto) {
     class App$1 extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$e, create_fragment$e, safe_not_equal, { store: 0, appHelper: 12, metamask: 1 });
+
+    		init(this, options, instance$e, create_fragment$e, safe_not_equal, {
+    			store: 0,
+    			appHelper: 17,
+    			metamaskConnect: 1
+    		});
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,
@@ -11249,15 +11919,15 @@ var app = (function (crypto) {
     		const props = options.props || {};
 
     		if (/*store*/ ctx[0] === undefined && !("store" in props)) {
-    			console_1.warn("<App> was created without expected prop 'store'");
+    			console_1$1.warn("<App> was created without expected prop 'store'");
     		}
 
-    		if (/*appHelper*/ ctx[12] === undefined && !("appHelper" in props)) {
-    			console_1.warn("<App> was created without expected prop 'appHelper'");
+    		if (/*appHelper*/ ctx[17] === undefined && !("appHelper" in props)) {
+    			console_1$1.warn("<App> was created without expected prop 'appHelper'");
     		}
 
-    		if (/*metamask*/ ctx[1] === undefined && !("metamask" in props)) {
-    			console_1.warn("<App> was created without expected prop 'metamask'");
+    		if (/*metamaskConnect*/ ctx[1] === undefined && !("metamaskConnect" in props)) {
+    			console_1$1.warn("<App> was created without expected prop 'metamaskConnect'");
     		}
     	}
 
@@ -11277,18 +11947,20 @@ var app = (function (crypto) {
     		throw new Error("<App>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	get metamask() {
+    	get metamaskConnect() {
     		throw new Error("<App>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	set metamask(value) {
+    	set metamaskConnect(value) {
     		throw new Error("<App>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
 
-    const { SessionStore: SessionStore$1, ConnectedStore: ConnectedStore$1, LogStore: LogStore$1 } = stores;
+    const { SessionStore: SessionStore$1, LogStore: LogStore$1 } = stores;
 
-    const port = 7780;
+    const { metamaskInit: metamaskInit$1 } = metamask;
+
+    const port = appHelper.ssl ? '/ws' : 7780; // hackish ?
     const protocol = 'zeta';
     const protocolLane = 'gui';
 
@@ -11304,8 +11976,6 @@ var app = (function (crypto) {
       };
     };
 
-    //metamask();
-
     const logStore = new LogStore$1();
 
     // source: https://stackoverflow.com/a/9216488
@@ -11317,17 +11987,35 @@ var app = (function (crypto) {
 
     const verbose = false;
     const session = new SessionStore$1({ verbose });
+    const frontendStore = new FrontendStore();
 
     const rpcRequestTimeout = 5500; // 500ms more than default so that if any underlying request time outs, we still get that info to the frontent (otherwise this request would time-out as well)
     // todo: what if default changes ? we should somehow add 500ms to default... or specify hopNumber which decreases as we nest searches... current hop is multiplied by 500ms to allow for underlying timeouts
-    const store = new ConnectedStore$1({ port, ssl: appHelper.ssl, protocol, protocolLane, rpcRequestTimeout, rpcObjectsSetup, verbose, session, logStore });
+    const store = new ConnectedStore$1(frontendStore, {
+      port,
+      ssl: appHelper.ssl,
+      protocol,
+      protocolLane,
+      rpcRequestTimeout,
+      rpcObjectsSetup,
+      verbose,
+      session,
+      logStore
+    });
+
+    const metamaskConnect$1 = metamaskInit$1(ethAddress => {
+      // main place where we get always current connected account!
+      // should be in sync with metamask state
+      console.log(`Connected ethereum address: ${ethAddress}`);
+      frontendStore.login(ethAddress);
+    });
 
     const app = new App$1({
       target: document.body,
       props: {
         store,
         appHelper,
-        metamask
+        metamaskConnect: metamaskConnect$1
       }
     });
 

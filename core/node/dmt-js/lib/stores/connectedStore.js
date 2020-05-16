@@ -53,10 +53,12 @@ class ConnectedStore extends SimpleStore {
       connector.on('wire_receive', ({ jsonData }) => {
         if (jsonData.state) {
           this.wireStateReceived = true;
+
           if (this.verbose) {
             console.log(`New store ${this.ip} / ${this.protocol} / ${this.protocolLane} state:`);
             console.log(jsonData.state);
           }
+
           this.set(jsonData.state);
         }
 
@@ -66,7 +68,11 @@ class ConnectedStore extends SimpleStore {
         }
       });
 
-      connector.on('connected', ({ sharedSecret, sharedSecretHex }) => {
+      connector.on('ready', ({ sharedSecret, sharedSecretHex }) => {
+        if (!this.connected) {
+          this.emit('connected');
+        }
+
         this.set({ connected: true });
 
         this.session.set({ sharedSecret, sharedSecretHex });

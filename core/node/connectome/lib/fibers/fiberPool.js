@@ -34,7 +34,13 @@ class FiberPool {
           this.connectors[ipWithPort] = connector;
           this.isPreparingConnector[ipWithPort] = false;
 
-          success(connector);
+          if (connector.isReady()) {
+            success(connector);
+          } else {
+            const e = new Error('Connector was not ready in time, please retry the request.');
+            e.connector = connector;
+            reject(e);
+          }
         });
       }
     });

@@ -9,6 +9,8 @@ import { FiberPool, contentServer } from 'dmt/connectome';
 import initControllerActor from '../actor';
 import Actors from './actors/actors';
 
+import MetaMaskStore from './metamask';
+
 import initIntervalTicker from './interval';
 import { setupTimeUpdater } from './interval/timeUpdater';
 import onProgramTick from './interval/onProgramTick';
@@ -50,11 +52,13 @@ class Program extends EventEmitter {
 
     generateKeypair();
 
+    this.metamaskStore = new MetaMaskStore();
+
     this.actors = new Actors(this);
 
     this.wsServer = new WsServer(this);
 
-    this.setupFiberNet();
+    this.setupFiberPool();
 
     if (dmt.isRPi()) {
       this.updateState({ controller: { isRPi: true } }, { announce: false });
@@ -96,6 +100,10 @@ class Program extends EventEmitter {
     }
   }
 
+  metamask() {
+    return this.metamaskStore;
+  }
+
   setResponsibleNode(isResponsible) {
     this.responsibleNode = isResponsible;
     this.emit('responsible_node_state_changed');
@@ -117,7 +125,7 @@ class Program extends EventEmitter {
     return this.wsServer.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
   }
 
-  setupFiberNet() {
+  setupFiberPool() {
     const port = 7780;
     const protocol = 'dmt';
     const protocolLane = 'fiber';
@@ -132,7 +140,7 @@ class Program extends EventEmitter {
 
     const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
 
-    this.fiberPool = new FiberPool({ protocol, protocolLane, port, clientPrivateKey, clientPublicKey });
+    this.fiberPool = new FiberPool({ protocol, protocolLane, port, clientPrivateKey, clientPublicKey, log: log.write });
 
     this.server.setupRoutes(app => contentServer({ app, fiberPool: this.fiberPool, defaultPort: port }));
   }

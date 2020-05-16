@@ -1,0 +1,101 @@
+#!/bin/bash
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+NC='\033[0m' # No Color
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+function macos {
+  if [[ $OSTYPE == darwin* ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+if [ "$1" == "-h" ]; then
+  printf "${YELLOW}Usage:${NC}\n"
+  printf "${GRAY}[todo]${NC}\n"
+  exit
+fi
+
+if macos; then
+  printf "${RED}Can't run on macOS${NC}\n"
+  exit
+fi
+
+if [ "$EUID" -ne 0 ]
+  then printf "${RED}Must be root, use ${YELLOW}sudo $0${NC}\n"
+  exit
+fi
+
+function latest_tag {
+  local latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+  git checkout $latest_tag
+}
+
+mkdir -p ~/Install
+
+cd ~/Install
+
+git clone https://git.lighttpd.net/lighttpd/lighttpd1.4.git lighttpd
+cd lighttpd
+
+latest_tag
+
+sudo apt-get update
+sudo apt-get build-dep lighttpd
+
+./autogen.sh
+
+./configure --with-openssl # into /usr/local
+# https://www.cyberciti.biz/tips/installing-and-configuring-lighttpd-webserver-howto.html
+# todo - test this and see if these dirs are created, then don't create them manually below
+# --datadir=/usr/share \
+# --localstatedir=/var \
+
+make
+
+make install
+
+cp "${DIR}/lighttpd.service" /etc/systemd/system
+
+systemctl enable lighttpd
+
+mkdir -p /var/log/lighttpd/
+chown www-data:www-data /var/log/lighttpd/
+
+mkdir -p /var/cache/lighttpd/uploads
+chown www-data:www-data /var/cache/lighttpd/uploads
+
+mkdir -p /var/cache/lighttpd/compress
+chown www-data:www-data /var/cache/lighttpd/compress
+
+mkdir -p /usr/share/lighttpd
+
+cp ~/Install/lighttpd/doc/scripts/create-mime.conf.pl /usr/share/lighttpd
+
+cp "${DIR}/use-ipv6.pl" /usr/share/lighttpd
+
+if [ -f /etc/lighttpd/lighttpd.conf ]; then
+  printf "⚠️  ${YELLOW}Not overwriting /etc/lighttpd/lighttpd.conf ! ${NC}\n"
+else
+  mkdir -p /etc/lighttpd
+  cp "${DIR}/lighttpd.conf" /etc/lighttpd
+fi
+
+mkdir -p /var/www
+
+chown www-data:www-data /var/www
+
+if [ ! -f /var/www/index.html ]; then
+  echo "OK" > /var/www/index.html
+  chown www-data:www-data /var/www/index.html
+fi

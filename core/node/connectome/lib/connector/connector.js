@@ -28,8 +28,8 @@ class Connector extends EventEmitter {
     this.verbose = verbose;
   }
 
-  isConnected() {
-    return this.connected;
+  isReady() {
+    return this.ready;
   }
 
   send(data) {
@@ -41,7 +41,7 @@ class Connector extends EventEmitter {
   }
 
   closed() {
-    return !this.isConnected();
+    return !this.connected;
   }
 
   connectStatus(connected) {
@@ -52,7 +52,8 @@ class Connector extends EventEmitter {
 
       this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, protocolLane: this.protocolLane })
         .then(({ sharedSecret, sharedSecretHex }) => {
-          this.emit('connected', { sharedSecret, sharedSecretHex });
+          this.ready = true;
+          this.emit('ready', { sharedSecret, sharedSecretHex });
         })
         .catch(e => {
           console.log(e);
@@ -60,6 +61,7 @@ class Connector extends EventEmitter {
           this.close();
         });
     } else {
+      this.ready = false;
       this.emit('disconnected');
     }
   }

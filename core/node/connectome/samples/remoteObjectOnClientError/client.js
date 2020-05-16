@@ -23,7 +23,7 @@ connect({ address, port, protocol, protocolLane, clientPrivateKey, clientPublicK
     }
   });
 
-  connector.on('connected', ({ sharedSecretHex }) => {
+  connector.on('ready', ({ sharedSecretHex }) => {
     console.log(`${colors.gray('Channel connected')} ${colors.green('✓')}`);
     console.log(colors.magenta(`Shared secret: ${colors.gray(sharedSecretHex)}`));
   });

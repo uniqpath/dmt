@@ -15,7 +15,7 @@
 
 <p class="connection_status" class:ok={connected}>
   {#if connected}
-    <span class="device_name">{displayDeviceName(deviceName)}</span> connected
+    <span class="device_name">{displayDeviceName(deviceName)}</span> ready
 
     {#if isSearching}
       <Spinner size="15" speed="400" color="#fff" thickness="2" gap="40"/>
@@ -23,7 +23,7 @@
       <span class="mark">✓</span>
     {/if}
   {:else}
-     {displayDeviceName(deviceName)} disconnected <Spinner size="15" speed="2000" color="#EFCAF8" thickness="3" gap="25"/>
+     <span class="device_name">{displayDeviceName(deviceName)}</span> disconnected <Spinner size="15" speed="2000" color="#EFCAF8" thickness="3" gap="25"/>
   {/if}
 </p>
 

@@ -33,6 +33,11 @@ class RemoteProviderSearch {
 
         const start = stopwatchAdv.start();
 
+        if (!this.connector.isReady()) {
+          success({ meta: basicMetaInfo(this), error: 'connector was not ready in time, please retry the request' });
+          return;
+        }
+
         this.connector
           .remoteObject('search')
           .call('search', { query: args })

@@ -136,7 +136,14 @@ function streamDmtZip({ req, res, program, files, replicateExcludedByUser, repli
   archive.pipe(res);
 
   for (const file of files) {
-    if (replicateUserCodeTransform && ['.js', '.mjs'].includes(file.extname) && file.basename != 'bundle.js' && !file.path.includes('node_modules')) {
+    if (
+      replicateUserCodeTransform &&
+      ['.js', '.mjs'].includes(file.extname) &&
+      !file.reldir.endsWith('/public') &&
+      !file.reldir.endsWith('/dist') &&
+      !file.reldir.endsWith('/build') &&
+      !file.path.includes('node_modules')
+    ) {
       const readable = fs.createReadStream(file.path);
 
       const _pipeline = pipeline(readable, new CodeTransform({ textProcess: replicateUserCodeTransform }), err => {

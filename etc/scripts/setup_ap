@@ -64,6 +64,11 @@ if [ "$1" == "-h" ] || [ -z "$1" ]; then
   exit
 fi
 
+if macos; then
+  printf "${RED}Can't run on macOS${NC}\n"
+  exit
+fi
+
 if [ "$EUID" -ne 0 ]
   then printf "${RED}Must be root${NC}\n"
   exit

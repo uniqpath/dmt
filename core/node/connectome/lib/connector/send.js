@@ -11,7 +11,7 @@ function send({ data, connector }) {
     data = JSON.stringify(data);
   }
 
-  if (connector.isConnected()) {
+  if (!connector.closed()) {
     if (connector.sentCounter > 1) {
       let flag = 0;
 
@@ -40,7 +40,7 @@ function send({ data, connector }) {
     }
     connector.sentCounter += 1;
   } else {
-    console.log(`Warning: "${data}" was not sent because the store is not yet connected to the backend`);
+    console.log(`Warning: "${data}" was not sent because connector was not yet connected!`);
   }
 }
 

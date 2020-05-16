@@ -8,8 +8,6 @@ import connectBrowser from './lib/connect/connectBrowser';
 import Server from './lib/server/server';
 
 import FiberPool from './lib/fibers/fiberPool';
-import Fanout from './lib/fibers/fanout';
-
 import contentServer from './lib/fileTransport/contentServer/contentServer';
 import * as fiberHandle from './lib/fileTransport/fiberHandle/fiberHandle';
 
@@ -23,4 +21,4 @@ function newKeypair() {
   return { privateKey: keys.secretKey, publicKey: keys.publicKey, privateKeyHex, publicKeyHex };
 }
 
-export { connect, connectBrowser, FiberPool, Server, newKeypair, Fanout, contentServer, fiberHandle };
+export { connect, connectBrowser, FiberPool, Server, newKeypair, contentServer, fiberHandle };
