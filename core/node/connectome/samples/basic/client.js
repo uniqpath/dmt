@@ -31,7 +31,7 @@ connect({ address, port, protocol, protocolLane, clientPrivateKey, clientPublicK
     console.log(jsonData);
     receivedCount += 1;
     if (receivedCount == 3) {
-      console.log(`${colors.gray("Received 3 messages, let's disconnect now ...")}`);
+      console.log(`${colors.gray('Received 3/3 messages, disconnecting ...')}`);
       process.exit();
     }
   });

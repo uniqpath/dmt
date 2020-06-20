@@ -2,8 +2,6 @@ import { EventEmitter } from '../utils';
 import ServerInstance from './serverInstance';
 
 import AuthTarget from './rpcTargets/authTarget';
-import HelloTarget from './rpcTargets/helloTarget';
-
 import ChannelList from '../channel/channelList';
 
 class Server extends EventEmitter {
@@ -55,20 +53,8 @@ class Server extends EventEmitter {
       channel.setSharedSecret(sharedSecret);
       channel.setProtocolLane(protocolLane);
 
-      if (expectingHelloData) {
-        const hello = new HelloTarget({ channel });
-        channel.registerRemoteObject('Hello', hello);
-
-        hello.on('done', clientInitData => {
-          channel.setClientInitData(clientInitData);
-
-          this.initializeProtocol(channel);
-          this.emit('connection', channel);
-        });
-      } else {
-        this.initializeProtocol(channel);
-        this.emit('connection', channel);
-      }
+      this.initializeProtocol(channel);
+      this.emit('connection', channel);
     });
   }
 

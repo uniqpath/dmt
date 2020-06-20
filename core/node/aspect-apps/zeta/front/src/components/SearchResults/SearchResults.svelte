@@ -6,18 +6,26 @@
   import ResultsMetaTop from './ResultsMetaTop.svelte';
   import ResultsMetaBottom from './ResultsMetaBottom.svelte';
 
+  export let loggedIn;
   export let searchResults;
   export let noSearchHits;
 </script>
 
-<div class="noResults" class:visible={noSearchHits}>NO HITS</div>
+<div class="no_results" class:visible={noSearchHits}>NO HITS
+  {#if loggedIn}
+    FOR NOW
+  {:else}
+    // <span>PERHAPS TRY TO LOGIN FIRST</span>
+  {/if}
+</div>
 
 {#if searchResults}
 
   {#if searchResults.error}
     <div class="search_error">
-      <p>General Search Error:</p>
-      <span>{JSON.stringify(searchResults.error)}</span>
+      <p>Search Error in Frontend Code:</p>
+      <span>{searchResults.error.message}</span>
+      <span>{@html searchResults.error.stack.split('\n').join('<br>')}</span>
     </div>
   {:else}
     {#each searchResults as providerResponse}
@@ -74,7 +82,7 @@
     padding: 0 2px;
   }
 
-    .results span {
+  .results span {
     color: #DDD;
   }
 
@@ -83,7 +91,12 @@
   }
 
   .search_error {
+    color: var(--dmt-warning-pink);
     margin-top: 20px;
+  }
+
+  .result_error {
+    color: var(--dmt-warning-pink);
   }
 
   .search_error span, .result_error span {
@@ -92,6 +105,7 @@
     background-color: #ddd;
     background-color: #702E3C;
     padding: 2px;
+    line-height: 1.5em;
   }
 
   :global(.results a) {
@@ -119,13 +133,18 @@
     cursor: pointer;
   }
 
-  .noResults {
+  .no_results {
     display: none;
     padding: 10px 0;
+    color: var(--dmt-warning-pink);
   }
 
-  .noResults.visible {
+  .no_results.visible {
     display: block;
+  }
+
+  .no_results span {
+    color: var(--dmt-bright-cyan);
   }
 
   @media only screen and (max-width: 768px) {

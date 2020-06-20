@@ -12,7 +12,7 @@ const sha256 = x =>
     .update(x, 'utf8')
     .digest('hex');
 
-function contentServer({ app, fiberPool, defaultPort }) {
+function contentServer({ app, fiberPool, defaultPort, emitter }) {
   log('Starting content server ...');
 
   if (!defaultPort) {
@@ -23,9 +23,6 @@ function contentServer({ app, fiberPool, defaultPort }) {
     app.use('/file', (req, res) => {
       const { place } = req.query;
 
-      console.log('PLACE:');
-      console.log(place);
-
       log(`Received content request ${place}`);
 
       if (place && place.includes('-')) {
@@ -33,6 +30,10 @@ function contentServer({ app, fiberPool, defaultPort }) {
         const directory = decode(_directory);
         const fileName = decodeURIComponent(req.path.slice(1));
         const filePath = path.join(directory, fileName);
+
+        if (emitter) {
+          emitter.emit('file_request', { providerAddress, filePath });
+        }
 
         if (providerAddress == 'localhost') {
           res.sendFile(filePath);

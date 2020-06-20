@@ -13,7 +13,14 @@ function metamaskConnectWrapper(accountChangedCallback) {
     return new Promise((success, reject) => {
       metamaskConnect()
         .then(accounts => {
-          accountChangedCallback(getFirstAccount(accounts));
+          const acc = getFirstAccount(accounts);
+          if (acc) {
+            accountChangedCallback(acc);
+          } else {
+            console.log('WARNING: received this from eth_requestAccounts, could not parse out a single account:');
+            console.log(accounts);
+            console.log('--------------------');
+          }
         })
         .catch(reject);
     });
@@ -43,7 +50,7 @@ function metamaskConnect() {
   });
 }
 
-const MAX_RETRIES = 10;
+const MAX_RETRIES = 20;
 
 function metamaskInit(accountChangedCallback = () => {}, { retryCount = MAX_RETRIES } = {}) {
   const retryInterval = 100;

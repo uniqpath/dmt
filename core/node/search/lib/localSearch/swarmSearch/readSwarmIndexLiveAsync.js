@@ -26,14 +26,16 @@ function readSwarmIndex() {
       const fileRead = util.promisify(fs.readFile);
 
       Promise.all(
-        files.map(({ path, relpath }) => {
-          return new Promise(success => {
-            const hiddenContext = relpath.replace(/\.json$/i, '');
-            fileRead(path)
-              .then(fileBuffer => success({ filePath: path, fileBuffer, hiddenContext }))
-              .catch(e => success({ error: e.message }));
-          });
-        })
+        files
+          .filter(({ basename }) => !basename.includes('-disabled'))
+          .map(({ path, relpath }) => {
+            return new Promise(success => {
+              const hiddenContext = relpath.replace(/\.json$/i, '');
+              fileRead(path)
+                .then(fileBuffer => success({ filePath: path, fileBuffer, hiddenContext }))
+                .catch(e => success({ error: e.message }));
+            });
+          })
       )
         .then(results => {
           const swarmIndices = results.map(({ error, filePath, fileBuffer, hiddenContext }) => {
@@ -43,7 +45,7 @@ function readSwarmIndex() {
             }
 
             try {
-              const swarmIndex = JSON.parse(fileBuffer.toString());
+              const swarmIndex = JSON.parse(fileBuffer.toString()).filter(({ disabled }) => !disabled);
 
               const hasMissingNames = swarmIndex.find(({ name }) => !name);
 

@@ -1,6 +1,6 @@
 import GUISearchObject from './rpcTargets/guiSearchObject';
 import GUIPlayerObject from './rpcTargets/guiPlayerObject';
-import GUIFrontendStateAcceptor from './rpcTargets/guiFrontendStateAcceptor';
+import GUIFrontendAcceptor from './rpcTargets/guiFrontendAcceptor';
 
 function wsEndpointWrap({ program, backendStore }) {
   return ({ channel }) => wsEndpoint({ program, backendStore, channel });
@@ -9,7 +9,7 @@ function wsEndpointWrap({ program, backendStore }) {
 function wsEndpoint({ program, backendStore, channel }) {
   channel.registerRemoteObject('GUISearchObject', new GUISearchObject({ program, channel }));
   channel.registerRemoteObject('GUIPlayerObject', new GUIPlayerObject({ program, channel }));
-  channel.registerRemoteObject('GUIFrontendStateAcceptor', new GUIFrontendStateAcceptor({ program, backendStore, channel }));
+  channel.registerRemoteObject('GUIFrontendAcceptor', new GUIFrontendAcceptor({ program, backendStore, channel }));
 
   const unsubscribe = backendStore.subscribe(state => {
     if (!channel.closed()) {

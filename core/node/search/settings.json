@@ -2,6 +2,6 @@
   "searchBinary": "walksearch",
   "searchLimit": {
     "maxResults": 100,
-    "maxTimeLocalBinaryExecution": 30000
+    "maxTimeLocalBinaryExecution": 10000
   }
 }

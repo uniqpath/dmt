@@ -4,6 +4,8 @@ import colors from 'colors';
 import dmt from 'dmt/bridge';
 const { log } = dmt;
 
+import { push } from 'dmt/notify';
+
 import { FiberPool, contentServer } from 'dmt/connectome';
 
 import initControllerActor from '../actor';
@@ -142,7 +144,13 @@ class Program extends EventEmitter {
 
     this.fiberPool = new FiberPool({ protocol, protocolLane, port, clientPrivateKey, clientPublicKey, log: log.write });
 
-    this.server.setupRoutes(app => contentServer({ app, fiberPool: this.fiberPool, defaultPort: port }));
+    const emitter = new EventEmitter();
+
+    emitter.on('file_request', ({ providerAddress, filePath }) => {
+      push.notify(`file request on ${dmt.device().id}: ${providerAddress}::${filePath}`);
+    });
+
+    this.server.setupRoutes(app => contentServer({ app, fiberPool: this.fiberPool, defaultPort: port, emitter }));
   }
 
   continueBooting() {

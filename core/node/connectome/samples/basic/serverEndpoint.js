@@ -6,8 +6,6 @@ function serverEndpoint({ channel }) {
   const send = () => {
     count += 1;
 
-    console.log('SENDING MESSAGE');
-    console.log(`Channel closed: ${channel.closed()}`);
     channel.send({ msg: `Message from server: ${count}/${MAX_MSG}` });
 
     if (count < MAX_MSG) {

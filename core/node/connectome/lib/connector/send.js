@@ -2,17 +2,18 @@ import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
-const nullNonce = new Uint8Array(new ArrayBuffer(24), 0);
-
 import { isObject, addHeader } from '../channel/sendHelpers';
+import { integerToByteArray } from '../utils';
 
 function send({ data, connector }) {
   if (isObject(data)) {
     data = JSON.stringify(data);
   }
 
+  const nonce = new Uint8Array(integerToByteArray(2 * connector.sentCount, 24));
+
   if (!connector.closed()) {
-    if (connector.sentCounter > 1) {
+    if (connector.sentCount > 1) {
       let flag = 0;
 
       if (typeof data == 'string') {
@@ -22,23 +23,24 @@ function send({ data, connector }) {
       const _encodedMessage = flag == 1 ? nacl.util.decodeUTF8(data) : data;
       const encodedMessage = addHeader(_encodedMessage, flag);
 
-      const encryptedMessage = nacl.secretbox(encodedMessage, nullNonce, connector.sharedSecret);
+      const encryptedMessage = nacl.secretbox(encodedMessage, nonce, connector.sharedSecret);
 
       if (connector.verbose) {
-        console.log('Sending encrypted data:');
+        console.log();
+        console.log(`Connector → Sending encrypted message #${connector.sentCount} @ ${connector.address}:`);
         console.log(data);
       }
 
       connector.connection.websocket.send(encryptedMessage);
     } else {
       if (connector.verbose) {
-        console.log('Sending plain-text data:');
+        console.log();
+        console.log(`Connector → Sending message #${connector.sentCount} @ ${connector.address}:`);
         console.log(data);
       }
 
       connector.connection.websocket.send(data);
     }
-    connector.sentCounter += 1;
   } else {
     console.log(`Warning: "${data}" was not sent because connector was not yet connected!`);
   }

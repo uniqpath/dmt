@@ -1,5 +1,11 @@
 import dmt from 'dmt/bridge';
 
+import fs from 'fs';
+import os from 'os';
+const { homedir } = os;
+
+import FileStore from './fileStore';
+
 import SimpleStore from './simpleStore';
 
 import identifyUser from './identifyUser';
@@ -11,6 +17,12 @@ class BackendStore extends SimpleStore {
     this.program = program;
     this.verbose = verbose;
 
+    const dir = `${homedir()}/.dmt-user-profiles`;
+
+    if (fs.existsSync(dir)) {
+      this.fileStore = new FileStore({ dir });
+    }
+
     const deviceName = dmt.device({ onlyBasicParsing: true }).id;
 
     this.set({ deviceName });
@@ -21,17 +33,33 @@ class BackendStore extends SimpleStore {
   getUserIdentity(ethAddress) {
     ethAddress = ethAddress.toLowerCase();
 
+    const data = {};
+
+    if (this.fileStore) {
+      Object.assign(data, this.fileStore.readUserProfile(ethAddress));
+    }
+
     if (!this.userSessions[ethAddress]) {
       this.userSessions[ethAddress] = identifyUser({ program: this.program, ethAddress });
     }
 
-    const { userIdentity, isAdmin } = this.userSessions[ethAddress];
+    const { userIdentity, isAdmin, teams } = this.userSessions[ethAddress];
+
+    const teamsArray = teams ? teams.split(',').map(team => team.toLowerCase().trim()) : [];
 
     if (userIdentity) {
-      return { userIdentity, isAdmin };
+      return { ...data, ...{ userIdentity, isAdmin, userTeams: teamsArray } };
     }
 
-    return { userIdentity: null, isAdmin: null };
+    const blankData = { userName: null, userEmail: null, userIdentity: null, isAdmin: null, userTeams: null };
+
+    return { ...blankData, ...data };
+  }
+
+  saveUserProfile(options) {
+    if (this.fileStore) {
+      this.fileStore.saveUserProfile(options);
+    }
   }
 }
 

@@ -50,5 +50,4 @@ Experimental, not for production use. It will be worked on and improved.
 
 What library doesn't do yet but will soon:
 
-- properly use nonces (for now it is a constant nonce for each sent message) - this is easy to update and will be done soon
 - consider man-in-the middle attacks, we will add this soon so that connection receiver public key is optinally checked against a known value

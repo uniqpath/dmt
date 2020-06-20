@@ -1,6 +1,6 @@
 import { stores, metamask } from 'dmt-js';
 
-import FrontendStore from './frontendStore';
+import LoginStore from './loginStore';
 import ConnectedStore from './connectedStore';
 
 import appHelper from './appHelper';
@@ -35,10 +35,10 @@ console.log = (...args) => {
 
 const verbose = false;
 const session = new SessionStore({ verbose });
-const frontendStore = new FrontendStore();
+const loginStore = new LoginStore();
 
 const rpcRequestTimeout = 5500;
-const store = new ConnectedStore(frontendStore, {
+const store = new ConnectedStore(loginStore, {
   port,
   ssl: appHelper.ssl,
   protocol,
@@ -52,7 +52,7 @@ const store = new ConnectedStore(frontendStore, {
 
 const metamaskConnect = metamaskInit(ethAddress => {
   console.log(`Connected ethereum address: ${ethAddress}`);
-  frontendStore.login(ethAddress);
+  loginStore.login(ethAddress);
 });
 
 const app = new App({

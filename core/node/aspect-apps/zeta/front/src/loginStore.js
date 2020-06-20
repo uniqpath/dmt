@@ -1,7 +1,7 @@
 import { stores } from 'dmt-js';
 const { SimpleStore } = stores;
 
-class FrontendStore extends SimpleStore {
+class LoginStore extends SimpleStore {
   constructor({ verbose = false } = {}) {
     super();
 
@@ -10,8 +10,8 @@ class FrontendStore extends SimpleStore {
 
   login(ethAddress) {
     this.set({ ethAddress, loggedIn: true });
-    this.emit('login', ethAddress);
+    this.emit('metamask_login', ethAddress);
   }
 }
 
-export default FrontendStore;
+export default LoginStore;

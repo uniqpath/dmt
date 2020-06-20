@@ -236,7 +236,7 @@ class LocalPlayer {
   }
 
   async cut(args) {
-    this.playlist.cut(args);
+    return this.playlist.cut(args);
   }
 
   cutSelected() {

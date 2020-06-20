@@ -113,7 +113,7 @@
         <button on:click={() => action('volume_down')} class="volume" disabled={!connected}>Vol ↓</button>
         <button on:click={() => action('volume_up')} class="volume" disabled={!connected}>Vol ↑</button>
 
-        <button on:click={() => toggleMore()} class="more" class:bold={playerMoreVisible}>More</button>
+        <!-- <button on:click={() => toggleMore()} class="more" class:bold={playerMoreVisible}>More</button> -->
 
       </div>
 
@@ -138,7 +138,8 @@
 
   {#if nearbyDevices}
     <div class="nearby_devices section">
-      {#each nearbyDevices.filter(device => window.location.hostname != '192.168.0.60' || usualDeviceList.includes(device.deviceId)) as device}
+      <!-- window.location.hostname != '192.168.0.60' || -->
+      {#each nearbyDevices.filter(device => usualDeviceList.includes(device.deviceId)) as device}
 
         <button on:click={switchDevice(device)} class:active={device.deviceId == activeDeviceId}>
 
@@ -179,7 +180,7 @@
   }
 
   .player_more {
-    display: none;
+    /*display: none;*/
   }
 
   .player_more.visible {

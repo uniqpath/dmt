@@ -21,14 +21,14 @@ mids.push('apps');
 
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
 
-mids.push('connections/lanbus');
-mids.push('connections/nearby');
+mids.push('nearby/lanbus');
+mids.push('nearby/nearby');
 mids.push('iot');
 
 mids.push('content/samba');
 mids.push('meta/bash-exec');
 mids.push('meta/replicate');
-mids.push('meta/update');
+//mids.push('meta/update');
 mids.push('meta/holidays');
 
 try {

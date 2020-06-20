@@ -69,7 +69,7 @@ class LocalProviderSearch {
         })
         .catch(e => {
           const response = { meta: basicMetaInfo(this), error: e.message };
-          log.yellow(`Local search was invalid: ${colors.red(e.message)}`);
+          log.yellow(`Local search error: ${colors.red(e.message)}`);
           const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
           Object.assign(response.meta, { contentId, searchTime, searchTimePretty });
 

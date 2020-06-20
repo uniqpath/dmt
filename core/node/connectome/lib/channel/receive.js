@@ -2,9 +2,15 @@ import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
-const nullNonce = new Uint8Array(new ArrayBuffer(24), 0);
+import { integerToByteArray } from '../utils';
 
 function messageReceived({ message, channel }) {
+  const nonce = new Uint8Array(integerToByteArray(2 * channel.receivedCount, 24));
+
+  if (channel.verbose) {
+    console.log(`Channel → Received message #${channel.receivedCount} @ ${channel.remoteIp()}:`);
+  }
+
   if (channel.sharedSecret) {
     if (channel.verbose == 'extra') {
       console.log('Received bytes:');
@@ -13,7 +19,8 @@ function messageReceived({ message, channel }) {
     }
 
     try {
-      const _decryptedMessage = nacl.secretbox.open(message, nullNonce, channel.sharedSecret);
+      const _decryptedMessage = nacl.secretbox.open(message, nonce, channel.sharedSecret);
+
       const flag = _decryptedMessage[0];
       const decryptedMessage = _decryptedMessage.subarray(1);
 
@@ -38,9 +45,8 @@ function messageReceived({ message, channel }) {
   if (channel.verbose) {
     if (channel.sharedSecret) {
       console.log('Decrypted message:');
-    } else {
-      console.log('Received message:');
     }
+
     console.log(message);
     console.log();
   }

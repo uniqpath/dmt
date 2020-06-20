@@ -9,9 +9,7 @@ function enhanceSwarm(result, { swarmGateway }) {
 
   const playableUrl = `${swarmGateway}/bzz:/${swarmBzzHash}`;
 
-  const { name, date } = result;
-
-  const mediaType = detectMediaType(name);
+  const { name, date, mediaType } = result;
 
   if (mediaType) {
     result.mediaType = mediaType;

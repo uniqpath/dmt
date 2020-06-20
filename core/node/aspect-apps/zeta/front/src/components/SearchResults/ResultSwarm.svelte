@@ -21,20 +21,29 @@
   <span class="pretty_time">{prettyTime}</span>
 {/if}
 
-{#if entryType == 'ens'}
-  ∞
-{:else}
-  ·
-{/if}
-
 {#if context}
-  {#if entryType != 'ens'}({/if}{context}{#if entryType != 'ens'}){/if}
+  {#if entryType == 'ens'}
+    ∞
+  {:else}
+    ·
+  {/if}
+
+  <span class="context">{#if entryType != 'ens'}({/if}{context}{#if entryType != 'ens'}){/if}</span>
 {/if}
 
 <PlayMedia {playableUrl} {mediaType} />
 
 <style>
+  a {
+    text-decoration: underline;
+    text-decoration-style: solid; /* external link */
+  }
+
   span.pretty_time {
     color: #DFB1D9;
+  }
+
+  span.context {
+    color: #aaa;
   }
 </style>

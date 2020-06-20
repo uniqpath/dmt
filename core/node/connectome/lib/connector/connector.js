@@ -11,7 +11,7 @@ import RpcClient from '../rpc/client';
 import RPCTarget from '../rpc/RPCTarget';
 
 class Connector extends EventEmitter {
-  constructor({ protocolLane, clientPrivateKey, clientPublicKey, clientInitData, rpcRequestTimeout, verbose = false, address } = {}) {
+  constructor({ protocolLane, clientPrivateKey, clientPublicKey, rpcRequestTimeout, verbose = false, address } = {}) {
     super();
 
     this.protocolLane = protocolLane;
@@ -20,12 +20,13 @@ class Connector extends EventEmitter {
     this.clientPublicKey = clientPublicKey;
     this.clientPublicKeyHex = bufferToHex(clientPublicKey);
 
-    this.clientInitData = clientInitData;
-
     this.rpcClient = new RpcClient(this, rpcRequestTimeout);
 
     this.address = address;
     this.verbose = verbose;
+
+    this.sentCount = 0;
+    this.receivedCount = 0;
   }
 
   isReady() {
@@ -34,10 +35,12 @@ class Connector extends EventEmitter {
 
   send(data) {
     send({ data, connector: this });
+    this.sentCount += 1;
   }
 
-  wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted }) {
-    receive({ jsonData, encryptedData, rawMessage, wasEncrypted, connector: this });
+  wireReceive({ jsonData, encryptedData, rawMessage }) {
+    receive({ jsonData, encryptedData, rawMessage, connector: this });
+    this.receivedCount += 1;
   }
 
   closed() {
@@ -48,7 +51,8 @@ class Connector extends EventEmitter {
     this.connected = connected;
 
     if (connected) {
-      this.sentCounter = 0;
+      this.sentCount = 0;
+      this.receivedCount = 0;
 
       this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, protocolLane: this.protocolLane })
         .then(({ sharedSecret, sharedSecretHex }) => {
@@ -97,14 +101,8 @@ class Connector extends EventEmitter {
           }
 
           this.remoteObject('Auth')
-            .call('finalizeHandshake', { protocolLane, expectHelloData: !!this.clientInitData })
-            .then(() => {
-              if (this.clientInitData) {
-                this.remoteObject('Hello')
-                  .call('hello', this.clientInitData)
-                  .catch(reject);
-              }
-            })
+            .call('finalizeHandshake', { protocolLane })
+            .then(() => {})
             .catch(reject);
         })
         .catch(reject);

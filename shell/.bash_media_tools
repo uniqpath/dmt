@@ -63,19 +63,19 @@ function swarm_upload {
   fi
 }
 
-# function mp4 {
-#   if [ -n "$1" ]; then
-#     for file in "$@"
-#     do
-#       if [ -f "$file" ]; then
-#         # http://www.bugcodemaster.com/article/convert-videos-mp4-format-using-ffmpeg
-#         ffmpeg -i "$file" "$file".mp4 -preset veryfast
-#       else
-#         echo "File $file doesn't exist"
-#       fi
-#     done
-#   else
-#     printf "${YELLOW}Usage:${NC}\n"
-#     printf "${GREEN}mp4 file1 file2 file3 ...${NC} ${GRAY}convert different video formats to mp4${NC}\n"
-#   fi
-# }
+function mp4 {
+  if [ -n "$1" ]; then
+    for file in "$@"
+    do
+      if [ -f "$file" ]; then
+        # http://www.bugcodemaster.com/article/convert-videos-mp4-format-using-ffmpeg
+        ffmpeg -i "$file" "$file".mp4 -preset veryfast
+      else
+        echo "File $file doesn't exist"
+      fi
+    done
+  else
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}mp4 file1 file2 file3 ...${NC} ${GRAY}convert different video formats to mp4${NC}\n"
+  fi
+}

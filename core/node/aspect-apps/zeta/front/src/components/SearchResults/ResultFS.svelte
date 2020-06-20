@@ -7,9 +7,10 @@
   // use: https://www.rgbtohex.net/hextorgb/
   ansicolor.rgb = {
     black: [0, 0, 0],
-    darkGray: [180, 180, 180],
+    // darkGray: [180, 180, 180],
+    darkGray: [160, 160, 160],
     //cyan: [255, 255, 255]
-    cyan:         [37,176,188],
+    cyan:         [37, 176, 188],
     lightCyan:    [0, 204, 255]
   };
 
@@ -34,7 +35,7 @@
 
 <style>
   span {
-    color: #DDD;
+    color: #EEE;
   }
 
   span.file_size {

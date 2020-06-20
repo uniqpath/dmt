@@ -1,5 +1,7 @@
 import connect from './connectNode';
 
+const WAIT_TIME = 1000;
+
 function promiseTimeout(ms, promise) {
   const timeout = new Promise((resolve, reject) => {
     const id = setTimeout(() => {
@@ -16,7 +18,7 @@ function waitAndContinue(options) {
     connect(options).then(connector => {
       const connectedPromise = new Promise(success => connector.on('ready', success));
 
-      promiseTimeout(500, connectedPromise)
+      promiseTimeout(WAIT_TIME, connectedPromise)
         .then(() => success(connector))
         .catch(() => success(connector));
     });

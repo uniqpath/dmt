@@ -12,15 +12,20 @@ const timeTags = [];
 
 const SEARCH_LAG_MS = 300;
 
-function executeSearch({ searchQuery, remoteObject, remoteMethod, searchDelay = SEARCH_LAG_MS, searchStatusCallback = () => {} }) {
+function executeSearch({ searchQuery, remoteObject, remoteMethod, searchDelay = SEARCH_LAG_MS, force, searchStatusCallback = () => {} }) {
   return new Promise((success, reject) => {
     if (searchQuery.trim() == '') {
       timeTags.push(Date.now());
 
-      if (prevQuery != '') {
+      if (prevQuery != '' || force) {
         clearTimeout(executeQueryTimeout);
         searchStatusCallback({ searching: false });
-        success([]);
+
+        if (force) {
+          success(null);
+        } else {
+          success([]);
+        }
       }
 
       prevQuery = searchQuery;
@@ -29,7 +34,11 @@ function executeSearch({ searchQuery, remoteObject, remoteMethod, searchDelay = 
     }
 
     try {
-      if (queryDifferentEnough({ searchQuery, prevQuery })) {
+      console.log('prevQuery:');
+      console.log(prevQuery);
+      console.log(`force: ${force}`);
+
+      if (force || queryDifferentEnough({ searchQuery, prevQuery })) {
         clearTimeout(executeQueryTimeout);
 
         searchStatusCallback({ searching: true });
@@ -38,6 +47,8 @@ function executeSearch({ searchQuery, remoteObject, remoteMethod, searchDelay = 
         executeQueryTimeout = setTimeout(() => {
           const timeTag = Date.now();
           timeTags.push(timeTag);
+
+          console.log(`Search executed on remote object: ${searchQuery}`);
 
           remoteObject
             .call(remoteMethod, { query: normalizeQuery(searchQuery), searchOriginHost: window.location.host })

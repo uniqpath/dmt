@@ -22,9 +22,12 @@
   padding: 0 2px;
 }
 
+/* (some) resultTypes ==> */
+
 .swarmTag {
   /*color: #555;*/
-  color: white;
+  /*color: white;*/
+  color: #FFAF28;
   /*background-color: #FFA500;*/
   background: none;
   font-style: italic;
@@ -35,6 +38,8 @@
   background-color: #5284FF;
   color: white;
 }
+
+/* mediaTypes ==> */
 
 .videoTag {
   color: white;
@@ -57,6 +62,11 @@
 .pdfTag {
   color: white;
   background-color: #575DC9;
+}
+
+.txtTag {
+  color: #CCC;
+  background-color: #444;
 }
 
 .noteTag {

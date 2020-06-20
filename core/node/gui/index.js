@@ -43,6 +43,10 @@ function init(program) {
     channelList.remoteCallAll('Frontend', 'reverseAction', { action, payload });
   });
 
+  channelList.on('status', ({ connList }) => {
+    program.updateState({ sysinfo: { guiConnectionsInfo: connList } }, { announce: true });
+  });
+
   setTimeout(() => {
     const reloadFile = path.join(dmt.dmtPath, 'state/gui_reload.txt');
 

@@ -35,4 +35,16 @@ function hexToBuffer(hex) {
   return new Uint8Array(tokens.map(token => parseInt(token, 16)));
 }
 
-export { stopwatch, EventEmitter, loadModule, log, isBrowser, isNodeJs, listify, bufferToHex, hexToBuffer };
+function integerToByteArray(long, arrayLen = 8) {
+  const byteArray = new Array(arrayLen).fill(0);
+
+  for (let index = 0; index < byteArray.length; index++) {
+    const byte = long & 0xff;
+    byteArray[index] = byte;
+    long = (long - byte) / 256;
+  }
+
+  return byteArray;
+}
+
+export { stopwatch, EventEmitter, loadModule, log, isBrowser, isNodeJs, listify, bufferToHex, hexToBuffer, integerToByteArray };

@@ -3,19 +3,20 @@ import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
 import { isObject, addHeader } from './sendHelpers';
-
-const nullNonce = new Uint8Array(new ArrayBuffer(24), 0);
+import { integerToByteArray } from '../utils';
 
 function send({ message, channel }) {
   if (isObject(message)) {
     message = JSON.stringify(message);
   }
 
+  const nonce = new Uint8Array(integerToByteArray(2 * channel.sentCount + 1, 24));
+
   if (channel.verbose) {
     if (channel.sharedSecret) {
-      console.log('Sending encrypted message:');
+      console.log(`Channel → Sending encrypted message #${channel.sentCount} @ ${channel.remoteIp()}:`);
     } else {
-      console.log('Sending message:');
+      console.log(`Channel → Sending message #${channel.sentCount} @ ${channel.remoteIp()}:`);
     }
 
     console.log(message);
@@ -31,7 +32,7 @@ function send({ message, channel }) {
     const _encodedMessage = flag == 1 ? nacl.util.decodeUTF8(message) : message;
     const encodedMessage = addHeader(_encodedMessage, flag);
 
-    const encryptedMessage = nacl.secretbox(encodedMessage, nullNonce, channel.sharedSecret);
+    const encryptedMessage = nacl.secretbox(encodedMessage, nonce, channel.sharedSecret);
     message = encryptedMessage;
 
     if (channel.verbose == 'extra') {
@@ -45,7 +46,6 @@ function send({ message, channel }) {
   }
 
   if (!channel.ws.terminated && channel.ws.readyState == channel.ws.OPEN) {
-    channel.sentMessageCount += 1;
     channel.ws.send(message);
   } else {
     channel.ws.terminated = true;

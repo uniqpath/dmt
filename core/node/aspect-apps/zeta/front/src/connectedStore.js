@@ -1,20 +1,20 @@
 import { stores } from 'dmt-js';
 
 class ConnectedStore extends stores.ConnectedStore {
-  constructor(frontendStore, options) {
+  constructor(loginStore, options) {
     super(options);
 
-    this.frontendStore = frontendStore;
+    this.loginStore = loginStore;
 
     this.on('connected', () => {
-      const { ethAddress } = this.frontendStore.get();
+      const { ethAddress } = this.loginStore.get();
 
       if (ethAddress) {
         this.loginAddress(ethAddress);
       }
     });
 
-    frontendStore.on('login', ethAddress => {
+    loginStore.on('metamask_login', ethAddress => {
       if (this.connected) {
         this.loginAddress(ethAddress);
       }
@@ -22,10 +22,20 @@ class ConnectedStore extends stores.ConnectedStore {
   }
 
   loginAddress(ethAddress) {
-    this.remoteObject('GUIFrontendStateAcceptor')
-      .call('getUserIdentity', ethAddress)
+    this.remoteObject('GUIFrontendAcceptor')
+      .call('getUserIdentity', { address: ethAddress, urlHostname: window.location.hostname })
       .then(identity => {
-        this.frontendStore.set(identity);
+        this.loginStore.set(identity);
+      })
+      .catch(console.log);
+  }
+
+  saveUserProfile(options) {
+    this.remoteObject('GUIFrontendAcceptor')
+      .call('saveUserProfile', options)
+      .then(() => {
+        console.log('Profile saved');
+        this.loginStore.set(options);
       })
       .catch(console.log);
   }

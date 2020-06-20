@@ -3,7 +3,7 @@ export default function identifyUser({ program, ethAddress }) {
     const identity = program.metamask().getPersonIdentity(ethAddress);
 
     if (identity) {
-      return { userIdentity: identity.id, isAdmin: identity.admin };
+      return { userIdentity: identity.id, isAdmin: identity.admin, teams: identity.teams };
     }
 
     return { unknownIdentity: true };

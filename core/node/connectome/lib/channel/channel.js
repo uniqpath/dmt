@@ -8,7 +8,7 @@ import RpcClient from '../rpc/client';
 import RPCTarget from '../rpc/RPCTarget';
 
 class Channel extends EventEmitter {
-  constructor(ws, { rpcRequestTimeout, verbose }) {
+  constructor(ws, { rpcRequestTimeout, verbose = false }) {
     super();
     this.ws = ws;
     this.verbose = verbose;
@@ -17,16 +17,12 @@ class Channel extends EventEmitter {
 
     this.reverseRpcClient = new RpcClient(this, rpcRequestTimeout);
 
-    this.sentMessageCount = 0;
-    this.receivedMessageCount = 0;
-
-    ws.on('message', msg => {
-      this.receivedMessageCount += 1;
-    });
-
     ws.on('close', () => {
       this.emit('channel_closed');
     });
+
+    this.sentCount = 0;
+    this.receivedCount = 0;
   }
 
   setProtocolLane(protocolLane) {
@@ -35,14 +31,6 @@ class Channel extends EventEmitter {
 
   setSharedSecret(sharedSecret) {
     this.sharedSecret = sharedSecret;
-  }
-
-  setClientInitData(clientInitData) {
-    this._clientInitData = clientInitData;
-  }
-
-  clientInitData() {
-    return this._clientInitData;
   }
 
   remoteIp() {
@@ -59,10 +47,12 @@ class Channel extends EventEmitter {
 
   send(message) {
     send({ message, channel: this });
+    this.sentCount += 1;
   }
 
   messageReceived(message) {
     receive({ message, channel: this });
+    this.receivedCount += 1;
   }
 
   registerRemoteObject(handle, obj) {

@@ -53,15 +53,6 @@ class ChannelList extends EventEmitter {
     const connList = this.channels.map(channel => {
       const result = { ip: channel.remoteIp(), remotePubkey: channel.remotePubkey() };
 
-      const clientInitData = channel.clientInitData();
-      if (clientInitData) {
-        for (const key of Object.keys(result)) {
-          delete clientInitData[key];
-        }
-
-        Object.assign(result, clientInitData);
-      }
-
       return result;
     });
 

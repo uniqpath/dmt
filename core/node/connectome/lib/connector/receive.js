@@ -2,13 +2,20 @@ import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
-const nullNonce = new Uint8Array(new ArrayBuffer(24), 0);
+import { integerToByteArray } from '../utils';
 
 function isRpcCallResult(jsonData) {
   return Object.keys(jsonData).includes('result') || Object.keys(jsonData).includes('error');
 }
 
 function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connector }) {
+  const nonce = new Uint8Array(integerToByteArray(2 * connector.receivedCount + 1, 24));
+
+  if (connector.verbose && !wasEncrypted) {
+    console.log();
+    console.log(`Connector → Received message #${connector.receivedCount} @ ${connector.address}:`);
+  }
+
   if (jsonData) {
     if (jsonData.jsonrpc) {
       if (isRpcCallResult(jsonData)) {
@@ -31,7 +38,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
       console.log(`Decrypting with shared secret ${connector.sharedSecret}...`);
     }
 
-    const _decryptedMessage = nacl.secretbox.open(encryptedData, nullNonce, connector.sharedSecret);
+    const _decryptedMessage = nacl.secretbox.open(encryptedData, nonce, connector.sharedSecret);
 
     const flag = _decryptedMessage[0];
     const decryptedMessage = _decryptedMessage.subarray(1);
@@ -48,7 +55,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
             console.log(jsonData);
           }
 
-          connector.wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true });
+          wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
         } else if (jsonData.tag) {
           const msg = jsonData;
 

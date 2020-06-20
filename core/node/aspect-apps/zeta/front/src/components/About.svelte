@@ -1,24 +1,28 @@
 <script>
-  import { getContext } from 'svelte';
-  const app = getContext('app');
+  // import { getContext } from 'svelte';
+  // const app = getContext('app');
+
+  const d = new Date();
+  const datestring = `${d.getFullYear()}-${(d.getMonth() + 1)}-${d.getDate()}`;
 </script>
 
-{#if app.isZetaSeek}
+<!-- {#if app.isZetaSeek} -->
 
   <div class="about">
-    <b>Zeta</b> <span>PoC v0.1.3</span>
+    <b>Zeta</b><span class="dash">/</span><b><a href="https://dmt-system.com">DMT</a></b> DEMO <span class="version">v{datestring}</span>
 
     <p>
-      <b>Zeta</b> is an evolving search technology on <b>modern web3 stack</b>.
+      An evolving search<sup>+</sup> technology for <b>web3</b> <span>r</span>evolution.
     </p>
 
     <p>
-      [ Imagine all the people sharing all the files. ]
+      [ If you think all times are the same, you are wrong ]
+      <!-- [ <span>Imagine all the people sharing all the files</span> — <i>John Lennon</i> ] -->
     </p>
 
-    <p>
-      [ And the network will live as one. ]
-    </p>
+    <!-- <p>
+      [ <span>And the network will live as one.</span> ]
+    </p> -->
 
     <!-- <p>
       Principal use is as an installed engine (desktop or server).
@@ -29,12 +33,12 @@
     </p> -->
   </div>
 
-{/if}
+<!-- {/if} -->
 
 <style>
 .about {
-  width: 350px;
-  position: absolute;
+  width: 300px;
+  position: fixed;
   right: 0;
   bottom: 0;
   padding: 10px;
@@ -47,9 +51,24 @@
   background-color: #D9EBD5;
 }
 
-.about p, .about span {
+.about p {
   font-size: 0.8em;
   color: #232527;
+}
+
+.about span {
+  color: #777;
+  color: #535B62;
+  color: #5D6270;
+  color: var(--dmt-violet-dark);
+}
+
+.about span.dash {
+  padding: 0 2px;
+}
+
+.about span.version {
+  font-size: 0.8em;
 }
 
 a {
@@ -64,7 +83,8 @@ a:hover {
 
 @media only screen and (max-width: 768px) {
   .about {
-    display: none;
+    /*display: none;*/
+    /*width: 300px;*/
   }
 }
 
