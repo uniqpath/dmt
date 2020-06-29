@@ -1,5 +1,5 @@
-import X from './X';
-import errorCodes from './errorCodes';
+import X from './X.js';
+import errorCodes from './errorCodes.js';
 
 class MoleClient {
   constructor({ transport, requestTimeout = 20000 }) {

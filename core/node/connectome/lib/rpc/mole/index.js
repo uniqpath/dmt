@@ -1,8 +1,8 @@
-import MoleServer from './MoleServer';
-import MoleClient from './MoleClient';
-import MoleClientProxified from './MoleClientProxified';
+import MoleServer from './MoleServer.js';
+import MoleClient from './MoleClient.js';
+import MoleClientProxified from './MoleClientProxified.js';
 
-import ClientTransport from './transportClientChannel';
-import ServerTransport from './transportServerChannel';
+import ClientTransport from './transportClientChannel.js';
+import ServerTransport from './transportServerChannel.js';
 
 export { MoleServer, MoleClient, MoleClientProxified, ClientTransport, ServerTransport };

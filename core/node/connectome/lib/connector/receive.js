@@ -2,7 +2,7 @@ import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
-import { integerToByteArray } from '../utils';
+import { integerToByteArray } from '../utils/index.js';
 
 function isRpcCallResult(jsonData) {
   return Object.keys(jsonData).includes('result') || Object.keys(jsonData).includes('error');

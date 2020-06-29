@@ -1,4 +1,4 @@
-import { encode } from './encodePath';
+import { encode } from './encodePath.js';
 
 function create({ ip, port, defaultPort, fileName, directory }) {
   let provider = ip;

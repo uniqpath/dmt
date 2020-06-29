@@ -1,5 +1,5 @@
-import { log } from '../utils';
-import _establishAndMaintainConnection from './establishAndMaintainConnection';
+import { log } from '../utils/index.js';
+import _establishAndMaintainConnection from './establishAndMaintainConnection.js';
 
 function establishAndMaintainConnection(opts) {
   return new Promise(success => {

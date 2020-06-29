@@ -1,4 +1,4 @@
-import RunnableLink from './runnableLink';
+import RunnableLink from './runnableLink.js';
 
 class LinkedList {
   constructor(linkConstructor) {

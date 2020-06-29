@@ -1,11 +1,11 @@
-import send from './send';
-import receive from './receive';
+import send from './send.js';
+import receive from './receive.js';
 
-import { EventEmitter, isBrowser, listify } from '../utils';
+import { EventEmitter, isBrowser, listify } from '../utils/index.js';
 
-import RpcClient from '../rpc/client';
+import RpcClient from '../rpc/client.js';
 
-import RPCTarget from '../rpc/RPCTarget';
+import RPCTarget from '../rpc/RPCTarget.js';
 
 class Channel extends EventEmitter {
   constructor(ws, { rpcRequestTimeout, verbose = false }) {

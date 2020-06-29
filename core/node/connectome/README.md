@@ -1,10 +1,10 @@
 <img src="media/logo_connectome.png?v=2">
 
-This small and lean JavaScript library facilitates:
+This small and lean JavaScript library enables:
 
 **Encrypted dynamic connections between each two endpoints.**
 
-It provides code for the initiator of connections and it works transparently between:
+It works transparently between:
 
 - two node.js processes
 - between in-browser JavaScript and a node.js process
@@ -12,10 +12,10 @@ It provides code for the initiator of connections and it works transparently bet
 ## Features
 
 - send and receive json messages
-- RPC calls on objects
+- RPC calls on javascript objects
 - send and receive files
 
-All messages and chunks are encrypted.
+All messages and file chunks are encrypted.
 
 ## How to start?
 
@@ -34,20 +34,20 @@ cd samples/simple
 
 Run server in first terminal tab:
 ```
-node --experimental-specifier-resolution=node server.js
+node server.js
 ```
 
 Run client in another terminal tab:
 ```
-node --experimental-specifier-resolution=node client.js
+node client.js
 ```
 
-## Warning
+Requires node.js with ES6 modules support, for example v13.8 and upwards.
 
-⚠️ ⚠️ ⚠️
+## Production use
 
-Experimental, not for production use. It will be worked on and improved.
+It is ready for production use.
 
-What library doesn't do yet but will soon:
+## API docs
 
-- consider man-in-the middle attacks, we will add this soon so that connection receiver public key is optinally checked against a known value
+Soon™

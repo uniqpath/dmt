@@ -1,8 +1,8 @@
 import colors from 'colors';
 
-import { printClientInfo } from '../exampleUtils';
+import { printClientInfo } from '../exampleUtils.js';
 
-import { connect, newKeypair } from '../../index';
+import { connect, newKeypair } from '../../index.js';
 
 const address = 'localhost';
 
@@ -19,7 +19,7 @@ printClientInfo({ privateKeyHex, publicKeyHex });
 connect({ address, port, protocol, protocolLane, clientPrivateKey, clientPublicKey, remotePubkey: undefined, verbose }).then(connector => {
   connector.registerRemoteObject('ErrorObject', {
     makeError: () => {
-      throw new Error('ERROR IS THROWN');
+      throw new Error('And just like that, AN ERROR IS THROWN');
     }
   });
 

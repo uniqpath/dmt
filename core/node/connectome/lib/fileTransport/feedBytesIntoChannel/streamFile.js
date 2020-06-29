@@ -1,6 +1,6 @@
-import { loadModule } from '../../utils';
+import { loadModule } from '../../utils/index.js';
 
-import BinaryReader from './binaryReader';
+import BinaryReader from './binaryReader.js';
 
 function streamFile({ channel, filePath, sessionId }) {
   import('fs').then(fs => {

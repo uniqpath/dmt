@@ -1,10 +1,10 @@
-import MoleChannel from './moleChannel';
+import MoleChannel from './moleChannel.js';
 
-import * as mole from './mole';
+import * as mole from './mole/index.js';
 
 const { MoleClient, ClientTransport } = mole;
 
-import ConnectomeError from '../error/ConnectomeError';
+import ConnectomeError from '../error/connectomeError.js';
 
 class SpecificRpcClient {
   constructor(connectorOrServersideChannel, methodPrefix, requestTimeout) {

@@ -1,7 +1,7 @@
 function serverEndpoint({ channel }) {
   channel.registerRemoteObject('ErrorObject', {
     makeError: () => {
-      throw new Error('ERROR IS THROWN');
+      throw new Error('And just like that, AN ERROR IS THROWN');
     }
   });
 }

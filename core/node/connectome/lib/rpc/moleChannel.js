@@ -1,4 +1,4 @@
-import { EventEmitter } from '../utils';
+import { EventEmitter } from '../utils/index.js';
 
 class Channel extends EventEmitter {
   constructor(connector) {

@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-import { decode } from '../fiberHandle/encodePath';
+import { decode } from '../fiberHandle/encodePath.js';
 
 function log(...args) {
   console.log(...args);

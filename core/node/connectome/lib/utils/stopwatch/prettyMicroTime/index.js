@@ -1,4 +1,4 @@
-import * as utils from './utils';
+import * as utils from './utils.js';
 
 function prettyMicroTime(time, smallest, digits) {
   const isNumber = /^[0-9]+$/.test(time);

@@ -1,4 +1,4 @@
-import prettyMicroTime from './prettyMicroTime';
+import prettyMicroTime from './prettyMicroTime/index.js';
 
 const browser = typeof window !== 'undefined';
 

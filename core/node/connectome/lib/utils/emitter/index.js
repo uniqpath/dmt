@@ -1,4 +1,4 @@
-import LinkedList from './linkedList';
+import LinkedList from './linkedList.js';
 
 let id = 0;
 const splitter = /[\s,]+/g;

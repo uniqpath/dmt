@@ -2,8 +2,8 @@ import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
-import { isObject, addHeader } from './sendHelpers';
-import { integerToByteArray } from '../utils';
+import { isObject, addHeader } from './sendHelpers.js';
+import { integerToByteArray } from '../utils/index.js';
 
 function send({ message, channel }) {
   if (isObject(message)) {

@@ -1,9 +1,9 @@
 import WebSocket from 'ws';
 
-import { EventEmitter } from '../utils';
+import { EventEmitter } from '../utils/index.js';
 
-import getRemoteIp from '../channel/getRemoteIp';
-import Channel from '../channel/channel';
+import getRemoteIp from '../channel/getRemoteIp.js';
+import Channel from '../channel/channel.js';
 
 function noop() {}
 

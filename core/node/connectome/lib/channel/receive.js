@@ -2,7 +2,7 @@ import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
-import { integerToByteArray } from '../utils';
+import { integerToByteArray } from '../utils/index.js';
 
 function messageReceived({ message, channel }) {
   const nonce = new Uint8Array(integerToByteArray(2 * channel.receivedCount, 24));

@@ -1,4 +1,4 @@
-import SpecificRpcClient from './specificClient';
+import SpecificRpcClient from './specificClient.js';
 
 const DEFAULT_REQUEST_TIMEOUT = 5000;
 

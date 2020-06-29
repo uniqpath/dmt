@@ -1,4 +1,4 @@
-import firstConnectWaitAndContinue from '../connect/firstConnectWaitAndContinue';
+import firstConnectWaitAndContinue from '../connect/firstConnectWaitAndContinue.js';
 
 class FiberPool {
   constructor(options) {

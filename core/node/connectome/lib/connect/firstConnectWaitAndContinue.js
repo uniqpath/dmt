@@ -1,4 +1,4 @@
-import connect from './connectNode';
+import connect from './connectNode.js';
 
 const WAIT_TIME = 1000;
 

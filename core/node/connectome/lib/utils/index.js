@@ -1,5 +1,5 @@
-import stopwatch from './stopwatch/stopwatch';
-import EventEmitter from './emitter';
+import stopwatch from './stopwatch/stopwatch.js';
+import EventEmitter from './emitter/index.js';
 
 async function loadModule(whichUtil) {
   return import(`./${whichUtil}`);

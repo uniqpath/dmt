@@ -1,7 +1,7 @@
 import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 
-import { EventEmitter, hexToBuffer } from '../../utils';
+import { EventEmitter, hexToBuffer } from '../../utils/index.js';
 
 nacl.util = naclutil;
 

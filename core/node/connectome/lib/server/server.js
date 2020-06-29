@@ -1,8 +1,8 @@
-import { EventEmitter } from '../utils';
-import ServerInstance from './serverInstance';
+import { EventEmitter } from '../utils/index.js';
+import ServerInstance from './serverInstance.js';
 
-import AuthTarget from './rpcTargets/authTarget';
-import ChannelList from '../channel/channelList';
+import AuthTarget from './rpcTargets/authTarget.js';
+import ChannelList from '../channel/channelList.js';
 
 class Server extends EventEmitter {
   constructor({ ssl = false, port, keypair, verbose }) {

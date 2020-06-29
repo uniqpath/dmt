@@ -1,4 +1,4 @@
-import errorCodes from './errorCodes';
+import errorCodes from './errorCodes.js';
 
 class MoleServer {
   constructor({ transports }) {

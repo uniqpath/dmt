@@ -1,11 +1,11 @@
 import colors from 'colors';
 
-import { printServerInfo } from '../exampleUtils';
+import { printServerInfo } from '../exampleUtils.js';
 
-import { newKeypair, Server } from '../../index';
-import { bufferToHex } from '../../lib/utils';
+import { newKeypair, Server } from '../../index.js';
+import { bufferToHex } from '../../lib/utils/index.js';
 
-import wsEndpoint from './serverEndpoint';
+import wsEndpoint from './serverEndpoint.js';
 
 const keypair = newKeypair();
 
@@ -24,11 +24,11 @@ const server = new Server({ port, keypair, verbose });
 server.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
 
 server.on('connection', channel => {
-  console.log(colors.magenta(`Shared secret: ${colors.gray(bufferToHex(channel.sharedSecret))}`));
+  console.log(colors.magenta(`Initiated new connection with shared secret ${colors.gray(bufferToHex(channel.sharedSecret))}`));
 });
 
 server.on('connection_closed', channel => {
-  console.log(colors.magenta(`Connection ${colors.gray(bufferToHex(channel.sharedSecret))} closed`));
+  console.log(`Connection ${colors.gray(bufferToHex(channel.sharedSecret))} closed`);
 });
 
 server.start();

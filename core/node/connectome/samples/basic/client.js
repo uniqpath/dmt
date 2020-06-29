@@ -1,8 +1,8 @@
 import colors from 'colors';
 
-import { printClientInfo } from '../exampleUtils';
+import { printClientInfo } from '../exampleUtils.js';
 
-import { connect, newKeypair } from '../../index';
+import { connect, newKeypair } from '../../index.js';
 
 const address = 'localhost';
 

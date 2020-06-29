@@ -1,4 +1,4 @@
-import { EventEmitter } from '../utils';
+import { EventEmitter } from '../utils/index.js';
 
 class ChannelList extends EventEmitter {
   constructor({ protocol, protocolLane }) {

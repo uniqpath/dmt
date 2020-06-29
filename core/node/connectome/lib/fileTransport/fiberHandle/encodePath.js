@@ -1,4 +1,4 @@
-import { isNodeJs, bufferToHex, hexToBuffer } from '../../utils';
+import { isNodeJs, bufferToHex, hexToBuffer } from '../../utils/index.js';
 
 function encode(text) {
   return isNodeJs() && bufferToHex(Buffer.from(text, 'utf-8'));

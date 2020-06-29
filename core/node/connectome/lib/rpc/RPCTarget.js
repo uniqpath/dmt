@@ -1,4 +1,4 @@
-import { MoleServer, ServerTransport } from './mole';
+import { MoleServer, ServerTransport } from './mole/index.js';
 
 class RPCTarget {
   constructor({ serversideChannel, serverMethods, methodPrefix }) {

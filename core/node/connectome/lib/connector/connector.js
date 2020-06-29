@@ -2,13 +2,13 @@ import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
-import send from './send';
-import receive from './receive';
+import send from './send.js';
+import receive from './receive.js';
 
-import { EventEmitter, listify, hexToBuffer, bufferToHex } from '../utils';
+import { EventEmitter, listify, hexToBuffer, bufferToHex } from '../utils/index.js';
 
-import RpcClient from '../rpc/client';
-import RPCTarget from '../rpc/RPCTarget';
+import RpcClient from '../rpc/client.js';
+import RPCTarget from '../rpc/RPCTarget.js';
 
 class Connector extends EventEmitter {
   constructor({ protocolLane, clientPrivateKey, clientPublicKey, rpcRequestTimeout, verbose = false, address } = {}) {
