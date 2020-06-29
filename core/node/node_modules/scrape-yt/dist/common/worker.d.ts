@@ -1,0 +1,4 @@
+/**
+ * For worker thread
+ */
+export {};
