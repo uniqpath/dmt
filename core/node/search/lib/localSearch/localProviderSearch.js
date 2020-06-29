@@ -7,6 +7,7 @@ import contentSearch from './fsSearch/contentSearch';
 
 import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
 
+import linkSearch from './linkSearch/linkSearch';
 import swarmSearch from './swarmSearch/swarmSearch';
 import noteSearch from './noteSearch/noteSearch';
 
@@ -20,6 +21,8 @@ class LocalProviderSearch {
 
   makeSearchPromise(options) {
     switch (options.contentId) {
+      case 'links':
+        return this.timedLocalSearch({ func: linkSearch, options });
       case 'swarm':
         return this.timedLocalSearch({ func: swarmSearch, options });
       case 'notes':

@@ -11,10 +11,16 @@
 
   export let displayName;
 
-  export let loginStore;
   export let store;
+
+  $: panels = $store.panels;
+
+  export let loginStore;
+
   $: userIdentity = $loginStore.userIdentity;
   $: userTeams = $loginStore.userTeams;
+
+  import MenuBar from '../MenuBar/MenuBar.svelte';
 
   import Links from './Links.svelte';
   import Profile from './Profile.svelte';
@@ -33,22 +39,32 @@
 
   <!-- we don't actually need to be connected but ui behaves better (otherwise we see "Info" flashing before userTeams are loaded) -- we now have a shorter flash... between connection and the time until userTeams come from backend -->
 
-    {#if loggedIn}
+    <!-- {#if loggedIn} -->
 
-      {#if (app.isLocalhost && deviceName == 'eclipse') || app.isZetaSeek}
-        <Profile {connected} {loginStore} {store} />
+      {#if app.isLocalhost || loggedIn}
 
-        {#if connected}
-          {#if userTeams && userTeams.includes('zeta')} <!-- todo -- one teambox for each team -->
-            <TeamBox {displayName} teamName='ZetaTeam' />
-          {/if}
+        <MenuBar {connected} {loggedIn} {store} />
 
+      <!-- {#if (app.isLocalhost && deviceName == 'eclipse') || app.isZetaSeek} -->
+        {#if panels['Profile']}
+          <Profile {connected} {loginStore} {store} />
+        {/if}
+
+        {#if panels['Swarm Promo']}
+          <!-- <Profile {connected} {loginStore} {store} /> -->
           <InsideBox teamName='Swarm' />
         {/if}
       {/if}
+        <!-- {#if connected}
+          {#if userTeams && userTeams.includes('zeta')} --- todo -- one teambox for each team
+            <TeamBox {displayName} teamName='ZetaTeam' />
+          {/if}
+          <InsideBox teamName='Swarm' />
+        {/if} -->
+      <!-- {/if} -->
     <!-- {:else if !searchQuery} -->
 
-    {/if}
+    <!-- {/if} -->
 
 </div>
 

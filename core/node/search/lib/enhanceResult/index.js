@@ -7,7 +7,7 @@ import enhanceNote from './enhanceNoteResult';
 const { log } = dmt;
 
 function enhanceResult({ result, providerAddress, providerPort, searchOriginHost }) {
-  const { filePath, swarmBzzHash, isNote } = result;
+  const { filePath, swarmBzzHash, isNote, url } = result;
 
   if (filePath) {
     enhanceFS(result, { providerAddress, providerPort, searchOriginHost });
@@ -21,6 +21,10 @@ function enhanceResult({ result, providerAddress, providerPort, searchOriginHost
 
   if (swarmBzzHash) {
     enhanceSwarm(result, { swarmGateway: 'http://swarm.uniqpath.com' });
+    return;
+  }
+
+  if (url) {
     return;
   }
 

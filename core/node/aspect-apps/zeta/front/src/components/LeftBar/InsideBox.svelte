@@ -34,7 +34,7 @@
 
       <p>
         A technical book released on <b>May 18th 2020</b> which serves as a reference for <b>implementation of Swarm clients</b>:
-        The <a class="outside" href="https://github.com/ethersphere/bee">Ethereum Swarm Bee</a> <span class="small">(the next official client to replace the current legacy one)</span> and others.
+        The <a class="outside" href="https://github.com/ethersphere/bee">Swarm Bee</a> <span class="small">(the next official client to replace the current legacy one)</span> and others.
       </p>
     </section>
 

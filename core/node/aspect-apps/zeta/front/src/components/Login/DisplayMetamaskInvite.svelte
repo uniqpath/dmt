@@ -26,7 +26,7 @@
         We invite you to the path of enjoyable exploration and collaborative innovation.
       </span>
       <span class="cyan">
-        To live is to know.
+        Welcome to the strange realm.
       </span>
     </div>
   {/if}

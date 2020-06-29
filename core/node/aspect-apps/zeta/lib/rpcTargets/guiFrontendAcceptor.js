@@ -17,7 +17,6 @@ class GUIFrontendAcceptor {
 
     if (urlHostname != 'localhost') {
       log.write(`Login with ${address}`);
-      push.notify(address);
     }
 
     return this.backendStore.getUserIdentity(address);

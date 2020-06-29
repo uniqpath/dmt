@@ -1,4 +1,5 @@
 <script>
+  import ResultLink from './ResultLink.svelte';
   import ResultSwarm from './ResultSwarm.svelte';
   import ResultFs from './ResultFS.svelte';
   import ResultNote from './ResultNote.svelte';
@@ -45,9 +46,11 @@
         {#if providerResponse.results && providerResponse.results.length > 0}
           <ResultsMetaTop meta={providerResponse.meta}/>
 
-          {#each providerResponse.results as {filePath, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, isNote, notePreview, noteUrl, noteContents, noteTags}}
+          {#each providerResponse.results as {filePath, url, title, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, isNote, notePreview, noteUrl, noteContents, noteTags}}
             <div class="result">
-              {#if swarmBzzHash}
+              {#if url}
+                <ResultLink {url} {title} {context} />
+              {:else if swarmBzzHash}
                 <ResultSwarm {name} {playableUrl} {mediaType} {entryType} {prettyTime} {context} />
               {:else if filePath}
                 <ResultFs {playableUrl} {mediaType} {filePathANSI} {fileSizePretty} />

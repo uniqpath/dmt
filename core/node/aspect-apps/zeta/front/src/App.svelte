@@ -8,6 +8,7 @@
 
   import About from './components/About.svelte';
   import Login from './components/Login/Login.svelte';
+  // import MenuBar from './components/MenuBar/MenuBar.svelte';
   import LeftBar from './components/LeftBar/LeftBar.svelte';
   import ConnectionStatus from './components/ConnectionStatus.svelte';
   import SearchResults from './components/SearchResults/SearchResults.svelte';
@@ -41,7 +42,9 @@
 
   $: deviceName = $store.deviceName;
   $: searchResults = $store.searchResults;
+  // $: panels = $store.panels;
   $: connected = $store.connected;
+
   $: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
   $: userIdentity = $loginStore.userIdentity;
   $: userName = $loginStore.userName;
@@ -51,11 +54,14 @@
 
   $: displayName = userName || userIdentity;
 
+  //this.menuBar = { PANELS: ['Profile', 'My Links'] };
+  store.set({ panels: {} });
+
   let searchQuery;
 
   searchQuery = Url.parseQuery().q;
 
-  if(searchQuery) {
+  if (searchQuery) {
     searchQuery = decodeURIComponent(searchQuery);
   }
 
@@ -148,7 +154,7 @@
 
 <svelte:head>
   {#if isZetaSeek}
-    <title>ZetaSeek</title>
+    <title>zetaseek engine</title>
   {:else}
     <title>search</title>
   {/if}
@@ -156,7 +162,12 @@
 
 <!-- {#if isLocalhost && deviceName == 'eclipse'} -->
 
-{#if (isLocalhost && deviceName == 'eclipse') || isZetaSeek}
+<!-- {#if isLocalhost || loggedIn}
+  <MenuBar {connected} {loggedIn} {store} />
+{/if} -->
+
+<!-- {#if (isLocalhost && deviceName == 'eclipse') || isZetaSeek} -->
+{#if isLocalhost || loggedIn}
   <LeftBar {connected} {loggedIn} {metamaskConnect} {displayName} {loginStore} {store} {searchQuery} {deviceName} />
 {/if}
 
@@ -178,7 +189,8 @@
 
   <div class="logo">
     <a href="#" on:click|preventDefault={() => { goHome(); }}>
-      <img src={`/apps/zeta/img/${isZetaSeek ? 'zetaseek' : 'search'}_logo.png`} alt="zeta logo">
+      <!-- <img src={`/apps/zeta/img/${isZetaSeek ? 'zetaseek' : 'search'}_logo.png`} alt="zeta logo"> -->
+      <img src={`/apps/zeta/img/zetaseek_logo.png?v=2`} alt="zeta logo">
     </a>
   </div>
 
@@ -199,7 +211,10 @@
         {#if loggedIn}
           Welcome<span>{displayName ? ` ${displayName}` : ''}</span>, you have found a fine place <span>♪♫♬</span>
         {:else} <!-- not logged in -->
-          The secret realm awaits.
+          <!-- The secret realm awaits. -->
+          <!-- <img src="/favicon.png" width="15px">  -->
+          More knowledge, more possibilities.
+          <!-- See further, do more. -->
         {/if}
       </p>
     {/if}
@@ -227,6 +242,8 @@
     --dmt-vibrant-green: #5FE02A;
     --dmt-cool-green: #5DF699;
     --dmt-cool-cyan: #51F5C8;
+
+    --zeta-green: #1CE6C1;
   }
 
 	main {
@@ -252,13 +269,17 @@
     background-color: #444;
   }*/
 
+  .logo {
+    display: inline-block;
+  }
+
   .logo:hover {
     opacity: 0.9;
     /*cursor: pointer;*/
   }
 
   .logo img {
-    filter: invert(1);
+    /*filter: invert(1);*/
     width: 200px;
     margin: 0 auto;
     margin-bottom: 20px;
@@ -280,7 +301,8 @@
   }
 
   .connection_status_help {
-    color: var(--dmt-cool-green);
+    /*color: var(--dmt-cool-green);*/
+    color: var(--zeta-green);
     font-size: 0.8em;
   }
 

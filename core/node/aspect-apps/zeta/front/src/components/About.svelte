@@ -12,11 +12,12 @@
     <b>Zeta</b><span class="dash">/</span><b><a href="https://dmt-system.com">DMT</a></b> DEMO <span class="version">v{datestring}</span>
 
     <p>
-      An evolving search<sup>+</sup> technology for <b>web3</b> <span>r</span>evolution.
+      An evolving search<sup>+</sup> technology for web3 revolution.
     </p>
 
     <p>
-      [ If you think all times are the same, you are wrong ]
+      <!-- [ If you think all times are the same, you are wrong ] -->
+      <!-- [ See further, do more. ] -->
       <!-- [ <span>Imagine all the people sharing all the files</span> — <i>John Lennon</i> ] -->
     </p>
 
@@ -37,7 +38,7 @@
 
 <style>
 .about {
-  width: 300px;
+  width: 260px;
   position: fixed;
   right: 0;
   bottom: 0;
@@ -56,12 +57,12 @@
   color: #232527;
 }
 
-.about span {
+/*.about span {
   color: #777;
   color: #535B62;
   color: #5D6270;
   color: var(--dmt-violet-dark);
-}
+}*/
 
 .about span.dash {
   padding: 0 2px;
