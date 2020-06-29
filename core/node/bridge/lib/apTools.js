@@ -27,4 +27,4 @@ function apInfo() {
   return textfileKeyValueParser({ filePath, keys, keyMap });
 }
 
-const accessPointIP = '192.168.1.1';
+const accessPointIP = '192.168.0.20';

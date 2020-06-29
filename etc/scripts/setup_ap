@@ -256,7 +256,7 @@ iface lo inet loopback
 auto wlan0
 iface wlan0 inet static
 hostapd /etc/hostapd/hostapd.conf
-address 192.168.1.1
+address 192.168.0.20
 netmask 255.255.255.0
 EOF
 
@@ -266,7 +266,7 @@ EOF
 
 cat > /etc/dnsmasq.conf <<EOF
 interface=wlan0
-dhcp-range=192.168.1.20,192.168.1.100,255.255.255.0,24h
+dhcp-range=192.168.0.50,192.168.0.200,255.255.255.0,24h
 EOF
 
   echo

@@ -46,6 +46,12 @@ function init(program) {
   removeStaleNearbySensorsData(program);
   program.on('tick', () => removeStaleNearbySensorsData(program));
 
+  program.on('action', ({ action, storeName, payload }) => {
+    if (storeName == 'iot') {
+      iotBus.publish({ topic: action, msg: payload });
+    }
+  });
+
   return { bus: iotBus };
 }
 

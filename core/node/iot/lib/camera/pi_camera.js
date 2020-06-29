@@ -25,11 +25,20 @@ class Recorder {
   }
 
   recordVideo() {
-    if (!this.nonrpi()) {
+    if (!dmt.isRPi()) {
+      log.write("Calling stub function on pi_camera.js because it's not RaspberryPi");
       return;
     }
 
     if (this.recording) return;
+
+    const converter = '/usr/bin/MP4Box';
+
+    if (!fs.existsSync(converter)) {
+      push.notify(`Error at ${device.id} when recording video -- ${converter} does not exist! Please install -- sudo apt-get install -y gpac`);
+      return;
+    }
+
     this.recording = true;
 
     const msg = 'Camera started recording ...';
@@ -62,27 +71,10 @@ class Recorder {
 
           fs.unlinkSync(recFile);
 
-          const copyTarget = device.iot.camera.cameraCaptures2;
-          if (copyTarget) {
-            log.green(`COPY!! to ${path.join(copyTarget, path.basename(file))}`);
-            fs.copyFile(file, path.join(copyTarget, path.basename(file)), err => {
-              if (err) {
-                log.red(err);
-              }
-            });
-          }
-
           this.recording = false;
         });
       }, this.seconds * 1000);
     });
-  }
-
-  nonrpi() {
-    if (!dmt.isRPi()) {
-      log.write("Calling stub function on pi_camera.js because it's not RaspberryPi");
-      return true;
-    }
   }
 }
 

@@ -11,14 +11,8 @@ function wsEndpointWrapper({ program }) {
 }
 
 function wsEndpoint({ program, channel }) {
-  const remoteObjects = {
-    gui: new GuiRemoteTarget({ program }),
-    player: new PlayerRemoteTarget({ program })
-  };
-
-  for (const [handle, target] of Object.entries(remoteObjects)) {
-    channel.registerRemoteObject(handle, target);
-  }
+  channel.registerRemoteObject('gui', new GuiRemoteTarget({ program }));
+  channel.registerRemoteObject('player', new PlayerRemoteTarget({ program }));
 
   loadInitialView(channel);
 

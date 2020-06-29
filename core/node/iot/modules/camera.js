@@ -11,7 +11,7 @@ function handleIotEvent({ program, topic, msg }) {
   const { device } = program;
 
   if (topic == 'alarm' && msg == 'triggered') {
-    program.showNotification({ id: 'alarm', msg: 'Recording video and calling police ...', ttl: 30, bgColor: '#9A4EF1' });
+    program.showNotification({ id: 'alarm', msg: 'Recording video and calling police ...', ttl: 30, bgColor: '#EE0006' });
 
     if (device.try('iot.camera')) {
       push.notify(`Motion detected, recording video on ${device.id} ...`);
