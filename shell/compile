@@ -29,7 +29,7 @@ EOF
 
 echo >> "$target_slim"
 
-cat .bash_util .bash_dmt_vars .bash_fs .bash_general .bash_conf_and_log .bash_process .bash_git .bash_sbc .bash_devices >> "$target_slim"
+cat .bash_util .bash_dmt_vars .bash_fs .bash_general .bash_conf_and_log .bash_process .bash_git .bash_swarm .bash_sbc .bash_devices >> "$target_slim"
 
 
 # 💡🚀🎸 FULL EDITION → $target

@@ -2,7 +2,7 @@
 
 function walksearch {
   local walksearch=''
-  dmt_platform_bin_command walksearch "walksearch"
+  dmt_platform_bin_command walksearch
   if [ -z "$walksearch" ]; then
     return
   fi
@@ -11,7 +11,7 @@ function walksearch {
 
 function walkdir {
   local walkdir=''
-  dmt_platform_bin_command walkdir "walkdir"
+  dmt_platform_bin_command walkdir
   if [ -z "$walkdir" ]; then
     return
   fi
@@ -22,7 +22,7 @@ function walkdir {
 function f {
 
   local walksearch=''
-  dmt_platform_bin_command walksearch "walksearch"
+  dmt_platform_bin_command walksearch
   if [ -z "$walksearch" ]; then
     printf "${YELLOW}Using bash find instead ...${NC}\n"
     # not completelly sure why I used uniq filter here....

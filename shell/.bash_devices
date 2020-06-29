@@ -189,7 +189,7 @@ function q {
 
   # --- ap start ---
 
-  local AP_IP="192.168.1.1"
+  local AP_IP="192.168.0.20"
   local ap_with_user
 
   if [ "$1" == "ap" ]; then

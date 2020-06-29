@@ -193,7 +193,7 @@ function net {
       local host="$2"
 
       if [ "$host" == "ap" ]; then
-        host="192.168.1.1"
+        host="192.168.0.20"
       fi
 
       printf "${MAGENTA}Sending to ${GREEN}${2}${MAGENTA} ...${NC}\n"
