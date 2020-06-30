@@ -6827,7 +6827,7 @@ var app = (function (crypto) {
     	let b0;
     	let span0;
     	let b1;
-    	let a;
+    	let a0;
     	let t3;
     	let span1;
     	let t6;
@@ -6837,6 +6837,14 @@ var app = (function (crypto) {
     	let t9;
     	let t10;
     	let p1;
+    	let t11;
+    	let a1;
+    	let t13;
+    	let t14;
+    	let p2;
+    	let t15;
+    	let b2;
+    	let t17;
 
     	const block = {
     		c: function create() {
@@ -6846,8 +6854,8 @@ var app = (function (crypto) {
     			span0 = element("span");
     			span0.textContent = "/";
     			b1 = element("b");
-    			a = element("a");
-    			a.textContent = "DMT";
+    			a0 = element("a");
+    			a0.textContent = "DMT";
     			t3 = text(" DEMO ");
     			span1 = element("span");
     			span1.textContent = `v${/*datestring*/ ctx[0]}`;
@@ -6859,20 +6867,36 @@ var app = (function (crypto) {
     			t9 = text(" technology for web3 revolution.");
     			t10 = space();
     			p1 = element("p");
+    			t11 = text("[[ decentralized, ");
+    			a1 = element("a");
+    			a1.textContent = "open source";
+    			t13 = text(", fair and free ]]");
+    			t14 = space();
+    			p2 = element("p");
+    			t15 = text("[[ ");
+    			b2 = element("b");
+    			b2.textContent = "STAY TUNED";
+    			t17 = text(" ]]");
     			add_location(b0, file$1, 11, 4, 260);
     			attr_dev(span0, "class", "dash svelte-1ibil7m");
     			add_location(span0, file$1, 11, 15, 271);
-    			attr_dev(a, "href", "https://dmt-system.com");
-    			attr_dev(a, "class", "svelte-1ibil7m");
-    			add_location(a, file$1, 11, 45, 301);
+    			attr_dev(a0, "href", "https://dmt-system.com");
+    			attr_dev(a0, "class", "svelte-1ibil7m");
+    			add_location(a0, file$1, 11, 45, 301);
     			add_location(b1, file$1, 11, 42, 298);
     			attr_dev(span1, "class", "version svelte-1ibil7m");
     			add_location(span1, file$1, 11, 95, 351);
     			add_location(sup, file$1, 14, 24, 427);
     			attr_dev(p0, "class", "svelte-1ibil7m");
     			add_location(p0, file$1, 13, 4, 399);
+    			attr_dev(a1, "href", "https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta");
+    			attr_dev(a1, "class", "svelte-1ibil7m");
+    			add_location(a1, file$1, 18, 24, 514);
     			attr_dev(p1, "class", "svelte-1ibil7m");
     			add_location(p1, file$1, 17, 4, 486);
+    			add_location(b2, file$1, 25, 9, 865);
+    			attr_dev(p2, "class", "svelte-1ibil7m");
+    			add_location(p2, file$1, 24, 4, 852);
     			attr_dev(div, "class", "about svelte-1ibil7m");
     			add_location(div, file$1, 10, 2, 236);
     		},
@@ -6884,7 +6908,7 @@ var app = (function (crypto) {
     			append_dev(div, b0);
     			append_dev(div, span0);
     			append_dev(div, b1);
-    			append_dev(b1, a);
+    			append_dev(b1, a0);
     			append_dev(div, t3);
     			append_dev(div, span1);
     			append_dev(div, t6);
@@ -6894,6 +6918,14 @@ var app = (function (crypto) {
     			append_dev(p0, t9);
     			append_dev(div, t10);
     			append_dev(div, p1);
+    			append_dev(p1, t11);
+    			append_dev(p1, a1);
+    			append_dev(p1, t13);
+    			append_dev(div, t14);
+    			append_dev(div, p2);
+    			append_dev(p2, t15);
+    			append_dev(p2, b2);
+    			append_dev(p2, t17);
     		},
     		p: noop$2,
     		i: noop$2,
@@ -9538,7 +9570,7 @@ var app = (function (crypto) {
     			b1.textContent = "implementation of Swarm clients";
     			t14 = text(":\n        The ");
     			a2 = element("a");
-    			a2.textContent = "Ethereum Swarm Bee";
+    			a2.textContent = "Swarm Bee";
     			t16 = space();
     			span3 = element("span");
     			span3.textContent = "(the next official client to replace the current legacy one)";
@@ -9576,21 +9608,21 @@ var app = (function (crypto) {
     			attr_dev(a2, "href", "https://github.com/ethersphere/bee");
     			add_location(a2, file$a, 36, 12, 1252);
     			attr_dev(span3, "class", "small svelte-zuv3jb");
-    			add_location(span3, file$a, 36, 96, 1336);
+    			add_location(span3, file$a, 36, 87, 1327);
     			add_location(p1, file$a, 34, 6, 1106);
     			attr_dev(section, "class", "svelte-zuv3jb");
     			toggle_class(section, "visible", /*sections*/ ctx[1].Swarm.visible);
     			add_location(section, file$a, 30, 4, 721);
     			attr_dev(a3, "class", "outside svelte-zuv3jb");
     			attr_dev(a3, "href", "https://swarm.ethereum.org");
-    			add_location(a3, file$a, 41, 6, 1477);
+    			add_location(a3, file$a, 41, 6, 1468);
     			attr_dev(a4, "href", "https://swarm-gateways.net/bzz:/swarm.eth/");
     			attr_dev(a4, "class", "outside svelte-zuv3jb");
-    			add_location(a4, file$a, 41, 124, 1595);
-    			add_location(br, file$a, 42, 6, 1688);
+    			add_location(a4, file$a, 41, 124, 1586);
+    			add_location(br, file$a, 42, 6, 1679);
     			attr_dev(span4, "class", "tagline svelte-zuv3jb");
-    			add_location(span4, file$a, 43, 6, 1699);
-    			add_location(p2, file$a, 40, 4, 1467);
+    			add_location(span4, file$a, 43, 6, 1690);
+    			add_location(p2, file$a, 40, 4, 1458);
     			attr_dev(div0, "class", "inner");
     			add_location(div0, file$a, 22, 2, 474);
     			attr_dev(div1, "class", "promo svelte-zuv3jb");
@@ -13420,67 +13452,6 @@ var app = (function (crypto) {
     	return child_ctx;
     }
 
-    // (18:2) {:else}
-    function create_else_block_2(ctx) {
-    	let t0;
-    	let span;
-
-    	const block = {
-    		c: function create() {
-    			t0 = text("// ");
-    			span = element("span");
-    			span.textContent = "PERHAPS TRY TO LOGIN FIRST";
-    			attr_dev(span, "class", "svelte-1o5crda");
-    			add_location(span, file$m, 18, 7, 515);
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, t0, anchor);
-    			insert_dev(target, span, anchor);
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(t0);
-    			if (detaching) detach_dev(span);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_else_block_2.name,
-    		type: "else",
-    		source: "(18:2) {:else}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (16:2) {#if loggedIn}
-    function create_if_block_8(ctx) {
-    	let t;
-
-    	const block = {
-    		c: function create() {
-    			t = text("FOR NOW");
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, t, anchor);
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(t);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block_8.name,
-    		type: "if",
-    		source: "(16:2) {#if loggedIn}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
     // (23:0) {#if searchResults}
     function create_if_block$e(ctx) {
     	let current_block_type_index;
@@ -13490,12 +13461,12 @@ var app = (function (crypto) {
     	const if_block_creators = [create_if_block_1$7, create_else_block$8];
     	const if_blocks = [];
 
-    	function select_block_type_1(ctx, dirty) {
-    		if (/*searchResults*/ ctx[1].error) return 0;
+    	function select_block_type(ctx, dirty) {
+    		if (/*searchResults*/ ctx[0].error) return 0;
     		return 1;
     	}
 
-    	current_block_type_index = select_block_type_1(ctx);
+    	current_block_type_index = select_block_type(ctx);
     	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	const block = {
@@ -13510,7 +13481,7 @@ var app = (function (crypto) {
     		},
     		p: function update(ctx, dirty) {
     			let previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type_1(ctx);
+    			current_block_type_index = select_block_type(ctx);
 
     			if (current_block_type_index === previous_block_index) {
     				if_blocks[current_block_type_index].p(ctx, dirty);
@@ -13563,7 +13534,7 @@ var app = (function (crypto) {
     function create_else_block$8(ctx) {
     	let each_1_anchor;
     	let current;
-    	let each_value = /*searchResults*/ ctx[1];
+    	let each_value = /*searchResults*/ ctx[0];
     	validate_each_argument(each_value);
     	let each_blocks = [];
 
@@ -13592,8 +13563,8 @@ var app = (function (crypto) {
     			current = true;
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*searchResults, JSON*/ 2) {
-    				each_value = /*searchResults*/ ctx[1];
+    			if (dirty & /*searchResults, JSON*/ 1) {
+    				each_value = /*searchResults*/ ctx[0];
     				validate_each_argument(each_value);
     				let i;
 
@@ -13661,11 +13632,11 @@ var app = (function (crypto) {
     	let p;
     	let t1;
     	let span0;
-    	let t2_value = /*searchResults*/ ctx[1].error.message + "";
+    	let t2_value = /*searchResults*/ ctx[0].error.message + "";
     	let t2;
     	let t3;
     	let span1;
-    	let raw_value = /*searchResults*/ ctx[1].error.stack.split("\n").join("<br>") + "";
+    	let raw_value = /*searchResults*/ ctx[0].error.stack.split("\n").join("<br>") + "";
 
     	const block = {
     		c: function create() {
@@ -13677,13 +13648,13 @@ var app = (function (crypto) {
     			t2 = text(t2_value);
     			t3 = space();
     			span1 = element("span");
-    			add_location(p, file$m, 26, 6, 657);
+    			add_location(p, file$m, 26, 6, 680);
     			attr_dev(span0, "class", "svelte-1o5crda");
-    			add_location(span0, file$m, 27, 6, 701);
+    			add_location(span0, file$m, 27, 6, 724);
     			attr_dev(span1, "class", "svelte-1o5crda");
-    			add_location(span1, file$m, 28, 6, 750);
+    			add_location(span1, file$m, 28, 6, 773);
     			attr_dev(div, "class", "search_error svelte-1o5crda");
-    			add_location(div, file$m, 25, 4, 624);
+    			add_location(div, file$m, 25, 4, 647);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -13696,8 +13667,8 @@ var app = (function (crypto) {
     			span1.innerHTML = raw_value;
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*searchResults*/ 2 && t2_value !== (t2_value = /*searchResults*/ ctx[1].error.message + "")) set_data_dev(t2, t2_value);
-    			if (dirty & /*searchResults*/ 2 && raw_value !== (raw_value = /*searchResults*/ ctx[1].error.stack.split("\n").join("<br>") + "")) span1.innerHTML = raw_value;		},
+    			if (dirty & /*searchResults*/ 1 && t2_value !== (t2_value = /*searchResults*/ ctx[0].error.message + "")) set_data_dev(t2, t2_value);
+    			if (dirty & /*searchResults*/ 1 && raw_value !== (raw_value = /*searchResults*/ ctx[0].error.stack.split("\n").join("<br>") + "")) span1.innerHTML = raw_value;		},
     		i: noop$2,
     		o: noop$2,
     		d: function destroy(detaching) {
@@ -13740,9 +13711,9 @@ var app = (function (crypto) {
     			span = element("span");
     			t2 = text(t2_value);
     			attr_dev(span, "class", "svelte-1o5crda");
-    			add_location(span, file$m, 40, 19, 1102);
+    			add_location(span, file$m, 40, 19, 1125);
     			attr_dev(div, "class", "result_error svelte-1o5crda");
-    			add_location(div, file$m, 39, 10, 1056);
+    			add_location(div, file$m, 39, 10, 1079);
     		},
     		m: function mount(target, anchor) {
     			mount_component(resultsmetatop, target, anchor);
@@ -13755,9 +13726,9 @@ var app = (function (crypto) {
     		},
     		p: function update(ctx, dirty) {
     			const resultsmetatop_changes = {};
-    			if (dirty & /*searchResults*/ 2) resultsmetatop_changes.meta = /*providerResponse*/ ctx[3].meta;
+    			if (dirty & /*searchResults*/ 1) resultsmetatop_changes.meta = /*providerResponse*/ ctx[3].meta;
     			resultsmetatop.$set(resultsmetatop_changes);
-    			if ((!current || dirty & /*searchResults*/ 2) && t2_value !== (t2_value = JSON.stringify(/*providerResponse*/ ctx[3].error) + "")) set_data_dev(t2, t2_value);
+    			if ((!current || dirty & /*searchResults*/ 1) && t2_value !== (t2_value = JSON.stringify(/*providerResponse*/ ctx[3].error) + "")) set_data_dev(t2, t2_value);
     		},
     		i: function intro(local) {
     			if (current) return;
@@ -13842,10 +13813,10 @@ var app = (function (crypto) {
     		},
     		p: function update(ctx, dirty) {
     			const resultsmetatop_changes = {};
-    			if (dirty & /*searchResults*/ 2) resultsmetatop_changes.meta = /*providerResponse*/ ctx[3].meta;
+    			if (dirty & /*searchResults*/ 1) resultsmetatop_changes.meta = /*providerResponse*/ ctx[3].meta;
     			resultsmetatop.$set(resultsmetatop_changes);
 
-    			if (dirty & /*searchResults*/ 2) {
+    			if (dirty & /*searchResults*/ 1) {
     				each_value_1 = /*providerResponse*/ ctx[3].results;
     				validate_each_argument(each_value_1);
     				let i;
@@ -13874,7 +13845,7 @@ var app = (function (crypto) {
     			}
 
     			const resultsmetabottom_changes = {};
-    			if (dirty & /*searchResults*/ 2) resultsmetabottom_changes.providerResponse = /*providerResponse*/ ctx[3];
+    			if (dirty & /*searchResults*/ 1) resultsmetabottom_changes.providerResponse = /*providerResponse*/ ctx[3];
     			resultsmetabottom.$set(resultsmetabottom_changes);
     		},
     		i: function intro(local) {
@@ -13928,7 +13899,7 @@ var app = (function (crypto) {
     			div = element("div");
     			div.textContent = "Unsupported search results format.";
     			attr_dev(div, "class", "resultError");
-    			add_location(div, file$m, 59, 16, 2147);
+    			add_location(div, file$m, 59, 16, 2170);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -13975,9 +13946,9 @@ var app = (function (crypto) {
     		},
     		p: function update(ctx, dirty) {
     			const resultnote_changes = {};
-    			if (dirty & /*searchResults*/ 2) resultnote_changes.noteUrl = /*noteUrl*/ ctx[21];
-    			if (dirty & /*searchResults*/ 2) resultnote_changes.notePreview = /*notePreview*/ ctx[20];
-    			if (dirty & /*searchResults*/ 2) resultnote_changes.noteTags = /*noteTags*/ ctx[23];
+    			if (dirty & /*searchResults*/ 1) resultnote_changes.noteUrl = /*noteUrl*/ ctx[21];
+    			if (dirty & /*searchResults*/ 1) resultnote_changes.notePreview = /*notePreview*/ ctx[20];
+    			if (dirty & /*searchResults*/ 1) resultnote_changes.noteTags = /*noteTags*/ ctx[23];
     			resultnote.$set(resultnote_changes);
     		},
     		i: function intro(local) {
@@ -14029,10 +14000,10 @@ var app = (function (crypto) {
     		},
     		p: function update(ctx, dirty) {
     			const resultfs_changes = {};
-    			if (dirty & /*searchResults*/ 2) resultfs_changes.playableUrl = /*playableUrl*/ ctx[16];
-    			if (dirty & /*searchResults*/ 2) resultfs_changes.mediaType = /*mediaType*/ ctx[12];
-    			if (dirty & /*searchResults*/ 2) resultfs_changes.filePathANSI = /*filePathANSI*/ ctx[15];
-    			if (dirty & /*searchResults*/ 2) resultfs_changes.fileSizePretty = /*fileSizePretty*/ ctx[18];
+    			if (dirty & /*searchResults*/ 1) resultfs_changes.playableUrl = /*playableUrl*/ ctx[16];
+    			if (dirty & /*searchResults*/ 1) resultfs_changes.mediaType = /*mediaType*/ ctx[12];
+    			if (dirty & /*searchResults*/ 1) resultfs_changes.filePathANSI = /*filePathANSI*/ ctx[15];
+    			if (dirty & /*searchResults*/ 1) resultfs_changes.fileSizePretty = /*fileSizePretty*/ ctx[18];
     			resultfs.$set(resultfs_changes);
     		},
     		i: function intro(local) {
@@ -14086,12 +14057,12 @@ var app = (function (crypto) {
     		},
     		p: function update(ctx, dirty) {
     			const resultswarm_changes = {};
-    			if (dirty & /*searchResults*/ 2) resultswarm_changes.name = /*name*/ ctx[9];
-    			if (dirty & /*searchResults*/ 2) resultswarm_changes.playableUrl = /*playableUrl*/ ctx[16];
-    			if (dirty & /*searchResults*/ 2) resultswarm_changes.mediaType = /*mediaType*/ ctx[12];
-    			if (dirty & /*searchResults*/ 2) resultswarm_changes.entryType = /*entryType*/ ctx[13];
-    			if (dirty & /*searchResults*/ 2) resultswarm_changes.prettyTime = /*prettyTime*/ ctx[14];
-    			if (dirty & /*searchResults*/ 2) resultswarm_changes.context = /*context*/ ctx[10];
+    			if (dirty & /*searchResults*/ 1) resultswarm_changes.name = /*name*/ ctx[9];
+    			if (dirty & /*searchResults*/ 1) resultswarm_changes.playableUrl = /*playableUrl*/ ctx[16];
+    			if (dirty & /*searchResults*/ 1) resultswarm_changes.mediaType = /*mediaType*/ ctx[12];
+    			if (dirty & /*searchResults*/ 1) resultswarm_changes.entryType = /*entryType*/ ctx[13];
+    			if (dirty & /*searchResults*/ 1) resultswarm_changes.prettyTime = /*prettyTime*/ ctx[14];
+    			if (dirty & /*searchResults*/ 1) resultswarm_changes.context = /*context*/ ctx[10];
     			resultswarm.$set(resultswarm_changes);
     		},
     		i: function intro(local) {
@@ -14142,9 +14113,9 @@ var app = (function (crypto) {
     		},
     		p: function update(ctx, dirty) {
     			const resultlink_changes = {};
-    			if (dirty & /*searchResults*/ 2) resultlink_changes.url = /*url*/ ctx[7];
-    			if (dirty & /*searchResults*/ 2) resultlink_changes.title = /*title*/ ctx[8];
-    			if (dirty & /*searchResults*/ 2) resultlink_changes.context = /*context*/ ctx[10];
+    			if (dirty & /*searchResults*/ 1) resultlink_changes.url = /*url*/ ctx[7];
+    			if (dirty & /*searchResults*/ 1) resultlink_changes.title = /*title*/ ctx[8];
+    			if (dirty & /*searchResults*/ 1) resultlink_changes.context = /*context*/ ctx[10];
     			resultlink.$set(resultlink_changes);
     		},
     		i: function intro(local) {
@@ -14189,7 +14160,7 @@ var app = (function (crypto) {
 
     	const if_blocks = [];
 
-    	function select_block_type_2(ctx, dirty) {
+    	function select_block_type_1(ctx, dirty) {
     		if (/*url*/ ctx[7]) return 0;
     		if (/*swarmBzzHash*/ ctx[11]) return 1;
     		if (/*filePath*/ ctx[6]) return 2;
@@ -14197,7 +14168,7 @@ var app = (function (crypto) {
     		return 4;
     	}
 
-    	current_block_type_index = select_block_type_2(ctx);
+    	current_block_type_index = select_block_type_1(ctx);
     	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	const block = {
@@ -14205,7 +14176,7 @@ var app = (function (crypto) {
     			div = element("div");
     			if_block.c();
     			attr_dev(div, "class", "result svelte-1o5crda");
-    			add_location(div, file$m, 49, 12, 1652);
+    			add_location(div, file$m, 49, 12, 1675);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -14214,7 +14185,7 @@ var app = (function (crypto) {
     		},
     		p: function update(ctx, dirty) {
     			let previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type_2(ctx);
+    			current_block_type_index = select_block_type_1(ctx);
 
     			if (current_block_type_index === previous_block_index) {
     				if_blocks[current_block_type_index].p(ctx, dirty);
@@ -14280,7 +14251,7 @@ var app = (function (crypto) {
     			if (if_block1) if_block1.c();
     			t1 = space();
     			attr_dev(div, "class", "results svelte-1o5crda");
-    			add_location(div, file$m, 33, 6, 896);
+    			add_location(div, file$m, 33, 6, 919);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -14362,30 +14333,20 @@ var app = (function (crypto) {
 
     function create_fragment$n(ctx) {
     	let div;
-    	let t0;
     	let t1;
-    	let if_block1_anchor;
+    	let if_block_anchor;
     	let current;
-
-    	function select_block_type(ctx, dirty) {
-    		if (/*loggedIn*/ ctx[0]) return create_if_block_8;
-    		return create_else_block_2;
-    	}
-
-    	let current_block_type = select_block_type(ctx);
-    	let if_block0 = current_block_type(ctx);
-    	let if_block1 = /*searchResults*/ ctx[1] && create_if_block$e(ctx);
+    	let if_block = /*searchResults*/ ctx[0] && create_if_block$e(ctx);
 
     	const block = {
     		c: function create() {
     			div = element("div");
-    			t0 = text("NO HITS\n  ");
-    			if_block0.c();
+    			div.textContent = "NO HITS (FOR NOW?)";
     			t1 = space();
-    			if (if_block1) if_block1.c();
-    			if_block1_anchor = empty();
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
     			attr_dev(div, "class", "no_results svelte-1o5crda");
-    			toggle_class(div, "visible", /*noSearchHits*/ ctx[2]);
+    			toggle_class(div, "visible", /*noSearchHits*/ ctx[1]);
     			add_location(div, file$m, 14, 0, 408);
     		},
     		l: function claim(nodes) {
@@ -14393,43 +14354,31 @@ var app = (function (crypto) {
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
-    			append_dev(div, t0);
-    			if_block0.m(div, null);
     			insert_dev(target, t1, anchor);
-    			if (if_block1) if_block1.m(target, anchor);
-    			insert_dev(target, if_block1_anchor, anchor);
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
     			current = true;
     		},
     		p: function update(ctx, [dirty]) {
-    			if (current_block_type !== (current_block_type = select_block_type(ctx))) {
-    				if_block0.d(1);
-    				if_block0 = current_block_type(ctx);
-
-    				if (if_block0) {
-    					if_block0.c();
-    					if_block0.m(div, null);
-    				}
+    			if (dirty & /*noSearchHits*/ 2) {
+    				toggle_class(div, "visible", /*noSearchHits*/ ctx[1]);
     			}
 
-    			if (dirty & /*noSearchHits*/ 4) {
-    				toggle_class(div, "visible", /*noSearchHits*/ ctx[2]);
-    			}
-
-    			if (/*searchResults*/ ctx[1]) {
-    				if (if_block1) {
-    					if_block1.p(ctx, dirty);
-    					transition_in(if_block1, 1);
+    			if (/*searchResults*/ ctx[0]) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    					transition_in(if_block, 1);
     				} else {
-    					if_block1 = create_if_block$e(ctx);
-    					if_block1.c();
-    					transition_in(if_block1, 1);
-    					if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
+    					if_block = create_if_block$e(ctx);
+    					if_block.c();
+    					transition_in(if_block, 1);
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
     				}
-    			} else if (if_block1) {
+    			} else if (if_block) {
     				group_outros();
 
-    				transition_out(if_block1, 1, 1, () => {
-    					if_block1 = null;
+    				transition_out(if_block, 1, 1, () => {
+    					if_block = null;
     				});
 
     				check_outros();
@@ -14437,19 +14386,18 @@ var app = (function (crypto) {
     		},
     		i: function intro(local) {
     			if (current) return;
-    			transition_in(if_block1);
+    			transition_in(if_block);
     			current = true;
     		},
     		o: function outro(local) {
-    			transition_out(if_block1);
+    			transition_out(if_block);
     			current = false;
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
-    			if_block0.d();
     			if (detaching) detach_dev(t1);
-    			if (if_block1) if_block1.d(detaching);
-    			if (detaching) detach_dev(if_block1_anchor);
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
     		}
     	};
 
@@ -14478,9 +14426,9 @@ var app = (function (crypto) {
     	validate_slots("SearchResults", $$slots, []);
 
     	$$self.$set = $$props => {
-    		if ("loggedIn" in $$props) $$invalidate(0, loggedIn = $$props.loggedIn);
-    		if ("searchResults" in $$props) $$invalidate(1, searchResults = $$props.searchResults);
-    		if ("noSearchHits" in $$props) $$invalidate(2, noSearchHits = $$props.noSearchHits);
+    		if ("loggedIn" in $$props) $$invalidate(2, loggedIn = $$props.loggedIn);
+    		if ("searchResults" in $$props) $$invalidate(0, searchResults = $$props.searchResults);
+    		if ("noSearchHits" in $$props) $$invalidate(1, noSearchHits = $$props.noSearchHits);
     	};
 
     	$$self.$capture_state = () => ({
@@ -14496,16 +14444,16 @@ var app = (function (crypto) {
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ("loggedIn" in $$props) $$invalidate(0, loggedIn = $$props.loggedIn);
-    		if ("searchResults" in $$props) $$invalidate(1, searchResults = $$props.searchResults);
-    		if ("noSearchHits" in $$props) $$invalidate(2, noSearchHits = $$props.noSearchHits);
+    		if ("loggedIn" in $$props) $$invalidate(2, loggedIn = $$props.loggedIn);
+    		if ("searchResults" in $$props) $$invalidate(0, searchResults = $$props.searchResults);
+    		if ("noSearchHits" in $$props) $$invalidate(1, noSearchHits = $$props.noSearchHits);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [loggedIn, searchResults, noSearchHits];
+    	return [searchResults, noSearchHits, loggedIn];
     }
 
     class SearchResults extends SvelteComponentDev {
@@ -14513,9 +14461,9 @@ var app = (function (crypto) {
     		super(options);
 
     		init(this, options, instance$n, create_fragment$n, safe_not_equal, {
-    			loggedIn: 0,
-    			searchResults: 1,
-    			noSearchHits: 2
+    			loggedIn: 2,
+    			searchResults: 0,
+    			noSearchHits: 1
     		});
 
     		dispatch_dev("SvelteRegisterComponent", {
@@ -14528,15 +14476,15 @@ var app = (function (crypto) {
     		const { ctx } = this.$$;
     		const props = options.props || {};
 
-    		if (/*loggedIn*/ ctx[0] === undefined && !("loggedIn" in props)) {
+    		if (/*loggedIn*/ ctx[2] === undefined && !("loggedIn" in props)) {
     			console.warn("<SearchResults> was created without expected prop 'loggedIn'");
     		}
 
-    		if (/*searchResults*/ ctx[1] === undefined && !("searchResults" in props)) {
+    		if (/*searchResults*/ ctx[0] === undefined && !("searchResults" in props)) {
     			console.warn("<SearchResults> was created without expected prop 'searchResults'");
     		}
 
-    		if (/*noSearchHits*/ ctx[2] === undefined && !("noSearchHits" in props)) {
+    		if (/*noSearchHits*/ ctx[1] === undefined && !("noSearchHits" in props)) {
     			console.warn("<SearchResults> was created without expected prop 'noSearchHits'");
     		}
     	}
@@ -14571,21 +14519,22 @@ var app = (function (crypto) {
     const { console: console_1$2, document: document_1 } = globals;
     const file$n = "src/App.svelte";
 
-    // (158:2) {:else}
-    function create_else_block_2$1(ctx) {
+    // (162:2) {:else}
+    function create_else_block_3(ctx) {
     	const block = {
     		c: function create() {
     			document_1.title = "search";
     		},
     		m: noop$2,
+    		p: noop$2,
     		d: noop$2
     	};
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_2$1.name,
+    		id: create_else_block_3.name,
     		type: "else",
-    		source: "(158:2) {:else}",
+    		source: "(162:2) {:else}",
     		ctx
     	});
 
@@ -14594,12 +14543,40 @@ var app = (function (crypto) {
 
     // (156:2) {#if isZetaSeek}
     function create_if_block_6$1(ctx) {
+    	let if_block_anchor;
+
+    	function select_block_type_1(ctx, dirty) {
+    		if (/*searchQuery*/ ctx[4]) return create_if_block_7$1;
+    		return create_else_block_2;
+    	}
+
+    	let current_block_type = select_block_type_1(ctx);
+    	let if_block = current_block_type(ctx);
+
     	const block = {
     		c: function create() {
-    			document_1.title = "zetaseek engine";
+    			if_block.c();
+    			if_block_anchor = empty();
     		},
-    		m: noop$2,
-    		d: noop$2
+    		m: function mount(target, anchor) {
+    			if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (current_block_type !== (current_block_type = select_block_type_1(ctx))) {
+    				if_block.d(1);
+    				if_block = current_block_type(ctx);
+
+    				if (if_block) {
+    					if_block.c();
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    				}
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
+    		}
     	};
 
     	dispatch_dev("SvelteRegisterBlock", {
@@ -14613,7 +14590,45 @@ var app = (function (crypto) {
     	return block;
     }
 
-    // (170:0) {#if isLocalhost || loggedIn}
+    // (159:4) {:else}
+    function create_else_block_2(ctx) {
+    	const block = {
+    		c: function create() {
+    			document_1.title = "zetaseek engine";
+    		},
+    		m: noop$2,
+    		d: noop$2
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block_2.name,
+    		type: "else",
+    		source: "(159:4) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (157:4) {#if searchQuery}
+    function create_if_block_7$1(ctx) {
+    	let title_value;
+    	document_1.title = title_value = "zetaseek engine · " + /*searchQuery*/ ctx[4];
+    	const block = { c: noop$2, m: noop$2, d: noop$2 };
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_7$1.name,
+    		type: "if",
+    		source: "(157:4) {#if searchQuery}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (174:0) {#if isLocalhost || loggedIn}
     function create_if_block_5$1(ctx) {
     	let current;
 
@@ -14668,14 +14683,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_5$1.name,
     		type: "if",
-    		source: "(170:0) {#if isLocalhost || loggedIn}",
+    		source: "(174:0) {#if isLocalhost || loggedIn}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (178:0) {#if ((isLocalhost && deviceName == 'eclipse') || (isZetaSeek && (!isMobile || (isMobile && !searchQuery))))}
+    // (182:0) {#if ((isLocalhost && deviceName == 'eclipse') || (isZetaSeek && (!isMobile || (isMobile && !searchQuery))))}
     function create_if_block_4$2(ctx) {
     	let current;
     	const about = new About({ $$inline: true });
@@ -14706,14 +14721,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_4$2.name,
     		type: "if",
-    		source: "(178:0) {#if ((isLocalhost && deviceName == 'eclipse') || (isZetaSeek && (!isMobile || (isMobile && !searchQuery))))}",
+    		source: "(182:0) {#if ((isLocalhost && deviceName == 'eclipse') || (isZetaSeek && (!isMobile || (isMobile && !searchQuery))))}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (186:2) {:else}
+    // (190:2) {:else}
     function create_else_block_1$2(ctx) {
     	let current;
     	const escape_1 = new Escape({ $$inline: true });
@@ -14745,14 +14760,14 @@ var app = (function (crypto) {
     		block,
     		id: create_else_block_1$2.name,
     		type: "else",
-    		source: "(186:2) {:else}",
+    		source: "(190:2) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (184:2) {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')}
+    // (188:2) {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')}
     function create_if_block_3$2(ctx) {
     	let current;
 
@@ -14802,14 +14817,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_3$2.name,
     		type: "if",
-    		source: "(184:2) {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')}",
+    		source: "(188:2) {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (203:4) {#if !connected && isLocalhost}
+    // (207:4) {#if !connected && isLocalhost}
     function create_if_block_2$6(ctx) {
     	let p;
     	let t0;
@@ -14824,9 +14839,9 @@ var app = (function (crypto) {
     			span.textContent = "dmt-proc";
     			t2 = text(".");
     			attr_dev(span, "class", "svelte-akf6if");
-    			add_location(span, file$n, 204, 21, 7177);
+    			add_location(span, file$n, 208, 21, 7276);
     			attr_dev(p, "class", "connection_status_help svelte-akf6if");
-    			add_location(p, file$n, 203, 6, 7121);
+    			add_location(p, file$n, 207, 6, 7220);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -14843,23 +14858,23 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_2$6.name,
     		type: "if",
-    		source: "(203:4) {#if !connected && isLocalhost}",
+    		source: "(207:4) {#if !connected && isLocalhost}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (209:4) {#if !isLocalhost && connected && !searchResults}
+    // (213:4) {#if !isLocalhost && connected && !searchResults}
     function create_if_block$f(ctx) {
     	let p;
 
-    	function select_block_type_2(ctx, dirty) {
+    	function select_block_type_3(ctx, dirty) {
     		if (/*loggedIn*/ ctx[10]) return create_if_block_1$8;
     		return create_else_block$9;
     	}
 
-    	let current_block_type = select_block_type_2(ctx);
+    	let current_block_type = select_block_type_3(ctx);
     	let if_block = current_block_type(ctx);
 
     	const block = {
@@ -14867,14 +14882,14 @@ var app = (function (crypto) {
     			p = element("p");
     			if_block.c();
     			attr_dev(p, "class", "connection_status_help svelte-akf6if");
-    			add_location(p, file$n, 209, 6, 7282);
+    			add_location(p, file$n, 213, 6, 7381);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
     			if_block.m(p, null);
     		},
     		p: function update(ctx, dirty) {
-    			if (current_block_type === (current_block_type = select_block_type_2(ctx)) && if_block) {
+    			if (current_block_type === (current_block_type = select_block_type_3(ctx)) && if_block) {
     				if_block.p(ctx, dirty);
     			} else {
     				if_block.d(1);
@@ -14896,14 +14911,14 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block$f.name,
     		type: "if",
-    		source: "(209:4) {#if !isLocalhost && connected && !searchResults}",
+    		source: "(213:4) {#if !isLocalhost && connected && !searchResults}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (213:8) {:else}
+    // (217:8) {:else}
     function create_else_block$9(ctx) {
     	let t;
 
@@ -14924,14 +14939,14 @@ var app = (function (crypto) {
     		block,
     		id: create_else_block$9.name,
     		type: "else",
-    		source: "(213:8) {:else}",
+    		source: "(217:8) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (211:8) {#if loggedIn}
+    // (215:8) {#if loggedIn}
     function create_if_block_1$8(ctx) {
     	let t0;
     	let span0;
@@ -14953,9 +14968,9 @@ var app = (function (crypto) {
     			span1 = element("span");
     			span1.textContent = "♪♫♬";
     			attr_dev(span0, "class", "svelte-akf6if");
-    			add_location(span0, file$n, 211, 17, 7357);
+    			add_location(span0, file$n, 215, 17, 7456);
     			attr_dev(span1, "class", "svelte-akf6if");
-    			add_location(span1, file$n, 211, 98, 7438);
+    			add_location(span1, file$n, 215, 98, 7537);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, t0, anchor);
@@ -14981,7 +14996,7 @@ var app = (function (crypto) {
     		block,
     		id: create_if_block_1$8.name,
     		type: "if",
-    		source: "(211:8) {#if loggedIn}",
+    		source: "(215:8) {#if loggedIn}",
     		ctx
     	});
 
@@ -15014,7 +15029,7 @@ var app = (function (crypto) {
 
     	function select_block_type(ctx, dirty) {
     		if (/*isZetaSeek*/ ctx[13]) return create_if_block_6$1;
-    		return create_else_block_2$1;
+    		return create_else_block_3;
     	}
 
     	let current_block_type = select_block_type(ctx);
@@ -15024,12 +15039,12 @@ var app = (function (crypto) {
     	const if_block_creators = [create_if_block_3$2, create_else_block_1$2];
     	const if_blocks = [];
 
-    	function select_block_type_1(ctx, dirty) {
+    	function select_block_type_2(ctx, dirty) {
     		if (!/*isLocalhost*/ ctx[14] || /*isLocalhost*/ ctx[14] && /*deviceName*/ ctx[6] == "eclipse") return 0;
     		return 1;
     	}
 
-    	current_block_type_index = select_block_type_1(ctx);
+    	current_block_type_index = select_block_type_2(ctx);
     	if_block3 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	const connectionstatus = new ConnectionStatus({
@@ -15082,21 +15097,21 @@ var app = (function (crypto) {
     			if (img.src !== (img_src_value = `/apps/zeta/img/zetaseek_logo.png?v=2`)) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "zeta logo");
     			attr_dev(img, "class", "svelte-akf6if");
-    			add_location(img, file$n, 192, 6, 6703);
+    			add_location(img, file$n, 196, 6, 6802);
     			attr_dev(a, "href", "#");
     			attr_dev(a, "class", "svelte-akf6if");
-    			add_location(a, file$n, 190, 4, 6531);
+    			add_location(a, file$n, 194, 4, 6630);
     			attr_dev(div0, "class", "logo svelte-akf6if");
-    			add_location(div0, file$n, 189, 2, 6508);
+    			add_location(div0, file$n, 193, 2, 6607);
     			attr_dev(input, "id", "search_input");
     			attr_dev(input, "placeholder", "Please type your query ...");
     			input.disabled = input_disabled_value = !/*connected*/ ctx[8];
     			attr_dev(input, "class", "svelte-akf6if");
-    			add_location(input, file$n, 200, 4, 6880);
+    			add_location(input, file$n, 204, 4, 6979);
     			attr_dev(div1, "class", "search svelte-akf6if");
-    			add_location(div1, file$n, 198, 2, 6854);
+    			add_location(div1, file$n, 202, 2, 6953);
     			attr_dev(main, "class", "svelte-akf6if");
-    			add_location(main, file$n, 181, 0, 6318);
+    			add_location(main, file$n, 185, 0, 6417);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -15138,6 +15153,8 @@ var app = (function (crypto) {
     			];
     		},
     		p: function update(ctx, [dirty]) {
+    			if_block0.p(ctx, dirty);
+
     			if (/*isLocalhost*/ ctx[14] || /*loggedIn*/ ctx[10]) {
     				if (if_block1) {
     					if_block1.p(ctx, dirty);
@@ -15178,7 +15195,7 @@ var app = (function (crypto) {
     			}
 
     			let previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type_1(ctx);
+    			current_block_type_index = select_block_type_2(ctx);
 
     			if (current_block_type_index === previous_block_index) {
     				if_blocks[current_block_type_index].p(ctx, dirty);

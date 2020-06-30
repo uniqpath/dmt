@@ -12,12 +12,12 @@
   export let noSearchHits;
 </script>
 
-<div class="no_results" class:visible={noSearchHits}>NO HITS
-  {#if loggedIn}
-    FOR NOW
+<div class="no_results" class:visible={noSearchHits}>NO HITS (FOR NOW?)
+  <!-- {#if loggedIn}
+    (FOR NOW?)
   {:else}
     // <span>PERHAPS TRY TO LOGIN FIRST</span>
-  {/if}
+  {/if} -->
 </div>
 
 {#if searchResults}

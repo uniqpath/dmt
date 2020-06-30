@@ -1,9 +1,8 @@
-## Zeta by DMT-SYSTEM
+## Zeta by DMT
 
-Modular decentralized
-- p2p networks (Swarm, ...)
-- File System
-search.
+<a href="https://zetaseek.com">![ZetaBanner](https://github.com/uniqpath/info/raw/master/assets/img/zeta_banner.png)</a>
+
+[[ decentralized, open, fair and free ]]
 
 After you install [dmt-system](https://github.com/uniqpath/dmt/blob/master/help/GETTING_STARTED.md), open this url:
 
@@ -11,8 +10,8 @@ After you install [dmt-system](https://github.com/uniqpath/dmt/blob/master/help/
 http://localhost:7777/apps/zeta
 ```
 
-And execute your first search! See what happens :)
+One well-known deployed node is at <a href="http://zetaseek.com/">zetaseek.com</a>.
 
-<img src="https://github.com/uniqpath/info/blob/master/assets/img/alternity.jpg?raw=true">
+Additional documentation and information coming soon.
 
-Additional documentation coming soon.
+[[ STAY TUNED ]]

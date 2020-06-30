@@ -91,7 +91,7 @@ function readLinks() {
                 );
 
                 if (match) {
-                  console.log('FOUND MATCH:');
+                  console.log(colors.green(`Found match for url ${url}:`));
                   console.log(match);
 
                   success(match);
@@ -99,9 +99,9 @@ function readLinks() {
                   console.log(colors.gray(`Did not find a match in existing index for url: ${url}`));
 
                   if (url.endsWith('.pdf')) {
-                    success({ url, title: '', context, latestLinkIndexVersion });
+                    success({ url, title: '', context, linkIndexVersion: latestLinkIndexVersion });
                   } else if (url.indexOf('/localhost') > -1) {
-                    success({ url, title: 'WARNING: LOCAL LINK', context, latestLinkIndexVersion });
+                    success({ url, title: 'WARNING: LOCAL LINK', context, linkIndexVersion: latestLinkIndexVersion });
                   } else if (url.indexOf('youtube.com') > -1 && url.indexOf('v=') > -1) {
                     const videoId = urlModule.parse(url, { parseQueryString: true }).query['v'];
                     scrapeYt
@@ -111,12 +111,12 @@ function readLinks() {
                       })
                       .catch(error => {
                         console.log(`Link (video) ${url} probably unavailable ...`);
-                        success({ url, context, error: 'VIDEO UNAVAILABLE', latestLinkIndexVersion });
+                        success({ url, context, error: 'VIDEO UNAVAILABLE', linkIndexVersion: latestLinkIndexVersion });
                       });
                   } else {
                     readTitle(url)
                       .then(title => {
-                        success({ url, title, context, latestLinkIndexVersion });
+                        success({ url, title, context, linkIndexVersion: latestLinkIndexVersion });
                       })
                       .catch(e => {
                         console.log(e);

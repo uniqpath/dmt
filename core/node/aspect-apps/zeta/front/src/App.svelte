@@ -154,7 +154,11 @@
 
 <svelte:head>
   {#if isZetaSeek}
-    <title>zetaseek engine</title>
+    {#if searchQuery}
+      <title>zetaseek engine · {searchQuery}</title>
+    {:else}
+      <title>zetaseek engine</title>
+    {/if}
   {:else}
     <title>search</title>
   {/if}
