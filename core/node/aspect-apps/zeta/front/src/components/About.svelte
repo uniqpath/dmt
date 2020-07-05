@@ -16,15 +16,16 @@
     </p>
 
     <p>
-      [[ decentralized, <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta">open source</a>, fair and free ]]
+      <!-- [[ Decentralized ❀ <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta">Open Source</a> ❀ Fair ❀ Free ]] -->
+      [[ Decentralized ❀ Open Source ❀ Fair ❀ Free ]]
       <!-- [ If you think all times are the same, you are wrong ] -->
       <!-- [ See further, do more. ] -->
       <!-- [ <span>Imagine all the people sharing all the files</span> — <i>John Lennon</i> ] -->
     </p>
 
-    <p>
-      [[ <b>STAY TUNED</b> ]]
-    </p>
+    <!-- <p>
+      STAY TUNED ❀ <b>THE FUTURE IS NOW</b>
+    </p> -->
 
     <!-- <p>
       [ <span>And the network will live as one.</span> ]

@@ -12,7 +12,7 @@ const timeTags = [];
 
 const SEARCH_LAG_MS = 300;
 
-function executeSearch({ searchQuery, remoteObject, remoteMethod, searchDelay = SEARCH_LAG_MS, force, searchStatusCallback = () => {} }) {
+function executeSearch({ searchQuery, remoteObject, remoteMethod, searchMetadata, searchDelay = SEARCH_LAG_MS, force, searchStatusCallback = () => {} }) {
   return new Promise((success, reject) => {
     if (searchQuery.trim() == '') {
       timeTags.push(Date.now());
@@ -51,7 +51,7 @@ function executeSearch({ searchQuery, remoteObject, remoteMethod, searchDelay = 
           console.log(`Search executed on remote object: ${searchQuery}`);
 
           remoteObject
-            .call(remoteMethod, { query: normalizeQuery(searchQuery), searchOriginHost: window.location.host })
+            .call(remoteMethod, { query: normalizeQuery(searchQuery), searchOriginHost: window.location.host, searchMetadata })
             .then(searchResults => {
               const lastTimeTag = timeTags[timeTags.length - 1];
 

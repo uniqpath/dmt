@@ -16,7 +16,7 @@ function chunkArray(myArray, chunkSize, firstChunkSize) {
   return tempArray;
 }
 
-function nextBatch({ batches, asyncMap, afterAsyncResultsBatch, batchDelay }) {
+function nextBatch({ batches, asyncMap, afterAsyncResultsBatch, finishedCallback, batchDelay, justOneBatch, allResults }) {
   if (batches.length) {
     const currentBatch = batches[0];
     const promises = currentBatch.map(asyncMap);
@@ -24,22 +24,35 @@ function nextBatch({ batches, asyncMap, afterAsyncResultsBatch, batchDelay }) {
     Promise.all(promises).then(results => {
       afterAsyncResultsBatch(results);
 
+      allResults.push(...results);
+
       const next = () => {
-        nextBatch({ batches: batches.slice(1), asyncMap, afterAsyncResultsBatch });
+        nextBatch({ batches: batches.slice(1), asyncMap, afterAsyncResultsBatch, allResults, finishedCallback });
       };
 
       if (batchDelay) {
         setTimeout(next, batchDelay);
       } else {
-        next();
+        if (justOneBatch) {
+          if (finishedCallback) {
+            finishedCallback(allResults);
+          }
+        } else {
+          next();
+        }
       }
     });
+  } else {
+    if (finishedCallback) {
+      finishedCallback(allResults);
+    }
   }
 }
 
-function processBatch({ entries, batchSize = 10, asyncMap, afterAsyncResultsBatch, firstBatchSize, batchDelay } = {}) {
+function processBatch({ entries, batchSize = 10, asyncMap, afterAsyncResultsBatch, finishedCallback, firstBatchSize, batchDelay, justOneBatch } = {}) {
+  const allResults = [];
   const batches = chunkArray(entries, batchSize, firstBatchSize);
-  nextBatch({ batches, asyncMap, afterAsyncResultsBatch, batchDelay });
+  nextBatch({ batches, asyncMap, afterAsyncResultsBatch, finishedCallback, batchDelay, allResults, justOneBatch });
 }
 
 export default processBatch;

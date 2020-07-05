@@ -27,6 +27,7 @@
   import PromoBox from './PromoBox.svelte';
   import InsideBox from './InsideBox.svelte';
   import TeamBox from './TeamBox.svelte';
+  import ZetaDiscord from './ZetaDiscord.svelte';
 
 </script>
 
@@ -53,6 +54,11 @@
         {#if panels['Swarm Promo']}
           <!-- <Profile {connected} {loginStore} {store} /> -->
           <InsideBox teamName='Swarm' />
+        {/if}
+
+        {#if panels['Zeta Discord']}
+          <!-- <Profile {connected} {loginStore} {store} /> -->
+          <ZetaDiscord />
         {/if}
       {/if}
         <!-- {#if connected}

@@ -1,19 +1,14 @@
 import colors from 'colors';
+
 import util from 'util';
 import fs from 'fs';
 import path from 'path';
 
-import scrapeYt from 'scrape-yt';
-import urlModule from 'url';
-
-import readTitle from 'read-title';
-import readLinkIndex from '../lib/localSearch/linkSearch/readLinkIndex';
-import latestLinkIndexVersion from '../lib/localSearch/linkSearch/linkIndexVersion';
-
+import scanWebLink from '../lib/localSearch/linkSearch/scanWebLink';
 import { push } from 'dmt/notify';
 
 import dmt from 'dmt/bridge';
-const { log, scan } = dmt;
+const { log, scan, processBatch } = dmt;
 
 function reportIssue(msg) {
   log.red(`⚠️  Warning: ${msg}`);
@@ -29,16 +24,14 @@ function splitToLines(buffer) {
 }
 
 function readLinks() {
-  const existingLinkIndex = readLinkIndex();
-
   return new Promise((success, reject) => {
     const linksDirectory = path.join(dmt.userDir, 'ZetaLinks');
 
     if (fs.existsSync(linksDirectory)) {
       const files = scan.recursive(linksDirectory, {
         flatten: true,
-        filter: ({ basename, reldir }) => {
-          return !basename.includes('-disabled') && basename != 'README.md' && !reldir.endsWith('.git');
+        filter: ({ basename, reldir, extname }) => {
+          return !basename.includes('-disabled') && basename != 'README.md' && !reldir.endsWith('.git') && extname != '.json';
         }
       });
 
@@ -55,80 +48,56 @@ function readLinks() {
         })
       )
         .then(results => {
-          const urls = results.map(({ error, filePath, fileBuffer, hiddenContext }) => {
-            const lines = splitToLines(fileBuffer);
-            const urls = [];
+          const urls = results
+            .map(({ filePath, fileBuffer, error, hiddenContext }) => {
+              const lines = splitToLines(fileBuffer);
+              const urls = [];
 
-            let context = '';
+              let context = '';
 
-            lines.forEach((line, index) => {
-              if (lines[index].trim() != '' && !lines[index].trim().startsWith('http')) {
-                context = lines[index].trim();
-                if (context.endsWith(':')) {
-                  context = context.slice(0, -1);
-                }
-              }
+              lines.forEach((line, index) => {
+                if (lines[index].trim() != '' && !lines[index].trim().startsWith('http')) {
+                  context = lines[index].trim();
 
-              if (lines[index].trim() == '') {
-                context = '';
-              }
-
-              if (line.trim().startsWith('http')) {
-                urls.push({ url: line.trim(), context, filePath });
-              }
-            });
-
-            return urls;
-          });
-
-          Promise.all(
-            urls.flat().map(({ url, context, filePath }) => {
-              console.log(colors.magenta(`Scanning url: ${url}`));
-
-              return new Promise((success, reject) => {
-                const match = existingLinkIndex.find(
-                  linkInfo => linkInfo.url.toLowerCase() == url.toLowerCase() && linkInfo.linkIndexVersion == latestLinkIndexVersion
-                );
-
-                if (match) {
-                  console.log(colors.green(`Found match for url ${url}:`));
-                  console.log(match);
-
-                  success(match);
-                } else {
-                  console.log(colors.gray(`Did not find a match in existing index for url: ${url}`));
-
-                  if (url.endsWith('.pdf')) {
-                    success({ url, title: '', context, linkIndexVersion: latestLinkIndexVersion });
-                  } else if (url.indexOf('/localhost') > -1) {
-                    success({ url, title: 'WARNING: LOCAL LINK', context, linkIndexVersion: latestLinkIndexVersion });
-                  } else if (url.indexOf('youtube.com') > -1 && url.indexOf('v=') > -1) {
-                    const videoId = urlModule.parse(url, { parseQueryString: true }).query['v'];
-                    scrapeYt
-                      .getVideo(videoId)
-                      .then(({ title }) => {
-                        success({ url, title, context, latestLinkIndexVersion });
-                      })
-                      .catch(error => {
-                        console.log(`Link (video) ${url} probably unavailable ...`);
-                        success({ url, context, error: 'VIDEO UNAVAILABLE', linkIndexVersion: latestLinkIndexVersion });
-                      });
-                  } else {
-                    readTitle(url)
-                      .then(title => {
-                        success({ url, title, context, linkIndexVersion: latestLinkIndexVersion });
-                      })
-                      .catch(e => {
-                        console.log(e);
-                        reject(e);
-                      });
+                  if (context.endsWith(':')) {
+                    context = context.slice(0, -1);
                   }
                 }
+
+                if (lines[index].trim() == '') {
+                  context = '';
+                }
+
+                if (line.trim().startsWith('http')) {
+                  urls.push({ url: line.trim(), context, filePath, githubLineNum: index + 1 });
+                }
               });
+
+              return urls;
             })
-          )
-            .then(results => success(results.filter(({ error }) => !error)))
-            .catch(reject);
+            .flat();
+
+          const num = 10;
+
+          const justOneBatch = false;
+
+          if (justOneBatch) {
+            console.log(colors.red(`⚠️  Warning: Scanning just first ${num} links because justOneBatch == true`));
+          }
+
+          processBatch({
+            entries: urls,
+            asyncMap: scanWebLink,
+            batchSize: num,
+            justOneBatch,
+            afterAsyncResultsBatch: results => {
+              console.log(colors.white(`Current batch of ${num} links finished ${colors.green('✓')}`));
+              console.log();
+            },
+            finishedCallback: linkIndex => {
+              success({ successfulResults: linkIndex.filter(({ error }) => !error), unsuccessfulResults: linkIndex.filter(({ error }) => error) });
+            }
+          });
         })
         .catch(reject);
     } else {
@@ -140,10 +109,19 @@ function readLinks() {
 export default readLinks;
 
 const indexFile = path.join(dmt.userDir, 'ZetaLinks/index.json');
+const indexFile2 = path.join(dmt.userDir, 'ZetaLinks/index_emergency_backup.json');
 
-readLinks().then(linkIndex => {
-  console.log(linkIndex);
+readLinks().then(({ successfulResults, unsuccessfulResults }) => {
+  const linkIndex = successfulResults;
+  console.log();
+  console.log(colors.green(`Indexed ${colors.yellow(linkIndex.length)} entries.`));
   fs.writeFileSync(indexFile, JSON.stringify(linkIndex, null, 2));
+  fs.writeFileSync(indexFile2, JSON.stringify(linkIndex, null, 2));
+
+  if (unsuccessfulResults.length > 0) {
+    console.log(colors.red('Failed links (cannot fetch or cannot scrape metainfo):'));
+    console.log(colors.red(JSON.stringify(unsuccessfulResults, null, 2)));
+  }
 });
 
 console.log(`Written to ${indexFile}`);

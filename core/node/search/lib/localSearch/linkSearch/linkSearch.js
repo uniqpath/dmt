@@ -7,7 +7,7 @@ function linkSearch({ terms, page = 1, count }) {
   const initialResultsToIgnore = (page - 1) * maxResults;
 
   return new Promise(success => {
-    const linkIndex = readLinkIndex();
+    const linkIndex = readLinkIndex({ useBackup: true });
 
     const allResults = linkResults(terms, linkIndex);
 

@@ -98,6 +98,8 @@
     const remoteObject = store.remoteObject('GUISearchObject');
     const remoteMethod = 'search';
 
+    const searchMetadata = { userIdentity, displayName, ethAddress };
+
     const searchStatusCallback = ({ searching, noHits }) => {
       isSearching = searching;
       noSearchHits = noHits;
@@ -116,7 +118,7 @@
         Url.updateSearchParam('q'); // delete
       }
 
-      executeSearch({ searchQuery, remoteObject, remoteMethod, searchStatusCallback, searchDelay, force }).then(searchResults => {
+      executeSearch({ searchQuery, remoteObject, remoteMethod, searchStatusCallback, searchDelay, force, searchMetadata }).then(searchResults => {
         // console.log("SEARCH RESULTS:");
         // console.log(searchResults);
         store.set({ searchResults });
@@ -143,25 +145,27 @@
 
   appHelper.on('search', doSearch);
 
-  if (!isZetaSeek) {
-    setTimeout(() => {
-      if (deviceName) {
-        document.title = `${deviceName} - search`;
-      }
-    }, 800); // hackish!
-  }
+  // if (!isZetaSeek) {
+  //   setTimeout(() => {
+  //     if (deviceName) {
+  //       document.title = `${deviceName} - search`;
+  //     }
+  //   }, 800); // hackish!
+  // }
 </script>
 
 <svelte:head>
-  {#if isZetaSeek}
+  <!-- {#if isZetaSeek} -->
     {#if searchQuery}
       <title>zetaseek engine · {searchQuery}</title>
+      <!-- <meta property="og:title" content="zetaseek engine · {searchQuery}" /> -->
     {:else}
       <title>zetaseek engine</title>
+      <!-- <meta property="og:title" content="zetaseek engine" /> -->
     {/if}
-  {:else}
-    <title>search</title>
-  {/if}
+  <!-- {:else}
+    <title>search</title> -->
+  <!-- {/if} -->
 </svelte:head>
 
 <!-- {#if isLocalhost && deviceName == 'eclipse'} -->
@@ -223,7 +227,7 @@
       </p>
     {/if}
 
-    <SearchResults {loggedIn} {searchResults} {noSearchHits} />
+    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} />
 
   </div>
 

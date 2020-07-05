@@ -8,7 +8,7 @@ class GUISearchObject {
     this.channel = channel;
   }
 
-  search({ query, searchOriginHost }) {
+  search({ query, searchOriginHost, searchMetadata }) {
     return new Promise(success => {
       const { terms, mediaType, count, page, atDevices } = parseSearchQuery({ query });
 
@@ -25,7 +25,7 @@ class GUISearchObject {
         .call('search', { query: `${terms.join(' ')} ${providers} @count=10`, searchOriginHost })
         .then(responses => {
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
-          this.program.emit('zeta::user_search', { query, totalHits });
+          this.program.emit('zeta::user_search', { query, totalHits, searchMetadata });
           success(responses);
         })
         .catch(error => {
@@ -33,6 +33,10 @@ class GUISearchObject {
           console.log(error);
         });
     });
+  }
+
+  trackClick({ url }) {
+    this.program.emit('zeta::link_click', { url });
   }
 }
 

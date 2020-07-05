@@ -20,8 +20,9 @@
   <div class="inner">
     <ul>
       <li class:enabled={panels['Profile']} on:click={() => toggle('Profile')}>Profile</li>
+      <li class:enabled={panels['Zeta Discord']} on:click={() => toggle('Zeta Discord')}>Zeta on Discord <img src="/apps/zeta/img/discord.svg" /></li>
       <!-- <li class:enabled={panels['My Links']} on:click={() => toggle('My Links')}>My Links</li> -->
-      <li class:enabled={panels['Swarm Promo']} on:click={() => toggle('Swarm Promo')}>Swarm Promo</li>
+      <li class:enabled={panels['Swarm Promo']} on:click={() => toggle('Swarm Promo')}>Swarm Technology <img style="filter: invert(1);" src="/apps/zeta/img/swarm.png" /></li>
     </ul>
   </div>
 </div>
@@ -68,6 +69,10 @@
     color: white;
   }
 
+  .menu .inner ul li img {
+    height: 15px;
+  }
+
   .menu .inner li:before {
     content: "\2022";
     /*color: #9884fc;*/
@@ -81,7 +86,8 @@
   .menu .inner li:hover {
     /*color: var(--zeta-green);*/
     /*color: #ddd;*/
-    opacity: 0.8;
+    /*opacity: 0.8;*/
+    color: #FD609E;
     /*color: #66E5D0;*/
   }
 

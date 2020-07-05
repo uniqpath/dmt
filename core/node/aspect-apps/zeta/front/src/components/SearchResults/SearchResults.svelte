@@ -10,6 +10,7 @@
   export let loggedIn;
   export let searchResults;
   export let noSearchHits;
+  export let store;
 </script>
 
 <div class="no_results" class:visible={noSearchHits}>NO HITS (FOR NOW?)
@@ -46,10 +47,10 @@
         {#if providerResponse.results && providerResponse.results.length > 0}
           <ResultsMetaTop meta={providerResponse.meta}/>
 
-          {#each providerResponse.results as {filePath, url, title, name, context, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, isNote, notePreview, noteUrl, noteContents, noteTags}}
+          {#each providerResponse.results as {filePath, url, title, name, context, githubReference, score, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, isNote, notePreview, noteUrl, noteContents, noteTags}}
             <div class="result">
               {#if url}
-                <ResultLink {url} {title} {context} />
+                <ResultLink {url} {title} {context} {score} {githubReference} {store} />
               {:else if swarmBzzHash}
                 <ResultSwarm {name} {playableUrl} {mediaType} {entryType} {prettyTime} {context} />
               {:else if filePath}
