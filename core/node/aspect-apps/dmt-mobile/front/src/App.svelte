@@ -14,15 +14,9 @@
 
   $: activeDeviceId = controller ? controller.deviceName : null;
 
-  const usualDeviceList = ['kitchen', 'midroom', 'outside', 'living-room', 'tv', 'dpanel', 'lab'];
-
   let searchTerms;
 
   // METHODS :::
-
-  function searchInputChanged() {
-    console.log(searchTerms);
-  }
 
   function action(action, payload) {
     console.log(`Action: ${action}`);
@@ -30,6 +24,15 @@
     store
       .remoteObject('gui')
       .call('action', { action, storeName: 'player', payload })
+      .catch(console.log);
+  }
+
+  function iotAction(action, payload) {
+    console.log(`Action: ${action}`);
+
+    store
+      .remoteObject('gui')
+      .call('action', { action, storeName: 'iot', payload })
       .catch(console.log);
   }
 
@@ -139,7 +142,8 @@
   {#if nearbyDevices}
     <div class="nearby_devices section">
       <!-- window.location.hostname != '192.168.0.60' || -->
-      {#each nearbyDevices.filter(device => usualDeviceList.includes(device.deviceId)) as device}
+      {#each nearbyDevices as device}
+      <!-- {#each nearbyDevices.filter(device => usualDeviceList.includes(device.deviceId)) as device} -->
 
         <button on:click={switchDevice(device)} class:active={device.deviceId == activeDeviceId}>
 
@@ -154,6 +158,11 @@
       {/each}
     </div>
   {/if}
+
+  <div class="iot section">
+      <button on:click={() => iotAction('alarm', 'on')} class="" disabled={!connected}>Alarm:ON</button>
+      <button on:click={() => iotAction('alarm', 'off')} class="" disabled={!connected}>Alarm:OFF</button>
+  </div>
 
 </main>
 
@@ -187,7 +196,7 @@
     display: block;
   }
 
-  .nearby_devices {
+  .nearby_devices, .iot {
     border-top: 1px solid #999;
     /**/
   }

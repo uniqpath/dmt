@@ -376,11 +376,15 @@ class Playlist {
   }
 
   renumberPlaylist() {
-    const baseId = this.currentSongId();
+    const baseId = this.currentSongId() || 1;
 
     this.playlist.slice(this.currentIndex).forEach((song, index) => {
       song.id = baseId + index;
     });
+
+    if (this.currentIndex == null && this.playlist.length > 0) {
+      this.currentIndex = 0;
+    }
   }
 
   deselectAll() {
