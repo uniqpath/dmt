@@ -198,7 +198,13 @@
   <div class="logo">
     <a href="#" on:click|preventDefault={() => { goHome(); }}>
       <!-- <img src={`/apps/zeta/img/${isZetaSeek ? 'zetaseek' : 'search'}_logo.png`} alt="zeta logo"> -->
-      <img src={`/apps/zeta/img/zetaseek_logo.png?v=2`} alt="zeta logo">
+      {#if isZetaSeek}
+        <img src={`/apps/zeta/img/zetaseek_logo.png?v=2`} alt="zeta logo">
+      {:else if isLocalhost}
+        <span></span>🔬localseek
+      {:else}
+        🔬{window.location.host}
+      {/if}
     </a>
   </div>
 
@@ -250,14 +256,16 @@
     --dmt-vibrant-green: #5FE02A;
     --dmt-cool-green: #5DF699;
     --dmt-cool-cyan: #51F5C8;
+    --dmt-cool-cyan2: #58E288;
 
-    --zeta-green: #1CE6C1;
+    /*--zeta-green: #1CE6C1;*/
+    --zeta-green: #31E5C1;
   }
 
 	main {
 		text-align: center;
 		padding: 1em;
-    padding-top: 80px;
+    padding-top: 60px;
 	}
 
   /*:global(a) {
@@ -281,6 +289,13 @@
     display: inline-block;
   }
 
+  .logo a {
+    font-size: 2.5em;
+    color: var(--zeta-green);
+    /*font-family: FiraCode;*/
+    /*font-family: Avenir;*/
+  }
+
   .logo:hover {
     opacity: 0.9;
     /*cursor: pointer;*/
@@ -291,6 +306,10 @@
     width: 200px;
     margin: 0 auto;
     margin-bottom: 20px;
+  }
+
+  .logo a span {
+    color: var(--dmt-cool-cyan2);
   }
 
   input#search_input {

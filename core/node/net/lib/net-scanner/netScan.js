@@ -28,11 +28,17 @@ async function netScan(term = '', { rescan = true, silent = true } = {}) {
     }
 
     const _interfaces = await networkInterfaces();
-    if (!silent) {
+
+    let _interface;
+
+    if (_interfaces.length > 0) {
       console.log(_interfaces);
+      _interface = _interfaces[0].name;
+    } else if (!silent) {
+      console.log('Warning: no active network interfaces found, still trying to scan...');
     }
 
-    const scanResults = await arpscanner({ interface: _interfaces[0].name });
+    const scanResults = await arpscanner({ interface: _interface });
 
     return deviceSorter(deviceFilter(term, identify(deviceDiffer(stateDir, scanResults))));
   } catch (err) {

@@ -18,7 +18,7 @@ function readSwarmIndex() {
       'WARNING: please implement 5s cache so that json tree is not re-read on each search request... still a great tradeoff between liveness and performance'
     );
 
-    const swarmIndexDirectory = path.join(dmt.userDir, 'SwarmIndex');
+    const swarmIndexDirectory = path.join(dmt.deviceDir(), 'swarmlinks');
 
     if (fs.existsSync(swarmIndexDirectory)) {
       const files = scan.recursive(swarmIndexDirectory, { flatten: true, extname: '.json' });

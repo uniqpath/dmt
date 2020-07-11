@@ -322,6 +322,12 @@ export default {
     return onlyBasicParsing ? devicesBasic : devices;
   },
 
+  deviceDir(deviceId = this.device().id) {
+    const devicesDir = path.join(dmtUserDir, 'devices');
+
+    return path.join(devicesDir, deviceId);
+  },
+
   fiber() {
     const filePath = this.deviceDefFile('this', 'fiber');
     return readFiberDef({ filePath });

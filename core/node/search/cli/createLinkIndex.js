@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 
 import scanWebLink from '../lib/localSearch/linkSearch/scanWebLink';
+import linkIndexPath from '../lib/localSearch/linkSearch/linkIndexPath';
 import { push } from 'dmt/notify';
 
 import dmt from 'dmt/bridge';
@@ -25,7 +26,7 @@ function splitToLines(buffer) {
 
 function readLinks() {
   return new Promise((success, reject) => {
-    const linksDirectory = path.join(dmt.userDir, 'ZetaLinks');
+    const linksDirectory = linkIndexPath();
 
     if (fs.existsSync(linksDirectory)) {
       const files = scan.recursive(linksDirectory, {
@@ -108,8 +109,10 @@ function readLinks() {
 
 export default readLinks;
 
-const indexFile = path.join(dmt.userDir, 'ZetaLinks/index.json');
-const indexFile2 = path.join(dmt.userDir, 'ZetaLinks/index_emergency_backup.json');
+const linksDirectory = linkIndexPath();
+
+const indexFile = path.join(linksDirectory, 'index.json');
+const indexFile2 = path.join(linksDirectory, 'index_emergency_backup.json');
 
 readLinks().then(({ successfulResults, unsuccessfulResults }) => {
   const linkIndex = successfulResults;

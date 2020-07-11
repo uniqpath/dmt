@@ -17,7 +17,7 @@
 
     <p>
       <!-- [[ Decentralized ❀ <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta">Open Source</a> ❀ Fair ❀ Free ]] -->
-      [[ Decentralized ❀ Open Source ❀ Fair ❀ Free ]]
+      [[ Decentralized ∞ Open Source ∞ Fair ∞ Free ]]
       <!-- [ If you think all times are the same, you are wrong ] -->
       <!-- [ See further, do more. ] -->
       <!-- [ <span>Imagine all the people sharing all the files</span> — <i>John Lennon</i> ] -->

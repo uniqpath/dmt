@@ -10,7 +10,7 @@ async function getNetworkInterfaces() {
       } else {
         list = list.filter(_interface => _interface.ip_address && _interface.gateway_ip);
         if (list.length == 0) {
-          reject(new Error('Active network interface not found'));
+          success(list);
         } else {
           success(
             list

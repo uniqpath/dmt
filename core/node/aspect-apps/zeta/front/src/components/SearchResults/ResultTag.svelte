@@ -19,7 +19,7 @@
   background-color: #ddd;
   border-radius: 2px;
   color: #555;
-  padding: 0 2px;
+  padding: 2px 2px 0 2px;
 }
 
 /* (some) resultTypes ==> */

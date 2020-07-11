@@ -10,7 +10,7 @@
   }
 </script>
 
-{#if !app.isZetaSeek && mediaType == 'music'}
+{#if app.isLocalhost && mediaType == 'music'}
   <button on:click={() => { play(playableUrl); }}>PLAY</button>
 {/if}
 

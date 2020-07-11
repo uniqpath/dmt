@@ -228,6 +228,7 @@ export default {
   stateDir: helper.stateDir,
   dmtPath: helper.dmtPath,
   userDir: helper.userDir,
+  deviceDir: helper.deviceDir,
   catalogsDir: helper.catalogsDir,
   assetsDir: path.join(helper.dmtPath, 'core/assets'),
   accessTokensDir: path.join(helper.userDir, 'access_tokens'),

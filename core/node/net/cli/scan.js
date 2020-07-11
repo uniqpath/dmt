@@ -5,12 +5,6 @@ import dmt from 'dmt/bridge';
 import netScan from '../lib/net-scanner/netScan';
 import netScanScreenOutput from '../lib/net-scanner/screenOutput';
 
-import currentNetworkDef from '../lib/currentNetworkDef';
-import gatewayMac from '../lib/gatewayMac';
-import networkInterfaces from '../lib/networkInterfaces';
-
-import { privateIp } from '../lib/netTools';
-
 (async () => {
   const terms = process.argv.slice(2);
 
