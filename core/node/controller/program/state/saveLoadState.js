@@ -3,7 +3,7 @@ import writeFileAtomic from 'write-file-atomic';
 import dmt from 'dmt/bridge';
 const { util, log } = dmt;
 
-import { cleanupStateOnLoad, cleanupStateOnSave } from './cleanupState';
+import cleanupStateOnSave from './cleanupStateOnSave';
 
 const STATE_SCHEMA_VERSION = 0.8;
 
@@ -24,7 +24,7 @@ class SaveLoadState {
   reloadState() {
     if (fs.existsSync(dmt.programStateFile)) {
       try {
-        const loadedState = cleanupStateOnLoad(JSON.parse(fs.readFileSync(dmt.programStateFile)));
+        const loadedState = JSON.parse(fs.readFileSync(dmt.programStateFile));
 
         if (loadedState.schemaVersion == STATE_SCHEMA_VERSION) {
           this.updateState(loadedState);

@@ -20,13 +20,10 @@ function resolve(provider) {
 }
 
 function getContentProviders() {
-  const globalZetaDef = readZetaDef(path.join(dmt.dmtPath, 'def/zeta_search.def'));
   const deviceZetaDef = readZetaDef(dmt.deviceDefFile(dmt.device().id, 'zeta_search'));
 
   const providers = ['@this', '@this/links', '@this/swarm'];
   providers.push(...readProvidersFromDef(deviceZetaDef));
-  providers.push(...readProvidersFromDef(globalZetaDef));
-
   return providers.map(resolve);
 }
 

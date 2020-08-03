@@ -21,8 +21,8 @@ export default function attachNearbyDeviceAttributes({ program = null, msg }) {
   if (program) {
     const keypair = dmt.keypair();
     if (keypair) {
-      const { publicKey: pubkey } = keypair;
-      msg.pubkey = pubkey;
+      const { publicKeyHex } = keypair;
+      msg.deviceKey = publicKeyHex;
     }
   }
 

@@ -146,8 +146,8 @@ class Program extends EventEmitter {
 
     const emitter = new EventEmitter();
 
-    emitter.on('file_request', ({ providerAddress, filePath }) => {
-      push.notify(`file request on ${dmt.device().id}: ${providerAddress}::${filePath}`);
+    emitter.on('file_request', data => {
+      this.emit('file_request', data);
     });
 
     this.server.setupRoutes(app => contentServer({ app, fiberPool: this.fiberPool, defaultPort: port, emitter }));
@@ -210,6 +210,10 @@ class Program extends EventEmitter {
     return dmt.apMode();
   }
 
+  isLanBroker() {
+    return this.state.controller.ip == dmt.accessPointIP;
+  }
+
   hasGui() {
     return this.device.try('service[gui].disable') != 'true';
   }
@@ -231,10 +235,6 @@ class Program extends EventEmitter {
 
   updateState(newState, { announce = true } = {}) {
     this.store.updateState(newState, { announce });
-  }
-
-  replaceState(replacement, { announce = true } = {}) {
-    this.store.replaceState(replacement, { announce });
   }
 
   replaceStoreElement({ storeName, key, value }, { announce = true } = {}) {

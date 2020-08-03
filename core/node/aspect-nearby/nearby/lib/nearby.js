@@ -8,7 +8,7 @@ class Nearby {
     this.program = program;
 
     if (!program.state.nearbyDevices) {
-      program.updateState({ nearbyDevices: {} }, { announce: false });
+      program.updateState({ nearbyDevices: [] }, { announce: false });
     }
 
     this.broadcastInterval = 2 * dmt.globals.tickerPeriod * 1000;
@@ -47,9 +47,18 @@ class Nearby {
     }, 1000);
   }
 
+  ourMessage() {
+    return msgLanbusChatter({ program: this.program, deviceId: this.program.device.id, message: 'ΞΞΞ HEY' });
+  }
+
   broadcastOurHelloMessage({ onlyUdp = false } = {}) {
-    const msgJson = msgLanbusChatter({ program: this.program, deviceId: this.program.device.id, message: 'ΞΞΞ HEY' });
-    this.lanbus.broadcastMessage(msgJson, { onlyUdp });
+    const msg = this.ourMessage();
+
+    if (msg.ip) {
+      this.lanbus.broadcastMessage(msg, { onlyUdp });
+    } else {
+      log.red('Not broadcasting LANBUS MQTT message because IP address of this device is unknown...');
+    }
   }
 
   setupNearbyDevicesListRefresh() {
@@ -64,7 +73,11 @@ class Nearby {
 
     this.lanbus.on('message', obj => {
       try {
-        const prevDeviceData = this.program.state.nearbyDevices[obj.deviceId];
+        if (obj.deviceKey == dmt.keypair().publicKeyHex) {
+          return;
+        }
+
+        const prevDeviceData = this.program.state.nearbyDevices.find(({ deviceKey }) => deviceKey == obj.deviceKey);
 
         const device = Object.assign(obj, { lastSeenAt: Date.now(), stale: false });
 
@@ -82,7 +95,24 @@ class Nearby {
           device.hiddenInGui = true;
         }
 
-        this.program.replaceStoreElement({ storeName: 'nearbyDevices', key: device.deviceId, value: device }, { announce });
+        const { nearbyDevices } = this.program.state;
+
+        let found;
+
+        for (let i = 0; i < nearbyDevices.length; i++) {
+          if (nearbyDevices[i].deviceKey == obj.deviceKey) {
+            nearbyDevices[i] = device;
+            found = true;
+          }
+        }
+
+        if (!found) {
+          nearbyDevices.push(device);
+        }
+
+        if (announce) {
+          this.program.store.announceStateChange();
+        }
       } catch (e) {
         log.red(e);
       }
@@ -91,29 +121,29 @@ class Nearby {
 
   nearbyDevicesListRefresh({ removeStaleImmediately = false } = {}) {
     if (this.program.state.nearbyDevices) {
-      const nearbyDevicesNew = {};
+      const nearbyDevicesNew = [];
 
       const now = Date.now();
 
       const { nearbyDevices } = this.program.state;
 
-      for (const deviceId of Object.keys(nearbyDevices)) {
-        const device = nearbyDevices[deviceId];
-
+      for (const device of nearbyDevices.filter(({ deviceKey }) => deviceKey != dmt.keypair().publicKeyHex)) {
         if (now - device.lastSeenAt > 2.2 * this.broadcastInterval) {
           if (!device.stale && !removeStaleImmediately) {
-            nearbyDevicesNew[deviceId] = { ...device, ...{ stale: true, staleDetectedAt: now } };
+            nearbyDevicesNew.push({ ...device, ...{ stale: true, staleDetectedAt: now } });
           } else if (device.staleDetectedAt && now - device.staleDetectedAt < 3000) {
-            nearbyDevicesNew[deviceId] = { ...device };
+            nearbyDevicesNew.push({ ...device });
           }
         } else {
-          nearbyDevicesNew[deviceId] = { ...device, ...{ stale: false, staleDetectedAt: undefined } };
+          nearbyDevicesNew.push({ ...device, ...{ stale: false, staleDetectedAt: undefined } });
         }
       }
 
-      this.program.emit('nearby_devices', nearbyDevicesNew);
+      nearbyDevicesNew.push({ ...this.ourMessage(), ...{ thisDevice: true, stale: false, staleDetectedAt: undefined } });
 
-      this.program.store.replaceState({ nearbyDevices: nearbyDevicesNew }, { announce: false });
+      this.program.state.nearbyDevices = nearbyDevicesNew;
+
+      this.program.emit('nearby_devices', nearbyDevicesNew);
     }
   }
 }

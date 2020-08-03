@@ -3,6 +3,7 @@ import EventEmitter from 'events';
 
 import dmt from 'dmt/bridge';
 const { log } = dmt;
+
 import { iotBus } from 'dmt/iot';
 
 class LanBusOverIotBus extends EventEmitter {
@@ -45,14 +46,9 @@ class LanBusOverIotBus extends EventEmitter {
   }
 
   broadcastMessage(msgJson) {
-    const ip = this.program.state.controller ? this.program.state.controller.ip : null;
-    if (ip) {
-      const msg = JSON.stringify(Object.assign(msgJson, { ip }));
-      iotBus.publish({ topic: 'lanbus-chatter', msg });
-      log.debug(`Broadcasting LANBUS MQTT message "${msg}"`, { cat: 'lanbus' });
-    } else {
-      log.red('Not broadcasting LANBUS MQTT message because IP address of this device is unknown...');
-    }
+    const msg = JSON.stringify(msgJson);
+    iotBus.publish({ topic: 'lanbus-chatter', msg });
+    log.debug(`Broadcasting LANBUS MQTT message "${msg}"`, { cat: 'lanbus' });
   }
 }
 

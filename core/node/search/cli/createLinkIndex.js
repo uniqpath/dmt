@@ -4,12 +4,23 @@ import util from 'util';
 import fs from 'fs';
 import path from 'path';
 
+import readLinkIndex from '../lib/localSearch/linkSearch/readLinkIndex';
 import scanWebLink from '../lib/localSearch/linkSearch/scanWebLink';
 import linkIndexPath from '../lib/localSearch/linkSearch/linkIndexPath';
 import { push } from 'dmt/notify';
 
 import dmt from 'dmt/bridge';
 const { log, scan, processBatch } = dmt;
+
+const args = process.argv.slice(2);
+
+if (args.length != 1) {
+  console.log(colors.yellow('Usage:'));
+  console.log('cli createLinkIndex [deviceId]');
+  process.exit();
+}
+
+const deviceId = args[0];
 
 function reportIssue(msg) {
   log.red(`⚠️  Warning: ${msg}`);
@@ -25,8 +36,10 @@ function splitToLines(buffer) {
 }
 
 function readLinks() {
+  const existingLinkIndex = readLinkIndex({ deviceId });
+
   return new Promise((success, reject) => {
-    const linksDirectory = linkIndexPath();
+    const linksDirectory = linkIndexPath(deviceId);
 
     if (fs.existsSync(linksDirectory)) {
       const files = scan.recursive(linksDirectory, {
@@ -70,7 +83,7 @@ function readLinks() {
                 }
 
                 if (line.trim().startsWith('http')) {
-                  urls.push({ url: line.trim(), context, filePath, githubLineNum: index + 1 });
+                  urls.push({ url: line.trim(), existingLinkIndex, context, filePath, githubLineNum: index + 1 });
                 }
               });
 
@@ -109,7 +122,7 @@ function readLinks() {
 
 export default readLinks;
 
-const linksDirectory = linkIndexPath();
+const linksDirectory = linkIndexPath(deviceId);
 
 const indexFile = path.join(linksDirectory, 'index.json');
 const indexFile2 = path.join(linksDirectory, 'index_emergency_backup.json');

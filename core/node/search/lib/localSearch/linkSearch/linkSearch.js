@@ -1,13 +1,17 @@
 import linkResults from './linkResults';
 import readLinkIndex from './readLinkIndex';
 
+import dmt from 'dmt/bridge';
+
+const deviceId = dmt.device({ onlyBasicParsing: true }).id;
+
 function linkSearch({ terms, page = 1, count }) {
   const maxResults = count;
 
   const initialResultsToIgnore = (page - 1) * maxResults;
 
   return new Promise(success => {
-    const linkIndex = readLinkIndex({ useBackup: true });
+    const linkIndex = readLinkIndex({ deviceId, useBackup: true });
 
     const allResults = linkResults(terms, linkIndex);
 

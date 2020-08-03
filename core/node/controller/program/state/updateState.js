@@ -14,16 +14,6 @@ class UpdateState {
     }
   }
 
-  replaceState(replacement, { announce = true } = {}) {
-    for (const key of Object.keys(replacement)) {
-      this.program.state[key] = replacement[key];
-    }
-
-    if (!this.initStatePhase && announce) {
-      this.announceStateChange();
-    }
-  }
-
   replaceStoreElement({ storeName, key, value }, { announce = true } = {}) {
     this.program.state[storeName] = this.program.state[storeName] || {};
     this.program.state[storeName][key] = value;

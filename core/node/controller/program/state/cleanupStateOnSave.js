@@ -1,8 +1,4 @@
-function cleanupStateOnLoad(state) {
-  return cleanupLegacyStateVariables(state);
-}
-
-function cleanupStateOnSave(state) {
+export default function cleanupStateOnSave(state) {
   if (state.controller) {
     delete state.controller.time;
     delete state.controller.date;
@@ -25,8 +21,13 @@ function cleanupStateOnSave(state) {
   delete state.appList;
 
   delete state.log;
-  delete state.nearbySensors;
   delete state.sysinfo;
+
+  delete state.nearbySensors;
+  delete state.nearbyDevices;
+
+  delete state.blinds;
+  delete state.deviceRestarters;
 
   if (state.player) {
     delete state.player.currentMedia;
@@ -46,9 +47,3 @@ function cleanupStateOnSave(state) {
 
   return state;
 }
-
-function cleanupLegacyStateVariables(state) {
-  return state;
-}
-
-export { cleanupStateOnLoad, cleanupStateOnSave };

@@ -47,7 +47,12 @@ function mp4 {
     do
       if [ -f "$file" ]; then
         # http://www.bugcodemaster.com/article/convert-videos-mp4-format-using-ffmpeg
-        ffmpeg -i "$file" "$file".mp4 -preset veryfast
+        ffmpeg -i "$file" "$file".mp4 -preset veryfast -loglevel quiet
+
+        # -loglevel quiet ==> to silence these warnings ....
+        # https://bbs.archlinux.org/viewtopic.php?id=205920
+        #-thread_queue_size 1024
+        # -thread_queue_size 1024 supposedly fixes https://www.reddit.com/r/ffmpeg/comments/3m5bkj/past_duration_too_large_messing_with_alsa/
       else
         echo "File $file doesn't exist"
       fi

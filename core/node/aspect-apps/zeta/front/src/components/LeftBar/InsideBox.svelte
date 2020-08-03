@@ -14,9 +14,17 @@
     sections[section].visible = !sections[section].visible;
   }
 
+  let minimized;
+
+  function minimize() {
+    minimized = true;
+  }
+
 </script>
 
-<div class="promo">
+<div class="promo" class:visible={!minimized}>
+
+  <!-- <a href="#" class="minimize" on:click={() => minimize()}>X</a> -->
 
   <h3><span class="swarm_official">{teamName.toUpperCase()}</span> 😎🏖️ <span>Summer Reading Club</span></h3>
 
@@ -63,6 +71,18 @@
     width: 400px;
 
     text-align: justify;
+
+    display: none;
+  }
+
+  .promo.visible {
+    display: block;
+  }
+
+  .promo a.minimize {
+    float: right;
+    font-weight: bold;
+    text-decoration-style: dotted
   }
 
   .promo h3 {

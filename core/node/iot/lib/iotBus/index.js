@@ -4,65 +4,35 @@ const { log } = dmt;
 
 import MqttRail from './mqttRail';
 
-import MessageDropper from './messageDropper';
-
 class IotBus extends EventEmitter {
-  constructor() {
-    super();
-
-    this.mqttRails = [];
-    this.messageDropper = new MessageDropper();
-  }
-
   init({ specialNodes, onlyAp }) {
-    this.initialized = true;
+    this.mqttRail = new MqttRail({ ip: dmt.accessPointIP });
 
-    if (specialNodes && !onlyAp) {
-      log.yellow(`IoT and push-notify ("special") nodes: ${specialNodes.length}`);
+    let firstConnect = true;
 
-      let firstConnect = true;
-
-      for (const { ip } of specialNodes) {
-        const rail = new MqttRail({ ip });
-
-        rail.on('connect', () => {
-          if (firstConnect) {
-            firstConnect = false;
-            this.emit('first_connect', { ip });
-          }
-        });
-
-        this.mqttRails.push(rail);
+    this.mqttRail.on('connect', () => {
+      if (firstConnect) {
+        firstConnect = false;
+        this.emit('first_connect', { ip: dmt.accessPointIP });
       }
-    }
-
-    const apRail = new MqttRail({ ip: dmt.accessPointIP, ensureBrokerIsAuthentic: true });
-    apRail.on('connect', () => {
-      this.emit('ap_connect', { ip: dmt.accessPointIP });
     });
-    this.mqttRails.push(apRail);
 
-    for (const mqttRail of this.mqttRails) {
-      mqttRail.on('message', ({ topic, msg }) => {
-        if (!this.messageDropper.shouldDrop({ topic, msg })) {
-          this.emit('message', { topic, msg });
-        }
-      });
-    }
+    this.mqttRail.on('message', ({ topic, msg }) => {
+      this.emit('message', { topic, msg });
+    });
   }
 
   publish({ topic, msg }) {
-    if (!this.initialized) {
-      log.debug(`Called publish on uninitialized iotBus (call init() first!)`);
+    if (!this.mqttRail) {
+      log.debug('Called publish on uninitialized iotBus (call init() first!)');
+      return;
     }
 
     if (typeof msg !== 'string') {
       msg = JSON.stringify(msg);
     }
 
-    for (const mqttRail of this.mqttRails) {
-      mqttRail.publish({ topic, msg });
-    }
+    this.mqttRail.publish({ topic, msg });
   }
 }
 

@@ -7,18 +7,32 @@
   import ResultsMetaTop from './ResultsMetaTop.svelte';
   import ResultsMetaBottom from './ResultsMetaBottom.svelte';
 
+  import { getContext } from 'svelte';
+
+  const app = getContext('app');
+
   export let loggedIn;
   export let searchResults;
   export let noSearchHits;
   export let store;
 </script>
 
-<div class="no_results" class:visible={noSearchHits}>NO HITS (FOR NOW?)
+<div class="no_results" class:visible={noSearchHits}>NO HITS
   <!-- {#if loggedIn}
     (FOR NOW?)
   {:else}
     // <span>PERHAPS TRY TO LOGIN FIRST</span>
   {/if} -->
+  {#if app.isZetaSeek}
+    <div class="meta_results">
+      <a href="?q=zeta">Read about Zeta project long term vision</a>
+      <br>
+      <br>
+      Next document coming soon:
+      <br>
+      How to add your node and search results.
+    </div>
+  {/if}
 </div>
 
 {#if searchResults}
@@ -47,14 +61,14 @@
         {#if providerResponse.results && providerResponse.results.length > 0}
           <ResultsMetaTop meta={providerResponse.meta}/>
 
-          {#each providerResponse.results as {filePath, url, title, name, context, githubReference, score, swarmBzzHash, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, isNote, notePreview, noteUrl, noteContents, noteTags}}
+          {#each providerResponse.results as { filePath, fileNote, url, title, name, context, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, isNote, notePreview, noteUrl, noteContents, noteTags }}
             <div class="result">
               {#if url}
                 <ResultLink {url} {title} {context} {score} {githubReference} {store} />
               {:else if swarmBzzHash}
                 <ResultSwarm {name} {playableUrl} {mediaType} {entryType} {prettyTime} {context} />
               {:else if filePath}
-                <ResultFs {playableUrl} {mediaType} {filePathANSI} {fileSizePretty} />
+                <ResultFs {playableUrl} {mediaType} {filePathANSI} {fileSizePretty} {fileNote} {swarmUrl} /> <!-- swarmUrl is used for files, new BEE client -->
               {:else if isNote}
                 <ResultNote {noteUrl} {notePreview} {noteTags} />
               {:else}
@@ -91,7 +105,7 @@
   }
 
   .result {
-    padding: 3px 0;
+    padding: 2px 0;
   }
 
   .search_error {
@@ -148,6 +162,15 @@
   }
 
   .no_results span {
+    color: var(--dmt-bright-cyan);
+  }
+
+  .meta_results {
+    padding-top: 5px;
+  }
+
+  .meta_results a {
+    text-decoration: underline;
     color: var(--dmt-bright-cyan);
   }
 

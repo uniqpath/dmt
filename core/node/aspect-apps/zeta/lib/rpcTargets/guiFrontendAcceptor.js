@@ -10,16 +10,20 @@ class GUIFrontendAcceptor {
     this.channel = channel;
   }
 
-  getUserIdentity({ address, urlHostname }) {
-    if (!address) {
+  getUserIdentity({ ethAddress, urlHostname }) {
+    if (!ethAddress) {
       push.notify('WARNING: getUserIdentity called with empty address');
     }
 
     if (urlHostname != 'localhost') {
-      log.write(`Login with ${address}`);
+      log.write(`Login with ${ethAddress}`);
     }
 
-    return this.backendStore.getUserIdentity(address);
+    return this.backendStore.getUserIdentity(ethAddress);
+  }
+
+  emitProgramEvent(name, data) {
+    this.program.emit(name, data);
   }
 
   saveUserProfile(options) {

@@ -27,10 +27,8 @@ class Connector extends EventEmitter {
 
     this.sentCount = 0;
     this.receivedCount = 0;
-  }
 
-  isReady() {
-    return this.ready;
+    this.successfulConnectsCount = 0;
   }
 
   send(data) {
@@ -43,30 +41,54 @@ class Connector extends EventEmitter {
     this.receivedCount += 1;
   }
 
+  isReady() {
+    return this.ready;
+  }
+
   closed() {
     return !this.connected;
   }
 
-  connectStatus(connected) {
-    this.connected = connected;
+  decommission() {
+    this.decommissioned = true;
+  }
 
+  connectStatus(connected) {
     if (connected) {
       this.sentCount = 0;
       this.receivedCount = 0;
+
+      this.connected = true;
+
+      console.log(`Connector ${this.address} CONNECTED`);
+
+      this.successfulConnectsCount += 1;
+
+      const num = this.successfulConnectsCount;
 
       this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, protocolLane: this.protocolLane })
         .then(({ sharedSecret, sharedSecretHex }) => {
           this.ready = true;
           this.emit('ready', { sharedSecret, sharedSecretHex });
+
+          console.log(`Connector ${this.address} READY`);
         })
         .catch(e => {
-          console.log(e);
-          console.log('dropping connection and retrying again ...');
-          this.close();
+          if (num == this.successfulConnectsCount) {
+            console.log(e);
+            console.log('dropping connection and retrying again');
+            this.connection.terminate();
+          }
         });
     } else {
+      if (this.connected) {
+        this.emit('disconnected');
+      }
+
+      console.log(`Connector ${this.address} DISCONNECTED, setting READY to false`);
+
+      this.connected = false;
       this.ready = false;
-      this.emit('disconnected');
     }
   }
 
@@ -119,18 +141,6 @@ class Connector extends EventEmitter {
 
   remoteIp() {
     return this.address;
-  }
-
-  close() {
-    this.connection.websocket.close();
-  }
-
-  closeAndDontReopenUNUSED() {
-    this.connection.closedManually = true;
-    this.connection.websocket.onclose = () => {};
-
-    this.connectStatus(false);
-    this.connection.websocket.close();
   }
 }
 

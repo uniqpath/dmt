@@ -52,6 +52,7 @@
   $: isAdmin = $loginStore.isAdmin; // hmm ...
   $: userTeams = $loginStore.userTeams; // hmm ...
 
+  // duplicate
   $: displayName = userName || userIdentity;
 
   //this.menuBar = { PANELS: ['Profile', 'My Links'] };
@@ -60,6 +61,9 @@
   let searchQuery;
 
   searchQuery = Url.parseQuery().q;
+
+  let errorCode;
+  errorCode = Url.parseQuery().code;
 
   if (searchQuery) {
     searchQuery = decodeURIComponent(searchQuery);
@@ -74,7 +78,7 @@
       setTimeout(() => {
         // after the input field is hopefully connected (and thus not :disabled... so that focusing the field will work...)
         searchInput.focus();
-      }, 700);
+      }, 1000);
     }
 
     setTimeout(() => {
@@ -86,12 +90,26 @@
 
   function searchInputChanged() {
     console.log('searchInputChanged event received, triggering search ...');
-    triggerSearch();
+    triggerSearch({ userActivated: true });
   }
 
-  function triggerSearch({ force = false } = {}) {
+  function placeSearch(query) {
+    searchQuery = query;
+    setTimeout(() => {
+      triggerSearch({ userActivated: true });
+    }, 50);
+  }
+
+  function triggerSearch({ force = false, userActivated = false } = {}) {
     // BECAUSE IT IS NOT ALWAYS BOUND !! (especially at first load) ... we read it manually ...
     searchQuery = document.getElementById('search_input').value;
+
+    // we have to do this because <svelte head> is static -- only on first load! -- (?)
+    if (searchQuery) {
+      document.title = `${searchQuery} — zetaseek`;
+    } else {
+      document.title = 'zetaseek engine';
+    }
 
     console.log(`triggerSearch: ${searchQuery}`);
 
@@ -104,6 +122,12 @@
       isSearching = searching;
       noSearchHits = noHits;
     };
+
+    // remove error after first user input
+    if (userActivated && errorCode) {
+      errorCode = undefined;
+      Url.updateSearchParam('code'); // delete
+    }
 
     if (connected) {
       //console.log(`Sending search query: ${searchQuery}`);
@@ -154,19 +178,15 @@
   // }
 </script>
 
-<svelte:head>
-  <!-- {#if isZetaSeek} -->
+<!-- not useful, does not actually change as searchQuery changes after the initial load... not reactive -->
+<!-- we do it by setting document.title instead -->
+<!-- <svelte:head>
     {#if searchQuery}
       <title>zetaseek engine · {searchQuery}</title>
-      <!-- <meta property="og:title" content="zetaseek engine · {searchQuery}" /> -->
     {:else}
       <title>zetaseek engine</title>
-      <!-- <meta property="og:title" content="zetaseek engine" /> -->
     {/if}
-  <!-- {:else}
-    <title>search</title> -->
-  <!-- {/if} -->
-</svelte:head>
+</svelte:head> -->
 
 <!-- {#if isLocalhost && deviceName == 'eclipse'} -->
 
@@ -175,7 +195,7 @@
 {/if} -->
 
 <!-- {#if (isLocalhost && deviceName == 'eclipse') || isZetaSeek} -->
-{#if isLocalhost || loggedIn}
+{#if isLocalhost || isZetaSeek}
   <LeftBar {connected} {loggedIn} {metamaskConnect} {displayName} {loginStore} {store} {searchQuery} {deviceName} />
 {/if}
 
@@ -183,16 +203,17 @@
 <!-- {#if (isLocalhost && deviceName == 'eclipse') || (isZetaSeek && (!isMobile || (isMobile && !searchQuery)))} -->
 <!-- !searchQuery && -->
 <!-- as a test on dev machine and on zetaseek but on mobile only if there are no search results -->
-{#if ((isLocalhost && deviceName == 'eclipse') || (isZetaSeek && (!isMobile || (isMobile && !searchQuery))))}
-  <About />
-{/if}
+<!-- {#if ((isLocalhost && deviceName == 'eclipse') || (isZetaSeek && (!isMobile || (isMobile && !searchQuery))))} -->
+<About {isMobile} />
+<!-- {/if} -->
 
 <main>
 
-  {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')}
+  <!-- {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')} -->
+  {#if isZetaSeek}
     <Login {connected} {metamaskConnect} {ethAddress} {displayName} {isAdmin} />
-  {:else}
-    <Escape />
+  <!-- {:else}
+    <Escape /> -->
   {/if}
 
   <div class="logo">
@@ -201,9 +222,9 @@
       {#if isZetaSeek}
         <img src={`/apps/zeta/img/zetaseek_logo.png?v=2`} alt="zeta logo">
       {:else if isLocalhost}
-        <span></span>🔬localseek
+        <span>— </span><!-- <img src={`/apps/zeta/img/zeta_icon.png?v=2`} style="width: 30px; margin-bottom: 0;" alt="zeta logo"> --> SEARCH <span>—</span><!-- 🔬 --><!-- <img src="/apps/zeta/favicon.png" style="width: 100px;"> -->
       {:else}
-        🔬{window.location.host}
+        <span></span>{window.location.hostname}<span></span>
       {/if}
     </a>
   </div>
@@ -227,10 +248,44 @@
         {:else} <!-- not logged in -->
           <!-- The secret realm awaits. -->
           <!-- <img src="/favicon.png" width="15px">  -->
-          More knowledge, more possibilities.
+          {#if window.location.hostname == 'david.zetaseek.com'}
+            Welcome to my engine.
+          {:else if window.location.hostname == 'griff.zetaseek.com'}
+            [ Buidling the future ]
+          {:else if window.location.hostname == 'sebastjan.zetaseek.com'}
+            [ Polymaths shall inherit the Earth ]
+          {:else}
+            More knowledge, more possibilities.
+          {/if}
           <!-- See further, do more. -->
         {/if}
       </p>
+    {/if}
+
+    <!-- SECTION TO EXTRACT -->
+
+    {#if isZetaSeek}
+      <div class="search_suggestions">
+        <span class="info">Try ≡</span>
+        <!-- todo: improve duplication here!! -->
+        <!-- <a href="#" on:click|preventDefault={() => placeSearch('Three Types of People')}>Three Types of People</a> <span>·</span> -->
+        <!-- <a href="#" on:click|preventDefault={() => placeSearch('gpt3')}>GPT3</a> <span>·</span> -->
+        <a href="#" on:click|preventDefault={() => placeSearch('DeFi')}>DeFi</a> <span>·</span>
+        <a href="#" on:click|preventDefault={() => placeSearch('NFT')}>NFT</a> <span>·</span>
+        <a href="#" on:click|preventDefault={() => placeSearch('Swarm Bee')}>Swarm Bee</a> <span>·</span>
+        <a href="#" on:click|preventDefault={() => placeSearch('Modern Renaissance')}>Modern Renaissance</a> <span>·</span>
+        <a href="#" on:click|preventDefault={() => placeSearch('Eth Scaling')}>Eth Scaling</a>
+        <!-- <a href="#" on:click|preventDefault={() => placeSearch('Astropilot')}>Astropilot ♪♫♬</a> <span>·</span> -->
+        <!-- <a href="#" class="special" on:click|preventDefault={() => placeSearch('Zeta')}>Zeta</a> -->
+      </div>
+    {/if}
+
+    {#if errorCode == 'file_not_found'}
+      <br>
+
+      <div class="error">
+        ⚠️ Requested file was renamed or moved {#if !noSearchHits} but perhaps one of the following results matches:{/if}
+      </div>
     {/if}
 
     <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} />
@@ -312,6 +367,17 @@
     color: var(--dmt-cool-cyan2);
   }
 
+  .error {
+    font-size: 0.8em;
+    padding: 2px 4px;
+    border-radius: 3px;
+    /*background-color: var(--dmt-warning-pink);
+    color: #333;*/
+    color: var(--dmt-warning-pink);
+    display: inline-block;
+    margin-top: 20px;
+  }
+
   input#search_input {
     width: 330px;
     margin: 0 auto;
@@ -337,9 +403,49 @@
     color: var(--dmt-cool-cyan);
   }
 
+  .search_suggestions {
+    margin-top: 20px;
+    font-size: 0.8em;
+    /*color: var(--zeta-green);*/
+    /*color: var(--dmt-cool-cyan);*/
+    /*color: var(--dmt-orange);*/
+  }
+
+  .search_suggestions, .search_suggestions a {
+    color: #A0A9D4;
+  }
+
+  .search_suggestions a.special {
+    /*color: var(--dmt-cool-cyan);*/
+    /*color: var(--zeta-green);*/
+    color: white;
+  }
+
+  .search_suggestions a {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+  }
+
+  .search_suggestions a:hover {
+    text-decoration-style: solid;
+  }
+
+  .search_suggestions .info {
+    color: var(--dmt-warning-pink);
+  }
+
+  .search_suggestions span {
+    color: white;
+  }
+
   @media only screen and (max-width: 768px) {
     main {
       padding-top: 30px;
+    }
+
+    .logo {
+      width: 300px;
+      font-size: 0.8em;
     }
 
     .logo img {

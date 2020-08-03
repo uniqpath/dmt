@@ -14,6 +14,8 @@
 
   $: activeDeviceId = controller ? controller.deviceName : null;
 
+  //const usualDeviceList = ['kitchen', 'midroom', 'outside', 'living-room', 'tv', 'dpanel', 'lab'];
+
   let searchTerms;
 
   // METHODS :::

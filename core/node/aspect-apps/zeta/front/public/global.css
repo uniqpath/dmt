@@ -10,16 +10,6 @@ body {
   src: url('fonts/Avenir-Book.otf') format('opentype');
 }
 
-@font-face {
-  font-family: Inconsolata;
-  src: url('fonts/Inconsolata-Regular.ttf') format('opentype');
-}
-
-@font-face {
-  font-family: OpenSans;
-  src: url('fonts/OpenSans-Light.ttf') format('opentype');
-}
-
 body {
   color: #333;
   margin: 0;

@@ -18,23 +18,23 @@
 
   <!-- <a href="#" class="minimize" on:click={() => minimize()}>X</a> -->
 
-  <h3><span>Zeta Discord Community</span></h3>
+  <h3><span>Zeta Writings</span></h3>
 
   <div class="inner">
 
-      <a href="https://discord.gg/XvJzmtF"><img class="icon" src="/apps/zeta/img/discord.svg"><br>JOIN THE DISCUSSION</a>
+      <a href="https://zetaseek.com/?q=zeta"><img class="banner" src="/apps/zeta/img/zeta_banner.png">
+        <br>
+
+      Read pdf documents searchable via Zeta engine itself.</a>
 
       <!-- <p>
         This link is almost not promoted (this is more or less the only place), congratulations if you have found it!
       </p> -->
 
-      <p>
-        We move slowly but we keep on moving! 🐍
-      </p>
+      <br>
+      <br>
 
-      <p>
-        First 100 members get a special NFT token.
-      </p>
+      This is where we share our goals and aspirations.
 
   </div>
 </div>
@@ -74,8 +74,8 @@
     opacity: 0.9;
   }
 
-  img.icon {
-    width: 140px;
+  img.banner {
+    width: 400px;
   }
 
   .promo h3 {

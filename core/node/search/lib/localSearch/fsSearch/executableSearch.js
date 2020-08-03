@@ -4,6 +4,10 @@ const { log, util } = dmt;
 import colors from 'colors';
 import { spawn } from 'child_process';
 
+import stripAnsi from 'strip-ansi';
+
+import pathModule from 'path';
+
 export default function executableSearch(binary, { terms, path, noColor, mediaType, page = 1, maxResults }, processLineCallback) {
   if (!maxResults) {
     throw new Error('executableSearch: maxResults is undefined, must provide maxResults argument');
@@ -39,7 +43,16 @@ export default function executableSearch(binary, { terms, path, noColor, mediaTy
     const lines = data
       .toString()
       .split('\n')
-      .filter(line => line.trim() != '' && !line.endsWith('.DS_Store'));
+      .filter(line => {
+        const filePath = stripAnsi(line);
+        return (
+          filePath.trim() != '' &&
+          !filePath.endsWith('.DS_Store') &&
+          !(pathModule.basename(filePath).startsWith('~$') && filePath.endsWith('.docx')) &&
+          !filePath.endsWith('.zeta.txt') &&
+          !filePath.endsWith('.zeta.json')
+        );
+      });
 
     if (resultsSoFar < page * maxResults) {
       const resultsToIgnore = Math.max(0, initialResultsToIgnore - resultsSoFar);

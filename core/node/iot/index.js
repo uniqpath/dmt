@@ -48,6 +48,10 @@ function init(program) {
 
   program.on('action', ({ action, storeName, payload }) => {
     if (storeName == 'iot') {
+      if (typeof payload != 'string') {
+        payload = JSON.stringify(payload);
+      }
+
       iotBus.publish({ topic: action, msg: payload });
     }
   });

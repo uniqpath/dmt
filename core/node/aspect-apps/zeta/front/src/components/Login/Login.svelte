@@ -31,13 +31,13 @@
       </a>
       <br>
       <b>CONNECT</b>
-      {#if app.isZetaSeek}
+      <!-- {#if app.isZetaSeek}
         <div class="explain">
           <span>
             We invite you to the path of enjoyable exploration and collaborative innovation.
           </span>
         </div>
-      {/if}
+      {/if} -->
     </div>
   {:else}
     <DisplayMetamaskInvite />

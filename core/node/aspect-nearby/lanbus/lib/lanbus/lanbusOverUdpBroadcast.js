@@ -40,11 +40,6 @@ class LanBusOverUdpBroadcast extends EventEmitter {
   }
 
   broadcastMessage(msgJson) {
-    const ip = this.program.state.controller ? this.program.state.controller.ip : null;
-    if (ip) {
-      msgJson.ip = ip;
-    }
-
     const msg = JSON.stringify(msgJson);
 
     this.udpBus

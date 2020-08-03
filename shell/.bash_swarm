@@ -18,12 +18,23 @@ function swarm_upload_single_file() {
 
   if [ -f "$file" ]; then
     printf "Uploading ${YELLOW}$file${NC} to ${MAGENTA}Swarm${NC}\n"
-    local result=$(swarm up "$file")
-    echo "$result"
+    curl -F file=@"$file" http://localhost:8080/files
   else
     printf "⚠️  Error: file ${YELLOW}${file}${NC} ${RED}does not exist.${NC}\n"
   fi
 }
+
+# function swarm_upload_single_file() {
+#   local file="$1"
+
+#   if [ -f "$file" ]; then
+#     printf "Uploading ${YELLOW}$file${NC} to ${MAGENTA}Swarm${NC}\n"
+#     local result=$(swarm up "$file")
+#     echo "$result"
+#   else
+#     printf "⚠️  Error: file ${YELLOW}${file}${NC} ${RED}does not exist.${NC}\n"
+#   fi
+# }
 
 function swarm_upload {
   if [ -f "$1" ]; then

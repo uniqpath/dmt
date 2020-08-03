@@ -1,5 +1,3 @@
-import cliResolveIp from './lib/cliResolveIp';
-
 import Nearby from './lib/nearby';
 
 function init(program) {
@@ -8,4 +6,4 @@ function init(program) {
   program.on('lanbus:ready', lanbus => nearby.registerLanbus(lanbus));
 }
 
-export { init, cliResolveIp };
+export { init };

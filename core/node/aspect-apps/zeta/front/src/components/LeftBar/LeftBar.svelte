@@ -28,6 +28,7 @@
   import InsideBox from './InsideBox.svelte';
   import TeamBox from './TeamBox.svelte';
   import ZetaDiscord from './ZetaDiscord.svelte';
+  import ZetaDocuments from './ZetaDocuments.svelte';
 
 </script>
 
@@ -42,13 +43,15 @@
 
     <!-- {#if loggedIn} -->
 
-      {#if app.isLocalhost || loggedIn}
+      <!-- {#if app.isLocalhost || loggedIn} -->
 
         <MenuBar {connected} {loggedIn} {store} />
 
       <!-- {#if (app.isLocalhost && deviceName == 'eclipse') || app.isZetaSeek} -->
-        {#if panels['Profile']}
-          <Profile {connected} {loginStore} {store} />
+        {#if app.isLocalhost || loggedIn}
+          {#if panels['Profile']}
+            <Profile {connected} {loginStore} {store} />
+          {/if}
         {/if}
 
         {#if panels['Swarm Promo']}
@@ -57,10 +60,13 @@
         {/if}
 
         {#if panels['Zeta Discord']}
-          <!-- <Profile {connected} {loginStore} {store} /> -->
           <ZetaDiscord />
         {/if}
-      {/if}
+
+        {#if panels['Zeta Documents']}
+          <ZetaDocuments />
+        {/if}
+      <!-- {/if} -->
         <!-- {#if connected}
           {#if userTeams && userTeams.includes('zeta')} --- todo -- one teambox for each team
             <TeamBox {displayName} teamName='ZetaTeam' />
@@ -72,6 +78,12 @@
 
     <!-- {/if} -->
 
+    <!-- {#if !app.isLocalhost && !loggedIn} -->
+    <!-- <p class="more_inside">
+      More inside
+    </p> -->
+    <!-- {/if} -->
+
 </div>
 
 <style>
@@ -81,15 +93,11 @@
     left: 0px;
 
     color: white;
-
-    /*padding: 10px;
-    padding-top: 0;
-    font-size: 0.8em;
-    border-bottom-right-radius: 10px;
-    color: #232527;
-    background-color: #A4938B;
-    background-color: #9EC6EA;*/
   }
+
+  /*.more_inside {
+    margin-left: 30px;
+  }*/
 
   :global(.leftbar a) {
     color: #333;

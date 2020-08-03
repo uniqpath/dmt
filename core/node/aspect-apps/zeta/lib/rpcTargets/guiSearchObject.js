@@ -8,7 +8,9 @@ class GUISearchObject {
     this.channel = channel;
   }
 
-  search({ query, searchOriginHost, searchMetadata }) {
+  search({ query, searchMetadata }) {
+    const { searchOriginHost } = searchMetadata;
+
     return new Promise(success => {
       const { terms, mediaType, count, page, atDevices } = parseSearchQuery({ query });
 
@@ -35,8 +37,8 @@ class GUISearchObject {
     });
   }
 
-  trackClick({ url }) {
-    this.program.emit('zeta::link_click', { url });
+  trackClick({ url, clickMetadata }) {
+    this.program.emit('zeta::link_click', { url, clickMetadata });
   }
 }
 

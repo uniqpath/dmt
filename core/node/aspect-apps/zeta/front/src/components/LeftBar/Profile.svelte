@@ -39,12 +39,20 @@
     editMode = false;
   }
 
+  let minimized;
+
+  function minimize() {
+    minimized = true;
+  }
+
 </script>
 
-<div class="profile">
+<div class="profile" class:visible={!minimized}>
   <!-- <a href="#"> -->
     <!-- <img src="/apps/zeta/img/alien.png" alt="alien" /> -->
   <!-- </a> -->
+
+  <!-- <a href="#" class="minimize" on:click={() => minimize()}>X</a> -->
 
   <h3>Profile</h3>
 
@@ -105,6 +113,18 @@
     width: 400px;
 
     text-align: justify;
+
+    display: none;
+  }
+
+  .profile.visible {
+    display: block;
+  }
+
+  .profile a.minimize {
+    float: right;
+    font-weight: bold;
+    text-decoration-style: dotted
   }
 
   .profile input {

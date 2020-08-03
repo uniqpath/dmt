@@ -51,7 +51,7 @@ cd lighttpd
 latest_tag
 
 sudo apt-get update
-sudo apt-get build-dep lighttpd
+sudo apt-get -y build-dep lighttpd
 
 ./autogen.sh
 

@@ -5,6 +5,8 @@ import { settings } from 'dmt/search';
 import dmt from 'dmt/bridge';
 const { prettyFileSize, log, util } = dmt;
 
+import pathModule from 'path';
+
 import stripAnsi from 'strip-ansi';
 
 import executableSearch from './executableSearch';
@@ -44,12 +46,32 @@ function searchOnePath({ path, terms, page, maxResults, mediaType }) {
             const filePath = stripAnsi(filePathANSI);
             const fileSize = fs.statSync(filePath).size;
 
-            return {
+            const data = {
               filePath,
               filePathANSI,
               fileSize,
               fileSizePretty: prettyFileSize(fileSize)
             };
+
+            const filePathWithoutExtension = filePath.slice(0, filePath.length - pathModule.extname(filePath).length);
+            const noteFilePath = `${filePathWithoutExtension}.zeta.txt`;
+
+            if (fs.existsSync(noteFilePath)) {
+              const fileNote = fs.readFileSync(noteFilePath).toString();
+              Object.assign(data, { fileNote });
+            }
+
+            const fileJsonMetadataPath = `${filePathWithoutExtension}.zeta.json`;
+
+            if (fs.existsSync(fileJsonMetadataPath)) {
+              const fileMetadata = JSON.parse(fs.readFileSync(fileJsonMetadataPath).toString());
+              Object.assign(data, fileMetadata);
+              if (data.swarmBeeHash) {
+                data.swarmUrl = `https://gateway.ethswarm.org/files/${data.swarmBeeHash}`;
+              }
+            }
+
+            return data;
           })
           .filter(Boolean);
 

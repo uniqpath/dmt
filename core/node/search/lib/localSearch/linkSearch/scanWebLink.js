@@ -10,11 +10,7 @@ import latestLinkIndexVersion from './linkIndexVersion';
 
 import getGitHubLink from './getGitHubLink';
 
-import readLinkIndex from './readLinkIndex';
-
-const existingLinkIndex = readLinkIndex();
-
-export default function scanWebLink({ url, context, filePath, githubLineNum }) {
+export default function scanWebLink({ existingLinkIndex, url, context, filePath, githubLineNum }) {
   return new Promise((success, reject) => {
     const hiddenContext = path.basename(filePath);
 

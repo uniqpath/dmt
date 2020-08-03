@@ -6,6 +6,11 @@ function streamFile({ channel, filePath, sessionId }) {
   import('fs').then(fs => {
     import('path').then(path => {
       loadModule('mime').then(mimeModule => {
+        if (!fs.existsSync(filePath)) {
+          channel.send(JSON.stringify({ tag: 'file_not_found', sessionId }));
+          return;
+        }
+
         const mimeType = mimeModule.default.lookup(filePath);
 
         const contentLength = fs.statSync(filePath).size;

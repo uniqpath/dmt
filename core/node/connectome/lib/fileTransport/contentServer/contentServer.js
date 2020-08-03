@@ -12,6 +12,16 @@ const sha256 = x =>
     .update(x, 'utf8')
     .digest('hex');
 
+function fileNotFound({ providerAddress, fileName, res, host }) {
+  console.log(`File not found: ${providerAddress} -- ${fileName}`);
+  let pre = '';
+  if (host.startsWith('localhost')) {
+    pre = 'apps/zeta/';
+  }
+
+  res.redirect(`/${pre}?q=${fileName}&code=file_not_found`);
+}
+
 function contentServer({ app, fiberPool, defaultPort, emitter }) {
   log('Starting content server ...');
 
@@ -19,74 +29,89 @@ function contentServer({ app, fiberPool, defaultPort, emitter }) {
     throw new Error('Must provide default fiber port for content server ...');
   }
 
-  import('path').then(path => {
-    app.use('/file', (req, res) => {
-      const { place } = req.query;
+  import('fs').then(fs => {
+    import('path').then(path => {
+      app.use('/file', (req, res) => {
+        const { place } = req.query;
 
-      log(`Received content request ${place}`);
+        const { host } = req.headers;
 
-      if (place && place.includes('-')) {
-        const [providerAddress, _directory] = place.split('-');
-        const directory = decode(_directory);
-        const fileName = decodeURIComponent(req.path.slice(1));
-        const filePath = path.join(directory, fileName);
+        log(`Received content request ${place}`);
 
-        if (emitter) {
-          emitter.emit('file_request', { providerAddress, filePath });
-        }
+        if (place && place.includes('-')) {
+          const [providerAddress, _directory] = place.split('-');
+          const directory = decode(_directory);
+          const fileName = decodeURIComponent(req.path.slice(1));
+          const filePath = path.join(directory, fileName);
 
-        if (providerAddress == 'localhost') {
-          res.sendFile(filePath);
-          return;
-        }
+          if (emitter) {
+            emitter.emit('file_request', { providerAddress, filePath, host });
+          }
 
-        const sessionId = sha256(Math.random().toString());
+          if (providerAddress == 'localhost') {
+            if (fs.existsSync(filePath)) {
+              res.sendFile(filePath);
+            } else {
+              fileNotFound({ providerAddress, fileName, res, host });
+            }
 
-        let ip;
-        let port;
+            return;
+          }
 
-        if (providerAddress.includes(':')) {
-          const [_ip, _port] = providerAddress.split(':');
-          ip = _ip;
-          port = _port;
+          const sessionId = sha256(Math.random().toString());
+
+          let ip;
+          let port;
+
+          if (providerAddress.includes(':')) {
+            const [_ip, _port] = providerAddress.split(':');
+            ip = _ip;
+            port = _port;
+          } else {
+            ip = providerAddress;
+            port = defaultPort;
+          }
+
+          fiberPool
+            .getConnector(ip, port)
+            .then(connector => {
+              const context = { sessionId, res, connector };
+
+              connector.on('file_not_found', ({ sessionId }) => {
+                if (context.sessionId == sessionId) {
+                  fileNotFound({ providerAddress, fileName, res, host });
+                }
+              });
+
+              const binaryStartCallback = handleBinaryStart.bind(context);
+              connector.on('binary_start', binaryStartCallback);
+
+              const binaryDataCallback = handleBinaryData.bind(context);
+              connector.on('binary_data', binaryDataCallback);
+
+              const binaryEndCallback = handleBinaryEnd.bind(context);
+              connector.on('binary_end', binaryEndCallback);
+
+              const expandedContext = Object.assign(context, {
+                attachedCallbacks: { start: binaryStartCallback, data: binaryDataCallback, end: binaryEndCallback }
+              });
+
+              connector.send({ tag: 'request_file', filePath, sessionId });
+
+              res.once('drain', () => {
+                log('DRAIN!!!');
+              });
+
+              setTimeout(dropLingeringConnection.bind(expandedContext), 60 * 1000);
+              log(`Fiber-Content /get handler with SID=${sessionId} finished, fileName=${fileName}.`);
+            })
+            .catch(e => {
+              res.status(503).send(e.message);
+            });
         } else {
-          ip = providerAddress;
-          port = defaultPort;
+          res.status(404).send('Wrong file reference format, should be [ip]-[encodedRemoteDir]');
         }
-
-        fiberPool
-          .getConnector(ip, port)
-          .then(connector => {
-            const context = { sessionId, res, connector };
-
-            const binaryStartCallback = handleBinaryStart.bind(context);
-            connector.on('binary_start', binaryStartCallback);
-
-            const binaryDataCallback = handleBinaryData.bind(context);
-            connector.on('binary_data', binaryDataCallback);
-
-            const binaryEndCallback = handleBinaryEnd.bind(context);
-            connector.on('binary_end', binaryEndCallback);
-
-            const expandedContext = Object.assign(context, {
-              attachedCallbacks: { start: binaryStartCallback, data: binaryDataCallback, end: binaryEndCallback }
-            });
-
-            connector.send({ tag: 'request_file', filePath, sessionId });
-
-            res.once('drain', () => {
-              log('DRAIN!!!');
-            });
-
-            setTimeout(dropLingeringConnection.bind(expandedContext), 60 * 1000);
-            log(`Fiber-Content /get handler with SID=${sessionId} finished, fileName=${fileName}.`);
-          })
-          .catch(e => {
-            res.status(503).send(e.message);
-          });
-      } else {
-        res.status(404).send('Wrong file reference format, should be [ip]-[encodedRemoteDir]');
-      }
+      });
     });
   });
 }

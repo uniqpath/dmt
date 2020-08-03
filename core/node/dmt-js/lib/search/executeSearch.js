@@ -34,10 +34,6 @@ function executeSearch({ searchQuery, remoteObject, remoteMethod, searchMetadata
     }
 
     try {
-      console.log('prevQuery:');
-      console.log(prevQuery);
-      console.log(`force: ${force}`);
-
       if (force || queryDifferentEnough({ searchQuery, prevQuery })) {
         clearTimeout(executeQueryTimeout);
 
@@ -50,8 +46,11 @@ function executeSearch({ searchQuery, remoteObject, remoteMethod, searchMetadata
 
           console.log(`Search executed on remote object: ${searchQuery}`);
 
+          const searchOriginHost = window.location.host;
+          Object.assign(searchMetadata, { searchOriginHost });
+
           remoteObject
-            .call(remoteMethod, { query: normalizeQuery(searchQuery), searchOriginHost: window.location.host, searchMetadata })
+            .call(remoteMethod, { query: normalizeQuery(searchQuery), searchMetadata })
             .then(searchResults => {
               const lastTimeTag = timeTags[timeTags.length - 1];
 

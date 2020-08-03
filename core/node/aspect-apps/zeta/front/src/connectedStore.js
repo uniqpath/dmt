@@ -21,11 +21,21 @@ class ConnectedStore extends stores.ConnectedStore {
     });
   }
 
-  loginAddress(ethAddress) {
+  emitProgramEvent(name, data) {
     this.remoteObject('GUIFrontendAcceptor')
-      .call('getUserIdentity', { address: ethAddress, urlHostname: window.location.hostname })
+      .call('emitProgramEvent', [name, data])
+      .catch(console.log);
+  }
+
+  loginAddress(ethAddress) {
+    const data = { ethAddress, urlHostname: window.location.hostname };
+
+    this.remoteObject('GUIFrontendAcceptor')
+      .call('getUserIdentity', data)
       .then(identity => {
         this.loginStore.set(identity);
+
+        this.emitProgramEvent('zeta::login', { ...identity, ...data });
       })
       .catch(console.log);
   }

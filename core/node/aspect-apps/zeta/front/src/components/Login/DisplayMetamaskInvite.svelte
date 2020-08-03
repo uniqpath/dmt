@@ -20,14 +20,14 @@
 
   {#if app.isZetaSeek}
     <div class="explain">
-      When you login with truly revolutionary MetaMask identity, you get to know more about this project as well.
-      <br><br>
-      <span>
+      <!-- When you login with truly revolutionary MetaMask identity, you get to know more about this project as well.
+      <br><br> -->
+      <!-- <span>
         We invite you to the path of enjoyable exploration and collaborative innovation.
       </span>
       <span class="cyan">
-        Welcome to the strange realm.
-      </span>
+        Come explore the edges!
+      </span> -->
     </div>
   {/if}
 </div>

@@ -26,7 +26,7 @@ export default function initStore(program, device) {
   }
 
   if (dmt.keypair()) {
-    store.updateState({ controller: { pubkey: dmt.keypair().publicKeyHex } }, { announce: false });
+    store.updateState({ controller: { deviceKey: dmt.keypair().publicKeyHex } }, { announce: false });
   }
 
   const guiServiceDef = dmt.services('gui');

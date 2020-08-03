@@ -9326,7 +9326,10 @@ var app = (function (crypto) {
             } else if (jsonData.tag) {
               const msg = jsonData;
 
-              if (msg.tag == 'binary_start') {
+              if (msg.tag == 'file_not_found') {
+                //console.log(`received binary_start from (remote) content server, sessionId: ${msg.sessionId}`);
+                connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
+              } else if (msg.tag == 'binary_start') {
                 //console.log(`received binary_start from (remote) content server, sessionId: ${msg.sessionId}`);
                 connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
               } else if (msg.tag == 'binary_end') {
@@ -10023,10 +10026,10 @@ var app = (function (crypto) {
 
         this.sentCount = 0;
         this.receivedCount = 0;
-      }
 
-      isReady() {
-        return this.ready;
+        this.successfulConnectsCount = 0;
+
+        // this.connection = .... // this gets set externally in connect() method (establishAndMaintainConnection)
       }
 
       send(data) {
@@ -10039,35 +10042,75 @@ var app = (function (crypto) {
         this.receivedCount += 1;
       }
 
+      isReady() {
+        return this.ready;
+      }
+
       // channel has this method and connector also has to have it so that rpc client can detect and warn us
       closed() {
         return !this.connected;
       }
 
+      decommission() {
+        this.decommissioned = true;
+      }
+
       connectStatus(connected) {
-        this.connected = connected;
+        // setTimeout(() => {
+        //   this.connection.terminate();
+        // }, 1000);
 
         if (connected) {
           this.sentCount = 0;
           this.receivedCount = 0;
 
-          // todo: remove
+          this.connected = true;
+
+          console.log(`Connector ${this.address} CONNECTED`);
+
+          // todo: CHECK WHAT IS HAPPENING HERE
+          // if this fails (rejects), we can get stuck in limbo because connector is connected
+          // but it is not "ready" ... it becomes ready after the key exchange which hasn't happened
+          // so is it possible that on a supposedly good connection some rpc method fails ?
+
+          this.successfulConnectsCount += 1;
+
+          // this is not yet well tested...
+          // we want to force reconnect if there is a failure in key-negotiation step
+          // but we cannot just terminate connection on all previous rejects because they can cancel valid connection by mistake
+          // solution: if key negotiation fails, terminate the connection but only from the most recent reject handler
+          const num = this.successfulConnectsCount;
 
           this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, protocolLane: this.protocolLane })
             .then(({ sharedSecret, sharedSecretHex }) => {
               //console.log(colors.magenta(`Shared secret: ${colors.gray(sharedSecretHex)}`));
               this.ready = true;
               this.emit('ready', { sharedSecret, sharedSecretHex });
+
+              console.log(`Connector ${this.address} READY`);
             })
             .catch(e => {
               // Auth::exchangePubkeys request exceeded maximum allowed time... can sometimes happen on RPi ... maybe increase this time
-              console.log(e);
-              console.log('dropping connection and retrying again ...');
-              this.close();
+              // we only drop when our latest try comes back as failed
+              if (num == this.successfulConnectsCount) {
+                console.log(e);
+                console.log('dropping connection and retrying again');
+                this.connection.terminate();
+              }
+              // probably not a good idea to do it in this way because
+              // this can the drop a new connection that is currently being retried and this reject comes after 10 or more seconds after failure
+              // we hope that websocket will drop in due time and then we can try auth sequence again
+              //this.connection.terminate();
             });
         } else {
+          if (this.connected) {
+            this.emit('disconnected');
+          }
+
+          console.log(`Connector ${this.address} DISCONNECTED, setting READY to false`);
+
+          this.connected = false;
           this.ready = false;
-          this.emit('disconnected');
         }
       }
 
@@ -10132,28 +10175,24 @@ var app = (function (crypto) {
         return this.address;
       }
 
-      close() {
-        this.connection.websocket.close();
-      }
-
       // RECENTLY DONE:
       // no manual connection flag is set... we close connection here after unsuccessful diffie hellman/
       // we do want it to reopen... not sure if manual close is used somewhere??
       // TODO: if not needed, remove closedManually checks in establishAndMaintainConnection
-      closeAndDontReopenUNUSED() {
-        this.connection.closedManually = true;
-        this.connection.websocket.onclose = () => {}; // disable onclose handler first
+      // closeAndDontReopenUNUSED() {
+      //   this.connection.closedManually = true;
+      //   this.connection.websocket.onclose = () => {}; // disable onclose handler first
 
-        // the reason is to avoid this issue:
-        //// there could be problems here -- ?
-        // 1. we close the connection by calling connection.close on the connection store
-        // 2. we create a new connection which sets connected=true on our store
-        // 3. after that the previous connection actually closes and sets connected=false on our store (next line!)
-        // todo: solve if proven problematic... maybe it won't cause trouble because closeCallback will trigger immediatelly
+      //   // the reason is to avoid this issue:
+      //   //// there could be problems here -- ?
+      //   // 1. we close the connection by calling connection.close on the connection store
+      //   // 2. we create a new connection which sets connected=true on our store
+      //   // 3. after that the previous connection actually closes and sets connected=false on our store (next line!)
+      //   // todo: solve if proven problematic... maybe it won't cause trouble because closeCallback will trigger immediatelly
 
-        this.connectStatus(false);
-        this.connection.websocket.close();
-      }
+      //   this.connectStatus(false);
+      //   this.connection.websocket.close();
+      // }
 
       // connection => obj
       // freshConnection
@@ -10183,8 +10222,11 @@ var app = (function (crypto) {
 
     const browser = typeof window !== 'undefined';
 
+    const wsCONNECTING = 0;
+    const wsOPEN = 1;
+
     function establishAndMaintainConnection(
-      { obj, address, ssl = false, port, protocol, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, remotePubkey, resumeNow, verbose },
+      { address, ssl = false, port, protocol, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, remotePubkey, verbose },
       { WebSocket, log }
     ) {
       const wsProtocol = ssl ? 'wss' : 'ws';
@@ -10195,29 +10237,38 @@ var app = (function (crypto) {
       log(`Trying to connect to ws endpoint ${endpoint} ...`);
 
       // address goes into connector only for informative purposes
-      const connector = obj || new Connector({ address, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, verbose });
+      const connector = new Connector({ address, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, verbose });
 
-      if (resumeNow) {
-        // we could do without this and just wait for the next 1s check interval but this is faster and resumes connection immediately
-        checkConnection({ connector, endpoint, protocol }, { WebSocket, log, resumeNow });
-        return connector;
-      }
+      // console.log(`Obj:`);
+      // console.log(obj);
+
+      // if (resumeNow) {
+      //   // we could do without this and just wait for the next 1s check interval but this is faster and resumes connection immediately
+      //   checkConnection({ connector, endpoint, protocol }, { WebSocket, log, resumeNow });
+      //   return connector;
+      // }
 
       if (connector.connection) {
         return connector;
       }
 
-      connector.connection = {};
-      connector.connection.endpoint = endpoint; // only for logging purposes, not needed for functionality
+      connector.connection = {
+        terminate() {
+          this.websocket._removeAllCallbacks();
+          this.websocket.close(); // we don't want callbacks executed! and besides they can be executed really late after close is called under certain networking conditions!
+          connector.connectStatus(false);
+        },
+        endpoint, // only for logging purposes, not needed for functionality
+        checkTicker: 0 // gets reset to zero everytime anything comes out of the socket
+      };
 
       // so that event handlers on "connector" have time to get attached
       // we would use process.nextTick here usually but it doesn't work in browser!
       setTimeout(() => tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }), 10);
 
-      connector.connection.checkTicker = 0; // gets reset to zero everytime anything comes out of the socket
-
-      // we check once per second, if process on the other side closed connection, we will detect this within one second
-      // if network went down, we will need maximum 10-12s to determine the other side is now disconnected
+      // if process on the other side closed connection, we will detect immediately (websocket closes)
+      // if device drops from network, we won't detect this, but will know by missed pings
+      // 6 * 1500ms = 9s
       //
       // Technical explanation:
       //
@@ -10225,9 +10276,9 @@ var app = (function (crypto) {
       // the client unaware of the broken state of the connection (e.g. when pulling the cord).
       // In these cases ping messages can be used as a means to verify that the remote endpoint is still responsive.
       //
-      const connectionCheckInterval = 1000;
+      const connectionCheckInterval = 1500;
       const callback = () => {
-        if (!connector.connection.closedManually) {
+        if (!connector.decommissioned) {
           checkConnection({ connector, endpoint, protocol }, { WebSocket, log });
           setTimeout(callback, connectionCheckInterval);
         }
@@ -10243,17 +10294,19 @@ var app = (function (crypto) {
     // reconnectPaused =>
     // we still send pings, observe connected state and do everything,
     // the only thing we don't do is that we don't try to reconnect (create new WebSocket -> because this is resource intensive and it shows in browser log in red in console)
-    function checkConnection({ connector, endpoint, protocol }, { WebSocket, log, resumeNow }) {
+    function checkConnection({ connector, endpoint, protocol }, { WebSocket, log }) {
       const conn = connector.connection;
 
       //const prevConnected = connector.connected;
 
-      if (connectionIdle(conn)) {
-        // TODO: verify how often this gets called....
-        // seemed to happen on: dmt update lab dpanel ... not sure why... restart didn't last more than 12s
-        conn.websocket.close(); // will trigger onClose which will set connection status to false
-        // we home onClose is called rather instantly.. IF THERE ARE PROBLEMS, CHECK THIS PART IN THE FUTURE
+      if (connectionIdle(conn) || connector.decommissioned) {
+        if (connectionIdle(conn)) {
+          log(`Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`);
+        } else {
+          log(`Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `);
+        }
 
+        conn.terminate();
         // todo2: maybe check if under nodejs (ws) we should do terminate() instead ..
         // https://stackoverflow.com/a/49791634
         // todo3: instantly execute close handler and forget about this connection, label it inactive
@@ -10265,33 +10318,33 @@ var app = (function (crypto) {
       const connected = socketConnected(conn);
       // via ticker
 
-      // TODO: check ticker, if more than 12s, terminate socket ... then close handler should fire...
+      // TODO: check ticker, if more than 9s, terminate socket ... then close handler should fire...
       // then it's closed for good.. otherwise we may have issues with sharedSecret sync...
 
       if (connected) {
         // we cannot send lower-level ping frames from browser: https://stackoverflow.com/a/10586583/458177
+        //log(`WebSocket ${conn.websocket.rand} to ${endpoint} is connected!`);
         conn.websocket.send('ping');
-      } else if (!connector.reconnectPaused && (resumeNow || conn.checkTicker <= 30 || conn.checkTicker % 3 == 0)) {
+        // this 3s had an 15s effect above when we check currentlyTryingWS 3s (5 times 3s)
+        //} else if (!connector.reconnectPaused && (resumeNow || conn.checkTicker <= 30 || conn.checkTicker % 3 == 0)) {
+        //} else if (!connector.reconnectPaused && resumeNow) {
+      } else {
+        //if (!connector.reconnectPaused) {
         if (connector.connected == undefined) {
+          log(`Setting connector status to FALSE because connector.connected is undefined`);
           connector.connectStatus(false); // initial status report when not able to connect at beginning
         }
+
+        //log(`There is no WebSocket to ${endpoint} currently!`); // plural because there could temporarily be multiple connected although only one relevant (active).. others fall off soon
 
         // first 30s we try to reconnect every second, after that every 3s
         tryReconnect({ connector, endpoint, protocol }, { WebSocket, log });
       }
 
-      // if (prevConnected != connected || prevConnected == null) {
-      //   connector.connectStatus(connected);
-      // }
-
       conn.checkTicker += 1;
     }
 
     function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
-      if (connector.connection.closedManually) {
-        return;
-      }
-
       const conn = connector.connection;
 
       //if (conn.websocket) {
@@ -10299,17 +10352,6 @@ var app = (function (crypto) {
       //conn.websocket.close(); // we don't strictky need this because of double check in openCallback but it's nice to do so we don't get brief temporary connections on server (just to confuse us) ... previous ws can linger around and open:
 
       // ACTUALLY IT DOESN'T HELP !!! WE STILL GET LINGERING CONNECTIONS (AT MOST ONE ACCORDING TO TESTS) --> THAT'S WHY WE MAKE SURE
-
-      //conn.websocket.terminate(); // NOT OK!!! we have to actually use .close() !!
-
-      // testground pid 26235 7/24/2019, 9:42:54 PM 6311ms (+25ms) ∞ OPEN CALLBACK !!!!!!!!! 1
-      // testground pid 26235 7/24/2019, 9:42:54 PM 6313ms (+02ms) ∞ websocket conn to ws://192.168.0.10:8888 open
-      // testground pid 26235 7/24/2019, 9:42:54 PM 6315ms (+02ms) ∞ FiberConnection received state: {
-      //   "connected": true
-      // }
-      // testground pid 26235 7/24/2019, 9:42:54 PM 6317ms (+02ms) ∞ ✓✓✓✓✓✓ CONNECTED
-      // testground pid 26235 7/24/2019, 9:42:54 PM 6542ms (+33ms) ∞ OPEN CALLBACK !!!!!!!!! 0  <---- previous lingering connection!!
-      //}
 
       // we supposedly don't have to do anything with previous instance of WebSocket after repeatd reconnect retries
       // it will get garbage collected (but it seems to slow everything down once we're past 100 unsuccessfull reconnects in a row)
@@ -10320,7 +10362,33 @@ var app = (function (crypto) {
       //
       // when we are retrying connections to non-local endpoints, we pause retries after device drops from nearbyDevices list (implemented in multiConnectedStore::pauseActiveStoreIfDeviceNotNearby)
       // for non-local endpoints on devices that we are connected to but not in foreground (selected device), we pause reconnects alltogether (multiConnectedStore::pauseDisconnectedStores)
+
+      // this logic is for when the (wifi) netowork changes ...
+      // if there is good netowork but the process is down on the other side, we will immediately get a failure and a closed connection
+      // when trying to connect.. and currentlyTryingWS will be wsCLOSED immediately so we will proceed to try with another new one
+
+      // TODO !! do we still need "currentlyTryingWS" --- PROBABLY NOT BECAUSE WE HAVE ONLY ONE WS ACTIVE AT ALL TIMES
+      // TEST THIS PART A BIT MORE THEN REMOVE / SIMPLIFY
+
+      if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
+        if (conn.currentlyTryingWS._waitForConnectCounter == 3) {
+          // 4 cycles .. 4x 1500ms == 6s
+          conn.currentlyTryingWS._removeAllCallbacks();
+          conn.currentlyTryingWS.close();
+        } else {
+          conn.currentlyTryingWS._waitForConnectCounter += 1; // we wait for next tryReconnect up to 7.5s, then discard the websocket and create a new one
+          return;
+        }
+      }
+
       const ws = new WebSocket(endpoint, protocol);
+
+      conn.currentlyTryingWS = ws;
+      conn.currentlyTryingWS._waitForConnectCounter = 0;
+
+      ws.rand = Math.random();
+
+      log(`Created new WebSocket ${ws.rand} for endpoint ${endpoint}`);
 
       if (browser) {
         ws.binaryType = 'arraybuffer';
@@ -10334,28 +10402,19 @@ var app = (function (crypto) {
       }
 
       const openCallback = m => {
-        //log.cyan(`OPEN CALLBACK !!!!!!!!! ${conn.checkTicker}`);
+        //log(`ws open callback executed.. Ticker: ${conn.checkTicker}`);
+        log(`websocket ${ws.rand} conn to ${endpoint} open`);
+        conn.currentlyTryingWS = null;
+        conn.checkTicker = 0; // ADDED HERE LATER --- usually we don't need this in frontend because we keep sending state! but we better do the same there as well !! TODO±!!!!!
+        addSocketListeners({ ws, connector, openCallback }, { log });
+        conn.websocket = ws;
+        connector.connectStatus(true);
+      };
 
-        if (connector.closed()) {
-          // double-checking... ws connection retries could apparently come back and later open MANY connections when backend is accessible
-          // this was a bug with 50-200 sudden connections after backend was offline for some little time.. this happened more on rpi than on laptop but it still happened
-          // check in: https://tools.ietf.org/html/rfc6455
-          log(`websocket conn to ${endpoint} open`);
-          //log('new websocket conn open');
-
-          conn.checkTicker = 0; // ADDED HERE LATER --- usually we don't need this in frontend because we keep sending state! but we better do the same there as well !! TODO±!!!!!
-
-          //log(`✓✓✓✓✓✓ CONNECTED`);
-
-          addSocketListeners({ ws, connector, openCallback }, { log });
-
-          conn.websocket = ws;
-
-          connector.connectStatus(true);
-        } else {
-          //log('new connection not needed');
-          ws.close();
-        }
+      // this method gets overwritten by another one that removes all the other listeners
+      // in case ws gets opened and other sockets attached
+      ws._removeAllCallbacks = () => {
+        ws.removeEventListener('open', openCallback);
       };
 
       if (browser) {
@@ -10371,17 +10430,13 @@ var app = (function (crypto) {
       const conn = connector.connection;
 
       const errorCallback = m => {
-        log(`websocket conn ${connector.connection.endpoint} error`);
+        log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
         log(m);
       };
 
       const closeCallback = m => {
-        log(`websocket conn ${connector.connection.endpoint} closed`);
-
-        // we have to check this because of initial status can be set elsewhere and we don't want to report of disconnection
-        if (!connector.closed()) {
-          connector.connectStatus(false);
-        }
+        log(`websocket ${ws.rand} conn ${connector.connection.endpoint} closed`);
+        connector.connectStatus(false);
       };
 
       const messageCallback = _msg => {
@@ -10415,48 +10470,36 @@ var app = (function (crypto) {
         }
       };
 
+      ws._removeAllCallbacks = () => {
+        // same for browser and ws library
+        ws.removeEventListener('error', errorCallback);
+        ws.removeEventListener('close', closeCallback);
+        ws.removeEventListener('message', messageCallback);
+
+        ws.removeEventListener('open', openCallback);
+      };
+
       if (browser) {
         ws.addEventListener('error', errorCallback);
         ws.addEventListener('close', closeCallback);
         ws.addEventListener('message', messageCallback);
       } else {
+        // not sure why "addEventListener"" on "ws" nodejs library does not work,
+        // we get Caught global exception: TypeError: unexpected type, use Uint8Array
+        // TypeError: unexpected type, use Uint8Array
         ws.on('error', errorCallback);
         ws.on('close', closeCallback);
         ws.on('message', messageCallback);
       }
-
-      // separate interval handler to purge stale sockets, because we couldn't detach the handlers from checkConnection function....
-      // only here because we set them here ....
-      const staleSocketCheckInterval = 1 * 1000;
-      const purgeSocketIfStale = () => {
-        if (!socketConnected(conn)) {
-          //log(`socket not connected anymore ticker: ${conn.checkTicker}, socket state: ${conn.websocket.readyState}`);
-          // removing these listeners is probably not needed -- test later
-          // ws.removeEventListener('open', openCallback);
-          // ws.removeEventListener('error', errorCallback);
-          // ws.removeEventListener('close', closeCallback);
-          // ws.removeEventListener('message', messageCallback);
-          ws.close(); // added later - test
-        } else {
-          setTimeout(purgeSocketIfStale, staleSocketCheckInterval);
-        }
-      };
-      setTimeout(purgeSocketIfStale, staleSocketCheckInterval);
-    }
-
-    function connectionIdle(conn) {
-      const STATE_OPEN = 1;
-
-      // we allow 12 seconds without message receive from the server side until we determine connection is broken
-      // this double negation is needed because otherwise (in node but not in browse!)
-      // we get "undefined" returned in case there is no conn.websocket object yet
-      // we actually need false so that set({connected}) actually works! if undefined this doesn't set any key.. bla bla bla, unimportant trickery
-      return conn.websocket && conn.checkTicker > 12 && conn.websocket.readyState == STATE_OPEN;
     }
 
     function socketConnected(conn) {
-      const STATE_OPEN = 1;
-      return conn.websocket && conn.websocket.readyState == STATE_OPEN;
+      return conn.websocket && conn.websocket.readyState == wsOPEN;
+    }
+
+    function connectionIdle(conn) {
+      // we allow 9 seconds without message receive from the server side until we determine connection is broken
+      return socketConnected(conn) && conn.checkTicker > 5; // 5 * 1500ms == 7.5s
     }
 
     function establishAndMaintainConnection$1(opts) {
@@ -12618,6 +12661,10 @@ var app = (function (crypto) {
     const protocolLane = 'gui';
 
     const initialIp = localStorage.getItem('current_device_ip');
+
+    // BUGGGGG !!! won't work... won't connect at all ... TODO
+    // PROBLEM !!! If we go to a different network, we get warnings in JS console!!
+    // eg. 192.168.0.50
 
     const session = new SessionStore$1();
     const store = new MultiConnectedStore$1({ session, port, protocol, protocolLane, initialIp });

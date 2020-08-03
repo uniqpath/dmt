@@ -32,6 +32,13 @@ class BinaryReader {
           const buffer = Buffer.concat([header, data]);
           this.channel.send(buffer);
 
+          if (count % 10 == 0) {
+            readStream.pause();
+            setTimeout(() => {
+              readStream.resume();
+            }, 30);
+          }
+
           count += 1;
         } else {
           success();

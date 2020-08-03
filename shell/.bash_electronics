@@ -68,6 +68,7 @@ function esp {
     printf "${GREEN}erase${NC}\n"
     printf "${GREEN}flash${NC} ${GRAY}[file.bin] [slow|fast] (default=slow)${NC}\n"
     printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip]${NC}\n"
+    printf "${GREEN}prepare${NC}\n"
   else
 
     declare -a opts=(
@@ -75,6 +76,7 @@ function esp {
       "flash"
       "erase"
       "upload"
+      "prepare"
     )
 
     local matching_opt=''
@@ -139,6 +141,7 @@ function esp {
 
           if [ -z "$1" ]; then
             printf "${RED}Please specify firmware file and ip address${NC}\n"
+            printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip]${NC}\n"
             return
           fi
           # if [ ! -f "$2" ]; then
@@ -147,6 +150,7 @@ function esp {
           # fi
           if [ -z "$2" ]; then
             printf "${RED}Please specify an ip address${NC}\n"
+            printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip]${NC}\n"
             return
           fi
           local file="$1"
@@ -166,6 +170,10 @@ function esp {
           printf "ip      : ${MAGENTA}$ip${NC}\n"
 
           python "$esp_ota_path" -d -i $ip -p 8266 --auth= -f "$matching_file"
+          ;;
+
+      prepare)
+          esp flash ~/Documents/Arduino/generic_first_flash_ota_ready/bin/generic_first_flash_ota_ready_COMPILED_FOR_8285_1M.ino.bin
           ;;
 
       esac

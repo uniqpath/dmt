@@ -59,7 +59,9 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         } else if (jsonData.tag) {
           const msg = jsonData;
 
-          if (msg.tag == 'binary_start') {
+          if (msg.tag == 'file_not_found') {
+            connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
+          } else if (msg.tag == 'binary_start') {
             connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
           } else if (msg.tag == 'binary_end') {
             connector.emit(msg.tag, { sessionId: msg.sessionId });
