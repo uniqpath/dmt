@@ -9,13 +9,14 @@ function getMethods() {
 
   methods.push({ name: 'services', handler: servicesHandler });
   methods.push({ name: 'log', handler: logHandler });
+  methods.push({ name: 'nearby', handler: nearbyHandler });
 
   return methods;
 }
 
 function infoHandler() {
   return new Promise((success, reject) => {
-    const data = { methods: getActions().map(action => action.name) };
+    const data = { methods: getMethods().map(action => action.name) };
     success(data);
   });
 }
@@ -53,6 +54,12 @@ function servicesHandler({ args }) {
 function logHandler({ args }) {
   return new Promise((success, reject) => {
     success(log.bufferLines(log.REPORT_LINES).map(el => el.msg));
+  });
+}
+
+function nearbyHandler({ args, program }) {
+  return new Promise((success, reject) => {
+    success(program.state.nearbyDevices);
   });
 }
 

@@ -1,4 +1,5 @@
 import dmt from 'dmt/bridge';
+import os from 'os';
 
 export default function attachNearbyDeviceAttributes({ program = null, msg }) {
   if (program) {
@@ -12,6 +13,17 @@ export default function attachNearbyDeviceAttributes({ program = null, msg }) {
         msg.mediaType = playerState.currentMedia.mediaType;
       }
     }
+  }
+
+  const { username } = os.userInfo();
+  msg.username = username;
+
+  if (program) {
+    msg.apssid = program.state.controller.apssid;
+  }
+
+  if (program) {
+    msg.uptime = dmt.prettyMacroTime(program.state.controller.bootedAt).replace(' ago', '');
   }
 
   if (program) {
@@ -34,12 +46,15 @@ export default function attachNearbyDeviceAttributes({ program = null, msg }) {
     }
   }
 
+  if (program && msg.ip == dmt.accessPointIP && dmt.definedNetworkId()) {
+    msg.networkId = dmt.definedNetworkId();
+  }
+
   if (program && program.specialNodes) {
     const thisSpecialNode = program.specialNodes.find(node => node.deviceId == program.device.id);
     if (thisSpecialNode) {
       msg.specialNode = true;
       msg.specialNodePriority = thisSpecialNode.priority;
-      msg.networkId = thisSpecialNode.networkId;
     }
 
     msg.responsibleNode = program.isResponsibleNode();

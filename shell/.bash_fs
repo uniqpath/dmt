@@ -20,7 +20,6 @@ function walkdir {
 }
 
 function f {
-
   local walksearch=''
   dmt_platform_bin_command walksearch
   if [ -z "$walksearch" ]; then

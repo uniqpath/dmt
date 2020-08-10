@@ -116,7 +116,7 @@ function dmt_opts_matcher {
 # DEV_BIN=true [command] [args]
 # when true, it goes directly to core/rust/target/release example or bin... searches everything
 function dmt_platform_bin_command {
-  printf "${MAGENTA}∞ DMT ∞ ${CYAN}v$(cat "$DMT_PATH/.version")${NC}\n"
+  #printf "${MAGENTA}∞ DMT ∞ ${CYAN}v$(cat "$DMT_PATH/.version")${NC}\n"
 
   local __result=''
 

@@ -10,7 +10,8 @@ export default function initStore(program, device) {
         deviceName: device.id,
         devMachine: dmt.isDevMachine(),
         devCluster: dmt.isDevCluster(),
-        apMode: program.apMode()
+        apMode: program.apMode(),
+        bootedAt: Date.now()
       }
     }
   });

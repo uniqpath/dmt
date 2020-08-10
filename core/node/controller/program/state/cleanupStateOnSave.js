@@ -9,6 +9,7 @@ export default function cleanupStateOnSave(state) {
     delete state.controller.devMachine;
     delete state.controller.devCluster;
     delete state.controller.wsConnections;
+    delete state.controller.bootedAt;
     delete state.controller.sunrise;
     delete state.controller.sunset;
     delete state.controller.apMode;

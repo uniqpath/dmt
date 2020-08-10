@@ -105,15 +105,15 @@ if [ -z "$1" ]; then # install here
     dmt link
 
     # general deploy hooks -- all devices
-    after_update_hook="$HOME/.dmt/etc/deploy_hooks/after-update"
-    if [ -f "$after_update_hook" ]; then
-      "$after_update_hook" #> /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
+    after_copy_hook="$HOME/.dmt/etc/deploy_hooks/after-update"
+    if [ -f "$after_copy_hook" ]; then
+      "$after_copy_hook" #> /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
     fi
 
     # (possibly defined) for each particular device
-    after_update_hook="$HOME/.dmt/user/devices/this/after-update"
-    if [ -f "$after_update_hook" ]; then
-      "$after_update_hook"
+    after_copy_hook="$HOME/.dmt/user/devices/this/after-update"
+    if [ -f "$after_copy_hook" ]; then
+      "$after_copy_hook"
     fi
 
     echo
@@ -208,7 +208,7 @@ else # clone to and install on remote device
         remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
 
         if $RESTART; then
-          restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-renew ]; then ~/.dmt/user/devices/this/before-renew; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-renew ]; then ~/.dmt/etc/deploy_hooks/before-renew; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
+          restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-copy ]; then ~/.dmt/user/devices/this/before-copy; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-copy ]; then ~/.dmt/etc/deploy_hooks/before-copy; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
           remote -h "$host" --port "$ssh_port" "$restart_cmd"
         fi
 

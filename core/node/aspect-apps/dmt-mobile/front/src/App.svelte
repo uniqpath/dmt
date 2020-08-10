@@ -7,7 +7,7 @@
   $: connected = $store.connected;
   $: controller = $store.controller;
   $: player = $store.player;
-  $: nearbyDevices = $store.nearbyDevices ? Object.values($store.nearbyDevices).filter(device => device.hasGui).sort(util.compareValues('deviceId')) : [];
+  $: nearbyDevices = $store.nearbyDevices ? $store.nearbyDevices.filter(device => device.hasGui).sort(util.compareValues('deviceId')) : [];
 
   $: clientPubkey = $session.publicKeyHex;
   $: sharedSecretHex = $session.sharedSecretHex;

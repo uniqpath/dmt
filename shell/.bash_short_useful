@@ -66,15 +66,15 @@ function m {
 }
 
 function u {
+  dmt_copy "$@"
+}
+
+function re {
   dmt_update "$@"
 }
 
 function k() {
   mkdir -p "$@" && cd "$_";
-}
-
-function re {
-  dmt_renew "$@"
 }
 
 function rel {

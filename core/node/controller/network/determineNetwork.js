@@ -51,9 +51,7 @@ class DetermineNetwork {
 
     let inconsistent = false;
 
-    for (const deviceId of Object.keys(nearbyDevices)) {
-      const device = nearbyDevices[deviceId];
-
+    for (const device of nearbyDevices) {
       if (device.networkId) {
         if (networkId) {
           if (networkId != device.networkId) {

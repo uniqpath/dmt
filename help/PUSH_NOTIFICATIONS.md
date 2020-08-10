@@ -69,7 +69,7 @@ If you are an Apple developer, you can make yourself a simple notification app b
 
 #### 🚀 Each device will then start sending you push notifications on various occasions:
 
-- if `dmt-proc` was terminated because of a problem. This is great and important, mostly needed on `dmt renew` when you sync the latest code (including your own additions to [user core](USER_CORE_FRAMEWORK.md)) and the process crashes soon thereafter. It is great to know about this as soon as possible.
+- if `dmt-proc` was terminated because of a problem. This is great and important, mostly needed on `dmt update` when you sync the latest code (including your own additions to [user core](USER_CORE_FRAMEWORK.md)) and the process crashes soon thereafter. It is great to know about this as soon as possible.
 
 - if `dmt-proc` is using a lot of CPU for some reason (potential issue)
 

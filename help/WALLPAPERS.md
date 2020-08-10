@@ -121,7 +121,7 @@ Or you can use `dmt gui switch [deviceIp]` to swith all currently open GUIs for 
 
 This was a digression, back to reloading after wallpaper / theme changes - we have described hot to reload the gui of your local device. What if you changed options for some other device? Then you execute:
 
-`dmt update user@device_ip` (`update` is enough, no need to `renew` eg. to restart the `dmt-proc` on that device).
+`dmt copy user@device_ip` (`copy` is enough, no need to `update` eg. to restart the `dmt-proc` on that device).
 
 ## Future plans
 

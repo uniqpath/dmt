@@ -255,14 +255,14 @@ Exception is changing the theme or [custom wallpapers](WALLPAPERS.md). In this c
 
 If you changed the definition of some other device on you "central configuration point" (eg. your main computer), then you need to transfer device definitions over with either:
 
-`dmt update user@device_ip`
+`dmt copy user@device_ip`
 
 This syncs the entire `~/.dmt` directory to another device and reloads any connected browser gui.
 
 or
 
-`dmt renew user@device_ip`
+`dmt update user@device_ip`
 
-This first does the update as just described and then restarts the `dmt-proc` on the target device in case `.def` changes need to be picked up.
+This first does the copy as just described and then restarts the `dmt-proc` on the target device in case `.def` changes need to be picked up.
 
 You can read more about device synchronization [here](UPDATING_DEVICES.md).

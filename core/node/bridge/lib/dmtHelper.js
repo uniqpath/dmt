@@ -522,6 +522,13 @@ export default {
     return { error: colors.gray(`DMT Resolver is not recognizing hostname ${colors.yellow(deviceName)}`) };
   },
 
+  getLocalIpViaNearby({ program, deviceName }) {
+    const match = program.state.nearbyDevices.find(({ deviceId, stale }) => !stale && deviceName == deviceId);
+    if (match) {
+      return match.ip;
+    }
+  },
+
   getGlobalIp({ deviceName }) {
     const match = this.devices().find(device => device.id == deviceName);
 

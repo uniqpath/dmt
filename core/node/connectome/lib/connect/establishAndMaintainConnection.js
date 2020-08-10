@@ -159,11 +159,8 @@ function addSocketListeners({ ws, connector, openCallback }, { log }) {
     if (jsonData) {
       connector.wireReceive({ jsonData, rawMessage: msg });
     } else {
-      if (browser) {
-        connector.wireReceive({ encryptedData: new Uint8Array(msg) });
-      } else {
-        connector.wireReceive({ encryptedData: msg });
-      }
+      const encryptedData = browser ? new Uint8Array(msg) : msg;
+      connector.wireReceive({ encryptedData });
     }
   };
 

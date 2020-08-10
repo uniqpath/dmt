@@ -10239,15 +10239,6 @@ var app = (function (crypto) {
       // address goes into connector only for informative purposes
       const connector = new Connector({ address, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, verbose });
 
-      // console.log(`Obj:`);
-      // console.log(obj);
-
-      // if (resumeNow) {
-      //   // we could do without this and just wait for the next 1s check interval but this is faster and resumes connection immediately
-      //   checkConnection({ connector, endpoint, protocol }, { WebSocket, log, resumeNow });
-      //   return connector;
-      // }
-
       if (connector.connection) {
         return connector;
       }
@@ -10307,11 +10298,6 @@ var app = (function (crypto) {
         }
 
         conn.terminate();
-        // todo2: maybe check if under nodejs (ws) we should do terminate() instead ..
-        // https://stackoverflow.com/a/49791634
-        // todo3: instantly execute close handler and forget about this connection, label it inactive
-        // then it can take some time to close if it wants ... we should discard it immediately
-        //conn.websocket = null; // done: todo3 -- problem with onClose -- setConnected would get set on this connection
         return;
       }
 
@@ -10347,28 +10333,9 @@ var app = (function (crypto) {
     function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
       const conn = connector.connection;
 
-      //if (conn.websocket) {
-      // get rid of possible previous websocket hanging around and executing opencallback
-      //conn.websocket.close(); // we don't strictky need this because of double check in openCallback but it's nice to do so we don't get brief temporary connections on server (just to confuse us) ... previous ws can linger around and open:
-
-      // ACTUALLY IT DOESN'T HELP !!! WE STILL GET LINGERING CONNECTIONS (AT MOST ONE ACCORDING TO TESTS) --> THAT'S WHY WE MAKE SURE
-
-      // we supposedly don't have to do anything with previous instance of WebSocket after repeatd reconnect retries
-      // it will get garbage collected (but it seems to slow everything down once we're past 100 unsuccessfull reconnects in a row)
-
-      // this line causes slowness after we keep disconnected on localhost and frontent keeps retrying
-      // after reconnect, connecting to nearby devices will be slow for some time
-      // we partially solved this by delaying retries longer (3s instead of 1s after first 30s of not being able to connect)
-      //
-      // when we are retrying connections to non-local endpoints, we pause retries after device drops from nearbyDevices list (implemented in multiConnectedStore::pauseActiveStoreIfDeviceNotNearby)
-      // for non-local endpoints on devices that we are connected to but not in foreground (selected device), we pause reconnects alltogether (multiConnectedStore::pauseDisconnectedStores)
-
       // this logic is for when the (wifi) netowork changes ...
       // if there is good netowork but the process is down on the other side, we will immediately get a failure and a closed connection
       // when trying to connect.. and currentlyTryingWS will be wsCLOSED immediately so we will proceed to try with another new one
-
-      // TODO !! do we still need "currentlyTryingWS" --- PROBABLY NOT BECAUSE WE HAVE ONLY ONE WS ACTIVE AT ALL TIMES
-      // TEST THIS PART A BIT MORE THEN REMOVE / SIMPLIFY
 
       if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
         if (conn.currentlyTryingWS._waitForConnectCounter == 3) {
@@ -10461,12 +10428,9 @@ var app = (function (crypto) {
           connector.wireReceive({ jsonData, rawMessage: msg });
         } else {
           // this is either encrypted json or binary data
-          if (browser) {
-            // we have to convert from ArrayBuffer
-            connector.wireReceive({ encryptedData: new Uint8Array(msg) });
-          } else {
-            connector.wireReceive({ encryptedData: msg });
-          }
+          // we have to convert from ArrayBuffer in browser
+          const encryptedData = browser ? new Uint8Array(msg) : msg;
+          connector.wireReceive({ encryptedData });
         }
       };
 
@@ -10484,9 +10448,9 @@ var app = (function (crypto) {
         ws.addEventListener('close', closeCallback);
         ws.addEventListener('message', messageCallback);
       } else {
-        // not sure why "addEventListener"" on "ws" nodejs library does not work,
-        // we get Caught global exception: TypeError: unexpected type, use Uint8Array
-        // TypeError: unexpected type, use Uint8Array
+        // not sure why "addEventListener" on "ws" nodejs package does not work, we just use standard "on" for this library, otherwise we get:
+        // Caught global exception: TypeError: unexpected type, use Uint8Array
+        // removeEventListener however works the same in browser and ws npm package
         ws.on('error', errorCallback);
         ws.on('close', closeCallback);
         ws.on('message', messageCallback);
@@ -10623,12 +10587,8 @@ var app = (function (crypto) {
         this.stores = [];
         this.switch({ ip: this.currentIp });
 
-        //console.log(initialIp);
-
         if (initialIp) {
           this.switch({ ip: initialIp });
-
-          // setTimeout(() => { }, 1000)
         }
       }
 
@@ -11229,7 +11189,7 @@ var app = (function (crypto) {
 
     /* src/App.svelte generated by Svelte v3.21.0 */
 
-    const { Object: Object_1, console: console_1 } = globals;
+    const { console: console_1 } = globals;
     const file$1 = "src/App.svelte";
 
     function get_each_context(ctx, list, i) {
@@ -11261,7 +11221,7 @@ var app = (function (crypto) {
     			if_block_anchor = empty();
     			attr_dev(h2, "class", "svelte-1q8p3xr");
     			toggle_class(h2, "faded", !/*connected*/ ctx[3]);
-    			add_location(h2, file$1, 77, 4, 1906);
+    			add_location(h2, file$1, 77, 4, 1891);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h2, anchor);
@@ -11415,36 +11375,36 @@ var app = (function (crypto) {
     			button7 = element("button");
     			t20 = text("↠ FWD");
     			attr_dev(div0, "class", "player_media section svelte-1q8p3xr");
-    			add_location(div0, file$1, 81, 6, 2012);
+    			add_location(div0, file$1, 81, 6, 1997);
     			attr_dev(button0, "class", "volume svelte-1q8p3xr");
     			button0.disabled = button0_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button0, file$1, 117, 8, 3401);
+    			add_location(button0, file$1, 117, 8, 3386);
     			attr_dev(button1, "class", "volume svelte-1q8p3xr");
     			button1.disabled = button1_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button1, file$1, 118, 8, 3508);
+    			add_location(button1, file$1, 118, 8, 3493);
     			attr_dev(div1, "class", "player_controls section svelte-1q8p3xr");
-    			add_location(div1, file$1, 109, 6, 3089);
+    			add_location(div1, file$1, 109, 6, 3074);
     			attr_dev(button2, "class", "limit svelte-1q8p3xr");
     			button2.disabled = button2_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button2, file$1, 126, 8, 3817);
+    			add_location(button2, file$1, 126, 8, 3802);
     			attr_dev(button3, "class", "next svelte-1q8p3xr");
     			button3.disabled = button3_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button3, file$1, 131, 8, 4101);
+    			add_location(button3, file$1, 131, 8, 4086);
     			attr_dev(button4, "class", "shuffle svelte-1q8p3xr");
     			button4.disabled = button4_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button4, file$1, 132, 8, 4200);
+    			add_location(button4, file$1, 132, 8, 4185);
     			attr_dev(button5, "class", "repeat svelte-1q8p3xr");
     			button5.disabled = button5_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button5, file$1, 133, 8, 4306);
+    			add_location(button5, file$1, 133, 8, 4291);
     			attr_dev(button6, "class", "backward svelte-1q8p3xr");
     			button6.disabled = button6_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button6, file$1, 135, 8, 4437);
+    			add_location(button6, file$1, 135, 8, 4422);
     			attr_dev(button7, "class", "forward svelte-1q8p3xr");
     			button7.disabled = button7_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button7, file$1, 136, 8, 4543);
+    			add_location(button7, file$1, 136, 8, 4528);
     			attr_dev(div2, "class", "player_more section svelte-1q8p3xr");
     			toggle_class(div2, "visible", /*playerMoreVisible*/ ctx[2]);
-    			add_location(div2, file$1, 124, 6, 3740);
+    			add_location(div2, file$1, 124, 6, 3725);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, div0, anchor);
@@ -11626,9 +11586,9 @@ var app = (function (crypto) {
     			p = element("p");
     			b = element("b");
     			b.textContent = "No media loaded";
-    			add_location(b, file$1, 100, 13, 2919);
+    			add_location(b, file$1, 100, 13, 2904);
     			attr_dev(p, "class", "svelte-1q8p3xr");
-    			add_location(p, file$1, 100, 10, 2916);
+    			add_location(p, file$1, 100, 10, 2901);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -11692,10 +11652,10 @@ var app = (function (crypto) {
     			if (if_block) if_block.c();
     			attr_dev(p0, "class", "current_media svelte-1q8p3xr");
     			toggle_class(p0, "faded", /*player*/ ctx[5].paused);
-    			add_location(p0, file$1, 84, 10, 2133);
+    			add_location(p0, file$1, 84, 10, 2118);
     			attr_dev(p1, "class", "svelte-1q8p3xr");
     			toggle_class(p1, "faded", /*player*/ ctx[5].paused);
-    			add_location(p1, file$1, 88, 10, 2435);
+    			add_location(p1, file$1, 88, 10, 2420);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p0, anchor);
@@ -11887,7 +11847,7 @@ var app = (function (crypto) {
     			t1 = text(t1_value);
     			attr_dev(p, "class", "svelte-1q8p3xr");
     			toggle_class(p, "faded", /*player*/ ctx[5].paused);
-    			add_location(p, file$1, 104, 10, 2995);
+    			add_location(p, file$1, 104, 10, 2980);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -11930,7 +11890,7 @@ var app = (function (crypto) {
     			t = text("● Pause");
     			attr_dev(button, "class", "pause svelte-1q8p3xr");
     			button.disabled = button_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button, file$1, 114, 10, 3284);
+    			add_location(button, file$1, 114, 10, 3269);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, button, anchor);
@@ -11973,7 +11933,7 @@ var app = (function (crypto) {
     			t = text("▶ Play");
     			attr_dev(button, "class", "play svelte-1q8p3xr");
     			button.disabled = button_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button, file$1, 112, 10, 3166);
+    			add_location(button, file$1, 112, 10, 3151);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, button, anchor);
@@ -12016,7 +11976,7 @@ var app = (function (crypto) {
     			t = text("Remove");
     			attr_dev(button, "class", "remove_limit svelte-1q8p3xr");
     			button.disabled = button_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button, file$1, 128, 10, 3971);
+    			add_location(button, file$1, 128, 10, 3956);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, button, anchor);
@@ -12066,7 +12026,7 @@ var app = (function (crypto) {
     			}
 
     			attr_dev(div, "class", "nearby_devices section svelte-1q8p3xr");
-    			add_location(div, file$1, 144, 4, 4699);
+    			add_location(div, file$1, 144, 4, 4684);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -12126,7 +12086,7 @@ var app = (function (crypto) {
     			span = element("span");
     			span.textContent = "!";
     			attr_dev(span, "class", "error svelte-1q8p3xr");
-    			add_location(span, file$1, 151, 32, 5074);
+    			add_location(span, file$1, 151, 32, 5059);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -12201,7 +12161,7 @@ var app = (function (crypto) {
     			t3 = space();
     			attr_dev(button, "class", "svelte-1q8p3xr");
     			toggle_class(button, "active", /*device*/ ctx[30].deviceId == /*activeDeviceId*/ ctx[7]);
-    			add_location(button, file$1, 149, 8, 4951);
+    			add_location(button, file$1, 149, 8, 4936);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, button, anchor);
@@ -12312,14 +12272,14 @@ var app = (function (crypto) {
     			t5 = text("Alarm:OFF");
     			attr_dev(button0, "class", " svelte-1q8p3xr");
     			button0.disabled = button0_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button0, file$1, 164, 6, 5325);
+    			add_location(button0, file$1, 164, 6, 5310);
     			attr_dev(button1, "class", " svelte-1q8p3xr");
     			button1.disabled = button1_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button1, file$1, 165, 6, 5430);
+    			add_location(button1, file$1, 165, 6, 5415);
     			attr_dev(div, "class", "iot section svelte-1q8p3xr");
-    			add_location(div, file$1, 163, 2, 5293);
+    			add_location(div, file$1, 163, 2, 5278);
     			attr_dev(main, "class", "svelte-1q8p3xr");
-    			add_location(main, file$1, 67, 0, 1700);
+    			add_location(main, file$1, 67, 0, 1685);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -12471,7 +12431,7 @@ var app = (function (crypto) {
 
     	const writable_props = ["store", "session"];
 
-    	Object_1.keys($$props).forEach(key => {
+    	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn(`<App> was created with unknown prop '${key}'`);
     	});
 
@@ -12562,7 +12522,7 @@ var app = (function (crypto) {
 
     		if ($$self.$$.dirty[0] & /*$store*/ 2048) {
     			 $$invalidate(6, nearbyDevices = $store.nearbyDevices
-    			? Object.values($store.nearbyDevices).filter(device => device.hasGui).sort(util.compareValues("deviceId"))
+    			? $store.nearbyDevices.filter(device => device.hasGui).sort(util.compareValues("deviceId"))
     			: []);
     		}
 
@@ -12665,6 +12625,7 @@ var app = (function (crypto) {
     // BUGGGGG !!! won't work... won't connect at all ... TODO
     // PROBLEM !!! If we go to a different network, we get warnings in JS console!!
     // eg. 192.168.0.50
+    // SOLUTION: check if ip is in nearbyDevices !
 
     const session = new SessionStore$1();
     const store = new MultiConnectedStore$1({ session, port, protocol, protocolLane, initialIp });

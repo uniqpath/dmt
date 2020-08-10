@@ -1,6 +1,8 @@
 #!/bin/bash
 
-DMT_CLI="$DMT_NODE_CORE/controller/cli/dmt.js"
+CLI_DIR="$DMT_NODE_CORE/controller/cli/"
+
+DMT_CLI="$CLI_DIR/dmt.js"
 
 function dmt {
   if [ -z "$1" ] || [ "$1" == "help" ] || [ "$1" == "version" ]; then
@@ -48,12 +50,13 @@ function dmt {
     "status"
     "version"
     "device"
+    "nearby"
     "services"
     "next"
     "core"
     "update"
+    "copy"
     "debug"
-    "renew"
     "log"
     "logfg"
     "loglan"
@@ -158,6 +161,12 @@ function dmt {
         if [ -n "$dmt_proc_pid" ]; then
           $DMT_NODEJS_EXEC "$DMT_CLI" info "$@"
         fi
+      fi
+      ;;
+
+    nearby)
+      if [ -n "$dmt_proc_pid" ]; then
+        dmt_nearby "$@"
       fi
       ;;
 
@@ -274,12 +283,12 @@ function dmt {
       dmt_next "$@"
       ;;
 
-    update) # updates the whole folder, doesn't restart the service
+    update) # updates the whole folder and restarts the service
       dmt_update "$@"
       ;;
 
-    renew) # updates the whole folder and restarts the service
-      dmt_renew "$@"
+    copy) # updates the whole folder, doesn't restart the service
+      dmt_copy "$@"
       ;;
 
     deactivate)
@@ -884,7 +893,7 @@ function dmt_log {
   local logfile="$DMT_PATH/log/dmt.log"
 
   if [ "$1" == "fg" ]; then
-    # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) renew device.. 4) PROBLEM: even older log messages will be shown
+    # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) update device.. 4) PROBLEM: even older log messages will be shown
     tail -f -n 100 "$logfile"
   elif [ "$1" == "lan" ]; then
     printf "${MAGENTA}Not yet implemented ...${NC}\n"
@@ -921,6 +930,8 @@ function dmt_help {
   echo
   printf "  ${CYAN}■${NC} ${CYAN}dmt log ${GRAY}shows a few recent log entries (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
   printf "  ${CYAN}■${NC} ${GREEN}dmt logfg ${GRAY}shows log in current tab (to get last few lines use ${GREEN}dmt log${GRAY} - makes a rpc call, see below)${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${CYAN}dmt nearby ${GRAY}shows nearby devices ${NC}\n"
   #printf "  ${CYAN}■${NC} ${GREEN}dmt loglan ${GRAY}starts listening to network log message broadcasts${NC}\n"
 
   echo
@@ -929,8 +940,8 @@ function dmt_help {
   printf "  ${GREEN}■${NC} ${GREEN}dmt next ${GRAY}gets the latest dmt-system code from the source${NC}\n"
   #printf "  ${GREEN}■${NC} ${GREEN}dmt next --dry ${GRAY}show what would ${WHITE}dmt next${GRAY} command do${NC}\n"
   echo
-  printf "  ${CYAN}■${NC} ${GREEN}dmt update [deviceId|ip_address] ${GRAY}clones or updates ~/.dmt directory at another machine via SSH${NC}\n"
-  printf "  ${CYAN}■${NC} ${GREEN}dmt renew [deviceId|ip_address] ${GRAY}same as above and in addition it restarts the process after update${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt update [deviceId|ip_address] ${GRAY}clones ~/.dmt directory to another machine via SSH and restarts the process after update${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt copy [deviceId|ip_address] ${GRAY}same as above but without process restart (only in-browser GUI is reloaded) ${NC}\n"
   echo
   printf "  Another way to clone/update: ${CYAN}curl [machineIp]:1111 | bash ${NC}→ ${GRAY}replicates ~/.dmt directory\n"
   printf "  ${GRAY}(without ~/.dmt/user|state|log) from [machineIp] to machine where command was executed${NC}\n"
@@ -997,6 +1008,34 @@ function stop_dmt_if_running {
 
   if [ -n "$dmt_proc_pid" ]; then
     dmt stop
+  fi
+}
+
+function dmt_nearby {
+  $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" "$@"
+
+  if [ "$1" == "update" ]; then
+    shift
+
+    while read device
+    do
+      echo
+
+      local deviceInfo=(${device//;/ })
+      local deviceName="${deviceInfo[0]}"
+      local ipWithUser="${deviceInfo[1]}"
+
+      printf "Updating device ${MAGENTA}${deviceName}${NC} ...\n"
+
+      # todo: paralellize with screen as in update_all
+      dmt update "$ipWithUser"
+
+    done < <($DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" --simple "$@")
+  else
+    echo
+    printf "${MAGENTA}How to update nearby devices:${NC}\n"
+    echo
+    printf "${GREEN}dmt nearby update ${GRAY}command will update all nearby devices ${NC}\n"
   fi
 }
 
@@ -1280,6 +1319,16 @@ function dmt_next_help {
 }
 
 function dmt_update {
+  # dmt update nearby == dmt nearby update
+  if [ "$1" == "nearby" ]; then
+    dmt nearby update
+    return
+  fi
+
+  dmt_copy --restart "$@"
+}
+
+function dmt_copy {
   dmt_symlink_nodejs_deps
 
   if [ -z "$1" ]; then
@@ -1294,10 +1343,6 @@ function dmt_update {
     . ./install "$@" # calling with . preserves the newly loaded env
     cd "$cwd"
   fi
-}
-
-function dmt_renew {
-  dmt_update --restart "$@"
 }
 
 function dmt_deactivate {

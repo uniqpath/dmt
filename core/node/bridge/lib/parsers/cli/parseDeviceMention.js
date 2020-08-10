@@ -41,6 +41,7 @@ function parseDeviceMention(attrData) {
     } else {
       data.globalIp = host;
     }
+    data.hostType = 'ip';
   } else if (host.includes('.')) {
     if (host.toLowerCase().endsWith('.eth')) {
       data.hostType = 'ens';
@@ -49,7 +50,7 @@ function parseDeviceMention(attrData) {
     }
   }
 
-  if (deviceDefPresent && !data.hostType && dmt.device({ deviceId: host }).id) {
+  if (!data.hostType) {
     data.hostType = 'dmt';
   }
 
@@ -82,7 +83,11 @@ function parseDeviceMention(attrData) {
     }
   }
 
-  data.address = data.localhost ? 'localhost' : data.ip || data.globalIp || data.host;
+  data.address = data.localhost ? 'localhost' : data.ip || data.globalIp;
+
+  if (!data.address && data.hostType == 'dns') {
+    data.address = data.host;
+  }
 
   return data;
 }

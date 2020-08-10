@@ -5175,15 +5175,6 @@ var app = (function (crypto) {
       // address goes into connector only for informative purposes
       const connector = new Connector({ address, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, verbose });
 
-      // console.log(`Obj:`);
-      // console.log(obj);
-
-      // if (resumeNow) {
-      //   // we could do without this and just wait for the next 1s check interval but this is faster and resumes connection immediately
-      //   checkConnection({ connector, endpoint, protocol }, { WebSocket, log, resumeNow });
-      //   return connector;
-      // }
-
       if (connector.connection) {
         return connector;
       }
@@ -5243,11 +5234,6 @@ var app = (function (crypto) {
         }
 
         conn.terminate();
-        // todo2: maybe check if under nodejs (ws) we should do terminate() instead ..
-        // https://stackoverflow.com/a/49791634
-        // todo3: instantly execute close handler and forget about this connection, label it inactive
-        // then it can take some time to close if it wants ... we should discard it immediately
-        //conn.websocket = null; // done: todo3 -- problem with onClose -- setConnected would get set on this connection
         return;
       }
 
@@ -5283,28 +5269,9 @@ var app = (function (crypto) {
     function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
       const conn = connector.connection;
 
-      //if (conn.websocket) {
-      // get rid of possible previous websocket hanging around and executing opencallback
-      //conn.websocket.close(); // we don't strictky need this because of double check in openCallback but it's nice to do so we don't get brief temporary connections on server (just to confuse us) ... previous ws can linger around and open:
-
-      // ACTUALLY IT DOESN'T HELP !!! WE STILL GET LINGERING CONNECTIONS (AT MOST ONE ACCORDING TO TESTS) --> THAT'S WHY WE MAKE SURE
-
-      // we supposedly don't have to do anything with previous instance of WebSocket after repeatd reconnect retries
-      // it will get garbage collected (but it seems to slow everything down once we're past 100 unsuccessfull reconnects in a row)
-
-      // this line causes slowness after we keep disconnected on localhost and frontent keeps retrying
-      // after reconnect, connecting to nearby devices will be slow for some time
-      // we partially solved this by delaying retries longer (3s instead of 1s after first 30s of not being able to connect)
-      //
-      // when we are retrying connections to non-local endpoints, we pause retries after device drops from nearbyDevices list (implemented in multiConnectedStore::pauseActiveStoreIfDeviceNotNearby)
-      // for non-local endpoints on devices that we are connected to but not in foreground (selected device), we pause reconnects alltogether (multiConnectedStore::pauseDisconnectedStores)
-
       // this logic is for when the (wifi) netowork changes ...
       // if there is good netowork but the process is down on the other side, we will immediately get a failure and a closed connection
       // when trying to connect.. and currentlyTryingWS will be wsCLOSED immediately so we will proceed to try with another new one
-
-      // TODO !! do we still need "currentlyTryingWS" --- PROBABLY NOT BECAUSE WE HAVE ONLY ONE WS ACTIVE AT ALL TIMES
-      // TEST THIS PART A BIT MORE THEN REMOVE / SIMPLIFY
 
       if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
         if (conn.currentlyTryingWS._waitForConnectCounter == 3) {
@@ -5397,12 +5364,9 @@ var app = (function (crypto) {
           connector.wireReceive({ jsonData, rawMessage: msg });
         } else {
           // this is either encrypted json or binary data
-          if (browser) {
-            // we have to convert from ArrayBuffer
-            connector.wireReceive({ encryptedData: new Uint8Array(msg) });
-          } else {
-            connector.wireReceive({ encryptedData: msg });
-          }
+          // we have to convert from ArrayBuffer in browser
+          const encryptedData = browser ? new Uint8Array(msg) : msg;
+          connector.wireReceive({ encryptedData });
         }
       };
 
@@ -5420,9 +5384,9 @@ var app = (function (crypto) {
         ws.addEventListener('close', closeCallback);
         ws.addEventListener('message', messageCallback);
       } else {
-        // not sure why "addEventListener"" on "ws" nodejs library does not work,
-        // we get Caught global exception: TypeError: unexpected type, use Uint8Array
-        // TypeError: unexpected type, use Uint8Array
+        // not sure why "addEventListener" on "ws" nodejs package does not work, we just use standard "on" for this library, otherwise we get:
+        // Caught global exception: TypeError: unexpected type, use Uint8Array
+        // removeEventListener however works the same in browser and ws npm package
         ws.on('error', errorCallback);
         ws.on('close', closeCallback);
         ws.on('message', messageCallback);
@@ -5559,12 +5523,8 @@ var app = (function (crypto) {
         this.stores = [];
         this.switch({ ip: this.currentIp });
 
-        //console.log(initialIp);
-
         if (initialIp) {
           this.switch({ ip: initialIp });
-
-          // setTimeout(() => { }, 1000)
         }
       }
 

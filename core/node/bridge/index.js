@@ -202,6 +202,10 @@ export default {
     return helper.getIp({ deviceName });
   },
 
+  getLocalIpViaNearby({ program, deviceName }) {
+    return helper.getLocalIpViaNearby({ program, deviceName });
+  },
+
   getGlobalIp({ deviceName }) {
     return helper.getGlobalIp({ deviceName });
   },

@@ -34,7 +34,16 @@ function server(program) {
           ipc.server.emit(socket, 'ack', 'empty');
         } else if (actorName) {
           if (atDevice) {
-            const { address, port } = parseCliArgs(atDevice).atDevices[0];
+            const device = parseCliArgs(atDevice).atDevices[0];
+            let { address, port, hostType, host } = device;
+            if (hostType == 'dmt') {
+              const nearbyIp = dmt.getLocalIpViaNearby({ program, deviceName: host });
+              if (nearbyIp) {
+                address = nearbyIp;
+                port = null;
+              }
+            }
+
             program.fiberPool
               .getConnector(address, port || 7780)
               .then(connector => {
