@@ -213,25 +213,25 @@ create_new_device() {
   printf "${CYAN}Device name (id): ${NC}\n"
   read -r -p "" response
 
-  local deviceId="$response"
+  local deviceName="$response"
 
-  if [ -z "$deviceId" ]; then
-    printf "${YELLOW}Must provide a new deviceId, not empty string${NC}\n"
+  if [ -z "$deviceName" ]; then
+    printf "${YELLOW}Must provide a new deviceName, not empty string${NC}\n"
     printf "${RED}Aborting new device creation${NC}\n"
     return
   fi
 
   local BASE_PATH="$DMT_PATH/user/devices"
-  local device_path="$BASE_PATH/${deviceId}"
+  local device_path="$BASE_PATH/${deviceName}"
 
   if [ -d "$device_path" ]; then
-    printf "${RED}This deviceId already exists: ${deviceId}...${NC}\n"
+    printf "${RED}This deviceName already exists: ${deviceName}...${NC}\n"
   else
     local def_path="$device_path/def"
     mkdir -p "$def_path"
 
     cat > "$def_path/device.def" <<EOF
-device: ${deviceId}
+device: ${deviceName}
 
   tagline: controller, search, play, all the best service in my control
 EOF
@@ -243,10 +243,10 @@ EOF
     if [ -L "this" ]; then
       rm this
     fi
-    ln -s "$deviceId" this
+    ln -s "$deviceName" this
     cd "$cwd"
 
-    printf "${GREEN}✓ ${GRAY}Created and activated new device with name ${MAGENTA}${deviceId}${NC} ...\n"
+    printf "${GREEN}✓ ${GRAY}Created and activated new device with name ${MAGENTA}${deviceName}${NC} ...\n"
   fi
 }
 
@@ -264,12 +264,12 @@ EOF
 
 device_selector() {
   if [ -n "$1" ]; then # non interactive (= pseudio gui) mode... pure cli
-    local deviceId="$1"
-    if [ -d "$HOME/.dmt/user/devices/${deviceId}" ]; then
-      #printf "Device ${CYAN}${deviceId}${NC} exists, activating...\n"
-      activate "$deviceId"
+    local deviceName="$1"
+    if [ -d "$HOME/.dmt/user/devices/${deviceName}" ]; then
+      #printf "Device ${CYAN}${deviceName}${NC} exists, activating...\n"
+      activate "$deviceName"
     else
-      printf "${RED}Unknown device name:${NC} ${YELLOW}${deviceId}${NC}\n"
+      printf "${RED}Unknown device name:${NC} ${YELLOW}${deviceName}${NC}\n"
     fi
     return
   fi

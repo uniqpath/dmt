@@ -9,7 +9,7 @@ function allSpecialNodes() {
     .filter(device => device.try('network.specialNode'))
     .map(device => {
       return {
-        deviceId: device.id,
+        deviceName: device.id,
         networkId: def.id(device.network),
         ip: device.try('network.ip'),
         firstPriority: device.try('network.specialNode.firstPriority')

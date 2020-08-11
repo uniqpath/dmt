@@ -47,7 +47,7 @@ class DetermineNetwork {
 
   dynamicallyDetermineCurrentNetwork(nearbyDevices) {
     let networkId;
-    let savedDeviceId;
+    let savedDeviceName;
 
     let inconsistent = false;
 
@@ -57,14 +57,14 @@ class DetermineNetwork {
           if (networkId != device.networkId) {
             inconsistent = true;
             log.red(
-              `Inconsistent special node network ids: ${colors.cyan(networkId)} (${colors.magenta(savedDeviceId)}) vs ${colors.cyan(
+              `Inconsistent special node network ids: ${colors.cyan(networkId)} (${colors.magenta(savedDeviceName)}) vs ${colors.cyan(
                 device.networkId
-              )} (${colors.magenta(device.deviceId)})`
+              )} (${colors.magenta(device.deviceName)})`
             );
           }
         } else {
           networkId = device.networkId;
-          savedDeviceId = device.deviceId;
+          savedDeviceName = device.deviceName;
         }
       }
     }

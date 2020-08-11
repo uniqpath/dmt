@@ -2,6 +2,6 @@ import path from 'path';
 
 import dmt from 'dmt/bridge';
 
-export default function getPath(deviceId) {
-  return path.join(dmt.deviceDir(deviceId), 'weblinks');
+export default function getPath(deviceName) {
+  return path.join(dmt.deviceDir(deviceName), 'weblinks');
 }

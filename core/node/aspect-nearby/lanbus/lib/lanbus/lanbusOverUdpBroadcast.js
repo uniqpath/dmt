@@ -19,7 +19,7 @@ class LanBusOverUdpBroadcast extends EventEmitter {
 
   handlePingRequest(msg) {
     if (msg.request == 'lanbus-ping-request') {
-      if (msg.targetDeviceId == this.device.id) {
+      if (msg.targetDeviceName == this.device.id) {
         this.emit('lanbus-ping-request-for-us');
       }
 
@@ -35,7 +35,7 @@ class LanBusOverUdpBroadcast extends EventEmitter {
         this.emit('message', msg);
       }
 
-      log.debug(`${colors.magenta('LANBUS')} message from: ${colors.magenta(msg.deviceId)} ● ${colors.cyan(msg)}`, { cat: 'lanbus' });
+      log.debug(`${colors.magenta('LANBUS')} message from: ${colors.magenta(msg.deviceName)} ● ${colors.cyan(msg)}`, { cat: 'lanbus' });
     });
   }
 

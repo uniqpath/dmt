@@ -10596,7 +10596,7 @@ var app = (function (crypto) {
         return this.activeStore.remoteObject(handle);
       }
 
-      switch({ deviceId, ip }) {
+      switch({ deviceName, ip }) {
         let matchingStore;
 
         this.stores.forEach((store, index) => {
@@ -11221,7 +11221,7 @@ var app = (function (crypto) {
     			if_block_anchor = empty();
     			attr_dev(h2, "class", "svelte-1q8p3xr");
     			toggle_class(h2, "faded", !/*connected*/ ctx[3]);
-    			add_location(h2, file$1, 77, 4, 1891);
+    			add_location(h2, file$1, 77, 4, 1895);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h2, anchor);
@@ -11375,36 +11375,36 @@ var app = (function (crypto) {
     			button7 = element("button");
     			t20 = text("↠ FWD");
     			attr_dev(div0, "class", "player_media section svelte-1q8p3xr");
-    			add_location(div0, file$1, 81, 6, 1997);
+    			add_location(div0, file$1, 81, 6, 2001);
     			attr_dev(button0, "class", "volume svelte-1q8p3xr");
     			button0.disabled = button0_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button0, file$1, 117, 8, 3386);
+    			add_location(button0, file$1, 117, 8, 3390);
     			attr_dev(button1, "class", "volume svelte-1q8p3xr");
     			button1.disabled = button1_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button1, file$1, 118, 8, 3493);
+    			add_location(button1, file$1, 118, 8, 3497);
     			attr_dev(div1, "class", "player_controls section svelte-1q8p3xr");
-    			add_location(div1, file$1, 109, 6, 3074);
+    			add_location(div1, file$1, 109, 6, 3078);
     			attr_dev(button2, "class", "limit svelte-1q8p3xr");
     			button2.disabled = button2_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button2, file$1, 126, 8, 3802);
+    			add_location(button2, file$1, 126, 8, 3806);
     			attr_dev(button3, "class", "next svelte-1q8p3xr");
     			button3.disabled = button3_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button3, file$1, 131, 8, 4086);
+    			add_location(button3, file$1, 131, 8, 4090);
     			attr_dev(button4, "class", "shuffle svelte-1q8p3xr");
     			button4.disabled = button4_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button4, file$1, 132, 8, 4185);
+    			add_location(button4, file$1, 132, 8, 4189);
     			attr_dev(button5, "class", "repeat svelte-1q8p3xr");
     			button5.disabled = button5_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button5, file$1, 133, 8, 4291);
+    			add_location(button5, file$1, 133, 8, 4295);
     			attr_dev(button6, "class", "backward svelte-1q8p3xr");
     			button6.disabled = button6_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button6, file$1, 135, 8, 4422);
+    			add_location(button6, file$1, 135, 8, 4426);
     			attr_dev(button7, "class", "forward svelte-1q8p3xr");
     			button7.disabled = button7_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button7, file$1, 136, 8, 4528);
+    			add_location(button7, file$1, 136, 8, 4532);
     			attr_dev(div2, "class", "player_more section svelte-1q8p3xr");
     			toggle_class(div2, "visible", /*playerMoreVisible*/ ctx[2]);
-    			add_location(div2, file$1, 124, 6, 3725);
+    			add_location(div2, file$1, 124, 6, 3729);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, div0, anchor);
@@ -11586,9 +11586,9 @@ var app = (function (crypto) {
     			p = element("p");
     			b = element("b");
     			b.textContent = "No media loaded";
-    			add_location(b, file$1, 100, 13, 2904);
+    			add_location(b, file$1, 100, 13, 2908);
     			attr_dev(p, "class", "svelte-1q8p3xr");
-    			add_location(p, file$1, 100, 10, 2901);
+    			add_location(p, file$1, 100, 10, 2905);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -11652,10 +11652,10 @@ var app = (function (crypto) {
     			if (if_block) if_block.c();
     			attr_dev(p0, "class", "current_media svelte-1q8p3xr");
     			toggle_class(p0, "faded", /*player*/ ctx[5].paused);
-    			add_location(p0, file$1, 84, 10, 2118);
+    			add_location(p0, file$1, 84, 10, 2122);
     			attr_dev(p1, "class", "svelte-1q8p3xr");
     			toggle_class(p1, "faded", /*player*/ ctx[5].paused);
-    			add_location(p1, file$1, 88, 10, 2420);
+    			add_location(p1, file$1, 88, 10, 2424);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p0, anchor);
@@ -11847,7 +11847,7 @@ var app = (function (crypto) {
     			t1 = text(t1_value);
     			attr_dev(p, "class", "svelte-1q8p3xr");
     			toggle_class(p, "faded", /*player*/ ctx[5].paused);
-    			add_location(p, file$1, 104, 10, 2980);
+    			add_location(p, file$1, 104, 10, 2984);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -11890,7 +11890,7 @@ var app = (function (crypto) {
     			t = text("● Pause");
     			attr_dev(button, "class", "pause svelte-1q8p3xr");
     			button.disabled = button_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button, file$1, 114, 10, 3269);
+    			add_location(button, file$1, 114, 10, 3273);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, button, anchor);
@@ -11933,7 +11933,7 @@ var app = (function (crypto) {
     			t = text("▶ Play");
     			attr_dev(button, "class", "play svelte-1q8p3xr");
     			button.disabled = button_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button, file$1, 112, 10, 3151);
+    			add_location(button, file$1, 112, 10, 3155);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, button, anchor);
@@ -11976,7 +11976,7 @@ var app = (function (crypto) {
     			t = text("Remove");
     			attr_dev(button, "class", "remove_limit svelte-1q8p3xr");
     			button.disabled = button_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button, file$1, 128, 10, 3956);
+    			add_location(button, file$1, 128, 10, 3960);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, button, anchor);
@@ -12026,7 +12026,7 @@ var app = (function (crypto) {
     			}
 
     			attr_dev(div, "class", "nearby_devices section svelte-1q8p3xr");
-    			add_location(div, file$1, 144, 4, 4684);
+    			add_location(div, file$1, 144, 4, 4688);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -12036,7 +12036,7 @@ var app = (function (crypto) {
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*nearbyDevices, activeDeviceId, switchDevice*/ 1216) {
+    			if (dirty[0] & /*nearbyDevices, activeDeviceName, switchDevice*/ 1216) {
     				each_value = /*nearbyDevices*/ ctx[6];
     				validate_each_argument(each_value);
     				let i;
@@ -12086,7 +12086,7 @@ var app = (function (crypto) {
     			span = element("span");
     			span.textContent = "!";
     			attr_dev(span, "class", "error svelte-1q8p3xr");
-    			add_location(span, file$1, 151, 32, 5059);
+    			add_location(span, file$1, 151, 32, 5069);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -12143,7 +12143,7 @@ var app = (function (crypto) {
     	let button;
     	let t0;
     	let t1;
-    	let t2_value = /*device*/ ctx[30].deviceId + "";
+    	let t2_value = /*device*/ ctx[30].deviceName + "";
     	let t2;
     	let t3;
     	let dispose;
@@ -12160,8 +12160,8 @@ var app = (function (crypto) {
     			t2 = text(t2_value);
     			t3 = space();
     			attr_dev(button, "class", "svelte-1q8p3xr");
-    			toggle_class(button, "active", /*device*/ ctx[30].deviceId == /*activeDeviceId*/ ctx[7]);
-    			add_location(button, file$1, 149, 8, 4936);
+    			toggle_class(button, "active", /*device*/ ctx[30].deviceName == /*activeDeviceName*/ ctx[7]);
+    			add_location(button, file$1, 149, 8, 4942);
     		},
     		m: function mount(target, anchor, remount) {
     			insert_dev(target, button, anchor);
@@ -12211,10 +12211,10 @@ var app = (function (crypto) {
     				if_block1 = null;
     			}
 
-    			if (dirty[0] & /*nearbyDevices*/ 64 && t2_value !== (t2_value = /*device*/ ctx[30].deviceId + "")) set_data_dev(t2, t2_value);
+    			if (dirty[0] & /*nearbyDevices*/ 64 && t2_value !== (t2_value = /*device*/ ctx[30].deviceName + "")) set_data_dev(t2, t2_value);
 
-    			if (dirty[0] & /*nearbyDevices, activeDeviceId*/ 192) {
-    				toggle_class(button, "active", /*device*/ ctx[30].deviceId == /*activeDeviceId*/ ctx[7]);
+    			if (dirty[0] & /*nearbyDevices, activeDeviceName*/ 192) {
+    				toggle_class(button, "active", /*device*/ ctx[30].deviceName == /*activeDeviceName*/ ctx[7]);
     			}
     		},
     		d: function destroy(detaching) {
@@ -12272,14 +12272,14 @@ var app = (function (crypto) {
     			t5 = text("Alarm:OFF");
     			attr_dev(button0, "class", " svelte-1q8p3xr");
     			button0.disabled = button0_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button0, file$1, 164, 6, 5310);
+    			add_location(button0, file$1, 164, 6, 5322);
     			attr_dev(button1, "class", " svelte-1q8p3xr");
     			button1.disabled = button1_disabled_value = !/*connected*/ ctx[3];
-    			add_location(button1, file$1, 165, 6, 5415);
+    			add_location(button1, file$1, 165, 6, 5427);
     			attr_dev(div, "class", "iot section svelte-1q8p3xr");
-    			add_location(div, file$1, 163, 2, 5278);
+    			add_location(div, file$1, 163, 2, 5290);
     			attr_dev(main, "class", "svelte-1q8p3xr");
-    			add_location(main, file$1, 67, 0, 1685);
+    			add_location(main, file$1, 67, 0, 1689);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -12478,7 +12478,7 @@ var app = (function (crypto) {
     		clientPubkey,
     		$session,
     		sharedSecretHex,
-    		activeDeviceId
+    		activeDeviceName
     	});
 
     	$$self.$inject_state = $$props => {
@@ -12492,7 +12492,7 @@ var app = (function (crypto) {
     		if ("nearbyDevices" in $$props) $$invalidate(6, nearbyDevices = $$props.nearbyDevices);
     		if ("clientPubkey" in $$props) clientPubkey = $$props.clientPubkey;
     		if ("sharedSecretHex" in $$props) sharedSecretHex = $$props.sharedSecretHex;
-    		if ("activeDeviceId" in $$props) $$invalidate(7, activeDeviceId = $$props.activeDeviceId);
+    		if ("activeDeviceName" in $$props) $$invalidate(7, activeDeviceName = $$props.activeDeviceName);
     	};
 
     	let connected;
@@ -12501,7 +12501,7 @@ var app = (function (crypto) {
     	let nearbyDevices;
     	let clientPubkey;
     	let sharedSecretHex;
-    	let activeDeviceId;
+    	let activeDeviceName;
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
@@ -12522,7 +12522,7 @@ var app = (function (crypto) {
 
     		if ($$self.$$.dirty[0] & /*$store*/ 2048) {
     			 $$invalidate(6, nearbyDevices = $store.nearbyDevices
-    			? $store.nearbyDevices.filter(device => device.hasGui).sort(util.compareValues("deviceId"))
+    			? $store.nearbyDevices.filter(device => device.hasGui).sort(util.compareValues("deviceName"))
     			: []);
     		}
 
@@ -12535,7 +12535,7 @@ var app = (function (crypto) {
     		}
 
     		if ($$self.$$.dirty[0] & /*controller*/ 16) {
-    			 $$invalidate(7, activeDeviceId = controller ? controller.deviceName : null);
+    			 $$invalidate(7, activeDeviceName = controller ? controller.deviceName : null);
     		}
     	};
 
@@ -12547,7 +12547,7 @@ var app = (function (crypto) {
     		controller,
     		player,
     		nearbyDevices,
-    		activeDeviceId,
+    		activeDeviceName,
     		action,
     		iotAction,
     		switchDevice,

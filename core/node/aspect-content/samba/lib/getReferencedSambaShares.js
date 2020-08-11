@@ -26,21 +26,21 @@ function getReferencedSambaShares() {
   const list = [];
 
   for (const provider of providers.filter(p => !p.localhost && p.hostType == 'dmt')) {
-    const deviceId = provider.host;
+    const deviceName = provider.host;
     const { contentId } = provider;
 
-    const { sambaShare, sambaPath } = dmtContent.contentPaths({ contentId, deviceId, returnSambaSharesInfo: true });
+    const { sambaShare, sambaPath } = dmtContent.contentPaths({ contentId, deviceName, returnSambaSharesInfo: true });
 
     if (!sambaShare) {
       throw new Error(
-        `@${deviceId}/${contentId} should be a sambaShare, not a list of paths. This is because it is referenced from player in ${device.id}/def/device.def`
+        `@${deviceName}/${contentId} should be a sambaShare, not a list of paths. This is because it is referenced from player in ${device.id}/def/device.def`
       );
     }
 
-    const mountBase = `${homedir()}/DMTMountedMedia/${deviceId}`;
+    const mountBase = `${homedir()}/DMTMountedMedia/${deviceName}`;
     const mountPath = path.join(mountBase, sambaShare);
 
-    list.push({ deviceId, sambaServerIp: provider.ip, contentId, mountPath, sambaShare, sambaPath });
+    list.push({ deviceName, sambaServerIp: provider.ip, contentId, mountPath, sambaShare, sambaPath });
   }
 
   cachedReferencedSambaShares = list;

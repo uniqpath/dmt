@@ -50,9 +50,9 @@ function getContentIDs() {
   return def.values(contentDef.multi).filter(id => id);
 }
 
-function contentPaths({ contentId, deviceId = 'this', returnSambaSharesInfo = false }) {
-  const device = dmt.device({ deviceId });
-  const filePath = dmt.deviceDefFile(deviceId, 'content');
+function contentPaths({ contentId, deviceName = 'this', returnSambaSharesInfo = false }) {
+  const device = dmt.device({ deviceName });
+  const filePath = dmt.deviceDefFile(deviceName, 'content');
   const contentDef = readContentDef({ filePath });
 
   if (contentDef.empty) {

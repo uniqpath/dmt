@@ -112,7 +112,7 @@ device: speaker1
       mpv: 70
 ```
 
-As you can see, `contentRef` is made of two parts in this case: `@deviceId/contentId`. A more basic example would be `contentRef: music` and it would signify a local content with id `music`. Search would then be performed locally on that content instead of going through a [RPC](https://github.com/uniqpath/info/tree/master/docs#search-architecture) (remote-procedure-call) and executing on the server's local filesystem.
+As you can see, `contentRef` is made of two parts in this case: `@deviceName/contentId`. A more basic example would be `contentRef: music` and it would signify a local content with id `music`. Search would then be performed locally on that content instead of going through a [RPC](https://github.com/uniqpath/info/tree/master/docs#search-architecture) (remote-procedure-call) and executing on the server's local filesystem.
 
 You also need one other special file under your device's def directory — `mountpoints.def`. It should look like this:
 

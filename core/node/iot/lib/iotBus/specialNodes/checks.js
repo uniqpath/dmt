@@ -6,7 +6,7 @@ function staticIP(specialNodes) {
   for (const node of specialNodes) {
     if (!node.ip) {
       log.red(
-        `⚠️  Device ${colors.magenta(`${node.deviceId}`)} is designated as a ${colors.cyan('specialNode')} but it doesn't have a static ip ${colors.yellow(
+        `⚠️  Device ${colors.magenta(`${node.deviceName}`)} is designated as a ${colors.cyan('specialNode')} but it doesn't have a static ip ${colors.yellow(
           '→ Ignoring specialNode designation.'
         )}`
       );
@@ -42,7 +42,7 @@ function hasNetworkId(specialNodes) {
   for (const node of specialNodes) {
     if (!node.networkId) {
       log.red(
-        `⚠️  Device ${colors.magenta(`${node.deviceId}`)} is a ${colors.cyan('specialNode')} but it is not a part of network - ${colors.yellow(
+        `⚠️  Device ${colors.magenta(`${node.deviceName}`)} is a ${colors.cyan('specialNode')} but it is not a part of network - ${colors.yellow(
           'network: [idMissing]'
         )}`
       );

@@ -16,11 +16,11 @@ const args = process.argv.slice(2);
 
 if (args.length != 1) {
   console.log(colors.yellow('Usage:'));
-  console.log('cli createLinkIndex [deviceId]');
+  console.log('cli createLinkIndex [deviceName]');
   process.exit();
 }
 
-const deviceId = args[0];
+const deviceName = args[0];
 
 function reportIssue(msg) {
   log.red(`⚠️  Warning: ${msg}`);
@@ -36,10 +36,10 @@ function splitToLines(buffer) {
 }
 
 function readLinks() {
-  const existingLinkIndex = readLinkIndex({ deviceId });
+  const existingLinkIndex = readLinkIndex({ deviceName });
 
   return new Promise((success, reject) => {
-    const linksDirectory = linkIndexPath(deviceId);
+    const linksDirectory = linkIndexPath(deviceName);
 
     if (fs.existsSync(linksDirectory)) {
       const files = scan.recursive(linksDirectory, {
@@ -122,7 +122,7 @@ function readLinks() {
 
 export default readLinks;
 
-const linksDirectory = linkIndexPath(deviceId);
+const linksDirectory = linkIndexPath(deviceName);
 
 const indexFile = path.join(linksDirectory, 'index.json');
 const indexFile2 = path.join(linksDirectory, 'index_emergency_backup.json');

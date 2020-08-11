@@ -5532,7 +5532,7 @@ var app = (function (crypto) {
         return this.activeStore.remoteObject(handle);
       }
 
-      switch({ deviceId, ip }) {
+      switch({ deviceName, ip }) {
         let matchingStore;
 
         this.stores.forEach((store, index) => {

@@ -26,7 +26,7 @@ class LanBusOverIotBus extends EventEmitter {
 
           this.emit('message', jsonMsg);
 
-          log.debug(`${colors.magenta('LANBUS')} message from: ${colors.magenta(jsonMsg.deviceId)} ● ${colors.cyan(jsonMsg)}`, { cat: 'lanbus' });
+          log.debug(`${colors.magenta('LANBUS')} message from: ${colors.magenta(jsonMsg.deviceName)} ● ${colors.cyan(jsonMsg)}`, { cat: 'lanbus' });
         } catch (e) {
           log.write(`Received LANBUS MQTT message from: ${colors.gray(JSON.parse(msg, null, 2))} ${colors.red("But couldn't parse it to JSON")}`);
         }
@@ -39,7 +39,7 @@ class LanBusOverIotBus extends EventEmitter {
   handleSpecialRequests({ topic, msg }) {
     if (topic == 'lanbus-ping-request') {
       const jsonMsg = JSON.parse(msg);
-      if (jsonMsg.targetDeviceId == this.device.id) {
+      if (jsonMsg.targetDeviceName == this.device.id) {
         this.emit('lanbus-ping-request-for-us');
       }
     }

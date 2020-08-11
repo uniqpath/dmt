@@ -1,6 +1,8 @@
 import dmt from 'dmt/bridge';
 import os from 'os';
 
+import attachSpecialNodeDeviceAttributes from './attachSpecialNodeDeviceAttributes';
+
 export default function attachNearbyDeviceAttributes({ program = null, msg }) {
   if (program) {
     const playerState = program.state.player;
@@ -46,12 +48,12 @@ export default function attachNearbyDeviceAttributes({ program = null, msg }) {
     }
   }
 
-  if (program && msg.ip == dmt.accessPointIP && dmt.definedNetworkId()) {
-    msg.networkId = dmt.definedNetworkId();
+  if (program) {
+    attachSpecialNodeDeviceAttributes({ program, msg });
   }
 
   if (program && program.specialNodes) {
-    const thisSpecialNode = program.specialNodes.find(node => node.deviceId == program.device.id);
+    const thisSpecialNode = program.specialNodes.find(node => node.deviceName == program.device.id);
     if (thisSpecialNode) {
       msg.specialNode = true;
       msg.specialNodePriority = thisSpecialNode.priority;

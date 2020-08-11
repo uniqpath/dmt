@@ -262,20 +262,20 @@ export default {
     return def.makeTryable(network || emptyObj);
   },
 
-  deviceDefFile(deviceId, file = 'device') {
-    return path.join(dmtUserDir, `devices/${deviceId}/def/${file}.def`);
+  deviceDefFile(deviceName, file = 'device') {
+    return path.join(dmtUserDir, `devices/${deviceName}/def/${file}.def`);
   },
 
-  deviceDefIsMissing(deviceId = 'this') {
-    const filePath = this.deviceDefFile(deviceId);
+  deviceDefIsMissing(deviceName = 'this') {
+    const filePath = this.deviceDefFile(deviceName);
     return !fs.existsSync(filePath);
   },
 
-  device({ deviceId = 'this', onlyBasicParsing = false, caching = true } = {}) {
-    const defMissingMsg = `Cannot read ${colors.cyan('device.def')} file for ${colors.cyan(deviceId)} device`;
+  device({ deviceName = 'this', onlyBasicParsing = false, caching = true } = {}) {
+    const defMissingMsg = `Cannot read ${colors.cyan('device.def')} file for ${colors.cyan(deviceName)} device`;
 
-    if (deviceId == 'this') {
-      const filePath = this.deviceDefFile(deviceId);
+    if (deviceName == 'this') {
+      const filePath = this.deviceDefFile(deviceName);
       if (!fs.existsSync(filePath)) {
         const msg = `${defMissingMsg} — make sure device is selected - use ${colors.green('dmt device select')} to select device`;
         console.log(colors.red(msg));
@@ -286,7 +286,7 @@ export default {
 
     const list = this.devices({ onlyBasicParsing, caching });
 
-    const match = list.find(device => device.id == deviceId);
+    const match = list.find(device => device.id == deviceName);
 
     if (!match) {
       console.log(colors.red(defMissingMsg));
@@ -322,10 +322,10 @@ export default {
     return onlyBasicParsing ? devicesBasic : devices;
   },
 
-  deviceDir(deviceId = this.device().id) {
+  deviceDir(deviceName = this.device().id) {
     const devicesDir = path.join(dmtUserDir, 'devices');
 
-    return path.join(devicesDir, deviceId);
+    return path.join(devicesDir, deviceName);
   },
 
   fiber() {
@@ -472,13 +472,13 @@ export default {
 
   services(serviceId) {
     const name = 'services';
-    const deviceId = 'this';
+    const deviceName = 'this';
 
     const fileList = [];
     fileList.push(path.join(dmtPath, `def/${name}.def`));
     fileList.push(path.join(dmtUserDir, `def/${name}.def`));
-    fileList.push(path.join(dmtUserDir, `devices/${deviceId}/def/${name}.def`));
-    fileList.push({ filePath: path.join(dmtUserDir, `devices/${deviceId}/def/device.def`), secondLevel: true });
+    fileList.push(path.join(dmtUserDir, `devices/${deviceName}/def/${name}.def`));
+    fileList.push({ filePath: path.join(dmtUserDir, `devices/${deviceName}/def/device.def`), secondLevel: true });
 
     const services = this.defMerge({ fileList, key: 'service' });
 
@@ -523,7 +523,7 @@ export default {
   },
 
   getLocalIpViaNearby({ program, deviceName }) {
-    const match = program.state.nearbyDevices.find(({ deviceId, stale }) => !stale && deviceName == deviceId);
+    const match = program.state.nearbyDevices.find(({ deviceName, stale }) => !stale && deviceName == deviceName);
     if (match) {
       return match.ip;
     }

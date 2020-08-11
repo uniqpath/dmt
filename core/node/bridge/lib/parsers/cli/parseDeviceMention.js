@@ -18,16 +18,16 @@ function parseDeviceMention(attrData) {
 
   const deviceDefPresent = !dmt.deviceDefIsMissing(host);
 
-  const thisDeviceId = dmt.device().id;
+  const thisDeviceName = dmt.device().id;
 
   let thisHost = false;
 
   if (deviceDefPresent) {
-    if (host == 'this' || host == thisDeviceId) {
-      host = thisDeviceId;
+    if (host == 'this' || host == thisDeviceName) {
+      host = thisDeviceName;
       thisHost = true;
 
-      if (!thisDeviceId) {
+      if (!thisDeviceName) {
         throw new Error(`Missing device name, probably the device is not selected ${colors.yellow('→ use')} ${colors.green('dev select')}`);
       }
     }

@@ -4,7 +4,7 @@ const pushNotifications = true;
 
 function getThisSpecialNode(program) {
   const nodes = program.specialNodes;
-  return nodes.find(node => node.deviceId == program.device.id);
+  return nodes.find(node => node.deviceName == program.device.id);
 }
 
 function setup(program) {
@@ -33,8 +33,8 @@ function tick(program) {
     let otherResponsibleNodeActive = false;
 
     if (nearbyDevices) {
-      const deviceIds = Object.keys(nearbyDevices);
-      for (const id of deviceIds) {
+      const deviceNames = Object.keys(nearbyDevices);
+      for (const id of deviceNames) {
         const device = nearbyDevices[id];
         if (device.specialNode && device.specialNodePriority < thisSpecialNode.priority && now - device.lastSeenAt < 30000) {
           otherResponsibleNodeActive = true;

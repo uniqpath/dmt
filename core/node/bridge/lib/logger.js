@@ -63,7 +63,7 @@ class Logger {
 
   lineMetadata({ error }) {
     const meta = {
-      deviceId: device.id,
+      deviceName: device.id,
       pid: process.pid,
       time: new Date().toLocaleString(),
       epoch: Date.now() - this.startTimestamp
@@ -77,7 +77,7 @@ class Logger {
   }
 
   infoLine(data) {
-    return `${data.deviceId ? `${colors.magenta(data.deviceId)}` : ''} pid ${data.pid} ${colors.gray(data.time)} ${this.formatEpoch(data.epoch)}`;
+    return `${data.deviceName ? `${colors.magenta(data.deviceName)}` : ''} pid ${data.pid} ${colors.gray(data.time)} ${this.formatEpoch(data.epoch)}`;
   }
 
   logOutput(color, { onlyToFile = false, skipMeta = false, error = false } = {}, ...args) {

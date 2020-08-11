@@ -48,7 +48,7 @@ class Nearby {
   }
 
   ourMessage() {
-    return msgLanbusChatter({ program: this.program, deviceId: this.program.device.id, message: 'ΞΞΞ HEY' });
+    return msgLanbusChatter({ program: this.program, deviceName: this.program.device.id, message: 'ΞΞΞ HEY' });
   }
 
   broadcastOurHelloMessage({ onlyUdp = false } = {}) {
@@ -89,7 +89,7 @@ class Nearby {
           announce = true;
         }
 
-        const hiddenInGui = showOnly && !showOnly.includes(obj.deviceId);
+        const hiddenInGui = showOnly && !showOnly.includes(obj.deviceName);
 
         if (hiddenInGui) {
           device.hiddenInGui = true;

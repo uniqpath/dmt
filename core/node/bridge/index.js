@@ -119,10 +119,10 @@ export default {
   memoryUsage,
 
   deviceGeneralIdentifier() {
-    const deviceId = this.device({ onlyBasicParsing: true }).id;
+    const deviceName = this.device({ onlyBasicParsing: true }).id;
     const hostname = os.hostname();
 
-    return deviceId == hostname ? deviceId : `${deviceId} (os hostname: ${hostname})`;
+    return deviceName == hostname ? deviceName : `${deviceName} (os hostname: ${hostname})`;
   },
 
   userDefaults(defPath) {

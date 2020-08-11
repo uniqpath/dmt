@@ -7,12 +7,12 @@
   $: connected = $store.connected;
   $: controller = $store.controller;
   $: player = $store.player;
-  $: nearbyDevices = $store.nearbyDevices ? $store.nearbyDevices.filter(device => device.hasGui).sort(util.compareValues('deviceId')) : [];
+  $: nearbyDevices = $store.nearbyDevices ? $store.nearbyDevices.filter(device => device.hasGui).sort(util.compareValues('deviceName')) : [];
 
   $: clientPubkey = $session.publicKeyHex;
   $: sharedSecretHex = $session.sharedSecretHex;
 
-  $: activeDeviceId = controller ? controller.deviceName : null;
+  $: activeDeviceName = controller ? controller.deviceName : null;
 
   //const usualDeviceList = ['kitchen', 'midroom', 'outside', 'living-room', 'tv', 'dpanel', 'lab'];
 
@@ -145,9 +145,9 @@
     <div class="nearby_devices section">
       <!-- window.location.hostname != '192.168.0.60' || -->
       {#each nearbyDevices as device}
-      <!-- {#each nearbyDevices.filter(device => usualDeviceList.includes(device.deviceId)) as device} -->
+      <!-- {#each nearbyDevices.filter(device => usualDeviceList.includes(device.deviceName)) as device} -->
 
-        <button on:click={switchDevice(device)} class:active={device.deviceId == activeDeviceId}>
+        <button on:click={switchDevice(device)} class:active={device.deviceName == activeDeviceName}>
 
           {#if device.hasErrors}<span class='error'>!</span>{/if}
 
@@ -155,7 +155,7 @@
             {device.mediaType == 'music' ? '♫' : '▶'}
           {/if}
 
-          {device.deviceId}
+          {device.deviceName}
         </button>
       {/each}
     </div>

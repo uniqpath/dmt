@@ -784,7 +784,7 @@ function dmt_gui {
   if [ -z "$option" ]; then
     printf "${YELLOW}Usage:${NC}\n"
     printf "${GREEN}dmt gui test${NC} ${GRAY}display a test notification on the gui${NC}\n"
-    printf "${GREEN}dmt gui @deviceId test${NC} ${GRAY}display a test notification on remote gui${NC}\n"
+    printf "${GREEN}dmt gui @deviceName test${NC} ${GRAY}display a test notification on remote gui${NC}\n"
     #printf "${GREEN}dmt gui cd [view]${NC} ${GRAY}${NC}\n"
     # printf "${GREEN}dmt_gui run${NC} ${GRAY}${NC}\n"
     # printf "${GREEN}dmt_gui build${NC} ${GRAY}build all GUIs${NC}\n"
@@ -792,7 +792,7 @@ function dmt_gui {
     printf "${GREEN}dmt gui load [view]${NC} ${GRAY}loads the specified gui view (home, player, debug etc.)${NC}\n"
     printf "${GREEN}dmt gui reload${NC} ${GRAY}send request to frontend via websocket requesting reload of current url${NC}\n"
     printf "${GREEN}dmt gui reload [view]${NC} ${GRAY}reloads to the specified gui view (home, player, debug etc.)${NC}\n"
-    printf "${GREEN}dmt gui switch [ip]${NC} ${GRAY}switches gui to specified IP (todo: use deviceId instead of ip)${NC}\n"
+    printf "${GREEN}dmt gui switch [ip]${NC} ${GRAY}switches gui to specified IP (todo: use deviceName instead of ip)${NC}\n"
     # printf "${GREEN}dmt_gui debug${NC} ${GRAY}shows debugging info for current gui issues troubleshooting${NC}\n"
     return
   fi
@@ -940,8 +940,8 @@ function dmt_help {
   printf "  ${GREEN}■${NC} ${GREEN}dmt next ${GRAY}gets the latest dmt-system code from the source${NC}\n"
   #printf "  ${GREEN}■${NC} ${GREEN}dmt next --dry ${GRAY}show what would ${WHITE}dmt next${GRAY} command do${NC}\n"
   echo
-  printf "  ${CYAN}■${NC} ${GREEN}dmt update [deviceId|ip_address] ${GRAY}clones ~/.dmt directory to another machine via SSH and restarts the process after update${NC}\n"
-  printf "  ${CYAN}■${NC} ${GREEN}dmt copy [deviceId|ip_address] ${GRAY}same as above but without process restart (only in-browser GUI is reloaded) ${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt update [deviceName|ip_address] ${GRAY}clones ~/.dmt directory to another machine via SSH and restarts the process after update${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt copy [deviceName|ip_address] ${GRAY}same as above but without process restart (only in-browser GUI is reloaded) ${NC}\n"
   echo
   printf "  Another way to clone/update: ${CYAN}curl [machineIp]:1111 | bash ${NC}→ ${GRAY}replicates ~/.dmt directory\n"
   printf "  ${GRAY}(without ~/.dmt/user|state|log) from [machineIp] to machine where command was executed${NC}\n"
@@ -964,8 +964,8 @@ function dmt_help_explain_rpc {
   echo
   printf "How to refer to other ${CYAN}dmt-proc${NC} instances on local network? ${YELLOW}Use ${MAGENTA}the @ symbol${NC} →${NC}\n"
   echo
-  printf "  ${MAGENTA}■${NC} ${GREEN}dmt ${MAGENTA}@deviceId${GREEN} [log|services|etc.] ${GRAY}gets information about a device on local network${NC}\n"
-  printf "  ${MAGENTA}■${NC} ${GREEN}dmt ${MAGENTA}@ip_address${GREEN} [log|services|etc.] ${GRAY}same as above but directly with ip address instead of deviceId from device.def${NC}\n"
+  printf "  ${MAGENTA}■${NC} ${GREEN}dmt ${MAGENTA}@deviceName${GREEN} [log|services|etc.] ${GRAY}gets information about a device on local network${NC}\n"
+  printf "  ${MAGENTA}■${NC} ${GREEN}dmt ${MAGENTA}@ip_address${GREEN} [log|services|etc.] ${GRAY}same as above but directly with ip address instead of deviceName from device.def${NC}\n"
   printf "  while ${GREEN}dmt [log|services|etc.] ${GRAY}gets information about current device as usual${NC}\n"
   # printf "${GREEN}dmt @@remoteIpOrHost info ${GRAY}gets information about remote device on the other side of router WAN port${NC}\n"
   echo

@@ -13,7 +13,7 @@ const table = new Table({
   chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' }
 });
 
-const headers = ['deviceName', 'IP', 'uptime', 'user', 'deviceKey', 'apssid'];
+const headers = ['device', 'local ip', 'this', 'hub', 'uptime', 'user', 'apssid'];
 
 const args = process.argv.slice(2);
 
@@ -43,10 +43,21 @@ function identifyDeviceByMac(_mac) {
   return _mac;
 }
 
-function deviceWithMediaMark({ deviceId, playing, mediaType, thisDevice }) {
+function deviceWithMediaMark({ deviceName, playing, mediaType }) {
   const mark = playing ? (mediaType == 'music' ? ' ♪♫♬' : ' ▶') : '';
-  const thisMark = thisDevice ? colors.gray(' [this]') : '';
-  return colors.cyan(`${deviceId}${thisMark}${colors.magenta(mark)}`);
+  return colors.cyan(`${deviceName}${colors.magenta(mark)}`);
+}
+
+function ipInfo({ ip, isSpecialNode, thisDevice }) {
+  if (isSpecialNode) {
+    return colors.magenta(ip);
+  }
+
+  if (thisDevice) {
+    return colors.cyan(ip);
+  }
+
+  return colors.yellow(ip);
 }
 
 ipcClient({ actorName: 'controller', action, payload })
@@ -58,20 +69,21 @@ ipcClient({ actorName: 'controller', action, payload })
 
     table.push(headers);
 
-    const nearbyDevices = _nearbyDevices.filter(({ stale }) => !stale).sort(compareValues('deviceId'));
+    const nearbyDevices = _nearbyDevices.filter(({ stale }) => !stale).sort(compareValues('deviceName'));
 
     if (simple) {
-      for (const { deviceId, username, ip } of nearbyDevices.filter(({ thisDevice }) => !thisDevice)) {
-        console.log(`${deviceId}; ${username}@${ip}`);
+      for (const { deviceName, username, ip } of nearbyDevices.filter(({ thisDevice }) => !thisDevice)) {
+        console.log(`${deviceName}; ${username}@${ip}`);
       }
     } else {
       table.push(
-        ...nearbyDevices.map(({ deviceId, deviceKey, ip, username, uptime, thisDevice, apssid, playing, mediaType }) => [
-          deviceWithMediaMark({ deviceId, playing, mediaType, thisDevice }),
-          colors.yellow(ip),
+        ...nearbyDevices.map(({ deviceName, deviceKey, ip, username, uptime, thisDevice, isSpecialNode, apssid, playing, mediaType }) => [
+          deviceWithMediaMark({ deviceName, playing, mediaType }),
+          ipInfo({ ip, isSpecialNode, thisDevice }),
+          thisDevice ? colors.cyan('✓') : '',
+          isSpecialNode ? colors.magenta('✓') : '',
           colors.green(uptime),
           colors.gray(username),
-          colors.gray(deviceKey),
           apssid ? colors.magenta(identifyDeviceByMac(apssid)) : colors.gray('/')
         ])
       );
