@@ -189,7 +189,7 @@ class Playlist {
     return this.playlist.filter(songInfo => songInfo.selected).map(songInfo => songInfo.id);
   }
 
-  cut(args, { fromGui = false } = {}) {
+  cut(args = '', { fromGui = false } = {}) {
     if (this.cutInProgress) {
       return;
     }
@@ -354,7 +354,7 @@ class Playlist {
 
     this.currentIndex -= prevBumpedCount;
 
-    this.playlist.splice(this.currentIndex + 1, 0, ...insertSongList);
+    this.playlist.splice(this.currentIndex + 1, 0, ...util.shuffle(insertSongList));
 
     this.renumberPlaylist();
     this.broadcastPlaylistState();
@@ -362,6 +362,15 @@ class Playlist {
     return insertSongList.map(song => {
       return { title: song.title, path: song.path };
     });
+  }
+
+  gather() {
+    const currentSongId = this.currentSongId();
+    if (currentSongId) {
+      const currentSongDir = path.dirname(this.currentSong().path);
+      const songIDs = this.playlist.filter(songInfo => path.dirname(songInfo.path) == currentSongDir).map(songInfo => songInfo.id);
+      return this.bumpSongIDs(songIDs);
+    }
   }
 
   insert(files) {
@@ -462,8 +471,8 @@ class Playlist {
   broadcastPlaylistState() {
     const numberOfMissingMedia = this.playlist.filter(song => song.error).length;
     const { metadataReadCount } = this.updatePlaylistDerivedData();
-    const playlistHasSelectedEntries = !!this.playlist.find(songInfo => songInfo.selected && !songInfo.aboutToBeCut && songInfo.id != this.currentSongId());
-    const currentSongIsSelected = !!this.playlist.find(songInfo => songInfo.selected && songInfo.id == this.currentSongId());
+    const playlistSelectedCount = this.playlist.filter(songInfo => songInfo.selected && !songInfo.aboutToBeCut && songInfo.id != this.currentSongId()).length;
+    const playlistHasSelectedEntries = playlistSelectedCount > 0;
     this.program.updateState({
       player: { hasMissingMedia: numberOfMissingMedia > 0 },
       playlist: this.playlist,
@@ -471,8 +480,8 @@ class Playlist {
         playlistLength: this.playlist.length,
         numberOfMissingMedia,
         metadataReadCount,
+        playlistSelectedCount,
         playlistHasSelectedEntries,
-        currentSongIsSelected,
         playlistClipboard: !!this.clipboard
       }
     });

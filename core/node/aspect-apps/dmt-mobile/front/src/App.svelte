@@ -83,7 +83,7 @@
 
         {#if player.currentMedia && player.currentMedia.song && connected}
           <p class="current_media" class:faded={player.paused}>
-            {player.paused ? ' ' : (player.currentMedia.mediaType == 'music' ? '♫' : '▶')}
+            {player.paused ? ' ' : (player.currentMedia.mediaType == 'video' ? '▶' : '♫')}
             {player.currentMedia.artist ? `${player.currentMedia.artist} - ${player.currentMedia.song}` : player.currentMedia.song}
           </p>
           <p class:faded={player.paused}>

@@ -20,7 +20,7 @@ class PowerMonitor extends EventEmitter {
     const warningMin = safetyOffSeconds >= 5 * 60 ? Math.round((0.1 * safetyOffSeconds) / 60.0) : undefined;
 
     dmt.loop(() => {
-      if (program && program.isResponsibleNode() && this.onDetectedAt && safetyOffSeconds) {
+      if (program && program.isHub() && this.onDetectedAt && safetyOffSeconds) {
         if (warningMin && Date.now() - this.onDetectedAt > 1000 * (safetyOffSeconds - warningMin * 60) && !this.safetyOffWarningSent) {
           const msg = `Warning: ${tasmotaDeviceName} safety OFF in ${warningMin} min.`;
           push.notify(msg);

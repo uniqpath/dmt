@@ -3,7 +3,7 @@ import { push } from 'dmt/notify';
 import { PowerMonitor, powerLog } from '../powerline';
 
 function notify({ msg, program, notifyOnlyAdmin }) {
-  if (program.isResponsibleNode()) {
+  if (program.isHub()) {
     if (notifyOnlyAdmin) {
       push.notify(msg);
     } else {

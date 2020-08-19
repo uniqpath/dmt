@@ -28,7 +28,7 @@ function handleIotEvent({ program, topic, msg }) {
 
     switch (blindsStatus) {
       case 'booted':
-        if (program.isLanBroker()) {
+        if (program.isHub()) {
           handleBooted(data);
         }
         break;

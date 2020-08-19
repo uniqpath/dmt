@@ -106,15 +106,6 @@ class Program extends EventEmitter {
     return this.metamaskStore;
   }
 
-  setResponsibleNode(isResponsible) {
-    this.responsibleNode = isResponsible;
-    this.emit('responsible_node_state_changed');
-  }
-
-  isResponsibleNode() {
-    return this.responsibleNode;
-  }
-
   registerActor(actor) {
     this.actors.register(actor);
   }
@@ -210,7 +201,7 @@ class Program extends EventEmitter {
     return dmt.apMode();
   }
 
-  isLanBroker() {
+  isHub() {
     return this.state.controller.ip == dmt.accessPointIP;
   }
 

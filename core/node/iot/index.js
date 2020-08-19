@@ -21,11 +21,7 @@ const iotBus = new IotBus();
 import loadIotModules from './loadIotModules';
 
 function init(program) {
-  program.specialNodes = specialNodes();
-
-  if (program.specialNodes.length > 0) {
-    iotBus.init({ specialNodes: program.specialNodes });
-  }
+  iotBus.init();
 
   iotBus.on('message', msg => {
     program.emit('iot:message', msg);

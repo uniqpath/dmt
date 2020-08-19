@@ -11617,9 +11617,9 @@ var app = (function (crypto) {
 
     	let t0_value = (/*player*/ ctx[5].paused
     	? " "
-    	: /*player*/ ctx[5].currentMedia.mediaType == "music"
-    		? "♫"
-    		: "▶") + "";
+    	: /*player*/ ctx[5].currentMedia.mediaType == "video"
+    		? "▶"
+    		: "♫") + "";
 
     	let t0;
     	let t1;
@@ -11669,9 +11669,9 @@ var app = (function (crypto) {
     		p: function update(ctx, dirty) {
     			if (dirty[0] & /*player*/ 32 && t0_value !== (t0_value = (/*player*/ ctx[5].paused
     			? " "
-    			: /*player*/ ctx[5].currentMedia.mediaType == "music"
-    				? "♫"
-    				: "▶") + "")) set_data_dev(t0, t0_value);
+    			: /*player*/ ctx[5].currentMedia.mediaType == "video"
+    				? "▶"
+    				: "♫") + "")) set_data_dev(t0, t0_value);
 
     			if (dirty[0] & /*player*/ 32 && t2_value !== (t2_value = (/*player*/ ctx[5].currentMedia.artist
     			? `${/*player*/ ctx[5].currentMedia.artist} - ${/*player*/ ctx[5].currentMedia.song}`
@@ -12620,7 +12620,7 @@ var app = (function (crypto) {
     const protocol = 'dmt';
     const protocolLane = 'gui';
 
-    const initialIp = localStorage.getItem('current_device_ip');
+    //const initialIp = localStorage.getItem('current_device_ip');
 
     // BUGGGGG !!! won't work... won't connect at all ... TODO
     // PROBLEM !!! If we go to a different network, we get warnings in JS console!!
@@ -12628,7 +12628,7 @@ var app = (function (crypto) {
     // SOLUTION: check if ip is in nearbyDevices !
 
     const session = new SessionStore$1();
-    const store = new MultiConnectedStore$1({ session, port, protocol, protocolLane, initialIp });
+    const store = new MultiConnectedStore$1({ session, port, protocol, protocolLane, initialIp: null });
 
     const app = new App({
       target: document.body,

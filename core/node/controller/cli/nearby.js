@@ -43,9 +43,14 @@ function identifyDeviceByMac(_mac) {
   return _mac;
 }
 
-function deviceWithMediaMark({ deviceName, playing, mediaType }) {
-  const mark = playing ? (mediaType == 'music' ? ' ♪♫♬' : ' ▶') : '';
-  return colors.cyan(`${deviceName}${colors.magenta(mark)}`);
+function deviceWithMediaMark({ deviceName, playing, mediaType, isStream }) {
+  let mark = playing ? (mediaType == 'video' ? ' ▶' : ' ♪♫♬') : '';
+
+  if (isStream) {
+    mark = `${mark}${colors.gray(' [stream]')}`;
+  }
+
+  return colors.cyan(`${deviceName}${colors.cyan(mark)}`);
 }
 
 function ipInfo({ ip, isSpecialNode, thisDevice }) {
@@ -57,7 +62,7 @@ function ipInfo({ ip, isSpecialNode, thisDevice }) {
     return colors.cyan(ip);
   }
 
-  return colors.yellow(ip);
+  return ip;
 }
 
 ipcClient({ actorName: 'controller', action, payload })
@@ -77,8 +82,8 @@ ipcClient({ actorName: 'controller', action, payload })
       }
     } else {
       table.push(
-        ...nearbyDevices.map(({ deviceName, deviceKey, ip, username, uptime, thisDevice, isSpecialNode, apssid, playing, mediaType }) => [
-          deviceWithMediaMark({ deviceName, playing, mediaType }),
+        ...nearbyDevices.map(({ deviceName, deviceKey, ip, username, uptime, thisDevice, isSpecialNode, isStream, apssid, playing, mediaType }) => [
+          deviceWithMediaMark({ deviceName, playing, mediaType, isStream }),
           ipInfo({ ip, isSpecialNode, thisDevice }),
           thisDevice ? colors.cyan('✓') : '',
           isSpecialNode ? colors.magenta('✓') : '',

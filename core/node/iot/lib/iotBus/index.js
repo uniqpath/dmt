@@ -5,7 +5,7 @@ const { log } = dmt;
 import MqttRail from './mqttRail';
 
 class IotBus extends EventEmitter {
-  init({ specialNodes, onlyAp }) {
+  init() {
     this.mqttRail = new MqttRail({ ip: dmt.accessPointIP });
 
     let firstConnect = true;

@@ -19,7 +19,10 @@
     "./net": "./net",
     "./cli": "./aspect-meta/cli-framework",
     "./resolve": "./aspect-meta/resolve",
-    "./bash-exec": "./aspect-meta/bash-exec"
+    "./bash-exec": "./aspect-meta/bash-exec",
+    "./swarmindex": "./aspect-indices/swarmindex",
+    "./webindex": "./aspect-indices/webindex",
+    "./webspider": "./aspect-spiders/webspider"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

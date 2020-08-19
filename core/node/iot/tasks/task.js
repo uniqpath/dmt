@@ -13,20 +13,18 @@ class Task {
   }
 
   setup() {
-    if (this.program.specialNode) {
-      this.ifTimeOfDay = new IfTimeOfDay(this);
-      this.ifMsg = new IfMsg({ task: this, program: this.program });
-    }
+    this.ifTimeOfDay = new IfTimeOfDay(this);
+    this.ifMsg = new IfMsg({ task: this, program: this.program });
   }
 
   tick() {
-    if (this.program.isResponsibleNode()) {
+    if (this.program.isHub()) {
       this.ifTimeOfDay.tick();
     }
   }
 
   handleIotEvent({ topic, msg }) {
-    if (this.program.isResponsibleNode()) {
+    if (this.program.isHub()) {
       this.ifMsg.handleIotEvent({ topic, msg });
     }
 

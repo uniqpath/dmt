@@ -6,7 +6,7 @@ import urlModule from 'url';
 import readTitle from 'read-title';
 import colors from 'colors';
 
-import latestLinkIndexVersion from './linkIndexVersion';
+import { latestLinkIndexVersion } from 'dmt/webindex';
 
 import getGitHubLink from './getGitHubLink';
 

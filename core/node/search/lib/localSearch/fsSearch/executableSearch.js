@@ -21,6 +21,8 @@ export default function executableSearch(binary, { terms, path, noColor, mediaTy
 
   constructedTerms.push('--only-files');
 
+  constructedTerms.push('--search-absolute-path');
+
   constructedTerms.push(...util.clone(terms));
 
   if (mediaType) {
@@ -49,6 +51,7 @@ export default function executableSearch(binary, { terms, path, noColor, mediaTy
           filePath.trim() != '' &&
           !filePath.endsWith('.DS_Store') &&
           !(pathModule.basename(filePath).startsWith('~$') && filePath.endsWith('.docx')) &&
+          !filePath.endsWith('.swp') &&
           !filePath.endsWith('.zeta.txt') &&
           !filePath.endsWith('.zeta.json')
         );

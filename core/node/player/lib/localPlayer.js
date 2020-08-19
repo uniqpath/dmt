@@ -500,6 +500,10 @@ class LocalPlayer {
     });
   }
 
+  gather() {
+    this.playlist.gather();
+  }
+
   gotoPercentPos(percentPos) {
     if (!this.program.state.player.paused) {
       const duration = this.mediaDuration();

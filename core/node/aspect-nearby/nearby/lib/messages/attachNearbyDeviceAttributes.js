@@ -14,6 +14,10 @@ export default function attachNearbyDeviceAttributes({ program = null, msg }) {
       if (playerState.currentMedia) {
         msg.mediaType = playerState.currentMedia.mediaType;
       }
+
+      if (playerState.isStream) {
+        msg.isStream = true;
+      }
     }
   }
 
@@ -50,16 +54,6 @@ export default function attachNearbyDeviceAttributes({ program = null, msg }) {
 
   if (program) {
     attachSpecialNodeDeviceAttributes({ program, msg });
-  }
-
-  if (program && program.specialNodes) {
-    const thisSpecialNode = program.specialNodes.find(node => node.deviceName == program.device.id);
-    if (thisSpecialNode) {
-      msg.specialNode = true;
-      msg.specialNodePriority = thisSpecialNode.priority;
-    }
-
-    msg.responsibleNode = program.isResponsibleNode();
   }
 
   return msg;

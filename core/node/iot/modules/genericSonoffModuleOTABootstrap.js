@@ -19,7 +19,7 @@ function handleIotEvent({ program, topic, msg }) {
 
     switch (moduleStatus) {
       case 'booted':
-        if (program.isLanBroker()) {
+        if (program.isHub()) {
           handleBooted({ moduleIp });
         }
         break;

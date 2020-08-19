@@ -24,7 +24,7 @@ function enhanceFS(result, { providerAddress, providerPort, searchOriginHost }) 
     );
   }
 
-  Object.assign(result, { mediaType, fiberContentURL, playableUrl: `http://${fiberContentURL}` });
+  Object.assign(result, { fileName, directory, mediaType, fiberContentURL, playableUrl: `http://${fiberContentURL}` });
 }
 
 export default enhanceFS;
