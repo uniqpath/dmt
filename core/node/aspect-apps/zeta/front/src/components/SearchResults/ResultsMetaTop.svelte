@@ -2,8 +2,13 @@
   export let meta;
 </script>
 
-<h3>
-  @{meta.providerHost}<span class="contentId">{#if meta.contentId}/{meta.contentId}{/if}</span>
+<div class="provider_host">
+  <!-- {JSON.stringify(meta)} -->
+  <span class="info">
+    Results from
+    <!-- {meta.providerAddress == "localhost" ? "" : "p2p node"} -->
+  </span>
+  <span class="host">@{meta.providerHost}</span><span class="contentId">{#if meta.contentId}/{meta.contentId}{/if}</span>
 
   <!-- {#if !providerResponse.error}
     <span class="searchTime">fs <span class="value">{providerResponse.meta.searchTimePretty}</span>
@@ -13,10 +18,34 @@
     </span>
   {/if} -->
 
-</h3>
+</div>
 
 <style>
-  h3 span.contentId {
+  .provider_host {
+    padding: 5px 20px;
+    font-size: 1.2em;
+    color: white;
+
+    margin-top: 20px;
+    margin-bottom: 10px;
+
+    border-radius: 5px;
+
+    border: 1px solid var(--zeta-green);
+    display: inline-block;
+  }
+
+  .info {
+    /*color: var(--dmt-cool-cyan);*/
+    font-size: 0.9em;
+  }
+
+  .host {
+    color: var(--dmt-bright-cyan);
+  }
+
+  .contentId {
     color: #DDD;
+    color: var(--dmt-cool-cyan);
   }
 </style>

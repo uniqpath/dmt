@@ -3,6 +3,7 @@
   const app = getContext('app');
 
   export let isMobile;
+  export let searchQuery;
 
   const d = new Date();
   const datestring = `${d.getFullYear()}-${(d.getMonth() + 1)}-${d.getDate()}`;
@@ -14,9 +15,8 @@
   }
 </script>
 
-<!-- {#if app.isZetaSeek} -->
 
-  <div class="about" class:visible={!minimized}>
+  <div class="about" class:visible={!minimized && !searchQuery}>
 
     <a href="#" class="minimize" on:click={() => minimize()}>X</a>
 
@@ -37,11 +37,20 @@
         <!-- [[ Decentralized ∞ Open Source ∞ Fair ∞ Free ]] -->
 
         <a href="https://discord.gg/XvJzmtF">
-          {#if !isMobile}
+          <!-- {#if !isMobile}
             <img class="icon" src="/apps/zeta/img/discord.svg"><br>
-          {/if}
+          {/if} -->
 
-          JOIN THE DISCUSSION</a>
+          JOIN THE DISCUSSION
+        </a>
+
+        <a href="https://david.zetaseek.com/file/Zeta%20Snapshot%20Plan.pdf?place=localhost-2f686f6d652f64617669642f446f63756d656e74732f7a6574617365656b">
+          <!-- {#if !isMobile}
+            <img class="icon" src="/apps/zeta/img/zeta_icon.png"><br>
+          {/if} -->
+
+          <!-- <img class="icon" src="/apps/zeta/img/zeta_icon_inverted.png"> TOKEN WHITEPAPER -->
+        </a>
         <!-- [ If you think all times are the same, you are wrong ] -->
         <!-- [ See further, do more. ] -->
         <!-- [ <span>Imagine all the people sharing all the files</span> — <i>John Lennon</i> ] -->
@@ -74,7 +83,6 @@
     </p> -->
   </div>
 
-<!-- {/if} -->
 
 <style>
 .about {
@@ -135,8 +143,8 @@ a:hover {
 }
 
 a img.icon {
-  width: 60px;
-  margin-left: 23px;
+  width: 20px;
+  /*margin-left: 23px;*/
 }
 
 @media only screen and (max-width: 768px) {

@@ -32,9 +32,9 @@
         We move slowly but we keep on moving! 🐍
       </p>
 
-      <p>
+      <!-- <p>
         First 100 members get a special NFT token.
-      </p>
+      </p> -->
 
   </div>
 </div>

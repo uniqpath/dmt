@@ -5,7 +5,7 @@
 
   $: loggedIn = $loginStore.loggedIn;
 
-  import { getContext } from 'svelte';
+  import { onMount, getContext } from 'svelte';
   const app = getContext('app');
 
   $: panels = $store.panels;
@@ -16,26 +16,37 @@
     store.set({ panels: newPanels });
   }
 
+  onMount(() => {
+    // show whitepaper promo on page load if not logged in
+
+    setTimeout(() => {
+      if (loggedIn) {
+        toggle('Profile');
+      }
+    }, 700); // wait for MetaMask to execute login... or not.
+  });
+
   function isEnabled(panel) {
     return panels[panel];
   }
 </script>
 
 <div class="menu">
-  <span class="title">PANELS</span>
+  <span class="title">FRAMES</span>
 
   <div class="inner">
     <ul>
       {#if app.isLocalhost || loggedIn}
-        <li class:enabled={panels['Profile']} on:click={() => toggle('Profile')}>Profile</li>
+        <li class:enabled={panels['Profile']} on:click={() => toggle('Profile')}>👀 Profile</li>
       {/if}
 
-      <li class:enabled={panels['Zeta Documents']} on:click={() => toggle('Zeta Documents')}><span class="new">NEW</span> Zeta Writings <span style="color: #aaa;">(2)</span> <img  src="/apps/zeta/img/zeta_icon.png" /></li>
+<!--       <li class:enabled={panels['Zeta Documents']} on:click={() => toggle('Zeta Documents')}><span class="new">NEW</span> Zeta Token Whitepaper <img src="/apps/zeta/img/zeta_icon.png" /></li> -->
 
-      <li class:enabled={panels['Zeta Discord']} on:click={() => toggle('Zeta Discord')}><span class="new">NEW</span> Zeta on Discord <img src="/apps/zeta/img/discord.svg" /></li>
+      <!-- <li class:enabled={panels['Zeta Discord']} on:click={() => toggle('Zeta Discord')}><span class="new">NEW</span> Zeta on Discord <img src="/apps/zeta/img/discord.svg" /></li> -->
 
-      <!-- <li class:enabled={panels['My Links']} on:click={() => toggle('My Links')}>My Links</li> -->
-      <li class:enabled={panels['Swarm Promo']} on:click={() => toggle('Swarm Promo')}>Swarm Technology <img style="filter: invert(1);" src="/apps/zeta/img/swarm.png" /></li>
+      <!-- <li class:enabled={panels['Swarm Promo']} on:click={() => toggle('Swarm Promo')}>Swarm Network <img style="filter: invert(1);" src="/apps/zeta/img/swarm-symbol.png" /></li>
+
+      <li class:enabled={panels['Filecoin Promo']} on:click={() => toggle('Filecoin Promo')}>Filecoin Network <img src="/apps/zeta/img/filecoin-symbol.svg" /></li> -->
     </ul>
   </div>
 </div>
@@ -50,6 +61,7 @@
 
   .menu span.title {
     border-bottom: 2px solid var(--zeta-green);;
+    cursor: default; /*remove back if menu is hideable or multilevel*/
   }
 
   .menu .inner {

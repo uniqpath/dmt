@@ -4,6 +4,7 @@
 
   export let connected;
   export let loggedIn;
+  export let isAdmin;
 
   export let deviceName; // temp
   export let metamaskConnect;
@@ -20,52 +21,57 @@
   $: userIdentity = $loginStore.userIdentity;
   $: userTeams = $loginStore.userTeams;
 
+  $: tokenBalance = $loginStore.tokenBalance; // hmm ...
+
   import MenuBar from '../MenuBar/MenuBar.svelte';
 
   import Links from './Links.svelte';
   import Profile from './Profile.svelte';
-  import PromoBox from './PromoBox.svelte';
-  import InsideBox from './InsideBox.svelte';
+  import TokenBox from './TokenBox.svelte';
+  // import InsideBox from './InsideBox.svelte';
   import TeamBox from './TeamBox.svelte';
   import ZetaDiscord from './ZetaDiscord.svelte';
   import ZetaDocuments from './ZetaDocuments.svelte';
 
 </script>
 
+<!-- this component is only displayed on isLocalhost || loggedIn -->
+
 <div class="leftbar">
   <!-- {#if loggedIn || (!loggedIn && !searchQuery)}
     <Links />
   {/if} -->
 
-  <!-- <PromoBox {metamaskConnect} /> -->
+  <!-- {#if app.isZetaSeek}
+    <TokenBox {metamaskConnect} {tokenBalance} />
+  {/if} -->
+
+  <MenuBar {connected} {loggedIn} {store} />
+
+  {#if panels['Profile']}
+    <Profile {connected} {loginStore} {store} {isAdmin} />
+  {/if}
 
   <!-- we don't actually need to be connected but ui behaves better (otherwise we see "Info" flashing before userTeams are loaded) -- we now have a shorter flash... between connection and the time until userTeams come from backend -->
-
     <!-- {#if loggedIn} -->
-
       <!-- {#if app.isLocalhost || loggedIn} -->
-
-        <MenuBar {connected} {loggedIn} {store} />
-
       <!-- {#if (app.isLocalhost && deviceName == 'eclipse') || app.isZetaSeek} -->
-        {#if app.isLocalhost || loggedIn}
-          {#if panels['Profile']}
-            <Profile {connected} {loginStore} {store} />
-          {/if}
-        {/if}
+        <!-- {/if} -->
 
-        {#if panels['Swarm Promo']}
-          <!-- <Profile {connected} {loginStore} {store} /> -->
+        <!-- {#if panels['Swarm Promo']}
           <InsideBox teamName='Swarm' />
         {/if}
 
-        {#if panels['Zeta Discord']}
-          <ZetaDiscord />
-        {/if}
+        {#if panels['Filecoin Promo']}
+          <InsideBox teamName='Filecoin' />
+        {/if} -->
 
-        {#if panels['Zeta Documents']}
+        <!-- {#if panels['Zeta Discord']}
+          <ZetaDiscord />
+        {/if} -->
+        <!-- {#if panels['Zeta Documents']}
           <ZetaDocuments />
-        {/if}
+        {/if} -->
       <!-- {/if} -->
         <!-- {#if connected}
           {#if userTeams && userTeams.includes('zeta')} --- todo -- one teambox for each team

@@ -10,12 +10,16 @@ import SimpleStore from './simpleStore';
 
 import identifyUser from './identifyUser';
 
+import ZetaBalances from './zetaBalances/zetaBalances';
+
 class BackendStore extends SimpleStore {
   constructor({ program, verbose = false } = {}) {
     super();
 
     this.program = program;
     this.verbose = verbose;
+
+    this.tokenBalances = new ZetaBalances();
 
     const dir = `${homedir()}/.dmt-user-profiles`;
 
@@ -25,7 +29,9 @@ class BackendStore extends SimpleStore {
 
     const deviceName = dmt.device({ onlyBasicParsing: true }).id;
 
-    this.set({ deviceName });
+    const { player } = program.state;
+
+    this.set({ deviceName, player });
 
     this.userSessions = {};
   }
@@ -34,6 +40,8 @@ class BackendStore extends SimpleStore {
     ethAddress = ethAddress.toLowerCase();
 
     const data = {};
+
+    data.tokenBalance = this.tokenBalances.getBalance(ethAddress);
 
     if (this.fileStore) {
       Object.assign(data, this.fileStore.readUserProfile(ethAddress));
@@ -51,7 +59,7 @@ class BackendStore extends SimpleStore {
       return { ...data, ...{ userIdentity, isAdmin, userTeams: teamsArray } };
     }
 
-    const blankData = { userName: null, userEmail: null, userIdentity: null, isAdmin: null, userTeams: null };
+    const blankData = { userName: null, userEmail: null, userIdentity: null, isAdmin: null, userTeams: null, tokenBalance: { value: 0 } };
 
     return { ...blankData, ...data };
   }

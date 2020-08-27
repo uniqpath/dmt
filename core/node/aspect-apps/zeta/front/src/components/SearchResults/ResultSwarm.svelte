@@ -8,6 +8,8 @@
   export let entryType;
   export let mediaType;
   export let context;
+  export let hasPlayer;
+  export let fileSizePretty;
 </script>
 
 <ResultTags {entryType} {mediaType} resultType="swarm" />
@@ -21,6 +23,11 @@
   <span class="pretty_time">{prettyTime}</span>
 {/if}
 
+{#if fileSizePretty}
+  ·
+  <span class="file_size">{fileSizePretty}</span>
+{/if}
+
 {#if context}
   {#if entryType == 'ens'}
     ∞
@@ -31,7 +38,7 @@
   <span class="context">{#if entryType != 'ens'}({/if}{context}{#if entryType != 'ens'}){/if}</span>
 {/if}
 
-<PlayMedia {playableUrl} {mediaType} />
+<PlayMedia {playableUrl} {mediaType} {hasPlayer} />
 
 <style>
   a {
@@ -40,6 +47,10 @@
   }
 
   span.pretty_time {
+    color: #DFB1D9;
+  }
+
+  span.file_size {
     color: #DFB1D9;
   }
 

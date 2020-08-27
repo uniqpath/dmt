@@ -7,6 +7,7 @@
   export let title;
   export let context;
   export let score;
+  export let hiddenContext;
   export let githubReference;
 
   const { loginStore } = store;
@@ -47,22 +48,39 @@
 
 <!-- target="_blank" -->
 
-
-<a href="{url}" on:click|preventDefault={() => trackClick({ url })}>
-  {#if title} <!-- we don't show url again if we used it as a clickable link because title was not present -->
-    <span class="url">{url}</span> ·
+  {#if url.indexOf('youtube.com') > -1}
+    <ResultTags resultType="video" />
   {/if}
 
-  <b>{title || url}</b>
-  <b>{context}</b>
-</a>
+  <a class="website" href="{url}" on:click|preventDefault={() => trackClick({ url })}>
 
-<a href="#" class="toggle_score_info" on:click|preventDefault={() => toggleScoreInfo()}>[ scoring info ]</a>
-<div class="score_info" class:visible={scoreInfoVisible}>
-  Link Score: {score}
-  |
-  <a href="{githubReference}">GitHub source for search result</a>
-</div>
+    <b>{title || '[ no title ]'}</b>
+
+    {#if context && !context.startsWith(title)}
+      <span class="dot">·</span> <b><span class="context">{context}</span></b>
+    {/if}
+
+    <br>
+
+    <span class="url">{url}</span>
+
+  </a>
+
+  <span class="dot">·</span>
+
+  <a href="#" class="toggle_score_info" on:click|preventDefault={() => toggleScoreInfo()}>[ Internals ]</a>
+  <div class="score_info" class:visible={scoreInfoVisible}>
+    Link Score: {score}
+    |
+    Title: {title}
+    |
+    Context: {context}
+    |
+    Hidden context: {hiddenContext}
+    |
+    <a href="{githubReference}">GH_ref</a>
+  </div>
+
 
 
 <style>
@@ -85,12 +103,32 @@
     font-size: 0.8em;
   }
 
+  a.website {
+    color: var(--dmt-bright-cyan);
+  }
+
+  /*a.website:nth-child(odd) {
+    background-color: red;
+  }*/
+
+  a.website .url {
+    color: white;
+  }
+
   .url {
     font-size: 0.8em;
   }
 
-  span.pretty_time {
+  a span.context {
+    color: var(--dmt-cool-cyan2);
+  }
+
+  /*span.pretty_time {
     color: #DFB1D9;
+  }*/
+
+  span.dot {
+    color: white;
   }
 
   span.context {

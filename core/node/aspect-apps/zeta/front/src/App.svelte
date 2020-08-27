@@ -10,8 +10,14 @@
   import Login from './components/Login/Login.svelte';
   // import MenuBar from './components/MenuBar/MenuBar.svelte';
   import LeftBar from './components/LeftBar/LeftBar.svelte';
+
   import ConnectionStatus from './components/ConnectionStatus.svelte';
+  import NodeTagline from './components/NodeTagline.svelte';
+
+  import SearchModeSelector from './components/SearchModeSelector.svelte';
   import SearchResults from './components/SearchResults/SearchResults.svelte';
+
+  import { searchMode } from './testStore.js'
 
   export let store;
   export let appHelper;
@@ -44,6 +50,9 @@
   $: searchResults = $store.searchResults;
   // $: panels = $store.panels;
   $: connected = $store.connected;
+  //$: searchMode = $store.searchMode;
+
+  $: player = $store.player;
 
   $: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
   $: userIdentity = $loginStore.userIdentity;
@@ -58,18 +67,58 @@
   //this.menuBar = { PANELS: ['Profile', 'My Links'] };
   store.set({ panels: {} });
 
+  //let searchMode; // 0 - public search, 1 - only this node
+  // const savedSearchMode = localStorage.getItem('searchMode');
+  // if (savedSearchMode) {
+  //   store.set({ searchMode: parseInt(savedSearchMode) })
+  // } else {
+  //   store.set({ searchMode: 0 })
+  // }
+
   let searchQuery;
+  let searchNodes = [];
 
-  searchQuery = Url.parseQuery().q;
+  // read browser query strings
 
-  let errorCode;
-  errorCode = Url.parseQuery().code;
+  const { q, nodes, error, mode } = Url.parseQuery();
 
-  if (searchQuery) {
-    searchQuery = decodeURIComponent(searchQuery);
+  if (q) {
+    searchQuery = decodeURIComponent(q);
   }
 
-  // HACK but some platofrms need this to work properly -- for example opening a link from discord
+  if (mode) {
+    searchMode.set(mode);
+    // store.set({ searchMode: mode })
+    localStorage.setItem('searchMode', mode);
+  }
+
+  // nodes
+  // list of node pubkeys separated by comma
+  if (nodes) {
+    searchNodes = nodes.split(',');
+  }
+
+  // FIN
+
+  function updateBrowserQuery() {
+    if (searchQuery) {
+      Url.updateSearchParam('q', searchQuery);
+    } else {
+      Url.updateSearchParam('q'); // delete
+    }
+
+    if ($searchMode) {
+      Url.updateSearchParam('mode', $searchMode);
+    } else {
+      Url.updateSearchParam('mode'); // delete
+    }
+
+    if (searchNodes.length > 0) {
+      Url.updateSearchParam('nodes', searchNodes.join(','));
+    } else {
+      Url.updateSearchParam('nodes'); // delete
+    }
+  }
 
   let searchInput;
 
@@ -93,8 +142,9 @@
     triggerSearch({ userActivated: true });
   }
 
-  function placeSearch(query) {
+  function placeSearch(query, nodes = []) {
     searchQuery = query;
+    searchNodes = nodes;
     setTimeout(() => {
       triggerSearch({ userActivated: true });
     }, 50);
@@ -107,8 +157,12 @@
     // we have to do this because <svelte head> is static -- only on first load! -- (?)
     if (searchQuery) {
       document.title = `${searchQuery} — zetaseek`;
+      if(window.screen.width > 768) {
+        document.body.classList.add('darken');
+      }
     } else {
-      document.title = 'zetaseek engine';
+      document.body.classList.remove('darken');
+      document.title = 'ZetaSeek Engine';
     }
 
     console.log(`triggerSearch: ${searchQuery}`);
@@ -116,7 +170,7 @@
     const remoteObject = store.remoteObject('GUISearchObject');
     const remoteMethod = 'search';
 
-    const searchMetadata = { userIdentity, displayName, ethAddress };
+    const searchMetadata = { userIdentity, displayName, ethAddress, searchNodes }; // searchNode -- not yet implemented
 
     const searchStatusCallback = ({ searching, noHits }) => {
       isSearching = searching;
@@ -124,8 +178,8 @@
     };
 
     // remove error after first user input
-    if (userActivated && errorCode) {
-      errorCode = undefined;
+    if (userActivated && error) {
+      error = undefined;
       Url.updateSearchParam('code'); // delete
     }
 
@@ -136,16 +190,15 @@
         console.log('Warning: null SEARCH QUERY !!! Should not hapen. There is a bug probably in GUI code');
       }
 
-      if (searchQuery) {
-        Url.updateSearchParam('q', searchQuery);
-      } else {
-        Url.updateSearchParam('q'); // delete
-      }
+      updateBrowserQuery();
 
-      executeSearch({ searchQuery, remoteObject, remoteMethod, searchStatusCallback, searchDelay, force, searchMetadata }).then(searchResults => {
+      // TODO: implement searchNode functionality... and also show in GUI that this search was limited (filtered) to one paricular node
+      // show option to search All nodes. !!
+
+      executeSearch({ searchQuery, searchMode: $searchMode, remoteObject, remoteMethod, searchStatusCallback, searchDelay, force, searchMetadata }).then(searchResults => {
         // console.log("SEARCH RESULTS:");
         // console.log(searchResults);
-        store.set({ searchResults });
+        store.set({ searchResults, searchQuery }); // searchQuery --> only used in search results to show "BANNER"
       }).catch(e => {
         store.set({ searchResults: { error: e } });
       });
@@ -167,6 +220,13 @@
     triggerSearch(); // clear search results
   }
 
+  function searchModeChanged() {
+    searchInput.focus();
+    triggerSearch({ userActivated: true });
+  }
+
+  $: placeholderText = $searchMode == 0 ? "Search public network" : "Search this node";
+
   appHelper.on('search', doSearch);
 
   // if (!isZetaSeek) {
@@ -182,9 +242,9 @@
 <!-- we do it by setting document.title instead -->
 <!-- <svelte:head>
     {#if searchQuery}
-      <title>zetaseek engine · {searchQuery}</title>
+      <title>ZetaSeek Engine · {searchQuery}</title>
     {:else}
-      <title>zetaseek engine</title>
+      <title>ZetaSeek Engine</title>
     {/if}
 </svelte:head> -->
 
@@ -194,101 +254,66 @@
   <MenuBar {connected} {loggedIn} {store} />
 {/if} -->
 
+<!-- {JSON.stringify(player)} -->
+
+<!-- <div class="images_preload">
+  <img src="/img/zeta_landscape_dark.jpg)">
+</div> -->
+
 <!-- {#if (isLocalhost && deviceName == 'eclipse') || isZetaSeek} -->
-{#if isLocalhost || isZetaSeek}
-  <LeftBar {connected} {loggedIn} {metamaskConnect} {displayName} {loginStore} {store} {searchQuery} {deviceName} />
+<!-- {#if app.isLocalhost || loggedIn} -->
+
+{#if loggedIn}
+<!-- {#if isLocalhost || loggedIn} -->
+  <LeftBar {connected} {loggedIn} {isAdmin} {metamaskConnect} {displayName} {loginStore} {store} {searchQuery} {deviceName} />
 {/if}
 
-<!-- (isLocalhost && deviceName == 'eclipse') -->
-<!-- {#if (isLocalhost && deviceName == 'eclipse') || (isZetaSeek && (!isMobile || (isMobile && !searchQuery)))} -->
-<!-- !searchQuery && -->
-<!-- as a test on dev machine and on zetaseek but on mobile only if there are no search results -->
-<!-- {#if ((isLocalhost && deviceName == 'eclipse') || (isZetaSeek && (!isMobile || (isMobile && !searchQuery))))} -->
-<About {isMobile} />
-<!-- {/if} -->
+<About {isMobile} {searchQuery} />
 
 <main>
 
   <!-- {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')} -->
   {#if isZetaSeek}
     <Login {connected} {metamaskConnect} {ethAddress} {displayName} {isAdmin} />
+  {/if}
+
   <!-- {:else}
     <Escape /> -->
-  {/if}
+  <!-- {/if} -->
 
   <div class="logo">
     <a href="#" on:click|preventDefault={() => { goHome(); }}>
-      <!-- <img src={`/apps/zeta/img/${isZetaSeek ? 'zetaseek' : 'search'}_logo.png`} alt="zeta logo"> -->
-      {#if isZetaSeek}
-        <img src={`/apps/zeta/img/zetaseek_logo.png?v=2`} alt="zeta logo">
-      {:else if isLocalhost}
-        <span>— </span><!-- <img src={`/apps/zeta/img/zeta_icon.png?v=2`} style="width: 30px; margin-bottom: 0;" alt="zeta logo"> --> SEARCH <span>—</span><!-- 🔬 --><!-- <img src="/apps/zeta/favicon.png" style="width: 100px;"> -->
-      {:else}
-        <span></span>{window.location.hostname}<span></span>
-      {/if}
+      <img src={`/apps/zeta/img/ZetaSeek_logo.png?v=2`} alt="zeta logo">
     </a>
   </div>
 
+  <!-- {isZetaSeek ? 'p2p node' : window.location.hostname} -->
   <ConnectionStatus {connected} {isSearching} {deviceName} />
+
+  <NodeTagline {connected} {searchResults} {displayName} {loggedIn} />
 
   <div class="search">
 
-    <input id="search_input" bind:value={searchQuery} bind:this={searchInput} on:keyup={searchInputChanged} on:paste={searchInputChanged} placeholder="Please type your query ..." disabled={!connected}>
+    <input id="search_input" bind:value={searchQuery} bind:this={searchInput} on:keyup={searchInputChanged} on:paste={searchInputChanged} class:public_search={$searchMode == 0} class:this_node_search={$searchMode == 1} placeholder={placeholderText} disabled={!connected}>
 
     {#if !connected && isLocalhost}
       <p class="connection_status_help">
-        Please start <span>dmt-proc</span>.
+        ⚠️ Please start <span>dmt-proc</span> ...
       </p>
     {/if}
 
-    {#if !isLocalhost && connected && !searchResults}
-      <p class="connection_status_help">
-        {#if loggedIn}
-          Welcome<span>{displayName ? ` ${displayName}` : ''}</span>, you have found a fine place <span>♪♫♬</span>
-        {:else} <!-- not logged in -->
-          <!-- The secret realm awaits. -->
-          <!-- <img src="/favicon.png" width="15px">  -->
-          {#if window.location.hostname == 'david.zetaseek.com'}
-            Welcome to my engine.
-          {:else if window.location.hostname == 'griff.zetaseek.com'}
-            [ Buidling the future ]
-          {:else if window.location.hostname == 'sebastjan.zetaseek.com'}
-            [ Polymaths shall inherit the Earth ]
-          {:else}
-            More knowledge, more possibilities.
-          {/if}
-          <!-- See further, do more. -->
-        {/if}
-      </p>
+    {#if connected}
+      <SearchModeSelector {searchQuery} on:searchModeChanged="{searchModeChanged}" />
     {/if}
 
-    <!-- SECTION TO EXTRACT -->
-
-    {#if isZetaSeek}
-      <div class="search_suggestions">
-        <span class="info">Try ≡</span>
-        <!-- todo: improve duplication here!! -->
-        <!-- <a href="#" on:click|preventDefault={() => placeSearch('Three Types of People')}>Three Types of People</a> <span>·</span> -->
-        <!-- <a href="#" on:click|preventDefault={() => placeSearch('gpt3')}>GPT3</a> <span>·</span> -->
-        <a href="#" on:click|preventDefault={() => placeSearch('DeFi')}>DeFi</a> <span>·</span>
-        <a href="#" on:click|preventDefault={() => placeSearch('NFT')}>NFT</a> <span>·</span>
-        <a href="#" on:click|preventDefault={() => placeSearch('Swarm Bee')}>Swarm Bee</a> <span>·</span>
-        <a href="#" on:click|preventDefault={() => placeSearch('Modern Renaissance')}>Modern Renaissance</a> <span>·</span>
-        <a href="#" on:click|preventDefault={() => placeSearch('Eth Scaling')}>Eth Scaling</a>
-        <!-- <a href="#" on:click|preventDefault={() => placeSearch('Astropilot')}>Astropilot ♪♫♬</a> <span>·</span> -->
-        <!-- <a href="#" class="special" on:click|preventDefault={() => placeSearch('Zeta')}>Zeta</a> -->
-      </div>
-    {/if}
-
-    {#if errorCode == 'file_not_found'}
+    {#if error == 'file_not_found'}
       <br>
-
       <div class="error">
         ⚠️ Requested file was renamed or moved {#if !noSearchHits} but perhaps one of the following results matches:{/if}
       </div>
     {/if}
 
-    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} />
+    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} hasPlayer={player && player.volume != undefined} />
 
   </div>
 
@@ -302,9 +327,12 @@
     --dmt-orange: #E5AE34;
 
     --dmt-navy: #41468F;
+    /*--dmt-navy: #199EFF;
+    --dmt-navy: #199EFF;*/
     --dmt-navy2: #292C5A;
     --dmt-cyan: #29B3BF;
-    --dmt-bright-cyan: #3EFFE5;
+    /*--dmt-bright-cyan-prev: #3EFFE5;*/
+    --dmt-bright-cyan: #3DFFEC;
     --dmt-violet: #873BBF;
     --dmt-violet-dark: #2E1740;
 
@@ -313,14 +341,17 @@
     --dmt-cool-cyan: #51F5C8;
     --dmt-cool-cyan2: #58E288;
 
-    /*--zeta-green: #1CE6C1;*/
     --zeta-green: #31E5C1;
+    --zeta-green-highlight: #34FED7;
+    --zeta-green_check: #32E6BE;
+
+    --search-input-width: 330px;
   }
 
 	main {
 		text-align: center;
 		padding: 1em;
-    padding-top: 60px;
+    padding-top: 50px;
 	}
 
   /*:global(a) {
@@ -345,8 +376,9 @@
   }
 
   .logo a {
-    font-size: 2.5em;
-    color: var(--zeta-green);
+    font-size: 1.0em;
+    /*color: var(--zeta-green);*/
+    color: white;
     /*font-family: FiraCode;*/
     /*font-family: Avenir;*/
   }
@@ -360,7 +392,7 @@
     /*filter: invert(1);*/
     width: 200px;
     margin: 0 auto;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
   }
 
   .logo a span {
@@ -371,22 +403,43 @@
     font-size: 0.8em;
     padding: 2px 4px;
     border-radius: 3px;
-    /*background-color: var(--dmt-warning-pink);
-    color: #333;*/
     color: var(--dmt-warning-pink);
     display: inline-block;
     margin-top: 20px;
   }
 
   input#search_input {
-    width: 330px;
+    width: var(--search-input-width);
     margin: 0 auto;
     color: #222;
     outline: none;
+    border-radius: 20px;
+    /*padding: 5px 5px;*/
+    padding: 6px 8px;
   }
 
   input#search_input:disabled {
     background-color: var(--dmt-warning-pink);
+  }
+
+  input#search_input.public_search {
+    background-color: var(--zeta-green);
+    border-color: white;
+  }
+
+  input#search_input.this_node_search {
+    background-color: var(--dmt-navy);
+    border-color: white;
+    color: white;
+  }
+
+  input#search_input.public_search::placeholder {
+    /*color: #11867F;*/
+    color: #0C615C;
+  }
+
+  input#search_input.this_node_search::placeholder {
+    color: #6A72FF;
   }
 
   .search {
@@ -394,48 +447,16 @@
   }
 
   .connection_status_help {
-    /*color: var(--dmt-cool-green);*/
-    color: var(--zeta-green);
-    font-size: 0.8em;
+    color: var(--dmt-warning-pink);
+    font-size: 1em;
   }
 
   .connection_status_help span {
-    color: var(--dmt-cool-cyan);
+    color: var(--zeta-green);
   }
 
-  .search_suggestions {
-    margin-top: 20px;
-    font-size: 0.8em;
-    /*color: var(--zeta-green);*/
-    /*color: var(--dmt-cool-cyan);*/
-    /*color: var(--dmt-orange);*/
-  }
-
-  .search_suggestions, .search_suggestions a {
-    color: #A0A9D4;
-  }
-
-  .search_suggestions a.special {
-    /*color: var(--dmt-cool-cyan);*/
-    /*color: var(--zeta-green);*/
-    color: white;
-  }
-
-  .search_suggestions a {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-  }
-
-  .search_suggestions a:hover {
-    text-decoration-style: solid;
-  }
-
-  .search_suggestions .info {
-    color: var(--dmt-warning-pink);
-  }
-
-  .search_suggestions span {
-    color: white;
+  .zeta_title {
+    width: 20px;
   }
 
   @media only screen and (max-width: 768px) {

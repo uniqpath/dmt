@@ -15,6 +15,7 @@
   export let searchResults;
   export let noSearchHits;
   export let store;
+  export let hasPlayer;
 </script>
 
 <div class="no_results" class:visible={noSearchHits}>NO HITS
@@ -35,7 +36,45 @@
   {/if}
 </div>
 
+
+<!-- {#if app.isZetaSeek}
+  {#if store.searchQuery == 'YAM Finance'}
+    <div class="banner">
+      <h2>First Zetaseek fairAD™</h2>
+
+      🍠 🍠 🍠 What if everyone involved wrote one page perspective of events in last 24h... What it meant for them, how they used the protocol, what are their feelings about the future of Cryptoeconomic Experimentation! These reports will get nicely organized and easily /searchable/. <br>
+      <br>
+      <a href="mailto:david@uniqpath.com">✉️ EMAIL YOUR VIEWPOINT HERE ✉️</a> <br><br>
+      Or post here: <a href="https://discord.com/invite/XvJzmtF"> <b>#yam-alpha-experience-reports</b> channel</a> on Zeta <img class="icon" src="/apps/zeta/img/discord.svg"> server <br><br>
+      <a href="/?q=YAM%20Reports">SUBMITTED REPORTS ARE HERE, ENJOY :) 🍠 🍠 🍠 </a> <br>
+      <br>THANK YOU ;)<br>
+    </div>
+  {:else if store.searchQuery == 'YAM Reports'}
+    <div class="banner">
+      <h2>Second Zetaseek fairAD™</h2>
+      <a href="/?q=YAM%20Finance">HOW TO SUBMIT REPORTS 🍠 🍠 🍠 </a> <br>
+      <h3>But why</h3>
+      Because this was something special and if you participated you must be special and you probably also want to hear from the others:
+      How they see the events of 11.8. to 13.8.2020 and what they learned from them.
+      <br>
+      <br>
+      Who knows what lies ahead?
+    </div>
+  {:else}
+    <div class="banner">
+      <h2>About Zetaseek</h2>
+      <a href="/?q=zeta">Read about the project</a> <br>
+    </div>
+  {/if}
+{/if} -->
+
 {#if searchResults}
+  <!-- {#if app.isZetaSeek} -->
+    <!-- <div class="banner" class:visible={!noSearchHits}>
+      <h3>About Zetaseek</h3>
+      <a href="/?q=zeta">Read about the project</a> <br>
+    </div> -->
+  <!-- {/if} -->
 
   {#if searchResults.error}
     <div class="search_error">
@@ -46,41 +85,43 @@
   {:else}
     {#each searchResults as providerResponse}
 
-      <div class="results">
-
         <!-- PROVIDER ERROR -->
         {#if providerResponse.error}
-          <ResultsMetaTop meta={providerResponse.meta}/>
+          <div class="results">
+            <ResultsMetaTop meta={providerResponse.meta}/>
 
-          <div class="result_error">
-            Error: <span>{JSON.stringify(providerResponse.error)}</span>
+            <div class="result_error">
+              Error: <span>{JSON.stringify(providerResponse.error)}</span>
+            </div>
           </div>
         {/if}
 
         <!-- SOME RESULTS (if not results, we omit this provider) -->
         {#if providerResponse.results && providerResponse.results.length > 0}
-          <ResultsMetaTop meta={providerResponse.meta}/>
+          <div class="results">
+            <ResultsMetaTop meta={providerResponse.meta}/>
 
-          {#each providerResponse.results as { filePath, fileNote, url, title, name, context, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, isNote, notePreview, noteUrl, noteContents, noteTags }}
-            <div class="result">
-              {#if url}
-                <ResultLink {url} {title} {context} {score} {githubReference} {store} />
-              {:else if swarmBzzHash}
-                <ResultSwarm {name} {playableUrl} {mediaType} {entryType} {prettyTime} {context} />
-              {:else if filePath}
-                <ResultFs {playableUrl} {mediaType} {filePathANSI} {fileSizePretty} {fileNote} {swarmUrl} /> <!-- swarmUrl is used for files, new BEE client -->
-              {:else if isNote}
-                <ResultNote {noteUrl} {notePreview} {noteTags} />
-              {:else}
-                <div class="resultError">Unsupported search results format.</div>
-              {/if}
-            </div>
-          {/each}
+            <!-- filePathANSI: not used anymore.. only problems and we needed separation - fileName / directory -->
+            {#each providerResponse.results as { filePath, fileName, directory, fileNote, url, title, name, context, hiddenContext, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, isNote, notePreview, noteUrl, noteContents, noteTags }, i}
+              <div class="result">
+                {#if url}
+                  <ResultLink {url} {title} {context} {hiddenContext} {score} {githubReference} {store} />
+                {:else if swarmBzzHash}
+                  <ResultSwarm {name} {playableUrl} {mediaType} {entryType} {prettyTime} {fileSizePretty} {context} {hasPlayer} />
+                {:else if filePath}
+                  <ResultFs {playableUrl} {mediaType} {fileName} {hasPlayer} prevDirectory={i > 0 ? providerResponse.results[i - 1].directory : null} {directory} {fileSizePretty} {fileNote} {swarmUrl} /> <!-- swarmUrl is used for files, new BEE client -->
+                {:else if isNote}
+                  <ResultNote {noteUrl} {notePreview} {noteTags} />
+                {:else}
+                  <div class="resultError">Unsupported search results format.</div>
+                {/if}
+              </div>
+            {/each}
 
-          <ResultsMetaBottom {providerResponse}/>
+            <ResultsMetaBottom {providerResponse}/>
+          </div>
         {/if}
 
-      </div>
     {/each}
   {/if}
 {/if}
@@ -89,7 +130,7 @@
   .results {
     padding-top: 5px;
     /*line-height: 1.2em;*/
-    font-size: 0.8em;
+    font-size: 0.9em;
     width: 100%;
   }
 
@@ -106,6 +147,37 @@
 
   .result {
     padding: 2px 0;
+  }
+
+  .banner {
+    padding: 5px;
+    font-size: 0.8em;
+    margin-top: 10px;
+    width: 500px;
+    display: inline-block;
+    margin: 0 auto;
+    background-color: #6359A6;
+    color: #ddd;
+    border-radius: 5px;
+    text-align: justify;
+    display: none;
+  }
+
+  .banner.visible {
+    display: block;
+  }
+
+  .banner h2 {
+    /*color: #D26AAF;*/
+  }
+
+  .banner a {
+    color: yellow;
+    text-decoration: underline;
+  }
+
+  .banner .icon {
+    width: 20px;
   }
 
   .search_error {
@@ -176,7 +248,12 @@
 
   @media only screen and (max-width: 768px) {
     .results {
-      font-size: 0.6em;
+      font-size: 0.8em;
+    }
+
+    .banner {
+      width: 100%;
+      font-size: 0.7em;
     }
   }
 </style>

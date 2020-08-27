@@ -18,23 +18,19 @@
 
   <!-- <a href="#" class="minimize" on:click={() => minimize()}>X</a> -->
 
-  <h3><span>Zeta Writings</span></h3>
+  <h3><span>Zeta Token Distribution Whitepaper</span></h3>
 
   <div class="inner">
 
-      <a href="https://zetaseek.com/?q=zeta"><img class="banner" src="/apps/zeta/img/zeta_banner.png">
+      <a href="https://david.zetaseek.com/file/Zeta%20Snapshot%20Plan.pdf?place=localhost-2f686f6d652f64617669642f446f63756d656e74732f7a6574617365656b"><img class="banner" src="/apps/zeta/img/zeta_snapshot_whitepaper_preview.jpg">
+      <!-- <a href="https://zetaseek.com/?q=zeta"><img class="banner" src="/apps/zeta/img/zeta_banner.png"> -->
         <br>
 
-      Read pdf documents searchable via Zeta engine itself.</a>
+      <!-- Read pdf documents searchable via Zeta engine itself.</a> -->
 
       <!-- <p>
         This link is almost not promoted (this is more or less the only place), congratulations if you have found it!
       </p> -->
-
-      <br>
-      <br>
-
-      This is where we share our goals and aspirations.
 
   </div>
 </div>
