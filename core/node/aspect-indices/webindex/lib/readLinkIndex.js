@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { linkIndexPath } from 'dmt/webindex';
+import linkIndexPath from './linkIndexPath';
 
 function readLinkIndex({ deviceName, useBackup = false } = {}) {
   const indexFile = path.join(linkIndexPath(deviceName), 'index.json');

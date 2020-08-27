@@ -500,8 +500,11 @@ class LocalPlayer {
     });
   }
 
-  gather() {
-    this.playlist.gather();
+  similar() {
+    return new Promise((success, reject) => {
+      this.playlist.similar();
+      success();
+    });
   }
 
   gotoPercentPos(percentPos) {

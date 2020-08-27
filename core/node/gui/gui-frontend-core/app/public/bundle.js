@@ -18302,7 +18302,7 @@ var app = (function (crypto) {
 				text2 = createText("\n\n    ");
 				if (if_block3) if_block3.c();
 				div.id = "ribbon";
-				div.className = "svelte-50n8x8";
+				div.className = "svelte-1j2g7fx";
 				addLoc(div, file$l, 2, 2, 17);
 			},
 
@@ -18401,14 +18401,14 @@ var app = (function (crypto) {
 				text2 = createText("Remove ");
 				text3 = createText(text3_value);
 				text4 = createText(" missing");
-				div0.className = "title svelte-50n8x8";
+				div0.className = "title svelte-1j2g7fx";
 				addLoc(div0, file$l, 7, 8, 142);
 				addListener(div1, "click", click_handler);
-				div1.className = "option svelte-50n8x8";
+				div1.className = "option svelte-1j2g7fx";
 				addLoc(div1, file$l, 9, 10, 224);
-				div2.className = "options svelte-50n8x8";
+				div2.className = "options svelte-1j2g7fx";
 				addLoc(div2, file$l, 8, 8, 192);
-				div3.className = "section missing_media svelte-50n8x8";
+				div3.className = "section missing_media svelte-1j2g7fx";
 				addLoc(div3, file$l, 6, 6, 98);
 			},
 
@@ -18453,11 +18453,11 @@ var app = (function (crypto) {
 				text_1 = createText("\n        ");
 				div1 = createElement("div");
 				if (if_block) if_block.c();
-				div0.className = "title media_select svelte-50n8x8";
+				div0.className = "title media_select svelte-1j2g7fx";
 				addLoc(div0, file$l, 19, 8, 621);
-				div1.className = "options svelte-50n8x8";
+				div1.className = "options svelte-1j2g7fx";
 				addLoc(div1, file$l, 20, 8, 680);
-				div2.className = "section svelte-50n8x8";
+				div2.className = "section svelte-1j2g7fx";
 				addLoc(div2, file$l, 18, 6, 591);
 			},
 
@@ -18546,7 +18546,7 @@ var app = (function (crypto) {
 				div = createElement("div");
 				div.textContent = "Net Radio";
 				addListener(div, "click", click_handler);
-				div.className = "option svelte-50n8x8";
+				div.className = "option svelte-1j2g7fx";
 				addLoc(div, file$l, 25, 14, 943);
 			},
 
@@ -18609,26 +18609,26 @@ var app = (function (crypto) {
 				text9 = createText("\n          \n          ");
 				div5 = createElement("div");
 				div5.textContent = "Close";
-				div0.className = "title svelte-50n8x8";
+				div0.className = "title svelte-1j2g7fx";
 				addLoc(div0, file$l, 38, 8, 1320);
 				addListener(div1, "click", click_handler);
-				div1.className = "option svelte-50n8x8";
+				div1.className = "option svelte-1j2g7fx";
 				addLoc(div1, file$l, 40, 10, 1409);
 				addListener(div2, "click", click_handler_1);
-				div2.className = "option svelte-50n8x8";
+				div2.className = "option svelte-1j2g7fx";
 				addLoc(div2, file$l, 41, 10, 1479);
 				addListener(div3, "click", click_handler_2);
-				div3.className = "option svelte-50n8x8";
+				div3.className = "option svelte-1j2g7fx";
 				addLoc(div3, file$l, 43, 10, 1638);
 				addListener(div4, "click", click_handler_3);
-				div4.className = "option svelte-50n8x8";
+				div4.className = "option svelte-1j2g7fx";
 				addLoc(div4, file$l, 45, 10, 1803);
 				addListener(div5, "click", click_handler_4);
-				div5.className = "option close svelte-50n8x8";
+				div5.className = "option close svelte-1j2g7fx";
 				addLoc(div5, file$l, 47, 10, 1983);
-				div6.className = "options svelte-50n8x8";
+				div6.className = "options svelte-1j2g7fx";
 				addLoc(div6, file$l, 39, 8, 1377);
-				div7.className = "section svelte-50n8x8";
+				div7.className = "section svelte-1j2g7fx";
 				addLoc(div7, file$l, 37, 6, 1290);
 			},
 
@@ -18784,11 +18784,11 @@ var app = (function (crypto) {
 				text_1 = createText("\n          ");
 				div1 = createElement("div");
 				if (if_block) if_block.c();
-				div0.className = "title media_select svelte-50n8x8";
+				div0.className = "title media_select svelte-1j2g7fx";
 				addLoc(div0, file$l, 56, 10, 2167);
-				div1.className = "options svelte-50n8x8";
+				div1.className = "options svelte-1j2g7fx";
 				addLoc(div1, file$l, 57, 10, 2229);
-				div2.className = "section svelte-50n8x8";
+				div2.className = "section svelte-1j2g7fx";
 				addLoc(div2, file$l, 55, 8, 2135);
 			},
 
@@ -18841,12 +18841,12 @@ var app = (function (crypto) {
 				if (if_block0) if_block0.c();
 				text2 = createText("\n\n              ");
 				if (if_block1) if_block1.c();
-				div0.className = "title svelte-50n8x8";
-				addLoc(div0, file$l, 68, 12, 2586);
-				div1.className = "options svelte-50n8x8";
-				addLoc(div1, file$l, 69, 12, 2637);
-				div2.className = "section svelte-50n8x8";
-				addLoc(div2, file$l, 67, 10, 2552);
+				div0.className = "title svelte-1j2g7fx";
+				addLoc(div0, file$l, 68, 12, 2591);
+				div1.className = "options svelte-1j2g7fx";
+				addLoc(div1, file$l, 69, 12, 2642);
+				div2.className = "section svelte-1j2g7fx";
+				addLoc(div2, file$l, 67, 10, 2557);
 			},
 
 			m: function mount(target, anchor) {
@@ -18907,8 +18907,8 @@ var app = (function (crypto) {
 				div = createElement("div");
 				div.textContent = "■ Stop";
 				addListener(div, "click", click_handler);
-				div.className = "option svelte-50n8x8";
-				addLoc(div, file$l, 71, 16, 2749);
+				div.className = "option svelte-1j2g7fx";
+				addLoc(div, file$l, 71, 16, 2754);
 			},
 
 			m: function mount(target, anchor) {
@@ -18930,7 +18930,7 @@ var app = (function (crypto) {
 		var div;
 
 		function click_handler(event) {
-			component.action('gather');
+			component.action('similar');
 		}
 
 		return {
@@ -18938,8 +18938,8 @@ var app = (function (crypto) {
 				div = createElement("div");
 				div.textContent = "Similar";
 				addListener(div, "click", click_handler);
-				div.className = "option similar svelte-50n8x8";
-				addLoc(div, file$l, 75, 16, 2886);
+				div.className = "option similar svelte-1j2g7fx";
+				addLoc(div, file$l, 75, 16, 2891);
 			},
 
 			m: function mount(target, anchor) {
@@ -18978,12 +18978,12 @@ var app = (function (crypto) {
 				text3 = createText("\n            ");
 				div1 = createElement("div");
 				if (if_block) if_block.c();
-				div0.className = "title selected_entries svelte-50n8x8";
-				addLoc(div0, file$l, 83, 12, 3169);
-				div1.className = "options svelte-50n8x8";
-				addLoc(div1, file$l, 84, 12, 3284);
-				div2.className = "section svelte-50n8x8";
-				addLoc(div2, file$l, 82, 10, 3135);
+				div0.className = "title selected_entries svelte-1j2g7fx";
+				addLoc(div0, file$l, 83, 12, 3175);
+				div1.className = "options svelte-1j2g7fx";
+				addLoc(div1, file$l, 84, 12, 3290);
+				div2.className = "section svelte-1j2g7fx";
+				addLoc(div2, file$l, 82, 10, 3141);
 			},
 
 			m: function mount(target, anchor) {
@@ -19033,8 +19033,8 @@ var app = (function (crypto) {
 				div = createElement("div");
 				div.textContent = "Undo";
 				addListener(div, "click", click_handler);
-				div.className = "option svelte-50n8x8";
-				addLoc(div, file$l, 93, 16, 4022);
+				div.className = "option svelte-1j2g7fx";
+				addLoc(div, file$l, 93, 16, 4028);
 			},
 
 			m: function mount(target, anchor) {
@@ -19085,17 +19085,17 @@ var app = (function (crypto) {
 				div3 = createElement("div");
 				div3.textContent = "Cancel";
 				addListener(div0, "click", click_handler);
-				div0.className = "option play_now svelte-50n8x8";
-				addLoc(div0, file$l, 86, 16, 3387);
+				div0.className = "option play_now svelte-1j2g7fx";
+				addLoc(div0, file$l, 86, 16, 3393);
 				addListener(div1, "click", click_handler_1);
-				div1.className = "option set_next svelte-50n8x8";
-				addLoc(div1, file$l, 87, 16, 3468);
+				div1.className = "option set_next svelte-1j2g7fx";
+				addLoc(div1, file$l, 87, 16, 3474);
 				addListener(div2, "click", click_handler_2);
-				div2.className = "option remove svelte-50n8x8";
-				addLoc(div2, file$l, 88, 16, 3551);
+				div2.className = "option remove svelte-1j2g7fx";
+				addLoc(div2, file$l, 88, 16, 3557);
 				addListener(div3, "click", click_handler_3);
-				div3.className = "option deselect svelte-50n8x8";
-				addLoc(div3, file$l, 89, 16, 3626);
+				div3.className = "option deselect svelte-1j2g7fx";
+				addLoc(div3, file$l, 89, 16, 3632);
 			},
 
 			m: function mount(target, anchor) {
@@ -19149,7 +19149,7 @@ var app = (function (crypto) {
 				div = createElement("div");
 				div.textContent = "Quit Radio";
 				addListener(div, "click", click_handler);
-				div.className = "option svelte-50n8x8";
+				div.className = "option quit svelte-1j2g7fx";
 				addLoc(div, file$l, 59, 14, 2337);
 			},
 

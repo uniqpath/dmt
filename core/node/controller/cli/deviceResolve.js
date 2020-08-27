@@ -27,7 +27,7 @@ if (globalIp && !globalIp.error) {
   console.log(`globalIp: ${globalIp}`);
 }
 
-const device = dmt.device({ deviceName: deviceName, onlyBasicParsing: true });
+const device = dmt.device({ deviceName, onlyBasicParsing: true });
 
 if (device && device.try('network.user')) {
   console.log(`user: ${device.network.user}`);

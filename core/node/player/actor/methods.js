@@ -25,10 +25,11 @@ function getMethods() {
   methods.push({ name: 'status', handler });
   methods.push({ name: 'list', handler });
 
-  methods.push({ name: 'add', handler: addHandler });
-  methods.push({ name: 'insert', handler: addHandler });
+  methods.push({ name: 'add', handler: addOrInsertHandler });
+  methods.push({ name: 'insert', handler: addOrInsertHandler });
   methods.push({ name: 'insplay', handler: insertplayHandler });
 
+  methods.push({ name: 'similar', handler });
   methods.push({ name: 'bump', handler });
   methods.push({ name: 'cut', handler });
   methods.push({ name: 'paste', handler });
@@ -120,13 +121,13 @@ function playHandler({ args, method }, { zetaSearch, player }) {
       }
     }
 
-    addHandler({ args, method }, { zetaSearch, player })
+    addOrInsertHandler({ args, method }, { zetaSearch, player })
       .then(success)
       .catch(reject);
   });
 }
 
-function addHandler({ args, method }, { zetaSearch, player }) {
+function doSearch({ args, zetaSearch, player }) {
   return new Promise((success, reject) => {
     searchHandler({ args }, { zetaSearch })
       .then(aggregateResults => {
@@ -146,6 +147,18 @@ function addHandler({ args, method }, { zetaSearch, player }) {
 
         const playableResults = mappedResults.map(res => res.results.map(result => result.filePath)).flat();
 
+        success({ aggregateResults, playableResults });
+      })
+      .catch(reject);
+  });
+}
+
+function addOrInsertHandler({ args, method }, { zetaSearch, player }) {
+  return new Promise((success, reject) => {
+    doSearch({ args, zetaSearch, player })
+      .then(({ aggregateResults, playableResults }) => {
+        const successfulResults = aggregateResults.filter(res => !res.error);
+
         player[method.name]({ files: playableResults })
           .then(success)
           .catch(reject);
@@ -163,21 +176,21 @@ function insertplayHandler({ args }, { zetaSearch, player }) {
       return;
     }
 
-    searchHandler({ args }, { zetaSearch })
-      .then(aggregateResults => {
-        const mappedResults = aggregateResults.map(results => player.mapToLocal(results));
-        const playableResults = mappedResults.map(res => res.results.map(result => result.filePath)).flat();
-
-        player.insert({ files: playableResults }).then(() => {
-          if (playableResults.length == 0) {
-            success(aggregateResults);
-          } else {
-            player
-              .next({ fromAction: true })
-              .then(() => success(aggregateResults))
-              .catch(reject);
-          }
-        });
+    doSearch({ args, zetaSearch, player })
+      .then(({ aggregateResults, playableResults }) => {
+        player
+          .insert({ files: playableResults })
+          .then(() => {
+            if (playableResults.length == 0) {
+              success(aggregateResults);
+            } else {
+              player
+                .next({ fromAction: true })
+                .then(() => success(aggregateResults))
+                .catch(reject);
+            }
+          })
+          .catch(reject);
       })
       .catch(reject);
   });

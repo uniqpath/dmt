@@ -70,8 +70,8 @@ function userActionHandlers({ program, player }) {
         case 'limit':
           player.limit();
           break;
-        case 'gather':
-          player.gather();
+        case 'similar':
+          player.similar();
           break;
         case 'remove_limit':
           player.limit('reset');

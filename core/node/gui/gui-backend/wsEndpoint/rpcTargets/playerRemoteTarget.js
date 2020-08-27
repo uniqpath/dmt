@@ -33,8 +33,8 @@ class PlayerTarget extends EventEmitter {
     return this.action('play', query);
   }
 
-  gather({ query }) {
-    return this.action('gather', query);
+  similar({ query }) {
+    return this.action('similar', query);
   }
 }
 

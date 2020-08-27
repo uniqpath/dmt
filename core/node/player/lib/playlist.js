@@ -364,7 +364,7 @@ class Playlist {
     });
   }
 
-  gather() {
+  similar() {
     const currentSongId = this.currentSongId();
     if (currentSongId) {
       const currentSongDir = path.dirname(this.currentSong().path);

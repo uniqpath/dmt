@@ -1,5 +1,5 @@
 import linkResults from './linkResults';
-import readLinkIndex from './readLinkIndex';
+import { readLinkIndex } from 'dmt/webindex';
 
 import dmt from 'dmt/bridge';
 

@@ -102,6 +102,20 @@ class Program extends EventEmitter {
     }
   }
 
+  updatePeerlist(peerlist) {
+    this._peerlist = peerlist;
+  }
+
+  peerlist() {
+    return this._peerlist;
+  }
+
+  logSearch(msg) {
+    if (this.device.try('search.log') == 'true') {
+      log.green(`ZetaSeek: ${msg}`);
+    }
+  }
+
   metamask() {
     return this.metamaskStore;
   }

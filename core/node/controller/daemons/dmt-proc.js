@@ -31,6 +31,8 @@ mids.push('meta/replicate');
 mids.push('meta/update');
 mids.push('meta/holidays');
 
+mids.push('meta/zeta-peers');
+
 try {
   program({ mids });
 } catch (e) {

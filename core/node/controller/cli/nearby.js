@@ -13,7 +13,7 @@ const table = new Table({
   chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' }
 });
 
-const headers = ['device', 'local ip', 'this', 'hub', 'uptime', 'user', 'apssid'];
+const headers = ['device', 'local ip', 'this', 'hub', 'uptime', 'user', 'apssid', 'deviceKey'];
 
 const args = process.argv.slice(2);
 
@@ -50,7 +50,7 @@ function deviceWithMediaMark({ deviceName, playing, mediaType, isStream }) {
     mark = `${mark}${colors.gray(' [stream]')}`;
   }
 
-  return colors.cyan(`${deviceName}${colors.cyan(mark)}`);
+  return colors.cyan(`${deviceName}${colors.white(mark)}`);
 }
 
 function ipInfo({ ip, isSpecialNode, thisDevice }) {
@@ -89,7 +89,8 @@ ipcClient({ actorName: 'controller', action, payload })
           isSpecialNode ? colors.magenta('✓') : '',
           colors.green(uptime),
           colors.gray(username),
-          apssid ? colors.magenta(identifyDeviceByMac(apssid)) : colors.gray('/')
+          apssid ? colors.magenta(identifyDeviceByMac(apssid)) : colors.gray('/'),
+          colors.gray(deviceKey)
         ])
       );
 

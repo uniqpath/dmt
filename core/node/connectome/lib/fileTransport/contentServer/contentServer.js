@@ -19,7 +19,7 @@ function fileNotFound({ providerAddress, fileName, res, host }) {
     pre = 'apps/zeta/';
   }
 
-  res.redirect(`/${pre}?q=${fileName}&code=file_not_found`);
+  res.redirect(`/${pre}?q=${fileName}&error=file_not_found`);
 }
 
 function contentServer({ app, fiberPool, defaultPort, emitter }) {

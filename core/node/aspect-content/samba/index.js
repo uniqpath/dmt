@@ -7,9 +7,12 @@ import prepareMountpoints from './lib/prepareMountpoints';
 import mount from './lib/mount';
 
 function init(program) {
+  checkServerSambaSharesConfig();
+
   if (dmt.isLinux()) {
-    checkServerSambaSharesConfig();
-    prepareMountpoints().forEach(mountInfo => mount(mountInfo));
+    program.on('tick', () => {
+      prepareMountpoints().forEach(mountInfo => mount(mountInfo));
+    });
   }
 
   program.mapToLocal = mapToLocal;

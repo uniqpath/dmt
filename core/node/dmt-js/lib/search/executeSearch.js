@@ -1,5 +1,5 @@
-function queryDifferentEnough({ searchQuery, prevQuery }) {
-  return normalizeQuery(searchQuery) != normalizeQuery(prevQuery);
+function queryDifferentEnough({ searchQuery, prevQuery, searchMode, prevSearchMode }) {
+  return normalizeQuery(searchQuery) != normalizeQuery(prevQuery) || searchMode != prevSearchMode;
 }
 
 function normalizeQuery(query) {
@@ -7,12 +7,22 @@ function normalizeQuery(query) {
 }
 
 let prevQuery = '';
+let prevSearchMode;
 let executeQueryTimeout;
 const timeTags = [];
 
 const SEARCH_LAG_MS = 300;
 
-function executeSearch({ searchQuery, remoteObject, remoteMethod, searchMetadata, searchDelay = SEARCH_LAG_MS, force, searchStatusCallback = () => {} }) {
+function executeSearch({
+  searchQuery,
+  searchMode,
+  remoteObject,
+  remoteMethod,
+  searchStatusCallback = () => {},
+  searchDelay = SEARCH_LAG_MS,
+  force,
+  searchMetadata
+}) {
   return new Promise((success, reject) => {
     if (searchQuery.trim() == '') {
       timeTags.push(Date.now());
@@ -29,16 +39,18 @@ function executeSearch({ searchQuery, remoteObject, remoteMethod, searchMetadata
       }
 
       prevQuery = searchQuery;
+      prevSearchMode = searchMode;
 
       return;
     }
 
     try {
-      if (force || queryDifferentEnough({ searchQuery, prevQuery })) {
+      if (force || queryDifferentEnough({ searchQuery, prevQuery, searchMode, prevSearchMode })) {
         clearTimeout(executeQueryTimeout);
 
         searchStatusCallback({ searching: true });
         prevQuery = searchQuery;
+        prevSearchMode = searchMode;
 
         executeQueryTimeout = setTimeout(() => {
           const timeTag = Date.now();
@@ -50,7 +62,7 @@ function executeSearch({ searchQuery, remoteObject, remoteMethod, searchMetadata
           Object.assign(searchMetadata, { searchOriginHost });
 
           remoteObject
-            .call(remoteMethod, { query: normalizeQuery(searchQuery), searchMetadata })
+            .call(remoteMethod, { query: normalizeQuery(searchQuery), searchMode, searchMetadata })
             .then(searchResults => {
               const lastTimeTag = timeTags[timeTags.length - 1];
 

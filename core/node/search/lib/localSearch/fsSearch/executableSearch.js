@@ -31,7 +31,7 @@ export default function executableSearch(binary, { terms, path, noColor, mediaTy
 
   const cwd = path;
 
-  log.debug(`Calling external binary ${cwd ? `${colors.cyan(`cd ${cwd}`)}; ` : ''}${colors.cyan(binary)} ${colors.yellow(constructedTerms.join(' '))}`);
+  log.write(`Calling external binary ${cwd ? `${colors.cyan(`cd ${cwd}`)}; ` : ''}${colors.cyan(binary)} ${colors.yellow(constructedTerms.join(' '))}`);
 
   const ls = spawn(dmt.platformExecutablePath(binary), constructedTerms, {
     cwd

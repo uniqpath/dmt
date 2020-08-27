@@ -20,7 +20,7 @@ function enhanceResult({ result, providerAddress, providerPort, searchOriginHost
   }
 
   if (swarmBzzHash) {
-    enhanceSwarm(result, { swarmGateway: 'https://swarm-gateways.net' });
+    enhanceSwarm(result, { swarmGateway: 'https://gateway.ethswarm.org' });
     return;
   }
 

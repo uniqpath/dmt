@@ -17,6 +17,7 @@ import * as dateFns from './timeutils/dateFnsCompacted';
 const { hexToBuffer } = util.hexutils;
 
 const dmtPath = path.join(homedir(), '.dmt');
+const dmtHerePath = path.join(homedir(), '.dmt-here');
 const dmtUserDir = path.join(dmtPath, 'user');
 const dmtCatalogsDir = path.join(dmtUserDir, 'catalogs');
 const defDir = path.join(dmtUserDir, 'def');
@@ -108,6 +109,7 @@ let checkedForDuplicateMacs = false;
 
 export default {
   dmtPath,
+  dmtHerePath,
   userDir: dmtUserDir,
   catalogsDir: dmtCatalogsDir,
   stateDir,

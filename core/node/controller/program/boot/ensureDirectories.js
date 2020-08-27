@@ -11,4 +11,6 @@ export default function ensureDirectories() {
   for (const dir of dirs) {
     scan.ensureDirSync(path.join(dmt.dmtPath, dir));
   }
+
+  scan.ensureDirSync(dmt.dmtHerePath);
 }

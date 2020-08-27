@@ -231,6 +231,7 @@ export default {
   fsState: new FsState(helper.stateDir),
   stateDir: helper.stateDir,
   dmtPath: helper.dmtPath,
+  dmtHerePath: helper.dmtHerePath,
   userDir: helper.userDir,
   deviceDir: helper.deviceDir,
   catalogsDir: helper.catalogsDir,
