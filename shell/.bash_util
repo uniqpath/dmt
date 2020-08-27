@@ -11,6 +11,28 @@ GRAY='\e[1;30m'
 WHITE='\e[33;97m'
 NC='\033[0m' # No Color
 
+function get_machine_os() {
+  local unameOut="$(uname -s)"
+  local platform
+
+  case "${unameOut}" in
+    Linux*)     platform="linux-x64";;
+    Darwin*)    platform="darwin";;
+    # CYGWIN*)    platform=Cygwin;;
+    # MINGW*)     platform=MinGw;;
+    *)          platform="UNKNOWN:${unameOut}"
+  esac
+
+  # todo -- detect windows ubuntu shell
+
+  if dmt_is_rpi; then
+    # fix: "This profile appears to be in use by another Chromium process (543)...""
+    platform="linux-arm"
+  fi
+
+  eval "$1='${platform}'"
+}
+
 function dmt_macos {
   if [[ $OSTYPE == darwin* ]]; then
     return 0 # true
@@ -122,18 +144,16 @@ function dmt_platform_bin_command {
 
   local _dmt_binary="${DMT_PLATFORM_BIN}/$@"
   local _user_binary="${DMT_USER_PLATFORM_BIN}/$@"
-  local _device_binary="${DMT_DEVICE_PLATFORM_BIN}/$@"
+
+  local _here_binary="${DMT_HERE_PLATFORM_BIN}/$@" # warning ! not in this device but in .dmt-here
 
   if [ -f "$_dmt_binary" ]; then
     __result="$_dmt_binary"
   elif [ -f "$_user_binary" ]; then
-    echo "BBB"
     __result="$_user_binary"
-  elif [ -f "$_device_binary" ]; then
-    echo "CCC"
-    __result="$_device_binary"
+  elif [ -f "$_here_binary" ]; then
+    __result="$_here_binary"
   else
-    echo "DDD"
     printf "${GRAY}Binary $@ not found among device, user or dmt binaries.${NC}\n"
     return 1
   fi

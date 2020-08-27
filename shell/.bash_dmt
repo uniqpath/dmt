@@ -1014,7 +1014,9 @@ function stop_dmt_if_running {
 function dmt_nearby {
   $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" "$@"
 
-  if [ "$1" == "update" ]; then
+  if [ "$1" == "update" ] || [ "$1" == "copy" ]; then
+    local action="$1"
+
     shift
 
     while read device
@@ -1028,14 +1030,15 @@ function dmt_nearby {
       printf "Updating device ${MAGENTA}${deviceName}${NC} ...\n"
 
       # todo: paralellize with screen as in update_all
-      dmt update "$ipWithUser"
+      dmt "$action" "$ipWithUser" # dmt update | dmt copy
 
     done < <($DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" --simple "$@")
   else
     echo
     printf "${MAGENTA}How to update nearby devices:${NC}\n"
     echo
-    printf "${GREEN}dmt nearby update ${GRAY}command will update all nearby devices ${NC}\n"
+    printf "${GREEN}dmt nearby update ${GRAY}update all nearby devices (copy + restart ${CYAN}dmt-proc${GRAY}) ${NC}\n"
+    printf "${GREEN}dmt nearby copy ${GRAY}copy dmt to all nearby devices without restarting ${CYAN}dmt-proc ${GRAY}on each device${NC}\n"
   fi
 }
 
@@ -1329,6 +1332,12 @@ function dmt_update {
 }
 
 function dmt_copy {
+  # dmt copy nearby == dmt nearby copy
+  if [ "$1" == "nearby" ]; then
+    dmt nearby copy
+    return
+  fi
+
   dmt_symlink_nodejs_deps
 
   if [ -z "$1" ]; then

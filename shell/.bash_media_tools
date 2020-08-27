@@ -47,7 +47,48 @@ function mp4 {
     do
       if [ -f "$file" ]; then
         # http://www.bugcodemaster.com/article/convert-videos-mp4-format-using-ffmpeg
-        ffmpeg -i "$file" "$file".mp4 -preset veryfast -loglevel quiet
+        #ffmpeg -i "$file" "$file".mp4 -preset veryfast -loglevel quiet
+        #ffmpeg -i "$file" -vcodec libx264 -crf 28 -preset veryfast "$file".mp4
+
+        printf "${RED}Warning: lower-quality is set to achieve smaller files${NC}\n"
+        # 23 !!!
+        ffmpeg -i "$file" -vcodec libx264 -crf 23 -preset veryfast "$file".mp4
+
+        #ffmpeg -i "$file" -vcodec libaom-av1 -strict -2 -crf 23 -preset veryfast "$file".mp4
+
+
+        #ffmpeg -i "$file" -vcodec libx264 -crf 28 "$file".mp4
+
+        # -loglevel quiet ==> to silence these warnings ....
+        # https://bbs.archlinux.org/viewtopic.php?id=205920
+        #-thread_queue_size 1024
+        # -thread_queue_size 1024 supposedly fixes https://www.reddit.com/r/ffmpeg/comments/3m5bkj/past_duration_too_large_messing_with_alsa/
+      else
+        echo "File $file doesn't exist"
+      fi
+    done
+  else
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}mp4 file1 file2 file3 ...${NC} ${GRAY}convert different video formats to mp4${NC}\n"
+  fi
+}
+
+# https://trac.ffmpeg.org/wiki/Encode/H.265
+function hevc {
+  if [ -n "$1" ]; then
+    for file in "$@"
+    do
+      if [ -f "$file" ]; then
+        # http://www.bugcodemaster.com/article/convert-videos-mp4-format-using-ffmpeg
+        #ffmpeg -i "$file" "$file".mp4 -preset veryfast -loglevel quiet
+        #ffmpeg -i "$file" -vcodec libx264 -crf 28 -preset veryfast "$file".mp4
+
+        printf "${MAGENTA}WARNING: HEVC libx265 - incompatible with most browsers ${NC}\n"
+
+        printf "${RED}Warning: lower-quality is set to achieve smaller files${NC}\n"
+        # DEFAULT is 28
+        # The default is 28, and it should visually correspond to libx264 video at CRF 23, but result in about half the file size.
+        ffmpeg -i "$file" -vcodec libx265 -crf 26 "$file".mp4
 
         # -loglevel quiet ==> to silence these warnings ....
         # https://bbs.archlinux.org/viewtopic.php?id=205920

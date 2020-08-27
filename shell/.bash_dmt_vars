@@ -6,6 +6,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 LOGNAME_HOME="$DIR/../.."
 
 DMT_PATH="$LOGNAME_HOME/.dmt"
+DMT_HERE_PATH="$LOGNAME_HOME/.dmt-here"
 
 DMT_USER_PATH="$LOGNAME_HOME/.dmt/user"
 DMT_USER_DEF_FILE="$LOGNAME_HOME/.dmt/user/def/user.def"
@@ -48,7 +49,8 @@ fi
 
 DMT_PLATFORM_BIN="${DMT_PATH}/bin/${DMT_PLATFORM}"
 DMT_USER_PLATFORM_BIN="${DMT_USER_PATH}/bin/${DMT_PLATFORM}"
-DMT_DEVICE_PLATFORM_BIN="${DMT_THIS_DEVICE}/bin/${DMT_PLATFORM}"
+#DMT_DEVICE_PLATFORM_BIN="${DMT_THIS_DEVICE}/bin/${DMT_PLATFORM}"
+DMT_HERE_PLATFORM_BIN="${DMT_HERE_PATH}/bin/${DMT_PLATFORM}"
 DMT_AP_DEFAULT_HOST="root@192.168.0.20"
 
 # there are some other places that should be updated if nodejs flags change! find and replace ...

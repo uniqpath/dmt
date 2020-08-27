@@ -195,6 +195,11 @@ else # clone to and install on remote device
         fi
       fi
 
+      if [ -n "$DMT_SSH_PORT" ]; then
+        printf "${GREEN}ssh port set via environment variable ${MAGENTA}\$DMT_SSH_PORT${NC}: ${CYAN}$DMT_SSH_PORT${NC}\n"
+        ssh_port=$DMT_SSH_PORT
+      fi
+
       if [ -z "$host" ]; then
         printf "${RED}Host not known${NC}\n"
       else

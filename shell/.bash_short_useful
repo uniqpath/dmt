@@ -66,11 +66,11 @@ function m {
 }
 
 function u {
-  dmt_copy "$@"
+  dmt_update "$@"
 }
 
-function re {
-  dmt_update "$@"
+function uc {
+  dmt_copy "$@"
 }
 
 function k() {

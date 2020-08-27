@@ -22,6 +22,7 @@ function dmt_media {
     "insplay" # insert-play
 
     "bump" # "set next"
+    "similar"
     "cut"
     "paste"
 

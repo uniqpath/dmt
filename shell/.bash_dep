@@ -43,7 +43,7 @@
 # --------
 # sol:/var/projects/home-panel
 # pi@living-room.local:/var/projects/home-panel
-#   [!!!! BLANK LINE !!!!]
+# ⚠️  [!!!! BLANK LINE !!!!]
 # source: dist
 # overwrite: false
 #

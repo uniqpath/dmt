@@ -25,6 +25,15 @@ function get_remote_device_ip_and_name_and_user_and_network {
       local _user="$argUser"
     fi
 
+  # we passed in the domain (do the same thing as above... separated for the future cases)
+  # eg: dmt update user@user.zetaseek.com
+  elif [[ "$deviceName" =~ \. ]]; then # ip
+    local _ip="$deviceName"
+
+    if [ -n "$argUser" ]; then
+      local _user="$argUser"
+    fi
+
   else # for example: q dpanel, q root@dpanel etc.
 
     local resolverPath

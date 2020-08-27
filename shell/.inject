@@ -2,7 +2,7 @@
 
 kMIN_BASH_VERSION='3.2'  # due to use of =~, we require at least 3.2
 
-kINIT_FILE_LINE_ID=" # Added by dmt-system (see https://github.com/uniqpath/dmt)"
+kINIT_FILE_LINE_ID=" # dmt-system"
 #kREGEX_CONFLICTING_LINE='^[^#]*\b~/.dmt/shell/.loader' # Regex that identifies relevant existing lines.
 kREGEX_CONFLICTING_LINE='~/.dmt/shell/.loader' # Regex that identifies relevant existing lines.
 

@@ -1,0 +1,288 @@
+#!/bin/bash
+
+function build_essential {
+  sudo apt-get update
+  sudo apt-get -y install build-essential tar unzip curl git screen ntp zip tree lsof colordiff rsync
+}
+
+function build_essential_full {
+  sudo apt-get update
+  sudo apt-get -y install build-essential zlib1g-dev libpcre3 libpcre3-dev libbz2-dev libssl-dev libreadline-dev tar unzip curl git screen dh-autoreconf make pkg-config cmake lsof ntp highlight net-tools zip tree lsof colordiff rsync
+}
+
+function create_install_directory {
+  mkdir -p ~/Install
+}
+
+function zeta_update {
+  declare -a opts=(
+    "essential"
+    "node"
+    "go"
+    "rust"
+    "geth"
+    "swarm"
+    "bee"
+    "lighttpd"
+    "youtube-dl"
+  )
+
+  if [ "$1" == '-h' ] || [ -z "$1" ]; then
+    printf "${GREEN}Options:${NC}\n"
+    echo "${opts[@]}"
+    return
+  fi
+
+  local matching_opt=''
+  dmt_opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    return
+  fi
+
+  case "$matching_opt" in
+    essential)
+      build_essential_full
+      ;;
+
+    rust)
+      update_rust "$@"
+      ;;
+
+    node)
+      install_n
+      ;;
+
+    go)
+      update_go "$@"
+      ;;
+
+    geth)
+      update_geth "$@"
+      ;;
+
+    swarm)
+      update_swarm_bee "$@"
+      ;;
+
+    bee)
+      update_swarm_bee "$@"
+      ;;
+
+    lighttpd)
+      local script="$DMT_SCRIPTS/lighttpd/install_lighttpd"
+
+      if [ -f "$script" ]; then
+        sudo "$script" "$@"
+      else
+        printf "${RED}missing ${script}${NC}\n"
+      fi
+      ;;
+
+    youtube-dl)
+      if [ "$EUID" -ne 0 ]; then
+        printf "${RED}Must be root${NC}\n"
+        echo "wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl"
+        echo "chmod a+rx /usr/local/bin/youtube-dl"
+      else
+        wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl
+        chmod a+rx /usr/local/bin/youtube-dl
+      fi
+      ;;
+
+  esac
+}
+
+function install_n {
+  curl -L https://git.io/n-install | bash
+  printf "\n${GREEN}Now quit session and login again, then run 'n latest'${NC}\n"
+}
+
+# ----------------------------- APPLICATIONS -----------------------------
+
+function start_geth {
+  #geth --rpc --rpcapi "db,eth,net,web3,personal" --rpcaddr 0.0.0.0 --rpccorsdomain "*" --rpcvhosts "localhost,solar.local,eth.uniqpath.com" --cache=1024 --maxpeers 100 --lightserv 80 --lightpeers 90
+  geth --rpc --rpcapi "eth,net,web3,personal" --cache=1024 --maxpeers 100 --lightserv 80 --lightpeers 90
+  #geth --rpc --rpcapi "eth,net,web3,personal" --cache=2048 --maxpeers 100 --lightserv 80 --lightpeers 90
+  #geth --rpc --rpcapi "eth,net,web3,personal" --cache=2048 --snapshot
+}
+
+function update_geth {
+  which go > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then # go command does not exist
+    printf "${RED}Warning: 'go' is not installed${NC}\n"
+    printf "Use ${GREEN}update go${NC} first.\n"
+    return
+  fi
+
+  local GETH_PATH="$GOPATH/src/github.com/ethereum/go-ethereum"
+
+  if [ -d "$GETH_PATH" ]; then
+    cd "$GETH_PATH"
+
+    git pull
+    latest_tag
+
+    go install -v ./cmd/geth
+  else
+    printf "${MAGENTA}geth not installed, installing [please wait] ...${NC}\n"
+
+    # downloads git repo to $GOPATH/src/github.com/ethereum/go-ethereum
+    go get -d github.com/ethereum/go-ethereum
+
+    update_geth # checkout the latest tag now and compile
+  fi
+}
+
+function update_swarm_bee {
+  create_install_directory
+
+  local dir=~/Install/swarm-bee
+
+  if [ -d $dir ]; then
+    # todo: check for linux-arm and linux-x64 here instead of !macos
+    # use: get_machine_os function
+    if ! dmt_macos; then
+      update_go
+    fi
+
+    local swarm_binary="${dir}/dist/bee"
+
+    if [ -f "$swarm_binary" ]; then
+      printf "⚠️ ${YELLOW}Swarm 🐝${NC} already exists here → ${GRAY}${swarm_binary}${NC}\n"
+      "$swarm_binary" version
+    fi
+
+    local cwd="`pwd`"
+    cd $dir
+
+    git pull
+    make binary
+
+    echo
+
+    if [ -f "$swarm_binary" ]; then
+      printf "${MAGENTA}Installed ${YELLOW}Swarm 🐝${NC} ${MAGENTA}version:${NC}\n"
+      "$swarm_binary" version
+
+      echo
+
+      printf "\n${GREEN}New compiled executable is here: ${GRAY}${swarm_binary}${NC}\n"
+
+      copy_swarm_binary_to_dmt "$swarm_binary"
+    else
+      printf "${RED}✖ Failed to produce ${swarm_binary}${NC}\n"
+    fi
+
+    cd "$cwd"
+  else
+    printf "${YELLOW}Missing directory: ${dir} ${NC}\n"
+    printf "${GREEN}Creating ${GRAY}${dir}${NC} directory and installing ${YELLOW}Swarm 🐝${NC} into it ...${NC}\n"
+    mkdir -p "$dir"
+
+    local cwd="`pwd`"
+    cd "$dir"
+    git clone https://github.com/ethersphere/bee .
+    cd "$cwd"
+
+    update_swarm_bee
+  fi
+}
+
+function copy_swarm_binary_to_dmt() {
+  local swarm_binary="$@"
+
+  # local os=''
+  # get_machine_os os
+  #local target="$DMT_PATH/user/bin/${os}"
+
+  local target="$DMT_HERE_PLATFORM_BIN"
+
+  printf "${GREEN}Copying ${YELLOW}Swarm 🐝${NC} to ${GRAY}${target}${NC}\n"
+
+  mkdir -p "$target"
+
+  cp "$swarm_binary" "$target"
+}
+
+function install_node {
+  curl -L https://git.io/n-install | bash
+}
+
+function update_rust {
+  which rustc > /dev/null 2>&1
+
+  if [ $? -eq 0 ]; then # rustc command exists
+    printf "${GREEN}Updating Rust via rustup${NC}\n"
+    rustup update
+    rustc --version
+  else
+    printf "${YELLOW}Rust not present, installing ...${NC}\n"
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+    if [ -f ~/.profile ]; then
+      source ~/.profile
+      rustc --version
+    fi
+  fi
+}
+
+function update_go {
+  if [ -d "/usr/local/go" ]; then
+    printf "${GREEN}go seems to be already installed in /usr/local/go${NC}\n"
+    go version
+    return
+  fi
+
+  if dmt_macos; then
+    printf "${RED}Script currently only runs on linux ...${NC}\n"
+    return
+  fi
+
+  local version=$(curl https://golang.org/VERSION?m=text 2>/dev/null)
+  # todo: actually detect these, list of options:
+  # os: linux, darwin, windows, freebsd arch : amd64, 386, armv6l, arm64, s390, ppc64le
+  # source: https://stackoverflow.com/a/56177551
+  local os="linux"
+  local arch="amd64"
+
+  if dmt_is_rpi; then
+    arch="armv6l"
+  fi
+
+  local cwd="`pwd`"
+  cd ""
+
+  local url="https://dl.google.com/go/${version}.${os}-${arch}.tar.gz"
+
+  printf "${GREEN}Installing ${MAGENTA}$version${NC} from ${YELLOW}${url}${NC}...${NC}\n"
+
+  cd $(mktemp -d)
+
+  curl -o go.tar.gz "$url"
+  gunzip go.tar.gz
+  tar xfv go.tar
+
+  printf "${YELLOW}Please enter sudo password if prompted:${NC}\n"
+
+  sudo chown -R root:root ./go
+  sudo mv go /usr/local
+
+  if [ -f ~/.bashrc ]; then
+    printf "${GRAY}Adding info to ~/.bashrc ... check fo possible duplicates ... ${NC}\n"
+
+    # todo: improve and use code from dmt installer which checks for presence ... and also adds to zshrc
+    echo >> ~/.bashrc
+    echo "export GOPATH=\$HOME/go" >> ~/.bashrc
+    echo "export PATH=\$PATH:/usr/local/go/bin:\$GOPATH/bin" >> ~/.bashrc
+  else
+    printf "${RED}~/.bashrc is not present ...${NC}\n"
+  fi
+
+  cd "$cwd"
+
+  printf "\n${GREEN}go should be installed:${NC}\n"
+  source ~/.bashrc
+  go version
+  #printf "\n${MAGENTA}Reload terminal to use 'go' command ...${NC}\n"
+}

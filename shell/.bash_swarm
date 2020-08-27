@@ -10,7 +10,22 @@ function bee_s {
     return
   fi
 
-  "$bee" start
+  "$bee" start --config ~/.dmt/etc/swarm_bee_config/config.yaml "$@"
+
+  #"$bee" start
+}
+
+function bee {
+  local bee=''
+  dmt_platform_bin_command bee
+
+  if [ ! -f "$bee" ]; then
+
+    printf "${MAGENT}bee client not found${NC}\n"
+    return
+  fi
+
+  "$bee" "$@"
 }
 
 function swarm_upload_single_file() {
@@ -18,7 +33,40 @@ function swarm_upload_single_file() {
 
   if [ -f "$file" ]; then
     printf "Uploading ${YELLOW}$file${NC} to ${MAGENTA}Swarm${NC}\n"
-    curl -F file=@"$file" http://localhost:8080/files
+    curl -F file=@"$file" http://localhost:8888/files
+  else
+    printf "⚠️  Error: file ${YELLOW}${file}${NC} ${RED}does not exist.${NC}\n"
+  fi
+}
+
+function supload_video() {
+  local file="$1"
+
+  if [ -f "$file" ]; then
+    printf "Uploading mp4 video ${YELLOW}$file${NC} to ${MAGENTA}Swarm${NC}\n"
+    curl -H "Content-Type: video/mp4" --data-binary @"$file" http://localhost:8888/files
+  else
+    printf "⚠️  Error: file ${YELLOW}${file}${NC} ${RED}does not exist.${NC}\n"
+  fi
+}
+
+function supload_mp3() {
+  local file="$1"
+
+  if [ -f "$file" ]; then
+    printf "Uploading mp3 audio ${YELLOW}$file${NC} to ${MAGENTA}Swarm${NC}\n"
+    curl -H "Content-Type: audio/mpeg" --data-binary @"$file" http://localhost:8888/files
+  else
+    printf "⚠️  Error: file ${YELLOW}${file}${NC} ${RED}does not exist.${NC}\n"
+  fi
+}
+
+function supload_flac() {
+  local file="$1"
+
+  if [ -f "$file" ]; then
+    printf "Uploading flac audio ${YELLOW}$file${NC} to ${MAGENTA}Swarm${NC}\n"
+    curl -H "Content-Type: audio/flac" --data-binary @"$file" http://localhost:8888/files
   else
     printf "⚠️  Error: file ${YELLOW}${file}${NC} ${RED}does not exist.${NC}\n"
   fi
