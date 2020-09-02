@@ -5,7 +5,9 @@ import fs from 'fs';
 import path from 'path';
 
 import scanWebLink from '../lib/scanWebLink';
+import parseLinksTxtFile from '../lib/parseLinksTxtFile';
 import { readLinkIndex, linkIndexPath } from 'dmt/webindex';
+import writeFileAtomic from 'write-file-atomic';
 
 import { push } from 'dmt/notify';
 
@@ -33,6 +35,17 @@ function splitToLines(buffer) {
     .split('\r')
     .join('')
     .split('\n');
+}
+
+const linksDirectory = linkIndexPath(deviceName);
+
+const indexFile = path.join(linksDirectory, 'index.json');
+const indexFile2 = path.join(linksDirectory, 'index_emergency_backup.json');
+
+function writeLinkIndex(linkIndex) {
+  writeFileAtomic(indexFile, JSON.stringify(linkIndex, null, 2), err => {
+    if (err) throw err;
+  });
 }
 
 function readLinks() {
@@ -63,31 +76,10 @@ function readLinks() {
       )
         .then(results => {
           const urls = results
-            .map(({ filePath, fileBuffer, error, hiddenContext }) => {
+            .map(({ filePath, fileBuffer }) => {
               const lines = splitToLines(fileBuffer);
-              const urls = [];
 
-              let context = '';
-
-              lines.forEach((line, index) => {
-                if (lines[index].trim() != '' && !lines[index].trim().startsWith('http')) {
-                  context = lines[index].trim();
-
-                  if (context.endsWith(':')) {
-                    context = context.slice(0, -1);
-                  }
-                }
-
-                if (lines[index].trim() == '') {
-                  context = '';
-                }
-
-                if (line.trim().startsWith('http')) {
-                  urls.push({ url: line.trim(), existingLinkIndex, context, filePath, githubLineNum: index + 1 });
-                }
-              });
-
-              return urls;
+              return parseLinksTxtFile({ filePath, lines, existingLinkIndex });
             })
             .flat();
 
@@ -99,12 +91,25 @@ function readLinks() {
             console.log(colors.red(`⚠️  Warning: Scanning just first ${num} links because justOneBatch == true`));
           }
 
+          function beforeNextBatchCallback(nextBatch) {
+            console.log(colors.yellow('Now scanning batch:'));
+            for (const { url } of nextBatch) {
+              console.log(colors.gray(url));
+            }
+            console.log();
+          }
+
+          const linkIndexInProgress = [];
+
           processBatch({
             entries: urls,
             asyncMap: scanWebLink,
             batchSize: num,
+            beforeNextBatchCallback,
             justOneBatch,
             afterAsyncResultsBatch: results => {
+              linkIndexInProgress.push(...results);
+              writeLinkIndex(linkIndexInProgress);
               console.log(colors.white(`Current batch of ${num} links finished ${colors.green('✓')}`));
               console.log();
             },
@@ -122,16 +127,11 @@ function readLinks() {
 
 export default readLinks;
 
-const linksDirectory = linkIndexPath(deviceName);
-
-const indexFile = path.join(linksDirectory, 'index.json');
-const indexFile2 = path.join(linksDirectory, 'index_emergency_backup.json');
-
 readLinks().then(({ successfulResults, unsuccessfulResults }) => {
   const linkIndex = successfulResults;
   console.log();
   console.log(colors.green(`Indexed ${colors.yellow(linkIndex.length)} entries.`));
-  fs.writeFileSync(indexFile, JSON.stringify(linkIndex, null, 2));
+  writeLinkIndex(linkIndex);
   fs.writeFileSync(indexFile2, JSON.stringify(linkIndex, null, 2));
 
   if (unsuccessfulResults.length > 0) {

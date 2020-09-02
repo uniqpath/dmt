@@ -18,13 +18,13 @@
   export let hasPlayer;
 </script>
 
-<div class="no_results" class:visible={noSearchHits}>NO HITS
+<div class="no_results" class:visible={noSearchHits}>— NOTHING WAS FOUND —
   <!-- {#if loggedIn}
     (FOR NOW?)
   {:else}
     // <span>PERHAPS TRY TO LOGIN FIRST</span>
   {/if} -->
-  {#if app.isZetaSeek}
+  <!-- {#if app.isZetaSeek}
     <div class="meta_results">
       <a href="?q=zeta">Read about Zeta project long term vision</a>
       <br>
@@ -33,7 +33,7 @@
       <br>
       How to add your node and search results.
     </div>
-  {/if}
+  {/if} -->
 </div>
 
 
@@ -102,14 +102,14 @@
             <ResultsMetaTop meta={providerResponse.meta}/>
 
             <!-- filePathANSI: not used anymore.. only problems and we needed separation - fileName / directory -->
-            {#each providerResponse.results as { filePath, fileName, directory, fileNote, url, title, name, context, hiddenContext, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, isNote, notePreview, noteUrl, noteContents, noteTags }, i}
-              <div class="result">
+            {#each providerResponse.results as { filePath, fileName, directory, fileNote, url, title, name, context, linkNote, hiddenContext, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, fileUpdatedAtRelativePretty, isNote, notePreview, noteUrl, noteContents, noteTags, linkTags }, i}
+              <div class="result" class:url_result={url}>
                 {#if url}
-                  <ResultLink {url} {title} {context} {hiddenContext} {score} {githubReference} {store} />
+                  <ResultLink {url} {title} {context} {hiddenContext} {linkNote} {score} {linkTags} {githubReference} {store} />
                 {:else if swarmBzzHash}
                   <ResultSwarm {name} {playableUrl} {mediaType} {entryType} {prettyTime} {fileSizePretty} {context} {hasPlayer} />
                 {:else if filePath}
-                  <ResultFs {playableUrl} {mediaType} {fileName} {hasPlayer} prevDirectory={i > 0 ? providerResponse.results[i - 1].directory : null} {directory} {fileSizePretty} {fileNote} {swarmUrl} /> <!-- swarmUrl is used for files, new BEE client -->
+                  <ResultFs {playableUrl} {mediaType} {fileName} {hasPlayer} prevDirectory={i > 0 ? providerResponse.results[i - 1].directory : null} {directory} {fileSizePretty} {fileUpdatedAtRelativePretty} {fileNote} {swarmUrl} /> <!-- swarmUrl is used for files, new BEE client -->
                 {:else if isNote}
                   <ResultNote {noteUrl} {notePreview} {noteTags} />
                 {:else}
@@ -146,7 +146,11 @@
   }
 
   .result {
-    padding: 2px 0;
+    padding: 1px 0;
+  }
+
+  .result.url_result {
+    padding: 3px 0;
   }
 
   .banner {
@@ -215,6 +219,8 @@
     color: white;
     /*color: var(--dmt-navy);*/
     background-color: #444;
+    /*background-color: red;*/
+    /*border-radius: 2px;*/
   }
 
   a.button:hover {
@@ -225,7 +231,7 @@
 
   .no_results {
     display: none;
-    padding: 10px 0;
+    padding: 20px 0;
     color: var(--dmt-warning-pink);
   }
 

@@ -12,7 +12,8 @@ export default function initStore(program, device) {
         devCluster: dmt.isDevCluster(),
         apMode: program.apMode(),
         bootedAt: Date.now()
-      }
+      },
+      swarm: {}
     }
   });
 

@@ -6,7 +6,9 @@
   export let url;
   export let title;
   export let context;
+  export let linkNote;
   export let score;
+  export let linkTags;
   export let hiddenContext;
   export let githubReference;
 
@@ -42,31 +44,48 @@
   function toggleScoreInfo() {
     scoreInfoVisible = !scoreInfoVisible;
   }
+
+  function visit(url) {
+    trackClick({ url });
+    window.location.href = url;
+  }
 </script>
 
 <!-- <ResultTags {entryType} {mediaType} resultType="swarm" /> -->
 
 <!-- target="_blank" -->
 
-  {#if url.indexOf('youtube.com') > -1}
-    <ResultTags resultType="video" />
+<div class="entry" on:click={() => visit(url)}>
+
+  {#if linkTags}
+    {#each linkTags as tag}
+      <!-- for now only "github" and "youtube", see scoreEntry.js in backend -->
+      <ResultTags linkTag={tag} />
+    {/each}
   {/if}
 
+  <span class="title">{title || ''}
+  <!-- <b>{title || '[ no title ]'}</b> -->
+
+  {#if context && !context.startsWith(title)}
+    <span class="dot">·</span> <b><span class="context">{context}</span></b>
+  {/if}
+
+  <!-- <br> -->
+
   <a class="website" href="{url}" on:click|preventDefault={() => trackClick({ url })}>
-
-    <b>{title || '[ no title ]'}</b>
-
-    {#if context && !context.startsWith(title)}
-      <span class="dot">·</span> <b><span class="context">{context}</span></b>
-    {/if}
-
-    <br>
-
-    <span class="url">{url}</span>
-
+    <span class="url">{url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
   </a>
 
-  <span class="dot">·</span>
+  {#if linkNote}
+    <div class="link_note">
+      <!-- {linkNote} -->
+      {@html linkNote.replace('\n', '<br>')}
+
+    </div>
+  {/if}
+
+  <!-- <span class="dot">·</span>
 
   <a href="#" class="toggle_score_info" on:click|preventDefault={() => toggleScoreInfo()}>[ Internals ]</a>
   <div class="score_info" class:visible={scoreInfoVisible}>
@@ -79,8 +98,9 @@
     Hidden context: {hiddenContext}
     |
     <a href="{githubReference}">GH_ref</a>
-  </div>
+  </div> -->
 
+</div>
 
 
 <style>
@@ -98,13 +118,38 @@
     margin: 5px 0;
   }
 
+  /*:global(.result) {
+    padding: 10px 0;
+  }*/
+
+  .entry {
+    display: inline-block;
+    padding: 2px 4px;
+    border-radius: 5px;
+  }
+
+  .entry:hover {
+    cursor: pointer;
+    background-color: #444;
+    /*background-color: #544E63;*/
+  }
+
+  .entry:hover a {
+    text-decoration: underline;
+  }
+
+  /*.entry:not(:last-child) {
+    margin-bottom: 7px;
+  }*/
+
   a.toggle_score_info, .score_info {
     color: #DDD;
     font-size: 0.8em;
   }
 
   a.website {
-    color: var(--dmt-bright-cyan);
+    /*color: var(--dmt-bright-cyan);*/
+    color: white;
   }
 
   /*a.website:nth-child(odd) {
@@ -112,15 +157,17 @@
   }*/
 
   a.website .url {
-    color: white;
+    /*color: white;*/
+
+    /*color: var(--zeta-green);*/
+    color: #bbb;
+    color: #C4C6C2;
+    color: #76C98F;
+    /*color: var(--dmt-warning-pink);*/
   }
 
   .url {
-    font-size: 0.8em;
-  }
-
-  a span.context {
-    color: var(--dmt-cool-cyan2);
+    font-size: 0.9em;
   }
 
   /*span.pretty_time {
@@ -131,7 +178,26 @@
     color: white;
   }
 
+  span.title {
+    color: var(--dmt-bright-cyan);
+  }
+
   span.context {
     color: #aaa;
+  }
+
+  .link_note {
+    padding-top: 3px;
+    font-size: 0.9em;
+    color: #ddd;
+    width: 500px;
+    text-align: center;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .link_note {
+      font-size: 0.8em;
+      width: auto;
+    }
   }
 </style>

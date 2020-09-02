@@ -18,6 +18,7 @@ mids.push('user');
 mids.push('player');
 mids.push('search');
 mids.push('apps');
+mids.push('bee');
 
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
 

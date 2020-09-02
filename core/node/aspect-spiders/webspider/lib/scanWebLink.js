@@ -10,9 +10,9 @@ import { latestLinkIndexVersion } from 'dmt/webindex';
 
 import getGitHubLink from './getGitHubLink';
 
-export default function scanWebLink({ existingLinkIndex, url, context, filePath, githubLineNum }) {
+export default function scanWebLink({ existingLinkIndex, url, context, linkNote, filePath, githubLineNum }) {
   return new Promise((success, reject) => {
-    const hiddenContext = path.basename(filePath);
+    const hiddenContext = path.basename(filePath, path.extname(filePath));
 
     const match = existingLinkIndex.find(linkInfo => linkInfo.url.toLowerCase() == url.toLowerCase() && linkInfo.linkIndexVersion == latestLinkIndexVersion);
 
@@ -20,10 +20,10 @@ export default function scanWebLink({ existingLinkIndex, url, context, filePath,
       console.log(colors.green(`✓ Found existing match in linkIndex for url ${colors.white(url)}:`));
       console.log(match);
 
-      success(match);
+      success({ ...match, ...{ context, hiddenContext, linkNote, filePath, githubLineNum } });
     } else {
       getGitHubLink({ filePath, githubLineNum }).then(githubReference => {
-        const data = { url, context, hiddenContext, linkIndexVersion: latestLinkIndexVersion, githubReference };
+        const data = { url, context, hiddenContext, linkNote, linkIndexVersion: latestLinkIndexVersion, githubReference };
 
         if (url.endsWith('.pdf')) {
           success({ ...data, ...{ title: '' } });

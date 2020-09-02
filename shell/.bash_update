@@ -17,12 +17,13 @@ function create_install_directory {
 function zeta_update {
   declare -a opts=(
     "essential"
-    "node"
+    "nodejs"
     "go"
     "rust"
     "geth"
     "swarm"
     "bee"
+    "swarm-docs"
     "lighttpd"
     "youtube-dl"
   )
@@ -48,12 +49,12 @@ function zeta_update {
       update_rust "$@"
       ;;
 
-    node)
-      install_n
-      ;;
-
     go)
       update_go "$@"
+      ;;
+
+    nodejs)
+      update_nodejs # todo: call "n latest" if n is already installed
       ;;
 
     geth)
@@ -62,6 +63,10 @@ function zeta_update {
 
     swarm)
       update_swarm_bee "$@"
+      ;;
+
+    swarm-docs)
+      update_swarm_bee_docs "$@"
       ;;
 
     bee)
@@ -91,6 +96,68 @@ function zeta_update {
 
   esac
 }
+
+
+function zeta_start {
+  declare -a opts=(
+    "swarm"
+    "swarm-docs"
+  )
+
+  local arg="$1"
+
+  shift
+
+  if [ "$arg" == '-h' ] || [ -z "$arg" ]; then
+    printf "${GREEN}Options:${NC}\n"
+    echo "${opts[@]}"
+    return
+  fi
+
+  local matching_opt=''
+  dmt_opts_matcher matching_opt "$arg" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    return
+  fi
+
+  case "$matching_opt" in
+    swarm)
+      local bee=''
+      dmt_platform_bin_command bee
+
+      if [ ! -f "$bee" ]; then
+
+        printf "${MAGENT}bee client not found${NC}\n"
+        return
+      fi
+
+      "$bee" start --config ~/.dmt/etc/swarm_bee_config/config.yaml "$@"
+      ;;
+
+    swarm-docs)
+      local dir=~/Install/swarm-docs
+
+      if [ ! -d "$dir" ]; then
+        update_swarm_bee_docs
+      fi
+
+      if [ -d "$dir" ]; then
+        cd "$dir"
+
+        ensure_npm
+        if [ ! $? -eq 0 ]; then
+          return
+        fi
+
+        npm run start
+      else
+        printf "⚠️  ${RED}Failed to install docs${NC}\n"
+      fi
+
+      ;;
+  esac
+}
+
 
 function install_n {
   curl -L https://git.io/n-install | bash
@@ -189,6 +256,71 @@ function update_swarm_bee {
   fi
 }
 
+function ensure_npm {
+  which npm > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then
+    echo
+    printf "⚠️  ${YELLOW}node.js${NC} ${RED}and${NC} ${YELLOW}npm${NC} ${RED}not installed${NC}\n"
+    echo
+    printf "💡 Please run ${GREEN}zeta_update nodejs${NC} ${GRAY}to install the latest node.js framework via${NC} ${CYAN}tj/n node version manager${NC}\n"
+    echo
+    return 1
+  fi
+}
+
+function update_swarm_bee_docs {
+  ensure_npm
+  if [ ! $? -eq 0 ]; then
+    return
+  fi
+
+  create_install_directory
+
+  local dir=~/Install/swarm-docs
+
+  if [ -d $dir ]; then
+
+    cd $dir
+
+    git pull
+
+    echo
+    printf "${GREEN}Installing node.js dependencies ...${NC}\n"
+
+    npm install
+
+    if [ ! -d "node_modules" ]; then
+      printf "⚠️  ${RED}failed to install nodejs deps (node_modules)${NC}\n"
+      return
+    fi
+
+    echo
+
+    printf "${GREEN}Done 🐝${NC}\n"
+
+    echo
+    printf "💡 1) ${YELLOW}Now please enter:${NC}\n"
+    echo
+    printf "${GREEN}npm run start${NC} here in this directory ${GRAY}(${dir})${NC}\n"
+    echo
+    printf "💡 2) ${YELLOW}Open this url in browser${NC} ${GRAY}(if it doesn't open automatically):${NC}\n"
+    echo
+    printf "${CYAN}http://localhost:3000${NC}\n"
+    echo
+  else
+    printf "${YELLOW}Missing directory: ${dir} ${NC}\n"
+    printf "${GREEN}Creating ${GRAY}${dir}${NC} directory and installing ${YELLOW}🐝 swarm-docs${NC} in it ...${NC}\n"
+    echo
+    mkdir -p "$dir"
+
+    cd "$dir"
+    git clone https://github.com/ethersphere/docs.github.io.git .
+
+    update_swarm_bee_docs
+  fi
+}
+
 function copy_swarm_binary_to_dmt() {
   local swarm_binary="$@"
 
@@ -205,8 +337,31 @@ function copy_swarm_binary_to_dmt() {
   cp "$swarm_binary" "$target"
 }
 
-function install_node {
-  curl -L https://git.io/n-install | bash
+function update_nodejs {
+  if [ -d ~/n ] && [ -n "$N_PREFIX" ]; then
+    n latest
+  else
+    curl -L https://git.io/n-install | bash
+
+    if [ -d ~/n ]; then
+      export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).
+      echo
+      printf "${GREEN}Now installing and selecting latest node.js in addition to LTS${NC}\n"
+      n latest
+    else
+      printf "${RED}Error installing node.js${NC}\n"
+    fi
+
+    echo
+    #printf "${GRAY}You can install latest node version with this command:${NC}\n"
+    #printf "${GREEN}n latest${NC} ${GRAY}installs latest node.js version instead of LTS (long term support)${NC}\n"
+    printf "${GREEN}n${NC} ${GRAY}manages node versions${NC}\n"
+    printf "${GREEN}n --help${NC} ${GRAY}show help${NC}\n"
+    echo
+    printf "${GREEN}✓${NC} Installed ${MAGENTA}node.js $(node --version)${NC}\n"
+    echo
+    printf "⚠️  ${YELLOW}Please open new terminal tab if ${GREEN}node${NC} ${YELLOW}and${NC} ${GREEN}npm${NC} ${YELLOW}commands are not found.${NC}\n"
+  fi
 }
 
 function update_rust {

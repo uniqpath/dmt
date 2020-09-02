@@ -24,6 +24,7 @@
   //export let filePathANSI;
   export let mediaType;
   export let fileSizePretty;
+  export let fileUpdatedAtRelativePretty;
   export let fileNote;
   export let swarmUrl;
   export let hasPlayer;
@@ -51,9 +52,14 @@
 
     {#if fileSizePretty}
       <span class="file_size">{fileSizePretty}</span>
-      {#if fileNote}
-        →
-      {/if}
+    {/if}
+
+    {#if fileUpdatedAtRelativePretty}
+      <span class="file_updated_at">⏱️ <span>{fileUpdatedAtRelativePretty}</span></span>
+    {/if}
+
+    {#if fileNote}
+      →
     {/if}
 
     {#if fileNote}
@@ -71,6 +77,15 @@
 
   span.file_size {
     color: #DFB1D9;
+  }
+
+  span.file_updated_at {
+    color: #eee;
+    font-size: 0.9em;
+  }
+
+  span.file_updated_at span {
+    color: #A4ACE0;
   }
 
   .directory {
@@ -95,7 +110,17 @@
   }
 
   .entry:hover {
+    /* DUPLICATE*/
     background-color: #444; /* same as for links defined in SearchResults.svelte */
+  }
+
+  a.swarm_url {
+    color: #FFAF28;
+  }
+
+  a.swarm_url:hover {
+    color: #444;
+    background-color: #FFAF28;
   }
 
   .file_note {
@@ -112,15 +137,6 @@
 
   .file_note a {
     text-decoration: none;
-  }
-
-  a.swarm_url {
-    color: #FFAF28;
-  }
-
-  a.swarm_url:hover {
-    color: #444;
-    background-color: #FFAF28;
   }
 
   @media only screen and (max-width: 768px) {

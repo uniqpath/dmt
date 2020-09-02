@@ -33,6 +33,13 @@ class BackendStore extends SimpleStore {
 
     this.set({ deviceName, player });
 
+    program.on('tick', () => {
+      setTimeout(() => {
+        const { controller, swarm } = program.state;
+        this.set({ controller, swarm });
+      }, 200);
+    });
+
     this.userSessions = {};
   }
 

@@ -9,7 +9,13 @@ export default async function getGitHubLink({ filePath, githubLineNum }) {
 
   const remotes = await git.listRemotes({ fs, dir: gitroot });
 
-  let { url } = remotes.find(({ remote }) => remote == 'origin');
+  const matchingRemote = remotes.find(({ remote }) => remote == 'origin');
+
+  if (!matchingRemote) {
+    return;
+  }
+
+  let { url } = matchingRemote;
 
   if (url.startsWith('git@github.com:')) {
     url = url.replace('git@github.com:', 'https://github.com/');

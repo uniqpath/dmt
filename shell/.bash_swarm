@@ -1,18 +1,7 @@
 #!/bin/bash
 
-function bee_s {
-  local bee=''
-  dmt_platform_bin_command bee
-
-  if [ ! -f "$bee" ]; then
-
-    printf "${MAGENT}bee client not found${NC}\n"
-    return
-  fi
-
-  "$bee" start --config ~/.dmt/etc/swarm_bee_config/config.yaml "$@"
-
-  #"$bee" start
+function bee_start {
+  zeta_start swarm
 }
 
 function bee {
@@ -39,7 +28,7 @@ function swarm_upload_single_file() {
   fi
 }
 
-function supload_video() {
+function supload_mp4() {
   local file="$1"
 
   if [ -f "$file" ]; then

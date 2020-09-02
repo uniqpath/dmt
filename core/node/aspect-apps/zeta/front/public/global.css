@@ -7,8 +7,13 @@ body {
 
 @font-face {
   font-family: Avenir;
-  src: url('fonts/Avenir-Book.otf') format('opentype');
+  src: url('fonts/Avenir-Book.otf') format('OpenType');
 }
+
+/*@font-face {
+  font-family: Montserrat;
+  src: url('fonts/Montserrat-Light.ttf') format('TrueType');
+}*/
 
 body {
   color: #333;
@@ -16,12 +21,6 @@ body {
   padding: 0;
   box-sizing: border-box;
   font-family: Avenir, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-
-  /*background: url(img/zeta_landscape_dark.jpg) no-repeat center center fixed;*/
-
-  /*background: rgb(27, 28, 52);
-  background: linear-gradient(180deg, rgba(27, 28, 52, 1) 0%, rgba(42, 27, 52, 1) 100%);
-  background-attachment: fixed;*/
 
   background: url(img/zeta_landscape.jpg) no-repeat center center fixed;
   background-size: cover;
@@ -40,11 +39,11 @@ body:after {
 }
 
 @keyframes darken {
-  from {
+  0% {
     background: url(img/zeta_landscape.jpg) no-repeat center center fixed;
     background-size: cover;
   }
-  to {
+  100% {
     /*background: rgb(27, 28, 52);
     background: linear-gradient(180deg, rgba(27, 28, 52, 1) 0%, rgba(42, 27, 52, 1) 100%);
     background-attachment: fixed;*/
@@ -53,17 +52,18 @@ body:after {
   }
 }
 
+/* remove animation on safari because of ugly blink! */
+/* background will not darken on safari! */
+@-webkit-keyframes darken {
+  /* empty */
+}
+
 body.darken {
   animation-fill-mode: forwards;
   animation-name: darken;
-  animation-duration: 1s;
+  animation-duration: 0.4s;
   animation-timing-function: linear;
 }
-
-/*body.dark_bg {
-  background: url(img/zeta_landscape_dark.jpg) no-repeat center center fixed;
-  background-size: cover;
-}*/
 
 a {
   color: rgb(0, 100, 200);

@@ -5,11 +5,20 @@
   import Url from 'urljs';
 
   import { onMount, setContext } from 'svelte';
+  //import Router from 'svelte-spa-router'
+
+  // import routes from './routes';
+
+  //import { Router, Route, Link } from "svelte-routing";
 
   import About from './components/About.svelte';
+  // import ZetaExplorers from './components/ZetaExplorers.svelte';
+
   import Login from './components/Login/Login.svelte';
   // import MenuBar from './components/MenuBar/MenuBar.svelte';
   import LeftBar from './components/LeftBar/LeftBar.svelte';
+
+  import Swarm from './components/Swarm/Swarm.svelte';
 
   import ConnectionStatus from './components/ConnectionStatus.svelte';
   import NodeTagline from './components/NodeTagline.svelte';
@@ -22,6 +31,9 @@
   export let store;
   export let appHelper;
   export let metamaskConnect;
+
+  // needed for router
+  //export let url = "";
 
   setContext('app', appHelper);
 
@@ -52,6 +64,8 @@
   $: connected = $store.connected;
   //$: searchMode = $store.searchMode;
 
+  $: controller = $store.controller;
+  $: swarm = $store.swarm;
   $: player = $store.player;
 
   $: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
@@ -80,7 +94,14 @@
 
   // read browser query strings
 
+  // TEMPORARY
+  //const { pathname } = window.location;
+
+  // siteSection.set(pathname);
+
   const { q, nodes, error, mode } = Url.parseQuery();
+
+  let errorCode = error;
 
   if (q) {
     searchQuery = decodeURIComponent(q);
@@ -101,6 +122,9 @@
   // FIN
 
   function updateBrowserQuery() {
+    // console.log("temporarily not updating query string in browser")
+    // return;
+
     if (searchQuery) {
       Url.updateSearchParam('q', searchQuery);
     } else {
@@ -142,9 +166,12 @@
     triggerSearch({ userActivated: true });
   }
 
-  function placeSearch(query, nodes = []) {
+  function placeSearch(query, { nodes = [], mode = undefined } = {}) {
     searchQuery = query;
     searchNodes = nodes;
+    if (mode) {
+      searchMode.set(mode);
+    }
     setTimeout(() => {
       triggerSearch({ userActivated: true });
     }, 50);
@@ -178,9 +205,9 @@
     };
 
     // remove error after first user input
-    if (userActivated && error) {
-      error = undefined;
-      Url.updateSearchParam('code'); // delete
+    if (userActivated && errorCode) {
+      errorCode = undefined;
+      Url.updateSearchParam('error'); // delete
     }
 
     if (connected) {
@@ -213,6 +240,9 @@
 
   function goHome() {
     doSearch('');
+    if (!isMobile) {
+      searchInput.focus();
+    }
   }
 
   function doSearch(query) {
@@ -221,11 +251,17 @@
   }
 
   function searchModeChanged() {
-    searchInput.focus();
+    if (!isMobile) {
+      searchInput.focus();
+    }
     triggerSearch({ userActivated: true });
   }
 
-  $: placeholderText = $searchMode == 0 ? "Search public network" : "Search this node";
+  function explorersClick() {
+    placeSearch('explorers', { mode: 1 });
+  }
+
+  $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Search public network" : "Search this node");
 
   appHelper.on('search', doSearch);
 
@@ -263,6 +299,8 @@
 <!-- {#if (isLocalhost && deviceName == 'eclipse') || isZetaSeek} -->
 <!-- {#if app.isLocalhost || loggedIn} -->
 
+<!-- <Route path="explorers" component="{ZetaExplorers}" /> -->
+
 {#if loggedIn}
 <!-- {#if isLocalhost || loggedIn} -->
   <LeftBar {connected} {loggedIn} {isAdmin} {metamaskConnect} {displayName} {loginStore} {store} {searchQuery} {deviceName} />
@@ -287,10 +325,17 @@
     </a>
   </div>
 
-  <!-- {isZetaSeek ? 'p2p node' : window.location.hostname} -->
-  <ConnectionStatus {connected} {isSearching} {deviceName} />
+  <!-- {#if pathname == 'swarm'} -->
+    <!-- <Swarm {swarm} /> -->
+  <!-- {/if} -->
+  <!-- <Router {routes} /> -->
 
-  <NodeTagline {connected} {searchResults} {displayName} {loggedIn} />
+  <!-- <Swarm {swarm} /> -->
+
+  <!-- {isZetaSeek ? 'p2p node' : window.location.hostname} -->
+  <ConnectionStatus {connected} {controller} {isSearching} {deviceName} />
+
+  <NodeTagline {connected} {searchResults} {displayName} {loggedIn} on:explorersClick="{explorersClick}" />
 
   <div class="search">
 
@@ -298,7 +343,7 @@
 
     {#if !connected && isLocalhost}
       <p class="connection_status_help">
-        ⚠️ Please start <span>dmt-proc</span> ...
+        ⚠️ Please start the <span>dmt-proc</span> ...
       </p>
     {/if}
 
@@ -306,7 +351,7 @@
       <SearchModeSelector {searchQuery} on:searchModeChanged="{searchModeChanged}" />
     {/if}
 
-    {#if error == 'file_not_found'}
+    {#if errorCode == 'file_not_found'}
       <br>
       <div class="error">
         ⚠️ Requested file was renamed or moved {#if !noSearchHits} but perhaps one of the following results matches:{/if}
@@ -418,10 +463,6 @@
     padding: 6px 8px;
   }
 
-  input#search_input:disabled {
-    background-color: var(--dmt-warning-pink);
-  }
-
   input#search_input.public_search {
     background-color: var(--zeta-green);
     border-color: white;
@@ -440,6 +481,14 @@
 
   input#search_input.this_node_search::placeholder {
     color: #6A72FF;
+  }
+
+  input#search_input:disabled {
+    background-color: var(--dmt-warning-pink);
+  }
+
+  input#search_input:disabled, input#search_input:disabled::placeholder {
+    color: #A48CAC;
   }
 
   .search {

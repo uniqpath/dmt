@@ -19,19 +19,19 @@
   background-color: #ddd;
   border-radius: 2px;
   color: #555;
-  padding: 2px 2px 0 2px;
+  padding: 2px 2px 1px 2px;
+  font-size: 0.8em;
 }
 
 /* (some) resultTypes ==> */
 
-.swarmTag {
+.swarmTag, .swarmstagingTag {
   /*color: #555;*/
   /*color: white;*/
   color: #FFAF28;
   /*background-color: #FFA500;*/
   background: none;
   font-style: italic;
-  font-size: 0.8em;
 }
 
 .ensTag {
@@ -50,8 +50,9 @@
 
 .musicTag {
   color: white;
-  background-color: #B54195;
-  font-size: 0.8em;
+  color: #333;
+  /*background-color: #44BAA8;*/
+  background-color: var(--zeta-green);
 }
 
 .imageTag {
@@ -74,8 +75,4 @@
   background-color: #679536;
 }
 
-/*.mediaTypeIcon {
-  opacity: 0.7;
-  color: white;
-}*/
 </style>

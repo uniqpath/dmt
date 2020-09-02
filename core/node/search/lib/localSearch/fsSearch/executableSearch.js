@@ -8,7 +8,10 @@ import stripAnsi from 'strip-ansi';
 
 import pathModule from 'path';
 
-export default function executableSearch(binary, { terms, path, noColor, mediaType, page = 1, maxResults }, processLineCallback) {
+import allowFSResult from './allowFSResult';
+import zetaDirPath from './dotZeta/zetaDirPath';
+
+export default function executableSearch(binary, { terms, path, noColor, mediaType, page = 1, maxResults, accessKey }, processLineCallback) {
   if (!maxResults) {
     throw new Error('executableSearch: maxResults is undefined, must provide maxResults argument');
   }
@@ -31,7 +34,7 @@ export default function executableSearch(binary, { terms, path, noColor, mediaTy
 
   const cwd = path;
 
-  log.write(`Calling external binary ${cwd ? `${colors.cyan(`cd ${cwd}`)}; ` : ''}${colors.cyan(binary)} ${colors.yellow(constructedTerms.join(' '))}`);
+  log.debug(`Calling external binary ${cwd ? `${colors.cyan(`cd ${cwd}`)}; ` : ''}${colors.cyan(binary)} ${colors.yellow(constructedTerms.join(' '))}`);
 
   const ls = spawn(dmt.platformExecutablePath(binary), constructedTerms, {
     cwd
@@ -42,20 +45,15 @@ export default function executableSearch(binary, { terms, path, noColor, mediaTy
   let finishedPrematurely = false;
 
   ls.stdout.on('data', data => {
-    const lines = data
+    const linesFirstPass = data
       .toString()
       .split('\n')
       .filter(line => {
         const filePath = stripAnsi(line);
-        return (
-          filePath.trim() != '' &&
-          !filePath.endsWith('.DS_Store') &&
-          !(pathModule.basename(filePath).startsWith('~$') && filePath.endsWith('.docx')) &&
-          !filePath.endsWith('.swp') &&
-          !filePath.endsWith('.zeta.txt') &&
-          !filePath.endsWith('.zeta.json')
-        );
+        return allowFSResult(filePath);
       });
+
+    const lines = linesFirstPass;
 
     if (resultsSoFar < page * maxResults) {
       const resultsToIgnore = Math.max(0, initialResultsToIgnore - resultsSoFar);

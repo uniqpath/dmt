@@ -1,9 +1,11 @@
 <script>
   import ResultTag from './ResultTag.svelte';
+  import ResultLinkTag from './ResultLinkTag.svelte';
 
   export let mediaType;
   export let resultType;
   export let entryType;
+  export let linkTag;
 </script>
 
 {#if mediaType}
@@ -16,9 +18,12 @@
 
 {/if}
 
-
 {#if resultType}
   <ResultTag tag={resultType} />
+{/if}
+
+{#if linkTag}
+  <ResultLinkTag tag={linkTag} />
 {/if}
 
 <!-- note results -->

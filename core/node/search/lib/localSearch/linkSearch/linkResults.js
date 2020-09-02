@@ -1,12 +1,13 @@
 import scoreEntry from './scoreEntry';
+import addLinkTags from './addLinkTags';
 
-function linkResults(queryStr, linkIndex) {
+function linkResults(terms, linkIndex) {
   const results = linkIndex
-    .map(entry => scoreEntry(entry, queryStr))
+    .map(entry => scoreEntry(entry, terms))
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score);
 
-  return results;
+  return results.map(result => addLinkTags(result));
 }
 
 export default linkResults;

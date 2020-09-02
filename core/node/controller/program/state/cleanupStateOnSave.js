@@ -16,7 +16,11 @@ export default function cleanupStateOnSave(state) {
     delete state.controller.apInfo;
     delete state.controller.serverMode;
     delete state.controller.actualGuiPort;
+
+    delete state.controller.swarmBeeRunning;
   }
+
+  delete state.swarm;
 
   delete state.services;
   delete state.appList;
