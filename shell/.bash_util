@@ -41,6 +41,14 @@ function dmt_macos {
   return 1 # false
 }
 
+function dmt_is_linux {
+  if [[ $OSTYPE == linux* ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
 function dmt_is_rpi {
   if [ -f /etc/issue ] && [[ $(cat /etc/issue) =~ Raspbian ]]; then
     return 0 # true
@@ -55,6 +63,30 @@ function dev_machine {
   fi
 
   return 1 # false
+}
+
+function dmt_ensure_nodejs_npm_warn {
+  echo
+  printf "⚠️  ${YELLOW}node.js${NC} ${RED}and${NC} ${YELLOW}npm${NC} ${RED}not installed${NC}\n"
+  echo
+  printf "💡 Please run ${GREEN}zeta_update nodejs${NC} ${GRAY}to install the latest node.js framework via${NC} ${CYAN}tj/n node version manager${NC}\n"
+  echo
+}
+
+function dmt_ensure_nodejs_npm {
+  which npm > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then
+    dmt_ensure_nodejs_npm_warn
+    return 1
+  fi
+
+  which node > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then
+    dmt_ensure_nodejs_npm_warn
+    return 1
+  fi
 }
 
 # info: https://mharrison.org/post/bashfunctionoverride/

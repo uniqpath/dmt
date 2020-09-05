@@ -1,26 +1,15 @@
 #!/bin/bash
 
-function build_essential {
-  sudo apt-get update
-  sudo apt-get -y install build-essential tar unzip curl git screen ntp zip tree lsof colordiff rsync
-}
-
-function build_essential_full {
-  sudo apt-get update
-  sudo apt-get -y install build-essential zlib1g-dev libpcre3 libpcre3-dev libbz2-dev libssl-dev libreadline-dev tar unzip curl git screen dh-autoreconf make pkg-config cmake lsof ntp highlight net-tools zip tree lsof colordiff rsync
-}
-
 function create_install_directory {
   mkdir -p ~/Install
 }
 
 function zeta_update {
   declare -a opts=(
-    "essential"
     "nodejs"
     "go"
     "rust"
-    "geth"
+    # "geth"
     "swarm"
     "bee"
     "swarm-docs"
@@ -41,10 +30,6 @@ function zeta_update {
   fi
 
   case "$matching_opt" in
-    essential)
-      build_essential_full
-      ;;
-
     rust)
       update_rust "$@"
       ;;
@@ -54,7 +39,7 @@ function zeta_update {
       ;;
 
     nodejs)
-      update_nodejs # todo: call "n latest" if n is already installed
+      update_nodejs
       ;;
 
     geth)
@@ -97,109 +82,12 @@ function zeta_update {
   esac
 }
 
-
-function zeta_start {
-  declare -a opts=(
-    "swarm"
-    "swarm-docs"
-  )
-
-  local arg="$1"
-
-  shift
-
-  if [ "$arg" == '-h' ] || [ -z "$arg" ]; then
-    printf "${GREEN}Options:${NC}\n"
-    echo "${opts[@]}"
-    return
-  fi
-
-  local matching_opt=''
-  dmt_opts_matcher matching_opt "$arg" "${opts[@]}"
-  if [ $? -ne 0 ]; then # error
-    return
-  fi
-
-  case "$matching_opt" in
-    swarm)
-      local bee=''
-      dmt_platform_bin_command bee
-
-      if [ ! -f "$bee" ]; then
-
-        printf "${MAGENT}bee client not found${NC}\n"
-        return
-      fi
-
-      "$bee" start --config ~/.dmt/etc/swarm_bee_config/config.yaml "$@"
-      ;;
-
-    swarm-docs)
-      local dir=~/Install/swarm-docs
-
-      if [ ! -d "$dir" ]; then
-        update_swarm_bee_docs
-      fi
-
-      if [ -d "$dir" ]; then
-        cd "$dir"
-
-        ensure_npm
-        if [ ! $? -eq 0 ]; then
-          return
-        fi
-
-        npm run start
-      else
-        printf "⚠️  ${RED}Failed to install docs${NC}\n"
-      fi
-
-      ;;
-  esac
-}
-
-
 function install_n {
   curl -L https://git.io/n-install | bash
   printf "\n${GREEN}Now quit session and login again, then run 'n latest'${NC}\n"
 }
 
 # ----------------------------- APPLICATIONS -----------------------------
-
-function start_geth {
-  #geth --rpc --rpcapi "db,eth,net,web3,personal" --rpcaddr 0.0.0.0 --rpccorsdomain "*" --rpcvhosts "localhost,solar.local,eth.uniqpath.com" --cache=1024 --maxpeers 100 --lightserv 80 --lightpeers 90
-  geth --rpc --rpcapi "eth,net,web3,personal" --cache=1024 --maxpeers 100 --lightserv 80 --lightpeers 90
-  #geth --rpc --rpcapi "eth,net,web3,personal" --cache=2048 --maxpeers 100 --lightserv 80 --lightpeers 90
-  #geth --rpc --rpcapi "eth,net,web3,personal" --cache=2048 --snapshot
-}
-
-function update_geth {
-  which go > /dev/null 2>&1
-
-  if [ ! $? -eq 0 ]; then # go command does not exist
-    printf "${RED}Warning: 'go' is not installed${NC}\n"
-    printf "Use ${GREEN}update go${NC} first.\n"
-    return
-  fi
-
-  local GETH_PATH="$GOPATH/src/github.com/ethereum/go-ethereum"
-
-  if [ -d "$GETH_PATH" ]; then
-    cd "$GETH_PATH"
-
-    git pull
-    latest_tag
-
-    go install -v ./cmd/geth
-  else
-    printf "${MAGENTA}geth not installed, installing [please wait] ...${NC}\n"
-
-    # downloads git repo to $GOPATH/src/github.com/ethereum/go-ethereum
-    go get -d github.com/ethereum/go-ethereum
-
-    update_geth # checkout the latest tag now and compile
-  fi
-}
 
 function update_swarm_bee {
   create_install_directory
@@ -256,21 +144,8 @@ function update_swarm_bee {
   fi
 }
 
-function ensure_npm {
-  which npm > /dev/null 2>&1
-
-  if [ ! $? -eq 0 ]; then
-    echo
-    printf "⚠️  ${YELLOW}node.js${NC} ${RED}and${NC} ${YELLOW}npm${NC} ${RED}not installed${NC}\n"
-    echo
-    printf "💡 Please run ${GREEN}zeta_update nodejs${NC} ${GRAY}to install the latest node.js framework via${NC} ${CYAN}tj/n node version manager${NC}\n"
-    echo
-    return 1
-  fi
-}
-
 function update_swarm_bee_docs {
-  ensure_npm
+  dmt_ensure_nodejs_npm
   if [ ! $? -eq 0 ]; then
     return
   fi
@@ -341,15 +216,14 @@ function update_nodejs {
   if [ -d ~/n ] && [ -n "$N_PREFIX" ]; then
     n latest
   else
-    curl -L https://git.io/n-install | bash
+    # MORE INFO: https://github.com/mklement0/n-install
+    # Basic LTS install with manual confirmation:
+    # curl -L https://git.io/n-install | bash
+    curl -L https://git.io/n-install | bash -s -- -y latest
 
-    if [ -d ~/n ]; then
-      export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).
-      echo
-      printf "${GREEN}Now installing and selecting latest node.js in addition to LTS${NC}\n"
-      n latest
-    else
-      printf "${RED}Error installing node.js${NC}\n"
+    if [ ! -d ~/n ]; then
+      printf "⚠️  ${RED}Error installing node.js${NC}\n"
+      return
     fi
 
     echo
@@ -358,6 +232,7 @@ function update_nodejs {
     printf "${GREEN}n${NC} ${GRAY}manages node versions${NC}\n"
     printf "${GREEN}n --help${NC} ${GRAY}show help${NC}\n"
     echo
+    export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).
     printf "${GREEN}✓${NC} Installed ${MAGENTA}node.js $(node --version)${NC}\n"
     echo
     printf "⚠️  ${YELLOW}Please open new terminal tab if ${GREEN}node${NC} ${YELLOW}and${NC} ${GREEN}npm${NC} ${YELLOW}commands are not found.${NC}\n"
@@ -441,3 +316,39 @@ function update_go {
   go version
   #printf "\n${MAGENTA}Reload terminal to use 'go' command ...${NC}\n"
 }
+
+
+# function start_geth {
+#   #geth --rpc --rpcapi "db,eth,net,web3,personal" --rpcaddr 0.0.0.0 --rpccorsdomain "*" --rpcvhosts "localhost,solar.local,eth.uniqpath.com" --cache=1024 --maxpeers 100 --lightserv 80 --lightpeers 90
+#   geth --rpc --rpcapi "eth,net,web3,personal" --cache=1024 --maxpeers 100 --lightserv 80 --lightpeers 90
+#   #geth --rpc --rpcapi "eth,net,web3,personal" --cache=2048 --maxpeers 100 --lightserv 80 --lightpeers 90
+#   #geth --rpc --rpcapi "eth,net,web3,personal" --cache=2048 --snapshot
+# }
+
+# function update_geth {
+#   which go > /dev/null 2>&1
+
+#   if [ ! $? -eq 0 ]; then # go command does not exist
+#     printf "${RED}Warning: 'go' is not installed${NC}\n"
+#     printf "Use ${GREEN}update go${NC} first.\n"
+#     return
+#   fi
+
+#   local GETH_PATH="$GOPATH/src/github.com/ethereum/go-ethereum"
+
+#   if [ -d "$GETH_PATH" ]; then
+#     cd "$GETH_PATH"
+
+#     git pull
+#     latest_tag
+
+#     go install -v ./cmd/geth
+#   else
+#     printf "${MAGENTA}geth not installed, installing [please wait] ...${NC}\n"
+
+#     # downloads git repo to $GOPATH/src/github.com/ethereum/go-ethereum
+#     go get -d github.com/ethereum/go-ethereum
+
+#     update_geth # checkout the latest tag now and compile
+#   fi
+# }

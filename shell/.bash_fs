@@ -446,7 +446,7 @@ function l {
     local subdir=${arr[1]}
   fi
 
-  return_match=''
+  local return_match=''
   dir_match return_match "$pattern"
   local match=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$return_match")
 

@@ -1160,8 +1160,8 @@ function dmt_next {
 
           printf "${GREEN}✓✓ Done fetching latest version via git.${NC}\n\n"
           printf "${CYAN}Please run ${GREEN}dmt restart${NC} ${CYAN}now${NC} ...\n\n"
-          printf "${GRAY}Sometimes it is recommended to reload the terminal shell as well:\n"
-          printf "→ try ${GREEN}rel${NC} ${GRAY}command or logout and back in.${NC}\n"
+          printf "Sometimes it is recommended to ${YELLOW}reload the terminal${NC} as well → "
+          printf "try ${GREEN}dmt rel${NC} command or logout and back in.\n"
         else
           printf "${RED}Aborting fetch from unknown git source.${NC}"
         fi

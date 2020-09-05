@@ -1,0 +1,5 @@
+#!/bin/bash
+
+. ~/.dmt/etc/.bash_aliases_bundle
+
+dmt next

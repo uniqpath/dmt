@@ -36,6 +36,11 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
+if [ -d /etc/lighttpd ]; then
+  printf "⚠️  ${YELLOW}Directory ${WHITE}/etc/lighttpd ${YELLOW}already exists.${NC}\n"
+  exit
+fi
+
 function latest_tag {
   local latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
   git checkout $latest_tag
@@ -64,6 +69,15 @@ sudo apt-get -y build-dep lighttpd
 make
 
 make install
+
+if [ -f /usr/local/sbin/lighttpd ]; then
+  echo
+  printf "${GREEN}✓ Installed lighttpd ${CYAN}$(/usr/local/sbin/lighttpd -v)${NC}\n"
+  echo
+else
+  printf "⚠️  ${RED}Failed to install ${YELLOW}lighttpd${NC}.${NC}\n"
+  exit
+fi
 
 cp "${DIR}/lighttpd.service" /etc/systemd/system
 

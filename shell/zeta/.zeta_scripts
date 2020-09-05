@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function zeta_scan {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}scan web [device]${NC} ${GRAY}scans the web according to device's weblink index${NC}\n"
+    return
+  fi
+
+  if [ "$1" == "web" ]; then
+    shift
+    local device="this"
+
+    if [ -n "$1" ]; then
+      device="$1"
+    fi
+
+    $DMT_NODEJS_EXEC ~/.dmt/core/node/aspect-spiders/webspider/cli/webscan.js "$device"
+  else
+    printf "${RED}Wrong options${NC}\n"
+    echo
+    zeta_scan # show help
+  fi
+}

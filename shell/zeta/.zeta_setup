@@ -1,0 +1,122 @@
+#!/bin/bash
+
+function build_essential {
+  sudo apt-get update
+  sudo apt-get -y install build-essential tar unzip curl git screen ntp zip tree lsof colordiff rsync
+}
+
+function build_essential_full {
+  sudo apt-get update
+  sudo apt-get -y install build-essential zlib1g-dev libpcre3 libpcre3-dev libbz2-dev libssl-dev libreadline-dev tar unzip curl git screen dh-autoreconf make pkg-config cmake lsof ntp highlight net-tools zip tree lsof colordiff rsync
+}
+
+function transition {
+  local delay=0.005
+
+  if [ "$1" == 'slow' ]; then
+    delay="0.01"
+  fi
+
+  for i in {1..90}
+  do
+    printf "${GRAY}…${NC}"
+    sleep $delay
+  done
+  echo
+}
+
+function zeta_setup_wip {
+  # GREETINGS
+
+  echo
+  printf "${CYAN}·······································································${NC}\n"
+  printf " 💡 ${MAGENTA}Welcome to Zeta${NC} ${CYAN}·${WHITE} a versatile ${CYAN}Search & Discovery ${WHITE}technology stack.\n"
+  printf "${CYAN}·······································································${NC}\n"
+  echo
+  printf "${YELLOW}This is the${NC} ${MAGENTA}Zeta Peer (public node)${NC} ${YELLOW}setup script${NC} [ a part of ${CYAN}DMT-SYSTEM${NC} ].\n"
+  echo
+
+  # CHECK OS REQUIREMENT
+
+  printf "⚠️  ${WHITE}It is recommended that you run the script on a ${GREEN}fresh${NC} ${CYAN}debian-based${WHITE} ${GREEN}linux machine ${WHITE}on a ${YELLOW}public IP address.${NC}\n"
+  echo
+  if ! dmt_is_linux; then
+    local our_os=''
+    get_machine_os our_os
+
+    printf "⚠️  ${RED}Your operating system is ${YELLOW}${our_os}${NC}${RED} → aborting setup.${NC}\n"
+    return
+  fi
+
+  # INITIAL PROCEED CHOICE
+
+  printf "🕵  ${CYAN}Would you like to proceed?${NC} [ ${GREEN}Y${NC} or ${GREEN}ENTER${NC} / ${GRAY}n${NC} ]${NC}"
+  read -r -p " " response
+  if [[ $response =~ ^([nN])$ ]]
+  then
+    echo
+    printf "${MAGENTA}Perhaps next time then ... ${CYAN}BYE 👋👽🚀${NC}\n"
+    return
+  fi
+
+  echo
+  transition slow
+  echo
+
+  printf "${YELLOW}This script ${WHITE}always uses the recommended and minimal way of installing related software.${NC}\n"
+  echo
+  printf "It will sometimes require ${MAGENTA}sudo password${NC} because it is installing system software like ${YELLOW}rsync, zip, lighttpd etc.${NC} on your server.\n"
+  echo
+
+
+
+  printf "🕵  ${CYAN}Would you like to update the official linux packages list?${NC}\n"
+  printf "💡 ${GRAY}This is usually needed only if it hasn't been done for a long time.${NC}\n"
+  echo
+  printf "   [ ${GREEN}Y${NC} or ${GREEN}ENTER${NC} / ${GRAY}n${NC} ] ${GRAY}(if not sure answer ${GREEN}Y${GRAY})${NC}\n"
+  echo
+  read -r -p "sudo apt-get update [Y/n] ? " response
+  if [[ ! $response =~ ^([nN])$ ]]
+  then
+    sudo apt-get update
+  fi
+
+  echo
+  printf "${GREEN}We will now install system-level dependencies like ${YELLOW}rsync, curl, zip and others ...${NC}\n"
+  transition slow
+  echo
+  build_essential_full
+
+  echo
+  printf "${GREEN}Installing ${YELLOW}nodejs ...${NC}\n"
+  transition slow
+  echo
+  zeta_update nodejs
+
+  echo
+  printf "${GREEN}Installing ${YELLOW}Swarm 🐝${NC}\n"
+  transition slow
+  echo
+  zeta_update swarm
+
+  echo
+  printf "${GREEN}Installing ${YELLOW}lighttpd${NC}\n"
+  transition slow
+  echo
+  zeta_update lighttpd
+
+  mkdir -p ~/.dmt-here/tmp
+
+  if [ -f ~/.dmt/.version ]; then
+    cp ~/.dmt/.version ~/.dmt-here/tmp/.prev_version # to help decide if process restart is needed after git pull
+  fi
+
+  echo
+  printf "${GREEN}Setting up ${MAGENTA}Zeta cron entries${NC}\n"
+  transition slow
+  echo
+  ~/.dmt/etc/cron/setup_cron
+
+
+
+}

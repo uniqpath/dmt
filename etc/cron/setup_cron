@@ -1,0 +1,18 @@
+#!/bin/bash
+
+function dmt_is_linux {
+  if [[ $OSTYPE == linux* ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+if ! dmt_is_linux; then
+  echo "Not linux, aborting ..."
+fi
+
+(crontab -l ; echo "@reboot bash -ic ~/.dmt/etc/onboot/onboot") | sort - | uniq - | crontab -
+(crontab -l ; echo "*/5 * * * * ~/.dmt/etc/cron/five_min") | sort - | uniq - | crontab -
+(crontab -l ; echo "* * * * * ~/.dmt/etc/cron/one_min") | sort - | uniq - | crontab -
+(crontab -l ; echo "0 * * * * ~/.dmt/etc/cron/hourly") | sort - | uniq - | crontab -
