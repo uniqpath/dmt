@@ -34,6 +34,20 @@ function normalizeMac(mac) {
   return mac.toLowerCase().replace(/\b0(\d|[a-f])\b/g, '$1');
 }
 
+function randHex(size) {
+  const _chars = '0123456789abcdef'.split('');
+
+  size = size && size > 0 ? size : 6;
+
+  let str = '';
+  while (size--) {
+    const randomElement = _chars[Math.floor(Math.random() * _chars.length)];
+    str += randomElement;
+  }
+
+  return str;
+}
+
 export default {
   compare,
   diff,
@@ -49,6 +63,7 @@ export default {
   normalizeMac,
   clone,
   last,
+  randHex,
   pad: (number, digits = 2) => {
     return Array(Math.max(digits - String(number).length + 1, 0)).join(0) + number;
   },

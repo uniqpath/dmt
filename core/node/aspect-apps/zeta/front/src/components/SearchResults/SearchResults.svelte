@@ -6,9 +6,9 @@
 
   import ResultsMetaTop from './ResultsMetaTop.svelte';
   import ResultsMetaBottom from './ResultsMetaBottom.svelte';
+  import ZetaExplorersInvite from '../ZetaExplorersInvite.svelte';
 
   import { getContext } from 'svelte';
-
   const app = getContext('app');
 
   export let loggedIn;
@@ -34,6 +34,52 @@
       How to add your node and search results.
     </div>
   {/if} -->
+
+
+  <!-- <a href="#" on:click|preventDefault={() => { app.emit('explorersClick'); }}>Starting October 30</a> -->
+</div>
+
+
+<div class="no_results" class:visible={noSearchHits}>
+
+  But ... the main purpose of this tech is to allow anyone
+  to host <i>their own <b>search node</b></i> (private or public):
+
+</div>
+
+<div class="no_results" class:visible={noSearchHits}>
+
+  <ZetaExplorersInvite />
+
+</div>
+
+
+<div class="no_results" class:visible={noSearchHits}>
+
+  Please read through these short documents and let us know if you want to participate even before that date.
+
+</div>
+
+<div class="no_results" class:visible={noSearchHits}>
+  <a href="mailto:zeta@uniqpath.com">📭 Our email is here.</a>
+</div>
+
+<div class="no_results" class:visible={noSearchHits}>
+   <a href="https://discord.gg/XvJzmtF"><img class="symbol" src="/apps/zeta/img/discord.svg" /> Discord server is here.</a>
+</div>
+
+<div class="no_results" class:visible={noSearchHits}>
+
+  As a validation of our approach we have received a grant from the <a href="https://medium.com/ethereum-swarm/buzz-is-in-the-air-swarm-grants-results-are-in-a030ab9178a9">Swarm Foundation</a>.
+
+</div>
+
+<div class="no_results" class:visible={noSearchHits}>
+  Come explore the edges!
+  <img class="symbol" src="/apps/zeta/img/zeta_icon.png" />
+  <img class="symbol" src="/apps/zeta/img/tropical-fish.png" />
+  <img class="swarm symbol" src="/apps/zeta/img/swarm-symbol.png" />
+  <img class="symbol" src="/apps/zeta/img/bee.png" />
 </div>
 
 
@@ -153,6 +199,14 @@
     padding: 3px 0;
   }
 
+  img.symbol {
+    width: 15px;
+  }
+
+  img.symbol.swarm {
+    filter: invert(1);
+  }
+
   .banner {
     padding: 5px;
     font-size: 0.8em;
@@ -231,7 +285,7 @@
 
   .no_results {
     display: none;
-    padding: 20px 0;
+    padding-top: 20px;
     color: var(--dmt-warning-pink);
   }
 
@@ -250,6 +304,11 @@
   .meta_results a {
     text-decoration: underline;
     color: var(--dmt-bright-cyan);
+  }
+
+  a {
+    color: var(--dmt-cyan);
+    text-decoration: underline;
   }
 
   @media only screen and (max-width: 768px) {

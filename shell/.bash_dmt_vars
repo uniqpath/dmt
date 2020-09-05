@@ -54,5 +54,5 @@ DMT_HERE_PLATFORM_BIN="${DMT_HERE_PATH}/bin/${DMT_PLATFORM}"
 DMT_AP_DEFAULT_HOST="root@192.168.0.20"
 
 # there are some other places that should be updated if nodejs flags change! find and replace ...
-DMT_NODEJS_EXEC="node --experimental-modules --experimental-specifier-resolution=node"
+DMT_NODEJS_EXEC="node --experimental-modules --experimental-specifier-resolution=node --unhandled-rejections=strict"
 DMT_MIN_NODEJS_VERSION="13.8"

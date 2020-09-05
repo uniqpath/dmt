@@ -261,6 +261,8 @@
     placeSearch('explorers', { mode: 1 });
   }
 
+  appHelper.on('explorersClick', explorersClick);
+
   $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Search public network" : "Search this node");
 
   appHelper.on('search', doSearch);
@@ -358,7 +360,7 @@
       </div>
     {/if}
 
-    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} hasPlayer={player && player.volume != undefined} />
+    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} hasPlayer={player && player.volume != undefined}  />
 
   </div>
 

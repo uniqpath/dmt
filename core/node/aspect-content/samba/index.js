@@ -1,5 +1,7 @@
 import dmt from 'dmt/bridge';
 
+const { log } = dmt;
+
 import mapToLocal from './lib/mapToLocal';
 
 import checkServerSambaSharesConfig from './lib/checkServerSambaSharesConfig';

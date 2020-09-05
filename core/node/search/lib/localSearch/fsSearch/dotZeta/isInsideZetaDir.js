@@ -1,6 +1,8 @@
 import path from 'path';
 
 function isInsideZetaDir(fsPath) {
+  return false;
+
   if (fsPath == '/') {
     return false;
   }

@@ -4,10 +4,12 @@
   export let searchResults;
   export let displayName;
 
+  import ZetaExplorersInvite from './ZetaExplorersInvite.svelte';
+
   import { getContext, createEventDispatcher } from 'svelte';
   const app = getContext('app');
 
-  const dispatch = createEventDispatcher();
+  //const dispatch = createEventDispatcher();
 </script>
 
 <!-- {#if !isLocalhost && connected && !searchResults} -->
@@ -38,10 +40,8 @@
                   <!-- Entirely new way of search & discovery -->
                   <!-- <img src="/apps/zeta/img/compass.png" alt="compass" /> -->
 
-                  <img src="/apps/zeta/img/tropical-fish.png" alt="tropical-fish" />
-                  Zeta Explorers ·
+                  <ZetaExplorersInvite />
 
-                  <a href="#" on:click|preventDefault={() => { dispatch('explorersClick'); }}>Starting September 30</a>
 
                   <!-- Creativity is a wild mind and a disciplined eye. -->
 
@@ -84,16 +84,5 @@
   color: white;
 }
 
-.tagline img {
-  width: 30px;
-  /*padding-right: 3px;*/
-  vertical-align: middle;
-  /*transform: scaleX(-1);*/
-}
-
-a {
-  color: var(--dmt-cyan);
-  text-decoration: underline;
-}
 
 </style>
