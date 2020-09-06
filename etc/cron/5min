@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#. ~/.dmt/etc/.bash_aliases_bundle
+
+# suitable when installed from github
+
+if [ ! -d ~/.dmt/.git ]; then
+  exit
+fi
+
+cwd="`pwd`"
+
+cd ~/.dmt
+
+# this is missing from the actual "dmt next" (we don't use this to prevent breakage of the updating system by some bug pushed into git)
+# this script has to be minimal and without any deps (scripts included) !
+# the only binary dep is "git"
+# local gitsource=`git remote get-url origin`
+# if [[ "$gitsource" =~ uniqpath/dmt ]]; then
+git fetch origin
+git checkout master
+git reset --hard origin/master
+
+if [ ! -f ~/.dmt/.version ]; then
+  echo "Problem: ~/.dmt/.version does not exist."
+  exit
+fi
+
+function dmt_restart {
+  # need TERM=xterm for colors when called from crontab
+  TERM=xterm ~/.dmt/etc/onboot/daemons restart
+}
+
+if [ -f ~/.dmt-here/tmp/.prev_version ]; then
+  prevVersion=$(cat ~/.dmt-here/tmp/.prev_version)
+  currentVersion=$(cat ~/.dmt/.version)
+
+  if [ "$prevVersion" != "$currentVersion" ]; then
+    echo "Restarting dmt-proc after dmt next because version changed"
+    dmt_restart
+  fi
+else
+  dmt_restart
+fi
+
+mkdir -p ~/.dmt-here/tmp
+cp ~/.dmt/.version ~/.dmt-here/tmp/.prev_version # to help decide if process restart is needed after git pull
+
+cd "$cwd" # no really needed since called from cron... but still

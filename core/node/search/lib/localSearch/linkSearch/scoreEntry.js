@@ -1,16 +1,32 @@
 import { searchPredicate } from 'dmt/search';
 
-function scoreForEachHit(text, { terms, scorePerHit, special = false } = {}) {
+function scoreForEachHit(text, { terms, scorePerHit } = {}) {
   let score = 0;
 
   terms.forEach(term => {
-    if (searchPredicate(text || '', term)) {
+    if (searchPredicate(text, term)) {
       score += scorePerHit;
     }
+  });
 
-    if (special) {
-      const perc = Math.round((100 * term.length) / text.length);
-      score += perc;
+  return score;
+}
+
+function scoreUrlForEachHit(url, { terms } = {}) {
+  let score = 0;
+
+  const { host } = new URL(url);
+
+  terms.forEach(term => {
+    if (searchPredicate(url, term)) {
+      const perc = term.length / url.length;
+      score += Math.round(100 * perc) * 30;
+
+      if (host.match(new RegExp(`^${term}\\.`))) {
+        score += Math.round((1 + perc) * 500);
+      } else if (host.indexOf(term) > -1) {
+        score += Math.round((1 + perc) * 200);
+      }
     }
   });
 
@@ -27,18 +43,10 @@ function scoreEntry(entry, terms) {
   if (searchPredicate(allTogether, terms)) {
     score = 1;
 
-    const { host } = new URL(url);
-
-    score += scoreForEachHit(host, { terms, scorePerHit: 30, special: true });
-    score += scoreForEachHit(url, { terms, scorePerHit: 10 });
+    score += scoreUrlForEachHit(url, { terms });
     score += scoreForEachHit(title, { terms, scorePerHit: 5 });
     score += scoreForEachHit(context, { terms, scorePerHit: 2 });
     score += scoreForEachHit(hiddenContext, { terms, scorePerHit: 1 });
-    if (score > 0) {
-      if (host.endsWith('github.com')) {
-        score += 50;
-      }
-    }
   }
 
   return { ...entry, ...{ score } };

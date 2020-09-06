@@ -6,7 +6,9 @@ class App extends Emitter {
 
     this.isLocalhost = window.location.hostname == 'localhost';
     this.isLAN = window.location.hostname.startsWith('192.168.');
-    this.isZetaSeek = window.location.hostname == 'zetaseek.com' || window.location.hostname == 'localhost';
+    this.isZetaSeek = window.location.hostname == 'zetaseek.com';
+    this.isDevMachine = window.location.hostname == 'david.zetaseek.com';
+
     this.isMobile = window.screen.width < 768;
 
     this.ssl = window.location.protocol == 'https:';

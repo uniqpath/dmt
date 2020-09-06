@@ -3,8 +3,8 @@
   const app = getContext('app');
 </script>
 
-<img src="/apps/zeta/img/tropical-fish.png" alt="tropical-fish" />
-Zeta Explorers ·
+<img src="/apps/zeta/img/tropical_fish.png" alt="tropical-fish" />
+Zeta Explorers (βeta) ·
 
 <!-- <a href="#" on:click|preventDefault={() => { dispatch('explorersClick'); }}>Starting October 30</a> -->
 <a href="#" on:click|preventDefault={() => { app.emit('explorersClick'); }}>Starting October 30</a>

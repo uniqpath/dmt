@@ -65,6 +65,15 @@ function memoryUsage() {
   return memUsage;
 }
 
+function dmtVersion(versionFile = path.join(helper.dmtPath, '.version')) {
+  if (fs.existsSync(versionFile)) {
+    return fs
+      .readFileSync(versionFile)
+      .toString()
+      .trim();
+  }
+}
+
 export default {
   log,
   util,
@@ -74,6 +83,7 @@ export default {
   quantum,
   colors,
   def,
+  dmtVersion,
   parseCliArgs,
   dmtContent,
   processBatch,

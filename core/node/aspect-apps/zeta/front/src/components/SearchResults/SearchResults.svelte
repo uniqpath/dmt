@@ -40,47 +40,52 @@
 </div>
 
 
-<div class="no_results" class:visible={noSearchHits}>
-
-  But ... the main purpose of this tech is to allow anyone
-  to host <i>their own <b>search node</b></i> (private or public):
-
-</div>
-
-<div class="no_results" class:visible={noSearchHits}>
-
-  <ZetaExplorersInvite />
-
-</div>
+{#if app.isZetaSeek}
 
 
-<div class="no_results" class:visible={noSearchHits}>
+  <div class="no_results" class:visible={noSearchHits}>
 
-  Please read through these short documents and let us know if you want to participate even before that date.
+    But ... the main purpose of this tech is to allow anyone
+    to host <i>their own <b>search node</b></i> (private or public):
 
-</div>
+  </div>
 
-<div class="no_results" class:visible={noSearchHits}>
-  <a href="mailto:zeta@uniqpath.com">📭 Our email is here.</a>
-</div>
+  <div class="no_results" class:visible={noSearchHits}>
 
-<div class="no_results" class:visible={noSearchHits}>
-   <a href="https://discord.gg/XvJzmtF"><img class="symbol" src="/apps/zeta/img/discord.svg" /> Discord server is here.</a>
-</div>
+    <ZetaExplorersInvite />
 
-<div class="no_results" class:visible={noSearchHits}>
+  </div>
 
-  As a validation of our approach we have received a grant from the <a href="https://medium.com/ethereum-swarm/buzz-is-in-the-air-swarm-grants-results-are-in-a030ab9178a9">Swarm Foundation</a>.
 
-</div>
+  <div class="no_results" class:visible={noSearchHits}>
 
-<div class="no_results" class:visible={noSearchHits}>
-  Come explore the edges!
-  <img class="symbol" src="/apps/zeta/img/zeta_icon.png" />
-  <img class="symbol" src="/apps/zeta/img/tropical-fish.png" />
-  <img class="swarm symbol" src="/apps/zeta/img/swarm-symbol.png" />
-  <img class="symbol" src="/apps/zeta/img/bee.png" />
-</div>
+    Please read through these short documents and let us know if you want to participate even before that date.
+
+  </div>
+
+  <div class="no_results" class:visible={noSearchHits}>
+    <a href="mailto:zeta@uniqpath.com">📭 Our email is here.</a>
+  </div>
+
+  <div class="no_results" class:visible={noSearchHits}>
+     <a href="https://discord.gg/XvJzmtF"><img class="symbol" src="/apps/zeta/img/discord.svg" /> Discord server is here.</a>
+  </div>
+
+  <div class="no_results" class:visible={noSearchHits}>
+
+    As a validation of our approach we have received a grant from the <a href="https://medium.com/ethereum-swarm/buzz-is-in-the-air-swarm-grants-results-are-in-a030ab9178a9">Swarm Foundation</a>.
+
+  </div>
+
+  <div class="no_results" class:visible={noSearchHits}>
+    Come explore the edges!
+    <img class="symbol" src="/apps/zeta/img/zeta_symbol.png" />
+    <img class="symbol" src="/apps/zeta/img/tropical_fish.png" />
+    <img class="swarm symbol" src="/apps/zeta/img/swarm-symbol.png" />
+    <img class="symbol" src="/apps/zeta/img/bee.png" />
+  </div>
+
+{/if}
 
 
 <!-- {#if app.isZetaSeek}

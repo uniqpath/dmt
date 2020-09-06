@@ -40,7 +40,7 @@
         <li class:enabled={panels['Profile']} on:click={() => toggle('Profile')}>👀 Profile</li>
       {/if}
 
-<!--       <li class:enabled={panels['Zeta Documents']} on:click={() => toggle('Zeta Documents')}><span class="new">NEW</span> Zeta Token Whitepaper <img src="/apps/zeta/img/zeta_icon.png" /></li> -->
+<!--       <li class:enabled={panels['Zeta Documents']} on:click={() => toggle('Zeta Documents')}><span class="new">NEW</span> Zeta Token Whitepaper <img src="/apps/zeta/img/zeta_symbol.png" /></li> -->
 
       <!-- <li class:enabled={panels['Zeta Discord']} on:click={() => toggle('Zeta Discord')}><span class="new">NEW</span> Zeta on Discord <img src="/apps/zeta/img/discord.svg" /></li> -->
 

@@ -13,6 +13,9 @@ if ! dmt_is_linux; then
 fi
 
 (crontab -l ; echo "@reboot bash -ic ~/.dmt/etc/onboot/onboot") | sort - | uniq - | crontab -
-(crontab -l ; echo "*/5 * * * * ~/.dmt/etc/cron/five_min") | sort - | uniq - | crontab -
-(crontab -l ; echo "* * * * * ~/.dmt/etc/cron/one_min") | sort - | uniq - | crontab -
-(crontab -l ; echo "0 * * * * ~/.dmt/etc/cron/hourly") | sort - | uniq - | crontab -
+
+(crontab -l ; echo "*/5 * * * * bash -ic ~/.dmt/etc/cron/5min") | sort - | uniq - | crontab -
+(crontab -l ; echo "*/15 * * * * bash -ic ~/.dmt/etc/cron/15min") | sort - | uniq - | crontab -
+(crontab -l ; echo "* * * * * bash -ic ~/.dmt/etc/cron/1min") | sort - | uniq - | crontab -
+(crontab -l ; echo "0 * * * * bash -ic ~/.dmt/etc/cron/hourly") | sort - | uniq - | crontab -
+(crontab -l ; echo "0 0 * * * bash -ic ~/.dmt/etc/cron/daily") | sort - | uniq - | crontab -

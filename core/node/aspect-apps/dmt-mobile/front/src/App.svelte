@@ -161,10 +161,10 @@
     </div>
   {/if}
 
-  <div class="iot section">
+  <!-- <div class="iot section">
       <button on:click={() => iotAction('alarm', 'on')} class="" disabled={!connected}>Alarm:ON</button>
       <button on:click={() => iotAction('alarm', 'off')} class="" disabled={!connected}>Alarm:OFF</button>
-  </div>
+  </div> -->
 
 </main>
 

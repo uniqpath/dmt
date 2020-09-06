@@ -12,6 +12,10 @@
     {tag.toUpperCase()}
   {/if}
 
+  {#if tag == 'swarm'}
+    [beta]
+  {/if}
+
 </span>
 
 <style>

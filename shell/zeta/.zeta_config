@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function conf {
+function zeta_config {
 
   if [ -z "$1" ]; then
     printf "${YELLOW}Usage:${NC}\n"
@@ -8,17 +8,15 @@ function conf {
 
     printf "${GREEN}pi:${NC} sudo raspi-config\n"
     printf "${GREEN}wifi:${NC} /etc/wpa_supplicant/wpa_supplicant.conf\n"
-    printf "${GREEN}dietpi:${NC} /DietPi/dietpi.txt\n"
     printf "${GREEN}net:${NC} /etc/network/interfaces\n"
     printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
     printf "${GREEN}lighttpd:${NC} /etc/lighttpd/lighttpd.conf\n"
     printf "${GREEN}haproxy:${NC} /etc/haproxy/haproxy.cfg\n"
-    printf "${GREEN}hiawatha:${NC} /etc/hiawatha/hiawatha.conf\n"
     printf "${GREEN}dnsmasq:${NC} /etc/dnsmasq.conf\n"
     printf "${GREEN}hostapd:${NC} /etc/hostapd/hostapd.conf\n"
     printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
     printf "${GREEN}fstab:${NC} /etc/fstab\n"
-    printf "${GREEN}mpd:${NC} /etc/mpd.conf || ~/.mpdconf\n"
+    # printf "${GREEN}mpd:${NC} /etc/mpd.conf || ~/.mpdconf\n"
     printf "${GREEN}samba:${NC} /etc/samba/smb.conf\n"
     printf "${GREEN}syncthing:${NC} ~/.config/syncthing/config.xml\n"
     printf "${GREEN}munin:${NC} /etc/munin/munin.conf\n"
@@ -30,26 +28,23 @@ function conf {
   fi
 
   declare -a opts=(
+    "lighttpd"
+    "sshd"
     "pi"
     "wifi"
-    "dietpi"
     "net"
-    "sshd"
-    "lighttpd"
-    "haproxy"
-    "hiawatha"
     "dnsmasq"
     "hostapd"
+    "mosquitto"
     "ap"
     "alsa"
     "fstab"
-    "mpd"
     "samba"
     "syncthing"
     "munin"
     "munin-node"
-    "mosquitto"
     "mysql"
+    "haproxy"
   )
 
   local matching_opt=''
@@ -69,10 +64,6 @@ function conf {
 
     wifi)
       wifi_setup "from_conf" "$@"
-      ;;
-
-    dietpi)
-      sudo nano /DietPi/dietpi.txt
       ;;
 
     net)
@@ -123,17 +114,17 @@ function conf {
       fi
       ;;
 
-    hiawatha)
-      local conf="/etc/hiawatha/hiawatha.conf"
+    # hiawatha)
+    #   local conf="/etc/hiawatha/hiawatha.conf"
 
-      if [ -f "${conf}" ]; then
-        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
-        sudo nano "${conf}"
-      else
-        printf "${RED}no hiawatha config file found${NC}\n"
-        return
-      fi
-      ;;
+    #   if [ -f "${conf}" ]; then
+    #     printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+    #     sudo nano "${conf}"
+    #   else
+    #     printf "${RED}no hiawatha config file found${NC}\n"
+    #     return
+    #   fi
+    #   ;;
 
     dnsmasq)
       local conf="/etc/dnsmasq.conf"
@@ -187,21 +178,21 @@ function conf {
       fi
       ;;
 
-    mpd)
-      local conf="/etc/mpd.conf"
-      local conf2="$HOME/.mpdconf"
+    # mpd)
+    #   local conf="/etc/mpd.conf"
+    #   local conf2="$HOME/.mpdconf"
 
-      if [ -f "${conf}" ]; then
-        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
-        sudo nano "${conf}"
-      elif [ -f "${conf2}" ]; then
-        printf "${CYAN}Editing ${YELLOW}${conf2}${NC}\n"
-        nano "${conf2}"
-      else
-        printf "${RED}no mpd config file found${NC}\n"
-        return
-      fi
-      ;;
+    #   if [ -f "${conf}" ]; then
+    #     printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+    #     sudo nano "${conf}"
+    #   elif [ -f "${conf2}" ]; then
+    #     printf "${CYAN}Editing ${YELLOW}${conf2}${NC}\n"
+    #     nano "${conf2}"
+    #   else
+    #     printf "${RED}no mpd config file found${NC}\n"
+    #     return
+    #   fi
+    #   ;;
 
     samba)
       local conf="/etc/samba/smb.conf"
@@ -275,27 +266,3 @@ function conf {
 
   esac
 }
-
-function wifi_setup {
-  local conf="/etc/wpa_supplicant/wpa_supplicant.conf"
-
-  local instr="wifi_setup"
-  if [ "$1" == "from_conf" ]; then
-    instr="conf wifi"
-    shift
-  fi
-
-  if [ -f "${conf}" ]; then
-    if [ -n "$1" ]; then
-      wpa_passphrase "$@"
-      return
-    fi
-
-    sudo nano "${conf}"
-    printf "${MAGENTA}Never provide password in cleartext.\n${YELLOW}Use ${GREEN}${instr} [SSID]${NC} to generate encrypted password\n"
-  else
-    printf "${conf} ${RED}not found${NC}\n"
-    return
-  fi
-}
-

@@ -8,7 +8,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/.bash_general"
 . "$DIR/.bash_short_useful"
 
-. "$DIR/.bash_conf_and_log"
 . "$DIR/.bash_process"
 . "$DIR/.bash_git"
 . "$DIR/.bash_swarm"

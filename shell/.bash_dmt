@@ -1019,8 +1019,14 @@ function dmt_nearby {
 
     shift
 
+    local devices=()
     while read device
     do
+      devices+=( "$device" )
+    done < <( $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" --simple "$@" )
+
+    #while read device
+    for device in "${devices[@]}"; do
       echo
 
       local deviceInfo=(${device//;/ })
@@ -1031,8 +1037,10 @@ function dmt_nearby {
 
       # todo: paralellize with screen as in update_all
       dmt "$action" "$ipWithUser" # dmt update | dmt copy
-
-    done < <($DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" --simple "$@")
+    done
+    # this was not working anymore since we added ssh .. ~/.dmt/etc/scripts/dmt_via_git .. check in ./install
+    # for some reason ... if we create array first then iterate over it, then it works in all cases !
+    # done < <($DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" --simple "$@")
   else
     echo
     printf "${MAGENTA}How to update nearby devices:${NC}\n"
@@ -1043,8 +1051,7 @@ function dmt_nearby {
 }
 
 function dmt_next {
-
-    # option 1: specify from where to fetch via an argument:
+  # option 1: specify from where to fetch via an argument:
   # dmt next [dmtSource]
   # or from user.def ->
   # user:
@@ -1157,6 +1164,9 @@ function dmt_next {
           git fetch origin
           git checkout master
           git reset --hard origin/master
+          # yet to decide ... we do this with automatic updates on server but (for now) we don't clean everything on manual updates..
+          # git clean -f -d
+          # maybe do it in the future if it's concluded that some manual files can interfere
 
           printf "${GREEN}✓✓ Done fetching latest version via git.${NC}\n\n"
           printf "${CYAN}Please run ${GREEN}dmt restart${NC} ${CYAN}now${NC} ...\n\n"

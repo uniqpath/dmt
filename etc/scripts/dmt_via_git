@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# use in install script to check if we're not overrwriting github repo by mistake
+
+if [ -d ~/.dmt/.git ]; then
+  exit 1
+fi

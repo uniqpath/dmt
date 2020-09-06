@@ -1,4 +1,5 @@
 content:
+  path: ~/Files
   # put your default content paths here, like:
   # path: ~/Desktop
   # path: ~/Downloads

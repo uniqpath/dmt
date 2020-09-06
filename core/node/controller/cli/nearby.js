@@ -46,7 +46,7 @@ function identifyDeviceByMac(_mac) {
 function deviceWithMediaMark({ deviceName, playing, mediaType, isStream }) {
   let mark = playing ? (mediaType == 'video' ? ' ▶' : ' ♪♫♬') : '';
 
-  if (isStream) {
+  if (playing && isStream) {
     mark = `${mark}${colors.gray(' [stream]')}`;
   }
 

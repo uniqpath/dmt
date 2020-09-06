@@ -32,8 +32,10 @@ class LocalPlayer {
           remainingTime = 0;
         }
         if (remainingTime == 0) {
+          log.cyan('Pausing because time limit was reached.');
           this.pause();
           this.program.removeStoreElement({ storeName: 'player', key: 'timeLimit' }, { announce: false });
+          this.program.updateState({ player: { timeLimitReached: true } });
         } else {
           this.program.updateState({ player: { timeLimit: remainingTime } }, { announce: false });
         }
@@ -64,6 +66,8 @@ class LocalPlayer {
 
     if (limitReached) {
       log.magenta('Stopping because limit was reached');
+
+      this.program.updateState({ player: { limitReached: true } });
 
       this.playlist.selectNextSong();
       this.playlist.rollover();
@@ -130,10 +134,17 @@ class LocalPlayer {
     }
   }
 
+  removeLimitNotifications() {
+    this.program.removeStoreElement({ storeName: 'player', key: 'limitReached' }, { announce: false });
+    this.program.removeStoreElement({ storeName: 'player', key: 'timeLimitReached' }, { announce: false });
+  }
+
   async play({ files = [] } = {}) {
     return new Promise((success, reject) => {
       if (files.length == 0) {
         if (this.hasLoadedMedia()) {
+          this.removeLimitNotifications();
+
           this.engine.play().then(() => {
             this.status()
               .then(success)
@@ -178,6 +189,8 @@ class LocalPlayer {
   }
 
   playUrl(url) {
+    this.removeLimitNotifications();
+
     return new Promise((success, reject) => {
       this.engine
         .play(url)
@@ -362,6 +375,8 @@ class LocalPlayer {
   }
 
   playCurrent() {
+    this.removeLimitNotifications();
+
     return new Promise((success, reject) => {
       const song = this.playlist.currentSong();
       log.green('Playing song 🎵');
@@ -454,6 +469,10 @@ class LocalPlayer {
         if (num) {
           timeLimit = num;
         } else if (!timeLimit) {
+          timeLimit = 3;
+        } else if (timeLimit < 4) {
+          timeLimit = 5;
+        } else if (timeLimit < 9) {
           timeLimit = 10;
         } else if (timeLimit < 25) {
           timeLimit += 10;

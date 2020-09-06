@@ -5,21 +5,12 @@ import fs from 'fs';
 import path from 'path';
 
 import dmt from 'dmt/bridge';
-const { log } = dmt;
+const { log, dmtVersion } = dmt;
 
 import streamDmtZip from './endpoints/streamDmtZip';
 import serveInstallScript from './endpoints/serveInstallScript';
 import serveLogo from './endpoints/serveLogo';
 import serveWallpaper from './endpoints/serveWallpaper';
-
-function dmtVersion(versionFile = path.join(dmt.dmtPath, '.version')) {
-  if (fs.existsSync(versionFile)) {
-    return fs
-      .readFileSync(versionFile)
-      .toString()
-      .trim();
-  }
-}
 
 function serverInit({ app, program, port, replicateUserCodeTransform, replicateExcludedByUser }) {
   const files = [];

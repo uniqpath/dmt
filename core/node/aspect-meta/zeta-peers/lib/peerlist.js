@@ -8,7 +8,7 @@ import { zetaDeviceMasterPeerlistFilePath, peerFilePath } from './paths';
 function readFile(filePath) {
   return scan
     .readFileLines(filePath)
-    .map(line => line.trim())
+    .map(line => line.split('#')[0].trim())
     .filter(line => line != '');
 }
 

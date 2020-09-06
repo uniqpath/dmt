@@ -49,7 +49,7 @@
 
 
 
-      <img class="icon" src="/apps/zeta/img/zeta_icon.png">
+      <img class="icon" src="/apps/zeta/img/zeta_symbol.png">
       <div class="token_balance">[ CALCULATING {progressDots} ]</div>
 
       Basis - underlying YAM balance at block #10650415:

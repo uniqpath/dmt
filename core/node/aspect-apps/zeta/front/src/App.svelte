@@ -68,6 +68,8 @@
   $: swarm = $store.swarm;
   $: player = $store.player;
 
+  $: dmtVersion = controller ? controller.dmtVersion : null;
+
   $: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
   $: userIdentity = $loginStore.userIdentity;
   $: userName = $loginStore.userName;
@@ -225,6 +227,7 @@
       executeSearch({ searchQuery, searchMode: $searchMode, remoteObject, remoteMethod, searchStatusCallback, searchDelay, force, searchMetadata }).then(searchResults => {
         // console.log("SEARCH RESULTS:");
         // console.log(searchResults);
+
         store.set({ searchResults, searchQuery }); // searchQuery --> only used in search results to show "BANNER"
       }).catch(e => {
         store.set({ searchResults: { error: e } });
@@ -308,7 +311,7 @@
   <LeftBar {connected} {loggedIn} {isAdmin} {metamaskConnect} {displayName} {loginStore} {store} {searchQuery} {deviceName} />
 {/if}
 
-<About {isMobile} {searchQuery} />
+<About {isMobile} {searchQuery} {dmtVersion} />
 
 <main>
 
@@ -323,7 +326,7 @@
 
   <div class="logo">
     <a href="#" on:click|preventDefault={() => { goHome(); }}>
-      <img src={`/apps/zeta/img/ZetaSeek_logo.png?v=2`} alt="zeta logo">
+      <img src="/apps/zeta/img/zetaseek_logo.png?v=2" alt="zeta logo">
     </a>
   </div>
 

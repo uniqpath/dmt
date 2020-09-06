@@ -65,6 +65,11 @@ function dev_machine {
   return 1 # false
 }
 
+function dmt_check_binary_exists {
+  which "$1" > /dev/null 2>&1
+  return $?
+}
+
 function dmt_ensure_nodejs_npm_warn {
   echo
   printf "⚠️  ${YELLOW}node.js${NC} ${RED}and${NC} ${YELLOW}npm${NC} ${RED}not installed${NC}\n"
@@ -74,19 +79,34 @@ function dmt_ensure_nodejs_npm_warn {
 }
 
 function dmt_ensure_nodejs_npm {
-  which npm > /dev/null 2>&1
+  dmt_check_binary_exists npm
 
   if [ ! $? -eq 0 ]; then
     dmt_ensure_nodejs_npm_warn
     return 1
   fi
 
-  which node > /dev/null 2>&1
+  dmt_check_binary_exists node
 
   if [ ! $? -eq 0 ]; then
     dmt_ensure_nodejs_npm_warn
     return 1
   fi
+}
+
+function dmt_animate_dots {
+  local delay=0.005
+
+  if [ "$1" == 'slow' ]; then
+    delay="0.01"
+  fi
+
+  for i in {1..90}
+  do
+    printf "${GRAY}…${NC}"
+    sleep $delay
+  done
+  echo
 }
 
 # info: https://mharrison.org/post/bashfunctionoverride/

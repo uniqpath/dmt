@@ -1,4 +1,4 @@
-### CREATE A DIGITAL OCEAN (OR SIMILAR) NODE
+### CREATE A DIGITAL OCEAN (OR SIMILAR) AFFORDABLE SERVER INSTANCE
 
 https://zetaseek.com/?q=digital%20ocean%20manual&mode=1
 
@@ -75,5 +75,5 @@ Then from your local machine:
 ssh [your_name]@server_ip
 ```
 
-🔙 [RETURN TO ZETA EXPLORER NODE SETUP INSTRUCTIONS](../README.md)
+🔙 [RETURN TO ZETA EXPLORER NODE SETUP INSTRUCTIONS](../README.md#login-to-your-server)
 

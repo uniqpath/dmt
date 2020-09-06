@@ -4,9 +4,12 @@
 
   export let isMobile;
   export let searchQuery;
+  export let dmtVersion;
 
-  const d = new Date();
-  const datestring = `${d.getFullYear()}-${(d.getMonth() + 1)}-${d.getDate()}`;
+  // const d = new Date();
+  // const datestring = `${d.getFullYear()}-${(d.getMonth() + 1)}-${d.getDate()}`;
+
+  $: displayVersion = dmtVersion ? `v${dmtVersion}` : ''
 
   let minimized;
 
@@ -15,78 +18,56 @@
   }
 </script>
 
+  {#if app.isDevMachine}
+    <img src="/apps/zeta/img/wabbit.png" class="wabbit">
+  {/if}
 
   <div class="about" class:visible={!minimized && !searchQuery}>
 
     <a href="#" class="minimize" on:click={() => minimize()}>X</a>
 
-    {#if app.isZetaSeek}
-      <b>Zeta</b><span class="dash">/</span><b><a href="https://dmt-system.com">DMT</a></b> DEMO <span class="version">v{datestring}</span>
-    {:else}
-      <b><a href="https://zetaseek.com">Zeta</a></b> <span class="version">v{datestring}</span>
-    {/if}
-
-    <p>
-      An evolving search<sup>+</sup> technology for web3 revolution.
-    </p>
-
-    {#if app.isZetaSeek}
-
+    <!-- {#if app.isZetaSeek} -->
       <p>
-        <!-- [[ Decentralized ❀ <a href="https://github.com/uniqpath/dmt/tree/master/core/node/aspect-apps/zeta">Open Source</a> ❀ Fair ❀ Free ]] -->
-        <!-- [[ Decentralized ∞ Open Source ∞ Fair ∞ Free ]] -->
+        <a href="https://dmt-system.com"><img src="/apps/zeta/img/dmt_symbol.png" class="icon_symbol" /></a>
+        <a href="https://zetaseek.com"><img src="/apps/zeta/img/zeta_symbol.png" class="icon_symbol" /></a>
+        <a href="https://github.com/uniqpath/dmt#we-are-now-ready-to-setup-the--zeta-explorer-node"><img src="/apps/zeta/img/tropical_fish.png" class="icon_symbol" /></a>
 
-        <a href="https://discord.gg/XvJzmtF">
-          <!-- {#if !isMobile}
-            <img class="icon" src="/apps/zeta/img/discord.svg"><br>
-          {/if} -->
 
-          JOIN THE DISCUSSION
-        </a>
-
-        <a href="https://david.zetaseek.com/file/Zeta%20Snapshot%20Plan.pdf?place=localhost-2f686f6d652f64617669642f446f63756d656e74732f7a6574617365656b">
-          <!-- {#if !isMobile}
-            <img class="icon" src="/apps/zeta/img/zeta_icon.png"><br>
-          {/if} -->
-
-          <!-- <img class="icon" src="/apps/zeta/img/zeta_icon_inverted.png"> TOKEN WHITEPAPER -->
-        </a>
-        <!-- [ If you think all times are the same, you are wrong ] -->
-        <!-- [ See further, do more. ] -->
-        <!-- [ <span>Imagine all the people sharing all the files</span> — <i>John Lennon</i> ] -->
+        <!-- <b>Zeta</b> -->
+        <!-- <span class="dash">/</span> -->
+        <!-- <b><a href="https://dmt-system.com">DMT-SYSTEM</a></b> -->
+        <span class="version">{displayVersion}</span> —
+        <a href="https://discord.gg/XvJzmtF"><img class="icon_symbol" src="/apps/zeta/img/discord.svg" /></a> (support)
       </p>
 
+    <!-- {:else}
+      <b><a href="https://zetaseek.com">zetaseek</a></b>
+      <span class="version">{displayVersion}</span>
+
       <p>
-        We invite you to the path of enjoyable exploration and collaborative innovation. Come explore the edges!
+        An evolving search<sup>+</sup> technology for web3 revolution.
       </p>
+    {/if} -->
+    <!-- {:else}
+      <b><a href="https://zetaseek.com">Zeta</a></b> <span class="version">{displayVersion}</span>
+    {/if} -->
 
-    {/if}
+    <!-- {#if app.isZetaSeek} -->
 
-    <!-- <p>
-      We move slowly but we keep on moving! 🐍
-    </p> -->
-
-    <!-- <p>
-      STAY TUNED ❀ <b>THE FUTURE IS NOW</b>
-    </p> -->
-
-    <!-- <p>
-      [ <span>And the network will live as one.</span> ]
-    </p> -->
-
-    <!-- <p>
-      Principal use is as an installed engine (desktop or server).
-    </p>
-
-    <p>
-      Instructions coming soon.
-    </p> -->
   </div>
 
 
 <style>
+.wabbit {
+  left: 0;
+  bottom: 0;
+  position: fixed;
+  width: 70px;
+  padding: 20px;
+}
+
 .about {
-  width: 260px;
+  width: 255px;
   position: fixed;
   right: 0;
   bottom: 0;
@@ -99,6 +80,8 @@
   background-color: #A4938B;
   background-color: #D9EBD5;
   display: none;
+  /*display: inline-block;
+  vertical-align: middle;*/
 }
 
 .about.visible {
@@ -106,8 +89,15 @@
 }
 
 .about p {
-  font-size: 0.8em;
+  font-size: 0.9em;
   color: #232527;
+  /*margin: 0;*/
+}
+
+.about img.icon_symbol {
+  width: 20px;
+  vertical-align: middle;
+  padding-bottom: 3px;
 }
 
 /*.about span {
@@ -128,8 +118,8 @@
 .about a.minimize {
   float: right;
   font-weight: bold;
-  text-decoration-style: dotted
-  /*font-size: 0.7em;*/
+  text-decoration-style: dotted;
+  font-size: 0.8em;
 }
 
 a {
@@ -142,9 +132,21 @@ a:hover {
   color: #404076;
 }
 
+a img:hover {
+  opacity: 0.8;
+}
+
 a img.icon {
   width: 20px;
   /*margin-left: 23px;*/
+}
+
+p.explorers {
+  font-size: 1.1em;
+}
+
+p span.fish {
+  font-size: 1.5em;
 }
 
 @media only screen and (max-width: 768px) {

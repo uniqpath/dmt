@@ -9,6 +9,29 @@ function ap {
   fi
 }
 
+function wifi_setup {
+  local conf="/etc/wpa_supplicant/wpa_supplicant.conf"
+
+  local instr="wifi_setup"
+  if [ "$1" == "from_conf" ]; then
+    instr="conf wifi"
+    shift
+  fi
+
+  if [ -f "${conf}" ]; then
+    if [ -n "$1" ]; then
+      wpa_passphrase "$@"
+      return
+    fi
+
+    sudo nano "${conf}"
+    printf "${MAGENTA}Never provide password in cleartext.\n${YELLOW}Use ${GREEN}${instr} [SSID]${NC} to generate encrypted password\n"
+  else
+    printf "${conf} ${RED}not found${NC}\n"
+    return
+  fi
+}
+
 function mac {
   system_profiler SPNetworkDataType | grep Wi-Fi -A10
   ifconfig en0

@@ -4,14 +4,10 @@
 
 [[ decentralized, open, fair and free ]]
 
-After you install [dmt-system](https://github.com/uniqpath/dmt/blob/master/help/GETTING_STARTED.md), open this url:
-
-```
-http://localhost:7777/apps/zeta
-```
-
 One well-known deployed node is at <a href="http://zetaseek.com/">zetaseek.com</a>.
 
 Additional documentation and information coming soon.
 
-[[ STAY TUNED ]]
+Join the 🐠 <b>Zeta Explorers Network</b> — create a server instance in 15 min.
+
+<a href="https://github.com/uniqpath/dmt">Instructions</a>

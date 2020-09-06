@@ -42,6 +42,16 @@ function supload_mp4() {
 function supload_mp3() {
   local file="$1"
 
+  # upload all mp3 in directory
+  if [ -z "$file" ]; then
+    printf "${GRAY}Uploading all mp3 files in this directory${NC}\n"
+    for mp3File in *.mp3; do
+      supload_mp3 "$mp3File"
+      echo
+    done
+    return
+  fi
+
   if [ -f "$file" ]; then
     printf "Uploading mp3 audio ${YELLOW}$file${NC} to ${MAGENTA}Swarm${NC}\n"
     curl -H "Content-Type: audio/mpeg" --data-binary @"$file" http://localhost:8888/files

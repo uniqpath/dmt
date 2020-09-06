@@ -18,7 +18,7 @@ function manage_daemon {
   local DAEMON_MANAGER="${DAEMONS_PATH}/manager.js"
 
   if [ ! -f "$DAEMON_MANAGER" ]; then
-    echo "Missing daemons code in dmt-core, please get the code from Microsoft GitHub 🚀"
+    echo "Missing daemons code in dmt-core, please get the code from GitHub"
     exit
   fi
 
@@ -36,7 +36,7 @@ function manage_daemon {
     node_path="$NODE_PATH"
   fi
 
-  "$node_path" --experimental-modules --experimental-specifier-resolution=node "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
+  "$node_path" --experimental-modules --experimental-specifier-resolution=node --unhandled-rejections=strict "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
 
   cd "$cwd"
 }

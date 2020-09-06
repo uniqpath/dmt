@@ -3,6 +3,7 @@ export default function cleanupStateOnSave(state) {
     delete state.controller.time;
     delete state.controller.date;
     delete state.controller.dow;
+    delete state.controller.dmtVersion;
     delete state.controller.holiday;
     delete state.controller.ip;
     delete state.controller.ticker;
@@ -43,6 +44,9 @@ export default function cleanupStateOnSave(state) {
 
     delete state.player.duration;
     delete state.player.paused;
+
+    delete state.player.limitReached;
+    delete state.player.timeLimitReached;
 
     delete state.player.error;
     delete state.player.isStream;

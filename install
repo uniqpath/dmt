@@ -204,17 +204,28 @@ else # clone to and install on remote device
         printf "${RED}Host not known${NC}\n"
       else
 
-        target="${host}:.dmt"
+        # check if we're accidentaly deploying to a git(hub) repo and abort in this case
+        # either we get dmt from github or not (eg. sync to that device from elsewhere), cannot have a mixture
+        ssh -p $ssh_port "$host" 'if [ -f ~/.dmt/etc/scripts/dmt_via_git ]; then ~/.dmt/etc/scripts/dmt_via_git; fi' # exit code from remote script will carry over and we can check it!
 
-        printf "${CYAN}Installing on ${YELLOW}$host:$ssh_port${NC}\n"
+        if [ $? -eq 1 ]; then # dmt_via_git script will return 1 if ~/.dmt/.git directory exists on the remote machine
+          printf "⚠️  ${RED}dmt comes from git(hub?) source on target machine. Refusing to override. ${NC}\n"
+          printf "${GRAY}Please remove the .git directory on target if you want to proceed.${NC}\n"
+        else
 
-        dirsync $excludes --port $ssh_port ~/.dmt "$target"
+          target="${host}:.dmt"
 
-        remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
+          printf "${CYAN}Installing on ${YELLOW}$host:$ssh_port${NC}\n"
 
-        if $RESTART; then
-          restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-update ]; then ~/.dmt/user/devices/this/before-update; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-update ]; then ~/.dmt/etc/deploy_hooks/before-update; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
-          remote -h "$host" --port "$ssh_port" "$restart_cmd"
+          dirsync $excludes --port $ssh_port ~/.dmt "$target"
+
+          remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
+
+          if $RESTART; then
+            restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-update ]; then ~/.dmt/user/devices/this/before-update; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-update ]; then ~/.dmt/etc/deploy_hooks/before-update; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
+            remote -h "$host" --port "$ssh_port" "$restart_cmd"
+          fi
+
         fi
 
       fi
