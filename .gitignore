@@ -15,14 +15,9 @@ todo.txt
 
 # core/node
 
-/core/node/.common-deps/node_modules/dmt-*
-/core/node/.common-deps/node_modules/fasterix-*
-
-/core/node/dmt-*/node_modules
-/core/node/fasterix-*/node_modules
-
-/core/node/aspect-*/dmt-*/node_modules
-/core/node/aspect-*/fasterix-*/node_modules
+#/core/node/.common-deps/node_modules/dmt-*
+#/core/node/dmt-*/node_modules
+#/core/node/aspect-*/dmt-*/node_modules
 
 # gui public
 /core/node/dmt-gui/**/public/*
