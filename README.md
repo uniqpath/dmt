@@ -1,4 +1,10 @@
-<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt_banner.png?raw=true">
+<img src="help/img/dmt_banner.png">
+
+<p align="center"><b>— PRESENTING —</b></p>
+
+<img src="help/img/ZEN.png">
+
+<p align="center"><b>Imagine having a Private Search Node 🌐</b></p>
 
 <img src="help/img/zeta_explorers.jpg">
 
@@ -65,9 +71,9 @@ The correct **welcome screen** indicating that the script is ready to run looks 
 
 ![zeta_setup](./help/img/zeta_setup.png)
 
-✨**That's it**, follow the instructions on screen 👣 🐇 
+✨**That's it**, follow the instructions on screen 👣 🐇
 
-This manual on GitHub is now concluded (short, eh? :) We wanted to utilize *the absolute minimum number of steps* for the most effect (getting a very useful personal server) to help you start (or perhaps continue) your journey into new exciting realms of **distributed performant computing⚡**. 
+This manual on GitHub is now concluded (short, eh? :) We wanted to utilize *the absolute minimum number of steps* for the most effect (getting a very useful personal server) to help you start (or perhaps continue) your journey into new exciting realms of **distributed performant computing⚡**.
 
 <p align="center">
   <img src="./help/img/rabbit_easy.png" width="400px">
@@ -77,7 +83,7 @@ This manual on GitHub is now concluded (short, eh? :) We wanted to utilize *the 
 
 ### ✓ Successful install 🎉
 
-After the script is done, you should be able to open `http://server_ip:7777/apps/zeta`. 
+After the script is done, you should be able to open `http://server_ip:7777/apps/zeta`.
 
 # 2️⃣ Support info 🆘
 
@@ -96,53 +102,5 @@ For any support questions please [Join our Discord server](https://discord.com/i
 You can also use zeta@uniqpath.com email to contact your decentralized tech support 🤓.
 
 For live Q&A / DEMO please join one of ZetaMeet meetups each friday at 5pm CET. Write us for invite, these are not yet public.
-
-# 3️⃣ The rest
-
-#### 🤠 Product architect
-
-Basic information about the main coder on the project (so far) — [Personal Website](https://davidkrmpotic.com/).
-
-I'm actually looking for new friends... so join the search network, we might bump into each other ;) 
-
-Bring **your friends** too. Talk to them and share with them privately and securely p2p from your server (node) to theirs! 
-
-**The node is yours!** 🌎
-
-What about simple p2p games? 🎮 Not yet! If you like developing simple games in the browser let us know!
-
-#### 🎢 The Web 2.0 Way
-
-I'm getting less and less findable on things like Facebook and LinkedIn, these seem quite obsolete by now (in general too much wasted time and way too much noise). LinkedIn promised to change the world and **just before** they would supposedly **start actually doing it**, the flamboyant, soft spoken and kind CEO left with many millions of dollars 💵🤑. Makes you wonder :) Or does it? It kind of makes sense. It's just the first wave of things that at the end didn't really change the world (at least not profoundly) but at least did *help start* a new wave of innovation which is making them obsolete. CEO deserves millions for trying but not for overpromising... what can we do though. Promises sound nice and people buy into them all the time.
-
-If I am less findable then others are also less findable for me. Many people feel the same, I see it all around the web "in various hidden channels". They want to connect but do so in smaller groups and increasingly under their own terms with full control over their experience going forward. The web2 motto **"attract, then extract"** is getting into public scrutinity.
-
-<img src="help/img/why_decentralization_matters.png" width="500px">
-
-The irony! Don't worry though, we have [freed this article](https://david.zetaseek.com/?q=Why%20Decentralization%20Matters%20-%20by%20Chris%20Dixon&mode=1) for you to enjoy and get flabbergasted™ by. We believe it was locked in opposition to good taste and maybe even the Internet law ⚔️. Unlock 🔐 the true knowledge, make basic logic great again! 
-
-...
-
-I live in a small city and there is a limitation to how much interesting conversations I can have offline. In general there must be new interesting ways of building small communities of passionate *similar-minded* explorers with right balance of personal freedom, governance powers and network effects for greater good. I know this is true because now we have much more great components to build such things from. We just have to *try*. And many **are trying**. I'm one of them. I want you to be as well if you already aren't. I also want you to try to find out what is possible with **Zeta / DMT** platform already. We're just one project but who knows, maybe we'll be the best in some niche(s).
-
-Barrier to entry for this platform is having your own server. Managing a server is still not 100% trivial and will never be but is pretty close which wasn't the case just a year ago. Things change and usually the majority doesn't notice right away but some do 🕵️. Some of us are attracted to new things because we are constantly bored with stuff that is already settled. This is a blessing 😇 but also a curse 😈.
-
-We will organize for all current **peers** running Zeta node already to contribute a similar paragraph of **their vision of progress**. We live in interesting times and it would be great to see other peoples' thinking in regard to this. These opinions will be ready by **Nov or Dec 2020**.
-
-#### ㊙️ I have a secret to tell
-
-I am very afraid. Deep down I'm afraid of things that are broken, do not work as expected and waste peoples' time.
-
-I want this project to be different.
-
-#### 🗓️ The plan
-
-We move slowly but we keep on moving! 🐍
-
-A little progress every day turns out to be a lot in long term. 
-
-Zero progress each day and nothing ever happens. 😶
-
-**Most important:** recognize other great projects and work together for even greater total impact (**2+2=5** 😅).
 
 🐠 **Happy exploration!**

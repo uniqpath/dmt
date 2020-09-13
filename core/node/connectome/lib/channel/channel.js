@@ -27,6 +27,8 @@ class Channel extends EventEmitter {
 
   setProtocolLane(protocolLane) {
     this.protocolLane = protocolLane;
+
+    this.ws.protocolLane = protocolLane;
   }
 
   setSharedSecret(sharedSecret) {

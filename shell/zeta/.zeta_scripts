@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function zeta {
+  CLI_DIR="$DMT_NODE_CORE/controller/cli/"
+
+  ZETA_CLI="$CLI_DIR/zeta.js"
+
+  $DMT_NODEJS_EXEC "$ZETA_CLI" peers "$@"
+}
+
 function zeta_scan {
   if [ -z "$1" ]; then
     printf "${YELLOW}Usage:${NC}\n"

@@ -10,6 +10,7 @@ function getMethods() {
   methods.push({ name: 'services', handler: servicesHandler });
   methods.push({ name: 'log', handler: logHandler });
   methods.push({ name: 'nearby', handler: nearbyHandler });
+  methods.push({ name: 'zeta_peers', handler: zetaPeersHandler });
 
   return methods;
 }
@@ -54,6 +55,20 @@ function servicesHandler({ args }) {
 function logHandler({ args }) {
   return new Promise((success, reject) => {
     success(log.bufferLines(log.REPORT_LINES).map(el => el.msg));
+  });
+}
+
+function zetaPeersHandler({ args, program }) {
+  return new Promise((success, reject) => {
+    const incoming = program.wsServer.server.server.connectionsList();
+
+    const { fiberPool } = program;
+
+    const outgoing = Object.entries(fiberPool.connectors).map(([address, conn]) => {
+      return { address, remotePubkeyHex: conn.remotePubkeyHex, protocolLane: conn.protocolLane };
+    });
+
+    success({ incoming, outgoing });
   });
 }
 

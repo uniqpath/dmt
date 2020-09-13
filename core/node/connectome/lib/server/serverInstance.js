@@ -96,7 +96,9 @@ class WsServer extends EventEmitter {
     this.wss.clients.forEach(ws => {
       list.push({
         ip: ws.remoteIp,
-        readyState: ws.readyState
+        readyState: ws.readyState,
+        protocol: ws.protocol,
+        protocolLane: ws.protocolLane
       });
     });
 
