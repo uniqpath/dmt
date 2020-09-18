@@ -30,7 +30,8 @@
         <img src="/apps/zeta/img/metamask.png" on:click|preventDefault={() => { login(); }} alt="metamask " />
       </a>
       <br>
-      <b>THIS NODE ADMIN</b>
+      <!-- <b>THIS NODE ADMIN</b> -->
+      <b>CONNECT</b>
       <!-- {#if app.isZetaSeek}
         <div class="explain">
           <span>

@@ -1,29 +1,32 @@
 <script>
   import { onMount } from 'svelte';
 
+  export let blogName;
+
 </script>
 
 <div class="links">
   <!-- <a href="#"> -->
     <!-- <img src="/apps/zeta/img/alien.png" alt="alien" /> -->
   <!-- </a> -->
-  <h3>Motivational corner <span>~ Weekly links from around the web</span></h3>
+  <!-- <h3>Motivational corner <span>~ Weekly links from around the web</span></h3> -->
 
   <div class="link">
-    <a class="outside" href="https://edition.cnn.com/2020/05/21/tech/zoom-founder-eric-yuan/index.html">Everyone you know uses Zoom. That wasn't the plan</a> by CNN <span class="date">May 22 2020</span>
+    <p>Personal blog:</p>
+    <a class="outside" href="/blog"><span>{blogName}</span></a>
   </div>
 
-  <div class="link">
+  <!-- <div class="link">
     <a class="outside" href="https://www.linkedin.com/pulse/my-2020-vision-graduates-how-optimistic-terrible-times-reid-hoffman">How to be Optimistic in Terrible Times</a> by Reid Hoffman <span class="date">May 16 2020</span>
   </div>
-
+ -->
   <!-- <div class="link">
     <a class="outside" href="https://www.rdegges.com/2020/the-feature-snowball">The Feature Snowball</a> by Randall Degges <span class="date">May 03 2020</span>
   </div> -->
 
-  <div class="link">
+<!--   <div class="link">
     <a class="outside" href="https://subcults.com/articles/optimism.html">Ten Good Reasons To Get Out Of Bed In The Morning</a> by <i>RAW</i> <span class="date">some time ago</span>
-  </div>
+  </div> -->
 
 </div>
 

@@ -259,6 +259,9 @@ export default {
   isRPi: () => {
     return helper.isRPi();
   },
+  platformDescription: () => {
+    return helper.platformDescription();
+  },
   globals: helper.globals,
   promiseTimeout,
   listify: util.listify,

@@ -27,7 +27,7 @@ connect({ address, port, protocol, protocolLane, clientPrivateKey, clientPublicK
     console.log(`${colors.gray('Channel disconnected')} ${colors.red('✖')}`);
   });
 
-  connector.on('wire_receive', ({ jsonData }) => {
+  connector.on('receive', ({ jsonData }) => {
     console.log(jsonData);
     receivedCount += 1;
     if (receivedCount == 3) {

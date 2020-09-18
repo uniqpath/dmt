@@ -1,4 +1,4 @@
-import { encode } from './encodePath.js';
+import { encode, decode } from './encodePath.js';
 
 function create({ ip, port, defaultPort, fileName, directory }) {
   let provider = ip;
@@ -10,4 +10,4 @@ function create({ ip, port, defaultPort, fileName, directory }) {
   return `${encodeURIComponent(fileName)}?place=${provider}-${encode(directory)}`;
 }
 
-export { create };
+export { create, encode, decode };

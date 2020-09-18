@@ -28,7 +28,7 @@ class SpecificRpcClient {
       return new Promise((success, reject) => {
         reject(
           new ConnectomeError(
-            `Method call [${methodName}] on closed channel or connector ignored. Please add a check for closed channel in your code.`,
+            `Method call [${this.methodPrefix}::${methodName}] on closed channel or connector ignored. Please add a check for closed channel in your code.`,
             'CLOSED_CHANNEL'
           )
         );

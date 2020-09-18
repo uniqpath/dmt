@@ -6,11 +6,11 @@ import enhanceNote from './enhanceNoteResult';
 
 const { log } = dmt;
 
-function enhanceResult({ result, providerAddress, providerPort, searchOriginHost }) {
+function enhanceResult({ result, providerAddress, providerPort, providerKey, searchOriginHost }) {
   const { filePath, swarmBzzHash, isNote, url } = result;
 
   if (filePath) {
-    enhanceFS(result, { providerAddress, providerPort, searchOriginHost });
+    enhanceFS(result, { providerAddress, providerPort, providerKey, searchOriginHost });
     return;
   }
 

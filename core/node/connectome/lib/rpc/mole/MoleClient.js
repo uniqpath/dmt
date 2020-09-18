@@ -22,6 +22,7 @@ class MoleClient {
     const method = this.methodPrefix ? `${this.methodPrefix}::${methodName}` : methodName;
 
     const request = this._makeRequestObject({ method, params });
+
     return this._sendRequest({ object: request, id: request.id });
   }
 
@@ -74,7 +75,7 @@ class MoleClient {
         if (this.pendingRequest[id]) {
           delete this.pendingRequest[id];
 
-          reject(new X.RequestTimeout(data));
+          reject(new X.RequestTimeout(data, this.requestTimeout));
         }
       }, this.requestTimeout);
 

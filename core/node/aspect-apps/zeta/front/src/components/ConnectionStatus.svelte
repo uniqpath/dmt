@@ -11,14 +11,14 @@
   export let connected;
   export let deviceName;
   export let isSearching;
-  export let controller;
+  export let device;
 
-  $: swarmBeeRunning = controller ? controller.swarmBeeRunning : undefined;
+  // $: swarmBeeRunning = device ? device.swarmBeeRunning : undefined;
 
   // NOT NEEDED!! :::
   // const swarmBeeRunning = readable(undefined, function start(set) {
   //   const interval = setInterval(() => {
-  //     set(controller && controller.swarmBeeRunning);
+  //     set(device && device.swarmBeeRunning);
   //   }, 1000);
 
   //   return function stop() {
@@ -45,7 +45,7 @@
         <span class="mark">✓</span>
       {/if}
 
-      <div class="tooltip">
+      <!-- <div class="tooltip">
         <img class="bee" src="/apps/zeta/img/bee.png" class:hidden={!swarmBeeRunning} alt="swarm-bee"  />
         <span class="tooltiptext">Swarm node active</span>
       </div>
@@ -53,7 +53,7 @@
       <div class="tooltip inactive">
         <img class="bee" src="/apps/zeta/img/bee_inactive.png" class:hidden={swarmBeeRunning} alt="swarm-bee-inactive" />
         <span class="tooltiptext">Swarm node not active</span>
-      </div>
+      </div> -->
 
     </div>
   {:else}

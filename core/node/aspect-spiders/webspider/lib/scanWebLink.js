@@ -1,5 +1,3 @@
-import path from 'path';
-
 import scrapeYt from 'scrape-yt';
 import urlModule from 'url';
 
@@ -10,10 +8,8 @@ import { latestLinkIndexVersion } from 'dmt/webindex';
 
 import getGitHubLink from './getGitHubLink';
 
-export default function scanWebLink({ existingLinkIndex, url, context, linkNote, filePath, githubLineNum }) {
+export default function scanWebLink({ existingLinkIndex, url, context, hiddenContext, linkNote, filePath, githubLineNum }) {
   return new Promise((success, reject) => {
-    const hiddenContext = path.basename(filePath, path.extname(filePath));
-
     const match = existingLinkIndex.find(linkInfo => linkInfo.url.toLowerCase() == url.toLowerCase() && linkInfo.linkIndexVersion == latestLinkIndexVersion);
 
     if (match) {

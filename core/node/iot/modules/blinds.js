@@ -12,12 +12,12 @@ function handleBooted({ placeId, blindsId, blindsDirection, moduleIp }) {
 
 function handleMoving(program, { placeId, blindsId, blindsDirection, blindsStatus }) {
   const id = `${placeId}-${blindsId}-${blindsDirection}`;
-  program.replaceStoreElement({ storeName: 'blinds', key: id, value: { blindsStatus, receivedAt: Date.now() } }, { announce: true });
+  program.store.replaceSlotElement({ slotName: 'blinds', key: id, value: { blindsStatus, receivedAt: Date.now() } }, { announce: true });
 }
 
 function handleStopped(program, { placeId, blindsId, blindsDirection, blindsStatus }) {
   const id = `${placeId}-${blindsId}-${blindsDirection}`;
-  program.removeStoreElement({ storeName: 'blinds', key: id }, { announce: true });
+  program.store.removeSlotElement({ slotName: 'blinds', key: id }, { announce: true });
 }
 
 function handleIotEvent({ program, topic, msg }) {

@@ -36,7 +36,7 @@ function expressAppSetup(app) {
 }
 
 async function init(program) {
-  program.updateState({ appList: appFrontendList() });
+  program.store.update({ appList: appFrontendList() });
 
   const appLoader = new AppLoader(program);
 

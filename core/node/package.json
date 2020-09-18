@@ -23,7 +23,8 @@
     "./bash-exec": "./aspect-meta/bash-exec",
     "./swarmindex": "./aspect-indices/swarmindex",
     "./webindex": "./aspect-indices/webindex",
-    "./webspider": "./aspect-spiders/webspider"
+    "./webspider": "./aspect-spiders/webspider",
+    "./store": "./aspect-stores/nodejs-stores"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -40,6 +41,7 @@
     "cors": "^2.8.5",
     "ethers": "^4.0.47",
     "express": "^4.17.1",
+    "fast-json-patch": "^3.0.0-1",
     "fs-extra": "^7.0.1",
     "gextend": "^0.3.0",
     "handlebars": "^4.1.0",
@@ -66,6 +68,6 @@
     "urlencode": "^1.1.0",
     "write-file-atomic": "^3.0.3",
     "ws": "^7.2.5",
-    "xstate": "^4.8.0"
+    "xstate": "^4.13.0"
   }
 }

@@ -47,7 +47,7 @@ class Server extends EventEmitter {
     this.emit('prepare_channel', channel);
 
     const auth = new AuthTarget({ keypair: this.keypair, channel });
-    channel.registerRemoteObject('Auth', auth);
+    channel.attachObject('Auth', auth);
 
     auth.on('shared_secret', ({ sharedSecret, protocolLane, expectingHelloData }) => {
       channel.setSharedSecret(sharedSecret);

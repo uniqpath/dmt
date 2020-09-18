@@ -11,9 +11,9 @@ import bashDmtNext from './lib/dmtNext';
 
 const scriptsPath = path.join(dmt.dmtPath, 'etc/scripts');
 
-function scriptActionHandler({ program, action, storeName }) {
-  if (storeName == 'controller') {
-    log.yellow(`Received ${colors.magenta(storeName)}:${colors.cyan(action)} action`);
+function scriptActionHandler({ program, action, namespace }) {
+  if (namespace == 'device') {
+    log.yellow(`Received ${colors.magenta(namespace)}:${colors.cyan(action)} action`);
 
     switch (action) {
       case 'dmt_next':

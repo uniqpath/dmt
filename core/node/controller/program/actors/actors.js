@@ -23,7 +23,7 @@ class Actors {
 
   setupChannel(channel) {
     for (const [actorName, actor] of Object.entries(this.actors)) {
-      channel.registerRemoteObject(actorName, actor);
+      channel.attachObject(actorName, actor);
     }
   }
 

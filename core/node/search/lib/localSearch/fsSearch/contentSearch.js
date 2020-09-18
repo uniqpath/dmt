@@ -3,19 +3,25 @@ import { settings } from 'dmt/search';
 import dmt from 'dmt/bridge';
 const { stopwatchAdv, dmtContent } = dmt;
 
+import { fiberHandle } from 'dmt/connectome';
+
 import multipathSearch from './multipathSearch';
 
-function contentSearch({ contentId, terms, mediaType, page = 1, count, maxResults }) {
+function contentSearch({ contentId, place, terms, mediaType, page = 1, count, maxResults }) {
   const _maxResults = count || maxResults || settings().searchLimit.maxResults;
 
   const searchPromise = new Promise((success, reject) => {
     let contentPaths;
 
-    try {
-      contentPaths = dmtContent.contentPaths({ contentId });
-    } catch (e) {
-      reject(e);
-      return;
+    if (place) {
+      contentPaths = [fiberHandle.decode(place)];
+    } else {
+      try {
+        contentPaths = dmtContent.contentPaths({ contentId });
+      } catch (e) {
+        reject(e);
+        return;
+      }
     }
 
     const start = stopwatchAdv.start();

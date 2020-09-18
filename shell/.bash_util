@@ -11,6 +11,11 @@ GRAY='\e[1;30m'
 WHITE='\e[33;97m'
 NC='\033[0m' # No Color
 
+UNDERLINE='\e[4m'
+RESET='\033[0m' # No Color
+DIM='\e[2m'
+INVERT='\e[7m'
+
 function get_machine_os() {
   local unameOut="$(uname -s)"
   local platform

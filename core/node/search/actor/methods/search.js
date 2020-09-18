@@ -2,14 +2,19 @@ import dmt from 'dmt/bridge';
 const { log, dmtContent } = dmt;
 
 import { parseSearchQuery } from '../../lib/utils/query';
+import normalizeTerms from '../../lib/utils/normalizeTerms';
 
 import ZetaSearch from '../../lib/zetaSearch';
 
 function search({ args, method }, { program }) {
-  const { query, searchOriginHost } = args;
+  const { query, place, searchOriginHost } = args;
 
   return new Promise((success, reject) => {
     const options = parseSearchQuery({ query, actorName: 'search' });
+
+    options.terms = normalizeTerms(options.terms);
+
+    options.place = place;
 
     const { atDevices: contentProviders } = options;
 

@@ -35,60 +35,20 @@
 
 </script>
 
-<!-- this component is only displayed on isLocalhost || loggedIn -->
-
 <div class="leftbar">
-  <!-- {#if loggedIn || (!loggedIn && !searchQuery)}
-    <Links />
-  {/if} -->
-
-  <!-- {#if app.isZetaSeek}
-    <TokenBox {metamaskConnect} {tokenBalance} />
-  {/if} -->
-
-  <MenuBar {connected} {loggedIn} {store} />
-
-  {#if panels['Profile']}
-    <Profile {connected} {loginStore} {store} {isAdmin} />
+  {#if app.nodeHasBlog}
+    <Links blogName={app.blogName} />
   {/if}
 
-  <!-- we don't actually need to be connected but ui behaves better (otherwise we see "Info" flashing before userTeams are loaded) -- we now have a shorter flash... between connection and the time until userTeams come from backend -->
-    <!-- {#if loggedIn} -->
-      <!-- {#if app.isLocalhost || loggedIn} -->
-      <!-- {#if (app.isLocalhost && deviceName == 'eclipse') || app.isZetaSeek} -->
-        <!-- {/if} -->
+  {#if loggedIn}
 
-        <!-- {#if panels['Swarm Promo']}
-          <InsideBox teamName='Swarm' />
-        {/if}
+    <MenuBar {connected} {loggedIn} {store} />
 
-        {#if panels['Filecoin Promo']}
-          <InsideBox teamName='Filecoin' />
-        {/if} -->
+    {#if panels['Profile']}
+      <Profile {connected} {loginStore} {store} {isAdmin} />
+    {/if}
 
-        <!-- {#if panels['Zeta Discord']}
-          <ZetaDiscord />
-        {/if} -->
-        <!-- {#if panels['Zeta Documents']}
-          <ZetaDocuments />
-        {/if} -->
-      <!-- {/if} -->
-        <!-- {#if connected}
-          {#if userTeams && userTeams.includes('zeta')} --- todo -- one teambox for each team
-            <TeamBox {displayName} teamName='ZetaTeam' />
-          {/if}
-          <InsideBox teamName='Swarm' />
-        {/if} -->
-      <!-- {/if} -->
-    <!-- {:else if !searchQuery} -->
-
-    <!-- {/if} -->
-
-    <!-- {#if !app.isLocalhost && !loggedIn} -->
-    <!-- <p class="more_inside">
-      More inside
-    </p> -->
-    <!-- {/if} -->
+  {/if}
 
 </div>
 

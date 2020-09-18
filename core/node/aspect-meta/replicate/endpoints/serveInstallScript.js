@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import dmt from 'dmt/bridge';
-const { util } = dmt;
+const { util, dmtVersion } = dmt;
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -17,15 +17,25 @@ function dmtSource(host) {
   }
 }
 
+function determineVersion() {
+  const fetchedVersion = dmtVersion(path.join(dmt.dmtPath, 'state/dmt.zip.version.txt'));
+
+  if (fs.existsSync(path.join(dmt.dmtPath, 'state/dmt.zip')) && fetchedVersion) {
+    return fetchedVersion;
+  }
+
+  return dmtVersion();
+}
+
 function install({ req, res, isCurl, program, port }) {
   let host;
   let protocol = 'http';
 
-  if (program.state.controller.serverMode) {
+  if (program.state().device.serverMode) {
     host = req.headers.host;
     protocol = req.protocol;
   } else {
-    host = program.state.controller.ip ? program.state.controller.ip : 'localhost';
+    host = program.state().device.ip ? program.state().device.ip : 'localhost';
     host = `${host}:${port}`;
   }
 
@@ -33,6 +43,7 @@ function install({ req, res, isCurl, program, port }) {
     .readFileSync(path.join(__dirname, '../templates/install_from'))
     .toString()
     .replace(new RegExp('{{protocol}}', 'g'), protocol)
+    .replace(new RegExp('{{version}}', 'g'), determineVersion())
     .replace(new RegExp('{{host}}', 'g'), host)
     .replace(new RegExp('{{dmtSource}}', 'g'), dmtSource(host));
 
@@ -96,7 +107,7 @@ function install({ req, res, isCurl, program, port }) {
     const htmlTemplate = fs
       .readFileSync(path.join(__dirname, '../templates/template.html'))
       .toString()
-      .replace('{{demoPath}}', program.state.controller.serverMode ? '/home' : `${protocol}://${hostname}:${program.state.controller.actualGuiPort}`)
+      .replace('{{demoPath}}', program.state().device.serverMode ? '/home' : `${protocol}://${hostname}:${program.state().device.actualGuiPort}`)
       .replace('{{content}}', content);
 
     res.send(htmlTemplate);

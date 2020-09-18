@@ -80,7 +80,7 @@ function searchOnePath({ path, terms, page, maxResults, mediaType }) {
 
         results.push(...resultBatch);
       } else {
-        success(results.sort(util.compareValues('filePath')));
+        success(results);
       }
     });
   });

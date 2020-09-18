@@ -5,12 +5,14 @@ const { log } = dmt;
 
 import program from '../program/program';
 
-const logfile = 'dmt.log';
-log.init({ logfile });
+let foreground;
 
 if (process.argv.length > 2 && process.argv[2] == '--fg') {
-  log.cyan(`⚠️  ${colors.magenta('dmt-proc')} running in ${colors.magenta('foreground')}.`);
+  foreground = true;
 }
+
+const logfile = 'dmt.log';
+log.init({ logfile, foreground });
 
 const mids = [];
 
@@ -18,8 +20,6 @@ mids.push('user');
 mids.push('player');
 mids.push('search');
 mids.push('apps');
-mids.push('bee');
-
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
 
 mids.push('nearby/lanbus');

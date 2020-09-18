@@ -79,7 +79,7 @@ function readLinks() {
             .map(({ filePath, fileBuffer }) => {
               const lines = splitToLines(fileBuffer);
 
-              return parseLinksTxtFile({ filePath, lines, existingLinkIndex });
+              return parseLinksTxtFile({ filePath, lines, existingLinkIndex, linksDirectory });
             })
             .flat();
 

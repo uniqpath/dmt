@@ -67,6 +67,7 @@ function parseDeviceMention(attrData) {
   if (thisHost) {
     data.ip = 'localhost';
     data.localhost = true;
+    data.deviceKey = dmt.keypair().publicKeyHex;
   } else if (isDmtDefinedDevice) {
     if (!data.ip) {
       const ip = dmt.getIp({ deviceName: host });

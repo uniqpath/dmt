@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# DMT-SYSTEM v1.1 — PLANKTON
+# DMT {{version}}
 #
 # *** ONE-LINE INSTALL *** 💡🚀🎸
 #
@@ -57,7 +57,7 @@ function report_dmt_running {
     if [ "$fg_bg" == 'fg' ]; then
       fg_bg_msg="${MAGENTA}in foreground${NC} "
     fi
-    printf "${WHITE}dmt-proc${NC} ${GREEN}seems to be running ${fg_bg_msg}with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
+    printf "${GREEN}✓ ${CYAN}dmt-proc${NC} ${GREEN}seems to be running ${fg_bg_msg}with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
     return 0
   fi
 
@@ -118,6 +118,11 @@ if curl -L --fail {{protocol}}://{{host}}/dmt.zip -o dmt.zip; then
     fi
 
     mv ~/.dmt/user "$backup_dir"
+    if [ -d ~/.dmt/user ]; then
+      printf "${RED}Could not move the user directory into a temporary location, ABORTING.${NC}\n"
+      exit
+    fi
+
     mv ~/.dmt/state "$backup_dir"
     mv ~/.dmt/log "$backup_dir"
 

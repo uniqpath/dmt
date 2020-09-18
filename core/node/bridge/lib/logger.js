@@ -35,8 +35,11 @@ class Logger {
     return this.buffer.slice(-lines);
   }
 
-  init({ logfile }) {
+  init({ logfile, foreground }) {
     this.logfile = logfile;
+    this.isForeground = foreground;
+
+    this.white(`${colors.cyan('dmt-proc')} running in terminal (foreground)`);
   }
 
   fwrite(msg) {
@@ -96,7 +99,7 @@ class Logger {
         }
       }
 
-      msg = `${infoLine}${diffStr} ∞ ${msg}`;
+      msg = `${this.isForeground ? colors.red('✝ ') : ''}${infoLine}${diffStr} ∞ ${msg}`;
     }
 
     if (!onlyToFile) {
@@ -116,7 +119,7 @@ class Logger {
     }
 
     if (this.logfile) {
-      this.fwrite(msg);
+      this.fwrite(msg.replace('✝', '[not daemonized]'));
     }
   }
 
@@ -124,6 +127,12 @@ class Logger {
     if (obj) {
       const cj = colorJSON(obj);
       this.logOutput(colors.white, { skipMeta: true }, cj);
+    }
+  }
+
+  dev(msg) {
+    if (dmt.isDevMachine()) {
+      this.logOutput(colors.yellow, {}, msg);
     }
   }
 

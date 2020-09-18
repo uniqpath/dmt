@@ -82,7 +82,7 @@ function calcDirection() {
 function handleIotEvent({ program, topic, msg }) {
   if (def.isTruthy(program.device.demo)) {
     const now = Date.now();
-    const weather = {
+    const environment = {
       humidity: 88,
       temperature: 8,
       tempPrecise: 8,
@@ -93,7 +93,7 @@ function handleIotEvent({ program, topic, msg }) {
       tempDirection: { symbol: '⇡', tempDirectionUpdateAt: Date.now() }
     };
 
-    program.updateState({ controller: { weather } });
+    program.store.replaceSlot('environment', environment);
 
     return;
   }
@@ -109,14 +109,14 @@ function handleIotEvent({ program, topic, msg }) {
   if (weatherData) {
     const now = Date.now();
 
-    const c = program.state.controller;
+    const c = program.state().device;
     if (c && c.weather && c.weather.timestamp) {
       if (c.weather.updateAt && now < c.weather.updateAt) {
         return;
       }
     }
 
-    const weather = {
+    const environment = {
       humidity: Math.round(weatherData.Humidity),
       temperature: Math.round(weatherData.Temperature),
       tempPrecise: weatherData.Temperature,
@@ -126,17 +126,17 @@ function handleIotEvent({ program, topic, msg }) {
       expireAt: now + dataStaleMin * 60 * 1000
     };
 
-    if (weather.temperature) {
-      historicReadings.push(weather);
+    if (environment.temperature) {
+      historicReadings.push(environment);
 
       if (historicReadings.length > keepNumHistoric) {
         historicReadings.shift();
       }
 
-      weather.tempDirection = temperatureDirection(historicReadings);
+      environment.tempDirection = temperatureDirection(historicReadings);
     }
 
-    program.updateState({ controller: { weather } });
+    program.store.replaceSlot('environment', environment);
   }
 }
 

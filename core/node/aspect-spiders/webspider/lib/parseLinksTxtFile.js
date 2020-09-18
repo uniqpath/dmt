@@ -1,3 +1,4 @@
+import path from 'path';
 function emptyLine(line) {
   return line == '';
 }
@@ -28,7 +29,7 @@ function cleanContext(line) {
   return line;
 }
 
-function parseLinksTxtFile({ filePath, lines, existingLinkIndex }) {
+function parseLinksTxtFile({ filePath, lines, existingLinkIndex, linksDirectory }) {
   const urls = [];
 
   let context = '';
@@ -59,7 +60,8 @@ function parseLinksTxtFile({ filePath, lines, existingLinkIndex }) {
       if (isLink(line)) {
         const linkNote = note.join('\n');
 
-        const result = { url: line, context, existingLinkIndex, filePath, githubLineNum: index + 1 };
+        const hiddenContext = filePath.replace(new RegExp(`${path.extname(filePath)}$`), '').replace(new RegExp(`^${linksDirectory}`), '');
+        const result = { url: line, context, hiddenContext, existingLinkIndex, filePath, githubLineNum: index + 1 };
 
         if (linkNote) {
           result.linkNote = linkNote;

@@ -8,7 +8,7 @@ import { exec } from 'child_process';
 const bashAction = '/sbin/shutdown -h now';
 
 export default ({ program }) => {
-  program.store.persistState();
+  program.store.save();
 
   log.yellow(`Executing bash action: ${colors.green(bashAction)} ...`);
 

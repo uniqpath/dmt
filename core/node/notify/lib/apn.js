@@ -54,7 +54,7 @@ function notifyAll(msg) {
 
   const apnProvider = new apn.Provider(apnOptions);
 
-  for (const device of config.devices) {
+  for (const device of config.devices.filter(device => device.active != false)) {
     apnProvider.send(note, device.token).then(result => {});
   }
 

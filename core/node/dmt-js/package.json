@@ -10,8 +10,6 @@
   "author": "davidhq",
   "license": "ISC",
   "dependencies": {
-    "ansicolor": "^1.1.93",
-    "fast-json-patch": "^3.0.0-1",
-    "xstate": "^4.9.1"
+    "ansicolor": "^1.1.93"
   }
 }

@@ -17,6 +17,7 @@ class LocalProviderSearch {
     this.providerAddress = provider.address;
     this.contentId = provider.contentId;
     this.localhost = provider.localhost;
+    this.providerKey = provider.deviceKey;
   }
 
   makeSearchPromise(options) {
@@ -32,9 +33,9 @@ class LocalProviderSearch {
     }
   }
 
-  search({ terms, page, count, mediaType }) {
+  search({ terms, place, page, count, mediaType }) {
     const { contentId } = this;
-    const options = { terms, count, page, mediaType, contentId };
+    const options = { terms, place, count, page, mediaType, contentId };
 
     return new Promise((success, reject) => {
       if (this.localhost) {

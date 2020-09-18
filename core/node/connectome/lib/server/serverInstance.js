@@ -82,10 +82,8 @@ class WsServer extends EventEmitter {
     this.periodicCleanupAndPing();
   }
 
-  connectionsList() {
+  connectionList() {
     const list = this.enumerateConnections();
-
-    list.push({ num: Object.keys(list).length });
 
     return list.reverse();
   }

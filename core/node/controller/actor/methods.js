@@ -9,8 +9,11 @@ function getMethods() {
 
   methods.push({ name: 'services', handler: servicesHandler });
   methods.push({ name: 'log', handler: logHandler });
+
   methods.push({ name: 'nearby', handler: nearbyHandler });
-  methods.push({ name: 'zeta_peers', handler: zetaPeersHandler });
+  methods.push({ name: 'state', handler: stateHandler });
+  methods.push({ name: 'connections', handler: connectionsHandler });
+  methods.push({ name: 'reach', handler: reachHandler });
 
   return methods;
 }
@@ -58,23 +61,41 @@ function logHandler({ args }) {
   });
 }
 
-function zetaPeersHandler({ args, program }) {
+function connectionsHandler({ args, program }) {
   return new Promise((success, reject) => {
-    const incoming = program.wsServer.server.server.connectionsList();
+    const incoming = program.wsServer.server.server.connectionList();
+
+    const incomingGui = incoming.filter(({ protocolLane }) => protocolLane == 'gui');
+    const incomingOther = incoming.filter(({ protocolLane }) => protocolLane != 'gui');
 
     const { fiberPool } = program;
 
     const outgoing = Object.entries(fiberPool.connectors).map(([address, conn]) => {
-      return { address, remotePubkeyHex: conn.remotePubkeyHex, protocolLane: conn.protocolLane };
+      return { address, remotePubkeyHex: conn.remotePubkeyHex, protocol: conn.protocol, protocolLane: conn.protocolLane };
     });
 
-    success({ incoming, outgoing });
+    success({ incomingGui, incomingOther, outgoing });
   });
 }
 
 function nearbyHandler({ args, program }) {
   return new Promise((success, reject) => {
-    success(program.state.nearbyDevices);
+    success(program.state().nearbyDevices);
+  });
+}
+
+function stateHandler({ args, program }) {
+  return new Promise((success, reject) => {
+    const state = program.state();
+    const { stateChangesCount } = program.store;
+
+    success({ state, stateChangesCount });
+  });
+}
+
+function reachHandler({ args, program }) {
+  return new Promise((success, reject) => {
+    success('device actor :: reach method => [todo, missing implementation]');
   });
 }
 

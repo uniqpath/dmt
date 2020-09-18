@@ -1,14 +1,12 @@
-import colors from 'colors';
-
 import os from 'os';
 import fs from 'fs';
 
 import dmt from 'dmt/bridge';
-const { log, prettyMacroTime } = dmt;
+const { log } = dmt;
 
 import fetchPeerList from './lib/fetchPeerList';
 import peerlist from './lib/peerlist';
-import isMasterNode from './lib/isMasterNode';
+import isReefBuilder from './lib/isReefBuilder';
 
 import { peerFilePath } from './lib/paths';
 
@@ -24,7 +22,7 @@ function fetchPeers({ program, peerFilePath }) {
 function refreshPeers(program) {
   program.updatePeerlist(peerlist());
 
-  if (isMasterNode()) {
+  if (isReefBuilder()) {
     return;
   }
 
@@ -50,8 +48,6 @@ function refreshPeers(program) {
 }
 
 function init(program) {
-  console.log('ZETA-PEERS MIDDLEWARE RUNNING');
-
   program.on('slow_tick', () => {
     refreshPeers(program);
   });

@@ -47,6 +47,7 @@ class Channel extends EventEmitter {
     return this.remotePubkeyHex;
   }
 
+  // 💡 message is string, binary or json (automatically stringified before sending)
   send(message) {
     send({ message, channel: this });
     this.sentCount += 1;
@@ -57,7 +58,7 @@ class Channel extends EventEmitter {
     this.receivedCount += 1;
   }
 
-  registerRemoteObject(handle, obj) {
+  attachObject(handle, obj) {
     new RPCTarget({ serversideChannel: this, serverMethods: obj, methodPrefix: handle });
   }
 

@@ -6,7 +6,7 @@ const { log } = dmt;
 function createHandler({ method, actorName, program }, setupData = {}) {
   return args => {
     return new Promise((success, reject) => {
-      const calledWith = args == '' ? '' : `with ${colors.white(args)}`;
+      const calledWith = args ? `with ${colors.white(args)}` : '';
       log.gray(`actor method called → ${colors.cyan(actorName)}/${colors.green(method.name)} ${calledWith}`);
 
       if (method.handler) {

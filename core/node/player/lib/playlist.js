@@ -21,7 +21,7 @@ class Playlist {
     this.missingFiles = new MissingFiles({ playlist: this });
 
     program.on('tick', () => {
-      const { playlistMetadata } = program.state;
+      const { playlistMetadata } = program.state();
 
       if (playlistMetadata) {
         const deselectAfterSeconds = 30;
@@ -30,7 +30,7 @@ class Playlist {
           this.deselectAll();
         } else if (Date.now() - playlistMetadata.lastSelectedAt > deselectAfterSeconds * 1000) {
           this.deselectAll();
-          program.removeStoreElement({ storeName: 'playlistMetadata', key: 'lastSelectedAt' }, { announce: false });
+          program.store.removeSlotElement({ slotName: 'playlistMetadata', key: 'lastSelectedAt' }, { announce: false });
         }
       }
     });
@@ -41,17 +41,17 @@ class Playlist {
 
     this.currentIndex = null;
 
-    if (!this.program.state.playlist) {
-      this.program.updateState({ playlist: [] }, { announce: false });
+    if (!this.program.state().playlist) {
+      this.program.store.update({ playlist: [] }, { announce: false });
     }
 
-    if (!this.program.state.playlistMetadata) {
-      this.program.updateState({ playlistMetadata: {} }, { announce: false });
+    if (!this.program.state().playlistMetadata) {
+      this.program.store.update({ playlistMetadata: {} }, { announce: false });
     }
 
-    this.playlist = this.program.state.playlist;
+    this.playlist = this.program.state().playlist;
 
-    this.program.updateState({ playlistMetadata: { playlistLength: this.playlist.length } }, { announce: false });
+    this.program.store.update({ playlistMetadata: { playlistLength: this.playlist.length } }, { announce: false });
 
     if (currentSongPath) {
       for (const [index, song] of this.playlist.entries()) {
@@ -341,7 +341,9 @@ class Playlist {
 
   bumpSearch(terms) {
     const currentSongId = this.currentSongId();
-    const songIDs = this.playlist.filter(songInfo => songInfo.id != currentSongId && searchPredicate(songInfo.title, terms)).map(songInfo => songInfo.id);
+    const songIDs = this.playlist
+      .filter(songInfo => songInfo.id != currentSongId && (searchPredicate(songInfo.title, terms) || searchPredicate(songInfo.path, terms)))
+      .map(songInfo => songInfo.id);
     return this.bumpSongIDs(songIDs);
   }
 
@@ -415,7 +417,7 @@ class Playlist {
   }
 
   timestampLastSelected() {
-    this.program.updateState(
+    this.program.store.update(
       {
         playlistMetadata: {
           lastSelectedAt: Date.now()
@@ -427,7 +429,7 @@ class Playlist {
 
   shuffle() {
     if (this.currentIndex < this.playlist.length) {
-      const { limit } = this.program.state.player;
+      const { limit } = this.program.state().player;
 
       const splitPoint = this.currentIndex + 1 + (limit ? limit - 1 : 0);
 
@@ -473,7 +475,7 @@ class Playlist {
     const { metadataReadCount } = this.updatePlaylistDerivedData();
     const playlistSelectedCount = this.playlist.filter(songInfo => songInfo.selected && !songInfo.aboutToBeCut && songInfo.id != this.currentSongId()).length;
     const playlistHasSelectedEntries = playlistSelectedCount > 0;
-    this.program.updateState({
+    this.program.store.update({
       player: { hasMissingMedia: numberOfMissingMedia > 0 },
       playlist: this.playlist,
       playlistMetadata: {
@@ -488,7 +490,7 @@ class Playlist {
   }
 
   updatePlaylistDerivedData() {
-    const { limit } = this.program.state.player;
+    const { limit } = this.program.state().player;
 
     let prevSong;
     let metadataReadCount = 0;

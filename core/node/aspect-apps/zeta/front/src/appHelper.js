@@ -1,4 +1,5 @@
-import { Emitter } from 'dmt-js';
+import * as dmtJS from '../../../../dmt-js';
+const { Emitter } = dmtJS;
 
 class App extends Emitter {
   constructor() {
@@ -8,6 +9,8 @@ class App extends Emitter {
     this.isLAN = window.location.hostname.startsWith('192.168.');
     this.isZetaSeek = window.location.hostname == 'zetaseek.com';
     this.isDevMachine = window.location.hostname == 'david.zetaseek.com';
+    this.nodeHasBlog = window.location.hostname == 'david.zetaseek.com';
+    this.blogName = window.location.hostname == 'david.zetaseek.com' ? 'Overthinking 💭' : '';
 
     this.isMobile = window.screen.width < 768;
 

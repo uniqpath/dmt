@@ -1,54 +1,60 @@
-import { stores } from 'dmt-js';
+import nacl from 'tweetnacl';
+import naclutil from 'tweetnacl-util';
+nacl.util = naclutil;
 
-class ConnectedStore extends stores.ConnectedStore {
-  constructor(loginStore, options) {
-    super(options);
+export default ClassBase =>
+  class ConnectedStore extends ClassBase {
+    constructor(loginStore, options) {
+      const keys = nacl.box.keyPair();
+      const clientPublicKey = keys.publicKey;
+      const clientPrivateKey = keys.secretKey;
 
-    this.loginStore = loginStore;
+      Object.assign(options, { clientPrivateKey, clientPublicKey });
+      super(options);
 
-    this.on('connected', () => {
-      const { ethAddress } = this.loginStore.get();
+      this.loginStore = loginStore;
 
-      if (ethAddress) {
-        this.loginAddress(ethAddress);
-      }
-    });
+      this.on('connected', () => {
+        const { ethAddress } = this.loginStore.get();
 
-    loginStore.on('metamask_login', ethAddress => {
-      if (this.connected) {
-        this.loginAddress(ethAddress);
-      }
-    });
-  }
+        if (ethAddress) {
+          this.loginAddress(ethAddress);
+        }
+      });
 
-  emitProgramEvent(name, data) {
-    this.remoteObject('GUIFrontendAcceptor')
-      .call('emitProgramEvent', [name, data])
-      .catch(console.log);
-  }
+      loginStore.on('metamask_login', ethAddress => {
+        if (this.connected) {
+          this.loginAddress(ethAddress);
+        }
+      });
+    }
 
-  loginAddress(ethAddress) {
-    const data = { ethAddress, urlHostname: window.location.hostname };
+    emitProgramEvent(name, data) {
+      this.remoteObject('GUIFrontendAcceptor')
+        .call('emitProgramEvent', [name, data])
+        .catch(console.log);
+    }
 
-    this.remoteObject('GUIFrontendAcceptor')
-      .call('getUserIdentity', data)
-      .then(identity => {
-        this.loginStore.set(identity);
+    loginAddress(ethAddress) {
+      const data = { ethAddress, urlHostname: window.location.hostname };
 
-        this.emitProgramEvent('zeta::login', { ...identity, ...data });
-      })
-      .catch(console.log);
-  }
+      this.remoteObject('GUIFrontendAcceptor')
+        .call('getUserIdentity', data)
+        .then(identity => {
+          this.loginStore.set(identity);
 
-  saveUserProfile(options) {
-    this.remoteObject('GUIFrontendAcceptor')
-      .call('saveUserProfile', options)
-      .then(() => {
-        console.log('Profile saved');
-        this.loginStore.set(options);
-      })
-      .catch(console.log);
-  }
-}
+          this.emitProgramEvent('zeta::login', { ...identity, ...data });
+        })
+        .catch(console.log);
+    }
 
-export default ConnectedStore;
+    saveUserProfile(options) {
+      this.remoteObject('GUIFrontendAcceptor')
+        .call('saveUserProfile', options)
+        .then(() => {
+          console.log('Profile saved');
+          this.loginStore.set(options);
+        })
+        .catch(console.log);
+    }
+  };

@@ -16,7 +16,7 @@ function establishAndMaintainConnection(
 
   log(`Trying to connect to ws endpoint ${endpoint} ...`);
 
-  const connector = new Connector({ address, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, verbose });
+  const connector = new Connector({ address, protocol, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, verbose });
 
   if (connector.connection) {
     return connector;

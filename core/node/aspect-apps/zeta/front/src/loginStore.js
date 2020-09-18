@@ -1,17 +1,13 @@
-import { stores } from 'dmt-js';
-const { SimpleStore } = stores;
+export default ClassBase =>
+  class LoginStore extends ClassBase {
+    constructor({ verbose = false } = {}) {
+      super();
 
-class LoginStore extends SimpleStore {
-  constructor({ verbose = false } = {}) {
-    super();
+      this.verbose = verbose;
+    }
 
-    this.verbose = verbose;
-  }
-
-  login(ethAddress) {
-    this.set({ ethAddress, loggedIn: true });
-    this.emit('metamask_login', ethAddress);
-  }
-}
-
-export default LoginStore;
+    login(ethAddress) {
+      this.set({ ethAddress, loggedIn: true });
+      this.emit('metamask_login', ethAddress);
+    }
+  };

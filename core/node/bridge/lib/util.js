@@ -1,6 +1,4 @@
 import colorJSON from './colorJSON';
-import deepmerge from './utilities/deepmerge';
-
 import random from './utilities/just/array-random';
 import compare from './utilities/just/collection-compare';
 import clone from './utilities/just/collection-clone';
@@ -8,13 +6,6 @@ import last from './utilities/just/array-last';
 
 import * as hexutils from './utilities/hexutils';
 import snakeCaseKeys from './utilities/snakecasekeys';
-
-import { diff } from './utilities/just/collection-diff';
-
-import rfc6902 from 'rfc6902';
-const generateJsonPatch = rfc6902.createPatch;
-
-const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
 
 function periodicRepeat(callback, timeMs) {
   const update = () => {
@@ -50,11 +41,6 @@ function randHex(size) {
 
 export default {
   compare,
-  diff,
-  generateJsonPatch,
-  deepmerge: (a, b) => {
-    return deepmerge(a, b, { arrayMerge: overwriteMerge });
-  },
   random,
   hexutils,
   snakeCaseKeys,
@@ -122,8 +108,10 @@ export default {
     return Array.isArray(obj) ? obj : [obj];
   },
 
-  compareValues(key, order = 'asc') {
-    return function innerSort(a, b) {
+  compareValues(key, key2) {
+    const order = 'asc';
+
+    function _comparison(a, b, key) {
       if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
         return 0;
       }
@@ -137,6 +125,17 @@ export default {
       } else if (varA < varB) {
         comparison = -1;
       }
+
+      return comparison;
+    }
+
+    return function innerSort(a, b) {
+      let comparison = _comparison(a, b, key);
+
+      if (comparison == 0 && key2) {
+        comparison = _comparison(a, b, key2);
+      }
+
       return order === 'desc' ? comparison * -1 : comparison;
     };
   },

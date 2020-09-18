@@ -17,7 +17,7 @@ const { privateKey: clientPrivateKey, publicKey: clientPublicKey, privateKeyHex,
 printClientInfo({ privateKeyHex, publicKeyHex });
 
 connect({ address, port, protocol, protocolLane, clientPrivateKey, clientPublicKey, remotePubkey: undefined, verbose }).then(connector => {
-  connector.registerRemoteObject('ErrorObject', {
+  connector.attachObject('ErrorObject', {
     makeError: () => {
       throw new Error('And just like that, AN ERROR IS THROWN');
     }

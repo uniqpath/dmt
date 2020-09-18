@@ -26,9 +26,9 @@ function server(program) {
   ipc.serve(() => {
     ipc.server.on('message', (data, socket) => {
       try {
-        const { actorName, storeName, action, payload, atDevice } = JSON.parse(data);
+        const { actorName, namespace, action, payload, atDevice } = JSON.parse(data);
 
-        if (storeName == 'gui') {
+        if (namespace == 'gui') {
           program.emit('send_to_connected_guis', { action, payload });
 
           ipc.server.emit(socket, 'ack', 'empty');

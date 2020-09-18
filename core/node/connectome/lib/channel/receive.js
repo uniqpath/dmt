@@ -36,7 +36,7 @@ function messageReceived({ message, channel }) {
   try {
     jsonData = JSON.parse(message);
   } catch (e) {
-    console.log('---');
+    console.log('JSON Error Message Received ---');
     console.log(message);
     console.log('---');
     return;
@@ -59,6 +59,10 @@ function messageReceived({ message, channel }) {
     }
   } else if (jsonData.tag == 'request_file') {
     channel.streamFile(jsonData);
+  } else if (jsonData.action && jsonData.namespace) {
+    // 💡 actions received from frontend (usually GUI... we hook this up in GUI protocol endpoint)
+    const { action, namespace, payload } = jsonData;
+    channel.emit('action', { action, namespace, payload });
   } else {
     channel.emit('message', message);
   }

@@ -1,14 +1,14 @@
 import dmt from 'dmt/bridge';
 const { log } = dmt;
 
-import msgLanbusChatter from './messages/lanbusChatter';
+import attachNearbyDeviceAttributes from './attachNearbyDeviceAttributes';
 
 class Nearby {
   constructor(program) {
     this.program = program;
 
-    if (!program.state.nearbyDevices) {
-      program.updateState({ nearbyDevices: [] }, { announce: false });
+    if (!program.state().nearbyDevices) {
+      program.store.update({ nearbyDevices: [] }, { announce: false });
     }
 
     this.broadcastInterval = 2 * dmt.globals.tickerPeriod * 1000;
@@ -48,7 +48,8 @@ class Nearby {
   }
 
   ourMessage() {
-    return msgLanbusChatter({ program: this.program, deviceName: this.program.device.id, message: 'ΞΞΞ HEY' });
+    const msg = { processId: process.pid, message: 'ΞΞΞ HEY', origin: 'dmt' };
+    return attachNearbyDeviceAttributes({ program: this.program, msg });
   }
 
   broadcastOurHelloMessage({ onlyUdp = false } = {}) {
@@ -57,7 +58,7 @@ class Nearby {
     if (msg.ip) {
       this.lanbus.broadcastMessage(msg, { onlyUdp });
     } else {
-      log.red('Not broadcasting LANBUS MQTT message because IP address of this device is unknown...');
+      log.debug('Not broadcasting LANBUS MQTT message because IP address of this device is unknown...');
     }
   }
 
@@ -77,7 +78,7 @@ class Nearby {
           return;
         }
 
-        const prevDeviceData = this.program.state.nearbyDevices.find(({ deviceKey }) => deviceKey == obj.deviceKey);
+        const prevDeviceData = this.program.state().nearbyDevices.find(({ deviceKey }) => deviceKey == obj.deviceKey);
 
         const device = Object.assign(obj, { lastSeenAt: Date.now(), stale: false });
 
@@ -95,7 +96,7 @@ class Nearby {
           device.hiddenInGui = true;
         }
 
-        const { nearbyDevices } = this.program.state;
+        const { nearbyDevices } = this.program.state();
 
         let found;
 
@@ -120,12 +121,12 @@ class Nearby {
   }
 
   nearbyDevicesListRefresh({ removeStaleImmediately = false } = {}) {
-    if (this.program.state.nearbyDevices) {
+    if (this.program.state().nearbyDevices) {
       const nearbyDevicesNew = [];
 
       const now = Date.now();
 
-      const { nearbyDevices } = this.program.state;
+      const { nearbyDevices } = this.program.state();
 
       for (const device of nearbyDevices.filter(({ deviceKey }) => deviceKey != dmt.keypair().publicKeyHex)) {
         if (now - device.lastSeenAt > 2.2 * this.broadcastInterval) {
@@ -141,7 +142,7 @@ class Nearby {
 
       nearbyDevicesNew.push({ ...this.ourMessage(), ...{ thisDevice: true, stale: false, staleDetectedAt: undefined } });
 
-      this.program.state.nearbyDevices = nearbyDevicesNew;
+      this.program.store.replaceSlot('nearbyDevices', nearbyDevicesNew, { announce: false });
 
       this.program.emit('nearby_devices', nearbyDevicesNew);
     }

@@ -186,6 +186,14 @@ export default {
     return platform;
   },
 
+  platformDescription() {
+    if (this.isRPi()) {
+      return 'raspberry-pi';
+    }
+
+    return this.platformWithArchitecture();
+  },
+
   platformWithArchitecture() {
     const platform = this.platform();
 
@@ -525,7 +533,7 @@ export default {
   },
 
   getLocalIpViaNearby({ program, deviceName }) {
-    const match = program.state.nearbyDevices.find(({ deviceName, stale }) => !stale && deviceName == deviceName);
+    const match = program.state().nearbyDevices.find(({ deviceName, stale }) => !stale && deviceName == deviceName);
     if (match) {
       return match.ip;
     }

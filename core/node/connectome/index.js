@@ -10,6 +10,8 @@ import Server from './lib/server/server.js';
 import FiberPool from './lib/fibers/fiberPool.js';
 import contentServer from './lib/fileTransport/contentServer/contentServer.js';
 import * as fiberHandle from './lib/fileTransport/fiberHandle/fiberHandle.js';
+import * as concurrency from './lib/concurrency/index.js';
+import * as stores from './lib/stores/index.js';
 
 nacl.util = naclutil;
 
@@ -21,4 +23,4 @@ function newKeypair() {
   return { privateKey: keys.secretKey, publicKey: keys.publicKey, privateKeyHex, publicKeyHex };
 }
 
-export { connect, connectBrowser, FiberPool, Server, newKeypair, contentServer, fiberHandle };
+export { connect, connectBrowser, FiberPool, Server, newKeypair, contentServer, fiberHandle, concurrency, stores };

@@ -38,9 +38,9 @@ fi
 
 # symlink apps
 
-if [ -f .scripts/symlink_apps ]; then
-  ./.scripts/symlink_apps "$arg"
-fi
+# if [ -f .scripts/symlink_apps ]; then
+#   ./.scripts/symlink_apps "$arg"
+# fi
 
 # symlink user core
 

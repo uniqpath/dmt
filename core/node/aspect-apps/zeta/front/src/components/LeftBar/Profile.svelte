@@ -29,7 +29,6 @@
 
     // if (editMode) {
     //   setTimeout(() => {
-
     //   }, 10);
     // }
   }
@@ -63,9 +62,9 @@
 
   <!-- <a href="#" class="minimize" on:click={() => minimize()}>X</a> -->
 
-  {#if !isAdmin}
+  <!-- {#if !isAdmin}
     Cannot edit profile because not Admin.
-  {:else}
+  {:else} -->
 
     <h3>Myself
       {#if editMode}
@@ -120,7 +119,7 @@
 
     </div>
 
-  {/if}
+  <!-- {/if} -->
 
 </div>
 

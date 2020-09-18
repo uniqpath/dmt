@@ -23,7 +23,7 @@ import WsServer from '../server/mainWsServer';
 
 import ensureDirectories from './boot/ensureDirectories';
 import getDeviceInfo from './boot/getDeviceInfo';
-import initStore from './boot/initStore';
+import createProgramStore from './boot/createProgramStore';
 import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
 import loadMiddleware from './boot/loadMiddleware';
 
@@ -44,9 +44,7 @@ class Program extends EventEmitter {
 
     this.network = new Network(this);
     this.server = new Server(this);
-    this.state = { notifications: [] };
-
-    this.store = initStore(this, this.device);
+    this.store = createProgramStore(this);
 
     setupGlobalErrorHandler();
 
@@ -63,9 +61,9 @@ class Program extends EventEmitter {
     this.setupFiberPool();
 
     if (dmt.isRPi()) {
-      this.updateState({ controller: { isRPi: true } }, { announce: false });
-    } else if (this.state.controller) {
-      delete this.state.controller.isRPi;
+      this.store.update({ device: { isRPi: true } }, { announce: false });
+    } else if (this.state().device) {
+      delete this.state().device.isRPi;
     }
 
     if (mids.includes('apps')) {
@@ -128,7 +126,7 @@ class Program extends EventEmitter {
     return this.actors.get(name);
   }
 
-  addWsEndpoint({ protocol, protocolLane, wsEndpoint }) {
+  addConnectomeEndpoint({ protocol, protocolLane, wsEndpoint }) {
     return this.wsServer.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
   }
 
@@ -137,7 +135,7 @@ class Program extends EventEmitter {
     const protocol = 'dmt';
     const protocolLane = 'fiber';
 
-    this.addWsEndpoint({ protocol, protocolLane, wsEndpoint: wsEndpoint({ program: this, actors: this.actors }) });
+    this.addConnectomeEndpoint({ protocol, protocolLane, wsEndpoint: wsEndpoint({ program: this, actors: this.actors }) });
 
     const keypair = dmt.keypair();
     if (!keypair) {
@@ -216,7 +214,7 @@ class Program extends EventEmitter {
   }
 
   isHub() {
-    return this.state.controller.ip == dmt.accessPointIP;
+    return this.state().device.ip == dmt.accessPointIP;
   }
 
   hasGui() {
@@ -235,23 +233,11 @@ class Program extends EventEmitter {
       addedAt: Date.now()
     };
 
-    this.store.pushToStateArray('notifications', notification);
+    this.store.pushToSlotArrayElement('notifications', notification);
   }
 
-  updateState(newState, { announce = true } = {}) {
-    this.store.updateState(newState, { announce });
-  }
-
-  replaceStoreElement({ storeName, key, value }, { announce = true } = {}) {
-    this.store.replaceStoreElement({ storeName, key, value }, { announce });
-  }
-
-  removeStoreElement({ storeName, key }, { announce = true } = {}) {
-    this.store.removeStoreElement({ storeName, key }, { announce });
-  }
-
-  receiveAction({ action, storeName, payload }) {
-    this.store.receiveAction({ action, storeName, payload });
+  state() {
+    return this.store.kvStore.state;
   }
 
   initIot(iotBus) {

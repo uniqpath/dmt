@@ -10,14 +10,14 @@ function handleBooted({ restarterId, moduleIp }) {
   push.notify(`Module ${tag} (${moduleIp}) BOOTED`);
 }
 
-const storeName = 'deviceRestarters';
+const slotName = 'deviceRestarters';
 
 function handleRestarting(program, { restarterId, status }) {
-  program.replaceStoreElement({ storeName, key: restarterId, value: { status, receivedAt: Date.now() } }, { announce: true });
+  program.store.replaceSlotElement({ slotName, key: restarterId, value: { status, receivedAt: Date.now() } }, { announce: true });
 }
 
 function handleRestartFinished(program, { restarterId }) {
-  program.removeStoreElement({ storeName, key: restarterId }, { announce: true });
+  program.store.removeSlotElement({ slotName, key: restarterId }, { announce: true });
 }
 
 function handleIotEvent({ program, topic, msg }) {

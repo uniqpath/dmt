@@ -9,6 +9,10 @@ class ScreenOutput {
     this.logOutput(colors.white, {}, ...args);
   }
 
+  brightWhite(...args) {
+    this.logOutput(colors.brightWhite, {}, ...args);
+  }
+
   green(...args) {
     this.logOutput(colors.green, {}, ...args);
   }

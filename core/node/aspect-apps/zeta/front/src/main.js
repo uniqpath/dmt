@@ -1,11 +1,19 @@
-import { stores, metamask } from 'dmt-js';
+import * as dmtJS from '../../../../dmt-js';
+import { stores, concurrency } from '../../../../connectome';
 
-import LoginStore from './loginStore';
-import ConnectedStore from './connectedStore';
+const { metamask } = dmtJS;
+
+import loginStoreFactory from './loginStore';
+const LoginStore = loginStoreFactory(stores.SimpleStore);
+
+import connectedStoreFactory from './connectedStore';
+const ConnectedStore = connectedStoreFactory(stores.ConnectedStore);
 
 import appHelper from './appHelper';
 
-const { SessionStore, LogStore } = stores;
+appHelper.deps = { dmtJS };
+
+const { LogStore } = stores;
 
 const { metamaskInit } = metamask;
 
@@ -14,16 +22,6 @@ import App from './App.svelte';
 const port = appHelper.ssl ? '/ws' : 7780;
 const protocol = 'zeta';
 const protocolLane = 'gui';
-
-const rpcObjectsSetup = ({ store }) => {
-  return {
-    Receiver: {
-      msg: msg => {
-        store.set({ msg });
-      }
-    }
-  };
-};
 
 const logStore = new LogStore();
 
@@ -34,19 +32,19 @@ console.log = (...args) => {
 };
 
 const verbose = false;
-const session = new SessionStore({ verbose });
 const loginStore = new LoginStore();
+
+const ip = window.location.hostname;
 
 const rpcRequestTimeout = 5500;
 const store = new ConnectedStore(loginStore, {
+  ip,
   port,
   ssl: appHelper.ssl,
   protocol,
   protocolLane,
   rpcRequestTimeout,
-  rpcObjectsSetup,
   verbose,
-  session,
   logStore
 });
 
@@ -59,6 +57,7 @@ const app = new App({
   target: document.body,
   props: {
     store,
+    concurrency,
     appHelper,
     metamaskConnect
   }

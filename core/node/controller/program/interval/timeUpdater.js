@@ -1,14 +1,14 @@
 let lastDetectedMinute;
 
-import { determineTimeAndDate } from './helpers';
+import determineTimeAndDate from './determineTimeAndDate';
 
 function updateTime(program, { announce = false } = {}) {
   const latlng = program.latlng();
   const lang = program.lang();
 
-  const update = determineTimeAndDate({ latlng, lang });
+  const time = determineTimeAndDate({ latlng, lang });
 
-  program.updateState({ controller: update }, { announce });
+  program.store.update({ time }, { announce });
 }
 
 function rolloverSecondDetect(program) {

@@ -58,9 +58,6 @@ function executeSearch({
 
           console.log(`Search executed on remote object: ${searchQuery}`);
 
-          const searchOriginHost = window.location.host;
-          Object.assign(searchMetadata, { searchOriginHost });
-
           remoteObject
             .call(remoteMethod, { query: normalizeQuery(searchQuery), searchMode, searchMetadata })
             .then(searchResults => {
@@ -77,6 +74,10 @@ function executeSearch({
             })
             .catch(e => {
               searchStatusCallback({ searching: false });
+
+              console.log('executeSearch ERROR:');
+              console.log(e);
+
               reject(e);
             });
         }, searchDelay);

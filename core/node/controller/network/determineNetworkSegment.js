@@ -17,7 +17,7 @@ function determineNetworkSegment({ program, networkId }) {
 
   wifiAccessPointMAC()
     .then(({ bssid }) => {
-      program.updateState({ controller: { apssid: bssid } });
+      program.store.update({ device: { apssid: bssid } });
 
       if (!bssid) {
         deleteWifiSegmentInfo(program);

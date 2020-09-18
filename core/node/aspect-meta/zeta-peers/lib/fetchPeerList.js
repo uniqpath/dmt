@@ -2,7 +2,7 @@ import axios from 'axios';
 
 function fetchPeerList() {
   return new Promise((success, reject) => {
-    const url = 'https://zetaseek.com/info/';
+    const url = 'https://zetaseek.com/public/';
 
     const requester = axios.create({
       baseURL: url,

@@ -44,13 +44,26 @@ root    ALL=(ALL:ALL) ALL
 
 Press `ctrl+o [enter]` to save changes in `nano` editor, then `ctrl+x` to quit.
 
+Alternative (somewhat faster way) to achieve the same is:
+
+```
+sudo usermod -aG sudo [your_name]
+```
+
+This will add your user to `sudo` group which has special rights assigned to it through the same `/etc/sudoers` file like this:
+
+```
+# Allow members of group sudo to execute any command
+%sudo   ALL=(ALL:ALL) ALL
+```
+
 ### Swith to your new user:
 
 ```
 su [your_name]
 ```
 
-### Add public key from the machine you usually log in from:
+### Add public key from the machine you usually log in from
 
 By doing this you won't have to type the password yeach time you ssh into your server.
 

@@ -1,5 +1,10 @@
 <script>
-  import { colorsHTML as colors } from 'dmt-js';
+  import { getContext } from 'svelte';
+  const app = getContext('app');
+
+  const { dmtJS } = app.deps;
+
+  const { colorsHTML: colors } = dmtJS;
 
   export let providerResponse;
 

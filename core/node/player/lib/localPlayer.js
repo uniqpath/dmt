@@ -26,18 +26,18 @@ class LocalPlayer {
     });
 
     program.on('tick', () => {
-      if (program.state.player && !program.state.player.paused && program.state.player.timeLimit) {
-        let remainingTime = program.state.player.timeLimit - dmt.globals.tickerPeriod / 60;
+      if (program.state().player && !program.state().player.paused && program.state().player.timeLimit) {
+        let remainingTime = program.state().player.timeLimit - dmt.globals.tickerPeriod / 60;
         if (remainingTime < 0) {
           remainingTime = 0;
         }
         if (remainingTime == 0) {
           log.cyan('Pausing because time limit was reached.');
           this.pause();
-          this.program.removeStoreElement({ storeName: 'player', key: 'timeLimit' }, { announce: false });
-          this.program.updateState({ player: { timeLimitReached: true } });
+          this.program.store.removeSlotElement({ slotName: 'player', key: 'timeLimit' }, { announce: false });
+          this.program.store.update({ player: { timeLimitReached: true } });
         } else {
-          this.program.updateState({ player: { timeLimit: remainingTime } }, { announce: false });
+          this.program.store.update({ player: { timeLimit: remainingTime } }, { announce: false });
         }
       }
     });
@@ -53,7 +53,7 @@ class LocalPlayer {
       return;
     }
 
-    const { limit } = this.program.state.player;
+    const { limit } = this.program.state().player;
     const limitStr = limit ? ` (limit: ${limit})` : '';
     log.yellow(`Player: finished song ${this.playlist.currentIndex + 1} of ${this.playlist.count()}${limitStr}`);
 
@@ -67,7 +67,7 @@ class LocalPlayer {
     if (limitReached) {
       log.magenta('Stopping because limit was reached');
 
-      this.program.updateState({ player: { limitReached: true } });
+      this.program.store.update({ player: { limitReached: true } });
 
       this.playlist.selectNextSong();
       this.playlist.rollover();
@@ -78,7 +78,7 @@ class LocalPlayer {
     const playNext = () =>
       this.next({ fromAction: false })
         .then(() => {
-          if (!this.program.state.player.repeatCount) {
+          if (!this.program.state().player.repeatCount) {
             this.playlist.rollover();
           }
         })
@@ -99,9 +99,9 @@ class LocalPlayer {
       paused = true;
     }
 
-    this.program.updateState({ player: { paused, currentMedia: { songPath: currentSongPath } } });
+    this.program.store.update({ player: { paused, currentMedia: { songPath: currentSongPath } } });
 
-    this.program.emit('player:initialized', this.program.state.player);
+    this.program.emit('player:initialized', this.program.state().player);
 
     this.initialized = true;
   }
@@ -111,7 +111,7 @@ class LocalPlayer {
   }
 
   initVolume() {
-    const currentVolume = this.program.state.player && this.program.state.player.volume != null ? this.program.state.player.volume : undefined;
+    const currentVolume = this.program.state().player && this.program.state().player.volume != null ? this.program.state().player.volume : undefined;
     const defaultDeviceVolume = dmt.services('player').try('defaultVolume.mpv');
     const defaultVolume = parseInt(defaultDeviceVolume) || 75;
 
@@ -128,15 +128,15 @@ class LocalPlayer {
     const volume = currentVolume == null ? defaultVolume : currentVolume;
 
     if (volume != null) {
-      this.program.updateState({ player: { volume } });
+      this.program.store.update({ player: { volume } });
     } else {
-      this.program.removeStoreElement({ storeName: 'player', key: 'volume' });
+      this.program.store.removeSlotElement({ slotName: 'player', key: 'volume' });
     }
   }
 
   removeLimitNotifications() {
-    this.program.removeStoreElement({ storeName: 'player', key: 'limitReached' }, { announce: false });
-    this.program.removeStoreElement({ storeName: 'player', key: 'timeLimitReached' }, { announce: false });
+    this.program.store.removeSlotElement({ slotName: 'player', key: 'limitReached' }, { announce: false });
+    this.program.store.removeSlotElement({ slotName: 'player', key: 'timeLimitReached' }, { announce: false });
   }
 
   async play({ files = [] } = {}) {
@@ -172,7 +172,7 @@ class LocalPlayer {
         return;
       }
 
-      this.program.removeStoreElement({ storeName: 'player', key: 'limit' }, { announce: false });
+      this.program.store.removeSlotElement({ slotName: 'player', key: 'limit' }, { announce: false });
 
       this.playlist.clear();
       this.playlist.prepareNumbering();
@@ -286,7 +286,7 @@ class LocalPlayer {
   async repeat() {
     const maxRepeat = 3;
 
-    let { repeatCount } = this.program.state.player;
+    let { repeatCount } = this.program.state().player;
 
     if (repeatCount == null) {
       repeatCount = 1;
@@ -298,21 +298,21 @@ class LocalPlayer {
       repeatCount = undefined;
     }
 
-    this.program.updateState({ player: { repeatCount } });
+    this.program.store.update({ player: { repeatCount } });
 
     return { repeatCount };
   }
 
   decrementLimit() {
-    if (this.program.state.player.repeatCount) {
+    if (this.program.state().player.repeatCount) {
       return false;
     }
 
-    const { limit } = this.program.state.player;
+    const { limit } = this.program.state().player;
     if (limit > 1) {
-      this.program.updateState({ player: { limit: limit - 1 } }, { announce: false });
+      this.program.store.update({ player: { limit: limit - 1 } }, { announce: false });
     } else if (limit == 1) {
-      this.program.removeStoreElement({ storeName: 'player', key: 'limit' }, { announce: false });
+      this.program.store.removeSlotElement({ slotName: 'player', key: 'limit' }, { announce: false });
       return true;
     }
 
@@ -352,17 +352,17 @@ class LocalPlayer {
             .catch(reject);
         };
 
-        if (!fromAction && this.program.state.player.repeatCount) {
-          let { repeatCount } = this.program.state.player;
+        if (!fromAction && this.program.state().player.repeatCount) {
+          let { repeatCount } = this.program.state().player;
           if (repeatCount == 1) {
             repeatCount = null;
           } else {
             repeatCount -= 1;
           }
-          this.program.updateState({ player: { repeatCount } });
+          this.program.store.update({ player: { repeatCount } });
           cont();
         } else if (this.playlist.selectNextSong() != null) {
-          this.program.updateState({ player: { repeatCount: undefined } });
+          this.program.store.update({ player: { repeatCount: undefined } });
           if (fromAction) {
             this.decrementLimit();
           }
@@ -435,7 +435,7 @@ class LocalPlayer {
       if (num != 'reset' && num != '0' && num != 0) {
         num = parseInt(num);
 
-        limit = this.program.state.player.limit;
+        limit = this.program.state().player.limit;
 
         if (num) {
           limit = num;
@@ -448,8 +448,8 @@ class LocalPlayer {
 
       limit = Math.min(limit, this.playlist.count() - this.playlist.currentIndex);
 
-      this.program.updateState({ player: { limit } }, { announce: false });
-      this.program.removeStoreElement({ storeName: 'player', key: 'timeLimit' }, { announce: false });
+      this.program.store.update({ player: { limit } }, { announce: false });
+      this.program.store.removeSlotElement({ slotName: 'player', key: 'timeLimit' }, { announce: false });
 
       this.playlist.broadcastPlaylistState();
 
@@ -464,7 +464,7 @@ class LocalPlayer {
       if (num != 'reset' && num != '0' && num != 0) {
         num = parseInt(num);
 
-        timeLimit = this.program.state.player.timeLimit;
+        timeLimit = this.program.state().player.timeLimit;
 
         if (num) {
           timeLimit = num;
@@ -485,10 +485,10 @@ class LocalPlayer {
       }
 
       if (!this.isStream()) {
-        this.program.removeStoreElement({ storeName: 'player', key: 'limit' }, { announce: false });
+        this.program.store.removeSlotElement({ slotName: 'player', key: 'limit' }, { announce: false });
       }
 
-      this.program.updateState({ player: { timeLimit } });
+      this.program.store.update({ player: { timeLimit } });
       this.playlist.broadcastPlaylistState();
 
       success();
@@ -527,7 +527,7 @@ class LocalPlayer {
   }
 
   gotoPercentPos(percentPos) {
-    if (!this.program.state.player.paused) {
+    if (!this.program.state().player.paused) {
       const duration = this.mediaDuration();
       if (duration) {
         const timepos = percentPos * duration;
@@ -537,19 +537,19 @@ class LocalPlayer {
   }
 
   hasLoadedMedia() {
-    return dmt.accessProperty(this.program.state, 'player.currentMedia.songPath');
+    return dmt.accessProperty(this.program.state(), 'player.currentMedia.songPath');
   }
 
   mediaDuration() {
-    return dmt.accessProperty(this.program.state, 'player.currentMedia.duration');
+    return dmt.accessProperty(this.program.state(), 'player.currentMedia.duration');
   }
 
   isStream() {
-    return this.program.state.player.isStream;
+    return this.program.state().player.isStream;
   }
 
   stop() {
-    this.program.removeStoreElement({ storeName: 'player', key: 'timeLimit' }, { announce: false });
+    this.program.store.removeSlotElement({ slotName: 'player', key: 'timeLimit' }, { announce: false });
 
     if (this.isStream()) {
       return new Promise((success, reject) => {
@@ -592,14 +592,14 @@ class LocalPlayer {
 
   status() {
     return new Promise((success, reject) => {
-      const status = JSON.parse(JSON.stringify(this.program.state.player));
+      const status = JSON.parse(JSON.stringify(this.program.state().player));
       delete status.playlist;
       success({ status });
     });
   }
 
   volume(vol) {
-    const prevVolume = this.program.state.player.volume;
+    const prevVolume = this.program.state().player.volume;
     let newVolume;
 
     const volumeStep = parseInt(dmt.services('player').volumeStep || 10);

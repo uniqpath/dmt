@@ -1,5 +1,5 @@
 <script>
-  import JSONTree from 'svelte-json-tree';
+  // import JSONTree from 'svelte-json-tree';
   export let swarm;
 </script>
 
@@ -8,7 +8,7 @@
   <div class="data">
 
     {#if swarm}
-      <JSONTree value={swarm} />
+      <!-- <JSONTree value={swarm} /> -->
     {/if}
   </div>
 

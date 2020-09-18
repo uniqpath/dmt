@@ -11,7 +11,18 @@ function parseSearchQuery({ query, actorName, defaultMediaType }) {
   const { serverMaxResults } = maxResults(actorName);
 
   const { terms, atDevices, attributeOptions } = parseCliArgs(query.trim().split(/\s+/));
-  const { page, media, count } = attributeOptions;
+
+  const { media } = attributeOptions;
+
+  let { page, count } = attributeOptions;
+
+  if (page) {
+    page = parseInt(page);
+  }
+
+  if (count) {
+    count = parseInt(count);
+  }
 
   return { terms, page, mediaType: media || defaultMediaType, count: count || serverMaxResults, atDevices };
 }

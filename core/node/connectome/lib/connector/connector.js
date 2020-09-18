@@ -11,9 +11,10 @@ import RpcClient from '../rpc/client.js';
 import RPCTarget from '../rpc/RPCTarget.js';
 
 class Connector extends EventEmitter {
-  constructor({ protocolLane, clientPrivateKey, clientPublicKey, rpcRequestTimeout, verbose = false, address } = {}) {
+  constructor({ address, protocol, protocolLane, clientPrivateKey, clientPublicKey, rpcRequestTimeout, verbose = false } = {}) {
     super();
 
+    this.protocol = protocol;
     this.protocolLane = protocolLane;
 
     this.clientPrivateKey = clientPrivateKey;
@@ -100,7 +101,7 @@ class Connector extends EventEmitter {
     };
   }
 
-  registerRemoteObject(handle, obj) {
+  attachObject(handle, obj) {
     new RPCTarget({ serversideChannel: this, serverMethods: obj, methodPrefix: handle });
   }
 

@@ -2,10 +2,10 @@ import dmt from 'dmt/bridge';
 const { log } = dmt;
 
 function userActionHandlers({ program, player }) {
-  program.on('action', ({ action, storeName, payload }) => {
-    log.write(`Received user action: ${storeName}::${action}`);
+  program.on('dmt_gui_action', ({ action, namespace, payload }) => {
+    log.write(`Received user action: ${namespace}::${action}`);
 
-    if (storeName == 'player') {
+    if (namespace == 'player') {
       switch (action) {
         case 'play':
           player.play().catch(log.red);
@@ -14,7 +14,7 @@ function userActionHandlers({ program, player }) {
           player.pause().catch(log.red);
           break;
         case 'toggle':
-          if (program.state.player.paused) {
+          if (program.state().player.paused) {
             player.play().catch(log.red);
           } else {
             player.pause().catch(log.red);

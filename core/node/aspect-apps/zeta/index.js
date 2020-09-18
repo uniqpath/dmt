@@ -1,12 +1,10 @@
-import BackendStore from './lib/backendStore';
+import BackendStore from './dmtHook/backendStore';
 
-import guiWsEndpointWrap from './lib/guiWsEndpoint';
+import setupZetaGUIProtocol from './dmtHook/protocol/zetaGUI/setup';
 
 function init({ program }) {
   const backendStore = new BackendStore({ program });
-
-  const wsEndpoint = guiWsEndpointWrap({ program, backendStore });
-  program.addWsEndpoint({ protocol: 'zeta', protocolLane: 'gui', wsEndpoint });
+  setupZetaGUIProtocol({ program, backendStore });
 }
 
 export { init };

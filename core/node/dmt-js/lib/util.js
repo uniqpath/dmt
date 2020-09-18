@@ -205,6 +205,18 @@ function hexToBuffer(hex) {
   return new Uint8Array(tokens.map(token => parseInt(token, 16)));
 }
 
+function getAllFuncs(obj) {
+  return Object.getOwnPropertyNames(obj.prototype).filter(prop => prop != 'constructor' && typeof obj.prototype[prop] == 'function');
+}
+
+function includeModule(obj, Module) {
+  const module = new Module();
+
+  for (const func of getAllFuncs(Module)) {
+    obj[func] = module[func];
+  }
+}
+
 export default {
   log,
   dir,
@@ -223,5 +235,6 @@ export default {
   isInputElementActive,
   listify,
   bufferToHex,
-  hexToBuffer
+  hexToBuffer,
+  includeModule
 };

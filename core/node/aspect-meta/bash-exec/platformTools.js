@@ -10,7 +10,7 @@ function wifiAccessPointMAC() {
     return wpaStatus();
   }
 
-  if (dmt.windows()) {
+  if (dmt.isWindows()) {
     console.log('TODO');
   }
 }

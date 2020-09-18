@@ -1,24 +1,13 @@
 <script>
-  import { cssBridge, Escape, executeSearch } from 'dmt-js';
-
   // http://jillix.github.io/url.js/ (TODO)
   import Url from 'urljs';
 
   import { onMount, setContext } from 'svelte';
   //import Router from 'svelte-spa-router'
 
-  // import routes from './routes';
-
-  //import { Router, Route, Link } from "svelte-routing";
-
   import About from './components/About.svelte';
-  // import ZetaExplorers from './components/ZetaExplorers.svelte';
-
   import Login from './components/Login/Login.svelte';
-  // import MenuBar from './components/MenuBar/MenuBar.svelte';
   import LeftBar from './components/LeftBar/LeftBar.svelte';
-
-  import Swarm from './components/Swarm/Swarm.svelte';
 
   import ConnectionStatus from './components/ConnectionStatus.svelte';
   import NodeTagline from './components/NodeTagline.svelte';
@@ -29,15 +18,15 @@
   import { searchMode } from './testStore.js'
 
   export let store;
+  export let concurrency;
   export let appHelper;
   export let metamaskConnect;
-
-  // needed for router
-  //export let url = "";
 
   setContext('app', appHelper);
 
   const { isZetaSeek, isLocalhost, isMobile } = appHelper;
+
+  const { cssBridge, Escape, executeSearch } = appHelper.deps.dmtJS;
 
   appHelper.on('play', ({ playableUrl }) => {
     console.log(`Loading ${playableUrl} into mpv on localhost ...`);
@@ -60,15 +49,13 @@
 
   $: deviceName = $store.deviceName;
   $: searchResults = $store.searchResults;
-  // $: panels = $store.panels;
   $: connected = $store.connected;
-  //$: searchMode = $store.searchMode;
 
-  $: controller = $store.controller;
+  $: device = $store.device;
   $: swarm = $store.swarm;
   $: player = $store.player;
 
-  $: dmtVersion = controller ? controller.dmtVersion : null;
+  $: dmtVersion = device ? device.dmtVersion : null;
 
   $: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
   $: userIdentity = $loginStore.userIdentity;
@@ -80,28 +67,15 @@
   // duplicate
   $: displayName = userName || userIdentity;
 
-  //this.menuBar = { PANELS: ['Profile', 'My Links'] };
   store.set({ panels: {} });
 
-  //let searchMode; // 0 - public search, 1 - only this node
-  // const savedSearchMode = localStorage.getItem('searchMode');
-  // if (savedSearchMode) {
-  //   store.set({ searchMode: parseInt(savedSearchMode) })
-  // } else {
-  //   store.set({ searchMode: 0 })
-  // }
-
   let searchQuery;
+  let browsePlace;
   let searchNodes = [];
 
   // read browser query strings
 
-  // TEMPORARY
-  //const { pathname } = window.location;
-
-  // siteSection.set(pathname);
-
-  const { q, nodes, error, mode } = Url.parseQuery();
+  const { q, place, nodes, error, mode } = Url.parseQuery();
 
   let errorCode = error;
 
@@ -109,10 +83,17 @@
     searchQuery = decodeURIComponent(q);
   }
 
-  if (mode) {
+  if (place) {
+    browsePlace = decodeURIComponent(place);
+  }
+
+  if (mode != null) {
     searchMode.set(mode);
-    // store.set({ searchMode: mode })
-    localStorage.setItem('searchMode', mode);
+    localStorage.setItem('searchMode', mode); // override current search mode
+  } if (q || place) {
+    localStorage.removeItem('searchMode'); // reset saved state on links like ?q=abc or ?place=xyz   (where mode is not provided)
+  } else if (localStorage.getItem('searchMode')) { // if no query, place and mode passed in, we utilize searchMode from localstorage if present
+    searchMode.set(parseInt(localStorage.getItem('searchMode')));
   }
 
   // nodes
@@ -133,6 +114,12 @@
       Url.updateSearchParam('q'); // delete
     }
 
+    if (browsePlace) {
+      Url.updateSearchParam('place', browsePlace);
+    } else {
+      Url.updateSearchParam('place'); // delete
+    }
+
     if ($searchMode) {
       Url.updateSearchParam('mode', $searchMode);
     } else {
@@ -146,6 +133,20 @@
     }
   }
 
+  const firstMountAndConnect = concurrency.requireConditions(2, () => {
+    console.log('✓ FIRST STORE CONNECT after MOUNTING the APP ...');
+
+    if (browsePlace) {
+      _browsePlace(browsePlace);
+    } else {
+      triggerSearch({ force: true });
+    }
+  });
+
+  store.on('ready', () => {
+    firstMountAndConnect.oneConditionFulfilled();
+  });
+
   let searchInput;
 
   onMount(() => {
@@ -156,16 +157,50 @@
       }, 1000);
     }
 
-    setTimeout(() => {
-      // trigger initial search in case there were query parameters in url
-      //
-      triggerSearch({ force: true });
-    }, 100); // if it is not connected yet, it will retry !
+    firstMountAndConnect.oneConditionFulfilled();
   });
 
+  const searchOriginHost = window.location.host;
+
+  function searchMetadata() {
+    return { userIdentity, displayName, ethAddress, searchNodes, searchOriginHost }; // searchNode -- not yet implemented
+  }
+
+  appHelper.on('browse_place', place => {
+    searchQuery = null;
+    browsePlace = place;
+    updateBrowserQuery();
+
+    _browsePlace(place);
+  });
+
+  function _browsePlace(place) {
+    console.log(`Browse place: ${place}`);
+
+    const remoteObject = store.remoteObject('GUISearchObject');
+    const remoteMethod = 'browsePlace';
+
+    remoteObject
+      .call(remoteMethod, { place, searchMetadata: searchMetadata() })
+      .then(searchResults => {
+        console.log("browsePlace RESULTS:");
+        console.dir(searchResults);
+
+        store.set({ searchResults });
+      }).catch(e => {
+        store.set({ searchResults: { error: e } });
+      });
+  }
+
+  let searchTriggerTimeout;
+
   function searchInputChanged() {
-    console.log('searchInputChanged event received, triggering search ...');
-    triggerSearch({ userActivated: true });
+    clearTimeout(searchTriggerTimeout);
+
+    searchTriggerTimeout = setTimeout(() => {
+      console.log('searchInputChanged event received, triggering search ...');
+      triggerSearch({ userActivated: true });
+    }, searchQuery.trim() == '' ? 0 : 300); // clear search results immediately, otherwise 50ms delay
   }
 
   function placeSearch(query, { nodes = [], mode = undefined } = {}) {
@@ -182,6 +217,7 @@
   function triggerSearch({ force = false, userActivated = false } = {}) {
     // BECAUSE IT IS NOT ALWAYS BOUND !! (especially at first load) ... we read it manually ...
     searchQuery = document.getElementById('search_input').value;
+    browsePlace = null;
 
     // we have to do this because <svelte head> is static -- only on first load! -- (?)
     if (searchQuery) {
@@ -199,8 +235,6 @@
     const remoteObject = store.remoteObject('GUISearchObject');
     const remoteMethod = 'search';
 
-    const searchMetadata = { userIdentity, displayName, ethAddress, searchNodes }; // searchNode -- not yet implemented
-
     const searchStatusCallback = ({ searching, noHits }) => {
       isSearching = searching;
       noSearchHits = noHits;
@@ -212,33 +246,23 @@
       Url.updateSearchParam('error'); // delete
     }
 
-    if (connected) {
-      //console.log(`Sending search query: ${searchQuery}`);
-
-      if (searchQuery == null) {
-        console.log('Warning: null SEARCH QUERY !!! Should not hapen. There is a bug probably in GUI code');
-      }
-
-      updateBrowserQuery();
-
-      // TODO: implement searchNode functionality... and also show in GUI that this search was limited (filtered) to one paricular node
-      // show option to search All nodes. !!
-
-      executeSearch({ searchQuery, searchMode: $searchMode, remoteObject, remoteMethod, searchStatusCallback, searchDelay, force, searchMetadata }).then(searchResults => {
-        // console.log("SEARCH RESULTS:");
-        // console.log(searchResults);
-
-        store.set({ searchResults, searchQuery }); // searchQuery --> only used in search results to show "BANNER"
-      }).catch(e => {
-        store.set({ searchResults: { error: e } });
-      });
-    } else if (searchQuery) { // sometimes we get empry searchQuery on first page load (we don't have to report that because it's not a problem... but we should never allow the user to typo into the disconnected field)
-      // const error = new Error('Frontend wasn\'t yet connected ... FIX the code, dont send queries yet or then....');
-      // store.set({ searchResults: { error } });
-      setTimeout(() => {
-        triggerSearch();
-      }, 500); // OH YEA :) --> we need this for initial load when query parameters were read and search couldn't yet work because it was disconnected
+    if (searchQuery == null) {
+      console.log('Warning: null SEARCH QUERY !!! Should not hapen. There is a bug probably in GUI code');
     }
+
+    updateBrowserQuery();
+
+    executeSearch({ searchQuery, searchMode: $searchMode, remoteObject, remoteMethod, searchStatusCallback, searchDelay, force, searchMetadata: searchMetadata() }).then(searchResults => {
+      console.log("SEARCH RESULTS:");
+      console.dir(searchResults);
+
+      store.set({ searchResults, searchQuery }); // searchQuery --> only used in search results to show "BANNER"
+    }).catch(e => {
+      // console.log('SEARCH ERROR:');
+      // console.log(e);
+
+      store.set({ searchResults: { error: e } });
+    });
   }
 
   function goHome() {
@@ -269,54 +293,17 @@
   $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Search public network" : "Search this node");
 
   appHelper.on('search', doSearch);
-
-  // if (!isZetaSeek) {
-  //   setTimeout(() => {
-  //     if (deviceName) {
-  //       document.title = `${deviceName} - search`;
-  //     }
-  //   }, 800); // hackish!
-  // }
 </script>
 
-<!-- not useful, does not actually change as searchQuery changes after the initial load... not reactive -->
-<!-- we do it by setting document.title instead -->
-<!-- <svelte:head>
-    {#if searchQuery}
-      <title>ZetaSeek Engine · {searchQuery}</title>
-    {:else}
-      <title>ZetaSeek Engine</title>
-    {/if}
-</svelte:head> -->
-
-<!-- {#if isLocalhost && deviceName == 'eclipse'} -->
-
-<!-- {#if isLocalhost || loggedIn}
-  <MenuBar {connected} {loggedIn} {store} />
-{/if} -->
-
-<!-- {JSON.stringify(player)} -->
-
-<!-- <div class="images_preload">
-  <img src="/img/zeta_landscape_dark.jpg)">
-</div> -->
-
-<!-- {#if (isLocalhost && deviceName == 'eclipse') || isZetaSeek} -->
-<!-- {#if app.isLocalhost || loggedIn} -->
-
-<!-- <Route path="explorers" component="{ZetaExplorers}" /> -->
-
-{#if loggedIn}
-<!-- {#if isLocalhost || loggedIn} -->
+<!-- {#if loggedIn} -->
   <LeftBar {connected} {loggedIn} {isAdmin} {metamaskConnect} {displayName} {loginStore} {store} {searchQuery} {deviceName} />
-{/if}
+<!-- {/if} -->
 
 <About {isMobile} {searchQuery} {dmtVersion} />
 
 <main>
 
-  <!-- {#if !isLocalhost || (isLocalhost && deviceName == 'eclipse')} -->
-  {#if isZetaSeek}
+  {#if appHelper.nodeHasBlog}
     <Login {connected} {metamaskConnect} {ethAddress} {displayName} {isAdmin} />
   {/if}
 
@@ -326,19 +313,11 @@
 
   <div class="logo">
     <a href="#" on:click|preventDefault={() => { goHome(); }}>
-      <img src="/apps/zeta/img/zetaseek_logo.png?v=2" alt="zeta logo">
+      <img src="/apps/zeta/img/zetaseek_logo.svg?v=2" alt="zeta logo">
     </a>
   </div>
 
-  <!-- {#if pathname == 'swarm'} -->
-    <!-- <Swarm {swarm} /> -->
-  <!-- {/if} -->
-  <!-- <Router {routes} /> -->
-
-  <!-- <Swarm {swarm} /> -->
-
-  <!-- {isZetaSeek ? 'p2p node' : window.location.hostname} -->
-  <ConnectionStatus {connected} {controller} {isSearching} {deviceName} />
+  <ConnectionStatus {connected} {device} {isSearching} {deviceName} />
 
   <NodeTagline {connected} {searchResults} {displayName} {loggedIn} on:explorersClick="{explorersClick}" />
 
@@ -363,7 +342,7 @@
       </div>
     {/if}
 
-    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} hasPlayer={player && player.volume != undefined}  />
+    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} hasPlayer={player && player.volume != undefined} />
 
   </div>
 
@@ -404,42 +383,22 @@
     padding-top: 50px;
 	}
 
-  /*:global(a) {
-    color: white;
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    padding: 0 2px;
-  }
-
-  :global(a:visited) {
-    color: #F695FF;
-    color: white;
-  }
-
-  :global(a:hover) {
-    color: white;
-    background-color: #444;
-  }*/
-
   .logo {
     display: inline-block;
   }
 
+  /* sdfdsfdsfsd */
+
   .logo a {
     font-size: 1.0em;
-    /*color: var(--zeta-green);*/
     color: white;
-    /*font-family: FiraCode;*/
-    /*font-family: Avenir;*/
   }
 
   .logo:hover {
     opacity: 0.9;
-    /*cursor: pointer;*/
   }
 
   .logo img {
-    /*filter: invert(1);*/
     width: 200px;
     margin: 0 auto;
     margin-bottom: 5px;
@@ -464,7 +423,6 @@
     color: #222;
     outline: none;
     border-radius: 20px;
-    /*padding: 5px 5px;*/
     padding: 6px 8px;
   }
 
@@ -507,10 +465,6 @@
 
   .connection_status_help span {
     color: var(--zeta-green);
-  }
-
-  .zeta_title {
-    width: 20px;
   }
 
   @media only screen and (max-width: 768px) {

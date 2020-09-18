@@ -42,8 +42,8 @@ function init(program) {
   removeStaleNearbySensorsData(program);
   program.on('tick', () => removeStaleNearbySensorsData(program));
 
-  program.on('action', ({ action, storeName, payload }) => {
-    if (storeName == 'iot') {
+  program.on('dmt_gui_action', ({ action, namespace, payload }) => {
+    if (namespace == 'iot') {
       if (typeof payload != 'string') {
         payload = JSON.stringify(payload);
       }

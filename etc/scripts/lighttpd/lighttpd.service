@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStartPre=/usr/local/sbin/lighttpd -tt -f /etc/lighttpd/lighttpd.conf
-ExecStart=/usr/local/sbin/lighttpd -D -f /etc/lighttpd/lighttpd.conf
+ExecStartPre=/usr/sbin/lighttpd -tt -f /etc/lighttpd/lighttpd.conf
+ExecStart=/usr/sbin/lighttpd -D -f /etc/lighttpd/lighttpd.conf
 Restart=on-failure
 
 [Install]

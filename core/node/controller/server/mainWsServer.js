@@ -33,7 +33,7 @@ class WsServer {
       });
 
       this.server.on('protocol_added', ({ protocol, protocolLane }) => {
-        log.gray(`Setup new ws protocol ${colors.cyan(protocol)}/${colors.cyan(protocolLane)}`);
+        log.brightWhite(`💡 Connectome protocol ${colors.cyan(protocol)}/${colors.cyan(protocolLane)} ready.`);
       });
     } else {
       log.red('WsServer not started because default keypair was not found for this device.');

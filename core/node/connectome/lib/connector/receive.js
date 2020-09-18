@@ -16,6 +16,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     console.log(`Connector → Received message #${connector.receivedCount} @ ${connector.address}:`);
   }
 
+  // 💡 unencrypted jsonData !
   if (jsonData) {
     if (jsonData.jsonrpc) {
       if (isRpcCallResult(jsonData)) {
@@ -29,9 +30,10 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         connector.emit('json_rpc', rawMessage);
       }
     } else {
-      connector.emit('wire_receive', { jsonData, rawMessage });
+      connector.emit('receive', { jsonData, rawMessage });
     }
   } else if (encryptedData) {
+    // 💡 encryptedJson data!!
     if (connector.verbose == 'extra') {
       console.log('Received bytes:');
       console.log(encryptedData);
@@ -49,6 +51,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
       try {
         const jsonData = JSON.parse(decodedMessage);
 
+        // 💡 rpc
         if (jsonData.jsonrpc) {
           if (connector.verbose) {
             console.log('Received and decrypted rpc result:');
@@ -57,6 +60,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
 
           wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
         } else if (jsonData.tag) {
+          // 💡 tag
           const msg = jsonData;
 
           if (msg.tag == 'file_not_found') {
@@ -66,10 +70,16 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
           } else if (msg.tag == 'binary_end') {
             connector.emit(msg.tag, { sessionId: msg.sessionId });
           } else {
-            connector.emit('wire_receive', { jsonData, rawMessage: decodedMessage });
+            connector.emit('receive', { jsonData, rawMessage: decodedMessage });
           }
+        } else if (jsonData.state) {
+          // 💡 Initial state sending ... part of Connectome protocol
+          connector.emit('receive_state', jsonData.state);
+        } else if (jsonData.diff) {
+          // 💡 Subsequent JSON patch diffs (rfc6902)* ... part of Connectome protocol
+          connector.emit('receive_diff', jsonData.diff);
         } else {
-          connector.emit('wire_receive', { jsonData, rawMessage: decodedMessage });
+          connector.emit('receive', { jsonData, rawMessage: decodedMessage });
         }
       } catch (e) {
         console.log("Couldn't parse json message although the flag was for string ...");

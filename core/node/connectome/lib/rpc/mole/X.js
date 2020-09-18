@@ -60,10 +60,10 @@ class InvalidRequest extends Base {
 class ServerError extends Base {}
 
 class RequestTimeout extends ServerError {
-  constructor(message) {
+  constructor(message, timeout) {
     super({
       code: -32001,
-      message: `Request exceeded maximum execution time ${message}`
+      message: `Request exceeded maximum execution time (${timeout}ms): ${message}`
     });
   }
 }

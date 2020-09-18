@@ -38,6 +38,8 @@ class RemoteProviderSearch {
           return;
         }
 
+        this.providerKey = this.connector.remotePubkeyHex;
+
         this.connector
           .remoteObject('search')
           .call('search', { query: args })

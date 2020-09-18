@@ -5,7 +5,7 @@ import RemoteProviderSearch from './remoteSearch/remoteProviderSearch';
 
 import enhanceResult from './enhanceResult';
 
-const { log } = dmt;
+const { log, util } = dmt;
 
 class ZetaSearch {
   constructor({ fiberPool, contentProviders, searchOriginHost } = {}) {
@@ -17,9 +17,7 @@ class ZetaSearch {
     const remoteProviders = contentProviders.filter(provider => !provider.localhost);
     this.remoteProvidersCount = remoteProviders.length;
 
-    this.searchArray = localProviders.map(provider => {
-      return new LocalProviderSearch({ provider });
-    });
+    this.searchArray = localProviders.map(provider => new LocalProviderSearch({ provider }));
 
     remoteProviders.forEach(provider => {
       fiberPool
@@ -38,7 +36,7 @@ class ZetaSearch {
       return new Promise((success, reject) => {
         providerSearch
           .search(options)
-          .then(providerResponse => success({ providerResponse, providerAddress: providerSearch.providerAddress }))
+          .then(providerResponse => success({ providerResponse, providerAddress: providerSearch.providerAddress, providerKey: providerSearch.providerKey }))
           .catch(e => {
             console.log('This should not happen');
             log.red(e);
@@ -49,11 +47,13 @@ class ZetaSearch {
   }
 
   processResponses(allResponses) {
-    for (const { providerResponse, providerAddress, providerPort } of allResponses) {
+    for (const { providerResponse, providerAddress, providerPort, providerKey } of allResponses) {
       if (providerResponse.results) {
         providerResponse.results.forEach(result => {
-          enhanceResult({ result, providerAddress, providerPort, searchOriginHost: this.searchOriginHost });
+          enhanceResult({ result, providerAddress, providerPort, providerKey, searchOriginHost: this.searchOriginHost });
         });
+
+        providerResponse.results = providerResponse.results.sort(util.compareValues('directory', 'fileName'));
       }
     }
 
