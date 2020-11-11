@@ -125,7 +125,7 @@ if [ -z "$1" ]; then # install here
     printf "💡 Type ${GREEN}${UNDERLINE}dmt${NC} ${GRAY}[enter]${NC} to see the options${YELLOW}\n"
     printf "${GRAY}----------------------------------------${NC}\n"
     printf "To start ${CYAN}dmt-proc${NC} enter ${GREEN}${UNDERLINE}dmt start${NC} 🚀\n\n"
-    printf "⚠️  If ${GREEN}dmt${NC} commands don't work ${MAGENTA}open new terminal${GRAY} or ${CYAN}source ~/.dmt/shell/.loader ${GRAY}${NC}\n"
+    printf "⚠️  If ${GREEN}dmt${NC} commands don't work ${MAGENTA}open new terminal${GRAY} or ${GREEN}${UNDERLINE}source ~/.dmt/shell/.loader${RESET}${NC}\n"
 
     check_node_js_version
     echo

@@ -5,7 +5,7 @@ import { bufferToHex } from './lib/utils/index.js';
 import connect from './lib/connect/connectNode.js';
 import connectBrowser from './lib/connect/connectBrowser.js';
 
-import Server from './lib/server/server.js';
+import ConnectionsAcceptor from './lib/connectionsAcceptor/index.js';
 
 import FiberPool from './lib/fibers/fiberPool.js';
 import contentServer from './lib/fileTransport/contentServer/contentServer.js';
@@ -23,4 +23,4 @@ function newKeypair() {
   return { privateKey: keys.secretKey, publicKey: keys.publicKey, privateKeyHex, publicKeyHex };
 }
 
-export { connect, connectBrowser, FiberPool, Server, newKeypair, contentServer, fiberHandle, concurrency, stores };
+export { connect, connectBrowser, FiberPool, ConnectionsAcceptor, newKeypair, contentServer, fiberHandle, concurrency, stores };

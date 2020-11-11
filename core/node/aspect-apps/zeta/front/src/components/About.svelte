@@ -30,14 +30,14 @@
       <p>
         <a href="https://dmt-system.com"><img src="/apps/zeta/img/dmt_symbol.png" class="icon_symbol" /></a>
         <a href="https://zetaseek.com"><img src="/apps/zeta/img/zeta_symbol.png" class="icon_symbol" /></a>
-        <a href="https://github.com/uniqpath/dmt#we-are-now-ready-to-setup-the--zeta-explorer-node"><img src="/apps/zeta/img/tropical_fish.png" class="icon_symbol" /></a>
+        <!-- <a href="https://github.com/uniqpath/dmt#we-are-now-ready-to-setup-the--zeta-explorer-node"><img src="/apps/zeta/img/tropical_fish.png" class="icon_symbol" /></a> -->
 
 
         <!-- <b>Zeta</b> -->
         <!-- <span class="dash">/</span> -->
         <!-- <b><a href="https://dmt-system.com">DMT-SYSTEM</a></b> -->
         <span class="version">{displayVersion}</span> —
-        <a href="https://discord.gg/XvJzmtF"><img class="icon_symbol" src="/apps/zeta/img/discord.svg" /></a> (support)
+        <a href="https://discord.gg/XvJzmtF"><!-- <img class="icon_symbol" src="/apps/zeta/img/discord.svg" /> -->live support</a>
       </p>
 
     <!-- {:else}
@@ -67,7 +67,7 @@
 }
 
 .about {
-  width: 255px;
+  width: 230px;
   position: fixed;
   right: 0;
   bottom: 0;

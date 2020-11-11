@@ -13,19 +13,6 @@ function wsEndpoint({ program, backendStore, channel }) {
   channel.attachObject('GUIPlayerObject', new GUIPlayerObject({ program, channel }));
   channel.attachObject('GUIFrontendAcceptor', new GUIFrontendAcceptor({ program, backendStore, channel }));
 
-  channel.on('action', ({ action, namespace, payload }) => {
-    if (namespace == 'blog') {
-      if (action == 'visit') {
-        const { url, referrer } = payload;
-        if (referrer) {
-          push.notify(`Visit: ${url} via ${referrer}`);
-        } else {
-          push.notify(`Visit: ${url}`);
-        }
-      }
-    }
-  });
-
   const unsubscribe = backendStore.subscribe(state => {
     if (!channel.closed()) {
       channel.send({ state });

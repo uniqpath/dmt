@@ -19,7 +19,7 @@ import onProgramTick from './interval/onProgramTick';
 
 import Network from '../network';
 import Server from '../server/mainHttpServer';
-import WsServer from '../server/mainWsServer';
+import ProgramConnectionsAcceptor from '../server/programConnectionsAcceptor';
 
 import ensureDirectories from './boot/ensureDirectories';
 import getDeviceInfo from './boot/getDeviceInfo';
@@ -56,7 +56,7 @@ class Program extends EventEmitter {
 
     this.actors = new Actors(this);
 
-    this.wsServer = new WsServer(this);
+    this.connAcceptor = new ProgramConnectionsAcceptor(this);
 
     this.setupFiberPool();
 
@@ -67,8 +67,8 @@ class Program extends EventEmitter {
     }
 
     if (mids.includes('apps')) {
-      if (!this.wsServer.ok()) {
-        log.cyan(`Skipped ${colors.red('dmt/apps')} middleware because wsServer was not properly initialized`);
+      if (!this.connAcceptor.ok()) {
+        log.cyan(`Skipped ${colors.red('dmt/apps')} middleware because ProgramConnectionsAcceptor was not properly initialized`);
 
         loadMiddleware(
           this,
@@ -127,7 +127,7 @@ class Program extends EventEmitter {
   }
 
   addConnectomeEndpoint({ protocol, protocolLane, wsEndpoint }) {
-    return this.wsServer.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
+    return this.connAcceptor.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
   }
 
   setupFiberPool() {
@@ -163,7 +163,7 @@ class Program extends EventEmitter {
 
     initControllerActor(this);
 
-    this.wsServer.start();
+    this.connAcceptor.start();
 
     this.server.listen();
 

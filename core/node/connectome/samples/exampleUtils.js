@@ -10,7 +10,7 @@ function printClientInfo({ privateKeyHex, publicKeyHex }) {
 }
 
 function printServerInfo({ privateKeyHex, publicKeyHex }) {
-  console.log(colors.magenta('📡 wsServer (= connection acceptor) created 📡'));
+  console.log(colors.magenta('📡 connectionAcceptor created 📡'));
   console.log();
   console.log(colors.magenta('Generated server keypair:'));
   console.log(colors.cyan(`  — Private key: ${colors.gray(privateKeyHex)}`));

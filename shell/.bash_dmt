@@ -1157,6 +1157,7 @@ function dmt_next {
   local dry_run=false
   local save_zip=false
   local reflect_version=false
+  local force=false
 
   ARGS=()
   while (( "$#" )); do
@@ -1167,6 +1168,10 @@ function dmt_next {
         ;;
       --save-dmt-zip)
         save_zip=true
+        shift 1
+        ;;
+      --force)
+        force=true
         shift 1
         ;;
       --help)
@@ -1361,11 +1366,16 @@ function dmt_next {
 
     local localVersion=$(cat ~/.dmt/.version)
 
-    if [ "$localVersion" == "$remoteVersion" ]; then
+    if ! "$force" && [ "$localVersion" == "$remoteVersion" ]; then
       printf "${CYAN}Your version ${MAGENTA}${localVersion}${NC} ${CYAN}is current!${NC}\n"
       echo
       printf "${GREEN}No need to update 😊${NC}\n"
       return
+    fi
+
+    if $force; then
+      printf "${MAGENTA}--force flag: ${CYAN}update even if version has not officially changed but the code may still contain minor corrections${GRAY}${NC}\n"
+      echo
     fi
 
     printf "Current version : ${GRAY}${localVersion}${NC}\n"

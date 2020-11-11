@@ -42,7 +42,7 @@ function send({ data, connector }) {
       connector.connection.websocket.send(data);
     }
   } else {
-    console.log(`Warning: "${data}" was not sent because connector was not yet connected!`);
+    console.log(`⚠️ Warning: "${data}" was not sent because connector is not ready`);
   }
 }
 

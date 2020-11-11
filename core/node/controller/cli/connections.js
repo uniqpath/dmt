@@ -35,24 +35,16 @@ ipcClient({ actorName: 'device', action, payload })
     console.log(colors.magenta('  ··· ⚡ fiberState ···'));
     console.log(colors.brightWhite(`Open ${colors.cyan('dmt-proc')} connections:`));
     console.log();
-    console.log(
-      colors.brightWhite(`${colors.cyan('⚡ Slot1')} → ${colors.cyan('🌋')} Outgoing ${colors.cyan('p2p')} ${colors.gray('(connections to remote dmt-proc)')}`)
-    );
+    console.log(colors.brightWhite(`${colors.cyan('⚡ Slot1')} → ${colors.cyan('🌋')} ${colors.cyan('Outgoing')}`));
     displayTable(outgoing);
     console.log();
 
-    console.log(
-      colors.brightWhite(
-        `${colors.cyan('⚡ Slot2')} → ${colors.cyan('🪂')} Incoming ${colors.cyan('p2p')} ${colors.gray('(connections from remote dmt-proc)')}`
-      )
-    );
+    console.log(colors.brightWhite(`${colors.cyan('⚡ Slot2')} → ${colors.cyan('🪂')} Incoming`));
     displayTable(incomingOther, 'ip');
 
     console.log();
 
-    console.log(
-      colors.brightWhite(`⚡ ${colors.cyan('Slot3')} → ${colors.cyan('🖥️')}  Incoming ${colors.cyan('GUI')} ${colors.gray('(connections from web browsers)')}`)
-    );
+    console.log(colors.brightWhite(`⚡ ${colors.cyan('Slot3')} → ${colors.cyan('🖥️')}  Incoming GUI ${colors.gray('(usually from web browser)')}`));
     displayTable(incomingGui, 'ip');
 
     console.log();

@@ -7500,7 +7500,7 @@ var app = (function () {
     		c: function create() {
     			img = element("img");
     			if (img.src !== (img_src_value = "/apps/zeta/img/wabbit.png")) attr_dev(img, "src", img_src_value);
-    			attr_dev(img, "class", "wabbit svelte-ylwqnn");
+    			attr_dev(img, "class", "wabbit svelte-1a31mm");
     			add_location(img, file$1, 21, 4, 434);
     		},
     		m: function mount(target, anchor) {
@@ -7536,17 +7536,10 @@ var app = (function () {
     	let img1;
     	let img1_src_value;
     	let t4;
-    	let a3;
-    	let img2;
-    	let img2_src_value;
-    	let t5;
     	let span;
+    	let t5;
     	let t6;
-    	let t7;
-    	let a4;
-    	let img3;
-    	let img3_src_value;
-    	let t8;
+    	let a3;
     	let mounted;
     	let dispose;
     	let if_block = /*app*/ ctx[3].isDevMachine && create_if_block(ctx);
@@ -7566,47 +7559,34 @@ var app = (function () {
     			a2 = element("a");
     			img1 = element("img");
     			t4 = space();
-    			a3 = element("a");
-    			img2 = element("img");
-    			t5 = space();
     			span = element("span");
-    			t6 = text(/*displayVersion*/ ctx[2]);
-    			t7 = text(" —\n        ");
-    			a4 = element("a");
-    			img3 = element("img");
-    			t8 = text(" (support)");
+    			t5 = text(/*displayVersion*/ ctx[2]);
+    			t6 = text(" —\n        ");
+    			a3 = element("a");
+    			a3.textContent = "live support";
     			attr_dev(a0, "href", "#");
-    			attr_dev(a0, "class", "minimize svelte-ylwqnn");
+    			attr_dev(a0, "class", "minimize svelte-1a31mm");
     			add_location(a0, file$1, 26, 4, 566);
     			if (img0.src !== (img0_src_value = "/apps/zeta/img/dmt_symbol.png")) attr_dev(img0, "src", img0_src_value);
-    			attr_dev(img0, "class", "icon_symbol svelte-ylwqnn");
+    			attr_dev(img0, "class", "icon_symbol svelte-1a31mm");
     			add_location(img0, file$1, 30, 41, 715);
     			attr_dev(a1, "href", "https://dmt-system.com");
-    			attr_dev(a1, "class", "svelte-ylwqnn");
+    			attr_dev(a1, "class", "svelte-1a31mm");
     			add_location(a1, file$1, 30, 8, 682);
     			if (img1.src !== (img1_src_value = "/apps/zeta/img/zeta_symbol.png")) attr_dev(img1, "src", img1_src_value);
-    			attr_dev(img1, "class", "icon_symbol svelte-ylwqnn");
+    			attr_dev(img1, "class", "icon_symbol svelte-1a31mm");
     			add_location(img1, file$1, 31, 39, 822);
     			attr_dev(a2, "href", "https://zetaseek.com");
-    			attr_dev(a2, "class", "svelte-ylwqnn");
+    			attr_dev(a2, "class", "svelte-1a31mm");
     			add_location(a2, file$1, 31, 8, 791);
-    			if (img2.src !== (img2_src_value = "/apps/zeta/img/tropical_fish.png")) attr_dev(img2, "src", img2_src_value);
-    			attr_dev(img2, "class", "icon_symbol svelte-ylwqnn");
-    			add_location(img2, file$1, 32, 100, 991);
-    			attr_dev(a3, "href", "https://github.com/uniqpath/dmt#we-are-now-ready-to-setup-the--zeta-explorer-node");
-    			attr_dev(a3, "class", "svelte-ylwqnn");
-    			add_location(a3, file$1, 32, 8, 899);
-    			attr_dev(span, "class", "version svelte-ylwqnn");
-    			add_location(span, file$1, 38, 8, 1218);
-    			attr_dev(img3, "class", "icon_symbol svelte-ylwqnn");
-    			if (img3.src !== (img3_src_value = "/apps/zeta/img/discord.svg")) attr_dev(img3, "src", img3_src_value);
-    			add_location(img3, file$1, 39, 45, 1311);
-    			attr_dev(a4, "href", "https://discord.gg/XvJzmtF");
-    			attr_dev(a4, "class", "svelte-ylwqnn");
-    			add_location(a4, file$1, 39, 8, 1274);
-    			attr_dev(p, "class", "svelte-ylwqnn");
+    			attr_dev(span, "class", "version svelte-1a31mm");
+    			add_location(span, file$1, 38, 8, 1227);
+    			attr_dev(a3, "href", "https://discord.gg/XvJzmtF");
+    			attr_dev(a3, "class", "svelte-1a31mm");
+    			add_location(a3, file$1, 39, 8, 1283);
+    			attr_dev(p, "class", "svelte-1a31mm");
     			add_location(p, file$1, 29, 6, 670);
-    			attr_dev(div, "class", "about svelte-ylwqnn");
+    			attr_dev(div, "class", "about svelte-1a31mm");
     			toggle_class(div, "visible", !/*minimized*/ ctx[1] && !/*searchQuery*/ ctx[0]);
     			add_location(div, file$1, 24, 2, 498);
     		},
@@ -7626,15 +7606,10 @@ var app = (function () {
     			append_dev(p, a2);
     			append_dev(a2, img1);
     			append_dev(p, t4);
-    			append_dev(p, a3);
-    			append_dev(a3, img2);
-    			append_dev(p, t5);
     			append_dev(p, span);
-    			append_dev(span, t6);
-    			append_dev(p, t7);
-    			append_dev(p, a4);
-    			append_dev(a4, img3);
-    			append_dev(p, t8);
+    			append_dev(span, t5);
+    			append_dev(p, t6);
+    			append_dev(p, a3);
 
     			if (!mounted) {
     				dispose = listen_dev(a0, "click", /*click_handler*/ ctx[7], false, false, false);
@@ -7642,7 +7617,7 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*displayVersion*/ 4) set_data_dev(t6, /*displayVersion*/ ctx[2]);
+    			if (dirty & /*displayVersion*/ 4) set_data_dev(t5, /*displayVersion*/ ctx[2]);
 
     			if (dirty & /*minimized, searchQuery*/ 3) {
     				toggle_class(div, "visible", !/*minimized*/ ctx[1] && !/*searchQuery*/ ctx[0]);

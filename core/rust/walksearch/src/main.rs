@@ -7,9 +7,13 @@ use walkdir::WalkDir;
 use regex::Regex;
 use colored::*;
 
+use std::process;
 use std::env;
 use std::fs::File;
+use std::fs::metadata;
 use std::io::{BufRead, BufReader, Result};
+
+use std::path::{Path, PathBuf};
 
 fn create_regex(re: &str) -> Regex {
   Regex::new(&format!("(?i){}", re)).unwrap()
@@ -36,10 +40,12 @@ fn escape(x: &str) -> String {
 fn regex_helper(x: &str) -> String {
   if x.starts_with("@media=") {
     match x.replace("@media=", "").as_ref() {
-      "music" => format!("(?P<match>\\.(mp3|m4a|flac|ogg))$"), 
+      // warning: keep in sync with dmt-meta/.../detectMediaType.js
+      "music" => format!("(?P<match>\\.(mp3|m4a|flac|ogg))$"), // warning: m4a can also be video (?)
       "video" => format!("(?P<match>\\.(mp4|mkv|avi|webm))$"),
-      "photo" => format!("(?P<match>\\.(png|jpg|jpeg|gif|tiff))$"),
-      _ => "".to_string() 
+      "photo" => format!("(?P<match>\\.(png|jpg|jpeg|gif|tiff|svg))$"),
+      "pdf" => format!("(?P<match>\\.(pdf))$"),
+      _ => panic!("Unknown media format: {:?}", x) // if unrecognized format is passed, we match everything ...
     }
   } else {
     match x.chars().next().unwrap() {
@@ -109,6 +115,20 @@ fn main() -> Result<()> {
       args.remove(0);
     }
 
+    let mut onlyFiles = false;
+
+    if args.len() > 0 && args[0] == "--only-files" {
+      onlyFiles = true;
+      args.remove(0);
+    }
+
+    let mut searchAbsolutePath = false;
+
+    if args.len() > 0 && args[0] == "--search-absolute-path" {
+      searchAbsolutePath = true;
+      args.remove(0);
+    }
+
     let terms = &mut args;
 
     terms.sort();
@@ -135,16 +155,55 @@ fn main() -> Result<()> {
       },
 
       None => {
+        let mut cur_dir = env::current_dir().unwrap();
+
+        //let cwd = env::current_dir()?;
         for entry in WalkDir::new(".") {
+
             let entry = entry.unwrap();
-            let line = entry.path().display().to_string();
-            if let Some(result) = line_matches(line, color, &regs, &neg_regs, &temp_re) {
-                let mut cur_dir = env::current_dir().unwrap();
-                if color {
-                  println!("{}{}", format!("{}/", cur_dir.to_str().unwrap().black().bold()), Regex::new("^\\./").unwrap().replace(&result, ""));
-                } else {
-                  println!("{}{}", format!("{}/", cur_dir.display()), Regex::new("^\\./").unwrap().replace(&result, ""));
+            let mut line;
+
+            //let line = format!("{}{}/", cur_dir.display(), Regex::new("^\\./").unwrap().replace(&entry.path().display().to_string(), ""));
+
+            if searchAbsolutePath {
+              let relative_path = format!("{}", Regex::new("^\\./").unwrap().replace(&entry.path().display().to_string(), ""));
+              line = Path::new(cur_dir.to_str().unwrap()).join(relative_path).display().to_string();
+            } else {
+              line = entry.path().display().to_string();
+            }
+            // let absolute_path = Path::new(cur_dir.to_str().unwrap()).join(Regex::new("^\\./").unwrap().replace(entry.path(), ""));
+
+            //println!("LINE -- {}", line.to_str().unwrap());
+
+            // todo: try catch on this line to detect broken symlinks !! -- ignore these entries !! ...
+            // let md = metadata(&line).unwrap();
+
+            let md = metadata(&line);
+
+            let md = match md {
+                Ok(handle) => handle,
+                Err(error) => {
+                  //panic!("Problem opening the file: {:?} -- {}", error, line)
+                  eprintln!("Problem opening the file (symlink?): {}", line.red().bold());
+                  //process::exit(1);
+                  continue;
+                },
+            };
+
+            if !onlyFiles || !md.is_dir() {
+
+                if let Some(result) = line_matches(line, color, &regs, &neg_regs, &temp_re) {
+                    if searchAbsolutePath {
+                        println!("{}", &result);
+                    } else {
+                        if color {
+                            println!("{}{}", format!("{}/", cur_dir.to_str().unwrap().black().bold()), Regex::new("^\\./").unwrap().replace(&result, ""));
+                        } else {
+                            println!("{}{}", format!("{}/", cur_dir.display()), Regex::new("^\\./").unwrap().replace(&result, ""));
+                        }
+                    }
                 }
+
             }
         }
       }
