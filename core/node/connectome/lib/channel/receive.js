@@ -8,7 +8,7 @@ function messageReceived({ message, channel }) {
   const nonce = new Uint8Array(integerToByteArray(2 * channel.receivedCount, 24));
 
   if (channel.verbose) {
-    console.log(`Channel → Received message #${channel.receivedCount} @ ${channel.remoteIp()}:`);
+    console.log(`Channel → Received message #${channel.receivedCount} @ ${channel.remoteAddress()}:`);
   }
 
   if (channel.sharedSecret) {

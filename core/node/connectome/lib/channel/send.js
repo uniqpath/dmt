@@ -14,9 +14,9 @@ function send({ message, channel }) {
 
   if (channel.verbose) {
     if (channel.sharedSecret) {
-      console.log(`Channel → Sending encrypted message #${channel.sentCount} @ ${channel.remoteIp()}:`);
+      console.log(`Channel → Sending encrypted message #${channel.sentCount} @ ${channel.remoteAddress()}:`);
     } else {
-      console.log(`Channel → Sending message #${channel.sentCount} @ ${channel.remoteIp()}:`);
+      console.log(`Channel → Sending message #${channel.sentCount} @ ${channel.remoteAddress()}:`);
     }
 
     console.log(message);

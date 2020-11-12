@@ -20,6 +20,6 @@ ipcClient({ actorName: 'device', action, payload })
     process.exit();
   })
   .catch(e => {
-    console.log(colors.red(e.message));
+    console.log(colors.red(e));
     process.exit();
   });

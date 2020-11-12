@@ -65,16 +65,13 @@ function connectionsHandler({ args, program }) {
   return new Promise((success, reject) => {
     const incoming = program.connAcceptor.connectionList();
 
-    const incomingGui = incoming.filter(({ protocolLane }) => protocolLane == 'gui');
-    const incomingOther = incoming.filter(({ protocolLane }) => protocolLane != 'gui');
-
     const { fiberPool } = program;
 
     const outgoing = Object.entries(fiberPool.connectors).map(([address, conn]) => {
-      return { address, remotePubkeyHex: conn.remotePubkeyHex, protocol: conn.protocol, protocolLane: conn.protocolLane };
+      return { address, remotePubkeyHex: conn.remotePubkeyHex, protocol: conn.protocol, protocolLane: conn.protocolLane, ready: conn.isReady() };
     });
 
-    success({ incomingGui, incomingOther, outgoing });
+    success({ incoming, outgoing });
   });
 }
 

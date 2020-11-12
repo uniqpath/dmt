@@ -9,6 +9,7 @@ import naclutil from 'tweetnacl-util';
 
 import util from './lib/util';
 import scan from './lib/scan';
+import Table from './lib/table';
 import stopwatch from './lib/timeutils/stopwatch';
 import stopwatchAdv from './lib/timeutils/stopwatchAdv';
 import prettyMicroTime from './lib/timeutils/prettyMicroTime';
@@ -78,6 +79,7 @@ export default {
   log,
   util,
   scan,
+  Table,
   nacl,
   xstate,
   quantum,

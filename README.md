@@ -1,4 +1,4 @@
-<img src="help/img/dmt_banner.png">
+<img src="help/img/dmt_banner.jpg">
 
 Updated readme coming soon.
 

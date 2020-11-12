@@ -1,9 +1,10 @@
 import colors from 'colors';
 import { ipcClient } from 'dmt/cli';
+import kindOf from 'kind-of';
 
 import dmt from 'dmt/bridge';
 
-import Table from 'cli-table2';
+const { Table } = dmt;
 
 const table = new Table({
   chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' }
@@ -16,31 +17,19 @@ const args = process.argv.slice(2);
 const action = 'state';
 const slotName = args.join('');
 
-function getType(el) {
-  if (Array.isArray(el)) {
-    return 'array';
-  }
+function displayType(value) {
+  const renderType = {
+    array: '[…]',
+    object: '{…}',
+    string: 'str',
+    number: 'num'
+  };
 
-  return typeof el;
+  return renderType[kindOf(value)];
 }
 
-function displayType(el) {
-  switch (getType(el)) {
-    case 'array':
-      return '[…]';
-    case 'object':
-      return '{…}';
-    case 'string':
-      return 'str';
-    case 'number':
-      return 'num';
-    default:
-      break;
-  }
-}
-
-function numElements(el) {
-  const type = getType(el);
+function numElements(value) {
+  const type = kindOf(value);
 
   if (type == 'string' || type == 'number') {
     return colors.gray('/');
@@ -48,10 +37,10 @@ function numElements(el) {
 
   let len = 0;
 
-  if (Array.isArray(el)) {
-    len = el.length;
+  if (Array.isArray(value)) {
+    len = value.length;
   } else {
-    len = Object.keys(el).length;
+    len = Object.keys(value).length;
   }
 
   return len > 0 ? len : colors.gray(len);
@@ -94,6 +83,6 @@ ipcClient({ actorName: 'device', action })
     process.exit();
   })
   .catch(e => {
-    console.log(colors.red(e.message));
+    console.log(colors.red(e));
     process.exit();
   });
