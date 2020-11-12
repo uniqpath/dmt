@@ -140,7 +140,7 @@ class Connector extends EventEmitter {
     return this.remotePubkeyHex;
   }
 
-  remoteIp() {
+  remoteAddress() {
     return this.address;
   }
 }

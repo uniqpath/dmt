@@ -1,5 +1,5 @@
 import colors from 'colors';
-import { ipcClient } from 'dmt/cli';
+import { ipcClient, parseArgs, Table } from 'dmt/cli';
 
 import dmt from 'dmt/bridge';
 const { compareValues, normalizeMac } = dmt.util;
@@ -7,7 +7,12 @@ const { compareValues, normalizeMac } = dmt.util;
 import fs from 'fs';
 import path from 'path';
 
-import Table from 'cli-table2';
+const args = parseArgs(process.argv.slice(2));
+
+if (args.error) {
+  console.log('Error in arguments, please use --help');
+  process.exit();
+}
 
 const table = new Table({
   chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' }
@@ -15,13 +20,7 @@ const table = new Table({
 
 const headers = ['device', 'dmtVersion', 'local ip', 'platform', 'uptime', 'user', 'apssid', 'deviceKey'];
 
-const args = process.argv.slice(2);
-
-const simple = args.length == 1 && args[0] == '--simple';
-const full = args.length == 1 && args[0] == '--full';
-
 const action = 'nearby';
-const payload = args.slice(1).join(' ');
 
 let deviceMaps;
 
@@ -113,20 +112,15 @@ function displayDmtVersion(thisDmtVersion, dmtVersion, thisDevice) {
   return colors.cyan(`${thisDevice ? '✓' : '≡'} ${dmtVersion}`);
 }
 
-ipcClient({ actorName: 'device', action, payload })
+ipcClient({ actorName: 'device', action })
   .then(_nearbyDevices => {
-    if (full) {
-      console.log(_nearbyDevices);
-      process.exit();
-    }
-
     table.push(headers.map(h => colors.yellow(h)));
 
     const nearbyDevices = _nearbyDevices.filter(({ stale }) => !stale).sort(compareValues('deviceName'));
 
     const thisDeviceData = nearbyDevices.find(({ thisDevice }) => thisDevice);
 
-    if (simple) {
+    if (args.simple) {
       for (const { deviceName, username, ip } of nearbyDevices.filter(({ thisDevice }) => !thisDevice)) {
         console.log(`${deviceName}; ${username}@${ip}`);
       }
@@ -143,7 +137,7 @@ ipcClient({ actorName: 'device', action, payload })
             colors.green(uptime),
             colors.gray(username),
             apssid ? colors.magenta(identifyDeviceByMac(apssid)) : colors.gray('/'),
-            colors.gray(`${deviceKey.substr(0, 8)} …`)
+            colors.gray(args.full ? deviceKey : `${deviceKey.substr(0, 8)} …`)
           ];
         })
       );
@@ -154,6 +148,6 @@ ipcClient({ actorName: 'device', action, payload })
     process.exit();
   })
   .catch(e => {
-    console.log(colors.red(e.message));
+    console.log(colors.red(e));
     process.exit();
   });

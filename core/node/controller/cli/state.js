@@ -1,9 +1,13 @@
 import colors from 'colors';
-import { ipcClient } from 'dmt/cli';
+import { ipcClient, parseArgs, Table } from 'dmt/cli';
+import kindOf from 'kind-of';
 
-import dmt from 'dmt/bridge';
+const args = parseArgs(process.argv.slice(2));
 
-import Table from 'cli-table2';
+if (args.error) {
+  console.log('Error in arguments, please use --help');
+  process.exit();
+}
 
 const table = new Table({
   chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' }
@@ -11,36 +15,22 @@ const table = new Table({
 
 const headers = ['slot', 'elements'];
 
-const args = process.argv.slice(2);
-
 const action = 'state';
-const slotName = args.join('');
+const slotName = args.slot;
 
-function getType(el) {
-  if (Array.isArray(el)) {
-    return 'array';
-  }
+function displayType(value) {
+  const renderType = {
+    array: '[…]',
+    object: '{…}',
+    string: 'str',
+    number: 'num'
+  };
 
-  return typeof el;
+  return renderType[kindOf(value)];
 }
 
-function displayType(el) {
-  switch (getType(el)) {
-    case 'array':
-      return '[…]';
-    case 'object':
-      return '{…}';
-    case 'string':
-      return 'str';
-    case 'number':
-      return 'num';
-    default:
-      break;
-  }
-}
-
-function numElements(el) {
-  const type = getType(el);
+function numElements(value) {
+  const type = kindOf(value);
 
   if (type == 'string' || type == 'number') {
     return colors.gray('/');
@@ -48,10 +38,10 @@ function numElements(el) {
 
   let len = 0;
 
-  if (Array.isArray(el)) {
-    len = el.length;
+  if (Array.isArray(value)) {
+    len = value.length;
   } else {
-    len = Object.keys(el).length;
+    len = Object.keys(value).length;
   }
 
   return len > 0 ? len : colors.gray(len);
@@ -79,21 +69,15 @@ ipcClient({ actorName: 'device', action })
           })
       );
 
-      const uptime = dmt.prettyMacroTime(state.device.bootedAt).replace(' ago', '');
-
       console.log(table.toString());
-      console.log();
-      console.log(
-        `🌀 ${colors.cyan('DMT')} announced ${colors.magenta(`${stateChangesCount} state changes`)} in ${colors.brightWhite(uptime)} since process restart.`
-      );
 
       console.log();
-      console.log(`💡 Use ${colors.green('dmt state [slot]')} to see the slot content.`);
+      console.log(`💡 Use ${colors.green('dmt state --slot [slotName]')} to see the slot content.`);
     }
 
     process.exit();
   })
   .catch(e => {
-    console.log(colors.red(e.message));
+    console.log(colors.red(e));
     process.exit();
   });

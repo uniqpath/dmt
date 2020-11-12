@@ -1,6 +1,6 @@
 import colors from 'colors';
 
-import Table from 'cli-table2';
+import { Table } from 'dmt/cli';
 
 function colorizeDevice(device) {
   return text => (device.name ? colors.white(text) : colors.gray(text));

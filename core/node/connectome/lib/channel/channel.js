@@ -35,8 +35,12 @@ class Channel extends EventEmitter {
     this.sharedSecret = sharedSecret;
   }
 
+  remoteAddress() {
+    return this._remoteAddress;
+  }
+
   remoteIp() {
-    return this.ws.remoteIp;
+    return this._remoteIp;
   }
 
   setRemotePubkey(remotePubkeyHex) {

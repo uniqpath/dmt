@@ -2,6 +2,7 @@ import WebSocket from 'ws';
 
 import { EventEmitter } from '../utils/index.js';
 
+import getRemoteHost from '../channel/getRemoteHost.js';
 import getRemoteIp from '../channel/getRemoteIp.js';
 import Channel from '../channel/channel.js';
 
@@ -46,9 +47,12 @@ class WsServer extends EventEmitter {
 
   continueSetup({ verbose }) {
     this.wss.on('connection', (ws, req) => {
-      ws.remoteIp = getRemoteIp(req);
-
       const channel = new Channel(ws, { verbose });
+
+      channel._remoteIp = getRemoteIp(req);
+      channel._remoteAddress = getRemoteHost(req) || channel._remoteIp;
+
+      ws._connectomeChannel = channel;
 
       channel.on('channel_closed', () => {
         this.emit('connection_closed', channel);
@@ -87,7 +91,8 @@ class WsServer extends EventEmitter {
 
     this.wss.clients.forEach(ws => {
       list.push({
-        ip: ws.remoteIp,
+        ip: ws._connectomeChannel.remoteIp(),
+        address: ws._connectomeChannel.remoteAddress(),
         readyState: ws.readyState,
         protocol: ws.protocol,
         protocolLane: ws.protocolLane
