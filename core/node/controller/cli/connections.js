@@ -40,7 +40,7 @@ function displayTable(connectionList, outgoing = true) {
     let prevLane;
 
     connectionList.forEach(({ address, protocol, protocolLane, ready, connectedAt, lastMessageAt, remotePubkeyHex }) => {
-      const deviceKey = args.full ? remotePubkeyHex : `${remotePubkeyHex.substr(0, 8)}…`;
+      const deviceKey = args.full ? remotePubkeyHex : `${remotePubkeyHex ? remotePubkeyHex.substr(0, 8) : '?'}…`;
 
       let connectedMarker = colors.green('✓ ');
 
