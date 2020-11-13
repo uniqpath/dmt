@@ -1,3 +1,1 @@
-class Divider {}
-
-export default Divider;
+export default class Divider {}
