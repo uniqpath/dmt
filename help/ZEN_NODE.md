@@ -1,10 +1,4 @@
-<img src="img/dmt_banner.jpg">
-
 <img src="img/ZEN.png">
-
-<p align="center"><b>Imagine having a Private Search Node 🌐</b></p>
-
-<img src="img/zeta_explorers.jpg">
 
 # 1️⃣ **Setup the ZETA EXPLORER NODE** {⏱️10 min}
 
@@ -102,3 +96,9 @@ For any support questions please [Join our Discord server](https://discord.com/i
 You can also use hello@uniqpath.com email to contact your decentralized tech support 🤓.
 
 🐠 **Happy explorations!**
+
+## Visit the DMT Website to always learn more
+
+[dmt-system.com](https://dmt-system.com) 💡🚀🎸 (built with **[Svelte](https://svelte.dev) + [Connectome](https://github.com/uniqpath/connectome)**)
+
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt_research_space.jpg?raw=true">
