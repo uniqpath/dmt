@@ -1,6 +1,6 @@
+import Table from 'dmt-table';
 import ipcClient from './lib/ipcClient';
 
-import Table from './table';
 import colorJSON from './lib/colorJSON';
 
 import resultsFormatter from './lib/resultsFormatter';
