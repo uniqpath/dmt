@@ -13,7 +13,8 @@ if (args.error) {
 if (args.help == true) {
   console.log(colors.yellow('💡 HELP'));
   console.log();
-  console.log(`${colors.green('dmt connections --full')} see more info`);
+  console.log(colors.gray(`${colors.green('dmt connections --full')} show more info (connection uptime, full deviceKey)`));
+  console.log(colors.gray(`${colors.green('dmt connections --raw')} show raw json output`));
   process.exit();
 }
 
@@ -49,8 +50,8 @@ function displayTable(connectionList, outgoing = true) {
 
       const addressLine = `${connectedMarker}${colors.white(address)}`;
 
-      const connUptime = dmt.prettyTimeAge(connectedAt).replace(' ago', '');
-      const lastMessageTime = dmt.prettyTimeAge(lastMessageAt);
+      const connUptime = dmt.prettyTimeAge(connectedAt, { detailed: true }).replace(' ago', '');
+      const lastMessageTime = dmt.prettyTimeAge(lastMessageAt, { detailed: true });
 
       const line = [addressLine, protocol, protocolLane];
 
@@ -81,11 +82,22 @@ ipcClient({ actorName: 'device', action })
     console.log(colors.brightWhite(`Open ${colors.cyan('dmt-proc')} ⚡ connections:`));
     console.log();
     console.log(colors.brightWhite(`${colors.cyan('🔺')} Outgoing`));
-    displayTable(outgoing);
+    if (args.raw) {
+      console.log(outgoing);
+    } else {
+      displayTable(outgoing);
+    }
     console.log();
 
     console.log(colors.brightWhite(`${colors.cyan('🔻')} Incoming`));
-    displayTable(incoming, false);
+    if (args.raw) {
+      console.log(incoming);
+    } else {
+      displayTable(incoming, false);
+    }
+
+    console.log();
+    console.log(colors.gray(`💡 See ${colors.green('dmt connections --help')} for more options`));
 
     process.exit();
   })

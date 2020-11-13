@@ -7,11 +7,7 @@ import handleErrorFromGui from './helpers/handleErrorFromGui';
 import PlayerRemoteTarget from './objects/player';
 import LegacyActionHandler from './objects/legacyActionHandler--brisi-after-svelte2';
 
-function wsEndpointWrap({ program }) {
-  return ({ channel }) => wsEndpoint({ program, channel });
-}
-
-function wsEndpoint({ program, channel }) {
+function onConnect({ program, channel }) {
   channel.attachObject('player', new PlayerRemoteTarget({ program }));
   channel.attachObject('gui', new LegacyActionHandler({ program }));
 
@@ -57,4 +53,4 @@ function loadInitialView(channel) {
   }
 }
 
-export default wsEndpointWrap;
+export default onConnect;

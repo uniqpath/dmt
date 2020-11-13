@@ -29,7 +29,6 @@ import loadMiddleware from './boot/loadMiddleware';
 
 import generateKeypair from './generateKeypair';
 import ipcServer from './ipcServer/ipcServer';
-import wsEndpoint from './wsEndpoint/wsEndpoint';
 import loadUserProtocols from './userProtocols/loadUserProtocols';
 
 class Program extends EventEmitter {
@@ -57,7 +56,7 @@ class Program extends EventEmitter {
 
     this.actors = new Actors(this);
 
-    this.connAcceptor = new ProgramConnectionsAcceptor(this);
+    this.acceptor = new ProgramConnectionsAcceptor(this);
 
     this.setupFiberPool();
 
@@ -70,7 +69,7 @@ class Program extends EventEmitter {
     loadUserProtocols(this);
 
     if (mids.includes('apps')) {
-      if (!this.connAcceptor.ok()) {
+      if (!this.acceptor.ok()) {
         log.cyan(`Skipped ${colors.red('dmt/apps')} middleware because ProgramConnectionsAcceptor was not properly initialized`);
 
         loadMiddleware(
@@ -129,8 +128,9 @@ class Program extends EventEmitter {
     return this.actors.get(name);
   }
 
-  addConnectomeEndpoint({ protocol, protocolLane, wsEndpoint }) {
-    return this.connAcceptor.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
+  registerProtocol({ protocol, protocolLane, onConnect }) {
+    const onConnectWrap = ({ channel }) => onConnect({ program: this, channel });
+    return this.acceptor.addWsEndpoint({ protocol, protocolLane, wsEndpoint: onConnectWrap });
   }
 
   setupFiberPool() {
@@ -138,7 +138,8 @@ class Program extends EventEmitter {
     const protocol = 'dmt';
     const protocolLane = 'fiber';
 
-    this.addConnectomeEndpoint({ protocol, protocolLane, wsEndpoint: wsEndpoint({ program: this, actors: this.actors }) });
+    const onConnect = ({ program, channel }) => program.actors.setupChannel(channel);
+    this.registerProtocol({ protocol, protocolLane, onConnect });
 
     const keypair = dmt.keypair();
     if (!keypair) {
@@ -166,7 +167,7 @@ class Program extends EventEmitter {
 
     initControllerActor(this);
 
-    this.connAcceptor.start();
+    this.acceptor.start();
 
     this.server.listen();
 

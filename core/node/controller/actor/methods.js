@@ -63,7 +63,7 @@ function logHandler({ args }) {
 
 function connectionsHandler({ args, program }) {
   return new Promise((success, reject) => {
-    const incoming = program.connAcceptor.connectionList();
+    const incoming = program.acceptor.connectionList();
 
     const { fiberPool } = program;
 

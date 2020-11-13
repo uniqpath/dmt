@@ -13,12 +13,14 @@ function loadUserProtocols(program) {
 
   if (fs.existsSync(userProtocolsDir)) {
     for (const dir of scan.dir(userProtocolsDir)) {
-      const setupFilePath = path.join(dir, 'setup.js');
+      if (!dir.endsWith('--disabled')) {
+        const setupFilePath = path.join(dir, 'setup.js');
 
-      if (fs.existsSync(setupFilePath)) {
-        loadProtocol({ program, setupFilePath });
-      } else {
-        log.red(`⚠️  User protocol setup file ${colors.yellow(setupFilePath)} does not exist. Please create it or remove this directory.`);
+        if (fs.existsSync(setupFilePath)) {
+          loadProtocol({ program, setupFilePath });
+        } else {
+          log.red(`⚠️  User protocol setup file ${colors.yellow(setupFilePath)} does not exist. Please create it or remove this directory.`);
+        }
       }
     }
   }

@@ -1,6 +1,6 @@
-import guiWsEndpointWrap from './endpoint';
+import onConnectWrap from './onConnect';
 
 export default function setup({ program, backendStore }) {
-  const wsEndpoint = guiWsEndpointWrap({ program, backendStore });
-  program.addConnectomeEndpoint({ protocol: 'zeta', protocolLane: 'gui', wsEndpoint });
+  const onConnect = onConnectWrap({ backendStore });
+  program.registerProtocol({ protocol: 'zeta', protocolLane: 'gui', onConnect });
 }

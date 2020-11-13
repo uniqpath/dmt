@@ -2,10 +2,10 @@ import dmt from '../../dmtHelper';
 
 const { formatDistanceToNow } = dmt.dateFns;
 
-function prettyTimeAge(referenceDate) {
+function prettyTimeAge(referenceDate, { detailed = false } = {}) {
   const diff = Math.round((Date.now() - referenceDate) / 1000);
 
-  if (diff < 60) {
+  if (detailed && diff < 60) {
     return `${diff}s ago`;
   }
 

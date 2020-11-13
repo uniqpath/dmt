@@ -8,14 +8,13 @@ const { log } = dmt;
 
 import loadGuiViewsDef from '../../../loadGuiViewsDef';
 
-import guiWsEndpointWrap from './endpoint';
+import onConnect from './onConnect';
 
 export default function setup({ program }) {
   loadGuiViewsDef(program);
 
   // 💡 hook program store actions (these are always received over appropriate gui protocol)
-  const wsEndpoint = guiWsEndpointWrap({ program });
-  const channelList = program.addConnectomeEndpoint({ protocol: 'dmt', protocolLane: 'gui', wsEndpoint });
+  const channelList = program.registerProtocol({ protocol: 'dmt', protocolLane: 'gui', onConnect });
 
   log.dev('⚠️  Reminder: remove this GUITarget after dmt gui moves to Svelte3');
 
