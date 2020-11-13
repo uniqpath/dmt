@@ -9,6 +9,8 @@ function isRpcCallResult(jsonData) {
 }
 
 function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connector }) {
+  connector.lastMessageAt = Date.now();
+
   const nonce = new Uint8Array(integerToByteArray(2 * connector.receivedCount + 1, 24));
 
   if (connector.verbose && !wasEncrypted) {

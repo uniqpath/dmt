@@ -1,6 +1,8 @@
 import colors from 'colors';
 import { ipcClient, parseArgs, Table } from 'dmt/cli';
 
+import dmt from 'dmt/bridge';
+
 const args = parseArgs(process.argv.slice(2));
 
 if (args.error) {
@@ -11,7 +13,7 @@ if (args.error) {
 if (args.help == true) {
   console.log(colors.yellow('💡 HELP'));
   console.log();
-  console.log(`${colors.green('dmt connections --full')} see full deviceKey`);
+  console.log(`${colors.green('dmt connections --full')} see more info`);
   process.exit();
 }
 
@@ -21,7 +23,13 @@ function displayTable(connectionList, outgoing = true) {
   if (connectionList.length > 0) {
     const table = new Table();
 
-    const headers = ['address', 'protocol', 'lane', 'remoteDeviceKey'];
+    const headers = ['address', 'protocol', 'lane'];
+
+    if (args.full) {
+      headers.push(...['conn uptime', 'last message']);
+    }
+
+    headers.push('remote deviceKey');
 
     table.push(headers.map(h => colors.cyan(h)));
 
@@ -30,7 +38,7 @@ function displayTable(connectionList, outgoing = true) {
     let prevProtocol;
     let prevLane;
 
-    connectionList.forEach(({ address, protocol, protocolLane, ready, remotePubkeyHex }) => {
+    connectionList.forEach(({ address, protocol, protocolLane, ready, connectedAt, lastMessageAt, remotePubkeyHex }) => {
       const deviceKey = args.full ? remotePubkeyHex : `${remotePubkeyHex.substr(0, 8)}…`;
 
       let connectedMarker = colors.green('✓ ');
@@ -41,7 +49,16 @@ function displayTable(connectionList, outgoing = true) {
 
       const addressLine = `${connectedMarker}${colors.white(address)}`;
 
-      const line = [addressLine, protocol, protocolLane, colors.gray(deviceKey)];
+      const connUptime = dmt.prettyTimeAge(connectedAt).replace(' ago', '');
+      const lastMessageTime = dmt.prettyTimeAge(lastMessageAt);
+
+      const line = [addressLine, protocol, protocolLane];
+
+      if (args.full) {
+        line.push(...[colors.gray(connUptime), colors.gray(lastMessageTime)]);
+      }
+
+      line.push(colors.gray(deviceKey));
 
       if ((prevProtocol && prevProtocol != protocol) || (prevLane && prevLane != protocolLane)) {
         table.push(Table.divider);

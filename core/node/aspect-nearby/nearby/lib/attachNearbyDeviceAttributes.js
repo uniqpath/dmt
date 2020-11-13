@@ -26,7 +26,7 @@ export default function attachNearbyDeviceAttributes({ program, msg }) {
 
   Object.assign(msg, program.state().device);
 
-  msg.uptime = dmt.prettyMacroTime(program.state().device.bootedAt).replace(' ago', '');
+  msg.uptime = dmt.prettyTimeAge(program.state().device.bootedAt).replace(' ago', '');
 
   msg.hasGui = program.hasGui();
 

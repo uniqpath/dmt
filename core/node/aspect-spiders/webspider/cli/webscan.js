@@ -108,7 +108,7 @@ function readLinks() {
             beforeNextBatchCallback,
             justOneBatch,
             afterAsyncResultsBatch: results => {
-              linkIndexInProgress.push(...results);
+              linkIndexInProgress.push(...results.filter(({ error }) => !error));
               writeLinkIndex(linkIndexInProgress);
               console.log(colors.white(`Current batch of ${num} links finished ${colors.green('✓')}`));
               console.log();
@@ -138,6 +138,8 @@ readLinks().then(({ successfulResults, unsuccessfulResults }) => {
     console.log(colors.red('Failed links (cannot fetch or cannot scrape metainfo):'));
     console.log(colors.red(JSON.stringify(unsuccessfulResults, null, 2)));
   }
+
+  process.exit();
 });
 
 console.log(`Written to ${indexFile}`);

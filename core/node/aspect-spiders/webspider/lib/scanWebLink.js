@@ -6,7 +6,13 @@ import colors from 'colors';
 
 import { latestLinkIndexVersion } from 'dmt/webindex';
 
+import { concurrency } from 'dmt/connectome';
+
+const { promiseTimeout } = concurrency;
+
 import getGitHubLink from './getGitHubLink';
+
+const readTitleTimeoutMs = 5000;
 
 export default function scanWebLink({ existingLinkIndex, url, context, hiddenContext, linkNote, filePath, githubLineNum }) {
   return new Promise((success, reject) => {
@@ -41,11 +47,11 @@ export default function scanWebLink({ existingLinkIndex, url, context, hiddenCon
             console.log('UNHANDLED ERROR YT SCRAPE:');
             console.log(colors.red(e));
             console.log(url);
-            process.exit();
+            success({ error: e.message, url });
           }
         } else {
           try {
-            readTitle(url)
+            promiseTimeout(readTitleTimeoutMs, readTitle(url))
               .then(title => {
                 console.log(colors.gray(`Received title ${colors.cyan(title)} for ${colors.white(url)}`));
                 if (title.startsWith(context) || title.endsWith(context)) {
@@ -59,8 +65,8 @@ export default function scanWebLink({ existingLinkIndex, url, context, hiddenCon
                 success({ ...data, ...{ title, context } });
               })
               .catch(e => {
-                console.log(e);
-                reject(e);
+                console.log(colors.red(`readTitle ${url} - ${e.message}`));
+                success({ error: e.message, url });
               });
           } catch (e) {
             console.log('UNHANDLED ERROR:');

@@ -1,6 +1,6 @@
 <img src="help/img/dmt_banner.jpg">
 
-## Try DMT locally
+## Try DMT on you computer
 
 Clone the repo:
 ```
@@ -16,6 +16,8 @@ node --experimental-modules --experimental-specifier-resolution=node --unhandled
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-run.png?raw=true">
 
 # Prerequisites:
+
+**Linux** (Debian, Raspbian etc.) / **macOS** / **Windows 10 Ubuntu shell**:
 
 `node.js >= 14.0.0`
 
@@ -74,6 +76,35 @@ See incoming and outgoing `fiber connections` (try opening `http://localhost:777
 ```
 dmt connections
 ```
+
+## Alternative dmtSource
+
+There is an equivalent version available from [get-dmt.com](http://get-dmt.com) (one line install `curl get-dmt.com | bash`).
+
+### Updating
+
+If you installed from github, you can just `git pull` to get the new version.
+
+If you ran `./install` and you have `dmt` command available, then you can use `dmt next` to get the next relase (from github as well as get-dmt.com).
+
+```bash
+$ dmt next
+
+dmtSource: get-dmt.com
+
+Current version : 1.1.91 · 2020-11-06
+Next version    : 1.1.94 · 2020-11-13
+
+Do you want to update? …
+```
+
+## DMT on server
+
+Please reach out for instructions (join a meetup via dmt-system.com or write on Discord support).
+
+Server setup instructions are easy as well but some guidance can only help.
+
+When done, you can run a [node like this](https://zetaseek.com) which is always connected to all your other devices and also to your friends (from past and some hopefully **'from future'**).
 
 ## Visit the Website to always learn more
 

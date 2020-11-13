@@ -3,7 +3,7 @@ import fs from 'fs';
 import { settings } from 'dmt/search';
 
 import dmt from 'dmt/bridge';
-const { prettyFileSize, prettyMacroTime, log, util } = dmt;
+const { prettyFileSize, prettyTimeAge, log, util } = dmt;
 
 import pathModule from 'path';
 
@@ -53,7 +53,7 @@ function searchOnePath({ path, terms, page, maxResults, mediaType }) {
               fileSize,
               fileSizePretty: prettyFileSize(fileSize),
               fileUpdatedAt: mtime,
-              fileUpdatedAtRelativePretty: prettyMacroTime(mtime)
+              fileUpdatedAtRelativePretty: prettyTimeAge(mtime)
             };
 
             const filePathWithoutExtension = filePath.slice(0, filePath.length - pathModule.extname(filePath).length);

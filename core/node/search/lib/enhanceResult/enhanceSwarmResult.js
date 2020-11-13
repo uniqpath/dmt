@@ -2,7 +2,7 @@ import dmt from 'dmt/bridge';
 
 import { detectMediaType } from 'dmt/search';
 
-const { prettyMacroTime, prettyFileSize, log } = dmt;
+const { prettyTimeAge, prettyFileSize, log } = dmt;
 
 function enhanceSwarm(result, { swarmGateway }) {
   const { swarmBzzHash } = result;
@@ -21,7 +21,7 @@ function enhanceSwarm(result, { swarmGateway }) {
 
   if (date) {
     try {
-      result.prettyTime = prettyMacroTime(new Date(date));
+      result.prettyTime = prettyTimeAge(new Date(date));
     } catch (e) {
       log.red(`Warning: cannot parse date: ${date}`);
       log.red(result);

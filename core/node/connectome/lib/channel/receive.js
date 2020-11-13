@@ -5,6 +5,8 @@ nacl.util = naclutil;
 import { integerToByteArray } from '../utils/index.js';
 
 function messageReceived({ message, channel }) {
+  channel.lastMessageAt = Date.now();
+
   const nonce = new Uint8Array(integerToByteArray(2 * channel.receivedCount, 24));
 
   if (channel.verbose) {

@@ -1,5 +1,5 @@
 import colors from 'colors';
-import prettyMicroTime from './prettyMicroTime';
+import prettyMicroDuration from './prettyMicroDuration';
 
 function start() {
   return process.hrtime.bigint();
@@ -7,7 +7,7 @@ function start() {
 
 function stop(start) {
   const duration = Number(process.hrtime.bigint() - start);
-  return prettyMicroTime(duration);
+  return prettyMicroDuration(duration);
 }
 
 function measureHelper(func, { desc = ' ', disable = false } = {}) {

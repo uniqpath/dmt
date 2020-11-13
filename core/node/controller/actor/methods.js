@@ -68,7 +68,15 @@ function connectionsHandler({ args, program }) {
     const { fiberPool } = program;
 
     const outgoing = Object.entries(fiberPool.connectors).map(([address, conn]) => {
-      return { address, remotePubkeyHex: conn.remotePubkeyHex(), protocol: conn.protocol, protocolLane: conn.protocolLane, ready: conn.isReady() };
+      return {
+        address,
+        remotePubkeyHex: conn.remotePubkeyHex(),
+        protocol: conn.protocol,
+        protocolLane: conn.protocolLane,
+        ready: conn.isReady(),
+        connectedAt: conn.connectedAt,
+        lastMessageAt: conn.lastMessageAt
+      };
     });
 
     const order = util.compareValues('protocol', 'protocolLane');

@@ -70,6 +70,8 @@ class Connector extends EventEmitter {
       this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, protocolLane: this.protocolLane })
         .then(({ sharedSecret, sharedSecretHex }) => {
           this.ready = true;
+          this.connectedAt = Date.now();
+
           this.emit('ready', { sharedSecret, sharedSecretHex });
 
           console.log(`Connector ${this.address} READY`);
@@ -90,6 +92,7 @@ class Connector extends EventEmitter {
 
       this.connected = false;
       this.ready = false;
+      delete this.connectedAt;
     }
   }
 

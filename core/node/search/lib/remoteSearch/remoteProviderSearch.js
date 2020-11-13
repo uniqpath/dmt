@@ -3,7 +3,7 @@ import { reconstructSearchQuery } from 'dmt/search';
 
 import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
 
-const { log, stopwatchAdv, prettyMicroTime } = dmt;
+const { log, stopwatchAdv, prettyMicroDuration } = dmt;
 
 class RemoteProviderSearch {
   constructor({ provider, connector }) {
@@ -53,7 +53,7 @@ class RemoteProviderSearch {
             const { searchTime } = response.meta;
 
             const networkTime = totalDuration - searchTime;
-            const networkTimePretty = prettyMicroTime(networkTime);
+            const networkTimePretty = prettyMicroDuration(networkTime);
 
             success(this.searchResponse({ response, contentId, networkTime, networkTimePretty }));
           })

@@ -1,6 +1,6 @@
-import * as utils from './utils.js';
+import * as utils from './utils';
 
-function prettyMicroTime(time, smallest, digits) {
+function prettyMicroDuration(time, smallest, digits) {
   const isNumber = /^[0-9]+$/.test(time);
   if (!isNumber && !Array.isArray(time)) {
     throw new TypeError('expected an array or number in nanoseconds');
@@ -46,4 +46,4 @@ function prettyMicroTime(time, smallest, digits) {
   return res.trim();
 }
 
-export default prettyMicroTime;
+export default prettyMicroDuration;

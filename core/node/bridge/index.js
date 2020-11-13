@@ -11,8 +11,8 @@ import util from './lib/util';
 import scan from './lib/scan';
 import stopwatch from './lib/timeutils/stopwatch';
 import stopwatchAdv from './lib/timeutils/stopwatchAdv';
-import prettyMicroTime from './lib/timeutils/prettyMicroTime';
-import prettyMacroTime from './lib/timeutils/prettyMacroTime';
+import prettyMicroDuration from './lib/timeutils/prettyMicroDuration';
+import prettyTimeAge from './lib/timeutils/prettyTimeAge';
 import * as suntime from './lib/timeutils/suntime';
 
 import prettyFileSize from './lib/prettyFileSize';
@@ -91,8 +91,8 @@ export default {
   numberRanges,
   prettyFileSize,
   suntime,
-  prettyMicroTime,
-  prettyMacroTime,
+  prettyMicroDuration,
+  prettyTimeAge,
   stopwatch,
   stopwatchAdv,
   apMode,

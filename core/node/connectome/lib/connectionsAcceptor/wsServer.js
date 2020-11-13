@@ -52,6 +52,8 @@ class WsServer extends EventEmitter {
       channel._remoteIp = getRemoteIp(req);
       channel._remoteAddress = getRemoteHost(req) || channel._remoteIp;
 
+      channel.connectedAt = Date.now();
+
       ws._connectomeChannel = channel;
 
       channel.on('channel_closed', () => {
@@ -93,6 +95,8 @@ class WsServer extends EventEmitter {
       list.push({
         ip: ws._connectomeChannel.remoteIp(),
         address: ws._connectomeChannel.remoteAddress(),
+        connectedAt: ws._connectomeChannel.connectedAt,
+        lastMessageAt: ws._connectomeChannel.lastMessageAt,
         remotePubkeyHex: ws._connectomeChannel.remotePubkeyHex(),
         readyState: ws.readyState,
         protocol: ws.protocol,
