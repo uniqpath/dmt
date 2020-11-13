@@ -56,7 +56,7 @@ class WsServer extends EventEmitter {
 
       ws._connectomeChannel = channel;
 
-      channel.on('channel_closed', () => {
+      channel.on('disconnect', () => {
         this.emit('connection_closed', channel);
       });
 

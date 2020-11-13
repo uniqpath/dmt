@@ -26,6 +26,6 @@ connector.on('ready', ({ sharedSecretHex }) => {
   console.log(colors.magenta(`Shared secret: ${colors.gray(sharedSecretHex)}`));
 });
 
-connector.on('disconnected', () => {
+connector.on('disconnect', () => {
   console.log(`${colors.gray('Channel disconnected')} ${colors.red('✖')}`);
 });

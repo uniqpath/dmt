@@ -89,7 +89,7 @@ class Connector extends EventEmitter {
         });
     } else {
       if (this.connected) {
-        this.emit('disconnected');
+        this.emit('disconnect');
       }
 
       console.log(`Connector ${this.address} DISCONNECTED, setting READY to false`);

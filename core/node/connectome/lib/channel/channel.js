@@ -18,7 +18,7 @@ class Channel extends EventEmitter {
     this.reverseRpcClient = new RpcClient(this, rpcRequestTimeout);
 
     ws.on('close', () => {
-      this.emit('channel_closed');
+      this.emit('disconnect');
     });
 
     this.sentCount = 0;

@@ -17,7 +17,7 @@ class ChannelList extends EventEmitter {
   add(channel) {
     this.channels.push(channel);
 
-    channel.on('channel_closed', () => {
+    channel.on('disconnect', () => {
       this.channels.splice(this.channels.indexOf(channel), 1);
       this.reportStatus();
     });

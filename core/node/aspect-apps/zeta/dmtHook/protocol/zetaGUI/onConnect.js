@@ -15,7 +15,7 @@ function onConnect({ program, backendStore, channel }) {
     }
   });
 
-  channel.on('channel_closed', unsubscribe);
+  channel.on('disconnect', unsubscribe);
 }
 
 export default ({ backendStore }) => {

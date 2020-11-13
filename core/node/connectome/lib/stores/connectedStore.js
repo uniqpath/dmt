@@ -69,7 +69,7 @@ class ConnectedStore extends SimpleStore {
       }
     }, 300);
 
-    this.connector.on('disconnected', () => {
+    this.connector.on('disconnect', () => {
       this.set({ connected: false });
     });
 
