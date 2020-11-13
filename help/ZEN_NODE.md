@@ -1,6 +1,4 @@
-<img src="img/dmt_banner.png">
-
-<p align="center"><b>— PRESENTING —</b></p>
+<img src="img/dmt_banner.jpg">
 
 <img src="img/ZEN.png">
 
