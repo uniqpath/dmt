@@ -23,6 +23,11 @@ function parseCliArgs(arr) {
     }
   }
 
+  if (result.h == true && !result.help) {
+    delete result.h;
+    result.help = true;
+  }
+
   return result;
 }
 

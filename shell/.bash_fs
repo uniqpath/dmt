@@ -242,7 +242,11 @@ function awesome_cd {
 function p {
   if dmt_macos; then
 
-    AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node/controller "$1"
+    AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system "$1"
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system/packages "$1"
+    fi
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/Projects/node "$1"

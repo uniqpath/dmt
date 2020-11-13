@@ -38,7 +38,7 @@ class RemoteProviderSearch {
           return;
         }
 
-        this.providerKey = this.connector.remotePubkeyHex;
+        this.providerKey = this.connector.remotePubkeyHex();
 
         this.connector
           .remoteObject('search')

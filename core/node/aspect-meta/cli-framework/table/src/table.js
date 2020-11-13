@@ -1,75 +1,82 @@
 import * as utils from './utils';
-import * as tableLayout from './layout-manager';
+import * as tableLayout from './layoutManager';
 
-function Table(options) {
-  this.options = utils.mergeOptions(options);
-}
+import Divider from './divider';
 
-Table.prototype.__proto__ = Array.prototype;
+class Table extends Array {
+  constructor(options) {
+    super();
 
-Table.prototype.toString = function() {
-  var array = this;
-  var headersPresent = this.options.head && this.options.head.length;
-  if (headersPresent) {
-    array = [this.options.head];
-    if (this.length) {
-      array.push.apply(array, this);
-    }
-  } else {
-    this.options.style.head = [];
+    this.options = utils.mergeOptions(options);
   }
 
-  var cells = tableLayout.makeTableLayout(array);
+  toString() {
+    let array = this;
+    const headersPresent = this.options.head && this.options.head.length;
+    if (headersPresent) {
+      array = [this.options.head];
+      if (this.length) {
+        array.push(...this);
+      }
+    } else {
+      this.options.style.head = [];
+    }
 
-  cells.forEach(function(row) {
-    row.forEach(function(cell) {
-      cell.mergeTableOptions(this.options, cells);
+    const cells = tableLayout.makeTableLayout(array);
+
+    cells.forEach(row => {
+      row.forEach(cell => {
+        cell.mergeTableOptions(this.options, cells);
+      }, this);
     }, this);
-  }, this);
 
-  tableLayout.computeWidths(this.options.colWidths, cells);
-  tableLayout.computeHeights(this.options.rowHeights, cells);
+    tableLayout.computeWidths(this.options.colWidths, cells);
+    tableLayout.computeHeights(this.options.rowHeights, cells);
 
-  cells.forEach(function(row, rowIndex) {
-    row.forEach(function(cell, cellIndex) {
-      cell.init(this.options);
+    cells.forEach((row, rowIndex) => {
+      row.forEach((cell, cellIndex) => {
+        cell.init(this.options);
+      }, this);
     }, this);
-  }, this);
 
-  var result = [];
+    const result = [];
 
-  for (var rowIndex = 0; rowIndex < cells.length; rowIndex++) {
-    var row = cells[rowIndex];
-    var heightOfRow = this.options.rowHeights[rowIndex];
+    for (let rowIndex = 0; rowIndex < cells.length; rowIndex++) {
+      const row = cells[rowIndex];
+      const heightOfRow = this.options.rowHeights[rowIndex];
 
-    if (rowIndex === 0 || !this.options.style.compact || (rowIndex == 1 && headersPresent)) {
-      doDraw(row, 'top', result);
+      if (rowIndex === 0 || !this.options.style.compact || (rowIndex == 1 && headersPresent)) {
+        this.doDraw(row, 'top', result);
+      }
+
+      for (let lineNum = 0; lineNum < heightOfRow; lineNum++) {
+        this.doDraw(row, lineNum, result);
+      }
+
+      if (rowIndex + 1 == cells.length) {
+        this.doDraw(row, 'bottom', result);
+      }
     }
 
-    for (var lineNum = 0; lineNum < heightOfRow; lineNum++) {
-      doDraw(row, lineNum, result);
-    }
-
-    if (rowIndex + 1 == cells.length) {
-      doDraw(row, 'bottom', result);
-    }
+    return result.join('\n');
   }
 
-  return result.join('\n');
-};
+  doDraw(row, lineNum, result) {
+    const line = [];
 
-function doDraw(row, lineNum, result) {
-  var line = [];
-  row.forEach(function(cell) {
-    line.push(cell.draw(lineNum));
-  });
-  var str = line.join('');
-  if (str.length) result.push(str);
+    row.forEach(cell => {
+      line.push(cell.draw(lineNum));
+    });
+    const str = line.join('');
+    if (str.length) result.push(str);
+  }
+
+  get width() {
+    const str = this.toString().split('\n');
+    return str[0].length;
+  }
 }
 
-Table.prototype.__defineGetter__('width', function() {
-  var str = this.toString().split('\n');
-  return str[0].length;
-});
+Object.defineProperty(Table, 'divider', { value: new Divider() });
 
 export default Table;

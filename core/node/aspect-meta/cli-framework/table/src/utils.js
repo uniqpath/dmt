@@ -187,7 +187,7 @@ function defaultOptions() {
       'padding-right': 1,
       head: ['red'],
       border: ['grey'],
-      compact: false
+      compact: true
     },
     head: []
   };

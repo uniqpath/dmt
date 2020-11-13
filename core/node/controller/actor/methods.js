@@ -1,5 +1,5 @@
 import dmt from 'dmt/bridge';
-const { log } = dmt;
+const { log, util } = dmt;
 
 function getMethods() {
   const methods = [];
@@ -68,10 +68,15 @@ function connectionsHandler({ args, program }) {
     const { fiberPool } = program;
 
     const outgoing = Object.entries(fiberPool.connectors).map(([address, conn]) => {
-      return { address, remotePubkeyHex: conn.remotePubkeyHex, protocol: conn.protocol, protocolLane: conn.protocolLane, ready: conn.isReady() };
+      return { address, remotePubkeyHex: conn.remotePubkeyHex(), protocol: conn.protocol, protocolLane: conn.protocolLane, ready: conn.isReady() };
     });
 
-    success({ incoming, outgoing });
+    const order = util.compareValues('protocol', 'protocolLane');
+
+    success({
+      incoming: incoming.sort(order),
+      outgoing: outgoing.sort(order)
+    });
   });
 }
 

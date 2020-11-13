@@ -109,12 +109,12 @@ class Connector extends EventEmitter {
     return new Promise((success, reject) => {
       this.remoteObject('Auth')
         .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
-        .then(remotePubkey => {
-          const sharedSecret = nacl.box.before(hexToBuffer(remotePubkey), clientPrivateKey);
+        .then(remotePubkeyHex => {
+          const sharedSecret = nacl.box.before(hexToBuffer(remotePubkeyHex), clientPrivateKey);
           const sharedSecretHex = bufferToHex(sharedSecret);
           this.sharedSecret = sharedSecret;
 
-          this.remotePubkeyHex = remotePubkey;
+          this._remotePubkeyHex = remotePubkeyHex;
 
           success({ sharedSecret, sharedSecretHex });
 
@@ -136,8 +136,8 @@ class Connector extends EventEmitter {
     return this.clientPublicKeyHex;
   }
 
-  remotePubkey() {
-    return this.remotePubkeyHex;
+  remotePubkeyHex() {
+    return this._remotePubkeyHex;
   }
 
   remoteAddress() {

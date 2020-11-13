@@ -12,7 +12,6 @@
     "test": "test"
   },
   "dependencies": {
-    "kind-of": "^3.0.4",
     "string-width": "^1.0.1",
     "wrap-ansi": "^4.0.0"
   },

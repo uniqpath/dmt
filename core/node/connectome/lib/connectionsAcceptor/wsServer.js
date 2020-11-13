@@ -93,6 +93,7 @@ class WsServer extends EventEmitter {
       list.push({
         ip: ws._connectomeChannel.remoteIp(),
         address: ws._connectomeChannel.remoteAddress(),
+        remotePubkeyHex: ws._connectomeChannel.remotePubkeyHex(),
         readyState: ws.readyState,
         protocol: ws.protocol,
         protocolLane: ws.protocolLane

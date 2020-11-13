@@ -14,6 +14,13 @@ if (args.error) {
   process.exit();
 }
 
+if (args.help == true) {
+  console.log(colors.yellow('💡 HELP'));
+  console.log();
+  console.log(`${colors.green('dmt nearby --full')} see full deviceKey`);
+  process.exit();
+}
+
 const table = new Table({
   chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' }
 });
@@ -137,7 +144,7 @@ ipcClient({ actorName: 'device', action })
             colors.green(uptime),
             colors.gray(username),
             apssid ? colors.magenta(identifyDeviceByMac(apssid)) : colors.gray('/'),
-            colors.gray(args.full ? deviceKey : `${deviceKey.substr(0, 8)} …`)
+            colors.gray(args.full ? deviceKey : `${deviceKey.substr(0, 8)}…`)
           ];
         })
       );

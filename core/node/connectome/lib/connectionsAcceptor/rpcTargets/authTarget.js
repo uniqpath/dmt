@@ -16,7 +16,7 @@ class AuthTarget extends EventEmitter {
   exchangePubkeys({ pubkey }) {
     const remoteClientPubkey = hexToBuffer(pubkey);
 
-    this.channel.setRemotePubkey(pubkey);
+    this.channel.setRemotePubkeyHex(pubkey);
 
     this.sharedSecret = nacl.box.before(remoteClientPubkey, this.keypair.privateKey);
 

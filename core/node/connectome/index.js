@@ -5,7 +5,7 @@ import { bufferToHex } from './lib/utils/index.js';
 import connect from './lib/connect/connectNode.js';
 import connectBrowser from './lib/connect/connectBrowser.js';
 
-import ConnectionsAcceptor from './lib/connectionsAcceptor/index.js';
+import ConnectionsAcceptor from './lib/connectionsAcceptor/acceptor.js';
 
 import FiberPool from './lib/fibers/fiberPool.js';
 import contentServer from './lib/fileTransport/contentServer/contentServer.js';

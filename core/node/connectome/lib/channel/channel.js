@@ -43,12 +43,12 @@ class Channel extends EventEmitter {
     return this._remoteIp;
   }
 
-  setRemotePubkey(remotePubkeyHex) {
-    this.remotePubkeyHex = remotePubkeyHex;
+  setRemotePubkeyHex(remotePubkeyHex) {
+    this._remotePubkeyHex = remotePubkeyHex;
   }
 
-  remotePubkey() {
-    return this.remotePubkeyHex;
+  remotePubkeyHex() {
+    return this._remotePubkeyHex;
   }
 
   // 💡 message is string, binary or json (automatically stringified before sending)
