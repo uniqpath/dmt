@@ -72,7 +72,7 @@ function dmtFilesAndSymlinks({ replicateExcludedByUser }) {
 
 function filterOutUnneededBin(fileInfo) {
   if (fileInfo.relpath.startsWith('bin/')) {
-    return fileInfo.basename.startsWith('walkdir') || fileInfo.basename.startsWith('walksearch');
+    return fileInfo.basename.startsWith('walkdir') || fileInfo.basename.startsWith('walksearch') || fileInfo.basename == 'dmt';
   }
 
   return true;

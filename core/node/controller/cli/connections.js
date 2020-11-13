@@ -50,8 +50,8 @@ function displayTable(connectionList, outgoing = true) {
 
       const addressLine = `${connectedMarker}${colors.white(address)}`;
 
-      const connUptime = dmt.prettyTimeAge(connectedAt, { detailed: true }).replace(' ago', '');
-      const lastMessageTime = dmt.prettyTimeAge(lastMessageAt, { detailed: true });
+      const connUptime = connectedAt ? dmt.prettyTimeAge(connectedAt, { detailed: true }).replace(' ago', '') : '';
+      const lastMessageTime = lastMessageAt ? dmt.prettyTimeAge(lastMessageAt, { detailed: true }) : '';
 
       const line = [addressLine, protocol, protocolLane];
 
