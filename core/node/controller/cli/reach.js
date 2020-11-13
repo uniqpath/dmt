@@ -9,7 +9,7 @@ const args = process.argv.slice(2);
 const action = 'reach';
 const payload = args.slice(1).join(' ');
 
-ipcClient({ actorName: 'device', action, payload })
+ipcClient({ actorName: 'controller', action, payload })
   .then(reach => {
     console.log(reach);
     process.exit();

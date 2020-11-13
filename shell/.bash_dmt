@@ -56,6 +56,8 @@ function dmt {
     "version"
     "device"
     "nearby"
+    "protocols"
+    "actors"
     "state"
     "reach"
     "connections"
@@ -231,6 +233,18 @@ function dmt {
     connections)
       if [ -n "$dmt_proc_pid" ]; then
         $DMT_NODEJS_EXEC "$CLI_DIR/connections.js" "$@"
+      fi
+      ;;
+
+    protocols)
+      if [ -n "$dmt_proc_pid" ]; then
+        $DMT_NODEJS_EXEC "$CLI_DIR/protocols.js" "$@"
+      fi
+      ;;
+
+    actors)
+      if [ -n "$dmt_proc_pid" ]; then
+        $DMT_NODEJS_EXEC "$CLI_DIR/actors.js" "$@"
       fi
       ;;
 
@@ -1043,11 +1057,13 @@ function dmt_help {
   echo
   printf "  ${CYAN}■${NC} ${CYAN}dmt gui ${GRAY}various methods related to ${UNDERLINE}dmt-gui${RESET}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt state ${GRAY}shows dmt-proc ${UNDERLINE}in-memory program state${RESET} ${GRAY}(part of this is saved to ${UNDERLINE}program.json${RESET} ${GRAY}file)${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt actors ${GRAY}shows dmt-proc registered actor objects than can be called over connectome or cli${NC}\n"
   echo
   printf "${MAGENTA}DMT Connectome${NC}\n"
   echo
   printf "  ${CYAN}■${NC} ${CYAN}dmt nearby ${GRAY}shows nearby devices ${NC}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt connections ${GRAY}shows dmt-proc ${UNDERLINE}incoming${RESET} ${GRAY}and ${UNDERLINE}outgoing connections${RESET}${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt protocols${NC} ${GRAY}show registered realtime communication protocols${NC}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt reach${NC} ${GRAY}[todo]${NC}\n"
 }
 

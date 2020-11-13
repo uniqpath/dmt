@@ -47,7 +47,7 @@ function numElements(value) {
   return len > 0 ? len : colors.gray(len);
 }
 
-ipcClient({ actorName: 'device', action })
+ipcClient({ actorName: 'controller', action })
   .then(({ state, stateChangesCount }) => {
     if (slotName) {
       console.log('Observed state slot:');

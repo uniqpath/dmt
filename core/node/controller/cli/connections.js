@@ -77,7 +77,7 @@ function displayTable(connectionList, outgoing = true) {
   }
 }
 
-ipcClient({ actorName: 'device', action })
+ipcClient({ actorName: 'controller', action })
   .then(({ incoming, outgoing }) => {
     console.log(colors.brightWhite(`Open ${colors.cyan('dmt-proc')} ⚡ connections:`));
     console.log();

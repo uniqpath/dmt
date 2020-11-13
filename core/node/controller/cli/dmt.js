@@ -6,7 +6,7 @@ const args = process.argv.slice(2);
 const action = args.length > 0 ? args[0] : 'info';
 const payload = args.slice(1).join(' ');
 
-ipcClient({ actorName: 'device', action, payload })
+ipcClient({ actorName: 'controller', action, payload })
   .then(response => {
     if (action == 'log') {
       console.log();

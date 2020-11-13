@@ -9,11 +9,11 @@ import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
 class MultiConnectedStore extends SimpleStore {
-  constructor({ ip, port, protocol, protocolLane, connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
+  constructor({ address, port, protocol, protocolLane, connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
     super();
 
-    if (!ip) {
-      throw new Error('MultiConnectedStore: missing ip');
+    if (!address) {
+      throw new Error('MultiConnectedStore: missing address');
     }
 
     const thisDeviceStateKeys = ['time', 'environment', 'nearbyDevices', 'notifications'];
@@ -40,7 +40,7 @@ class MultiConnectedStore extends SimpleStore {
       this.emit('connect_to_device_key_failed');
     });
 
-    this.localDeviceStore = connectDevice.connectThisDevice({ ip });
+    this.localDeviceStore = connectDevice.connectThisDevice({ address });
   }
 
   action({ action, namespace, payload }) {
@@ -63,8 +63,8 @@ class MultiConnectedStore extends SimpleStore {
     console.log(`Error obtaining remote object ${objectName}. Debug info: activeDeviceKey=${this.activeDeviceKey}`);
   }
 
-  switch({ ip, deviceKey, deviceName }) {
-    this.switchDevice.switch({ ip, deviceKey, deviceName });
+  switch({ address, deviceKey, deviceName }) {
+    this.switchDevice.switch({ address, deviceKey, deviceName });
   }
 
   activeStore() {

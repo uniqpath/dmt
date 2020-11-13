@@ -15,16 +15,18 @@ class SwitchDevice extends Emitter {
     this.foreground.set(state, { optimisticDeviceName: deviceName });
   }
 
-  switch({ ip, deviceKey, deviceName }) {
+  switch({ address, deviceKey, deviceName }) {
     if (this.mcs.stores[deviceKey]) {
       this.switchState({ deviceKey, deviceName });
-    } else if (ip) {
+    } else if (address) {
       this.foreground.clear();
       this.mcs.set({ activeDeviceKey: deviceKey, optimisticDeviceName: deviceName });
 
-      this.connectDevice.connectOtherDevice({ ip, deviceKey });
+      this.connectDevice.connectOtherDevice({ address, deviceKey });
     } else {
       const matchingDevice = this.mcs.nearbyDevices.find(device => device.deviceKey == deviceKey && !device.thisDevice);
+
+      matchingDevice.address = matchingDevice.ip;
 
       if (matchingDevice) {
         this.switch(matchingDevice);

@@ -53,6 +53,10 @@ class ProgramConnectionsAcceptor {
     return this.acceptor.connectionList();
   }
 
+  registeredProtocols() {
+    return this.acceptor.registeredProtocols();
+  }
+
   start() {
     if (this.keypair) {
       this.acceptor.start();

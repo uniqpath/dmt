@@ -8,7 +8,7 @@ const wsCLOSED = 3;
 import Connector from '../connector/connector.js';
 
 function establishAndMaintainConnection(
-  { address, ssl = false, port, protocol, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, remotePubkey, verbose },
+  { address, ssl = false, port, protocol, protocolLane, keypair, remotePubkey, rpcRequestTimeout, verbose },
   { WebSocket, log }
 ) {
   const wsProtocol = ssl ? 'wss' : 'ws';
@@ -16,7 +16,7 @@ function establishAndMaintainConnection(
 
   log(`Trying to connect to ws endpoint ${endpoint} ...`);
 
-  const connector = new Connector({ address, protocol, protocolLane, rpcRequestTimeout, clientPrivateKey, clientPublicKey, verbose });
+  const connector = new Connector({ address, protocol, protocolLane, rpcRequestTimeout, keypair, verbose });
 
   if (connector.connection) {
     return connector;

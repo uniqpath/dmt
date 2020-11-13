@@ -2,8 +2,8 @@ import colors from 'colors';
 
 import { printServerInfo } from '../exampleUtils.js';
 
-import { newKeypair, ConnectionsAcceptor } from '../../index.js';
-import { bufferToHex } from '../../lib/utils/index.js';
+import { newKeypair, ConnectionsAcceptor } from '../../../index.js';
+import { bufferToHex } from '../../../lib/utils/index.js';
 
 import wsEndpoint from './serverEndpoint.js';
 

@@ -6,13 +6,12 @@ const WAIT_TIME = 1000;
 
 function waitAndContinue(options) {
   return new Promise((success, reject) => {
-    connect(options).then(connector => {
-      const connectedPromise = new Promise(success => connector.on('ready', success));
+    const connector = connect(options);
+    const connectedPromise = new Promise(success => connector.on('ready', success));
 
-      promiseTimeout(WAIT_TIME, connectedPromise)
-        .then(() => success(connector))
-        .catch(() => success(connector));
-    });
+    promiseTimeout(WAIT_TIME, connectedPromise)
+      .then(() => success(connector))
+      .catch(() => success(connector));
   });
 }
 

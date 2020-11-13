@@ -34,11 +34,11 @@ console.log = (...args) => {
 const verbose = false;
 const loginStore = new LoginStore();
 
-const ip = window.location.hostname;
+const address = window.location.hostname;
 
 const rpcRequestTimeout = 5500;
 const store = new ConnectedStore(loginStore, {
-  ip,
+  address,
   port,
   ssl: appHelper.ssl,
   protocol,

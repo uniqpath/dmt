@@ -26,7 +26,13 @@ class ZetaSearch {
           this.searchArray.push(new RemoteProviderSearch({ provider, connector }));
         })
         .catch(e => {
-          this.searchArray.push(new RemoteProviderSearch({ provider, connector: e.connector }));
+          const { connector } = e;
+          if (!connector) {
+            log.red(e);
+            process.exit();
+          }
+
+          this.searchArray.push(new RemoteProviderSearch({ provider, connector }));
         });
     });
   }

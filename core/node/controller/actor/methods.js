@@ -13,6 +13,8 @@ function getMethods() {
   methods.push({ name: 'nearby', handler: nearbyHandler });
   methods.push({ name: 'state', handler: stateHandler });
   methods.push({ name: 'connections', handler: connectionsHandler });
+  methods.push({ name: 'protocols', handler: protocolsHandler });
+  methods.push({ name: 'actors', handler: actorsHandler });
   methods.push({ name: 'reach', handler: reachHandler });
 
   return methods;
@@ -100,6 +102,18 @@ function stateHandler({ args, program }) {
     const { stateChangesCount } = program.store;
 
     success({ state, stateChangesCount });
+  });
+}
+
+function protocolsHandler({ args, program }) {
+  return new Promise((success, reject) => {
+    success({ registeredProtocols: program.acceptor.registeredProtocols() });
+  });
+}
+
+function actorsHandler({ args, program }) {
+  return new Promise((success, reject) => {
+    success({ registeredActors: program.actors.registeredActors() });
   });
 }
 

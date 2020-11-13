@@ -3,14 +3,16 @@ import fastJsonPatch from 'fast-json-patch';
 import connect from '../connect/connectBrowser';
 import SimpleStore from './simpleStore';
 
+import newKeypair from '../keypair/newKeypair.js';
+
 const { applyPatch: applyJSONPatch } = fastJsonPatch;
 
 class ConnectedStore extends SimpleStore {
-  constructor({ ip, ssl = false, port, protocol, protocolLane, clientPrivateKey, clientPublicKey, logStore, rpcRequestTimeout, verbose } = {}) {
+  constructor({ address, ssl = false, port, protocol, protocolLane, keypair = newKeypair(), logStore, rpcRequestTimeout, verbose } = {}) {
     super();
 
-    if (!ip) {
-      throw new Error('ConnectedStore: missing ip');
+    if (!address) {
+      throw new Error('ConnectedStore: missing address');
     }
 
     this.ssl = ssl;
@@ -22,7 +24,7 @@ class ConnectedStore extends SimpleStore {
 
     this.rpcRequestTimeout = rpcRequestTimeout;
 
-    this.connect(ip, port, clientPrivateKey, clientPublicKey);
+    this.connect(address, port, keypair);
   }
 
   action({ action, namespace, payload }) {
@@ -40,58 +42,55 @@ class ConnectedStore extends SimpleStore {
     return this.connector.remoteObject(handle);
   }
 
-  connect(address, port, clientPrivateKey, clientPublicKey) {
-    connect({
+  connect(address, port, keypair) {
+    this.connector = connect({
       address,
       ssl: this.ssl,
       port,
       protocol: this.protocol,
       protocolLane: this.protocolLane,
-      clientPrivateKey,
-      clientPublicKey,
+      keypair,
       rpcRequestTimeout: this.rpcRequestTimeout,
       verbose: this.verbose
-    }).then(connector => {
-      this.connector = connector;
+    });
 
-      connector.on('ready', ({ sharedSecret, sharedSecretHex }) => {
-        this.set({ connected: true });
+    this.connector.on('ready', ({ sharedSecret, sharedSecretHex }) => {
+      this.set({ connected: true });
 
-        this.emit('ready');
-      });
+      this.emit('ready');
+    });
 
-      // 💡 connected == undefined ==> while trying to connect
-      // 💡 connected == false => while disconnected
-      // 💡 connected == true => while connected
-      setTimeout(() => {
-        if (this.connected == undefined) {
-          this.set({ connected: false });
-        }
-      }, 300);
-
-      connector.on('disconnected', () => {
+    // 💡 connected == undefined ==> while trying to connect
+    // 💡 connected == false => while disconnected
+    // 💡 connected == true => while connected
+    setTimeout(() => {
+      if (this.connected == undefined) {
         this.set({ connected: false });
-      });
+      }
+    }, 300);
 
-      // 💡 Special incoming JSON message: { state: ... } ... parsed as part of 'Connectome State Syncing Protocol'
-      connector.on('receive_state', state => {
-        this.wireStateReceived = true;
+    this.connector.on('disconnected', () => {
+      this.set({ connected: false });
+    });
 
-        if (this.verbose) {
-          console.log(`New store ${address} / ${this.protocol} / ${this.protocolLane} state:`);
-          console.log(state);
-        }
+    // 💡 Special incoming JSON message: { state: ... } ... parsed as part of 'Connectome State Syncing Protocol'
+    this.connector.on('receive_state', state => {
+      this.wireStateReceived = true;
 
-        this.set(state);
-      });
+      if (this.verbose) {
+        console.log(`New store ${address} / ${this.protocol} / ${this.protocolLane} state:`);
+        console.log(state);
+      }
 
-      // 💡 Special incoming JSON message: { diff: ... } ... parsed as part of 'Connectome State Syncing Protocol'
-      connector.on('receive_diff', diff => {
-        if (this.wireStateReceived) {
-          applyJSONPatch(this.state, diff);
-          this.pushStateToSubscribers();
-        }
-      });
+      this.set(state);
+    });
+
+    // 💡 Special incoming JSON message: { diff: ... } ... parsed as part of 'Connectome State Syncing Protocol'
+    this.connector.on('receive_diff', diff => {
+      if (this.wireStateReceived) {
+        applyJSONPatch(this.state, diff);
+        this.pushStateToSubscribers();
+      }
     });
   }
 }

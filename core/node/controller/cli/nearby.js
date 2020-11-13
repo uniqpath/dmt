@@ -119,7 +119,7 @@ function displayDmtVersion(thisDmtVersion, dmtVersion, thisDevice) {
   return colors.cyan(`${thisDevice ? '✓' : '≡'} ${dmtVersion}`);
 }
 
-ipcClient({ actorName: 'device', action })
+ipcClient({ actorName: 'controller', action })
   .then(_nearbyDevices => {
     table.push(headers.map(h => colors.yellow(h)));
 

@@ -43,6 +43,12 @@ class ConnectionsAcceptor extends EventEmitter {
     this.wsServer.on('connection_closed', channel => this.emit('connection_closed', channel));
   }
 
+  registeredProtocols() {
+    return Object.entries(this.protocols).map(([protocol, protocolLanes]) => {
+      return { protocol, lanes: Object.keys(protocolLanes) };
+    });
+  }
+
   connectionList() {
     return this.wsServer.enumerateConnections().reverse();
   }

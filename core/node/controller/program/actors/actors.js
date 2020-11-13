@@ -48,6 +48,12 @@ class Actors {
       }
     });
   }
+
+  registeredActors() {
+    return Object.entries(this.actors).map(([actorName, methods]) => {
+      return { actorName, methodList: Object.keys(methods) };
+    });
+  }
 }
 
 export default Actors;

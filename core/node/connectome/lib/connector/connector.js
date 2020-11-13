@@ -10,12 +10,16 @@ import { EventEmitter, listify, hexToBuffer, bufferToHex } from '../utils/index.
 import RpcClient from '../rpc/client.js';
 import RPCTarget from '../rpc/RPCTarget.js';
 
+import newKeypair from '../keypair/newKeypair.js';
+
 class Connector extends EventEmitter {
-  constructor({ address, protocol, protocolLane, clientPrivateKey, clientPublicKey, rpcRequestTimeout, verbose = false } = {}) {
+  constructor({ address, protocol, protocolLane, keypair = newKeypair(), rpcRequestTimeout, verbose = false } = {}) {
     super();
 
     this.protocol = protocol;
     this.protocolLane = protocolLane;
+
+    const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
 
     this.clientPrivateKey = clientPrivateKey;
     this.clientPublicKey = clientPublicKey;

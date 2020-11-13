@@ -7,11 +7,11 @@ class ConnectDevice {
     this.connectToDeviceKey = connectToDeviceKey;
   }
 
-  createStore({ ip }) {
+  createStore({ address }) {
     const { port, protocol, protocolLane, logStore, rpcRequestTimeout, verbose, privateKey: clientPrivateKey, publicKey: clientPublicKey } = this.mcs;
 
     return new ConnectedStore({
-      ip,
+      address,
       port,
       protocol,
       protocolLane,
@@ -32,8 +32,8 @@ class ConnectDevice {
     }
   }
 
-  connectThisDevice({ ip }) {
-    const thisStore = this.createStore({ ip });
+  connectThisDevice({ address }) {
+    const thisStore = this.createStore({ address });
 
     thisStore.subscribe(state => {
       if (!state.nearbyDevices) {
@@ -71,8 +71,8 @@ class ConnectDevice {
     return thisStore;
   }
 
-  connectOtherDevice({ ip, deviceKey }) {
-    const newStore = this.createStore({ ip });
+  connectOtherDevice({ address, deviceKey }) {
+    const newStore = this.createStore({ address });
 
     this.mcs.stores[deviceKey] = newStore;
 
