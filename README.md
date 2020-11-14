@@ -100,11 +100,11 @@ Do you want to update? …
 
 ## DMT on server
 
-Please reach out for instructions (join a meetup via dmt-system.com or write on Discord support).
+Please reach out for instructions (join a meetup via [dmt-system.com](https://dmt-system.com) or contact us on [Discord support](https://discord.gg/XvJzmtF)).
 
 Server setup instructions are easy as well but some guidance can only help.
 
-When done, you can run a [node like this](https://zetaseek.com) which is always connected to all your other devices and also to your friends (from past and some hopefully **'from future'**).
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/next_meetup.png?raw=true">
 
 ## Visit the Website to always learn more
 
