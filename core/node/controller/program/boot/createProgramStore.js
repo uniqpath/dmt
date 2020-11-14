@@ -21,7 +21,7 @@ export default function createProgramStore(program) {
     notifications: []
   };
 
-  const store = new Store({ initState, omitStateFn });
+  const store = new Store({ initState, omitStateFn, stateFilePath: dmt.programStateFile });
 
   if (program.apMode()) {
     store.update({ device: { apInfo: dmt.apInfo() } }, { announce: false });

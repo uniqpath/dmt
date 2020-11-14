@@ -241,7 +241,7 @@ class Program extends EventEmitter {
   }
 
   state() {
-    return this.store.kvStore.state;
+    return this.store.state();
   }
 
   initIot(iotBus) {

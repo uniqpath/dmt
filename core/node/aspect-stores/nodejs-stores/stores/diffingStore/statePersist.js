@@ -10,23 +10,23 @@ import cleanupStateOnSave from './cleanupStateOnSave';
 
 const STATE_SCHEMA_VERSION = 0.8;
 
-function saveState({ state, lastSavedState }) {
+function saveState({ state, lastSavedState, stateFilePath }) {
   const _state = cleanupStateOnSave(clone(state));
 
   _state.schemaVersion = STATE_SCHEMA_VERSION;
 
   if (!lastSavedState || !compare(lastSavedState, _state)) {
-    writeFileAtomic(dmt.programStateFile, JSON.stringify(_state, null, 2), err => {
+    writeFileAtomic(stateFilePath, JSON.stringify(_state, null, 2), err => {
       if (err) throw err;
       return _state;
     });
   }
 }
 
-function readState() {
-  if (fs.existsSync(dmt.programStateFile)) {
+function readState({ stateFilePath }) {
+  if (fs.existsSync(stateFilePath)) {
     try {
-      const loadedState = JSON.parse(fs.readFileSync(dmt.programStateFile));
+      const loadedState = JSON.parse(fs.readFileSync(stateFilePath));
 
       if (loadedState.schemaVersion == STATE_SCHEMA_VERSION) {
         return loadedState;

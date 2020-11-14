@@ -10,17 +10,21 @@ import removeStateChangeFalseTriggersFn from './diffingStore/removeStateChangeFa
 import getDiff from './lib/getDiff';
 
 class ReactiveDiffingStore extends EventEmitter {
-  constructor({ initState, omitStateFn }) {
+  constructor({ initState = {}, omitStateFn = x => x, stateFilePath = null } = {}) {
     super();
+
+    this.stateFilePath = stateFilePath;
 
     this.kvStore = new KeyValueStore();
 
     this.prevAnnouncedState = {};
 
-    const persistedState = readState();
+    if (stateFilePath) {
+      const persistedState = readState({ stateFilePath });
 
-    if (persistedState) {
-      this.kvStore.update(persistedState, { announce: false });
+      if (persistedState) {
+        this.kvStore.update(persistedState, { announce: false });
+      }
     }
     this.kvStore.update(initState, { announce: false });
 
@@ -65,7 +69,15 @@ class ReactiveDiffingStore extends EventEmitter {
   }
 
   save() {
-    this.lastSavedState = saveState({ state: this.kvStore.state, lastSavedState: this.lastSavedState }) || this.lastSavedState;
+    const { stateFilePath } = this;
+
+    if (stateFilePath) {
+      this.lastSavedState = saveState({ state: this.kvStore.state, lastSavedState: this.lastSavedState, stateFilePath }) || this.lastSavedState;
+    }
+  }
+
+  state() {
+    return this.kvStore.state;
   }
 
   announceStateChange(announce = true) {
