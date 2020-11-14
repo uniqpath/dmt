@@ -6,14 +6,15 @@ import KeyValueStore from './twoLevelMergeKVStore';
 
 import { saveState, readState } from './diffingStore/statePersist';
 
-import removeStateChangeFalseTriggersFn from './diffingStore/removeStateChangeFalseTriggers';
 import getDiff from './lib/getDiff';
 
 class ReactiveDiffingStore extends EventEmitter {
-  constructor({ initState = {}, omitStateFn = x => x, stateFilePath = null } = {}) {
+  constructor({ initState = {}, omitStateFn = x => x, stateFilePath = null, removeStateChangeFalseTriggers = x => x } = {}) {
     super();
 
+    this.omitStateFn = omitStateFn;
     this.stateFilePath = stateFilePath;
+    this.removeStateChangeFalseTriggers = removeStateChangeFalseTriggers;
 
     this.kvStore = new KeyValueStore();
 
@@ -27,8 +28,6 @@ class ReactiveDiffingStore extends EventEmitter {
       }
     }
     this.kvStore.update(initState, { announce: false });
-
-    this.omitStateFn = omitStateFn;
 
     this.stateChangesCount = 0;
   }
@@ -87,7 +86,7 @@ class ReactiveDiffingStore extends EventEmitter {
 
     const { state } = this.kvStore;
 
-    const pruneState = state => removeStateChangeFalseTriggersFn(this.omitStateFn(state));
+    const pruneState = state => this.removeStateChangeFalseTriggers(this.omitStateFn(state));
 
     const prunedState = pruneState(clone(state));
 

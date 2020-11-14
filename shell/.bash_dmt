@@ -7,13 +7,12 @@ DMT_CLI="$CLI_DIR/dmt.js"
 TAIL_LOG_LINES=300
 
 function dmt {
-  if [ -z "$1" ] || [ "$1" == "help" ] || [ "$1" == "version" ]; then
+  if [ -z "$1" ] || [ "$1" == "help" ]; then
     echo
     printf "${MAGENTA}        ∞ DMT ∞${NC}\n"
     #printf "${CYAN}Freedom to imagine${NC}\n"
     printf "${CYAN}Digital Mastery Techniques${NC}\n"
-    printf " ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version") ${CYAN}—${NC}\n"
-    #printf "${CYAN}${NC}\n"
+    printf " ${CYAN}— ${GREEN}v$(cat "$DMT_PATH/.version") ${CYAN}—${NC}\n"
     echo
   fi
 

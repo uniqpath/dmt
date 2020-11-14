@@ -5,6 +5,17 @@ import { reduceSizeOfStateForGUI as omitStateFn } from 'dmt/gui';
 
 import { Store } from 'dmt/store';
 
+function removeStateChangeFalseTriggers(stateClone) {
+  if (stateClone.nearbyDevices) {
+    for (const deviceInfo of stateClone.nearbyDevices) {
+      delete deviceInfo.staleDetectedAt;
+      delete deviceInfo.lastSeenAt;
+    }
+  }
+
+  return stateClone;
+}
+
 export default function createProgramStore(program) {
   const { device } = program;
 
@@ -21,7 +32,7 @@ export default function createProgramStore(program) {
     notifications: []
   };
 
-  const store = new Store({ initState, omitStateFn, stateFilePath: dmt.programStateFile });
+  const store = new Store({ initState, omitStateFn, stateFilePath: dmt.programStateFile, removeStateChangeFalseTriggers });
 
   if (program.apMode()) {
     store.update({ device: { apInfo: dmt.apInfo() } }, { announce: false });
