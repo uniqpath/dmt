@@ -1,15 +1,13 @@
-import SimpleStore from './simpleStore';
+import SimpleStore from './simpleStore.js';
 
-import ConnectDevice from './multiConnectedStoreModules/connectDevice';
-import Foreground from './multiConnectedStoreModules/foreground';
-import SwitchDevice from './multiConnectedStoreModules/switchDevice';
+import ConnectDevice from './multiConnectedStoreModules/connectDevice.js';
+import Foreground from './multiConnectedStoreModules/foreground.js';
+import SwitchDevice from './multiConnectedStoreModules/switchDevice.js';
 
-import nacl from 'tweetnacl';
-import naclutil from 'tweetnacl-util';
-nacl.util = naclutil;
+import newKeypair from '../../keypair/newKeypair.js';
 
 class MultiConnectedStore extends SimpleStore {
-  constructor({ address, port, protocol, protocolLane, connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
+  constructor({ address, port, protocol, protocolLane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
     super();
 
     if (!address) {
@@ -18,9 +16,8 @@ class MultiConnectedStore extends SimpleStore {
 
     const thisDeviceStateKeys = ['time', 'environment', 'nearbyDevices', 'notifications'];
 
-    const keys = nacl.box.keyPair();
-    this.publicKey = keys.publicKey;
-    this.privateKey = keys.secretKey;
+    this.publicKey = keypair.publicKey;
+    this.privateKey = keypair.privateKey;
 
     this.port = port;
     this.protocol = protocol;

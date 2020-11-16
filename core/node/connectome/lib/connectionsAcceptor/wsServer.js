@@ -100,7 +100,7 @@ class WsServer extends EventEmitter {
         remotePubkeyHex: ws._connectomeChannel.remotePubkeyHex(),
         readyState: ws.readyState,
         protocol: ws.protocol,
-        protocolLane: ws.protocolLane
+        protocolLane: ws._connectomeChannel.protocolLane
       });
     });
 

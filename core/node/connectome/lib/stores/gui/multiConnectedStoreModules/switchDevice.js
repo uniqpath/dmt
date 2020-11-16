@@ -1,4 +1,4 @@
-import Emitter from '../../utils/emitter/index.js';
+import Emitter from '../../../utils/emitter/index.js';
 
 class SwitchDevice extends Emitter {
   constructor({ mcs, connectDevice, foreground }) {

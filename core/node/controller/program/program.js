@@ -23,7 +23,7 @@ import ProgramConnectionsAcceptor from '../server/programConnectionsAcceptor';
 
 import ensureDirectories from './boot/ensureDirectories';
 import getDeviceInfo from './boot/getDeviceInfo';
-import createProgramStore from './boot/createProgramStore';
+import createProgramStore from './createProgramStore/index.js';
 import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
 import loadMiddleware from './boot/loadMiddleware';
 
@@ -130,7 +130,7 @@ class Program extends EventEmitter {
 
   registerProtocol({ protocol, protocolLane, onConnect }) {
     const onConnectWrap = ({ channel }) => onConnect({ program: this, channel });
-    return this.acceptor.addWsEndpoint({ protocol, protocolLane, wsEndpoint: onConnectWrap });
+    return this.acceptor.registerProtocol({ protocol, protocolLane, onConnect: onConnectWrap });
   }
 
   setupFiberPool() {

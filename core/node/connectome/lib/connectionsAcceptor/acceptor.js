@@ -16,9 +16,9 @@ class ConnectionsAcceptor extends EventEmitter {
     this.protocols = {};
   }
 
-  addWsEndpoint({ protocol, protocolLane, wsEndpoint }) {
+  registerProtocol({ protocol, protocolLane, onConnect }) {
     if (this.wsServer) {
-      throw new Error('addWsEndpoint: Please add all protocols before starting the ws server.');
+      throw new Error('registerProtocol: Please add all protocols before starting the ws server.');
     }
 
     this.emit('protocol_added', { protocol, protocolLane });
@@ -29,7 +29,7 @@ class ConnectionsAcceptor extends EventEmitter {
 
     if (!this.protocols[protocol][protocolLane]) {
       const channelList = new ChannelList({ protocol, protocolLane });
-      this.protocols[protocol][protocolLane] = { wsEndpoint, channelList };
+      this.protocols[protocol][protocolLane] = { onConnect, channelList };
       return channelList;
     }
 

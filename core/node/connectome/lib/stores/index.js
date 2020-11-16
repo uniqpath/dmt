@@ -1,6 +1,8 @@
-import SimpleStore from './simpleStore';
-import ConnectedStore from './connectedStore';
-import MultiConnectedStore from './multiConnectedStore';
-import LogStore from './logStore';
+import SimpleStore from './gui/simpleStore.js';
+import ConnectedStore from './gui/connectedStore.js';
+import MultiConnectedStore from './gui/multiConnectedStore.js';
+import LogStore from './gui/logStore.js';
 
-export { SimpleStore, ConnectedStore, MultiConnectedStore, LogStore };
+import CanonicStore from './proc/canonicStore.js';
+
+export { SimpleStore, ConnectedStore, MultiConnectedStore, LogStore, CanonicStore };

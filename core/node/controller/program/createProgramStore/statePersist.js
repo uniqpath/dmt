@@ -2,16 +2,16 @@ import fs from 'fs';
 import writeFileAtomic from 'write-file-atomic';
 
 import dmt from 'dmt/bridge';
-const { log } = dmt;
+const { log, util } = dmt;
 
-import { clone, compare } from '../../util';
+const { compare } = util;
 
 import cleanupStateOnSave from './cleanupStateOnSave';
 
 const STATE_SCHEMA_VERSION = 0.8;
 
-function saveState({ state, lastSavedState, stateFilePath }) {
-  const _state = cleanupStateOnSave(clone(state));
+function saveState({ state, lastSavedState, stateFilePath = dmt.programStateFile } = {}) {
+  const _state = cleanupStateOnSave(state);
 
   _state.schemaVersion = STATE_SCHEMA_VERSION;
 
@@ -23,7 +23,7 @@ function saveState({ state, lastSavedState, stateFilePath }) {
   }
 }
 
-function readState({ stateFilePath }) {
+function loadState({ stateFilePath = dmt.programStateFile } = {}) {
   if (fs.existsSync(stateFilePath)) {
     try {
       const loadedState = JSON.parse(fs.readFileSync(stateFilePath));
@@ -41,4 +41,4 @@ function readState({ stateFilePath }) {
   return {};
 }
 
-export { saveState, readState };
+export { saveState, loadState };

@@ -45,8 +45,8 @@ class ProgramConnectionsAcceptor {
     return !!this.keypair;
   }
 
-  addWsEndpoint({ protocol, protocolLane, wsEndpoint }) {
-    return this.acceptor.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
+  registerProtocol({ protocol, protocolLane, onConnect }) {
+    return this.acceptor.registerProtocol({ protocol, protocolLane, onConnect });
   }
 
   connectionList() {

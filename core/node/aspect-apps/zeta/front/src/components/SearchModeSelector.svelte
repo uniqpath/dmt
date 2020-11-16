@@ -24,8 +24,8 @@
 </script>
 
 <div class="search_mode">
-  <span class="public_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>Public search</span>
-  <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>Search this node only</span>
+  <span class="public_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>Team search</span>
+  <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>This node only</span>
 
   {#if !searchQuery}
     <div class="explain" class:public_mode={$searchMode == 0} class:this_node={$searchMode == 1}>
@@ -73,28 +73,35 @@
 /*public_search, this_node_search*/
 
 .search_mode .public_search:not(.active), .search_mode .this_node_search:not(.active) {
-  text-decoration: underline;
+
 }
 
 /*.search_mode .public_search.active, .search_mode .this_node_search.active {
   cursor: default;
 }*/
 
-.search_mode .public_search:hover:not(.active), .search_mode .this_node_search:hover:not(.active) {
-  opacity: 0.8;
-}
+.search_mode .public_search:hover:not(.active) {
+  color: var(--zeta-green);
+ }
+
+.search_mode .this_node_search:hover:not(.active) {
+  color: var(--dmt-cyan);
+ }
 
 /*public*/
 
 .search_mode .public_search:hover, .search_mode .public_search.active {
-  background-color: var(--zeta-green);
-  color: #333;
+  text-decoration: underline;
+  /*background-color: var(--zeta-green);
+  color: #333;*/
 }
 
 /*this_node_search*/
 
 .search_mode .this_node_search:hover, .search_mode .this_node_search.active {
-  background-color: var(--dmt-navy);
+  text-decoration: underline;
+
+  /*background-color: var(--dmt-navy);*/
 }
 
 .search_mode .explain {

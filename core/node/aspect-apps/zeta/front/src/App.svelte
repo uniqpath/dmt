@@ -290,7 +290,7 @@
 
   appHelper.on('explorersClick', explorersClick);
 
-  $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Search public network" : "Search this node");
+  $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Team search" : "This node");
 
   appHelper.on('search', doSearch);
 </script>

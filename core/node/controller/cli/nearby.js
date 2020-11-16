@@ -77,8 +77,8 @@ function compareDmtVersions(_v1, _v2) {
   const v1 = _v1.match(re)[0];
   const v2 = _v2.match(re)[0];
 
-  const [v1a, v1b, v1c] = v1.split('.');
-  const [v2a, v2b, v2c] = v2.split('.');
+  const [v1a, v1b, v1c] = v1.split('.').map(n => parseInt(n));
+  const [v2a, v2b, v2c] = v2.split('.').map(n => parseInt(n));
 
   if (v1a > v2a) {
     return 1;

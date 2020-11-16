@@ -1,4 +1,4 @@
-import mergeState from './lib/merge';
+import mergeState from './lib/merge.js';
 
 class KeyValueStore {
   constructor() {

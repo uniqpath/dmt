@@ -1,27 +1,25 @@
-import EventEmitter from 'events';
+import { EventEmitter } from '../../utils/index.js';
 
-import { clone } from '../util';
+import { clone } from './util/index.js';
 
-import KeyValueStore from './twoLevelMergeKVStore';
+import KeyValueStore from './twoLevelMergeKVStore.js';
 
-import { saveState, readState } from './diffingStore/statePersist';
+import getDiff from './lib/getDiff.js';
 
-import getDiff from './lib/getDiff';
-
-class ReactiveDiffingStore extends EventEmitter {
-  constructor({ initState = {}, omitStateFn = x => x, stateFilePath = null, removeStateChangeFalseTriggers = x => x } = {}) {
+class CanonicStore extends EventEmitter {
+  constructor(initState, { loadState = null, saveState = null, omitStateFn = x => x, removeStateChangeFalseTriggers = x => x } = {}) {
     super();
 
     this.omitStateFn = omitStateFn;
-    this.stateFilePath = stateFilePath;
+    this.saveState = saveState;
     this.removeStateChangeFalseTriggers = removeStateChangeFalseTriggers;
 
     this.kvStore = new KeyValueStore();
 
     this.prevAnnouncedState = {};
 
-    if (stateFilePath) {
-      const persistedState = readState({ stateFilePath });
+    if (loadState) {
+      const persistedState = loadState();
 
       if (persistedState) {
         this.kvStore.update(persistedState, { announce: false });
@@ -67,11 +65,9 @@ class ReactiveDiffingStore extends EventEmitter {
     this.announceStateChange(announce);
   }
 
-  save() {
-    const { stateFilePath } = this;
-
-    if (stateFilePath) {
-      this.lastSavedState = saveState({ state: this.kvStore.state, lastSavedState: this.lastSavedState, stateFilePath }) || this.lastSavedState;
+  save(state) {
+    if (this.saveState) {
+      this.lastSavedState = this.saveState({ state: clone(state), lastSavedState: this.lastSavedState }) || this.lastSavedState;
     }
   }
 
@@ -86,9 +82,7 @@ class ReactiveDiffingStore extends EventEmitter {
 
     const { state } = this.kvStore;
 
-    const pruneState = state => this.removeStateChangeFalseTriggers(this.omitStateFn(state));
-
-    const prunedState = pruneState(clone(state));
+    const prunedState = this.removeStateChangeFalseTriggers(this.omitStateFn(clone(state)));
 
     const diff = getDiff({
       state: prunedState,
@@ -96,7 +90,7 @@ class ReactiveDiffingStore extends EventEmitter {
     });
 
     if (diff) {
-      this.save();
+      this.save(state);
 
       this.emit('state_diff', { diff });
 
@@ -107,4 +101,4 @@ class ReactiveDiffingStore extends EventEmitter {
   }
 }
 
-export default ReactiveDiffingStore;
+export default CanonicStore;

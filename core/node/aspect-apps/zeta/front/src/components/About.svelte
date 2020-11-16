@@ -18,26 +18,32 @@
   }
 </script>
 
-  {#if app.isDevMachine}
+  <!-- {#if app.isDevMachine}
     <img src="/apps/zeta/img/wabbit.png" class="wabbit">
-  {/if}
+  {/if} -->
 
   <div class="about" class:visible={!minimized && !searchQuery}>
 
-    <a href="#" class="minimize" on:click={() => minimize()}>X</a>
+    <!-- <a href="#" class="minimize" on:click={() => minimize()}>X</a> -->
 
     <!-- {#if app.isZetaSeek} -->
       <p>
-        <a href="https://dmt-system.com"><img src="/apps/zeta/img/dmt_symbol.png" class="icon_symbol" /></a>
-        <a href="https://zetaseek.com"><img src="/apps/zeta/img/zeta_symbol.png" class="icon_symbol" /></a>
+
+        <!-- <a href="https://zetaseek.com"><img src="/apps/zeta/img/zeta_symbol.png" class="icon_symbol" /></a> -->
         <!-- <a href="https://github.com/uniqpath/dmt#we-are-now-ready-to-setup-the--zeta-explorer-node"><img src="/apps/zeta/img/tropical_fish.png" class="icon_symbol" /></a> -->
 
 
         <!-- <b>Zeta</b> -->
         <!-- <span class="dash">/</span> -->
         <!-- <b><a href="https://dmt-system.com">DMT-SYSTEM</a></b> -->
-        <span class="version">{displayVersion}</span> —
-        <a href="https://discord.gg/XvJzmtF"><!-- <img class="icon_symbol" src="/apps/zeta/img/discord.svg" /> -->live support</a>
+
+        <!-- {#if app.isZetaSeek}
+          <a href="https://dmt-system.com">dmt-system</a> ·
+        {/if} -->
+        <span class="version"><a href="https://dmt-system.com">{displayVersion}</a></span>
+
+        <!-- <img src="/apps/zeta/img/dmt_symbol.png" class="icon_symbol" /> -->
+        <!-- <a href="https://discord.gg/XvJzmtF"><img class="icon_symbol" src="/apps/zeta/img/discord.svg" />live support</a> -->
       </p>
 
     <!-- {:else}
@@ -67,11 +73,11 @@
 }
 
 .about {
-  width: 230px;
+  width: 130px;
   position: fixed;
   right: 0;
   bottom: 0;
-  padding: 10px;
+  padding: 2px;
   color: white;
   font-size: 0.8em;
   opacity: 0.8;
@@ -80,6 +86,7 @@
   background-color: #A4938B;
   background-color: #D9EBD5;
   display: none;
+  text-align: center;
   /*display: inline-block;
   vertical-align: middle;*/
 }

@@ -1,9 +1,13 @@
 import dmt from 'dmt/bridge';
 const { def } = dmt;
 
+import { saveState, loadState } from './statePersist';
+
 import { reduceSizeOfStateForGUI as omitStateFn } from 'dmt/gui';
 
-import { Store } from 'dmt/store';
+import { stores } from 'dmt/connectome';
+
+const { CanonicStore } = stores;
 
 function removeStateChangeFalseTriggers(stateClone) {
   if (stateClone.nearbyDevices) {
@@ -32,7 +36,7 @@ export default function createProgramStore(program) {
     notifications: []
   };
 
-  const store = new Store({ initState, omitStateFn, stateFilePath: dmt.programStateFile, removeStateChangeFalseTriggers });
+  const store = new CanonicStore(initState, { saveState, loadState, omitStateFn, removeStateChangeFalseTriggers });
 
   if (program.apMode()) {
     store.update({ device: { apInfo: dmt.apInfo() } }, { announce: false });

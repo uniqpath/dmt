@@ -5,7 +5,7 @@ import { printServerInfo } from '../exampleUtils.js';
 import { newKeypair, ConnectionsAcceptor } from '../../../index.js';
 import { bufferToHex } from '../../../lib/utils/index.js';
 
-import wsEndpoint from './serverEndpoint.js';
+import onConnect from './serverEndpoint.js';
 
 const keypair = newKeypair();
 
@@ -21,7 +21,7 @@ const verbose = false;
 
 const acceptor = new ConnectionsAcceptor({ port, keypair, verbose });
 
-acceptor.addWsEndpoint({ protocol, protocolLane, wsEndpoint });
+acceptor.registerProtocol({ protocol, protocolLane, onConnect });
 
 acceptor.on('connection', channel => {
   console.log(colors.magenta(`Initiated new connection with shared secret ${colors.gray(bufferToHex(channel.sharedSecret))}`));
