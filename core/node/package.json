@@ -13,7 +13,7 @@
     "./gui": "./gui",
     "./user": "./user",
     "./iot": "./iot",
-    "./bee": "./bee",
+    "./identity": "./identity",
     "./lanbus": "./aspect-nearby/lanbus",
     "./nearby": "./aspect-nearby/nearby",
     "./notify": "./notify",

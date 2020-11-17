@@ -13,7 +13,7 @@
   {#if app.isZetaSeek}
     <div class="tagline">
       {#if connected}
-        Welcome<span></span>, this is a strange search <span>♪♫♬</span>
+        Welcome<span></span> to the strangengine … <!-- <span>♪♫♬</span> -->
       {/if}
     </div>
   {/if}

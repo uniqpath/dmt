@@ -1,5 +1,5 @@
 import colors from 'colors';
-import { ipcClient, parseArgs } from 'dmt/cli';
+import { ipcClient, parseArgs, Table } from 'dmt/cli';
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -8,9 +8,31 @@ if (args.error) {
   process.exit();
 }
 
+function displayTable(registeredProtocols) {
+  const table = new Table();
+
+  const headers = ['protocol', 'lane'];
+
+  table.push(headers.map(h => colors.cyan(h)));
+
+  table.push(Table.divider);
+
+  registeredProtocols.forEach(({ protocol, lanes }, key, arr) => {
+    lanes.forEach(lane => {
+      table.push([colors.magenta(protocol), colors.cyan(lane)]);
+    });
+
+    if (!Object.is(arr.length - 1, key)) {
+      table.push(Table.divider);
+    }
+  });
+
+  console.log(table.toString());
+}
+
 ipcClient({ actorName: 'controller', action: 'protocols' })
   .then(({ registeredProtocols }) => {
-    console.log(registeredProtocols);
+    displayTable(registeredProtocols);
     process.exit();
   })
   .catch(e => {

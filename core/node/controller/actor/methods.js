@@ -65,27 +65,14 @@ function logHandler({ args }) {
 
 function connectionsHandler({ args, program }) {
   return new Promise((success, reject) => {
-    const incoming = program.acceptor.connectionList();
+    const incoming = program.acceptor.connectionList({ warnForIsReady: false });
 
-    const { fiberPool } = program;
-
-    const outgoing = Object.entries(fiberPool.connectors).map(([address, conn]) => {
-      return {
-        address,
-        remotePubkeyHex: conn.remotePubkeyHex(),
-        protocol: conn.protocol,
-        protocolLane: conn.protocolLane,
-        ready: conn.isReady(),
-        connectedAt: conn.connectedAt,
-        lastMessageAt: conn.lastMessageAt
-      };
-    });
-
-    const order = util.compareValues('protocol', 'protocolLane');
+    const { connectorPool } = program;
+    const outgoing = connectorPool.connectionList();
 
     success({
-      incoming: incoming.sort(order),
-      outgoing: outgoing.sort(order)
+      incoming,
+      outgoing
     });
   });
 }

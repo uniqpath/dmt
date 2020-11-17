@@ -42,13 +42,9 @@ function displayTable(connectionList, outgoing = true) {
     connectionList.forEach(({ address, protocol, protocolLane, ready, connectedAt, lastMessageAt, remotePubkeyHex }) => {
       const deviceKey = args.full ? remotePubkeyHex : `${remotePubkeyHex ? remotePubkeyHex.substr(0, 8) : '?'}…`;
 
-      let connectedMarker = colors.green('✓ ');
+      const connectedMarker = ready ? colors.green('✓') : colors.red('✖');
 
-      if (outgoing && !ready) {
-        connectedMarker = colors.red('✖ ');
-      }
-
-      const addressLine = `${connectedMarker}${colors.white(address)}`;
+      const addressLine = `${connectedMarker} ${colors.white(address)}`;
 
       const connUptime = connectedAt ? dmt.prettyTimeAge(connectedAt, { detailed: true }).replace(' ago', '') : '';
       const lastMessageTime = lastMessageAt ? dmt.prettyTimeAge(lastMessageAt, { detailed: true }) : '';

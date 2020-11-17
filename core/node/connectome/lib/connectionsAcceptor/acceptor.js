@@ -2,6 +2,8 @@ import { EventEmitter } from '../utils/index.js';
 import WsServer from './wsServer.js';
 import initializeConnection from './initializeConnection.js';
 
+import { compareValues } from '../utils/sorting/sorting.js';
+
 import ChannelList from '../channel/channelList.js';
 
 class ConnectionsAcceptor extends EventEmitter {
@@ -50,7 +52,9 @@ class ConnectionsAcceptor extends EventEmitter {
   }
 
   connectionList() {
-    return this.wsServer.enumerateConnections().reverse();
+    const list = this.wsServer.enumerateConnections().reverse();
+    const order = compareValues('protocol', 'protocolLane');
+    return list.sort(order);
   }
 }
 

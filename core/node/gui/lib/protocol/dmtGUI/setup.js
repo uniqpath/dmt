@@ -19,7 +19,7 @@ export default function setup({ program }) {
   log.dev('⚠️  Reminder: remove this GUITarget after dmt gui moves to Svelte3');
 
   // 💡 initial state is sent on each channel creation (in ./endpoint.js)
-  program.store.on('state_diff', ({ diff }) => {
+  program.store.on('diff', diff => {
     channelList.sendToAll({ diff });
   });
 

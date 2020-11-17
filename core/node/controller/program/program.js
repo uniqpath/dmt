@@ -6,10 +6,10 @@ const { log } = dmt;
 
 import { push } from 'dmt/notify';
 
-import { FiberPool, contentServer } from 'dmt/connectome';
+import { ConnectorPool, contentServer } from 'dmt/connectome';
 
 import initControllerActor from '../actor';
-import Actors from './actors/actors';
+import ActorManagement from './actorManagement/index.js';
 
 import MetaMaskStore from './metamask';
 
@@ -54,11 +54,11 @@ class Program extends EventEmitter {
 
     this.metamaskStore = new MetaMaskStore();
 
-    this.actors = new Actors(this);
+    this.actors = new ActorManagement(this);
 
     this.acceptor = new ProgramConnectionsAcceptor(this);
 
-    this.setupFiberPool();
+    this.setupConnectorPool();
 
     if (dmt.isRPi()) {
       this.store.update({ device: { isRPi: true } }, { announce: false });
@@ -120,8 +120,8 @@ class Program extends EventEmitter {
     return this.metamaskStore;
   }
 
-  registerActor(actor) {
-    this.actors.register(actor);
+  registerActor(actor, options = {}) {
+    this.actors.register(actor, options);
   }
 
   actor(name) {
@@ -133,7 +133,7 @@ class Program extends EventEmitter {
     return this.acceptor.registerProtocol({ protocol, protocolLane, onConnect: onConnectWrap });
   }
 
-  setupFiberPool() {
+  setupConnectorPool() {
     const port = 7780;
     const protocol = 'dmt';
     const protocolLane = 'fiber';
@@ -149,7 +149,7 @@ class Program extends EventEmitter {
 
     const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
 
-    this.fiberPool = new FiberPool({ protocol, protocolLane, port, clientPrivateKey, clientPublicKey, log: log.write });
+    this.connectorPool = new ConnectorPool({ protocol, protocolLane, port, clientPrivateKey, clientPublicKey, log: log.write });
 
     const emitter = new EventEmitter();
 
@@ -157,7 +157,7 @@ class Program extends EventEmitter {
       this.emit('file_request', data);
     });
 
-    this.server.setupRoutes(app => contentServer({ app, fiberPool: this.fiberPool, defaultPort: port, emitter }));
+    this.server.setupRoutes(app => contentServer({ app, connectorPool: this.connectorPool, defaultPort: port, emitter }));
   }
 
   continueBooting() {

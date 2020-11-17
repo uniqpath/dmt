@@ -8,7 +8,7 @@ import enhanceResult from './enhanceResult';
 const { log, util } = dmt;
 
 class ZetaSearch {
-  constructor({ fiberPool, contentProviders, searchOriginHost } = {}) {
+  constructor({ connectorPool, contentProviders, searchOriginHost } = {}) {
     this.searchOriginHost = searchOriginHost;
 
     const localProviders = contentProviders.filter(provider => provider.localhost);
@@ -20,7 +20,7 @@ class ZetaSearch {
     this.searchArray = localProviders.map(provider => new LocalProviderSearch({ provider }));
 
     remoteProviders.forEach(provider => {
-      fiberPool
+      connectorPool
         .getConnector(provider.address, provider.port || 7780)
         .then(connector => {
           this.searchArray.push(new RemoteProviderSearch({ provider, connector }));

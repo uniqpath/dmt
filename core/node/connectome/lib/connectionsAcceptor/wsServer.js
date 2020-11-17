@@ -50,7 +50,7 @@ class WsServer extends EventEmitter {
       const channel = new Channel(ws, { verbose });
 
       channel._remoteIp = getRemoteIp(req);
-      channel._remoteAddress = getRemoteHost(req) || channel._remoteIp;
+      channel._remoteAddress = getRemoteHost(req);
 
       channel.connectedAt = Date.now();
 
@@ -88,19 +88,23 @@ class WsServer extends EventEmitter {
     this.periodicCleanupAndPing();
   }
 
+  // 💡 this method here is incoming connections list
+  // 💡⚠️ and it has to have THE SAME properties as connectorPool::connectionList
+  // 💡 (which is used to get outgoing connections list)
   enumerateConnections() {
     const list = [];
 
     this.wss.clients.forEach(ws => {
       list.push({
-        ip: ws._connectomeChannel.remoteIp(),
-        address: ws._connectomeChannel.remoteAddress(),
-        connectedAt: ws._connectomeChannel.connectedAt,
-        lastMessageAt: ws._connectomeChannel.lastMessageAt,
-        remotePubkeyHex: ws._connectomeChannel.remotePubkeyHex(),
-        readyState: ws.readyState,
+        address: ws._connectomeChannel.remoteAddress() || ws._connectomeChannel.remoteIp(),
         protocol: ws.protocol,
-        protocolLane: ws._connectomeChannel.protocolLane
+        protocolLane: ws._connectomeChannel.protocolLane,
+        remotePubkeyHex: ws._connectomeChannel.remotePubkeyHex(),
+        ready: ws._connectomeChannel.isReady({ warn: false }), // 💡 connected and agreed on shared key .. so far only used in informative cli `dmt connections` list, otherwise we never have to check for this in our distributed systems logic
+        //💡 informative-nature only, not used for distributed system logic
+        readyState: ws.readyState, // 💡 underlying ws-connection original 'readyState' -- useful only for debugging purposes, otherwise it's just informative
+        connectedAt: ws._connectomeChannel.connectedAt,
+        lastMessageAt: ws._connectomeChannel.lastMessageAt
       });
     });
 

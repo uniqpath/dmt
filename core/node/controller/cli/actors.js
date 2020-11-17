@@ -1,5 +1,5 @@
 import colors from 'colors';
-import { ipcClient, parseArgs } from 'dmt/cli';
+import { ipcClient, parseArgs, Table } from 'dmt/cli';
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -8,9 +8,25 @@ if (args.error) {
   process.exit();
 }
 
+function displayTable(registeredActors) {
+  const table = new Table();
+
+  const headers = ['actorName', 'restrictToLocal', 'methodCount'];
+
+  table.push(headers.map(h => colors.cyan(h)));
+
+  table.push(Table.divider);
+
+  registeredActors.forEach(({ actorName, methodList, restrictToLocal }) => {
+    table.push([colors.magenta(actorName), restrictToLocal ? '🔒' : colors.gray('No'), methodList.length]);
+  });
+
+  console.log(table.toString());
+}
+
 ipcClient({ actorName: 'controller', action: 'actors' })
   .then(({ registeredActors }) => {
-    console.log(registeredActors);
+    displayTable(registeredActors);
     process.exit();
   })
   .catch(e => {

@@ -20,7 +20,7 @@ function fileNotFound({ providerAddress, fileName, res, host }) {
   res.redirect(`/${pre}?q=${fileName}&error=file_not_found`);
 }
 
-function contentServer({ app, fiberPool, defaultPort, emitter }) {
+function contentServer({ app, connectorPool, defaultPort, emitter }) {
   log('Starting content server ...');
 
   if (!defaultPort) {
@@ -71,7 +71,7 @@ function contentServer({ app, fiberPool, defaultPort, emitter }) {
               port = defaultPort;
             }
 
-            fiberPool
+            connectorPool
               .getConnector(ip, port)
               .then(connector => {
                 const context = { sessionId, res, connector };

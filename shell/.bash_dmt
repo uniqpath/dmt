@@ -56,6 +56,7 @@ function dmt {
     "device"
     "nearby"
     "protocols"
+    "identity"
     "actors"
     "state"
     "reach"
@@ -1047,23 +1048,26 @@ function dmt_help {
   echo
   # printf "⚠️  ≡ ${YELLOW}Not yet implemented${NC}\n"
   # echo
-  printf "${MAGENTA}Search and Multimedia${NC}\n"
+  printf "${MAGENTA}DMT Connectome${NC}\n"
   echo
-  printf "  ${CYAN}■${NC} ${CYAN}dmt search ${GRAY}various methods for cli search\n"
-  printf "  ${CYAN}■${NC} ${CYAN}dmt media ${GRAY}various methods for cli media player manipulation\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt nearby ${GRAY}shows nearby devices ${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt connections ${GRAY}shows dmt-proc ${UNDERLINE}incoming${RESET} ${GRAY}and ${UNDERLINE}outgoing connections${RESET}${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt protocols${NC} ${GRAY}show registered realtime communication protocols${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt identities${NC} ${GRAY}manage cryptographic user identities${NC}\n"
   echo
+
   printf "${MAGENTA}GUI and State${NC}\n"
   echo
   printf "  ${CYAN}■${NC} ${CYAN}dmt gui ${GRAY}various methods related to ${UNDERLINE}dmt-gui${RESET}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt state ${GRAY}shows dmt-proc ${UNDERLINE}in-memory program state${RESET} ${GRAY}(part of this is saved to ${UNDERLINE}program.json${RESET} ${GRAY}file)${NC}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt actors ${GRAY}shows dmt-proc registered actor objects than can be called over connectome or cli${NC}\n"
   echo
-  printf "${MAGENTA}DMT Connectome${NC}\n"
+
+  printf "${MAGENTA}Search and Multimedia${NC}\n"
   echo
-  printf "  ${CYAN}■${NC} ${CYAN}dmt nearby ${GRAY}shows nearby devices ${NC}\n"
-  printf "  ${CYAN}■${NC} ${CYAN}dmt connections ${GRAY}shows dmt-proc ${UNDERLINE}incoming${RESET} ${GRAY}and ${UNDERLINE}outgoing connections${RESET}${NC}\n"
-  printf "  ${CYAN}■${NC} ${CYAN}dmt protocols${NC} ${GRAY}show registered realtime communication protocols${NC}\n"
-  printf "  ${CYAN}■${NC} ${CYAN}dmt reach${NC} ${GRAY}[todo]${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt search ${GRAY}various methods for cli search\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt media ${GRAY}various methods for cli media player manipulation\n"
+  #printf "  ${CYAN}■${NC} ${CYAN}dmt reach${NC} ${GRAY}[todo]${NC}\n"
 }
 
 function dmt_help_explain_rpc {

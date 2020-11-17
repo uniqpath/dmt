@@ -44,7 +44,7 @@ function server(program) {
               }
             }
 
-            program.fiberPool
+            program.connectorPool
               .getConnector(address, port || 7780)
               .then(connector => {
                 connector

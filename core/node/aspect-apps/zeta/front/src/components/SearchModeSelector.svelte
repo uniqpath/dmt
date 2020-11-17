@@ -24,31 +24,27 @@
 </script>
 
 <div class="search_mode">
-  <span class="public_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>Team search</span>
+  <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>Team search</span>
+  <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
   <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>This node only</span>
 
-  {#if !searchQuery}
+  <!-- {#if !searchQuery}
     <div class="explain" class:public_mode={$searchMode == 0} class:this_node={$searchMode == 1}>
 
       {#if $searchMode == 0}
-        <!-- Search all network peers. <br> -->
         💡 All network peers will receive the search query.
-
-        <!-- <img src="/apps/zeta/img/search_queries0.png" alt="search_query_public" /> -->
       {:else}
         🦉 Search query is not transmitted to other peers.
-
-        <!-- <img src="/apps/zeta/img/search_queries1.png" alt="search_query_this_node" /> -->
       {/if}
     </div>
 
-  {/if}
+  {/if} -->
 
 </div>
 
-{#if !searchQuery}
+<!-- {#if !searchQuery}
   <SearchModeDiagram />
-{/if}
+{/if} -->
 
 <style>
 
@@ -59,6 +55,7 @@
   padding-top: 20px;
   width: var(--search-input-width);
   margin: 0 auto;
+  font-size: 0.9em;
 }
 
 .search_mode span {
@@ -67,30 +64,32 @@
 }
 
 .search_mode span:hover {
-  cursor: pointer;
+  cursor: default;
 }
 
-/*public_search, this_node_search*/
+/*team_search, this_node_search*/
 
-.search_mode .public_search:not(.active), .search_mode .this_node_search:not(.active) {
+.search_mode .team_search:not(.active), .search_mode .this_node_search:not(.active) {
 
 }
 
-/*.search_mode .public_search.active, .search_mode .this_node_search.active {
+/*.search_mode .team_search.active, .search_mode .this_node_search.active {
   cursor: default;
 }*/
 
-.search_mode .public_search:hover:not(.active) {
+.search_mode .team_search:hover:not(.active) {
   color: var(--zeta-green);
+  cursor: pointer;
  }
 
 .search_mode .this_node_search:hover:not(.active) {
   color: var(--dmt-cyan);
+  cursor: pointer;
  }
 
 /*public*/
 
-.search_mode .public_search:hover, .search_mode .public_search.active {
+.search_mode .team_search:hover, .search_mode .team_search.active {
   text-decoration: underline;
   /*background-color: var(--zeta-green);
   color: #333;*/
@@ -100,7 +99,6 @@
 
 .search_mode .this_node_search:hover, .search_mode .this_node_search.active {
   text-decoration: underline;
-
   /*background-color: var(--dmt-navy);*/
 }
 

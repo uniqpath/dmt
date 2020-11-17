@@ -1,6 +1,8 @@
 import firstConnectWaitAndContinue from '../connect/firstConnectWaitAndContinue.js';
 
-class FiberPool {
+import { compareValues } from '../utils/sorting/sorting.js';
+
+class ConnectorPool {
   constructor(options) {
     this.options = options;
 
@@ -45,6 +47,28 @@ class FiberPool {
       }
     });
   }
+
+  // 💡 this method here is outgoing connections list
+  // 💡 ⚠️ and it has to have THE SAME properties as wsServer::enumerateConnections
+  // 💡 (which is used to get incoming connections list)
+  connectionList() {
+    const list = Object.entries(this.connectors).map(([address, conn]) => {
+      return {
+        address,
+        protocol: conn.protocol,
+        protocolLane: conn.protocolLane,
+        remotePubkeyHex: conn.remotePubkeyHex(),
+        ready: conn.isReady(), // 💡 connected and agreed on shared key ... used to determine if we can already send via connector or "we wait for the next rouund"
+        //💡 informative-nature only, not used for distributed system logic
+        readyState: conn.connection && conn.connection.websocket ? conn.connection.websocket.readyState : '?', // 💡 underlying ws-connection original 'readyState' -- useful only for debugging purposes, otherwise it's just informative
+        connectedAt: conn.connectedAt,
+        lastMessageAt: conn.lastMessageAt
+      };
+    });
+
+    const order = compareValues('protocol', 'protocolLane');
+    return list.sort(order);
+  }
 }
 
-export default FiberPool;
+export default ConnectorPool;

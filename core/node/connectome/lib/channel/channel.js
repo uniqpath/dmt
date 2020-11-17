@@ -1,3 +1,4 @@
+import colors from 'colors';
 import send from './send.js';
 import receive from './receive.js';
 
@@ -31,6 +32,14 @@ class Channel extends EventEmitter {
 
   setSharedSecret(sharedSecret) {
     this.sharedSecret = sharedSecret;
+  }
+
+  isReady({ warn = true } = {}) {
+    if (warn) {
+      console.log("LIB USAGE WARNING ⚠️  we normally don't have to check if channel is ready because we already get it prepared");
+      console.log(`If you really need to do this, call isReady like this: ${colors.green('isReady({ warn: false })')}`);
+    }
+    return !!this.sharedSecret;
   }
 
   remoteAddress() {

@@ -7,7 +7,7 @@ import KeyValueStore from './twoLevelMergeKVStore.js';
 import getDiff from './lib/getDiff.js';
 
 class CanonicStore extends EventEmitter {
-  constructor(initState, { loadState = null, saveState = null, omitStateFn = x => x, removeStateChangeFalseTriggers = x => x } = {}) {
+  constructor(initialState = {}, { loadState = null, saveState = null, omitStateFn = x => x, removeStateChangeFalseTriggers = x => x } = {}) {
     super();
 
     this.omitStateFn = omitStateFn;
@@ -25,7 +25,7 @@ class CanonicStore extends EventEmitter {
         this.kvStore.update(persistedState, { announce: false });
       }
     }
-    this.kvStore.update(initState, { announce: false });
+    this.kvStore.update(initialState, { announce: false });
 
     this.stateChangesCount = 0;
   }
@@ -92,7 +92,7 @@ class CanonicStore extends EventEmitter {
     if (diff) {
       this.save(state);
 
-      this.emit('state_diff', { diff });
+      this.emit('diff', diff);
 
       this.stateChangesCount += 1;
 
