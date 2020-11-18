@@ -14,8 +14,6 @@ function establishAndMaintainConnection(
   const wsProtocol = ssl ? 'wss' : 'ws';
   const endpoint = port.toString().startsWith('/') ? `${wsProtocol}://${address}${port}` : `${wsProtocol}://${address}:${port}`;
 
-  log(`Trying to connect to ws endpoint ${endpoint} ...`);
-
   const connector = new Connector({ address, protocol, protocolLane, rpcRequestTimeout, keypair, verbose });
 
   if (connector.connection) {
@@ -98,8 +96,6 @@ function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
 
   ws.rand = Math.random();
 
-  log(`Created new WebSocket ${ws.rand} for endpoint ${endpoint}`);
-
   if (browser) {
     ws.binaryType = 'arraybuffer';
   }
@@ -109,7 +105,6 @@ function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
   }
 
   const openCallback = m => {
-    log(`websocket ${ws.rand} conn to ${endpoint} open`);
     conn.currentlyTryingWS = null;
     conn.checkTicker = 0;
     addSocketListeners({ ws, connector, openCallback }, { log });

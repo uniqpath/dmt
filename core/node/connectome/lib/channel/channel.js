@@ -1,4 +1,3 @@
-import colors from 'colors';
 import send from './send.js';
 import receive from './receive.js';
 
@@ -37,7 +36,7 @@ class Channel extends EventEmitter {
   isReady({ warn = true } = {}) {
     if (warn) {
       console.log("LIB USAGE WARNING ⚠️  we normally don't have to check if channel is ready because we already get it prepared");
-      console.log(`If you really need to do this, call isReady like this: ${colors.green('isReady({ warn: false })')}`);
+      console.log('If you really need to do this, call isReady like this: isReady({ warn: false })');
     }
     return !!this.sharedSecret;
   }
@@ -62,6 +61,13 @@ class Channel extends EventEmitter {
   send(message) {
     send({ message, channel: this });
     this.sentCount += 1;
+  }
+
+  // 💡 we have to send a "special message" { state: {…} } to sync state to frontend ('other side')
+  // 💡 { state: {…} } agreement is part of lower level simple connectome protocol along with { diff: { … }}, { action: { … }} (in other direction) and some others
+  // 💡 we document this SOON
+  sendState(state) {
+    this.send({ state });
   }
 
   messageReceived(message) {

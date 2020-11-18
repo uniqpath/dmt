@@ -65,8 +65,6 @@ class Connector extends EventEmitter {
 
       this.connected = true;
 
-      console.log(`Connector ${this.address} CONNECTED`);
-
       this.successfulConnectsCount += 1;
 
       const num = this.successfulConnectsCount;
@@ -78,7 +76,7 @@ class Connector extends EventEmitter {
 
           this.emit('ready', { sharedSecret, sharedSecretHex });
 
-          console.log(`Connector ${this.address} READY`);
+          console.log(`✓ Ready: DMT Protocol Connector [ ${this.address} · ${this.protocol}/${this.protocolLane} ]`);
         })
         .catch(e => {
           if (num == this.successfulConnectsCount) {
@@ -92,7 +90,9 @@ class Connector extends EventEmitter {
         this.emit('disconnect');
       }
 
-      console.log(`Connector ${this.address} DISCONNECTED, setting READY to false`);
+      if (this.connected == undefined) {
+        console.log(`Connector ${this.address} was not able to connect at first try, setting READY to false`);
+      }
 
       this.connected = false;
       this.ready = false;

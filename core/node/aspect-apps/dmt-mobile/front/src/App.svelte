@@ -11,7 +11,7 @@
   export let store;
   export let dmtJS;
 
-  const { util, Escape } = dmtJS;
+  const { util } = dmtJS;
 
   $: connected = $store.connected;
 
@@ -44,8 +44,6 @@
   *************************
 -->
 <main>
-
-  <Escape />
 
   <DeviceTitle {connected} {deviceName} />
   <Player {connected} {player} {fnAction} />
