@@ -8,13 +8,13 @@ class ConnectDevice {
   }
 
   createStore({ address }) {
-    const { port, protocol, protocolLane, logStore, rpcRequestTimeout, verbose, privateKey: clientPrivateKey, publicKey: clientPublicKey } = this.mcs;
+    const { port, protocol, lane, logStore, rpcRequestTimeout, verbose, privateKey: clientPrivateKey, publicKey: clientPublicKey } = this.mcs;
 
     return new ConnectedStore({
       address,
       port,
       protocol,
-      protocolLane,
+      lane,
       clientPrivateKey,
       clientPublicKey,
       logStore,

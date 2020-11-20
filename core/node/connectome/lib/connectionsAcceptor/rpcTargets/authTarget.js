@@ -23,8 +23,8 @@ class AuthTarget extends EventEmitter {
     return this.keypair.publicKeyHex;
   }
 
-  finalizeHandshake({ protocolLane }) {
-    this.emit('shared_secret', { sharedSecret: this.sharedSecret, protocolLane });
+  finalizeHandshake({ lane }) {
+    this.emit('shared_secret', { sharedSecret: this.sharedSecret, lane });
   }
 }
 

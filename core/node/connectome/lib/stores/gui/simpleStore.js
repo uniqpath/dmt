@@ -1,5 +1,7 @@
 import Emitter from '../../utils/emitter/index.js';
 
+// 💡 Extending Emitter - used rarely or not at all...
+// 💡 we do use it inside ConnectedStore so that it can emit 'ready' event
 class SimpleStore extends Emitter {
   constructor(initialState = {}) {
     super();

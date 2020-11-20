@@ -1,11 +1,11 @@
 import { EventEmitter } from '../utils/index.js';
 
 class ChannelList extends EventEmitter {
-  constructor({ protocol, protocolLane }) {
+  constructor({ protocol, lane }) {
     super();
 
     this.protocol = protocol;
-    this.protocolLane = protocolLane;
+    this.lane = lane;
 
     this.channels = [];
 

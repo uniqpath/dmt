@@ -18,24 +18,24 @@ class ConnectionsAcceptor extends EventEmitter {
     this.protocols = {};
   }
 
-  registerProtocol({ protocol, protocolLane, onConnect }) {
+  registerProtocol({ protocol, lane, onConnect }) {
     if (this.wsServer) {
       throw new Error('registerProtocol: Please add all protocols before starting the ws server.');
     }
 
-    this.emit('protocol_added', { protocol, protocolLane });
+    this.emit('protocol_added', { protocol, lane });
 
     if (!this.protocols[protocol]) {
       this.protocols[protocol] = {};
     }
 
-    if (!this.protocols[protocol][protocolLane]) {
-      const channelList = new ChannelList({ protocol, protocolLane });
-      this.protocols[protocol][protocolLane] = { onConnect, channelList };
+    if (!this.protocols[protocol][lane]) {
+      const channelList = new ChannelList({ protocol, lane });
+      this.protocols[protocol][lane] = { onConnect, channelList };
       return channelList;
     }
 
-    throw new Error(`Protocol lane ${protocol}/${protocolLane} already exists`);
+    throw new Error(`Protocol lane ${protocol}/${lane} already exists`);
   }
 
   start() {
@@ -46,14 +46,14 @@ class ConnectionsAcceptor extends EventEmitter {
   }
 
   registeredProtocols() {
-    return Object.entries(this.protocols).map(([protocol, protocolLanes]) => {
-      return { protocol, lanes: Object.keys(protocolLanes) };
+    return Object.entries(this.protocols).map(([protocol, lanes]) => {
+      return { protocol, lanes: Object.keys(lanes) };
     });
   }
 
   connectionList() {
     const list = this.wsServer.enumerateConnections().reverse();
-    const order = compareValues('protocol', 'protocolLane');
+    const order = compareValues('protocol', 'lane');
     return list.sort(order);
   }
 }

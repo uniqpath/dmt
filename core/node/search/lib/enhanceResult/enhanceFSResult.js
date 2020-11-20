@@ -2,7 +2,7 @@ import dmt from 'dmt/bridge';
 
 import path from 'path';
 
-import { fiberHandle } from 'dmt/connectome';
+import { fiberHandle } from 'dmt/connectome-next';
 
 import { detectMediaType } from 'dmt/search';
 

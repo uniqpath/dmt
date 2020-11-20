@@ -8,7 +8,7 @@ import newKeypair from '../../keypair/newKeypair.js';
 const { applyPatch: applyJSONPatch } = fastJsonPatch;
 
 class ConnectedStore extends SimpleStore {
-  constructor({ address, ssl = false, port, protocol, protocolLane, keypair = newKeypair(), logStore, rpcRequestTimeout, verbose } = {}) {
+  constructor({ address, ssl = false, port, protocol, lane, keypair = newKeypair(), logStore, rpcRequestTimeout, verbose } = {}) {
     super();
 
     if (!address) {
@@ -17,7 +17,7 @@ class ConnectedStore extends SimpleStore {
 
     this.ssl = ssl;
     this.protocol = protocol;
-    this.protocolLane = protocolLane;
+    this.lane = lane;
 
     this.logStore = logStore;
     this.verbose = verbose;
@@ -48,7 +48,7 @@ class ConnectedStore extends SimpleStore {
       ssl: this.ssl,
       port,
       protocol: this.protocol,
-      protocolLane: this.protocolLane,
+      lane: this.lane,
       keypair,
       rpcRequestTimeout: this.rpcRequestTimeout,
       verbose: this.verbose
@@ -78,7 +78,7 @@ class ConnectedStore extends SimpleStore {
       this.wireStateReceived = true;
 
       if (this.verbose) {
-        console.log(`New store ${address} / ${this.protocol} / ${this.protocolLane} state:`);
+        console.log(`New store ${address} / ${this.protocol} / ${this.lane} state:`);
         console.log(state);
       }
 

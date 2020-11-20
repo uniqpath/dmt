@@ -3,7 +3,7 @@ import { settings } from 'dmt/search';
 import dmt from 'dmt/bridge';
 const { stopwatchAdv, dmtContent } = dmt;
 
-import { fiberHandle } from 'dmt/connectome';
+import { fiberHandle } from 'dmt/connectome-next';
 
 import multipathSearch from './multipathSearch';
 

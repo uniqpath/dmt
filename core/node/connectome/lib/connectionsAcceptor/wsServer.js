@@ -98,7 +98,7 @@ class WsServer extends EventEmitter {
       list.push({
         address: ws._connectomeChannel.remoteAddress() || ws._connectomeChannel.remoteIp(),
         protocol: ws.protocol,
-        protocolLane: ws._connectomeChannel.protocolLane,
+        lane: ws._connectomeChannel.lane,
         remotePubkeyHex: ws._connectomeChannel.remotePubkeyHex(),
         ready: ws._connectomeChannel.isReady({ warn: false }), // 💡 connected and agreed on shared key .. so far only used in informative cli `dmt connections` list, otherwise we never have to check for this in our distributed systems logic
         //💡 informative-nature only, not used for distributed system logic

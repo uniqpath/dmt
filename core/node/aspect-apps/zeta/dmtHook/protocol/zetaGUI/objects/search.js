@@ -2,7 +2,7 @@ import dmt from 'dmt/bridge';
 import { push } from 'dmt/notify';
 
 import { parseSearchQuery, serializeContentRefs } from 'dmt/search';
-import { fiberHandle } from 'dmt/connectome';
+import { fiberHandle } from 'dmt/connectome-next';
 
 const { log } = dmt;
 

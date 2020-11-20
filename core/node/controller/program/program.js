@@ -6,7 +6,8 @@ const { log } = dmt;
 
 import { push } from 'dmt/notify';
 
-import { ConnectorPool, contentServer } from 'dmt/connectome';
+import { ConnectorPool } from 'dmt/connectome';
+import { contentServer } from 'dmt/connectome-next';
 
 import initControllerActor from '../actor';
 import ActorManagement from './actorManagement/index.js';
@@ -128,18 +129,18 @@ class Program extends EventEmitter {
     return this.actors.get(name);
   }
 
-  registerProtocol({ protocol, protocolLane, onConnect }) {
+  registerProtocol({ protocol, lane, onConnect }) {
     const onConnectWrap = ({ channel }) => onConnect({ program: this, channel });
-    return this.acceptor.registerProtocol({ protocol, protocolLane, onConnect: onConnectWrap });
+    return this.acceptor.registerProtocol({ protocol, lane, onConnect: onConnectWrap });
   }
 
   setupConnectorPool() {
     const port = 7780;
     const protocol = 'dmt';
-    const protocolLane = 'fiber';
+    const lane = 'fiber';
 
     const onConnect = ({ program, channel }) => program.actors.setupChannel(channel);
-    this.registerProtocol({ protocol, protocolLane, onConnect });
+    this.registerProtocol({ protocol, lane, onConnect });
 
     const keypair = dmt.keypair();
     if (!keypair) {
@@ -149,7 +150,7 @@ class Program extends EventEmitter {
 
     const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
 
-    this.connectorPool = new ConnectorPool({ protocol, protocolLane, port, clientPrivateKey, clientPublicKey, log: log.write });
+    this.connectorPool = new ConnectorPool({ protocol, lane, port, clientPrivateKey, clientPublicKey, log: log.write });
 
     const emitter = new EventEmitter();
 

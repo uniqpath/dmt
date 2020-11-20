@@ -7,14 +7,11 @@ const wsCLOSED = 3;
 
 import Connector from '../connector/connector.js';
 
-function establishAndMaintainConnection(
-  { address, ssl = false, port, protocol, protocolLane, keypair, remotePubkey, rpcRequestTimeout, verbose },
-  { WebSocket, log }
-) {
+function establishAndMaintainConnection({ address, ssl = false, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose }, { WebSocket, log }) {
   const wsProtocol = ssl ? 'wss' : 'ws';
   const endpoint = port.toString().startsWith('/') ? `${wsProtocol}://${address}${port}` : `${wsProtocol}://${address}:${port}`;
 
-  const connector = new Connector({ address, protocol, protocolLane, rpcRequestTimeout, keypair, verbose });
+  const connector = new Connector({ address, protocol, lane, rpcRequestTimeout, keypair, verbose });
 
   if (connector.connection) {
     return connector;
@@ -132,7 +129,6 @@ function addSocketListeners({ ws, connector, openCallback }, { log }) {
   };
 
   const closeCallback = m => {
-    log(`websocket ${ws.rand} conn ${connector.connection.endpoint} closed`);
     connector.connectStatus(false);
   };
 

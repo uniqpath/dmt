@@ -23,11 +23,10 @@ class LogStore extends SimpleStore {
         log.push(args);
       }
     }
+
     log = log.slice(-limit);
 
     this.set({ log });
-
-    this.emit('new_log_entry');
   }
 }
 

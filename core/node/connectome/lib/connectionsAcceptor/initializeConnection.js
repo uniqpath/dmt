@@ -7,9 +7,9 @@ function initializeConnection({ server, channel }) {
   const auth = new AuthTarget({ keypair: server.keypair, channel });
   channel.attachObject('Auth', auth);
 
-  auth.on('shared_secret', ({ sharedSecret, protocolLane }) => {
+  auth.on('shared_secret', ({ sharedSecret, lane }) => {
     channel.setSharedSecret(sharedSecret);
-    channel.setProtocolLane(protocolLane);
+    channel.setLane(lane);
 
     initializeProtocol({ server, channel });
     server.emit('connection', channel);

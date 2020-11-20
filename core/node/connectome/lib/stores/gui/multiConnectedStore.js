@@ -7,7 +7,7 @@ import SwitchDevice from './multiConnectedStoreModules/switchDevice.js';
 import newKeypair from '../../keypair/newKeypair.js';
 
 class MultiConnectedStore extends SimpleStore {
-  constructor({ address, port, protocol, protocolLane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
+  constructor({ address, port, protocol, lane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
     super();
 
     if (!address) {
@@ -21,7 +21,7 @@ class MultiConnectedStore extends SimpleStore {
 
     this.port = port;
     this.protocol = protocol;
-    this.protocolLane = protocolLane;
+    this.lane = lane;
 
     this.logStore = logStore;
     this.rpcRequestTimeout = rpcRequestTimeout;

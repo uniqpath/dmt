@@ -1,4 +1,4 @@
-import promiseTimeout from './promiseTimeout';
-import requireConditions from './requireConditions';
+import promiseTimeout from './promiseTimeout.js';
+import requireConditions from './requireConditions.js';
 
 export { promiseTimeout, requireConditions };

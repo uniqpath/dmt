@@ -26,14 +26,12 @@ class ProgramConnectionsAcceptor {
 
       this.acceptor.on('connection_closed', channel => {
         if (dmt.isDevMachine()) {
-          console.log(
-            colors.gray(`channel ${channel.protocol}/${channel.protocolLane} from ip ${channel.remoteIp() ? channel.remoteIp() : 'UNKNOWN/STALE'} closed`)
-          );
+          console.log(colors.gray(`channel ${channel.protocol}/${channel.lane} from ip ${channel.remoteIp() ? channel.remoteIp() : 'UNKNOWN/STALE'} closed`));
         }
       });
 
-      this.acceptor.on('protocol_added', ({ protocol, protocolLane }) => {
-        log.brightWhite(`💡 Connectome protocol ${colors.cyan(protocol)}/${colors.cyan(protocolLane)} ready.`);
+      this.acceptor.on('protocol_added', ({ protocol, lane }) => {
+        log.brightWhite(`💡 Connectome protocol ${colors.cyan(protocol)}/${colors.cyan(lane)} ready.`);
       });
     } else {
       log.red('ProgramConnectionsAcceptor not started because default keypair was not found for this device.');
@@ -45,8 +43,8 @@ class ProgramConnectionsAcceptor {
     return !!this.keypair;
   }
 
-  registerProtocol({ protocol, protocolLane, onConnect }) {
-    return this.acceptor.registerProtocol({ protocol, protocolLane, onConnect });
+  registerProtocol({ protocol, lane, onConnect }) {
+    return this.acceptor.registerProtocol({ protocol, lane, onConnect });
   }
 
   connectionList() {

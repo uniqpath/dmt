@@ -25,8 +25,8 @@ class Channel extends EventEmitter {
     this.receivedCount = 0;
   }
 
-  setProtocolLane(protocolLane) {
-    this.protocolLane = protocolLane;
+  setLane(lane) {
+    this.lane = lane;
   }
 
   setSharedSecret(sharedSecret) {
@@ -85,14 +85,6 @@ class Channel extends EventEmitter {
         return this.reverseRpcClient.remoteObject(handle).call(methodName, listify(params));
       }
     };
-  }
-
-  streamFile({ filePath, sessionId }) {
-    if (isBrowser()) {
-      throw new Error('Cannot stream file from browser, use this only from node.js process!');
-    } else {
-      import('../fileTransport/feedBytesIntoChannel/streamFile').then(streamFileModule => streamFileModule.default({ filePath, sessionId, channel: this }));
-    }
   }
 
   terminate() {

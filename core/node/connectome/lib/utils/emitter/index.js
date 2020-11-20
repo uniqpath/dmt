@@ -5,14 +5,12 @@ const splitter = /[\s,]+/g;
 
 class Eev {
   constructor() {
-    this.events = {};
+    this.__events_list = {};
   }
 
   on(names, fn) {
-    const me = this;
-
     names.split(splitter).forEach(name => {
-      const list = me.events[name] || (me.events[name] = new LinkedList());
+      const list = this.__events_list[name] || (this.__events_list[name] = new LinkedList());
       const eev = fn._eev || (fn._eev = ++id);
 
       list.reg[eev] || (list.reg[eev] = list.insert(fn));
@@ -20,10 +18,9 @@ class Eev {
   }
 
   off(names, fn) {
-    const me = this;
     fn &&
-      names.split(splitter).forEach(function(name) {
-        const list = me.events[name];
+      names.split(splitter).forEach(name => {
+        const list = this.__events_list[name];
 
         if (!list) {
           return;
@@ -42,7 +39,7 @@ class Eev {
   }
 
   emit(name, data) {
-    const evt = this.events[name];
+    const evt = this.__events_list[name];
     evt && evt.head.run(data);
   }
 }

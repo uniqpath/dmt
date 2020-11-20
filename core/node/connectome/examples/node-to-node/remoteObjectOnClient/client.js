@@ -8,7 +8,7 @@ const address = 'localhost';
 
 const port = 3500;
 const protocol = 'test';
-const protocolLane = 'fiber';
+const lane = 'fiber';
 
 const verbose = false;
 
@@ -17,7 +17,7 @@ const { privateKeyHex, publicKeyHex } = keypair;
 
 printClientInfo({ privateKeyHex, publicKeyHex });
 
-const connector = connect({ address, port, protocol, protocolLane, keypair, remotePubkey: undefined, verbose });
+const connector = connect({ address, port, protocol, lane, keypair, remotePubkey: undefined, verbose });
 
 connector.attachObject('ClientObject', { hello: () => 'world' });
 

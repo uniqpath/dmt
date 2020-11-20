@@ -21,7 +21,7 @@ import App from './App.svelte';
 
 const port = appHelper.ssl ? '/ws' : 7780;
 const protocol = 'zeta';
-const protocolLane = 'gui';
+const lane = 'gui';
 
 const logStore = new LogStore();
 
@@ -42,7 +42,7 @@ const store = new ConnectedStore(loginStore, {
   port,
   ssl: appHelper.ssl,
   protocol,
-  protocolLane,
+  lane,
   rpcRequestTimeout,
   verbose,
   logStore

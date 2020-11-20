@@ -8,7 +8,7 @@ const address = 'localhost';
 
 const port = 3500;
 const protocol = 'test';
-const protocolLane = 'fiber';
+const lane = 'fiber';
 const verbose = false;
 
 const keypair = newKeypair();
@@ -18,7 +18,7 @@ printClientInfo({ privateKeyHex, publicKeyHex });
 
 let receivedCount = 0;
 
-const connector = connect({ address, port, protocol, protocolLane, keypair, remotePubkey: undefined, verbose });
+const connector = connect({ address, port, protocol, lane, keypair, remotePubkey: undefined, verbose });
 
 connector.on('ready', ({ sharedSecretHex }) => {
   console.log(`${colors.gray('Channel connected')} ${colors.green('✓')}`);
