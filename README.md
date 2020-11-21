@@ -104,10 +104,8 @@ Please reach out for instructions (join a meetup via [dmt-system.com](https://dm
 
 Server setup instructions are easy as well but some guidance can only help.
 
-<img src="https://github.com/uniqpath/info/blob/master/assets/img/next_meetup.png?raw=true">
-
 ## Visit the Website to always learn more
 
 [dmt-system.com](https://dmt-system.com) 💡🚀🎸 (built with **[Svelte](https://svelte.dev) + [Connectome](https://github.com/uniqpath/connectome)**)
 
-<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt_research_space.jpg?raw=true">
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt_banner_quote.png?raw=true">
