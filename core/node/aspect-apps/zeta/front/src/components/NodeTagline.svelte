@@ -13,7 +13,8 @@
   {#if app.isZetaSeek}
     <div class="tagline">
       {#if connected}
-        Welcome<span></span> to the strangengine … <!-- <span>♪♫♬</span> -->
+        Official search engine of <a href="https://dmt-system.com">dmt-system</a> …
+         <!-- <span>♪♫♬</span> -->
       {/if}
     </div>
   {/if}
@@ -25,7 +26,16 @@
   font-size: 0.8em;
   display: inline-block;
   vertical-align: middle;
-  padding: 2px 0;
+  padding: 2px 0 5px 0;
+}
+
+.tagline a {
+  color: var(--dmt-bright-cyan);
+  text-decoration: underline;
+}
+
+.tagline a:hover {
+  color: var(--dmt-cyan);
 }
 
 .tagline span {

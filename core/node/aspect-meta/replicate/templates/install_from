@@ -14,7 +14,7 @@
 # Requirements:
 #
 # - curl (linux: sudo apt-get install curl)
-# - node.js > v12.7 (macOS / linux: curl -L https://git.io/n-install | bash)
+# - node.js > v14.0 (macOS / linux: curl -L https://git.io/n-install | bash)
 # - mpv.io (for multimedia play)
 #
 # RPi guide:

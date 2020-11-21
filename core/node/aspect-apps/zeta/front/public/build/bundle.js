@@ -13032,7 +13032,7 @@ var app = (function () {
     		c: function create() {
     			div = element("div");
     			if (if_block) if_block.c();
-    			attr_dev(div, "class", "tagline svelte-8xxcdj");
+    			attr_dev(div, "class", "tagline svelte-awns0o");
     			add_location(div, file$g, 13, 4, 311);
     		},
     		m: function mount(target, anchor) {
@@ -13071,26 +13071,28 @@ var app = (function () {
     // (15:6) {#if connected}
     function create_if_block_1$5(ctx) {
     	let t0;
-    	let span;
-    	let t1;
+    	let a;
+    	let t2;
 
     	const block = {
     		c: function create() {
-    			t0 = text("Welcome");
-    			span = element("span");
-    			t1 = text(" to the strangengine …");
-    			attr_dev(span, "class", "svelte-8xxcdj");
-    			add_location(span, file$g, 15, 15, 370);
+    			t0 = text("Official search engine of ");
+    			a = element("a");
+    			a.textContent = "dmt-system";
+    			t2 = text(" …");
+    			attr_dev(a, "href", "https://dmt-system.com");
+    			attr_dev(a, "class", "svelte-awns0o");
+    			add_location(a, file$g, 15, 34, 389);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, t0, anchor);
-    			insert_dev(target, span, anchor);
-    			insert_dev(target, t1, anchor);
+    			insert_dev(target, a, anchor);
+    			insert_dev(target, t2, anchor);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(t0);
-    			if (detaching) detach_dev(span);
-    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(a);
+    			if (detaching) detach_dev(t2);
     		}
     	};
 
@@ -13547,17 +13549,17 @@ var app = (function () {
     		c: function create() {
     			div = element("div");
     			span0 = element("span");
-    			span0.textContent = "Team search";
-    			t1 = space();
+    			span0.textContent = "Network search";
+    			t1 = text(" ·\n  \n  ");
     			span1 = element("span");
-    			span1.textContent = "This node only";
-    			attr_dev(span0, "class", "team_search svelte-pr1l25");
+    			span1.textContent = "Server search";
+    			attr_dev(span0, "class", "team_search svelte-1abul9s");
     			toggle_class(span0, "active", /*$searchMode*/ ctx[0] == 0);
     			add_location(span0, file$i, 26, 2, 761);
-    			attr_dev(span1, "class", "this_node_search svelte-pr1l25");
+    			attr_dev(span1, "class", "this_node_search svelte-1abul9s");
     			toggle_class(span1, "active", /*$searchMode*/ ctx[0] == 1);
-    			add_location(span1, file$i, 28, 2, 1004);
-    			attr_dev(div, "class", "search_mode svelte-pr1l25");
+    			add_location(span1, file$i, 28, 2, 1009);
+    			attr_dev(div, "class", "search_mode svelte-1abul9s");
     			add_location(div, file$i, 25, 0, 733);
     		},
     		l: function claim(nodes) {
@@ -18737,7 +18739,7 @@ var app = (function () {
     	return block;
     }
 
-    // (328:4) {#if !connected && isLocalhost}
+    // (331:4) {#if !connected && isLocalhost}
     function create_if_block_3$4(ctx) {
     	let p;
     	let t0;
@@ -18751,10 +18753,10 @@ var app = (function () {
     			span = element("span");
     			span.textContent = "dmt-proc";
     			t2 = text(" ...");
-    			attr_dev(span, "class", "svelte-1lzoyij");
-    			add_location(span, file$t, 329, 28, 10015);
-    			attr_dev(p, "class", "connection_status_help svelte-1lzoyij");
-    			add_location(p, file$t, 328, 6, 9952);
+    			attr_dev(span, "class", "svelte-a24143");
+    			add_location(span, file$t, 332, 28, 10143);
+    			attr_dev(p, "class", "connection_status_help svelte-a24143");
+    			add_location(p, file$t, 331, 6, 10080);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -18771,14 +18773,14 @@ var app = (function () {
     		block,
     		id: create_if_block_3$4.name,
     		type: "if",
-    		source: "(328:4) {#if !connected && isLocalhost}",
+    		source: "(331:4) {#if !connected && isLocalhost}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (334:4) {#if connected}
+    // (337:4) {#if connected}
     function create_if_block_2$7(ctx) {
     	let searchmodeselector;
     	let current;
@@ -18821,14 +18823,14 @@ var app = (function () {
     		block,
     		id: create_if_block_2$7.name,
     		type: "if",
-    		source: "(334:4) {#if connected}",
+    		source: "(337:4) {#if connected}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (338:4) {#if errorCode == 'file_not_found'}
+    // (341:4) {#if errorCode == 'file_not_found'}
     function create_if_block$i(ctx) {
     	let br;
     	let t0;
@@ -18843,10 +18845,10 @@ var app = (function () {
     			div = element("div");
     			t1 = text("⚠️ Requested file was renamed or moved ");
     			if (if_block) if_block.c();
-    			attr_dev(br, "class", "svelte-1lzoyij");
-    			add_location(br, file$t, 338, 6, 10226);
-    			attr_dev(div, "class", "error svelte-1lzoyij");
-    			add_location(div, file$t, 339, 6, 10237);
+    			attr_dev(br, "class", "svelte-a24143");
+    			add_location(br, file$t, 341, 6, 10354);
+    			attr_dev(div, "class", "error svelte-a24143");
+    			add_location(div, file$t, 342, 6, 10365);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, br, anchor);
@@ -18879,14 +18881,14 @@ var app = (function () {
     		block,
     		id: create_if_block$i.name,
     		type: "if",
-    		source: "(338:4) {#if errorCode == 'file_not_found'}",
+    		source: "(341:4) {#if errorCode == 'file_not_found'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (341:47) {#if !noSearchHits}
+    // (344:47) {#if !noSearchHits}
     function create_if_block_1$d(ctx) {
     	let t;
 
@@ -18906,7 +18908,7 @@ var app = (function () {
     		block,
     		id: create_if_block_1$d.name,
     		type: "if",
-    		source: "(341:47) {#if !noSearchHits}",
+    		source: "(344:47) {#if !noSearchHits}",
     		ctx
     	});
 
@@ -18922,20 +18924,24 @@ var app = (function () {
     	let t2;
     	let div0;
     	let a;
-    	let img;
-    	let img_src_value;
+    	let img0;
+    	let img0_src_value;
     	let t3;
     	let connectionstatus;
     	let t4;
     	let nodetagline;
     	let t5;
+    	let div2;
     	let div1;
     	let input;
     	let input_disabled_value;
     	let t6;
+    	let img1;
+    	let img1_src_value;
     	let t7;
     	let t8;
     	let t9;
+    	let t10;
     	let searchresults;
     	let current;
     	let mounted;
@@ -19014,42 +19020,50 @@ var app = (function () {
     			t2 = space();
     			div0 = element("div");
     			a = element("a");
-    			img = element("img");
+    			img0 = element("img");
     			t3 = space();
     			create_component(connectionstatus.$$.fragment);
     			t4 = space();
     			create_component(nodetagline.$$.fragment);
     			t5 = space();
+    			div2 = element("div");
     			div1 = element("div");
     			input = element("input");
     			t6 = space();
-    			if (if_block1) if_block1.c();
+    			img1 = element("img");
     			t7 = space();
-    			if (if_block2) if_block2.c();
+    			if (if_block1) if_block1.c();
     			t8 = space();
-    			if (if_block3) if_block3.c();
+    			if (if_block2) if_block2.c();
     			t9 = space();
+    			if (if_block3) if_block3.c();
+    			t10 = space();
     			create_component(searchresults.$$.fragment);
-    			if (img.src !== (img_src_value = "/apps/zeta/img/zetaseek_logo.svg?v=2")) attr_dev(img, "src", img_src_value);
-    			attr_dev(img, "alt", "zeta logo");
-    			attr_dev(img, "class", "svelte-1lzoyij");
-    			add_location(img, file$t, 315, 6, 9348);
+    			if (img0.src !== (img0_src_value = "/apps/zeta/img/zetaseek_logo.svg?v=2")) attr_dev(img0, "src", img0_src_value);
+    			attr_dev(img0, "alt", "zeta logo");
+    			attr_dev(img0, "class", "svelte-a24143");
+    			add_location(img0, file$t, 315, 6, 9355);
     			attr_dev(a, "href", "#");
-    			attr_dev(a, "class", "svelte-1lzoyij");
-    			add_location(a, file$t, 314, 4, 9283);
-    			attr_dev(div0, "class", "logo svelte-1lzoyij");
-    			add_location(div0, file$t, 313, 2, 9260);
+    			attr_dev(a, "class", "svelte-a24143");
+    			add_location(a, file$t, 314, 4, 9290);
+    			attr_dev(div0, "class", "logo svelte-a24143");
+    			add_location(div0, file$t, 313, 2, 9267);
     			attr_dev(input, "id", "search_input");
     			attr_dev(input, "placeholder", /*placeholderText*/ ctx[19]);
     			input.disabled = input_disabled_value = !/*connected*/ ctx[10];
-    			attr_dev(input, "class", "svelte-1lzoyij");
+    			attr_dev(input, "class", "svelte-a24143");
     			toggle_class(input, "public_search", /*$searchMode*/ ctx[18] == 0);
     			toggle_class(input, "this_node_search", /*$searchMode*/ ctx[18] == 1);
-    			add_location(input, file$t, 325, 4, 9641);
-    			attr_dev(div1, "class", "search svelte-1lzoyij");
-    			add_location(div1, file$t, 323, 2, 9615);
-    			attr_dev(main, "class", "svelte-1lzoyij");
-    			add_location(main, file$t, 303, 0, 9078);
+    			add_location(input, file$t, 326, 6, 9689);
+    			if (img1.src !== (img1_src_value = "/apps/zeta/img/redesign/zetaseek_icon-search.svg")) attr_dev(img1, "src", img1_src_value);
+    			attr_dev(img1, "class", "svelte-a24143");
+    			add_location(img1, file$t, 327, 6, 9963);
+    			attr_dev(div1, "class", "search_input_wrapper svelte-a24143");
+    			add_location(div1, file$t, 325, 4, 9648);
+    			attr_dev(div2, "class", "search svelte-a24143");
+    			add_location(div2, file$t, 323, 2, 9622);
+    			attr_dev(main, "class", "svelte-a24143");
+    			add_location(main, file$t, 303, 0, 9085);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -19064,24 +19078,27 @@ var app = (function () {
     			append_dev(main, t2);
     			append_dev(main, div0);
     			append_dev(div0, a);
-    			append_dev(a, img);
+    			append_dev(a, img0);
     			append_dev(main, t3);
     			mount_component(connectionstatus, main, null);
     			append_dev(main, t4);
     			mount_component(nodetagline, main, null);
     			append_dev(main, t5);
-    			append_dev(main, div1);
+    			append_dev(main, div2);
+    			append_dev(div2, div1);
     			append_dev(div1, input);
     			set_input_value(input, /*searchQuery*/ ctx[5]);
     			/*input_binding*/ ctx[30](input);
     			append_dev(div1, t6);
-    			if (if_block1) if_block1.m(div1, null);
-    			append_dev(div1, t7);
-    			if (if_block2) if_block2.m(div1, null);
-    			append_dev(div1, t8);
-    			if (if_block3) if_block3.m(div1, null);
-    			append_dev(div1, t9);
-    			mount_component(searchresults, div1, null);
+    			append_dev(div1, img1);
+    			append_dev(div2, t7);
+    			if (if_block1) if_block1.m(div2, null);
+    			append_dev(div2, t8);
+    			if (if_block2) if_block2.m(div2, null);
+    			append_dev(div2, t9);
+    			if (if_block3) if_block3.m(div2, null);
+    			append_dev(div2, t10);
+    			mount_component(searchresults, div2, null);
     			current = true;
 
     			if (!mounted) {
@@ -19171,7 +19188,7 @@ var app = (function () {
     				if (if_block1) ; else {
     					if_block1 = create_if_block_3$4(ctx);
     					if_block1.c();
-    					if_block1.m(div1, t7);
+    					if_block1.m(div2, t8);
     				}
     			} else if (if_block1) {
     				if_block1.d(1);
@@ -19189,7 +19206,7 @@ var app = (function () {
     					if_block2 = create_if_block_2$7(ctx);
     					if_block2.c();
     					transition_in(if_block2, 1);
-    					if_block2.m(div1, t8);
+    					if_block2.m(div2, t9);
     				}
     			} else if (if_block2) {
     				group_outros();
@@ -19207,7 +19224,7 @@ var app = (function () {
     				} else {
     					if_block3 = create_if_block$i(ctx);
     					if_block3.c();
-    					if_block3.m(div1, t9);
+    					if_block3.m(div2, t10);
     				}
     			} else if (if_block3) {
     				if_block3.d(1);
@@ -19769,7 +19786,7 @@ var app = (function () {
     		if ($$self.$$.dirty[0] & /*connected, $searchMode*/ 263168) {
     			 $$invalidate(19, placeholderText = !connected
     			? "Search is currently not available"
-    			: $searchMode == 0 ? "Team search" : "This node");
+    			: $searchMode == 0 ? "Network search" : "Server search");
     		}
     	};
 

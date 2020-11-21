@@ -290,7 +290,7 @@
 
   appHelper.on('explorersClick', explorersClick);
 
-  $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Team search" : "This node");
+  $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Network search" : "Server search");
 
   appHelper.on('search', doSearch);
 </script>
@@ -323,7 +323,10 @@
 
   <div class="search">
 
-    <input id="search_input" bind:value={searchQuery} bind:this={searchInput} on:keyup={searchInputChanged} on:paste={searchInputChanged} class:public_search={$searchMode == 0} class:this_node_search={$searchMode == 1} placeholder={placeholderText} disabled={!connected}>
+    <div class="search_input_wrapper">
+      <input id="search_input" bind:value={searchQuery} bind:this={searchInput} on:keyup={searchInputChanged} on:paste={searchInputChanged} class:public_search={$searchMode == 0} class:this_node_search={$searchMode == 1} placeholder={placeholderText} disabled={!connected}>
+      <img src="/apps/zeta/img/redesign/zetaseek_icon-search.svg" />
+    </div>
 
     {#if !connected && isLocalhost}
       <p class="connection_status_help">
@@ -417,6 +420,11 @@
     margin-top: 20px;
   }
 
+  .search_input_wrapper {
+    display: inline-block;
+    position: relative;
+  }
+
   input#search_input {
     width: var(--search-input-width);
     margin: 0 auto;
@@ -424,17 +432,29 @@
     outline: none;
     border-radius: 20px;
     padding: 6px 8px;
+    padding-left: 30px;
   }
+
+  .search_input_wrapper img {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    height: 13px;
+}
 
   input#search_input.public_search {
     background-color: var(--zeta-green);
-    border-color: white;
+    /*border-color: white;*/
+    /*border-color: #222;*/
+    border: none;
   }
 
   input#search_input.this_node_search {
-    background-color: var(--dmt-navy);
-    border-color: white;
-    color: white;
+    /*background-color: var(--dmt-navy);*/
+    background-color: #BCCCCB;
+    /*border-color: white;*/
+    /*color: white;*/
+    border: none;
   }
 
   input#search_input.public_search::placeholder {
@@ -443,7 +463,8 @@
   }
 
   input#search_input.this_node_search::placeholder {
-    color: #6A72FF;
+    /*color: #6A72FF;*/
+    color: #444;
   }
 
   input#search_input:disabled {

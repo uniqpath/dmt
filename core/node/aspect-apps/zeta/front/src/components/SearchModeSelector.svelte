@@ -24,9 +24,9 @@
 </script>
 
 <div class="search_mode">
-  <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>Team search</span>
+  <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>Network search</span> ·
   <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
-  <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>This node only</span>
+  <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>Server search</span>
 
   <!-- {#if !searchQuery}
     <div class="explain" class:public_mode={$searchMode == 0} class:this_node={$searchMode == 1}>
@@ -70,7 +70,7 @@
 /*team_search, this_node_search*/
 
 .search_mode .team_search:not(.active), .search_mode .this_node_search:not(.active) {
-
+  text-decoration: underline;
 }
 
 /*.search_mode .team_search.active, .search_mode .this_node_search.active {
@@ -80,17 +80,22 @@
 .search_mode .team_search:hover:not(.active) {
   color: var(--zeta-green);
   cursor: pointer;
+  text-decoration: underline;
  }
 
 .search_mode .this_node_search:hover:not(.active) {
+  /*color: var(--dmt-cyan);*/
+  /*color: var(--dmt-navy);*/
   color: var(--dmt-cyan);
+  color: #BCCCCB;
   cursor: pointer;
+  text-decoration: underline;
  }
 
 /*public*/
 
 .search_mode .team_search:hover, .search_mode .team_search.active {
-  text-decoration: underline;
+  color: var(--zeta-green);
   /*background-color: var(--zeta-green);
   color: #333;*/
 }
@@ -98,7 +103,9 @@
 /*this_node_search*/
 
 .search_mode .this_node_search:hover, .search_mode .this_node_search.active {
-  text-decoration: underline;
+  /*color: var(--dmt-navy);*/
+  color: var(--dmt-cyan);
+  color: #BCCCCB;
   /*background-color: var(--dmt-navy);*/
 }
 

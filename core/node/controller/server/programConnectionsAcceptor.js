@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import colors from 'colors';
 
 import { ConnectionsAcceptor } from 'dmt/connectome';

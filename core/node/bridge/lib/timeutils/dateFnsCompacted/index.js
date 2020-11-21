@@ -40,19 +40,24 @@ function o(t) {
     n = Math.ceil(e.getTimezoneOffset());
   return e.setSeconds(0, 0), 6e4 * n + (n > 0 ? (6e4 + i(e)) % 6e4 : i(e));
 }
-function u(t, r) {
+function u(n, a) {
+  e(2, arguments);
+  var i = t(a);
+  return r(n, 6e4 * i);
+}
+function s(t, r) {
   e(2, arguments);
   var a = n(t),
     i = n(r),
     o = a.getTime() - i.getTime();
   return o < 0 ? -1 : o > 0 ? 1 : o;
 }
-function s(t) {
+function c(t) {
   e(1, arguments);
   var r = n(t);
   return !isNaN(r);
 }
-function c(t, r) {
+function d(t, r) {
   e(2, arguments);
   var a = n(t),
     i = n(r),
@@ -60,29 +65,29 @@ function c(t, r) {
     u = a.getMonth() - i.getMonth();
   return 12 * o + u;
 }
-function d(t, r) {
+function l(t, r) {
   e(2, arguments);
   var a = n(t),
     i = n(r);
   return a.getTime() - i.getTime();
 }
-function l(t, r) {
+function f(t, r) {
   e(2, arguments);
   var a = n(t),
     i = n(r),
-    o = u(a, i),
-    s = Math.abs(c(a, i));
-  a.setMonth(a.getMonth() - o * s);
-  var d = u(a, i) === -o,
-    l = o * (s - d);
+    o = s(a, i),
+    u = Math.abs(d(a, i));
+  a.setMonth(a.getMonth() - o * u);
+  var c = s(a, i) === -o,
+    l = o * (u - c);
   return 0 === l ? 0 : l;
 }
-function f(t, n) {
+function h(t, n) {
   e(2, arguments);
-  var r = d(t, n) / 1e3;
+  var r = l(t, n) / 1e3;
   return r > 0 ? Math.floor(r) : Math.ceil(r);
 }
-var h = {
+var m = {
   lessThanXSeconds: { one: 'less than a second', other: 'less than {{count}} seconds' },
   xSeconds: { one: '1 second', other: '{{count}} seconds' },
   halfAMinute: 'half a minute',
@@ -98,22 +103,22 @@ var h = {
   overXYears: { one: 'over 1 year', other: 'over {{count}} years' },
   almostXYears: { one: 'almost 1 year', other: 'almost {{count}} years' }
 };
-function m(t) {
+function w(t) {
   return function(e) {
     var n = e || {},
       r = n.width ? String(n.width) : t.defaultWidth;
     return t.formats[r] || t.formats[t.defaultWidth];
   };
 }
-var w = {
-    date: m({ formats: { full: 'EEEE, MMMM do, y', long: 'MMMM do, y', medium: 'MMM d, y', short: 'MM/dd/yyyy' }, defaultWidth: 'full' }),
-    time: m({ formats: { full: 'h:mm:ss a zzzz', long: 'h:mm:ss a z', medium: 'h:mm:ss a', short: 'h:mm a' }, defaultWidth: 'full' }),
-    dateTime: m({
+var g = {
+    date: w({ formats: { full: 'EEEE, MMMM do, y', long: 'MMMM do, y', medium: 'MMM d, y', short: 'MM/dd/yyyy' }, defaultWidth: 'full' }),
+    time: w({ formats: { full: 'h:mm:ss a zzzz', long: 'h:mm:ss a z', medium: 'h:mm:ss a', short: 'h:mm a' }, defaultWidth: 'full' }),
+    dateTime: w({
       formats: { full: "{{date}} 'at' {{time}}", long: "{{date}} 'at' {{time}}", medium: '{{date}}, {{time}}', short: '{{date}}, {{time}}' },
       defaultWidth: 'full'
     })
   },
-  g = {
+  v = {
     lastWeek: "'last' eeee 'at' p",
     yesterday: "'yesterday at' p",
     today: "'today at' p",
@@ -121,7 +126,7 @@ var w = {
     nextWeek: "eeee 'at' p",
     other: 'P'
   };
-function v(t) {
+function b(t) {
   return function(e, n) {
     var r,
       a = n || {};
@@ -137,7 +142,7 @@ function v(t) {
     return r[t.argumentCallback ? t.argumentCallback(e) : e];
   };
 }
-function b(t) {
+function y(t) {
   return function(e, n) {
     var r = String(e),
       a = n || {},
@@ -166,20 +171,20 @@ function b(t) {
     );
   };
 }
-var y,
-  T = {
+var T,
+  p = {
     code: 'en-US',
     formatDistance: function(t, e, n) {
       var r;
       return (
         (n = n || {}),
-        (r = 'string' == typeof h[t] ? h[t] : 1 === e ? h[t].one : h[t].other.replace('{{count}}', e)),
+        (r = 'string' == typeof m[t] ? m[t] : 1 === e ? m[t].one : m[t].other.replace('{{count}}', e)),
         n.addSuffix ? (n.comparison > 0 ? 'in ' + r : r + ' ago') : r
       );
     },
-    formatLong: w,
+    formatLong: g,
     formatRelative: function(t, e, n, r) {
-      return g[t];
+      return v[t];
     },
     localize: {
       ordinalNumber: function(t, e) {
@@ -196,15 +201,15 @@ var y,
           }
         return n + 'th';
       },
-      era: v({ values: { narrow: ['B', 'A'], abbreviated: ['BC', 'AD'], wide: ['Before Christ', 'Anno Domini'] }, defaultWidth: 'wide' }),
-      quarter: v({
+      era: b({ values: { narrow: ['B', 'A'], abbreviated: ['BC', 'AD'], wide: ['Before Christ', 'Anno Domini'] }, defaultWidth: 'wide' }),
+      quarter: b({
         values: { narrow: ['1', '2', '3', '4'], abbreviated: ['Q1', 'Q2', 'Q3', 'Q4'], wide: ['1st quarter', '2nd quarter', '3rd quarter', '4th quarter'] },
         defaultWidth: 'wide',
         argumentCallback: function(t) {
           return Number(t) - 1;
         }
       }),
-      month: v({
+      month: b({
         values: {
           narrow: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
           abbreviated: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -212,7 +217,7 @@ var y,
         },
         defaultWidth: 'wide'
       }),
-      day: v({
+      day: b({
         values: {
           narrow: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
           short: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
@@ -221,7 +226,7 @@ var y,
         },
         defaultWidth: 'wide'
       }),
-      dayPeriod: v({
+      dayPeriod: b({
         values: {
           narrow: { am: 'a', pm: 'p', midnight: 'mi', noon: 'n', morning: 'morning', afternoon: 'afternoon', evening: 'evening', night: 'night' },
           abbreviated: {
@@ -274,7 +279,7 @@ var y,
     },
     match: {
       ordinalNumber:
-        ((y = {
+        ((T = {
           matchPattern: /^(\d+)(th|st|nd|rd)?/i,
           parsePattern: /\d+/i,
           valueCallback: function(t) {
@@ -284,15 +289,15 @@ var y,
         function(t, e) {
           var n = String(t),
             r = e || {},
-            a = n.match(y.matchPattern);
+            a = n.match(T.matchPattern);
           if (!a) return null;
           var i = a[0],
-            o = n.match(y.parsePattern);
+            o = n.match(T.parsePattern);
           if (!o) return null;
-          var u = y.valueCallback ? y.valueCallback(o[0]) : o[0];
+          var u = T.valueCallback ? T.valueCallback(o[0]) : o[0];
           return { value: (u = r.valueCallback ? r.valueCallback(u) : u), rest: n.slice(i.length) };
         }),
-      era: b({
+      era: y({
         matchPatterns: {
           narrow: /^(b|a)/i,
           abbreviated: /^(b\.?\s?c\.?|b\.?\s?c\.?\s?e\.?|a\.?\s?d\.?|c\.?\s?e\.?)/i,
@@ -302,7 +307,7 @@ var y,
         parsePatterns: { any: [/^b/i, /^(a|c)/i] },
         defaultParseWidth: 'any'
       }),
-      quarter: b({
+      quarter: y({
         matchPatterns: { narrow: /^[1234]/i, abbreviated: /^q[1234]/i, wide: /^[1234](th|st|nd|rd)? quarter/i },
         defaultMatchWidth: 'wide',
         parsePatterns: { any: [/1/i, /2/i, /3/i, /4/i] },
@@ -311,7 +316,7 @@ var y,
           return t + 1;
         }
       }),
-      month: b({
+      month: y({
         matchPatterns: {
           narrow: /^[jfmasond]/i,
           abbreviated: /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i,
@@ -324,7 +329,7 @@ var y,
         },
         defaultParseWidth: 'any'
       }),
-      day: b({
+      day: y({
         matchPatterns: {
           narrow: /^[smtwf]/i,
           short: /^(su|mo|tu|we|th|fr|sa)/i,
@@ -335,7 +340,7 @@ var y,
         parsePatterns: { narrow: [/^s/i, /^m/i, /^t/i, /^w/i, /^t/i, /^f/i, /^s/i], any: [/^su/i, /^m/i, /^tu/i, /^w/i, /^th/i, /^f/i, /^sa/i] },
         defaultParseWidth: 'any'
       }),
-      dayPeriod: b({
+      dayPeriod: y({
         matchPatterns: {
           narrow: /^(a|p|mi|n|(in the|at) (morning|afternoon|evening|night))/i,
           any: /^([ap]\.?\s?m\.?|midnight|noon|(in the|at) (morning|afternoon|evening|night))/i
@@ -349,45 +354,45 @@ var y,
     },
     options: { weekStartsOn: 0, firstWeekContainsDate: 1 }
   };
-function p(n, a) {
+function x(n, a) {
   e(2, arguments);
   var i = t(a);
   return r(n, -i);
 }
-function x(t, e) {
+function C(t, e) {
   for (var n = t < 0 ? '-' : '', r = Math.abs(t).toString(); r.length < e; ) r = '0' + r;
   return n + r;
 }
-var C = function(t, e) {
+var D = function(t, e) {
     var n = t.getUTCFullYear(),
       r = n > 0 ? n : 1 - n;
-    return x('yy' === e ? r % 100 : r, e.length);
-  },
-  D = function(t, e) {
-    var n = t.getUTCMonth();
-    return 'M' === e ? String(n + 1) : x(n + 1, 2);
+    return C('yy' === e ? r % 100 : r, e.length);
   },
   M = function(t, e) {
-    return x(t.getUTCDate(), e.length);
+    var n = t.getUTCMonth();
+    return 'M' === e ? String(n + 1) : C(n + 1, 2);
   },
   k = function(t, e) {
-    return x(t.getUTCHours() % 12 || 12, e.length);
+    return C(t.getUTCDate(), e.length);
   },
   U = function(t, e) {
-    return x(t.getUTCHours(), e.length);
+    return C(t.getUTCHours() % 12 || 12, e.length);
   },
   N = function(t, e) {
-    return x(t.getUTCMinutes(), e.length);
+    return C(t.getUTCHours(), e.length);
   },
   Y = function(t, e) {
-    return x(t.getUTCSeconds(), e.length);
+    return C(t.getUTCMinutes(), e.length);
   },
   P = function(t, e) {
+    return C(t.getUTCSeconds(), e.length);
+  },
+  S = function(t, e) {
     var n = e.length,
       r = t.getUTCMilliseconds();
-    return x(Math.floor(r * Math.pow(10, n - 3)), e.length);
+    return C(Math.floor(r * Math.pow(10, n - 3)), e.length);
   };
-function S(t) {
+function q(t) {
   e(1, arguments);
   var r = 1,
     a = n(t),
@@ -395,33 +400,33 @@ function S(t) {
     o = (i < r ? 7 : 0) + i - r;
   return a.setUTCDate(a.getUTCDate() - o), a.setUTCHours(0, 0, 0, 0), a;
 }
-function q(t) {
+function E(t) {
   e(1, arguments);
   var r = n(t),
     a = r.getUTCFullYear(),
     i = new Date(0);
   i.setUTCFullYear(a + 1, 0, 4), i.setUTCHours(0, 0, 0, 0);
-  var o = S(i),
+  var o = q(i),
     u = new Date(0);
   u.setUTCFullYear(a, 0, 4), u.setUTCHours(0, 0, 0, 0);
-  var s = S(u);
+  var s = q(u);
   return r.getTime() >= o.getTime() ? a + 1 : r.getTime() >= s.getTime() ? a : a - 1;
-}
-function E(t) {
-  e(1, arguments);
-  var n = q(t),
-    r = new Date(0);
-  r.setUTCFullYear(n, 0, 4), r.setUTCHours(0, 0, 0, 0);
-  var a = S(r);
-  return a;
 }
 function H(t) {
   e(1, arguments);
+  var n = E(t),
+    r = new Date(0);
+  r.setUTCFullYear(n, 0, 4), r.setUTCHours(0, 0, 0, 0);
+  var a = q(r);
+  return a;
+}
+function O(t) {
+  e(1, arguments);
   var r = n(t),
-    a = S(r).getTime() - E(r).getTime();
+    a = q(r).getTime() - H(r).getTime();
   return Math.round(a / 6048e5) + 1;
 }
-function O(r, a) {
+function W(r, a) {
   e(1, arguments);
   var i = a || {},
     o = i.locale,
@@ -434,7 +439,7 @@ function O(r, a) {
     f = (l < c ? 7 : 0) + l - c;
   return d.setUTCDate(d.getUTCDate() - f), d.setUTCHours(0, 0, 0, 0), d;
 }
-function W(r, a) {
+function L(r, a) {
   e(1, arguments);
   var i = n(r, a),
     o = i.getUTCFullYear(),
@@ -446,38 +451,38 @@ function W(r, a) {
   if (!(l >= 1 && l <= 7)) throw new RangeError('firstWeekContainsDate must be between 1 and 7 inclusively');
   var f = new Date(0);
   f.setUTCFullYear(o + 1, 0, l), f.setUTCHours(0, 0, 0, 0);
-  var h = O(f, a),
+  var h = W(f, a),
     m = new Date(0);
   m.setUTCFullYear(o, 0, l), m.setUTCHours(0, 0, 0, 0);
-  var w = O(m, a);
+  var w = W(m, a);
   return i.getTime() >= h.getTime() ? o + 1 : i.getTime() >= w.getTime() ? o : o - 1;
 }
-function L(n, r) {
+function Q(n, r) {
   e(1, arguments);
   var a = r || {},
     i = a.locale,
     o = i && i.options && i.options.firstWeekContainsDate,
     u = null == o ? 1 : t(o),
     s = null == a.firstWeekContainsDate ? u : t(a.firstWeekContainsDate),
-    c = W(n, r),
+    c = L(n, r),
     d = new Date(0);
   d.setUTCFullYear(c, 0, s), d.setUTCHours(0, 0, 0, 0);
-  var l = O(d, r);
+  var l = W(d, r);
   return l;
 }
-function Q(t, r) {
+function X(t, r) {
   e(1, arguments);
   var a = n(t),
-    i = O(a, r).getTime() - L(a, r).getTime();
+    i = W(a, r).getTime() - Q(a, r).getTime();
   return Math.round(i / 6048e5) + 1;
 }
-var X = 'midnight',
-  F = 'noon',
-  R = 'morning',
-  B = 'afternoon',
-  G = 'evening',
-  I = 'night',
-  z = {
+var F = 'midnight',
+  R = 'noon',
+  B = 'morning',
+  G = 'afternoon',
+  I = 'evening',
+  z = 'night',
+  j = {
     G: function(t, e, n) {
       var r = t.getUTCFullYear() > 0 ? 1 : 0;
       switch (e) {
@@ -498,18 +503,18 @@ var X = 'midnight',
           a = r > 0 ? r : 1 - r;
         return n.ordinalNumber(a, { unit: 'year' });
       }
-      return C(t, e);
+      return D(t, e);
     },
     Y: function(t, e, n, r) {
-      var a = W(t, r),
+      var a = L(t, r),
         i = a > 0 ? a : 1 - a;
-      return 'YY' === e ? x(i % 100, 2) : 'Yo' === e ? n.ordinalNumber(i, { unit: 'year' }) : x(i, e.length);
+      return 'YY' === e ? C(i % 100, 2) : 'Yo' === e ? n.ordinalNumber(i, { unit: 'year' }) : C(i, e.length);
     },
     R: function(t, e) {
-      return x(q(t), e.length);
+      return C(E(t), e.length);
     },
     u: function(t, e) {
-      return x(t.getUTCFullYear(), e.length);
+      return C(t.getUTCFullYear(), e.length);
     },
     Q: function(t, e, n) {
       var r = Math.ceil((t.getUTCMonth() + 1) / 3);
@@ -517,7 +522,7 @@ var X = 'midnight',
         case 'Q':
           return String(r);
         case 'QQ':
-          return x(r, 2);
+          return C(r, 2);
         case 'Qo':
           return n.ordinalNumber(r, { unit: 'quarter' });
         case 'QQQ':
@@ -535,7 +540,7 @@ var X = 'midnight',
         case 'q':
           return String(r);
         case 'qq':
-          return x(r, 2);
+          return C(r, 2);
         case 'qo':
           return n.ordinalNumber(r, { unit: 'quarter' });
         case 'qqq':
@@ -552,7 +557,7 @@ var X = 'midnight',
       switch (e) {
         case 'M':
         case 'MM':
-          return D(t, e);
+          return M(t, e);
         case 'Mo':
           return n.ordinalNumber(r + 1, { unit: 'month' });
         case 'MMM':
@@ -570,7 +575,7 @@ var X = 'midnight',
         case 'L':
           return String(r + 1);
         case 'LL':
-          return x(r + 1, 2);
+          return C(r + 1, 2);
         case 'Lo':
           return n.ordinalNumber(r + 1, { unit: 'month' });
         case 'LLL':
@@ -583,15 +588,15 @@ var X = 'midnight',
       }
     },
     w: function(t, e, n, r) {
-      var a = Q(t, r);
-      return 'wo' === e ? n.ordinalNumber(a, { unit: 'week' }) : x(a, e.length);
+      var a = X(t, r);
+      return 'wo' === e ? n.ordinalNumber(a, { unit: 'week' }) : C(a, e.length);
     },
     I: function(t, e, n) {
-      var r = H(t);
-      return 'Io' === e ? n.ordinalNumber(r, { unit: 'week' }) : x(r, e.length);
+      var r = O(t);
+      return 'Io' === e ? n.ordinalNumber(r, { unit: 'week' }) : C(r, e.length);
     },
     d: function(t, e, n) {
-      return 'do' === e ? n.ordinalNumber(t.getUTCDate(), { unit: 'date' }) : M(t, e);
+      return 'do' === e ? n.ordinalNumber(t.getUTCDate(), { unit: 'date' }) : k(t, e);
     },
     D: function(t, r, a) {
       var i = (function(t) {
@@ -603,7 +608,7 @@ var X = 'midnight',
           o = a - i;
         return Math.floor(o / 864e5) + 1;
       })(t);
-      return 'Do' === r ? a.ordinalNumber(i, { unit: 'dayOfYear' }) : x(i, r.length);
+      return 'Do' === r ? a.ordinalNumber(i, { unit: 'dayOfYear' }) : C(i, r.length);
     },
     E: function(t, e, n) {
       var r = t.getUTCDay();
@@ -628,7 +633,7 @@ var X = 'midnight',
         case 'e':
           return String(i);
         case 'ee':
-          return x(i, 2);
+          return C(i, 2);
         case 'eo':
           return n.ordinalNumber(i, { unit: 'day' });
         case 'eee':
@@ -649,7 +654,7 @@ var X = 'midnight',
         case 'c':
           return String(i);
         case 'cc':
-          return x(i, e.length);
+          return C(i, e.length);
         case 'co':
           return n.ordinalNumber(i, { unit: 'day' });
         case 'ccc':
@@ -670,7 +675,7 @@ var X = 'midnight',
         case 'i':
           return String(a);
         case 'ii':
-          return x(a, e.length);
+          return C(a, e.length);
         case 'io':
           return n.ordinalNumber(a, { unit: 'day' });
         case 'iii':
@@ -701,7 +706,7 @@ var X = 'midnight',
     b: function(t, e, n) {
       var r,
         a = t.getUTCHours();
-      switch (((r = 12 === a ? F : 0 === a ? X : a / 12 >= 1 ? 'pm' : 'am'), e)) {
+      switch (((r = 12 === a ? R : 0 === a ? F : a / 12 >= 1 ? 'pm' : 'am'), e)) {
         case 'b':
         case 'bb':
         case 'bbb':
@@ -716,7 +721,7 @@ var X = 'midnight',
     B: function(t, e, n) {
       var r,
         a = t.getUTCHours();
-      switch (((r = a >= 17 ? G : a >= 12 ? B : a >= 4 ? R : I), e)) {
+      switch (((r = a >= 17 ? I : a >= 12 ? G : a >= 4 ? B : z), e)) {
         case 'B':
         case 'BB':
         case 'BBB':
@@ -733,55 +738,55 @@ var X = 'midnight',
         var r = t.getUTCHours() % 12;
         return 0 === r && (r = 12), n.ordinalNumber(r, { unit: 'hour' });
       }
-      return k(t, e);
+      return U(t, e);
     },
     H: function(t, e, n) {
-      return 'Ho' === e ? n.ordinalNumber(t.getUTCHours(), { unit: 'hour' }) : U(t, e);
+      return 'Ho' === e ? n.ordinalNumber(t.getUTCHours(), { unit: 'hour' }) : N(t, e);
     },
     K: function(t, e, n) {
       var r = t.getUTCHours() % 12;
-      return 'Ko' === e ? n.ordinalNumber(r, { unit: 'hour' }) : x(r, e.length);
+      return 'Ko' === e ? n.ordinalNumber(r, { unit: 'hour' }) : C(r, e.length);
     },
     k: function(t, e, n) {
       var r = t.getUTCHours();
-      return 0 === r && (r = 24), 'ko' === e ? n.ordinalNumber(r, { unit: 'hour' }) : x(r, e.length);
+      return 0 === r && (r = 24), 'ko' === e ? n.ordinalNumber(r, { unit: 'hour' }) : C(r, e.length);
     },
     m: function(t, e, n) {
-      return 'mo' === e ? n.ordinalNumber(t.getUTCMinutes(), { unit: 'minute' }) : N(t, e);
+      return 'mo' === e ? n.ordinalNumber(t.getUTCMinutes(), { unit: 'minute' }) : Y(t, e);
     },
     s: function(t, e, n) {
-      return 'so' === e ? n.ordinalNumber(t.getUTCSeconds(), { unit: 'second' }) : Y(t, e);
+      return 'so' === e ? n.ordinalNumber(t.getUTCSeconds(), { unit: 'second' }) : P(t, e);
     },
     S: function(t, e) {
-      return P(t, e);
+      return S(t, e);
     },
     X: function(t, e, n, r) {
       var a = (r._originalDate || t).getTimezoneOffset();
       if (0 === a) return 'Z';
       switch (e) {
         case 'X':
-          return A(a);
+          return Z(a);
         case 'XXXX':
         case 'XX':
-          return Z(a);
+          return K(a);
         case 'XXXXX':
         case 'XXX':
         default:
-          return Z(a, ':');
+          return K(a, ':');
       }
     },
     x: function(t, e, n, r) {
       var a = (r._originalDate || t).getTimezoneOffset();
       switch (e) {
         case 'x':
-          return A(a);
+          return Z(a);
         case 'xxxx':
         case 'xx':
-          return Z(a);
+          return K(a);
         case 'xxxxx':
         case 'xxx':
         default:
-          return Z(a, ':');
+          return K(a, ':');
       }
     },
     O: function(t, e, n, r) {
@@ -790,10 +795,10 @@ var X = 'midnight',
         case 'O':
         case 'OO':
         case 'OOO':
-          return 'GMT' + j(a, ':');
+          return 'GMT' + A(a, ':');
         case 'OOOO':
         default:
-          return 'GMT' + Z(a, ':');
+          return 'GMT' + K(a, ':');
       }
     },
     z: function(t, e, n, r) {
@@ -802,39 +807,39 @@ var X = 'midnight',
         case 'z':
         case 'zz':
         case 'zzz':
-          return 'GMT' + j(a, ':');
+          return 'GMT' + A(a, ':');
         case 'zzzz':
         default:
-          return 'GMT' + Z(a, ':');
+          return 'GMT' + K(a, ':');
       }
     },
     t: function(t, e, n, r) {
       var a = r._originalDate || t;
-      return x(Math.floor(a.getTime() / 1e3), e.length);
+      return C(Math.floor(a.getTime() / 1e3), e.length);
     },
     T: function(t, e, n, r) {
-      return x((r._originalDate || t).getTime(), e.length);
+      return C((r._originalDate || t).getTime(), e.length);
     }
   };
-function j(t, e) {
+function A(t, e) {
   var n = t > 0 ? '-' : '+',
     r = Math.abs(t),
     a = Math.floor(r / 60),
     i = r % 60;
   if (0 === i) return n + String(a);
   var o = e || '';
-  return n + String(a) + o + x(i, 2);
-}
-function A(t, e) {
-  return t % 60 == 0 ? (t > 0 ? '-' : '+') + x(Math.abs(t) / 60, 2) : Z(t, e);
+  return n + String(a) + o + C(i, 2);
 }
 function Z(t, e) {
+  return t % 60 == 0 ? (t > 0 ? '-' : '+') + C(Math.abs(t) / 60, 2) : K(t, e);
+}
+function K(t, e) {
   var n = e || '',
     r = t > 0 ? '-' : '+',
     a = Math.abs(t);
-  return r + x(Math.floor(a / 60), 2) + n + x(a % 60, 2);
+  return r + C(Math.floor(a / 60), 2) + n + C(a % 60, 2);
 }
-function K(t, e) {
+function $(t, e) {
   switch (t) {
     case 'P':
       return e.date({ width: 'short' });
@@ -847,7 +852,7 @@ function K(t, e) {
       return e.date({ width: 'full' });
   }
 }
-function $(t, e) {
+function J(t, e) {
   switch (t) {
     case 'p':
       return e.time({ width: 'short' });
@@ -860,14 +865,14 @@ function $(t, e) {
       return e.time({ width: 'full' });
   }
 }
-var J = {
-    p: $,
+var _ = {
+    p: J,
     P: function(t, e) {
       var n,
         r = t.match(/(P+)(p+)?/),
         a = r[1],
         i = r[2];
-      if (!i) return K(t, e);
+      if (!i) return $(t, e);
       switch (a) {
         case 'P':
           n = e.dateTime({ width: 'short' });
@@ -882,146 +887,146 @@ var J = {
         default:
           n = e.dateTime({ width: 'full' });
       }
-      return n.replace('{{date}}', K(a, e)).replace('{{time}}', $(i, e));
+      return n.replace('{{date}}', $(a, e)).replace('{{time}}', J(i, e));
     }
   },
-  _ = ['D', 'DD'],
-  V = ['YY', 'YYYY'];
-function tt(t) {
-  return -1 !== _.indexOf(t);
-}
+  V = ['D', 'DD'],
+  tt = ['YY', 'YYYY'];
 function et(t) {
   return -1 !== V.indexOf(t);
 }
 function nt(t) {
+  return -1 !== tt.indexOf(t);
+}
+function rt(t) {
   if ('YYYY' === t) throw new RangeError('Use `yyyy` instead of `YYYY` for formatting years; see: https://git.io/fxCyr');
   if ('YY' === t) throw new RangeError('Use `yy` instead of `YY` for formatting years; see: https://git.io/fxCyr');
   if ('D' === t) throw new RangeError('Use `d` instead of `D` for formatting days of the month; see: https://git.io/fxCyr');
   if ('DD' === t) throw new RangeError('Use `dd` instead of `DD` for formatting days of the month; see: https://git.io/fxCyr');
 }
-var rt = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g,
-  at = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g,
-  it = /^'([^]*?)'?$/,
-  ot = /''/g,
-  ut = /[a-zA-Z]/;
-function st(r, a, i) {
+var at = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g,
+  it = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g,
+  ot = /^'([^]*?)'?$/,
+  ut = /''/g,
+  st = /[a-zA-Z]/;
+function ct(r, a, i) {
   e(2, arguments);
   var u = String(a),
-    c = i || {},
-    d = c.locale || T,
+    s = i || {},
+    d = s.locale || p,
     l = d.options && d.options.firstWeekContainsDate,
     f = null == l ? 1 : t(l),
-    h = null == c.firstWeekContainsDate ? f : t(c.firstWeekContainsDate);
+    h = null == s.firstWeekContainsDate ? f : t(s.firstWeekContainsDate);
   if (!(h >= 1 && h <= 7)) throw new RangeError('firstWeekContainsDate must be between 1 and 7 inclusively');
   var m = d.options && d.options.weekStartsOn,
     w = null == m ? 0 : t(m),
-    g = null == c.weekStartsOn ? w : t(c.weekStartsOn);
+    g = null == s.weekStartsOn ? w : t(s.weekStartsOn);
   if (!(g >= 0 && g <= 6)) throw new RangeError('weekStartsOn must be between 0 and 6 inclusively');
   if (!d.localize) throw new RangeError('locale must contain localize property');
   if (!d.formatLong) throw new RangeError('locale must contain formatLong property');
   var v = n(r);
-  if (!s(v)) throw new RangeError('Invalid time value');
+  if (!c(v)) throw new RangeError('Invalid time value');
   var b = o(v),
-    y = p(v, b),
-    x = { firstWeekContainsDate: h, weekStartsOn: g, locale: d, _originalDate: v },
+    y = x(v, b),
+    T = { firstWeekContainsDate: h, weekStartsOn: g, locale: d, _originalDate: v },
     C = u
-      .match(at)
+      .match(it)
       .map(function(t) {
         var e = t[0];
-        return 'p' === e || 'P' === e ? (0, J[e])(t, d.formatLong, x) : t;
+        return 'p' === e || 'P' === e ? (0, _[e])(t, d.formatLong, T) : t;
       })
       .join('')
-      .match(rt)
+      .match(at)
       .map(function(t) {
         if ("''" === t) return "'";
         var e = t[0];
-        if ("'" === e) return ct(t);
-        var n = z[e];
-        if (n) return !c.useAdditionalWeekYearTokens && et(t) && nt(t), !c.useAdditionalDayOfYearTokens && tt(t) && nt(t), n(y, t, d.localize, x);
-        if (e.match(ut)) throw new RangeError('Format string contains an unescaped latin alphabet character `' + e + '`');
+        if ("'" === e) return dt(t);
+        var n = j[e];
+        if (n) return !s.useAdditionalWeekYearTokens && nt(t) && rt(t), !s.useAdditionalDayOfYearTokens && et(t) && rt(t), n(y, t, d.localize, T);
+        if (e.match(st)) throw new RangeError('Format string contains an unescaped latin alphabet character `' + e + '`');
         return t;
       })
       .join('');
   return C;
 }
-function ct(t) {
-  return t.match(it)[1].replace(ot, "'");
+function dt(t) {
+  return t.match(ot)[1].replace(ut, "'");
 }
-function dt(t, e) {
+function lt(t, e) {
   if (null == t) throw new TypeError('assign requires that input parameter not be null or undefined');
   for (var n in (e = e || {})) e.hasOwnProperty(n) && (t[n] = e[n]);
   return t;
 }
-function lt(t) {
-  return dt({}, t);
+function ft(t) {
+  return lt({}, t);
 }
-function ft(t, r, a) {
+function ht(t, r, a) {
   e(2, arguments);
   var i = a || {},
-    s = i.locale || T;
-  if (!s.formatDistance) throw new RangeError('locale must contain formatDistance property');
-  var c = u(t, r);
+    u = i.locale || p;
+  if (!u.formatDistance) throw new RangeError('locale must contain formatDistance property');
+  var c = s(t, r);
   if (isNaN(c)) throw new RangeError('Invalid time value');
   var d,
-    h,
-    m = lt(i);
-  (m.addSuffix = Boolean(i.addSuffix)), (m.comparison = c), c > 0 ? ((d = n(r)), (h = n(t))) : ((d = n(t)), (h = n(r)));
+    l,
+    m = ft(i);
+  (m.addSuffix = Boolean(i.addSuffix)), (m.comparison = c), c > 0 ? ((d = n(r)), (l = n(t))) : ((d = n(t)), (l = n(r)));
   var w,
-    g = f(h, d),
-    v = (o(h) - o(d)) / 1e3,
+    g = h(l, d),
+    v = (o(l) - o(d)) / 1e3,
     b = Math.round((g - v) / 60);
   if (b < 2)
     return i.includeSeconds
       ? g < 5
-        ? s.formatDistance('lessThanXSeconds', 5, m)
+        ? u.formatDistance('lessThanXSeconds', 5, m)
         : g < 10
-        ? s.formatDistance('lessThanXSeconds', 10, m)
+        ? u.formatDistance('lessThanXSeconds', 10, m)
         : g < 20
-        ? s.formatDistance('lessThanXSeconds', 20, m)
+        ? u.formatDistance('lessThanXSeconds', 20, m)
         : g < 40
-        ? s.formatDistance('halfAMinute', null, m)
+        ? u.formatDistance('halfAMinute', null, m)
         : g < 60
-        ? s.formatDistance('lessThanXMinutes', 1, m)
-        : s.formatDistance('xMinutes', 1, m)
+        ? u.formatDistance('lessThanXMinutes', 1, m)
+        : u.formatDistance('xMinutes', 1, m)
       : 0 === b
-      ? s.formatDistance('lessThanXMinutes', 1, m)
-      : s.formatDistance('xMinutes', b, m);
-  if (b < 45) return s.formatDistance('xMinutes', b, m);
-  if (b < 90) return s.formatDistance('aboutXHours', 1, m);
+      ? u.formatDistance('lessThanXMinutes', 1, m)
+      : u.formatDistance('xMinutes', b, m);
+  if (b < 45) return u.formatDistance('xMinutes', b, m);
+  if (b < 90) return u.formatDistance('aboutXHours', 1, m);
   if (b < 1440) {
     var y = Math.round(b / 60);
-    return s.formatDistance('aboutXHours', y, m);
+    return u.formatDistance('aboutXHours', y, m);
   }
-  if (b < 2520) return s.formatDistance('xDays', 1, m);
+  if (b < 2520) return u.formatDistance('xDays', 1, m);
   if (b < 43200) {
-    var p = Math.round(b / 1440);
-    return s.formatDistance('xDays', p, m);
+    var T = Math.round(b / 1440);
+    return u.formatDistance('xDays', T, m);
   }
-  if (b < 86400) return (w = Math.round(b / 43200)), s.formatDistance('aboutXMonths', w, m);
-  if ((w = l(h, d)) < 12) {
+  if (b < 86400) return (w = Math.round(b / 43200)), u.formatDistance('aboutXMonths', w, m);
+  if ((w = f(l, d)) < 12) {
     var x = Math.round(b / 43200);
-    return s.formatDistance('xMonths', x, m);
+    return u.formatDistance('xMonths', x, m);
   }
   var C = w % 12,
     D = Math.floor(w / 12);
-  return C < 3 ? s.formatDistance('aboutXYears', D, m) : C < 9 ? s.formatDistance('overXYears', D, m) : s.formatDistance('almostXYears', D + 1, m);
+  return C < 3 ? u.formatDistance('aboutXYears', D, m) : C < 9 ? u.formatDistance('overXYears', D, m) : u.formatDistance('almostXYears', D + 1, m);
 }
-function ht(t, n) {
-  return e(1, arguments), ft(t, Date.now(), n);
-}
-function mt(t, r) {
-  e(2, arguments);
-  var a = n(t),
-    i = n(r);
-  return a.getTime() > i.getTime();
+function mt(t, n) {
+  return e(1, arguments), ht(t, Date.now(), n);
 }
 function wt(t, r) {
   e(2, arguments);
   var a = n(t),
     i = n(r);
+  return a.getTime() > i.getTime();
+}
+function gt(t, r) {
+  e(2, arguments);
+  var a = n(t),
+    i = n(r);
   return a.getTime() < i.getTime();
 }
-function gt(r, a, i) {
+function vt(r, a, i) {
   e(2, arguments);
   var o = i || {},
     u = o.locale,
@@ -1037,37 +1042,37 @@ function gt(r, a, i) {
     g = (w < d ? 7 : 0) + f - h;
   return l.setUTCDate(l.getUTCDate() + g), l;
 }
-var vt = /^(1[0-2]|0?\d)/,
-  bt = /^(3[0-1]|[0-2]?\d)/,
-  yt = /^(36[0-6]|3[0-5]\d|[0-2]?\d?\d)/,
-  Tt = /^(5[0-3]|[0-4]?\d)/,
-  pt = /^(2[0-3]|[0-1]?\d)/,
-  xt = /^(2[0-4]|[0-1]?\d)/,
-  Ct = /^(1[0-1]|0?\d)/,
-  Dt = /^(1[0-2]|0?\d)/,
-  Mt = /^[0-5]?\d/,
+var bt = /^(1[0-2]|0?\d)/,
+  yt = /^(3[0-1]|[0-2]?\d)/,
+  Tt = /^(36[0-6]|3[0-5]\d|[0-2]?\d?\d)/,
+  pt = /^(5[0-3]|[0-4]?\d)/,
+  xt = /^(2[0-3]|[0-1]?\d)/,
+  Ct = /^(2[0-4]|[0-1]?\d)/,
+  Dt = /^(1[0-1]|0?\d)/,
+  Mt = /^(1[0-2]|0?\d)/,
   kt = /^[0-5]?\d/,
-  Ut = /^\d/,
-  Nt = /^\d{1,2}/,
-  Yt = /^\d{1,3}/,
-  Pt = /^\d{1,4}/,
-  St = /^-?\d+/,
-  qt = /^-?\d/,
-  Et = /^-?\d{1,2}/,
-  Ht = /^-?\d{1,3}/,
-  Ot = /^-?\d{1,4}/,
-  Wt = /^([+-])(\d{2})(\d{2})?|Z/,
-  Lt = /^([+-])(\d{2})(\d{2})|Z/,
-  Qt = /^([+-])(\d{2})(\d{2})((\d{2}))?|Z/,
-  Xt = /^([+-])(\d{2}):(\d{2})|Z/,
-  Ft = /^([+-])(\d{2}):(\d{2})(:(\d{2}))?|Z/;
-function Rt(t, e, n) {
+  Ut = /^[0-5]?\d/,
+  Nt = /^\d/,
+  Yt = /^\d{1,2}/,
+  Pt = /^\d{1,3}/,
+  St = /^\d{1,4}/,
+  qt = /^-?\d+/,
+  Et = /^-?\d/,
+  Ht = /^-?\d{1,2}/,
+  Ot = /^-?\d{1,3}/,
+  Wt = /^-?\d{1,4}/,
+  Lt = /^([+-])(\d{2})(\d{2})?|Z/,
+  Qt = /^([+-])(\d{2})(\d{2})|Z/,
+  Xt = /^([+-])(\d{2})(\d{2})((\d{2}))?|Z/,
+  Ft = /^([+-])(\d{2}):(\d{2})|Z/,
+  Rt = /^([+-])(\d{2}):(\d{2})(:(\d{2}))?|Z/;
+function Bt(t, e, n) {
   var r = e.match(t);
   if (!r) return null;
   var a = parseInt(r[0], 10);
   return { value: n ? n(a) : a, rest: e.slice(r[0].length) };
 }
-function Bt(t, e) {
+function Gt(t, e) {
   var n = e.match(t);
   return n
     ? 'Z' === n[0]
@@ -1079,38 +1084,38 @@ function Bt(t, e) {
         }
     : null;
 }
-function Gt(t, e) {
-  return Rt(St, t, e);
-}
-function It(t, e, n) {
-  switch (t) {
-    case 1:
-      return Rt(Ut, e, n);
-    case 2:
-      return Rt(Nt, e, n);
-    case 3:
-      return Rt(Yt, e, n);
-    case 4:
-      return Rt(Pt, e, n);
-    default:
-      return Rt(new RegExp('^\\d{1,' + t + '}'), e, n);
-  }
+function It(t, e) {
+  return Bt(qt, t, e);
 }
 function zt(t, e, n) {
   switch (t) {
     case 1:
-      return Rt(qt, e, n);
+      return Bt(Nt, e, n);
     case 2:
-      return Rt(Et, e, n);
+      return Bt(Yt, e, n);
     case 3:
-      return Rt(Ht, e, n);
+      return Bt(Pt, e, n);
     case 4:
-      return Rt(Ot, e, n);
+      return Bt(St, e, n);
     default:
-      return Rt(new RegExp('^-?\\d{1,' + t + '}'), e, n);
+      return Bt(new RegExp('^\\d{1,' + t + '}'), e, n);
   }
 }
-function jt(t) {
+function jt(t, e, n) {
+  switch (t) {
+    case 1:
+      return Bt(Et, e, n);
+    case 2:
+      return Bt(Ht, e, n);
+    case 3:
+      return Bt(Ot, e, n);
+    case 4:
+      return Bt(Wt, e, n);
+    default:
+      return Bt(new RegExp('^-?\\d{1,' + t + '}'), e, n);
+  }
+}
+function At(t) {
   switch (t) {
     case 'morning':
       return 4;
@@ -1127,7 +1132,7 @@ function jt(t) {
       return 0;
   }
 }
-function At(t, e) {
+function Zt(t, e) {
   var n,
     r = e > 0,
     a = r ? e : 1 - e;
@@ -1138,12 +1143,12 @@ function At(t, e) {
   }
   return r ? n : 1 - n;
 }
-var Zt = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
-  Kt = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-function $t(t) {
+var Kt = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+  $t = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+function Jt(t) {
   return t % 400 == 0 || (t % 4 == 0 && t % 100 != 0);
 }
-var Jt = {
+var _t = {
     G: {
       priority: 140,
       parse: function(t, e, n, r) {
@@ -1172,11 +1177,11 @@ var Jt = {
         };
         switch (e) {
           case 'y':
-            return It(4, t, a);
+            return zt(4, t, a);
           case 'yo':
             return n.ordinalNumber(t, { unit: 'year', valueCallback: a });
           default:
-            return It(e.length, t, a);
+            return zt(e.length, t, a);
         }
       },
       validate: function(t, e, n) {
@@ -1185,7 +1190,7 @@ var Jt = {
       set: function(t, e, n, r) {
         var a = t.getUTCFullYear();
         if (n.isTwoDigitYear) {
-          var i = At(n.year, a);
+          var i = Zt(n.year, a);
           return t.setUTCFullYear(i, 0, 1), t.setUTCHours(0, 0, 0, 0), t;
         }
         var o = 'era' in e && 1 !== e.era ? 1 - n.year : n.year;
@@ -1201,42 +1206,42 @@ var Jt = {
         };
         switch (e) {
           case 'Y':
-            return It(4, t, a);
+            return zt(4, t, a);
           case 'Yo':
             return n.ordinalNumber(t, { unit: 'year', valueCallback: a });
           default:
-            return It(e.length, t, a);
+            return zt(e.length, t, a);
         }
       },
       validate: function(t, e, n) {
         return e.isTwoDigitYear || e.year > 0;
       },
       set: function(t, e, n, r) {
-        var a = W(t, r);
+        var a = L(t, r);
         if (n.isTwoDigitYear) {
-          var i = At(n.year, a);
-          return t.setUTCFullYear(i, 0, r.firstWeekContainsDate), t.setUTCHours(0, 0, 0, 0), O(t, r);
+          var i = Zt(n.year, a);
+          return t.setUTCFullYear(i, 0, r.firstWeekContainsDate), t.setUTCHours(0, 0, 0, 0), W(t, r);
         }
         var o = 'era' in e && 1 !== e.era ? 1 - n.year : n.year;
-        return t.setUTCFullYear(o, 0, r.firstWeekContainsDate), t.setUTCHours(0, 0, 0, 0), O(t, r);
+        return t.setUTCFullYear(o, 0, r.firstWeekContainsDate), t.setUTCHours(0, 0, 0, 0), W(t, r);
       },
       incompatibleTokens: ['y', 'R', 'u', 'Q', 'q', 'M', 'L', 'I', 'd', 'D', 'i', 't', 'T']
     },
     R: {
       priority: 130,
       parse: function(t, e, n, r) {
-        return zt('R' === e ? 4 : e.length, t);
+        return jt('R' === e ? 4 : e.length, t);
       },
       set: function(t, e, n, r) {
         var a = new Date(0);
-        return a.setUTCFullYear(n, 0, 4), a.setUTCHours(0, 0, 0, 0), S(a);
+        return a.setUTCFullYear(n, 0, 4), a.setUTCHours(0, 0, 0, 0), q(a);
       },
       incompatibleTokens: ['G', 'y', 'Y', 'u', 'Q', 'q', 'M', 'L', 'w', 'd', 'D', 'e', 'c', 't', 'T']
     },
     u: {
       priority: 130,
       parse: function(t, e, n, r) {
-        return zt('u' === e ? 4 : e.length, t);
+        return jt('u' === e ? 4 : e.length, t);
       },
       set: function(t, e, n, r) {
         return t.setUTCFullYear(n, 0, 1), t.setUTCHours(0, 0, 0, 0), t;
@@ -1249,7 +1254,7 @@ var Jt = {
         switch (e) {
           case 'Q':
           case 'QQ':
-            return It(e.length, t);
+            return zt(e.length, t);
           case 'Qo':
             return n.ordinalNumber(t, { unit: 'quarter' });
           case 'QQQ':
@@ -1279,7 +1284,7 @@ var Jt = {
         switch (e) {
           case 'q':
           case 'qq':
-            return It(e.length, t);
+            return zt(e.length, t);
           case 'qo':
             return n.ordinalNumber(t, { unit: 'quarter' });
           case 'qqq':
@@ -1311,9 +1316,9 @@ var Jt = {
         };
         switch (e) {
           case 'M':
-            return Rt(vt, t, a);
+            return Bt(bt, t, a);
           case 'MM':
-            return It(2, t, a);
+            return zt(2, t, a);
           case 'Mo':
             return n.ordinalNumber(t, { unit: 'month', valueCallback: a });
           case 'MMM':
@@ -1345,9 +1350,9 @@ var Jt = {
         };
         switch (e) {
           case 'L':
-            return Rt(vt, t, a);
+            return Bt(bt, t, a);
           case 'LL':
-            return It(2, t, a);
+            return zt(2, t, a);
           case 'Lo':
             return n.ordinalNumber(t, { unit: 'month', valueCallback: a });
           case 'LLL':
@@ -1376,23 +1381,23 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'w':
-            return Rt(Tt, t);
+            return Bt(pt, t);
           case 'wo':
             return n.ordinalNumber(t, { unit: 'week' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
         return e >= 1 && e <= 53;
       },
       set: function(r, a, i, o) {
-        return O(
+        return W(
           (function(r, a, i) {
             e(2, arguments);
             var o = n(r),
               u = t(a),
-              s = Q(o, i) - u;
+              s = X(o, i) - u;
             return o.setUTCDate(o.getUTCDate() - 7 * s), o;
           })(r, i, o),
           o
@@ -1405,23 +1410,23 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'I':
-            return Rt(Tt, t);
+            return Bt(pt, t);
           case 'Io':
             return n.ordinalNumber(t, { unit: 'week' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
         return e >= 1 && e <= 53;
       },
       set: function(r, a, i, o) {
-        return S(
+        return q(
           (function(r, a) {
             e(2, arguments);
             var i = n(r),
               o = t(a),
-              u = H(i) - o;
+              u = O(i) - o;
             return i.setUTCDate(i.getUTCDate() - 7 * u), i;
           })(r, i, o),
           o
@@ -1434,17 +1439,17 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'd':
-            return Rt(bt, t);
+            return Bt(yt, t);
           case 'do':
             return n.ordinalNumber(t, { unit: 'date' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
-        var r = $t(t.getUTCFullYear()),
+        var r = Jt(t.getUTCFullYear()),
           a = t.getUTCMonth();
-        return r ? e >= 1 && e <= Kt[a] : e >= 1 && e <= Zt[a];
+        return r ? e >= 1 && e <= $t[a] : e >= 1 && e <= Kt[a];
       },
       set: function(t, e, n, r) {
         return t.setUTCDate(n), t.setUTCHours(0, 0, 0, 0), t;
@@ -1457,15 +1462,15 @@ var Jt = {
         switch (e) {
           case 'D':
           case 'DD':
-            return Rt(yt, t);
+            return Bt(Tt, t);
           case 'Do':
             return n.ordinalNumber(t, { unit: 'date' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
-        return $t(t.getUTCFullYear()) ? e >= 1 && e <= 366 : e >= 1 && e <= 365;
+        return Jt(t.getUTCFullYear()) ? e >= 1 && e <= 366 : e >= 1 && e <= 365;
       },
       set: function(t, e, n, r) {
         return t.setUTCMonth(0, n), t.setUTCHours(0, 0, 0, 0), t;
@@ -1502,7 +1507,7 @@ var Jt = {
         return e >= 0 && e <= 6;
       },
       set: function(t, e, n, r) {
-        return (t = gt(t, n, r)).setUTCHours(0, 0, 0, 0), t;
+        return (t = vt(t, n, r)).setUTCHours(0, 0, 0, 0), t;
       },
       incompatibleTokens: ['D', 'i', 'e', 'c', 't', 'T']
     },
@@ -1516,7 +1521,7 @@ var Jt = {
         switch (e) {
           case 'e':
           case 'ee':
-            return It(e.length, t, a);
+            return zt(e.length, t, a);
           case 'eo':
             return n.ordinalNumber(t, { unit: 'day', valueCallback: a });
           case 'eee':
@@ -1543,7 +1548,7 @@ var Jt = {
         return e >= 0 && e <= 6;
       },
       set: function(t, e, n, r) {
-        return (t = gt(t, n, r)).setUTCHours(0, 0, 0, 0), t;
+        return (t = vt(t, n, r)).setUTCHours(0, 0, 0, 0), t;
       },
       incompatibleTokens: ['y', 'R', 'u', 'q', 'Q', 'M', 'L', 'I', 'd', 'D', 'E', 'i', 'c', 't', 'T']
     },
@@ -1557,7 +1562,7 @@ var Jt = {
         switch (e) {
           case 'c':
           case 'cc':
-            return It(e.length, t, a);
+            return zt(e.length, t, a);
           case 'co':
             return n.ordinalNumber(t, { unit: 'day', valueCallback: a });
           case 'ccc':
@@ -1584,7 +1589,7 @@ var Jt = {
         return e >= 0 && e <= 6;
       },
       set: function(t, e, n, r) {
-        return (t = gt(t, n, r)).setUTCHours(0, 0, 0, 0), t;
+        return (t = vt(t, n, r)).setUTCHours(0, 0, 0, 0), t;
       },
       incompatibleTokens: ['y', 'R', 'u', 'q', 'Q', 'M', 'L', 'I', 'd', 'D', 'E', 'i', 'e', 't', 'T']
     },
@@ -1597,7 +1602,7 @@ var Jt = {
         switch (e) {
           case 'i':
           case 'ii':
-            return It(e.length, t);
+            return zt(e.length, t);
           case 'io':
             return n.ordinalNumber(t, { unit: 'day' });
           case 'iii':
@@ -1664,7 +1669,7 @@ var Jt = {
         }
       },
       set: function(t, e, n, r) {
-        return t.setUTCHours(jt(n), 0, 0, 0), t;
+        return t.setUTCHours(At(n), 0, 0, 0), t;
       },
       incompatibleTokens: ['b', 'B', 'H', 'K', 'k', 't', 'T']
     },
@@ -1688,7 +1693,7 @@ var Jt = {
         }
       },
       set: function(t, e, n, r) {
-        return t.setUTCHours(jt(n), 0, 0, 0), t;
+        return t.setUTCHours(At(n), 0, 0, 0), t;
       },
       incompatibleTokens: ['a', 'B', 'H', 'K', 'k', 't', 'T']
     },
@@ -1712,7 +1717,7 @@ var Jt = {
         }
       },
       set: function(t, e, n, r) {
-        return t.setUTCHours(jt(n), 0, 0, 0), t;
+        return t.setUTCHours(At(n), 0, 0, 0), t;
       },
       incompatibleTokens: ['a', 'b', 't', 'T']
     },
@@ -1721,11 +1726,11 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'h':
-            return Rt(Dt, t);
+            return Bt(Mt, t);
           case 'ho':
             return n.ordinalNumber(t, { unit: 'hour' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
@@ -1742,11 +1747,11 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'H':
-            return Rt(pt, t);
+            return Bt(xt, t);
           case 'Ho':
             return n.ordinalNumber(t, { unit: 'hour' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
@@ -1762,11 +1767,11 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'K':
-            return Rt(Ct, t);
+            return Bt(Dt, t);
           case 'Ko':
             return n.ordinalNumber(t, { unit: 'hour' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
@@ -1782,11 +1787,11 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'k':
-            return Rt(xt, t);
+            return Bt(Ct, t);
           case 'ko':
             return n.ordinalNumber(t, { unit: 'hour' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
@@ -1803,11 +1808,11 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'm':
-            return Rt(Mt, t);
+            return Bt(kt, t);
           case 'mo':
             return n.ordinalNumber(t, { unit: 'minute' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
@@ -1823,11 +1828,11 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 's':
-            return Rt(kt, t);
+            return Bt(Ut, t);
           case 'so':
             return n.ordinalNumber(t, { unit: 'second' });
           default:
-            return It(e.length, t);
+            return zt(e.length, t);
         }
       },
       validate: function(t, e, n) {
@@ -1841,7 +1846,7 @@ var Jt = {
     S: {
       priority: 30,
       parse: function(t, e, n, r) {
-        return It(e.length, t, function(t) {
+        return zt(e.length, t, function(t) {
           return Math.floor(t * Math.pow(10, 3 - e.length));
         });
       },
@@ -1855,16 +1860,16 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'X':
-            return Bt(Wt, t);
+            return Gt(Lt, t);
           case 'XX':
-            return Bt(Lt, t);
+            return Gt(Qt, t);
           case 'XXXX':
-            return Bt(Qt, t);
+            return Gt(Xt, t);
           case 'XXXXX':
-            return Bt(Ft, t);
+            return Gt(Rt, t);
           case 'XXX':
           default:
-            return Bt(Xt, t);
+            return Gt(Ft, t);
         }
       },
       set: function(t, e, n, r) {
@@ -1877,16 +1882,16 @@ var Jt = {
       parse: function(t, e, n, r) {
         switch (e) {
           case 'x':
-            return Bt(Wt, t);
+            return Gt(Lt, t);
           case 'xx':
-            return Bt(Lt, t);
+            return Gt(Qt, t);
           case 'xxxx':
-            return Bt(Qt, t);
+            return Gt(Xt, t);
           case 'xxxxx':
-            return Bt(Ft, t);
+            return Gt(Rt, t);
           case 'xxx':
           default:
-            return Bt(Xt, t);
+            return Gt(Ft, t);
         }
       },
       set: function(t, e, n, r) {
@@ -1897,7 +1902,7 @@ var Jt = {
     t: {
       priority: 40,
       parse: function(t, e, n, r) {
-        return Gt(t);
+        return It(t);
       },
       set: function(t, e, n, r) {
         return [new Date(1e3 * n), { timestampIsSet: !0 }];
@@ -1907,7 +1912,7 @@ var Jt = {
     T: {
       priority: 20,
       parse: function(t, e, n, r) {
-        return Gt(t);
+        return It(t);
       },
       set: function(t, e, n, r) {
         return [new Date(n), { timestampIsSet: !0 }];
@@ -1915,18 +1920,18 @@ var Jt = {
       incompatibleTokens: '*'
     }
   },
-  _t = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g,
-  Vt = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g,
-  te = /^'([^]*?)'?$/,
-  ee = /''/g,
-  ne = /\S/,
-  re = /[a-zA-Z]/;
-function ae(r, a, i, u) {
+  Vt = /[yYQqMLwIdDecihHKkms]o|(\w)\1*|''|'(''|[^'])+('|$)|./g,
+  te = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g,
+  ee = /^'([^]*?)'?$/,
+  ne = /''/g,
+  re = /\S/,
+  ae = /[a-zA-Z]/;
+function ie(r, a, i, u) {
   e(3, arguments);
   var s = String(r),
     c = String(a),
     d = u || {},
-    l = d.locale || T;
+    l = d.locale || p;
   if (!l.match) throw new RangeError('locale must contain match property');
   var f = l.options && l.options.firstWeekContainsDate,
     h = null == f ? 1 : t(f),
@@ -1939,21 +1944,21 @@ function ae(r, a, i, u) {
   if ('' === c) return '' === s ? n(i) : new Date(NaN);
   var b,
     y = { firstWeekContainsDate: m, weekStartsOn: v, locale: l },
-    x = [{ priority: 10, set: ie, index: 0 }],
+    T = [{ priority: 10, set: oe, index: 0 }],
     C = c
-      .match(Vt)
+      .match(te)
       .map(function(t) {
         var e = t[0];
-        return 'p' === e || 'P' === e ? (0, J[e])(t, l.formatLong, y) : t;
+        return 'p' === e || 'P' === e ? (0, _[e])(t, l.formatLong, y) : t;
       })
       .join('')
-      .match(_t),
+      .match(Vt),
     D = [];
   for (b = 0; b < C.length; b++) {
     var M = C[b];
-    !d.useAdditionalWeekYearTokens && et(M) && nt(M), !d.useAdditionalDayOfYearTokens && tt(M) && nt(M);
+    !d.useAdditionalWeekYearTokens && nt(M) && rt(M), !d.useAdditionalDayOfYearTokens && et(M) && rt(M);
     var k = M[0],
-      U = Jt[k];
+      U = _t[k];
     if (U) {
       var N = U.incompatibleTokens;
       if (Array.isArray(N)) {
@@ -1970,18 +1975,17 @@ function ae(r, a, i, u) {
       D.push({ token: k, fullToken: M });
       var q = U.parse(s, M, l.match, y);
       if (!q) return new Date(NaN);
-      x.push({ priority: U.priority, set: U.set, validate: U.validate, value: q.value, index: x.length }), (s = q.rest);
+      T.push({ priority: U.priority, set: U.set, validate: U.validate, value: q.value, index: T.length }), (s = q.rest);
     } else {
-      if (k.match(re)) throw new RangeError('Format string contains an unescaped latin alphabet character `' + k + '`');
-      if (("''" === M ? (M = "'") : "'" === k && (M = oe(M)), 0 !== s.indexOf(M))) return new Date(NaN);
+      if (k.match(ae)) throw new RangeError('Format string contains an unescaped latin alphabet character `' + k + '`');
+      if (("''" === M ? (M = "'") : "'" === k && (M = ue(M)), 0 !== s.indexOf(M))) return new Date(NaN);
       s = s.slice(M.length);
     }
   }
-  if (s.length > 0 && ne.test(s)) return new Date(NaN);
-  var E = x
-      .map(function(t) {
-        return t.priority;
-      })
+  if (s.length > 0 && re.test(s)) return new Date(NaN);
+  var E = T.map(function(t) {
+      return t.priority;
+    })
       .sort(function(t, e) {
         return e - t;
       })
@@ -1989,28 +1993,26 @@ function ae(r, a, i, u) {
         return n.indexOf(t) === e;
       })
       .map(function(t) {
-        return x
-          .filter(function(e) {
-            return e.priority === t;
-          })
-          .reverse();
+        return T.filter(function(e) {
+          return e.priority === t;
+        }).reverse();
       })
       .map(function(t) {
         return t[0];
       }),
     H = n(i);
   if (isNaN(H)) return new Date(NaN);
-  var O = p(H, o(H)),
+  var O = x(H, o(H)),
     W = {};
   for (b = 0; b < E.length; b++) {
     var L = E[b];
     if (L.validate && !L.validate(O, L.value, y)) return new Date(NaN);
     var Q = L.set(O, W, L.value, y);
-    Q[0] ? ((O = Q[0]), dt(W, Q[1])) : (O = Q);
+    Q[0] ? ((O = Q[0]), lt(W, Q[1])) : (O = Q);
   }
   return O;
 }
-function ie(t, e) {
+function oe(t, e) {
   if (e.timestampIsSet) return t;
   var n = new Date(0);
   return (
@@ -2019,55 +2021,55 @@ function ie(t, e) {
     n
   );
 }
-function oe(t) {
-  return t.match(te)[1].replace(ee, "'");
+function ue(t) {
+  return t.match(ee)[1].replace(ne, "'");
 }
-var ue = { dateTimeDelimiter: /[T ]/, timeZoneDelimiter: /[Z ]/i, timezone: /([Z+-].*)$/ },
-  se = /^-?(?:(\d{3})|(\d{2})(?:-?(\d{2}))?|W(\d{2})(?:-?(\d{1}))?|)$/,
-  ce = /^(\d{2}(?:[.,]\d*)?)(?::?(\d{2}(?:[.,]\d*)?))?(?::?(\d{2}(?:[.,]\d*)?))?$/,
-  de = /^([+-])(\d{2})(?::?(\d{2}))?$/;
-function le(n, r) {
+var se = { dateTimeDelimiter: /[T ]/, timeZoneDelimiter: /[Z ]/i, timezone: /([Z+-].*)$/ },
+  ce = /^-?(?:(\d{3})|(\d{2})(?:-?(\d{2}))?|W(\d{2})(?:-?(\d{1}))?|)$/,
+  de = /^(\d{2}(?:[.,]\d*)?)(?::?(\d{2}(?:[.,]\d*)?))?(?::?(\d{2}(?:[.,]\d*)?))?$/,
+  le = /^([+-])(\d{2})(?::?(\d{2}))?$/;
+function fe(n, r) {
   e(1, arguments);
   var a = r || {},
     i = null == a.additionalDigits ? 2 : t(a.additionalDigits);
   if (2 !== i && 1 !== i && 0 !== i) throw new RangeError('additionalDigits must be 0, 1 or 2');
   if ('string' != typeof n && '[object String]' !== Object.prototype.toString.call(n)) return new Date(NaN);
   var o,
-    u = fe(n);
+    u = he(n);
   if (u.date) {
-    var s = he(u.date, i);
-    o = me(s.restDateString, s.year);
+    var s = me(u.date, i);
+    o = we(s.restDateString, s.year);
   }
   if (isNaN(o) || !o) return new Date(NaN);
   var c,
     d = o.getTime(),
     l = 0;
-  if (u.time && ((l = ge(u.time)), isNaN(l) || null === l)) return new Date(NaN);
+  if (u.time && ((l = ve(u.time)), isNaN(l) || null === l)) return new Date(NaN);
   if (!u.timezone) {
     var f = new Date(d + l),
       h = new Date(f.getUTCFullYear(), f.getUTCMonth(), f.getUTCDate(), f.getUTCHours(), f.getUTCMinutes(), f.getUTCSeconds(), f.getUTCMilliseconds());
     return h.setFullYear(f.getUTCFullYear()), h;
   }
-  return (c = be(u.timezone)), isNaN(c) ? new Date(NaN) : new Date(d + l + c);
+  return (c = ye(u.timezone)), isNaN(c) ? new Date(NaN) : new Date(d + l + c);
 }
-function fe(t) {
+function he(t) {
   var e,
     n = {},
-    r = t.split(ue.dateTimeDelimiter);
+    r = t.split(se.dateTimeDelimiter);
   if (
     (/:/.test(r[0])
       ? ((n.date = null), (e = r[0]))
       : ((n.date = r[0]),
         (e = r[1]),
-        ue.timeZoneDelimiter.test(n.date) && ((n.date = t.split(ue.timeZoneDelimiter)[0]), (e = t.substr(n.date.length, t.length)))),
+        se.timeZoneDelimiter.test(n.date) && ((n.date = t.split(se.timeZoneDelimiter)[0]), (e = t.substr(n.date.length, t.length)))),
     e)
   ) {
-    var a = ue.timezone.exec(e);
+    var a = se.timezone.exec(e);
     a ? ((n.time = e.replace(a[1], '')), (n.timezone = a[1])) : (n.time = e);
   }
   return n;
 }
-function he(t, e) {
+function me(t, e) {
   var n = new RegExp('^(?:(\\d{4}|[+-]\\d{' + (4 + e) + '})|(\\d{2}|[+-]\\d{' + (2 + e) + '})$)'),
     r = t.match(n);
   if (!r) return { year: null };
@@ -2075,16 +2077,16 @@ function he(t, e) {
     i = r[2] && parseInt(r[2]);
   return { year: null == i ? a : 100 * i, restDateString: t.slice((r[1] || r[2]).length) };
 }
-function me(t, e) {
+function we(t, e) {
   if (null === e) return null;
-  var n = t.match(se);
+  var n = t.match(ce);
   if (!n) return null;
   var r = !!n[4],
-    a = we(n[1]),
-    i = we(n[2]) - 1,
-    o = we(n[3]),
-    u = we(n[4]),
-    s = we(n[5]) - 1;
+    a = ge(n[1]),
+    i = ge(n[2]) - 1,
+    o = ge(n[3]),
+    u = ge(n[4]),
+    s = ge(n[5]) - 1;
   if (r)
     return (function(t, e, n) {
       return e >= 1 && e <= 53 && n >= 0 && n <= 6;
@@ -2099,23 +2101,23 @@ function me(t, e) {
       : new Date(NaN);
   var c = new Date(0);
   return (function(t, e, n) {
-    return e >= 0 && e <= 11 && n >= 1 && n <= (ye[e] || (Te(t) ? 29 : 28));
+    return e >= 0 && e <= 11 && n >= 1 && n <= (Te[e] || (pe(t) ? 29 : 28));
   })(e, i, o) &&
     (function(t, e) {
-      return e >= 1 && e <= (Te(t) ? 366 : 365);
+      return e >= 1 && e <= (pe(t) ? 366 : 365);
     })(e, a)
     ? (c.setUTCFullYear(e, i, Math.max(a, o)), c)
     : new Date(NaN);
 }
-function we(t) {
+function ge(t) {
   return t ? parseInt(t) : 1;
 }
-function ge(t) {
-  var e = t.match(ce);
+function ve(t) {
+  var e = t.match(de);
   if (!e) return null;
-  var n = ve(e[1]),
-    r = ve(e[2]),
-    a = ve(e[3]);
+  var n = be(e[1]),
+    r = be(e[2]),
+    a = be(e[3]);
   return (function(t, e, n) {
     if (24 === t) return 0 === e && 0 === n;
     return n >= 0 && n < 60 && e >= 0 && e < 60 && t >= 0 && t < 25;
@@ -2123,12 +2125,12 @@ function ge(t) {
     ? 36e5 * n + 6e4 * r + 1e3 * a
     : NaN;
 }
-function ve(t) {
+function be(t) {
   return (t && parseFloat(t.replace(',', '.'))) || 0;
 }
-function be(t) {
+function ye(t) {
   if ('Z' === t) return 0;
-  var e = t.match(de);
+  var e = t.match(le);
   if (!e) return 0;
   var n = '+' === e[1] ? -1 : 1,
     r = parseInt(e[2]),
@@ -2139,23 +2141,30 @@ function be(t) {
     ? n * (36e5 * r + 6e4 * a)
     : NaN;
 }
-var ye = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-function Te(t) {
+var Te = [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+function pe(t) {
   return t % 400 == 0 || (t % 4 == 0 && t % 100);
 }
-function pe(n, r) {
+function xe(n, r) {
   e(2, arguments);
   var i = t(r);
   return a(n, -i);
 }
+function Ce(n, r) {
+  e(2, arguments);
+  var a = t(r);
+  return u(n, -a);
+}
 export {
   a as addHours,
-  st as format,
-  ft as formatDistance,
-  ht as formatDistanceToNow,
-  mt as isAfter,
-  wt as isBefore,
-  ae as parse,
-  le as parseISO,
-  pe as subHours
+  u as addMinutes,
+  ct as format,
+  ht as formatDistance,
+  mt as formatDistanceToNow,
+  wt as isAfter,
+  gt as isBefore,
+  ie as parse,
+  fe as parseISO,
+  xe as subHours,
+  Ce as subMinutes
 };
