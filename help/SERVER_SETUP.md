@@ -88,5 +88,4 @@ Then from your local machine:
 ssh [your_name]@server_ip
 ```
 
-🔙 [RETURN TO ZETA EXPLORER NODE SETUP INSTRUCTIONS](../README.md#login-to-your-server)
 
