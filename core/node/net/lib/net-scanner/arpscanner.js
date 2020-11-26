@@ -1,3 +1,5 @@
+import os from 'os';
+
 import suspawn from 'suspawn';
 import extend from 'gextend';
 
@@ -18,7 +20,7 @@ const DEFAULTS = {
   command: 'arp-scan',
   args: ['-l', '--ignoredups', '--retry=7'],
   parser: parse,
-  sudo: false
+  sudo: os.platform() == 'darwin'
 };
 
 function scanner(cb, options) {

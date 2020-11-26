@@ -1,7 +1,6 @@
 import os from 'os';
 import dmt from 'dmt/bridge';
 
-import reduceSizeOfStateForGUI from './helpers/reduceSizeOfStateForGUI';
 import handleErrorFromGui from './helpers/handleErrorFromGui';
 
 import PlayerRemoteTarget from './objects/player';
@@ -32,9 +31,6 @@ function onConnect({ program, channel }) {
     // 💡 different parts of the system (core or through included middleware / dmt app hooks)
     program.emit('dmt_gui_action', { action, namespace, payload });
   });
-
-  const state = reduceSizeOfStateForGUI(program.state());
-  channel.send({ state });
 
   // 💡 we setup sending state_diff to all dmtgui channels in protocol ./setup.js
 }

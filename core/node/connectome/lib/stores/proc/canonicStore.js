@@ -30,6 +30,17 @@ class CanonicStore extends EventEmitter {
     this.stateChangesCount = 0;
   }
 
+  mirror(channelList) {
+    channelList.on('new_channel', channel => {
+      const state = this.omitStateFn(clone(this.state()));
+      channel.send({ state });
+    });
+
+    this.on('diff', diff => {
+      channelList.sendToAll({ diff });
+    });
+  }
+
   update(patch, { announce = true } = {}) {
     this.kvStore.update(patch);
     this.announceStateChange(announce);

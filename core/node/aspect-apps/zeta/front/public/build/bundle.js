@@ -5595,9 +5595,7 @@ var app = (function () {
       //const prevConnected = connector.connected;
 
       if (connectionIdle(conn) || connector.decommissioned) {
-        if (connectionIdle(conn)) {
-          log(`Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`);
-        } else {
+        if (connectionIdle(conn)) ; else {
           log(`Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `);
         }
 
@@ -5701,8 +5699,9 @@ var app = (function () {
       const conn = connector.connection;
 
       const errorCallback = m => {
-        log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
-        log(m);
+        //log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
+        //log(JSON.stringify(m, null, 2));
+        //log(JSON.stringify(m, ['message', 'arguments', 'type', 'name']));
       };
 
       const closeCallback = m => {
@@ -8086,6 +8085,18 @@ var app = (function () {
         this.kvStore.update(initialState, { announce: false }); // no reactive announcement
 
         this.stateChangesCount = 0; // only for informative purposes
+      }
+
+      // new feature, if we wanted to automatically create synced store
+      mirror(channelList) {
+        channelList.on('new_channel', channel => {
+          const state = this.omitStateFn(clone(this.state()));
+          channel.send({ state }); // Sending initial state to each new ws connection !!
+        });
+
+        this.on('diff', diff => {
+          channelList.sendToAll({ diff });
+        });
       }
 
       update(patch, { announce = true } = {}) {
@@ -13076,13 +13087,13 @@ var app = (function () {
 
     	const block = {
     		c: function create() {
-    			t0 = text("Official search engine of ");
+    			t0 = text("A small step forward ");
     			a = element("a");
-    			a.textContent = "dmt-system";
-    			t2 = text(" …");
+    			a.textContent = "each friday";
+    			t2 = text(", big leap each year.");
     			attr_dev(a, "href", "https://dmt-system.com");
     			attr_dev(a, "class", "svelte-awns0o");
-    			add_location(a, file$g, 15, 34, 389);
+    			add_location(a, file$g, 15, 29, 384);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, t0, anchor);
@@ -13952,7 +13963,7 @@ var app = (function () {
     		c: function create() {
     			span = element("span");
     			t = text(t_value);
-    			attr_dev(span, "class", span_class_value = "tag " + /*tag*/ ctx[0].replace("-", "").toLowerCase() + "Tag" + " svelte-cw9jcn");
+    			attr_dev(span, "class", span_class_value = "tag " + /*tag*/ ctx[0].replace("-", "").toLowerCase() + "Tag" + " svelte-1l56r9b");
     			add_location(span, file$k, 4, 0, 38);
     		},
     		l: function claim(nodes) {
@@ -13965,7 +13976,7 @@ var app = (function () {
     		p: function update(ctx, [dirty]) {
     			if (dirty & /*tag*/ 1 && t_value !== (t_value = /*tag*/ ctx[0].toUpperCase() + "")) set_data_dev(t, t_value);
 
-    			if (dirty & /*tag*/ 1 && span_class_value !== (span_class_value = "tag " + /*tag*/ ctx[0].replace("-", "").toLowerCase() + "Tag" + " svelte-cw9jcn")) {
+    			if (dirty & /*tag*/ 1 && span_class_value !== (span_class_value = "tag " + /*tag*/ ctx[0].replace("-", "").toLowerCase() + "Tag" + " svelte-1l56r9b")) {
     				attr_dev(span, "class", span_class_value);
     			}
     		},

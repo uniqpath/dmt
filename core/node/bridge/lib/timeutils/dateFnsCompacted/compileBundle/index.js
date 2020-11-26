@@ -1,1 +1,16 @@
-export { format, parse, parseISO, isBefore, isAfter, addHours, subHours, addMinutes, subMinutes, formatDistance, formatDistanceToNow } from 'date-fns';
+export {
+  format,
+  parse,
+  parseISO,
+  formatISO,
+  isBefore,
+  isAfter,
+  addDays,
+  subDays,
+  addHours,
+  subHours,
+  addMinutes,
+  subMinutes,
+  formatDistance,
+  formatDistanceToNow
+} from 'date-fns';

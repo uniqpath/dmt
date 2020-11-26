@@ -129,7 +129,7 @@ class Program extends EventEmitter {
     return this.actors.get(name);
   }
 
-  registerProtocol({ protocol, lane, onConnect }) {
+  registerProtocol({ protocol, lane, onConnect = () => {} }) {
     const onConnectWrap = ({ channel }) => onConnect({ program: this, channel });
     return this.acceptor.registerProtocol({ protocol, lane, onConnect: onConnectWrap });
   }

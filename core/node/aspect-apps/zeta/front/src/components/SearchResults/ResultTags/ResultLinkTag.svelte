@@ -45,6 +45,11 @@
   background-color: #942620;
 }
 
+.wikipediaTag {
+  color: #363335;
+  background-color: #C0C1C3;
+}
+
 .mediumTag {
   color: white;
   background-color: #000;

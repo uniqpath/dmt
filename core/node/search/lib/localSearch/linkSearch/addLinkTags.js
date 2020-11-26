@@ -2,7 +2,7 @@ function addLinkTags(entry) {
   const { url } = entry;
   const { host } = new URL(url);
 
-  let linkTags = [];
+  const linkTags = [];
 
   if (host.endsWith('github.com')) {
     linkTags.push('github');
@@ -30,6 +30,10 @@ function addLinkTags(entry) {
 
   if (host.endsWith('reddit.com')) {
     linkTags.push('reddit');
+  }
+
+  if (host.endsWith('wikipedia.org')) {
+    linkTags.push('wikipedia');
   }
 
   if (host.endsWith('youtube.com')) {

@@ -49,7 +49,6 @@ function checkConnection({ connector, endpoint, protocol }, { WebSocket, log }) 
 
   if (connectionIdle(conn) || connector.decommissioned) {
     if (connectionIdle(conn)) {
-      log(`Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`);
     } else {
       log(`Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `);
     }
@@ -123,10 +122,7 @@ function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
 function addSocketListeners({ ws, connector, openCallback }, { log }) {
   const conn = connector.connection;
 
-  const errorCallback = m => {
-    log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
-    log(m);
-  };
+  const errorCallback = m => {};
 
   const closeCallback = m => {
     connector.connectStatus(false);

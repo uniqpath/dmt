@@ -13,7 +13,7 @@
   {#if app.isZetaSeek}
     <div class="tagline">
       {#if connected}
-        Official search engine of <a href="https://dmt-system.com">dmt-system</a> …
+        A small step forward <a href="https://dmt-system.com">each friday</a>, big leap each year.
          <!-- <span>♪♫♬</span> -->
       {/if}
     </div>

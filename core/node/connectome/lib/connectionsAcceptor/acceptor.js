@@ -18,7 +18,7 @@ class ConnectionsAcceptor extends EventEmitter {
     this.protocols = {};
   }
 
-  registerProtocol({ protocol, lane, onConnect }) {
+  registerProtocol({ protocol, lane, onConnect = () => {} }) {
     if (this.wsServer) {
       throw new Error('registerProtocol: Please add all protocols before starting the ws server.');
     }
