@@ -41,6 +41,8 @@ function replicateAllowed(entry) {
     entry.relpath != 'tagversion' &&
     entry.relpath != 'core/node/.gitignore' &&
     entry.relpath != 'core/node/connectome/.gitignore' &&
+    entry.relpath != 'core/node/connectome/dist' &&
+    entry.relpath != 'core/node/connectome/server' &&
     entry.relpath != 'shell/.bash_staging' &&
     entry.relpath != 'etc/.bash_aliases_bundle' &&
     entry.relpath != 'etc/.bash_aliases_slim' &&

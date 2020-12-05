@@ -5,7 +5,7 @@ import staticServerSetup from './lib/subcomponent-static-http-server/setup';
 import guiServerOptions from './guiServerOptions';
 
 import reduceSizeOfStateForGUI from './lib/protocol/dmtGUI/helpers/reduceSizeOfStateForGUI';
-import setupDMTGUIProtocol from './lib/protocol/dmtGUI/setup';
+import setupDMTGUIProtocol from './lib/protocol/dmtGUI/index';
 
 function init(program) {
   setupDMTGUIProtocol({ program });

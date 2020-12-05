@@ -31,8 +31,6 @@ function onConnect({ program, channel }) {
     // 💡 different parts of the system (core or through included middleware / dmt app hooks)
     program.emit('dmt_gui_action', { action, namespace, payload });
   });
-
-  // 💡 we setup sending state_diff to all dmtgui channels in protocol ./setup.js
 }
 
 function loadInitialView(channel) {

@@ -17,7 +17,7 @@ class AppLoader {
     const promises = [];
 
     appList.forEach(appDir => {
-      const appInit = path.join(appDir, 'index.js');
+      const appInit = path.join(appDir, 'backend/index.js');
 
       if (fs.existsSync(appInit)) {
         const appName = path.basename(appDir);

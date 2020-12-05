@@ -2,6 +2,8 @@ import dmt from 'dmt/bridge';
 const { log } = dmt;
 
 import attachNearbyDeviceAttributes from './attachNearbyDeviceAttributes';
+import nearbyDevicesListRefresh from './state/nearbyDevicesListRefresh';
+import updateDeviceList from './state/updateDeviceList';
 
 class Nearby {
   constructor(program) {
@@ -62,10 +64,29 @@ class Nearby {
     }
   }
 
-  setupNearbyDevicesListRefresh() {
-    this.nearbyDevicesListRefresh({ removeStaleImmediately: true });
+  refreshNearbyDevicesList(removeStaleImmediately = false) {
+    if (this.program.state().nearbyDevices) {
+      const { nearbyDevices } = this.program.state();
 
-    this.program.on('tick', () => this.nearbyDevicesListRefresh());
+      const nearbyDevicesNew = nearbyDevicesListRefresh(
+        {
+          nearbyDevices,
+          ourMessage: this.ourMessage(),
+          broadcastInterval: this.broadcastInterval
+        },
+        { removeStaleImmediately }
+      );
+
+      this.program.store.replaceSlot('nearbyDevices', nearbyDevicesNew, { announce: false });
+
+      this.program.emit('nearby_devices', nearbyDevicesNew);
+    }
+  }
+
+  setupNearbyDevicesListRefresh() {
+    this.refreshNearbyDevicesList(true);
+
+    this.program.on('tick', () => this.refreshNearbyDevicesList());
   }
 
   initNearbyHelloMessagesListener() {
@@ -90,62 +111,17 @@ class Nearby {
           announce = true;
         }
 
-        const hiddenInGui = showOnly && !showOnly.includes(obj.deviceName);
+        const hiddenInGui = showOnly && !showOnly.includes(device.deviceName);
 
         if (hiddenInGui) {
           device.hiddenInGui = true;
         }
 
-        const { nearbyDevices } = this.program.state();
-
-        let found;
-
-        for (let i = 0; i < nearbyDevices.length; i++) {
-          if (nearbyDevices[i].deviceKey == obj.deviceKey) {
-            nearbyDevices[i] = device;
-            found = true;
-          }
-        }
-
-        if (!found) {
-          nearbyDevices.push(device);
-        }
-
-        if (announce) {
-          this.program.store.announceStateChange();
-        }
+        updateDeviceList({ device, announce, program: this.program });
       } catch (e) {
         log.red(e);
       }
     });
-  }
-
-  nearbyDevicesListRefresh({ removeStaleImmediately = false } = {}) {
-    if (this.program.state().nearbyDevices) {
-      const nearbyDevicesNew = [];
-
-      const now = Date.now();
-
-      const { nearbyDevices } = this.program.state();
-
-      for (const device of nearbyDevices.filter(({ deviceKey }) => deviceKey != dmt.keypair().publicKeyHex)) {
-        if (now - device.lastSeenAt > 2.2 * this.broadcastInterval) {
-          if (!device.stale && !removeStaleImmediately) {
-            nearbyDevicesNew.push({ ...device, ...{ stale: true, staleDetectedAt: now } });
-          } else if (device.staleDetectedAt && now - device.staleDetectedAt < 3000) {
-            nearbyDevicesNew.push({ ...device });
-          }
-        } else {
-          nearbyDevicesNew.push({ ...device, ...{ stale: false, staleDetectedAt: undefined } });
-        }
-      }
-
-      nearbyDevicesNew.push({ ...this.ourMessage(), ...{ thisDevice: true, stale: false, staleDetectedAt: undefined } });
-
-      this.program.store.replaceSlot('nearbyDevices', nearbyDevicesNew, { announce: false });
-
-      this.program.emit('nearby_devices', nearbyDevicesNew);
-    }
   }
 }
 
