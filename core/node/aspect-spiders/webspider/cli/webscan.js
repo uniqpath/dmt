@@ -40,9 +40,7 @@ function splitToLines(buffer) {
 const linksDirectory = linkIndexPath(deviceName);
 
 const indexFile = path.join(linksDirectory, 'index.json');
-const indexFile2 = path.join(linksDirectory, 'index_emergency_backup.json');
-
-function writeLinkIndex(linkIndex) {
+function writeLinkIndexAtomicAsync(linkIndex) {
   writeFileAtomic(indexFile, JSON.stringify(linkIndex, null, 2), err => {
     if (err) throw err;
   });
@@ -109,7 +107,7 @@ function readLinks() {
             justOneBatch,
             afterAsyncResultsBatch: results => {
               linkIndexInProgress.push(...results.filter(({ error }) => !error));
-              writeLinkIndex(linkIndexInProgress);
+
               console.log(colors.white(`Current batch of ${num} links finished ${colors.green('✓')}`));
               console.log();
             },
@@ -131,9 +129,7 @@ readLinks().then(({ successfulResults, unsuccessfulResults }) => {
   const linkIndex = successfulResults;
   console.log();
   console.log(colors.green(`Indexed ${colors.yellow(linkIndex.length)} entries.`));
-  writeLinkIndex(linkIndex);
-  fs.writeFileSync(indexFile2, JSON.stringify(linkIndex, null, 2));
-
+  writeLinkIndexAtomicAsync(linkIndex);
   if (unsuccessfulResults.length > 0) {
     console.log(colors.red('Failed links (cannot fetch or cannot scrape metainfo):'));
     console.log(colors.red(JSON.stringify(unsuccessfulResults, null, 2)));

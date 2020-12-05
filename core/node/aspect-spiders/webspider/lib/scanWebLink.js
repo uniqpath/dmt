@@ -19,9 +19,7 @@ export default function scanWebLink({ existingLinkIndex, url, context, hiddenCon
     const match = existingLinkIndex.find(linkInfo => linkInfo.url.toLowerCase() == url.toLowerCase() && linkInfo.linkIndexVersion == latestLinkIndexVersion);
 
     if (match) {
-      console.log(colors.green(`✓ Found existing match in linkIndex for url ${colors.white(url)}:`));
-      console.log(match);
-
+      console.log(colors.gray(`Found existing match in linkIndex for url ${colors.white(url)}:`));
       success({ ...match, ...{ context, hiddenContext, linkNote, filePath, githubLineNum } });
     } else {
       getGitHubLink({ filePath, githubLineNum }).then(githubReference => {
@@ -37,11 +35,14 @@ export default function scanWebLink({ existingLinkIndex, url, context, hiddenCon
             scrapeYt
               .getVideo(videoId)
               .then(({ title }) => {
-                console.log(colors.gray(`Received title ${colors.cyan(title)} for video ${colors.white(url)}`));
+                console.log(colors.green(`✓ Received title ${colors.cyan(title)} for video ${colors.white(url)}`));
                 success({ ...data, ...{ title } });
               })
               .catch(error => {
-                success({ ...{ error: 'VIDEO UNAVAILABLE OR SCRAPING TITLE FAILED' }, ...data });
+                console.log(colors.yellow('⚠️ VIDEO UNAVAILABLE OR SCRAPING TITLE FAILED'));
+                console.log(error);
+
+                success({ ...data, ...{ title: context } });
               });
           } catch (e) {
             console.log('UNHANDLED ERROR YT SCRAPE:');
@@ -53,7 +54,10 @@ export default function scanWebLink({ existingLinkIndex, url, context, hiddenCon
           try {
             promiseTimeout(readTitleTimeoutMs, readTitle(url))
               .then(title => {
-                console.log(colors.gray(`Received title ${colors.cyan(title)} for ${colors.white(url)}`));
+                if (!title) {
+                  console.log('NO TITLE');
+                }
+                console.log(colors.green(`✓ Received title ${colors.cyan(title)} for ${colors.white(url)}`));
                 if (title.startsWith(context) || title.endsWith(context)) {
                   context = '';
                 }
