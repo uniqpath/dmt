@@ -40,6 +40,11 @@
         <!-- {#if app.isZetaSeek}
           <a href="https://dmt-system.com">dmt-system</a> ·
         {/if} -->
+
+        {#if app.isZetaSeekCorePromoter}
+          <a href="https://twitter.com/zetaseek"><img class="icon_symbol" src="/apps/zeta/img/twitter.svg" /></a>
+        {/if}
+
         <span class="version"><a href="https://dmt-system.com">{displayVersion}</a></span>
 
         <!-- <img src="/apps/zeta/img/dmt_symbol.png" class="icon_symbol" /> -->

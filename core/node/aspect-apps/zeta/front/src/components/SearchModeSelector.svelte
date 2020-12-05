@@ -24,9 +24,27 @@
 </script>
 
 <div class="search_mode">
-  <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>Network search</span> ·
-  <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
-  <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>Server search</span>
+  {#if $searchMode == 0}
+    <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>
+      <!-- {#if $searchMode == 0}↑{/if} -->
+      ↑ <b>Network search</b>
+    </span> ·
+    <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
+    <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>
+      {#if $searchMode == 1}↑{/if}
+      This machine search
+    </span>
+  {:else}
+    <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>
+      <!-- {#if $searchMode == 1}↑{/if} -->
+      ↑ <b>This machine search</b>
+    </span> ·
+    <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
+    <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>
+      {#if $searchMode == 0}↑{/if}
+      Network search
+    </span>
+  {/if}
 
   <!-- {#if !searchQuery}
     <div class="explain" class:public_mode={$searchMode == 0} class:this_node={$searchMode == 1}>
@@ -61,6 +79,12 @@
 .search_mode span {
   padding: 2px 5px;
   border-radius: 5px;
+
+  user-select: none; /* supported by Chrome and Opera */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
 }
 
 .search_mode span:hover {

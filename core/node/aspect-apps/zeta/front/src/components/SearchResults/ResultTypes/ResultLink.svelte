@@ -2,6 +2,7 @@
   import ResultTags from '../ResultTags/ResultTags.svelte';
 
   export let store;
+  export let loginStore;
 
   export let url;
   export let title;
@@ -11,8 +12,6 @@
   export let linkTags;
   export let hiddenContext;
   export let githubReference;
-
-  const { loginStore } = store;
 
   $: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
   $: userIdentity = $loginStore.userIdentity;

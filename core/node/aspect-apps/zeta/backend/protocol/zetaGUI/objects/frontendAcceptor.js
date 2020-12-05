@@ -4,13 +4,14 @@ import { push } from 'dmt/notify';
 const { log } = dmt;
 
 class GUIFrontendAcceptor {
-  constructor({ program, backendStore, channel }) {
+  constructor({ program, channel }) {
     this.program = program;
-    this.backendStore = backendStore;
     this.channel = channel;
   }
 
   getUserIdentity({ ethAddress, urlHostname }) {
+    return 'MOOO';
+
     if (!ethAddress) {
       push.notify('WARNING: getUserIdentity called with empty address');
     }
@@ -18,8 +19,6 @@ class GUIFrontendAcceptor {
     if (urlHostname != 'localhost') {
       log.write(`Login with ${ethAddress}`);
     }
-
-    return this.backendStore.getUserIdentity(ethAddress);
   }
 
   emitProgramEvent(name, data) {

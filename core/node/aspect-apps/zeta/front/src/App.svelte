@@ -21,6 +21,7 @@
   export let concurrency;
   export let appHelper;
   export let metamaskConnect;
+  export let loginStore;
 
   setContext('app', appHelper);
 
@@ -45,27 +46,34 @@
   //   cssBridge.setWallpaper('/apps/zeta/wallpapers/black_triangles.jpg');
   //}
 
-  const { loginStore } = store;
-
   $: deviceName = $store.deviceName;
   $: searchResults = $store.searchResults;
   $: connected = $store.connected;
 
   $: device = $store.device;
-  $: swarm = $store.swarm;
   $: player = $store.player;
 
   $: dmtVersion = device ? device.dmtVersion : null;
 
-  $: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
-  $: userIdentity = $loginStore.userIdentity;
-  $: userName = $loginStore.userName;
-  $: loggedIn = $loginStore.loggedIn;
-  $: isAdmin = $loginStore.isAdmin; // hmm ...
-  $: userTeams = $loginStore.userTeams; // hmm ...
+  $: ethAddress = $loginStore.ethAddress;
 
-  // duplicate
-  $: displayName = userName || userIdentity;
+  $: loggedIn = $loginStore.ethAddress;
+
+  let userIdentity = undefined;
+  let userName = undefined;
+  let isAdmin = undefined; // hmm ...
+  let userTeams = undefined; // hmm ...
+  let displayName = undefined;
+
+  //$: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
+  // $: userIdentity = $loginStore.userIdentity;
+  // $: userName = $loginStore.userName;
+  // $: loggedIn = $loginStore.loggedIn;
+  // $: isAdmin = $loginStore.isAdmin; // hmm ...
+  // $: userTeams = $loginStore.userTeams; // hmm ...
+
+  // // duplicate
+  // $: displayName = userName || userIdentity;
 
   store.set({ panels: {} });
 
@@ -290,22 +298,22 @@
 
   appHelper.on('explorersClick', explorersClick);
 
-  $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Network search" : "Server search");
+  $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Zeta network search" : "This machine search");
 
   appHelper.on('search', doSearch);
 </script>
 
 <!-- {#if loggedIn} -->
-  <LeftBar {connected} {loggedIn} {isAdmin} {metamaskConnect} {displayName} {loginStore} {store} {searchQuery} {deviceName} />
+  <LeftBar {connected} {loggedIn} {loginStore} {isAdmin} {metamaskConnect} {displayName} {store} {searchQuery} {deviceName} />
 <!-- {/if} -->
 
 <About {isMobile} {searchQuery} {dmtVersion} />
 
 <main>
 
-  {#if appHelper.nodeHasBlog}
+  <!-- {#if appHelper.nodeHasBlog} -->
     <Login {connected} {metamaskConnect} {ethAddress} {displayName} {isAdmin} />
-  {/if}
+  <!-- {/if} -->
 
   <!-- {:else}
     <Escape /> -->
@@ -345,7 +353,7 @@
       </div>
     {/if}
 
-    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} hasPlayer={player && player.volume != undefined} />
+    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} {loginStore} hasPlayer={player && player.volume != undefined} />
 
   </div>
 

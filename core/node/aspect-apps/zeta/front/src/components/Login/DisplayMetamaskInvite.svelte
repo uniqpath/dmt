@@ -12,7 +12,7 @@
 
   <div class="explain">
     <span class="green">
-      [ <a href="https://swarm-gateways.net/bzz:/0df387857246f1e70d89cd5f0e0be587f6a939bdf7c5b40f435a559f563aa292">Watch MetaMask explainer video via p2p</a> ]
+      [ <a href="https://www.youtube.com/watch?v=YVgfHZMFFFQ">Watch MetaMask explainer video</a> ]
     </span>
   </div>
 

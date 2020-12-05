@@ -11,16 +11,27 @@
   import { getContext } from 'svelte';
   const app = getContext('app');
 
+  import { searchMode } from '../../testStore.js'
+
   const { dmtJS } = app.deps;
 
   export let loggedIn;
   export let searchResults;
   export let noSearchHits;
   export let store;
+  export let loginStore;
   export let hasPlayer;
 </script>
 
-<div class="no_results" class:visible={noSearchHits}>— NOTHING WAS FOUND — <br> <span>Please reboot some computer and try again.</span></div>
+<div class="no_results" class:visible={noSearchHits}>— NOTHING WAS FOUND — <br> <!-- <span>Please reboot some computer and try again.</span> --> <span>Have you tried turning the
+
+{#if $searchMode == 0}
+  network
+{:else}
+  machine
+{/if}
+
+off and on again?</span> </div>
 <!-- 🎃 -->
 
 
@@ -70,7 +81,7 @@
             {#each providerResponse.results as { filePath, fileName, directory, directoryHandle, place, fileNote, url, title, name, context, linkNote, hiddenContext, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, fileUpdatedAtRelativePretty, isNote, notePreview, noteUrl, noteContents, noteTags, linkTags }, i}
               <div class="result" class:url_result={url}>
                 {#if url}
-                  <ResultLink {url} {title} {context} {hiddenContext} {linkNote} {score} {linkTags} {githubReference} {store} />
+                  <ResultLink {url} {title} {context} {hiddenContext} {linkNote} {score} {linkTags} {githubReference} {store} {loginStore} />
                 {:else if swarmBzzHash}
                   <ResultSwarm {name} {playableUrl} {mediaType} {entryType} {prettyTime} {fileSizePretty} {context} {hasPlayer} />
                 {:else if filePath}

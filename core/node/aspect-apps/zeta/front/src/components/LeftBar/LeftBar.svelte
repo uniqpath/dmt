@@ -18,20 +18,14 @@
 
   export let loginStore;
 
-  $: userIdentity = $loginStore.userIdentity;
-  $: userTeams = $loginStore.userTeams;
-
-  $: tokenBalance = $loginStore.tokenBalance; // hmm ...
-
   import MenuBar from '../MenuBar/MenuBar.svelte';
 
   import Links from './Links.svelte';
   import Profile from './Profile.svelte';
-  import TokenBox from './TokenBox.svelte';
   // import InsideBox from './InsideBox.svelte';
-  import TeamBox from './TeamBox.svelte';
-  import ZetaDiscord from './ZetaDiscord.svelte';
-  import ZetaDocuments from './ZetaDocuments.svelte';
+  // import TeamBox from './TeamBox.svelte';
+  // import ZetaDiscord from './ZetaDiscord.svelte';
+  // import ZetaDocuments from './ZetaDocuments.svelte';
 
 </script>
 
@@ -40,15 +34,15 @@
     <Links blogName={app.blogName} />
   {/if}
 
-  {#if loggedIn}
+  <!-- {#if loggedIn}
 
-    <MenuBar {connected} {loggedIn} {store} />
+    <MenuBar {connected} {loggedIn} {loginStore} />
 
     {#if panels['Profile']}
       <Profile {connected} {loginStore} {store} {isAdmin} />
     {/if}
 
-  {/if}
+  {/if} -->
 
 </div>
 

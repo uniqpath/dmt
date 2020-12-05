@@ -1,9 +1,6 @@
 <script>
   export let store;
-
-  const { loginStore } = store;
-
-  $: loggedIn = $loginStore.loggedIn;
+  export let loginStore;
 
   import { onMount, getContext } from 'svelte';
   const app = getContext('app');
