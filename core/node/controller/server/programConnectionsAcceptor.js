@@ -1,6 +1,6 @@
 import colors from 'colors';
 
-import { ConnectionsAcceptor } from 'dmt/connectome';
+import { ConnectionsAcceptor } from 'dmt/connectome-server';
 
 import dmt from 'dmt/bridge';
 const { log } = dmt;

@@ -14,7 +14,7 @@ function loadUserProtocols(program) {
   if (fs.existsSync(userProtocolsDir)) {
     for (const dir of scan.dir(userProtocolsDir)) {
       if (!dir.endsWith('--disabled')) {
-        const setupFilePath = path.join(dir, 'setup.js');
+        const setupFilePath = path.join(dir, 'index.js');
 
         if (fs.existsSync(setupFilePath)) {
           loadProtocol({ program, setupFilePath });

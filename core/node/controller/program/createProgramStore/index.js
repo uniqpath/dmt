@@ -7,7 +7,7 @@ import { reduceSizeOfStateForGUI as omitStateFn } from 'dmt/gui';
 
 import { stores } from 'dmt/connectome';
 
-const { CanonicStore } = stores;
+const { ProgramStateStore } = stores;
 
 function removeStateChangeFalseTriggers(stateClone) {
   if (stateClone.nearbyDevices) {
@@ -36,7 +36,7 @@ export default function createProgramStore(program) {
     notifications: []
   };
 
-  const store = new CanonicStore(initState, { saveState, loadState, omitStateFn, removeStateChangeFalseTriggers });
+  const store = new ProgramStateStore(initState, { saveState, loadState, omitStateFn, removeStateChangeFalseTriggers });
 
   if (program.apMode()) {
     store.update({ device: { apInfo: dmt.apInfo() } }, { announce: false });
