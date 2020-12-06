@@ -1,9 +1,9 @@
 import Nearby from './lib/nearby';
 
 function init(program) {
-  const nearby = new Nearby(program);
-
-  program.on('lanbus:ready', lanbus => nearby.registerLanbus(lanbus));
+  program.on('ready', () => {
+    new Nearby(program);
+  });
 }
 
 export { init };

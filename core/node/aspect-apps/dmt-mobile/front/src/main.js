@@ -1,6 +1,6 @@
 import * as dmtJS from '../../../../dmt-js';
 
-import { stores } from '../../../../connectome';
+import { stores } from '../../../../connectome/src/client';
 const { MultiConnectedStore } = stores;
 
 import App from './App.svelte';

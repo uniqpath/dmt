@@ -1,12 +1,12 @@
-import ConnectedStoreBase from './connectedStoreBase.js';
+import MergeStore from './helperStores/mergeStore.js';
 
-import ConnectDevice from './multiConnectedStoreModules/connectDevice.js';
-import Foreground from './multiConnectedStoreModules/foreground.js';
-import SwitchDevice from './multiConnectedStoreModules/switchDevice.js';
+import ConnectDevice from './mcsHelpers/connectDevice.js';
+import Foreground from './mcsHelpers/foreground.js';
+import SwitchDevice from './mcsHelpers/switchDevice.js';
 
 import newKeypair from '../../keypair/newKeypair.js';
 
-class MultiConnectedStore extends ConnectedStoreBase {
+class MultiConnectedStore extends MergeStore {
   constructor({ address, port, protocol, lane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
     super();
 
@@ -44,7 +44,7 @@ class MultiConnectedStore extends ConnectedStoreBase {
     if (this.activeStore()) {
       this.activeStore().action({ action, namespace, payload });
     } else {
-      console.log(`Error emitting remote action ${action} / ${namespace}. Debug info: activeDeviceKey=${this.activeDeviceKey}`);
+      console.log(`Error emitting remote action ${action} / ${namespace}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
     }
   }
 
@@ -57,7 +57,7 @@ class MultiConnectedStore extends ConnectedStoreBase {
       return this.activeStore().remoteObject(objectName);
     }
 
-    console.log(`Error obtaining remote object ${objectName}. Debug info: activeDeviceKey=${this.activeDeviceKey}`);
+    console.log(`Error obtaining remote object ${objectName}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
   }
 
   switch({ address, deviceKey, deviceName }) {
@@ -65,9 +65,13 @@ class MultiConnectedStore extends ConnectedStoreBase {
   }
 
   activeStore() {
-    if (this.activeDeviceKey) {
-      return this.stores[this.activeDeviceKey];
+    if (this.activeDeviceKey()) {
+      return this.stores[this.activeDeviceKey()];
     }
+  }
+
+  activeDeviceKey() {
+    return this.get().activeDeviceKey;
   }
 }
 

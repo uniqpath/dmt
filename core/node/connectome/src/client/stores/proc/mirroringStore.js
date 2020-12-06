@@ -31,6 +31,10 @@ class MirroringStore extends EventEmitter {
     }
   }
 
+  get() {
+    return this.state;
+  }
+
   announceStateChange() {
     const { state } = this;
 

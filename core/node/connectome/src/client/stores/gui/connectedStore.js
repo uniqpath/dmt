@@ -1,7 +1,7 @@
 import fastJsonPatch from 'fast-json-patch';
 
 import connect from '../../connect/connectBrowser.js';
-import ConnectedStoreBase from './connectedStoreBase.js';
+import ConnectedStoreBase from './helperStores/connectedStoreBase.js';
 
 import newKeypair from '../../keypair/newKeypair.js';
 
@@ -55,8 +55,7 @@ class ConnectedStore extends ConnectedStoreBase {
     });
 
     this.connector.on('ready', ({ sharedSecret, sharedSecretHex }) => {
-      this.setMerge({ connected: true });
-
+      this.setConnected(true);
       this.emit('ready');
     });
 
@@ -64,13 +63,13 @@ class ConnectedStore extends ConnectedStoreBase {
     // 💡 connected == false => while disconnected
     // 💡 connected == true => while connected
     setTimeout(() => {
-      if (this.connected == undefined) {
-        this.setMerge({ connected: false });
+      if (this.state.connected == undefined) {
+        this.setConnected(false);
       }
     }, 300);
 
     this.connector.on('disconnect', () => {
-      this.setMerge({ connected: false });
+      this.setConnected(false);
     });
 
     // 💡 Special incoming JSON message: { state: ... } ... parsed as part of 'Connectome State Syncing Protocol'

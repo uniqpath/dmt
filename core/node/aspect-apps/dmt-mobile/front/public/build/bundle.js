@@ -1761,7 +1761,6 @@ var app = (function () {
       }
     }
 
-    // A relatively generic LinkedList impl
     class LinkedList$1 {
       constructor(linkConstructor) {
         this.head = new RunnableLink$1();
@@ -1786,9 +1785,6 @@ var app = (function () {
 
     let id$2 = 0;
     const splitter$1 = /[\s,]+/g;
-
-    // A link in the linked list which allows
-    // for efficient execution of the callbacks
 
     class Eev$1 {
       constructor() {
@@ -1844,19 +1840,16 @@ var app = (function () {
 
     function bufferToHex$1(buffer) {
       return Array.from(new Uint8Array(buffer))
-        .map(b => b.toString(16).padStart(2, '0'))
+        .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
     }
 
     function hexToBuffer$1(hex) {
-      const tokens = hex.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g); // split by two, https://blog.abelotech.com/posts/split-string-tokens-defined-length-javascript/
-      return new Uint8Array(tokens.map(token => parseInt(token, 16)));
+      const tokens = hex.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g);
+      return new Uint8Array(tokens.map((token) => parseInt(token, 16)));
     }
 
-    // source: https://stackoverflow.com/a/12965194/458177
-    // good only up to 2**53 (JavaScript Integer range) -- usually this is plenty ...
-    function integerToByteArray(/*long*/ long, arrayLen = 8) {
-      // we want to represent the input as a 8-bytes array
+    function integerToByteArray(long, arrayLen = 8) {
       const byteArray = new Array(arrayLen).fill(0);
 
       for (let index = 0; index < byteArray.length; index++) {
@@ -4380,7 +4373,6 @@ var app = (function () {
       const header = new Uint8Array(1);
       header[0] = flag;
 
-      // concat!
       msg.set(header);
       msg.set(_msg, header.length);
 
@@ -4398,15 +4390,13 @@ var app = (function () {
 
       if (!connector.closed()) {
         if (connector.sentCount > 1) {
-          // we don't encrypt first two messags (RPC: exchangePubkeys and exchangePubkeys::ACK)
-
-          let flag = 0; // binary
+          let flag = 0;
 
           if (typeof data == 'string') {
-            flag = 1; // string
+            flag = 1;
           }
 
-          const _encodedMessage = flag == 1 ? naclFast.util.decodeUTF8(data) : data; // binary data (file stream...)
+          const _encodedMessage = flag == 1 ? naclFast.util.decodeUTF8(data) : data;
           const encodedMessage = addHeader(_encodedMessage, flag);
 
           const encryptedMessage = naclFast.secretbox(encodedMessage, nonce, connector.sharedSecret);
@@ -4429,7 +4419,6 @@ var app = (function () {
         }
       } else {
         console.log(`⚠️ Warning: "${data}" was not sent because connector is not ready`);
-        // TODO: check if it's better to pass on the "log" function from establishAndMaintainConnection
       }
     }
 
@@ -4450,21 +4439,16 @@ var app = (function () {
       }
 
       // 💡 unencrypted jsonData !
-      // authentication !
       if (jsonData) {
         if (jsonData.jsonrpc) {
-          // normal result from RPC call, result is coming back from server and we receive it at client
           if (isRpcCallResult(jsonData)) {
             if (connector.verbose && !wasEncrypted) {
-              //we already logged it if it was encrypted
               console.log('Received plain-text rpc result');
               console.log(jsonData);
             }
 
             connector.rpcClient.jsonrpcMsgReceive(rawMessage);
           } else {
-            // if we receive json rpc message on the client without the result or error property, this means that it is
-            // actually a reverse RPC call from server to client
             connector.emit('json_rpc', rawMessage);
           }
         } else {
@@ -4478,37 +4462,14 @@ var app = (function () {
           console.log(`Decrypting with shared secret ${connector.sharedSecret}...`);
         }
 
-        // we assume connector.sharedSecret exists and was successful
-        // OPEN QUESTION :: binaryData can be both: encryptedData or actual binaryData.. if we always encrypt we can solve the dilemma
         const _decryptedMessage = naclFast.secretbox.open(encryptedData, nonce, connector.sharedSecret);
 
         const flag = _decryptedMessage[0];
         const decryptedMessage = _decryptedMessage.subarray(1);
 
-        //let decodedMessage;
-
-        // BE CAREFUL --> cannot use this in browser!!
-        //const start = stopwatch.start();
-
-        // try {
-        //   decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
-        // } catch (e) {
-        //   // console.log('CANNOT DECODE');
-        //   // console.log(stopwatch.stop(start));
-        //   // to detect we cannot decode it takes around 5ms on MBP
-        //   // and even ~50-60ms on RPi
-        // }
-
-        //⚠️ ⚠️ text strings are not allowed... we can only distinguish between binary data and json
-        //
-        // this book has both "cannot decode" and "cannot parse json" instances:
-        // http://localhost:7777/file/Schaum's%20Mathematical%20Handbook%20of%20Formulas%20and%20Tables%20-%20Murray%20R%20Spiegel.pdf?id=192.168.0.10-2f686f6d652f65636c697073652f53746f726167652f436f6c6c656374696f6e732f4d6174682f426f6f6b73322f75736566756c2f53636861756d2773204d617468656d61746963616c2048616e64626f6f6b206f6620466f726d756c617320616e64205461626c6573202d204d75727261792052205370696567656c2e706466
-        // 27 MB, around 100 such decistion instances
         if (flag == 1) {
-          // wrap this in try// catch and report issue in coding if it happens
           const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
 
-          // string
           try {
             const jsonData = JSON.parse(decodedMessage);
 
@@ -4519,19 +4480,16 @@ var app = (function () {
                 console.log(jsonData);
               }
 
-              wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector }); // recursive: will call rpcClient as before
+              wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
             } else if (jsonData.tag) {
               // 💡 tag
               const msg = jsonData;
 
               if (msg.tag == 'file_not_found') {
-                //console.log(`received binary_start from (remote) content server, sessionId: ${msg.sessionId}`);
                 connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
               } else if (msg.tag == 'binary_start') {
-                //console.log(`received binary_start from (remote) content server, sessionId: ${msg.sessionId}`);
                 connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
               } else if (msg.tag == 'binary_end') {
-                //console.log(`fiberConnection: received binary_end from (remote) content server, sessionId: ${msg.sessionId}`);
                 connector.emit(msg.tag, { sessionId: msg.sessionId });
               } else {
                 connector.emit('receive', { jsonData, rawMessage: decodedMessage });
@@ -4541,54 +4499,26 @@ var app = (function () {
               connector.emit('receive_state', jsonData.state);
             } else if (jsonData.diff) {
               // 💡 Subsequent JSON patch diffs (rfc6902)* ... part of Connectome protocol
-              // * rfc6902 ≡ JavaScript Object Notation (JSON) Patch ==> https://tools.ietf.org/html/rfc6902
               connector.emit('receive_diff', jsonData.diff);
             } else {
               connector.emit('receive', { jsonData, rawMessage: decodedMessage });
             }
           } catch (e) {
             console.log("Couldn't parse json message although the flag was for string ...");
-            //log.red();
             throw e;
-            // console.log('CANNOT PARSE JSON');
-            // this only takes microseconds and is not problematic
           }
         } else {
-          // binary data
-          //if (!jsonData) {
           const binaryData = decryptedMessage;
 
-          // ?? --> ⚠️ room for process crash if a regular string (not stringified json) is sent
-          // because if it's not actually json, it will land here, and it *has* to be binary data...
-
-          // console.log(decryptedMessage);
-          // console.log(connector.address);
-
-          // TODO: check if someone is sending some other binary data... now we assume everything binary is filestream!!
-          //
-          //if (Buffer.isBuffer(binaryData)) {
           const sessionId = Buffer.from(binaryData.buffer, binaryData.byteOffset, 64).toString();
           const binaryPayload = Buffer.from(binaryData.buffer, binaryData.byteOffset + 64);
 
-          //console.log(binaryPayload.length);
-
-          //console.log(`fiberConnection: received binary_data from (remote) content server, sessionId: ${sessionId}`);
-
           connector.emit('binary_data', { sessionId, data: binaryPayload });
-          // } else {
-          //   console.log(binaryData);
-          //   console.log('NOT BUFFER!!!');
-          //   // for now this will never happen because we don't send encoded binary data yet
-          //   connector.wireReceive({ binaryData });
-          // }
         }
-
-        //connector.emit('receive', { jsonData, binaryData, rawMessage });
       }
     }
 
     class Channel extends Eev$1 {
-      // connector or channel actually, todo: change variable name
       constructor(connector) {
         super();
 
@@ -4628,16 +4558,11 @@ var app = (function () {
         transport.onData(this._processRequest.bind(this, transport));
       }
 
-      // async removeTransport(transport) {
-      //   await transport.shutdown(); // TODO
-      // }
-
       async _processRequest(transport, data) {
         const requestData = JSON.parse(data);
         let responseData;
 
         if (Array.isArray(requestData)) {
-          // TODO Batch error handling?
           responseData = await Promise.all(requestData.map(request => this._callMethod(request, transport)));
         } else {
           responseData = await this._callMethod(requestData, transport);
@@ -4648,7 +4573,7 @@ var app = (function () {
 
       async _callMethod(request, transport) {
         const isRequest = request.hasOwnProperty('method');
-        if (!isRequest) return; // send nothing in response
+        if (!isRequest) return;
 
         const { method, params = [], id } = request;
 
@@ -4658,7 +4583,6 @@ var app = (function () {
           const [prefix, name] = methodName.split('::');
           methodName = name;
           if (this.methodPrefix && prefix != this.methodPrefix) {
-            // not meant for us ...
             return;
           }
         }
@@ -4687,7 +4611,7 @@ var app = (function () {
           try {
             const result = await this.methods[methodName].apply(this.methods, params);
 
-            if (!id) return; // For notifications do not respond. "" means send nothing
+            if (!id) return;
 
             response = {
               jsonrpc: '2.0',
@@ -4702,7 +4626,7 @@ var app = (function () {
               jsonrpc: '2.0',
               error: {
                 code: errorCodes.REMOTE_INTERNAL_ERROR,
-                message: `Method [${method}] internal error: ${e.stack}` // todo -- perhaps obscure the exact paths ... for privacy
+                message: `Method [${method}] internal error: ${e.stack}`
               },
               id
             };
@@ -4811,7 +4735,6 @@ var app = (function () {
         this.initialized = false;
       }
 
-      // prefix::methodName --> when multiple rpc objects are active
       setMethodPrefix(methodPrefix) {
         this.methodPrefix = methodPrefix;
       }
@@ -4868,9 +4791,6 @@ var app = (function () {
       _sendRequest({ object, id }) {
         const data = JSON.stringify(object);
 
-        // DMT DEBUGGING:
-        // console.log(data);
-
         return new Promise((resolve, reject) => {
           this.pendingRequest[id] = { resolve, reject, sentObject: object };
 
@@ -4888,13 +4808,6 @@ var app = (function () {
             delete this.pendingRequest[id];
             reject(e);
           }
-
-          // todo -- check -- this was the old code... TransportClientChannel had a lot of async methods...
-          // return this.transport.sendData(data).catch(error => {
-          //   delete this.pendingRequest[id];
-          //   reject(error); // TODO new X.InternalError() <--- ??
-          //   //reject(new X.InternalError());
-          // });
         });
       }
 
@@ -4923,9 +4836,6 @@ var app = (function () {
           resolvers.resolve(response.result);
         } else if (isErrorResponse) {
           const errorObject = this._makeErrorObject(response.error);
-          // console.log(response.error);
-          // console.log('-----------');
-          // console.log(errorObject);
           resolvers.reject(errorObject);
         }
       }
@@ -4956,7 +4866,6 @@ var app = (function () {
         let errorIdx = 0;
         for (const request of sentObject) {
           if (!request.id) {
-            // Skip notifications
             batchResults.push(null);
             continue;
           }
@@ -5020,7 +4929,6 @@ var app = (function () {
       }
 
       _generateId() {
-        // from "nanoid" package
         const alphabet = 'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz';
         let size = 10;
         let id = '';
@@ -5048,8 +4956,6 @@ var app = (function () {
           }
 
           if (methodName === 'then') {
-            // without this you will not be able to return client from an async function.
-            // V8 will see then method and will decide that client is a promise
             return;
           }
 
@@ -5106,13 +5012,6 @@ var app = (function () {
 
           this.channel.send(resData);
         });
-
-        // this.ws.on('message', async reqData => {
-        //   const resData = await callback(reqData);
-        //   if (!resData) return;
-
-        //   this.ws.send(resData);
-        // });
       }
     }
 
@@ -5155,10 +5054,6 @@ var app = (function () {
       }
 
       jsonrpcMsgReceive(stringMessage) {
-        // todo: remove
-        //console.log(`Received RPC result from server:`);
-        //console.log(stringMessage);
-
         this.moleChannel.emit('json_rpc', stringMessage);
       }
 
@@ -5182,7 +5077,6 @@ var app = (function () {
 
     class RpcClient {
       constructor(connectorOrServersideChannel, requestTimeout) {
-        // connectorOrServersideChannel or channel actually, todo: change variable name
         this.connectorOrServersideChannel = connectorOrServersideChannel;
         this.remoteObjects = {};
         this.requestTimeout = requestTimeout || DEFAULT_REQUEST_TIMEOUT;
@@ -5225,12 +5119,11 @@ var app = (function () {
 
     naclFast.util = naclUtil;
 
-    // EventEmitter for browser (and nodejs as well)
     class Connector extends Eev$1 {
       constructor({ address, protocol, lane, keypair = newKeypair(), rpcRequestTimeout, verbose = false } = {}) {
         super();
 
-        this.protocol = protocol; // not used actually except for stats (debugging) when we read protocol from the connector object -- for example when listing connectors in connectorPool
+        this.protocol = protocol;
         this.lane = lane;
 
         const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
@@ -5248,12 +5141,10 @@ var app = (function () {
         this.receivedCount = 0;
 
         this.successfulConnectsCount = 0;
-
-        // this.connection = .... // this gets set externally in connect() method (establishAndMaintainConnection)
       }
 
       send(data) {
-        send({ data, connector: this }); // todo: was send successful (?) -- or did we send into closed channel? what happens then? sent counters will be out of sync
+        send({ data, connector: this });
         this.sentCount += 1;
       }
 
@@ -5266,7 +5157,6 @@ var app = (function () {
         return this.ready;
       }
 
-      // channel has this method and connector also has to have it so that rpc client can detect and warn us
       closed() {
         return !this.connected;
       }
@@ -5276,34 +5166,18 @@ var app = (function () {
       }
 
       connectStatus(connected) {
-        // setTimeout(() => {
-        //   this.connection.terminate();
-        // }, 1000);
-
         if (connected) {
           this.sentCount = 0;
           this.receivedCount = 0;
 
           this.connected = true;
 
-          //console.log(`Connector ${this.address} CONNECTED`);
-
-          // todo: CHECK WHAT IS HAPPENING HERE
-          // if this fails (rejects), we can get stuck in limbo because connector is connected
-          // but it is not "ready" ... it becomes ready after the key exchange which hasn't happened
-          // so is it possible that on a supposedly good connection some rpc method fails ?
-
           this.successfulConnectsCount += 1;
 
-          // this is not yet well tested...
-          // we want to force reconnect if there is a failure in key-negotiation step
-          // but we cannot just terminate connection on all previous rejects because they can cancel valid connection by mistake
-          // solution: if key negotiation fails, terminate the connection but only from the most recent reject handler
           const num = this.successfulConnectsCount;
 
           this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, lane: this.lane })
             .then(({ sharedSecret, sharedSecretHex }) => {
-              //console.log(colors.magenta(`Shared secret: ${colors.gray(sharedSecretHex)}`));
               this.ready = true;
               this.connectedAt = Date.now();
 
@@ -5312,17 +5186,11 @@ var app = (function () {
               console.log(`✓ Ready: DMT Protocol Connector [ ${this.address} · ${this.protocol}/${this.lane} ]`);
             })
             .catch(e => {
-              // Auth::exchangePubkeys request exceeded maximum allowed time... can sometimes happen on RPi ... maybe increase this time
-              // we only drop when our latest try comes back as failed
               if (num == this.successfulConnectsCount) {
                 console.log(e);
                 console.log('dropping connection and retrying again');
                 this.connection.terminate();
               }
-              // probably not a good idea to do it in this way because
-              // this can the drop a new connection that is currently being retried and this reject comes after 10 or more seconds after failure
-              // we hope that websocket will drop in due time and then we can try auth sequence again
-              //this.connection.terminate();
             });
         } else {
           if (this.connected) {
@@ -5342,18 +5210,16 @@ var app = (function () {
       remoteObject(handle) {
         return {
           call: (methodName, params = []) => {
-            return this.rpcClient.remoteObject(handle).call(methodName, listify$2(params)); // rpcClient always expects a list of arguments, never a single argument
+            return this.rpcClient.remoteObject(handle).call(methodName, listify$2(params));
           }
         };
       }
 
       attachObject(handle, obj) {
-        // todo: servesideChannel is actually connector in this (reverse) case
         new RPCTarget({ serversideChannel: this, serverMethods: obj, methodPrefix: handle });
       }
 
       diffieHellman({ clientPrivateKey, clientPublicKey, lane }) {
-        // TODO: to be improved
         return new Promise((success, reject) => {
           this.remoteObject('Auth')
             .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
@@ -5371,16 +5237,9 @@ var app = (function () {
                 console.log(sharedSecretHex);
               }
 
-              // let server know we're ready
               this.remoteObject('Auth')
                 .call('finalizeHandshake', { lane })
-                .then(() => {
-                  // if (this.clientInitData) {
-                  //   this.remoteObject('Hello')
-                  //     .call('hello', this.clientInitData)
-                  //     .catch(reject);
-                  // }
-                })
+                .then(() => {})
                 .catch(reject);
             })
             .catch(reject);
@@ -5395,57 +5254,10 @@ var app = (function () {
         return this._remotePubkeyHex;
       }
 
-      // we cannot get remoteIp from websocket on client side (security reasons (?))
-      // remote address is whatever we passed into connector from the outside
-      // host or ip, without port
       remoteAddress() {
         return this.address;
       }
-
-      // RECENTLY DONE:
-      // no manual connection flag is set... we close connection here after unsuccessful diffie hellman/
-      // we do want it to reopen... not sure if manual close is used somewhere??
-      // TODO: if not needed, remove closedManually checks in establishAndMaintainConnection
-      // closeAndDontReopenUNUSED() {
-      //   this.connection.closedManually = true;
-      //   this.connection.websocket.onclose = () => {}; // disable onclose handler first
-
-      //   // the reason is to avoid this issue:
-      //   //// there could be problems here -- ?
-      //   // 1. we close the connection by calling connection.close on the connection store
-      //   // 2. we create a new connection which sets connected=true on our store
-      //   // 3. after that the previous connection actually closes and sets connected=false on our store (next line!)
-      //   // todo: solve if proven problematic... maybe it won't cause trouble because closeCallback will trigger immediatelly
-
-      //   this.connectStatus(false);
-      //   this.connection.websocket.close();
-      // }
-
-      // connection => obj
-      // freshConnection
-      // reconnectPaused
-      //
-      // this.connection = {
-      //   websocket :: WS,
-      //   endpoint, :: string,
-      //   closedManually :: bool,
-      //   checkTicker :: int,
-      // }
     }
-
-    // DMT.JS
-    // CONNECTION "PLUMBING"
-
-    // THIS IS USED IN TWO SEPARATE CASES - always on the client side (a):
-    // Connection always from a to b
-
-    // DMT-GUI
-    // (1a) - client is a browser WebSocket and it connects to:    (browser == true)  <--- FLAG, look in this file's code
-    // (1b) - ws gui state endpoint (inside node.js dmt-process)
-
-    // DMT-FIBER:
-    // (2a) - client is a fiber client (inside node.js dmt-process) and connects to:       (browser == false)
-    // (2b) - fiber ws server (inside node.js dmt-process)
 
     const browser = typeof window !== 'undefined';
 
@@ -5454,13 +5266,8 @@ var app = (function () {
 
     function establishAndMaintainConnection({ address, ssl = false, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose }, { WebSocket, log }) {
       const wsProtocol = ssl ? 'wss' : 'ws';
-      // hack for now!
-      // testing reverse proxy forwarding for websockets on https://uri.com/ws
       const endpoint = port.toString().startsWith('/') ? `${wsProtocol}://${address}${port}` : `${wsProtocol}://${address}:${port}`;
 
-      //log(`Trying to connect to ws endpoint ${endpoint} ...`);
-
-      // address goes into connector only for informative purposes
       const connector = new Connector({ address, protocol, lane, rpcRequestTimeout, keypair, verbose });
 
       if (connector.connection) {
@@ -5470,83 +5277,51 @@ var app = (function () {
       connector.connection = {
         terminate() {
           this.websocket._removeAllCallbacks();
-          this.websocket.close(); // we don't want callbacks executed! and besides they can be executed really late after close is called under certain networking conditions!
+          this.websocket.close();
           connector.connectStatus(false);
         },
-        endpoint, // only for logging purposes, not needed for functionality
-        checkTicker: 0 // gets reset to zero everytime anything comes out of the socket
+        endpoint,
+        checkTicker: 0
       };
 
-      // so that event handlers on "connector" have time to get attached
-      // we would use process.nextTick here usually but it doesn't work in browser!
       setTimeout(() => tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }), 10);
 
-      // if process on the other side closed connection, we will detect immediately (websocket closes)
-      // if device drops from network, we won't detect this, but will know by missed pings
-      // 6 * 1500ms = 9s
-      //
-      // Technical explanation:
-      //
-      // Sometimes the link between the server and the client can be interrupted in a way that keeps both the server and
-      // the client unaware of the broken state of the connection (e.g. when pulling the cord).
-      // In these cases ping messages can be used as a means to verify that the remote endpoint is still responsive.
-      //
       const connectionCheckInterval = 1500;
       const callback = () => {
         if (!connector.decommissioned) {
-          // ⚠️ not ok because we won't ever terminate the connection!.. IMPLEMENT to terminate the connection after two check Intervals (?) .. don't temrinate immediately because sending works async.. I believe... so it's good to wait a bit until destroying the connection
           checkConnection({ connector, endpoint, protocol }, { WebSocket, log });
           setTimeout(callback, connectionCheckInterval);
         }
       };
 
-      setTimeout(callback, connectionCheckInterval); // we already tried to connect in the first call in this function, we continue after the set interval
+      setTimeout(callback, connectionCheckInterval);
 
-      return connector; // connector (state) object
+      return connector;
     }
 
-    // HELPER METHODS:
-
-    // reconnectPaused =>
-    // we still send pings, observe connected state and do everything,
-    // the only thing we don't do is that we don't try to reconnect (create new WebSocket -> because this is resource intensive and it shows in browser log in red in console)
     function checkConnection({ connector, endpoint, protocol }, { WebSocket, log }) {
       const conn = connector.connection;
 
-      //const prevConnected = connector.connected;
-
       if (connectionIdle(conn) || connector.decommissioned) {
-        if (connectionIdle(conn)) ; else {
+        if (connectionIdle(conn)) {
+          log(`Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`);
+        } else {
           log(`Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `);
         }
 
-        conn.terminate(); // ⚠️ this will never happen when connector is decommisioned -- FIX
+        conn.terminate();
         return;
       }
 
       const connected = socketConnected(conn);
-      // via ticker
-
-      // TODO: check ticker, if more than 9s, terminate socket ... then close handler should fire...
-      // then it's closed for good.. otherwise we may have issues with sharedSecret sync...
-
       if (connected) {
-        // we cannot send lower-level ping frames from browser: https://stackoverflow.com/a/10586583/458177
-        //log(`WebSocket ${conn.websocket.rand} to ${endpoint} is connected!`);
         conn.websocket.send('ping');
-        // this 3s had an 15s effect above when we check currentlyTryingWS 3s (5 times 3s)
-        //} else if (!connector.reconnectPaused && (resumeNow || conn.checkTicker <= 30 || conn.checkTicker % 3 == 0)) {
-        //} else if (!connector.reconnectPaused && resumeNow) {
       } else {
-        //if (!connector.reconnectPaused) {
         if (connector.connected == undefined) {
           log(`Setting connector status to FALSE because connector.connected is undefined`);
-          connector.connectStatus(false); // initial status report when not able to connect at beginning
+          connector.connectStatus(false);
         }
 
-        //log(`There is no WebSocket to ${endpoint} currently!`); // plural because there could temporarily be multiple connected although only one relevant (active).. others fall off soon
-
-        // first 30s we try to reconnect every second, after that every 3s
         tryReconnect({ connector, endpoint, protocol }, { WebSocket, log });
       }
 
@@ -5556,17 +5331,12 @@ var app = (function () {
     function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
       const conn = connector.connection;
 
-      // this logic is for when the (wifi) netowork changes ...
-      // if there is good netowork but the process is down on the other side, we will immediately get a failure and a closed connection
-      // when trying to connect.. and currentlyTryingWS will be wsCLOSED immediately so we will proceed to try with another new one
-
       if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
         if (conn.currentlyTryingWS._waitForConnectCounter == 3) {
-          // 4 cycles .. 4x 1500ms == 6s
           conn.currentlyTryingWS._removeAllCallbacks();
           conn.currentlyTryingWS.close();
         } else {
-          conn.currentlyTryingWS._waitForConnectCounter += 1; // we wait for next tryReconnect up to 7.5s, then discard the websocket and create a new one
+          conn.currentlyTryingWS._waitForConnectCounter += 1;
           return;
         }
       }
@@ -5578,31 +5348,22 @@ var app = (function () {
 
       ws.rand = Math.random();
 
-      //log(`Created new WebSocket ${ws.rand} for endpoint ${endpoint}`);
-
       if (browser) {
         ws.binaryType = 'arraybuffer';
       }
 
       if (!browser) {
-        // nodejs
-        ws.on('error', error => {
-          // do nothing, but we still need to catch this to not throw global exception (in nodejs)
-        });
+        ws.on('error', error => {});
       }
 
       const openCallback = m => {
-        //log(`ws open callback executed.. Ticker: ${conn.checkTicker}`);
-        //log(`websocket ${ws.rand} conn to ${endpoint} open`);
         conn.currentlyTryingWS = null;
-        conn.checkTicker = 0; // ADDED HERE LATER --- usually we don't need this in frontend because we keep sending state! but we better do the same there as well !! TODO±!!!!!
+        conn.checkTicker = 0;
         addSocketListeners({ ws, connector, openCallback }, { log });
         conn.websocket = ws;
         connector.connectStatus(true);
       };
 
-      // this method gets overwritten by another one that removes all the other listeners
-      // in case ws gets opened and other sockets attached
       ws._removeAllCallbacks = () => {
         ws.removeEventListener('open', openCallback);
       };
@@ -5614,19 +5375,15 @@ var app = (function () {
       }
     }
 
-    // ***************** PLUMBING *****************
-
     function addSocketListeners({ ws, connector, openCallback }, { log }) {
       const conn = connector.connection;
 
       const errorCallback = m => {
-        //log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
-        //log(JSON.stringify(m, null, 2));
-        //log(JSON.stringify(m, ['message', 'arguments', 'type', 'name']));
+        log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
+        log(m);
       };
 
       const closeCallback = m => {
-        //log(`websocket ${ws.rand} conn ${connector.connection.endpoint} closed`);
         connector.connectStatus(false);
       };
 
@@ -5635,9 +5392,7 @@ var app = (function () {
 
         const msg = browser ? _msg.data : _msg;
 
-        // only instance of data that is not either binary or json  (it is simply a string)
         if (msg == 'pong') {
-          // we don't do anything here, it was enough that we have set the checkTicker to zero
           return;
         }
 
@@ -5647,19 +5402,15 @@ var app = (function () {
           jsonData = JSON.parse(msg);
         } catch (e) {}
 
-        // unencrypted -- only messages for key exchange
         if (jsonData) {
           connector.wireReceive({ jsonData, rawMessage: msg });
         } else {
-          // this is either encrypted json or binary data
-          // we have to convert from ArrayBuffer in browser
           const encryptedData = browser ? new Uint8Array(msg) : msg;
           connector.wireReceive({ encryptedData });
         }
       };
 
       ws._removeAllCallbacks = () => {
-        // same for browser and ws library
         ws.removeEventListener('error', errorCallback);
         ws.removeEventListener('close', closeCallback);
         ws.removeEventListener('message', messageCallback);
@@ -5672,9 +5423,6 @@ var app = (function () {
         ws.addEventListener('close', closeCallback);
         ws.addEventListener('message', messageCallback);
       } else {
-        // not sure why "addEventListener" on "ws" nodejs package does not work, we just use standard "on" for this library, otherwise we get:
-        // Caught global exception: TypeError: unexpected type, use Uint8Array
-        // removeEventListener however works the same in browser and ws npm package
         ws.on('error', errorCallback);
         ws.on('close', closeCallback);
         ws.on('message', messageCallback);
@@ -5686,22 +5434,12 @@ var app = (function () {
     }
 
     function connectionIdle(conn) {
-      // we allow 9 seconds without message receive from the server side until we determine connection is broken
-      return socketConnected(conn) && conn.checkTicker > 5; // 5 * 1500ms == 7.5s
+      return socketConnected(conn) && conn.checkTicker > 5;
     }
 
     function establishAndMaintainConnection$1(opts) {
       return establishAndMaintainConnection(opts, { WebSocket, log: log$1 });
-      // return new Promise(success => {
-      //   success(_establishAndMaintainConnection(opts, { WebSocket, log }));
-      // });
     }
-
-    naclFast.util = naclUtil;
-
-    naclFast.util = naclUtil;
-
-    naclFast.util = naclUtil;
 
     /*!
      * https://github.com/Starcounter-Jack/JSON-Patch
@@ -6471,10 +6209,11 @@ var app = (function () {
         unescapePathComponent
     });
 
-    // 💡 Extending Emitter - used rarely or not at all...
-    // 💡 we do use it inside ConnectedStore so that it can emit 'ready' event
-    class SimpleStore extends Eev$1 {
-      constructor(initialState = {}) {
+    // 💡 we use Emitter inside ConnectedStore to emit 'ready' event
+    // 💡 and inside MultiConnectedStore to also emit a few events
+
+    class WritableStore extends Eev$1 {
+      constructor(initialState) {
         super();
 
         this.state = initialState;
@@ -6483,10 +6222,7 @@ var app = (function () {
       }
 
       set(state) {
-        Object.assign(this.state, state);
-
-        // attach state variables directly to store for easier reference from templates
-        Object.assign(this, this.state);
+        this.state = state;
 
         this.pushStateToSubscribers();
       }
@@ -6495,19 +6231,11 @@ var app = (function () {
         return this.state;
       }
 
-      clearState({ except }) {
-        for (const key of Object.keys(this.state)) {
-          if (!except.includes(key)) {
-            delete this[key];
-            delete this.state[key];
-          }
-        }
-      }
-
       subscribe(handler) {
         this.subscriptions.push(handler);
+
         handler(this.state);
-        // return unsubscribe function
+
         return () => {
           this.subscriptions = this.subscriptions.filter(sub => sub !== handler);
         };
@@ -6518,20 +6246,62 @@ var app = (function () {
       }
     }
 
-    // const store = new SimpleStore();
-    // store.set({ a: { b: 1, c: 2 } });
-    // console.log(store.state); // { a: { b: 1, c: 2 } }
+    class MergeStore extends WritableStore {
+      constructor(initialState = {}) {
+        super(initialState);
+      }
 
-    // store.set({ a: { d: 1 } });
-    // console.log(store.state); // { a: { d: 1 } }
+      set(state, { ignore = [] } = {}) {
+        const leaveState = {};
 
-    // store.set({ e: { f: 1 } });
-    // console.log(store.state); // { a: { d: 1 }, e: { f: 1 } }
+        for (const key of ignore) {
+          leaveState[key] = this.state[key];
+        }
+
+        super.set({ ...state, ...leaveState });
+      }
+
+      setMerge(patch) {
+        super.set({ ...this.state, ...patch });
+      }
+
+      clearState({ except = [] } = {}) {
+        for (const key of Object.keys(this.state)) {
+          if (!except.includes(key)) {
+            delete this.state[key];
+          }
+        }
+      }
+    }
+
+    class ConnectedStoreBase extends MergeStore {
+      constructor(initialState = {}) {
+        super(initialState);
+      }
+
+      set(state) {
+        super.set(state, { ignore: ['connected'] });
+      }
+
+      setConnected(connected) {
+        super.setMerge({ connected });
+      }
+    }
 
     const { applyPatch: applyJSONPatch } = fastJsonPatch;
 
-    class ConnectedStore extends SimpleStore {
-      constructor({ address, ssl = false, port, protocol, lane, keypair = newKeypair(), logStore, rpcRequestTimeout, verbose } = {}) {
+    class ConnectedStore extends ConnectedStoreBase {
+      constructor({
+        address,
+        ssl = false,
+        port,
+        protocol,
+        lane,
+        keypair = newKeypair(),
+        logStore,
+        rpcRequestTimeout,
+        verbose
+      } = {}) {
         super();
 
         if (!address) {
@@ -6551,10 +6321,6 @@ var app = (function () {
       }
 
       action({ action, namespace, payload }) {
-        // Special outgoing message: { action: ... }
-        // front end to backend ... actions go only this way
-        // TODO: check what happens if connector not connected ? ⚠️⚠️⚠️⚠️
-        // remove this IF clause and test
         if (this.connector.connected) {
           console.log(`Sending action ${action} over connector ${this.connector.address}`);
           this.connector.send({ action, namespace, payload });
@@ -6582,22 +6348,21 @@ var app = (function () {
         });
 
         this.connector.on('ready', ({ sharedSecret, sharedSecretHex }) => {
-          this.set({ connected: true });
-
-          this.emit('ready'); // store ready event! -- so far used only in ZetaSeek frontend -- multiconnected store does not need this
+          this.setConnected(true);
+          this.emit('ready');
         });
 
         // 💡 connected == undefined ==> while trying to connect
         // 💡 connected == false => while disconnected
         // 💡 connected == true => while connected
         setTimeout(() => {
-          if (this.connected == undefined) {
-            this.set({ connected: false });
+          if (this.state.connected == undefined) {
+            this.setConnected(false);
           }
         }, 300);
 
         this.connector.on('disconnect', () => {
-          this.set({ connected: false });
+          this.setConnected(false);
         });
 
         // 💡 Special incoming JSON message: { state: ... } ... parsed as part of 'Connectome State Syncing Protocol'
@@ -6609,7 +6374,7 @@ var app = (function () {
             console.log(state);
           }
 
-          this.set(state);
+          this.set(state); // will omit { connected } because ConnectedStoreBase includes this field in 'ignore'
         });
 
         // 💡 Special incoming JSON message: { diff: ... } ... parsed as part of 'Connectome State Syncing Protocol'
@@ -6629,9 +6394,17 @@ var app = (function () {
         this.connectToDeviceKey = connectToDeviceKey;
       }
 
-      // create new connected store which is connected to some address
       createStore({ address }) {
-        const { port, protocol, lane, logStore, rpcRequestTimeout, verbose, privateKey: clientPrivateKey, publicKey: clientPublicKey } = this.mcs;
+        const {
+          port,
+          protocol,
+          lane,
+          logStore,
+          rpcRequestTimeout,
+          verbose,
+          privateKey: clientPrivateKey,
+          publicKey: clientPublicKey
+        } = this.mcs;
 
         return new ConnectedStore({
           address,
@@ -6658,12 +6431,8 @@ var app = (function () {
       connectThisDevice({ address }) {
         const thisStore = this.createStore({ address });
 
-        // ********************************
-        // STORE STATE CHANGE EVENT HANDLER
-        // ********************************
         thisStore.subscribe(state => {
           if (!state.nearbyDevices) {
-            // ⚠️  magic assignment -- extract ? / improve
             state.nearbyDevices = [];
           }
 
@@ -6677,12 +6446,11 @@ var app = (function () {
 
             const needToConnectAnotherDevice = this.connectToDeviceKey && this.connectToDeviceKey != deviceKey;
 
-            if (this.mcs.activeDeviceKey == deviceKey && !needToConnectAnotherDevice) {
+            if (this.mcs.activeDeviceKey() == deviceKey && !needToConnectAnotherDevice) {
               const optimisticDeviceName = state.device.deviceName;
               this.foreground.set(state, { optimisticDeviceName });
             }
 
-            // even if this device is not selected, we always copy over keys of interest which only come from this device
             this.foreground.setSpecial(state);
 
             if (!this.thisDeviceAlreadySetup) {
@@ -6704,11 +6472,8 @@ var app = (function () {
 
         this.mcs.stores[deviceKey] = newStore;
 
-        // ********************************
-        // STORE STATE CHANGE EVENT HANDLER
-        // ********************************
         newStore.subscribe(state => {
-          if (this.mcs.activeDeviceKey == deviceKey) {
+          if (this.mcs.activeDeviceKey() == deviceKey) {
             const optimisticDeviceName = state.device ? state.device.deviceName : null;
             this.foreground.set(state, { optimisticDeviceName });
           }
@@ -6745,11 +6510,9 @@ var app = (function () {
           setState.optimisticDeviceName = optimisticDeviceName;
         }
 
-        this.mcs.set(setState);
+        this.mcs.setMerge(setState);
       }
 
-      // nearbyDevices, time, notifications -> these appear in foreground state always taken
-      // from localDeviceState instead of actively selected device
       setSpecial(localDeviceState) {
         const setState = {};
 
@@ -6757,7 +6520,7 @@ var app = (function () {
           setState[key] = localDeviceState[key];
         }
 
-        this.mcs.set(setState);
+        this.mcs.setMerge(setState);
       }
     }
 
@@ -6771,7 +6534,7 @@ var app = (function () {
       }
 
       switchState({ deviceKey, deviceName }) {
-        this.mcs.set({ activeDeviceKey: deviceKey });
+        this.mcs.setMerge({ activeDeviceKey: deviceKey });
         const { state } = this.mcs.stores[deviceKey];
         this.foreground.set(state, { optimisticDeviceName: deviceName });
       }
@@ -6780,45 +6543,43 @@ var app = (function () {
         if (this.mcs.stores[deviceKey]) {
           this.switchState({ deviceKey, deviceName });
         } else if (address) {
-          // first connect to this address === each device goes through this on first connect
-
-          // ⚠️⚠️⚠️ NEEDED TO BE REALISTIC (but experiment further!):
-          this.foreground.clear(); // PROBLEMATIC !! :) partially .. GLITCHES... how to make less flickering and still be realistic
-          // OR WE JUST LIVE WITH THIS AND IT'S OK ?
-          // REMOVE THIS 👆 and see how it works then... it's not completely ok.. esp. if device is not online anymore but still in nearbyList!
-
-          // we don't set through foreground because it doesn't allow us to set activeDeviceKey
-          this.mcs.set({ activeDeviceKey: deviceKey, optimisticDeviceName: deviceName });
+          this.foreground.clear();
+          this.mcs.setMerge({ activeDeviceKey: deviceKey, optimisticDeviceName: deviceName });
 
           this.connectDevice.connectOtherDevice({ address, deviceKey });
         } else {
-          // we land here via connectToDeviceKey initial option (for now)
+          const { nearbyDevices } = this.mcs.localDeviceStore.get();
 
-          // if first time switching to this address, create store and setup state transfer to multiConnectedStore
-          // get address from nearbyDevices... if thisDevice, don't do anything...
-          const matchingDevice = this.mcs.nearbyDevices.find(device => device.deviceKey == deviceKey && !device.thisDevice);
-
-          // we expect 'address' in our methods and nearbyDevices only have 'ip'
-          matchingDevice.address = matchingDevice.ip;
+          const matchingDevice = nearbyDevices.find(
+            device => device.deviceKey == deviceKey && !device.thisDevice
+          );
 
           if (matchingDevice) {
-            this.switch(matchingDevice); // matchingDevice contains { deviceKey, address }
+            const { deviceKey, deviceName, ip: address } = matchingDevice;
+            this.switch({ address, deviceKey, deviceName });
           } else {
-            // ⚠️ TODO remove localstorage when we fail to connect to somedevice at first
             this.emit('connect_to_device_key_failed');
 
-            // this is convenient... we need deviceName by out current logic so that it appears immediately without waiting for connect
-            // optimisticDeviceName is only set in foreground and on each this device state change
-            const thisDevice = this.mcs.nearbyDevices.find(device => device.thisDevice);
+            // ???? --- >>>>>>
+            const thisDevice = nearbyDevices.find(device => device.thisDevice);
             this.switchState(thisDevice);
           }
         }
       }
     }
 
-    class MultiConnectedStore extends SimpleStore {
-      // todo: add ssl argument
-      constructor({ address, port, protocol, lane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
+    class MultiConnectedStore extends MergeStore {
+      constructor({
+        address,
+        port,
+        protocol,
+        lane,
+        keypair = newKeypair(),
+        connectToDeviceKey,
+        logStore,
+        rpcRequestTimeout,
+        verbose
+      }) {
         super();
 
         if (!address) {
@@ -6851,20 +6612,13 @@ var app = (function () {
         this.localDeviceStore = connectDevice.connectThisDevice({ address });
       }
 
-      // send user actions from frontend (clicks, options etc...) to the appropriate backend (on local or currently tunneled device) via websocket
       action({ action, namespace, payload }) {
-        // this is not really needed but we have it just in case if "pointer-events: none;" is not added exactly at te right time
-        // it will be added through componentBridge::aspectGui which also check videoOverlay() property
-        // if (this.videoOverlay()) {
-        //   return;
-        // }
-
-        //this.guiEngaged();
-        //this.currentStore();
         if (this.activeStore()) {
           this.activeStore().action({ action, namespace, payload });
         } else {
-          console.log(`Error emitting remote action ${action} / ${namespace}. Debug info: activeDeviceKey=${this.activeDeviceKey}`);
+          console.log(
+            `Error emitting remote action ${action} / ${namespace}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`
+          );
         }
       }
 
@@ -6877,33 +6631,34 @@ var app = (function () {
           return this.activeStore().remoteObject(objectName);
         }
 
-        console.log(`Error obtaining remote object ${objectName}. Debug info: activeDeviceKey=${this.activeDeviceKey}`);
+        console.log(
+          `Error obtaining remote object ${objectName}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`
+        );
       }
 
       switch({ address, deviceKey, deviceName }) {
         this.switchDevice.switch({ address, deviceKey, deviceName });
       }
 
-      // "INTERNAL API"
       activeStore() {
-        if (this.activeDeviceKey) {
-          return this.stores[this.activeDeviceKey];
+        if (this.activeDeviceKey()) {
+          return this.stores[this.activeDeviceKey()];
         }
+      }
+
+      activeDeviceKey() {
+        return this.get().activeDeviceKey;
       }
     }
 
-    class LogStore extends SimpleStore {
+    class LogStore extends WritableStore {
       constructor() {
-        super();
+        super({ log: [] });
 
-        this.set({ log: [] });
+        // this.set();
       }
 
-      // todo: maybe move to MultiConnected store... and use only that store in place of connectedstore,,, but fix it to just one connection
-      // when used as single-connected store
-      // cannot use console.log from here!!, use "origLog" -- for debugging
       addToLog({ origConsoleLog, limit }, ...args) {
-        // arguments are collected and single argument passed in actually became an array with one element
         if (args.length == 1) {
           args = args[0];
         }
@@ -6926,26 +6681,12 @@ var app = (function () {
       }
     }
 
-    /*
-      Deep clones all properties except functions
-
-      var arr = [1, 2, 3];
-      var subObj = {aa: 1};
-      var obj = {a: 3, b: 5, c: arr, d: subObj};
-      var objClone = clone(obj);
-      arr.push(4);
-      subObj.bb = 2;
-      obj; // {a: 3, b: 5, c: [1, 2, 3, 4], d: {aa: 1}}
-      objClone; // {a: 3, b: 5, c: [1, 2, 3], d: {aa: 1, bb: 2}}
-    */
-
     function clone(obj) {
       if (typeof obj == 'function') {
         return obj;
       }
       var result = Array.isArray(obj) ? [] : {};
       for (var key in obj) {
-        // include prototype properties
         var value = obj[key];
         var type = {}.toString.call(value).slice(8, -1);
         if (type == 'Array' || type == 'Object') {
@@ -6988,24 +6729,18 @@ var app = (function () {
 
       if (isObjectObject(o) === false) return false;
 
-      // If has modified constructor
       ctor = o.constructor;
       if (typeof ctor !== 'function') return false;
 
-      // If has modified prototype
       prot = ctor.prototype;
       if (isObjectObject(prot) === false) return false;
 
-      // If constructor does not have an Object-specific method
       if (prot.hasOwnProperty('isPrototypeOf') === false) {
         return false;
       }
 
-      // Most likely a plain Object
       return true;
     }
-
-    //The MIT License (MIT)
 
     function emptyTarget(val) {
       return Array.isArray(val) ? [] : {};
@@ -7884,18 +7619,14 @@ var app = (function () {
 
     const generateJsonPatch = rfc6902$1.createPatch;
 
-    function getDiff(a, b) {
-      const diff = generateJsonPatch(a, b);
+    function getDiff(prevAnnouncedState, currentState) {
+      const diff = generateJsonPatch(prevAnnouncedState, currentState);
 
       if (diff.length > 0) {
         return diff;
       }
-      // else {
-      //   log.red('No need to send patch');
-      // }
     }
 
-    // CanonicStore also "CannonStore" also ReactiveDiffingStore
     class MirroringStore extends Eev$1 {
       constructor(initialState = {}) {
         super();
@@ -7904,11 +7635,10 @@ var app = (function () {
         this.prevAnnouncedState = {};
       }
 
-      // new feature, if we wanted to automatically create synced store
       mirror(channelList) {
         channelList.on('new_channel', channel => {
           const { state } = this;
-          channel.send({ state }); // Sending initial state to each new ws connection !!
+          channel.send({ state });
         });
 
         this.on('diff', diff => {
@@ -7916,19 +7646,22 @@ var app = (function () {
         });
       }
 
-      set(patch, { announce = true } = {}) {
-        Object.assign(this.state, patch);
-        this.announceStateChange(announce);
+      set(state, { announce = true } = {}) {
+        this.state = state;
+
+        if (announce) {
+          this.announceStateChange();
+        }
       }
 
-      announceStateChange(announce = true) {
-        if (!announce) {
-          return;
-        }
+      get() {
+        return this.state;
+      }
 
+      announceStateChange() {
         const { state } = this;
 
-        const diff = getDiff(state, this.prevAnnouncedState);
+        const diff = getDiff(this.prevAnnouncedState, state);
 
         if (diff) {
           this.emit('diff', diff);
@@ -7940,7 +7673,7 @@ var app = (function () {
 
     function mergeState(state, patch) {
       const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
-      return deepmerge(state, patch, { arrayMerge: overwriteMerge }); // => [3, 2, 1]
+      return deepmerge(state, patch, { arrayMerge: overwriteMerge });
     }
 
     class KeyValueStore {
@@ -7952,18 +7685,12 @@ var app = (function () {
         this.state = mergeState(this.state, patch);
       }
 
-      // rarely used ...
       replaceBaseKey(baseKey, value) {
         this.state[baseKey] = value;
       }
 
-      // set store to {}}
-      // cannot remove the baseKey once set!
-      // this is not to break the code... baseKey once defined has to always be an object, if empty then it is '{}'
-      // never undefined !
       clearBaseKey(baseKey) {
         delete this.state[baseKey];
-        //this.replaceBaseKey(baseKey, {}, { announce });
       }
 
       replaceSubKey({ baseKey, key, value }) {
@@ -7976,10 +7703,6 @@ var app = (function () {
         delete this.state[baseKey][key];
       }
 
-      // RARELY USED -- PERHAPS TO BE REMOVED ??? CHECK:
-
-      // this is probaby not the cleanest way of doing it... this is very similar to updateState but our current
-      // implementation there cannot merge arrays, so we need a different way to achieve adding to array (for example for notifications...)
       pushToArray(baseKey, el) {
         this.state[baseKey].push(el);
       }
@@ -7989,17 +7712,13 @@ var app = (function () {
       }
     }
 
-    // this store is not aware of any connectivity
-    // kvStore neither... other places can manipulate this store via actions received via connectivity
-    // as well as send out updates to this store when 'announcement' is needed
-    //
-    // CanonicStore also "CannonStore" also ReactiveDiffingStore
     class ProgramStateStore extends Eev$1 {
-      constructor(initialState = {}, { loadState = null, saveState = null, omitStateFn = x => x, removeStateChangeFalseTriggers = x => x } = {}) {
+      constructor(
+        initialState = {},
+        { loadState = null, saveState = null, omitStateFn = x => x, removeStateChangeFalseTriggers = x => x } = {}
+      ) {
         super();
 
-        // what part of state to omit sending over to frontend (for performance reasons)
-        // for example long playlists are truncated
         this.omitStateFn = omitStateFn;
         this.saveState = saveState;
         this.removeStateChangeFalseTriggers = removeStateChangeFalseTriggers;
@@ -8011,23 +7730,21 @@ var app = (function () {
         if (loadState) {
           const persistedState = loadState();
 
-          // load saved state from disk first
           if (persistedState) {
-            this.kvStore.update(persistedState, { announce: false }); // no reactive announcement
+            this.kvStore.update(persistedState, { announce: false });
           }
         }
-        // now merge (and overwrite when needed) our passed in initial state
-        // initial state pased into this store has priority over any persisted state
-        this.kvStore.update(initialState, { announce: false }); // no reactive announcement
+        this.kvStore.update(initialState, { announce: false });
 
-        this.stateChangesCount = 0; // only for informative purposes
+        this.stateChangesCount = 0;
+
+        this.subscriptions = [];
       }
 
-      // new feature, if we wanted to automatically create synced store
       mirror(channelList) {
         channelList.on('new_channel', channel => {
           const state = this.omitStateFn(clone(this.state()));
-          channel.send({ state }); // Sending initial state to each new ws connection !!
+          channel.send({ state });
         });
 
         this.on('diff', diff => {
@@ -8040,12 +7757,6 @@ var app = (function () {
         this.announceStateChange(announce);
       }
 
-      // User rarely and is needed when we don't do any merging on new updates but can just replace the whole state
-      // for example:
-      // program.store.replaceSlot('nearbyDevices', nearbyDevicesNew, { announce: false });
-      // program.store.replaceSlot('environment', environment);
-      //
-      // not used for other things for now
       replaceSlot(slotName, value, { announce = true } = {}) {
         this.kvStore.replaceBaseKey(slotName, value);
         this.announceStateChange(announce);
@@ -8056,8 +7767,6 @@ var app = (function () {
         this.announceStateChange(announce);
       }
 
-      // ⚠️ perhaps replace 'key' with 'element' ?
-      // will be another tricky semi-manual replace! do it soon
       replaceSlotElement({ slotName, key, value }, { announce = true } = {}) {
         this.kvStore.replaceSubKey({ baseKey: slotName, key, value }, { announce });
         this.announceStateChange(announce);
@@ -8080,20 +7789,16 @@ var app = (function () {
 
       save(state) {
         if (this.saveState) {
-          this.lastSavedState = this.saveState({ state: clone(state), lastSavedState: this.lastSavedState }) || this.lastSavedState;
+          this.lastSavedState =
+            this.saveState({ state: clone(state), lastSavedState: this.lastSavedState }) || this.lastSavedState;
         }
       }
 
-      // useful for custom protocols
       state() {
         return this.kvStore.state;
       }
 
       announceStateChange(announce = true) {
-        // GREAT FOR PROFILING / DEBUGGING:
-        // show who requested announcing state change ...
-        //  console.log(Error().stack);
-
         if (!announce) {
           return;
         }
@@ -8102,35 +7807,33 @@ var app = (function () {
 
         const prunedState = this.removeStateChangeFalseTriggers(this.omitStateFn(clone(state)));
 
-        const diff = getDiff(prunedState, this.prevAnnouncedState);
+        const diff = getDiff(this.prevAnnouncedState, prunedState);
 
         if (diff) {
-          // --- dmt-release-exclude-begin ---
-          // const debug = false && dmt.isDevMachine();
-
-          // if (debug) {
-          //   console.log();
-          //   console.log('----  PATCH ----');
-          //   console.log(JSON.stringify(diff, null, 2));
-          //   console.log('------------');
-          // }
-          // --- dmt-release-exclude-end ---
-
-          // SOME PROBLEM!! TODO!!
-          // we moved this persisting here... because it has to check somehow other... reduced size will cause problems here!!
-          // TODO: has to be a bit optimized, check comments in statePersist.js
-          this.save(state); // we clone again
+          this.save(state);
 
           this.emit('diff', diff);
 
           this.stateChangesCount += 1;
 
           this.prevAnnouncedState = prunedState;
+
+          this.pushStateToSubscribers();
         }
       }
-    }
 
-    //import SimpleStore from './gui/simpleStore.js';
+      subscribe(handler) {
+        this.subscriptions.push(handler);
+        handler(this.state());
+        return () => {
+          this.subscriptions = this.subscriptions.filter(sub => sub !== handler);
+        };
+      }
+
+      pushStateToSubscribers() {
+        this.subscriptions.forEach(handler => handler(this.state()));
+      }
+    }
 
     var stores = /*#__PURE__*/Object.freeze({
         __proto__: null,
@@ -10134,6 +9837,7 @@ var app = (function () {
     	}
     }
 
+    //import { stores } from '../../../../connectome';
     const { MultiConnectedStore: MultiConnectedStore$1 } = stores;
 
     const port = 7780;

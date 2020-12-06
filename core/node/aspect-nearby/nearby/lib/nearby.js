@@ -14,10 +14,12 @@ class Nearby {
     }
 
     this.broadcastInterval = 2 * dmt.globals.tickerPeriod * 1000;
+
+    this.init();
   }
 
-  registerLanbus(lanbus) {
-    this.lanbus = lanbus;
+  init() {
+    this.lanbus = this.program.lanbus;
 
     this.setupNearbyDevicesListRefresh();
 

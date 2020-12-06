@@ -27,7 +27,7 @@ class Foreground {
       setState.optimisticDeviceName = optimisticDeviceName;
     }
 
-    this.mcs.set(setState);
+    this.mcs.setMerge(setState);
   }
 
   setSpecial(localDeviceState) {
@@ -37,7 +37,7 @@ class Foreground {
       setState[key] = localDeviceState[key];
     }
 
-    this.mcs.set(setState);
+    this.mcs.setMerge(setState);
   }
 }
 

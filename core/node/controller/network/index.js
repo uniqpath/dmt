@@ -4,10 +4,6 @@ class Network {
   constructor(program) {
     this.program = program;
 
-    program.on('lanbus:ready', lanbus => {
-      this.lanbus = lanbus;
-    });
-
     this.determineNetwork = new DetermineNetwork({ program, obj: this });
   }
 

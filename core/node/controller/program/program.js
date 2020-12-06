@@ -245,6 +245,10 @@ class Program extends EventEmitter {
     return this.store.state();
   }
 
+  setLanbus(lanbus) {
+    this.lanbus = lanbus;
+  }
+
   initIot(iotBus) {
     this.iotBus = iotBus;
   }

@@ -1,10 +1,8 @@
-import SimpleStore from './simpleStore.js';
+import WritableStore from './helperStores/writableStore.js';
 
-class LogStore extends SimpleStore {
+class LogStore extends WritableStore {
   constructor() {
-    super();
-
-    this.set({ log: [] });
+    super({ log: [] });
   }
 
   addToLog({ origConsoleLog, limit }, ...args) {
