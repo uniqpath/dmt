@@ -8,6 +8,7 @@
     "./bridge": "./bridge",
     "./connectome": "./connectome/src/client",
     "./connectome-server": "./connectome/src/server",
+    "./connectome-stores": "./connectome/src/stores",
     "./connectome-next": "./connectome-next",
     "./search": "./search",
     "./player": "./player",

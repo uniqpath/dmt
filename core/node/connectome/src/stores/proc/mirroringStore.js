@@ -1,4 +1,4 @@
-import { EventEmitter } from '../../../utils/index.js';
+import { EventEmitter } from '../../utils/index.js';
 
 import { clone } from './util/index.js';
 

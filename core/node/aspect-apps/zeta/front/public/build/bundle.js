@@ -1823,7 +1823,6 @@ var app = (function () {
       }
     }
 
-    // A relatively generic LinkedList impl
     class LinkedList$1 {
       constructor(linkConstructor) {
         this.head = new RunnableLink$1();
@@ -1848,9 +1847,6 @@ var app = (function () {
 
     let id$2 = 0;
     const splitter$1 = /[\s,]+/g;
-
-    // A link in the linked list which allows
-    // for efficient execution of the callbacks
 
     class Eev$1 {
       constructor() {
@@ -1906,19 +1902,16 @@ var app = (function () {
 
     function bufferToHex$1(buffer) {
       return Array.from(new Uint8Array(buffer))
-        .map(b => b.toString(16).padStart(2, '0'))
+        .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
     }
 
     function hexToBuffer$1(hex) {
-      const tokens = hex.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g); // split by two, https://blog.abelotech.com/posts/split-string-tokens-defined-length-javascript/
-      return new Uint8Array(tokens.map(token => parseInt(token, 16)));
+      const tokens = hex.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g);
+      return new Uint8Array(tokens.map((token) => parseInt(token, 16)));
     }
 
-    // source: https://stackoverflow.com/a/12965194/458177
-    // good only up to 2**53 (JavaScript Integer range) -- usually this is plenty ...
-    function integerToByteArray(/*long*/ long, arrayLen = 8) {
-      // we want to represent the input as a 8-bytes array
+    function integerToByteArray(long, arrayLen = 8) {
       const byteArray = new Array(arrayLen).fill(0);
 
       for (let index = 0; index < byteArray.length; index++) {
@@ -4459,7 +4452,6 @@ var app = (function () {
       const header = new Uint8Array(1);
       header[0] = flag;
 
-      // concat!
       msg.set(header);
       msg.set(_msg, header.length);
 
@@ -4477,15 +4469,13 @@ var app = (function () {
 
       if (!connector.closed()) {
         if (connector.sentCount > 1) {
-          // we don't encrypt first two messags (RPC: exchangePubkeys and exchangePubkeys::ACK)
-
-          let flag = 0; // binary
+          let flag = 0;
 
           if (typeof data == 'string') {
-            flag = 1; // string
+            flag = 1;
           }
 
-          const _encodedMessage = flag == 1 ? naclFast.util.decodeUTF8(data) : data; // binary data (file stream...)
+          const _encodedMessage = flag == 1 ? naclFast.util.decodeUTF8(data) : data;
           const encodedMessage = addHeader(_encodedMessage, flag);
 
           const encryptedMessage = naclFast.secretbox(encodedMessage, nonce, connector.sharedSecret);
@@ -4508,7 +4498,6 @@ var app = (function () {
         }
       } else {
         console.log(`⚠️ Warning: "${data}" was not sent because connector is not ready`);
-        // TODO: check if it's better to pass on the "log" function from establishAndMaintainConnection
       }
     }
 
@@ -4529,21 +4518,16 @@ var app = (function () {
       }
 
       // 💡 unencrypted jsonData !
-      // authentication !
       if (jsonData) {
         if (jsonData.jsonrpc) {
-          // normal result from RPC call, result is coming back from server and we receive it at client
           if (isRpcCallResult(jsonData)) {
             if (connector.verbose && !wasEncrypted) {
-              //we already logged it if it was encrypted
               console.log('Received plain-text rpc result');
               console.log(jsonData);
             }
 
             connector.rpcClient.jsonrpcMsgReceive(rawMessage);
           } else {
-            // if we receive json rpc message on the client without the result or error property, this means that it is
-            // actually a reverse RPC call from server to client
             connector.emit('json_rpc', rawMessage);
           }
         } else {
@@ -4557,37 +4541,14 @@ var app = (function () {
           console.log(`Decrypting with shared secret ${connector.sharedSecret}...`);
         }
 
-        // we assume connector.sharedSecret exists and was successful
-        // OPEN QUESTION :: binaryData can be both: encryptedData or actual binaryData.. if we always encrypt we can solve the dilemma
         const _decryptedMessage = naclFast.secretbox.open(encryptedData, nonce, connector.sharedSecret);
 
         const flag = _decryptedMessage[0];
         const decryptedMessage = _decryptedMessage.subarray(1);
 
-        //let decodedMessage;
-
-        // BE CAREFUL --> cannot use this in browser!!
-        //const start = stopwatch.start();
-
-        // try {
-        //   decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
-        // } catch (e) {
-        //   // console.log('CANNOT DECODE');
-        //   // console.log(stopwatch.stop(start));
-        //   // to detect we cannot decode it takes around 5ms on MBP
-        //   // and even ~50-60ms on RPi
-        // }
-
-        //⚠️ ⚠️ text strings are not allowed... we can only distinguish between binary data and json
-        //
-        // this book has both "cannot decode" and "cannot parse json" instances:
-        // http://localhost:7777/file/Schaum's%20Mathematical%20Handbook%20of%20Formulas%20and%20Tables%20-%20Murray%20R%20Spiegel.pdf?id=192.168.0.10-2f686f6d652f65636c697073652f53746f726167652f436f6c6c656374696f6e732f4d6174682f426f6f6b73322f75736566756c2f53636861756d2773204d617468656d61746963616c2048616e64626f6f6b206f6620466f726d756c617320616e64205461626c6573202d204d75727261792052205370696567656c2e706466
-        // 27 MB, around 100 such decistion instances
         if (flag == 1) {
-          // wrap this in try// catch and report issue in coding if it happens
           const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
 
-          // string
           try {
             const jsonData = JSON.parse(decodedMessage);
 
@@ -4598,19 +4559,16 @@ var app = (function () {
                 console.log(jsonData);
               }
 
-              wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector }); // recursive: will call rpcClient as before
+              wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
             } else if (jsonData.tag) {
               // 💡 tag
               const msg = jsonData;
 
               if (msg.tag == 'file_not_found') {
-                //console.log(`received binary_start from (remote) content server, sessionId: ${msg.sessionId}`);
                 connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
               } else if (msg.tag == 'binary_start') {
-                //console.log(`received binary_start from (remote) content server, sessionId: ${msg.sessionId}`);
                 connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
               } else if (msg.tag == 'binary_end') {
-                //console.log(`fiberConnection: received binary_end from (remote) content server, sessionId: ${msg.sessionId}`);
                 connector.emit(msg.tag, { sessionId: msg.sessionId });
               } else {
                 connector.emit('receive', { jsonData, rawMessage: decodedMessage });
@@ -4620,54 +4578,26 @@ var app = (function () {
               connector.emit('receive_state', jsonData.state);
             } else if (jsonData.diff) {
               // 💡 Subsequent JSON patch diffs (rfc6902)* ... part of Connectome protocol
-              // * rfc6902 ≡ JavaScript Object Notation (JSON) Patch ==> https://tools.ietf.org/html/rfc6902
               connector.emit('receive_diff', jsonData.diff);
             } else {
               connector.emit('receive', { jsonData, rawMessage: decodedMessage });
             }
           } catch (e) {
             console.log("Couldn't parse json message although the flag was for string ...");
-            //log.red();
             throw e;
-            // console.log('CANNOT PARSE JSON');
-            // this only takes microseconds and is not problematic
           }
         } else {
-          // binary data
-          //if (!jsonData) {
           const binaryData = decryptedMessage;
 
-          // ?? --> ⚠️ room for process crash if a regular string (not stringified json) is sent
-          // because if it's not actually json, it will land here, and it *has* to be binary data...
-
-          // console.log(decryptedMessage);
-          // console.log(connector.address);
-
-          // TODO: check if someone is sending some other binary data... now we assume everything binary is filestream!!
-          //
-          //if (Buffer.isBuffer(binaryData)) {
           const sessionId = Buffer.from(binaryData.buffer, binaryData.byteOffset, 64).toString();
           const binaryPayload = Buffer.from(binaryData.buffer, binaryData.byteOffset + 64);
 
-          //console.log(binaryPayload.length);
-
-          //console.log(`fiberConnection: received binary_data from (remote) content server, sessionId: ${sessionId}`);
-
           connector.emit('binary_data', { sessionId, data: binaryPayload });
-          // } else {
-          //   console.log(binaryData);
-          //   console.log('NOT BUFFER!!!');
-          //   // for now this will never happen because we don't send encoded binary data yet
-          //   connector.wireReceive({ binaryData });
-          // }
         }
-
-        //connector.emit('receive', { jsonData, binaryData, rawMessage });
       }
     }
 
     class Channel extends Eev$1 {
-      // connector or channel actually, todo: change variable name
       constructor(connector) {
         super();
 
@@ -4707,16 +4637,11 @@ var app = (function () {
         transport.onData(this._processRequest.bind(this, transport));
       }
 
-      // async removeTransport(transport) {
-      //   await transport.shutdown(); // TODO
-      // }
-
       async _processRequest(transport, data) {
         const requestData = JSON.parse(data);
         let responseData;
 
         if (Array.isArray(requestData)) {
-          // TODO Batch error handling?
           responseData = await Promise.all(requestData.map(request => this._callMethod(request, transport)));
         } else {
           responseData = await this._callMethod(requestData, transport);
@@ -4727,7 +4652,7 @@ var app = (function () {
 
       async _callMethod(request, transport) {
         const isRequest = request.hasOwnProperty('method');
-        if (!isRequest) return; // send nothing in response
+        if (!isRequest) return;
 
         const { method, params = [], id } = request;
 
@@ -4737,7 +4662,6 @@ var app = (function () {
           const [prefix, name] = methodName.split('::');
           methodName = name;
           if (this.methodPrefix && prefix != this.methodPrefix) {
-            // not meant for us ...
             return;
           }
         }
@@ -4766,7 +4690,7 @@ var app = (function () {
           try {
             const result = await this.methods[methodName].apply(this.methods, params);
 
-            if (!id) return; // For notifications do not respond. "" means send nothing
+            if (!id) return;
 
             response = {
               jsonrpc: '2.0',
@@ -4781,7 +4705,7 @@ var app = (function () {
               jsonrpc: '2.0',
               error: {
                 code: errorCodes.REMOTE_INTERNAL_ERROR,
-                message: `Method [${method}] internal error: ${e.stack}` // todo -- perhaps obscure the exact paths ... for privacy
+                message: `Method [${method}] internal error: ${e.stack}`
               },
               id
             };
@@ -4890,7 +4814,6 @@ var app = (function () {
         this.initialized = false;
       }
 
-      // prefix::methodName --> when multiple rpc objects are active
       setMethodPrefix(methodPrefix) {
         this.methodPrefix = methodPrefix;
       }
@@ -4947,9 +4870,6 @@ var app = (function () {
       _sendRequest({ object, id }) {
         const data = JSON.stringify(object);
 
-        // DMT DEBUGGING:
-        // console.log(data);
-
         return new Promise((resolve, reject) => {
           this.pendingRequest[id] = { resolve, reject, sentObject: object };
 
@@ -4967,13 +4887,6 @@ var app = (function () {
             delete this.pendingRequest[id];
             reject(e);
           }
-
-          // todo -- check -- this was the old code... TransportClientChannel had a lot of async methods...
-          // return this.transport.sendData(data).catch(error => {
-          //   delete this.pendingRequest[id];
-          //   reject(error); // TODO new X.InternalError() <--- ??
-          //   //reject(new X.InternalError());
-          // });
         });
       }
 
@@ -5002,9 +4915,6 @@ var app = (function () {
           resolvers.resolve(response.result);
         } else if (isErrorResponse) {
           const errorObject = this._makeErrorObject(response.error);
-          // console.log(response.error);
-          // console.log('-----------');
-          // console.log(errorObject);
           resolvers.reject(errorObject);
         }
       }
@@ -5035,7 +4945,6 @@ var app = (function () {
         let errorIdx = 0;
         for (const request of sentObject) {
           if (!request.id) {
-            // Skip notifications
             batchResults.push(null);
             continue;
           }
@@ -5099,7 +5008,6 @@ var app = (function () {
       }
 
       _generateId() {
-        // from "nanoid" package
         const alphabet = 'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz';
         let size = 10;
         let id = '';
@@ -5127,8 +5035,6 @@ var app = (function () {
           }
 
           if (methodName === 'then') {
-            // without this you will not be able to return client from an async function.
-            // V8 will see then method and will decide that client is a promise
             return;
           }
 
@@ -5185,13 +5091,6 @@ var app = (function () {
 
           this.channel.send(resData);
         });
-
-        // this.ws.on('message', async reqData => {
-        //   const resData = await callback(reqData);
-        //   if (!resData) return;
-
-        //   this.ws.send(resData);
-        // });
       }
     }
 
@@ -5234,10 +5133,6 @@ var app = (function () {
       }
 
       jsonrpcMsgReceive(stringMessage) {
-        // todo: remove
-        //console.log(`Received RPC result from server:`);
-        //console.log(stringMessage);
-
         this.moleChannel.emit('json_rpc', stringMessage);
       }
 
@@ -5261,7 +5156,6 @@ var app = (function () {
 
     class RpcClient {
       constructor(connectorOrServersideChannel, requestTimeout) {
-        // connectorOrServersideChannel or channel actually, todo: change variable name
         this.connectorOrServersideChannel = connectorOrServersideChannel;
         this.remoteObjects = {};
         this.requestTimeout = requestTimeout || DEFAULT_REQUEST_TIMEOUT;
@@ -5304,12 +5198,11 @@ var app = (function () {
 
     naclFast.util = naclUtil;
 
-    // EventEmitter for browser (and nodejs as well)
     class Connector extends Eev$1 {
       constructor({ address, protocol, lane, keypair = newKeypair(), rpcRequestTimeout, verbose = false } = {}) {
         super();
 
-        this.protocol = protocol; // not used actually except for stats (debugging) when we read protocol from the connector object -- for example when listing connectors in connectorPool
+        this.protocol = protocol;
         this.lane = lane;
 
         const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
@@ -5327,12 +5220,10 @@ var app = (function () {
         this.receivedCount = 0;
 
         this.successfulConnectsCount = 0;
-
-        // this.connection = .... // this gets set externally in connect() method (establishAndMaintainConnection)
       }
 
       send(data) {
-        send({ data, connector: this }); // todo: was send successful (?) -- or did we send into closed channel? what happens then? sent counters will be out of sync
+        send({ data, connector: this });
         this.sentCount += 1;
       }
 
@@ -5345,7 +5236,6 @@ var app = (function () {
         return this.ready;
       }
 
-      // channel has this method and connector also has to have it so that rpc client can detect and warn us
       closed() {
         return !this.connected;
       }
@@ -5355,34 +5245,22 @@ var app = (function () {
       }
 
       connectStatus(connected) {
-        // setTimeout(() => {
-        //   this.connection.terminate();
-        // }, 1000);
-
         if (connected) {
           this.sentCount = 0;
           this.receivedCount = 0;
 
           this.connected = true;
 
-          //console.log(`Connector ${this.address} CONNECTED`);
-
-          // todo: CHECK WHAT IS HAPPENING HERE
-          // if this fails (rejects), we can get stuck in limbo because connector is connected
-          // but it is not "ready" ... it becomes ready after the key exchange which hasn't happened
-          // so is it possible that on a supposedly good connection some rpc method fails ?
-
           this.successfulConnectsCount += 1;
 
-          // this is not yet well tested...
-          // we want to force reconnect if there is a failure in key-negotiation step
-          // but we cannot just terminate connection on all previous rejects because they can cancel valid connection by mistake
-          // solution: if key negotiation fails, terminate the connection but only from the most recent reject handler
           const num = this.successfulConnectsCount;
 
-          this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, lane: this.lane })
+          this.diffieHellman({
+            clientPrivateKey: this.clientPrivateKey,
+            clientPublicKey: this.clientPublicKey,
+            lane: this.lane
+          })
             .then(({ sharedSecret, sharedSecretHex }) => {
-              //console.log(colors.magenta(`Shared secret: ${colors.gray(sharedSecretHex)}`));
               this.ready = true;
               this.connectedAt = Date.now();
 
@@ -5391,17 +5269,11 @@ var app = (function () {
               console.log(`✓ Ready: DMT Protocol Connector [ ${this.address} · ${this.protocol}/${this.lane} ]`);
             })
             .catch(e => {
-              // Auth::exchangePubkeys request exceeded maximum allowed time... can sometimes happen on RPi ... maybe increase this time
-              // we only drop when our latest try comes back as failed
               if (num == this.successfulConnectsCount) {
                 console.log(e);
                 console.log('dropping connection and retrying again');
                 this.connection.terminate();
               }
-              // probably not a good idea to do it in this way because
-              // this can the drop a new connection that is currently being retried and this reject comes after 10 or more seconds after failure
-              // we hope that websocket will drop in due time and then we can try auth sequence again
-              //this.connection.terminate();
             });
         } else {
           if (this.connected) {
@@ -5421,18 +5293,16 @@ var app = (function () {
       remoteObject(handle) {
         return {
           call: (methodName, params = []) => {
-            return this.rpcClient.remoteObject(handle).call(methodName, listify$2(params)); // rpcClient always expects a list of arguments, never a single argument
+            return this.rpcClient.remoteObject(handle).call(methodName, listify$2(params));
           }
         };
       }
 
       attachObject(handle, obj) {
-        // todo: servesideChannel is actually connector in this (reverse) case
         new RPCTarget({ serversideChannel: this, serverMethods: obj, methodPrefix: handle });
       }
 
       diffieHellman({ clientPrivateKey, clientPublicKey, lane }) {
-        // TODO: to be improved
         return new Promise((success, reject) => {
           this.remoteObject('Auth')
             .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
@@ -5450,16 +5320,9 @@ var app = (function () {
                 console.log(sharedSecretHex);
               }
 
-              // let server know we're ready
               this.remoteObject('Auth')
                 .call('finalizeHandshake', { lane })
-                .then(() => {
-                  // if (this.clientInitData) {
-                  //   this.remoteObject('Hello')
-                  //     .call('hello', this.clientInitData)
-                  //     .catch(reject);
-                  // }
-                })
+                .then(() => {})
                 .catch(reject);
             })
             .catch(reject);
@@ -5474,57 +5337,10 @@ var app = (function () {
         return this._remotePubkeyHex;
       }
 
-      // we cannot get remoteIp from websocket on client side (security reasons (?))
-      // remote address is whatever we passed into connector from the outside
-      // host or ip, without port
       remoteAddress() {
         return this.address;
       }
-
-      // RECENTLY DONE:
-      // no manual connection flag is set... we close connection here after unsuccessful diffie hellman/
-      // we do want it to reopen... not sure if manual close is used somewhere??
-      // TODO: if not needed, remove closedManually checks in establishAndMaintainConnection
-      // closeAndDontReopenUNUSED() {
-      //   this.connection.closedManually = true;
-      //   this.connection.websocket.onclose = () => {}; // disable onclose handler first
-
-      //   // the reason is to avoid this issue:
-      //   //// there could be problems here -- ?
-      //   // 1. we close the connection by calling connection.close on the connection store
-      //   // 2. we create a new connection which sets connected=true on our store
-      //   // 3. after that the previous connection actually closes and sets connected=false on our store (next line!)
-      //   // todo: solve if proven problematic... maybe it won't cause trouble because closeCallback will trigger immediatelly
-
-      //   this.connectStatus(false);
-      //   this.connection.websocket.close();
-      // }
-
-      // connection => obj
-      // freshConnection
-      // reconnectPaused
-      //
-      // this.connection = {
-      //   websocket :: WS,
-      //   endpoint, :: string,
-      //   closedManually :: bool,
-      //   checkTicker :: int,
-      // }
     }
-
-    // DMT.JS
-    // CONNECTION "PLUMBING"
-
-    // THIS IS USED IN TWO SEPARATE CASES - always on the client side (a):
-    // Connection always from a to b
-
-    // DMT-GUI
-    // (1a) - client is a browser WebSocket and it connects to:    (browser == true)  <--- FLAG, look in this file's code
-    // (1b) - ws gui state endpoint (inside node.js dmt-process)
-
-    // DMT-FIBER:
-    // (2a) - client is a fiber client (inside node.js dmt-process) and connects to:       (browser == false)
-    // (2b) - fiber ws server (inside node.js dmt-process)
 
     const browser = typeof window !== 'undefined';
 
@@ -5533,13 +5349,8 @@ var app = (function () {
 
     function establishAndMaintainConnection({ address, ssl = false, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose }, { WebSocket, log }) {
       const wsProtocol = ssl ? 'wss' : 'ws';
-      // hack for now!
-      // testing reverse proxy forwarding for websockets on https://uri.com/ws
       const endpoint = port.toString().startsWith('/') ? `${wsProtocol}://${address}${port}` : `${wsProtocol}://${address}:${port}`;
 
-      //log(`Trying to connect to ws endpoint ${endpoint} ...`);
-
-      // address goes into connector only for informative purposes
       const connector = new Connector({ address, protocol, lane, rpcRequestTimeout, keypair, verbose });
 
       if (connector.connection) {
@@ -5549,83 +5360,51 @@ var app = (function () {
       connector.connection = {
         terminate() {
           this.websocket._removeAllCallbacks();
-          this.websocket.close(); // we don't want callbacks executed! and besides they can be executed really late after close is called under certain networking conditions!
+          this.websocket.close();
           connector.connectStatus(false);
         },
-        endpoint, // only for logging purposes, not needed for functionality
-        checkTicker: 0 // gets reset to zero everytime anything comes out of the socket
+        endpoint,
+        checkTicker: 0
       };
 
-      // so that event handlers on "connector" have time to get attached
-      // we would use process.nextTick here usually but it doesn't work in browser!
       setTimeout(() => tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }), 10);
 
-      // if process on the other side closed connection, we will detect immediately (websocket closes)
-      // if device drops from network, we won't detect this, but will know by missed pings
-      // 6 * 1500ms = 9s
-      //
-      // Technical explanation:
-      //
-      // Sometimes the link between the server and the client can be interrupted in a way that keeps both the server and
-      // the client unaware of the broken state of the connection (e.g. when pulling the cord).
-      // In these cases ping messages can be used as a means to verify that the remote endpoint is still responsive.
-      //
       const connectionCheckInterval = 1500;
       const callback = () => {
         if (!connector.decommissioned) {
-          // ⚠️ not ok because we won't ever terminate the connection!.. IMPLEMENT to terminate the connection after two check Intervals (?) .. don't temrinate immediately because sending works async.. I believe... so it's good to wait a bit until destroying the connection
           checkConnection({ connector, endpoint, protocol }, { WebSocket, log });
           setTimeout(callback, connectionCheckInterval);
         }
       };
 
-      setTimeout(callback, connectionCheckInterval); // we already tried to connect in the first call in this function, we continue after the set interval
+      setTimeout(callback, connectionCheckInterval);
 
-      return connector; // connector (state) object
+      return connector;
     }
 
-    // HELPER METHODS:
-
-    // reconnectPaused =>
-    // we still send pings, observe connected state and do everything,
-    // the only thing we don't do is that we don't try to reconnect (create new WebSocket -> because this is resource intensive and it shows in browser log in red in console)
     function checkConnection({ connector, endpoint, protocol }, { WebSocket, log }) {
       const conn = connector.connection;
 
-      //const prevConnected = connector.connected;
-
       if (connectionIdle(conn) || connector.decommissioned) {
-        if (connectionIdle(conn)) ; else {
+        if (connectionIdle(conn)) {
+          log(`Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`);
+        } else {
           log(`Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `);
         }
 
-        conn.terminate(); // ⚠️ this will never happen when connector is decommisioned -- FIX
+        conn.terminate();
         return;
       }
 
       const connected = socketConnected(conn);
-      // via ticker
-
-      // TODO: check ticker, if more than 9s, terminate socket ... then close handler should fire...
-      // then it's closed for good.. otherwise we may have issues with sharedSecret sync...
-
       if (connected) {
-        // we cannot send lower-level ping frames from browser: https://stackoverflow.com/a/10586583/458177
-        //log(`WebSocket ${conn.websocket.rand} to ${endpoint} is connected!`);
         conn.websocket.send('ping');
-        // this 3s had an 15s effect above when we check currentlyTryingWS 3s (5 times 3s)
-        //} else if (!connector.reconnectPaused && (resumeNow || conn.checkTicker <= 30 || conn.checkTicker % 3 == 0)) {
-        //} else if (!connector.reconnectPaused && resumeNow) {
       } else {
-        //if (!connector.reconnectPaused) {
         if (connector.connected == undefined) {
           log(`Setting connector status to FALSE because connector.connected is undefined`);
-          connector.connectStatus(false); // initial status report when not able to connect at beginning
+          connector.connectStatus(false);
         }
 
-        //log(`There is no WebSocket to ${endpoint} currently!`); // plural because there could temporarily be multiple connected although only one relevant (active).. others fall off soon
-
-        // first 30s we try to reconnect every second, after that every 3s
         tryReconnect({ connector, endpoint, protocol }, { WebSocket, log });
       }
 
@@ -5635,17 +5414,12 @@ var app = (function () {
     function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
       const conn = connector.connection;
 
-      // this logic is for when the (wifi) netowork changes ...
-      // if there is good netowork but the process is down on the other side, we will immediately get a failure and a closed connection
-      // when trying to connect.. and currentlyTryingWS will be wsCLOSED immediately so we will proceed to try with another new one
-
       if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
         if (conn.currentlyTryingWS._waitForConnectCounter == 3) {
-          // 4 cycles .. 4x 1500ms == 6s
           conn.currentlyTryingWS._removeAllCallbacks();
           conn.currentlyTryingWS.close();
         } else {
-          conn.currentlyTryingWS._waitForConnectCounter += 1; // we wait for next tryReconnect up to 7.5s, then discard the websocket and create a new one
+          conn.currentlyTryingWS._waitForConnectCounter += 1;
           return;
         }
       }
@@ -5657,31 +5431,22 @@ var app = (function () {
 
       ws.rand = Math.random();
 
-      //log(`Created new WebSocket ${ws.rand} for endpoint ${endpoint}`);
-
       if (browser) {
         ws.binaryType = 'arraybuffer';
       }
 
       if (!browser) {
-        // nodejs
-        ws.on('error', error => {
-          // do nothing, but we still need to catch this to not throw global exception (in nodejs)
-        });
+        ws.on('error', error => {});
       }
 
       const openCallback = m => {
-        //log(`ws open callback executed.. Ticker: ${conn.checkTicker}`);
-        //log(`websocket ${ws.rand} conn to ${endpoint} open`);
         conn.currentlyTryingWS = null;
-        conn.checkTicker = 0; // ADDED HERE LATER --- usually we don't need this in frontend because we keep sending state! but we better do the same there as well !! TODO±!!!!!
+        conn.checkTicker = 0;
         addSocketListeners({ ws, connector, openCallback }, { log });
         conn.websocket = ws;
         connector.connectStatus(true);
       };
 
-      // this method gets overwritten by another one that removes all the other listeners
-      // in case ws gets opened and other sockets attached
       ws._removeAllCallbacks = () => {
         ws.removeEventListener('open', openCallback);
       };
@@ -5693,19 +5458,15 @@ var app = (function () {
       }
     }
 
-    // ***************** PLUMBING *****************
-
     function addSocketListeners({ ws, connector, openCallback }, { log }) {
       const conn = connector.connection;
 
       const errorCallback = m => {
-        //log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
-        //log(JSON.stringify(m, null, 2));
-        //log(JSON.stringify(m, ['message', 'arguments', 'type', 'name']));
+        log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
+        log(m);
       };
 
       const closeCallback = m => {
-        //log(`websocket ${ws.rand} conn ${connector.connection.endpoint} closed`);
         connector.connectStatus(false);
       };
 
@@ -5714,9 +5475,7 @@ var app = (function () {
 
         const msg = browser ? _msg.data : _msg;
 
-        // only instance of data that is not either binary or json  (it is simply a string)
         if (msg == 'pong') {
-          // we don't do anything here, it was enough that we have set the checkTicker to zero
           return;
         }
 
@@ -5726,19 +5485,15 @@ var app = (function () {
           jsonData = JSON.parse(msg);
         } catch (e) {}
 
-        // unencrypted -- only messages for key exchange
         if (jsonData) {
           connector.wireReceive({ jsonData, rawMessage: msg });
         } else {
-          // this is either encrypted json or binary data
-          // we have to convert from ArrayBuffer in browser
           const encryptedData = browser ? new Uint8Array(msg) : msg;
           connector.wireReceive({ encryptedData });
         }
       };
 
       ws._removeAllCallbacks = () => {
-        // same for browser and ws library
         ws.removeEventListener('error', errorCallback);
         ws.removeEventListener('close', closeCallback);
         ws.removeEventListener('message', messageCallback);
@@ -5751,9 +5506,6 @@ var app = (function () {
         ws.addEventListener('close', closeCallback);
         ws.addEventListener('message', messageCallback);
       } else {
-        // not sure why "addEventListener" on "ws" nodejs package does not work, we just use standard "on" for this library, otherwise we get:
-        // Caught global exception: TypeError: unexpected type, use Uint8Array
-        // removeEventListener however works the same in browser and ws npm package
         ws.on('error', errorCallback);
         ws.on('close', closeCallback);
         ws.on('message', messageCallback);
@@ -5765,19 +5517,14 @@ var app = (function () {
     }
 
     function connectionIdle(conn) {
-      // we allow 9 seconds without message receive from the server side until we determine connection is broken
-      return socketConnected(conn) && conn.checkTicker > 5; // 5 * 1500ms == 7.5s
+      return socketConnected(conn) && conn.checkTicker > 5;
     }
 
     function establishAndMaintainConnection$1(opts) {
       return establishAndMaintainConnection(opts, { WebSocket, log: log$1 });
-      // return new Promise(success => {
-      //   success(_establishAndMaintainConnection(opts, { WebSocket, log }));
-      // });
     }
 
     function promiseTimeout(ms, promise) {
-      // Create a promise that rejects in <ms> milliseconds
       const timeout = new Promise((resolve, reject) => {
         const id = setTimeout(() => {
           clearTimeout(id);
@@ -5809,32 +5556,11 @@ var app = (function () {
       return new ConditionsChecker(num, callback);
     }
 
-    // EXAMPLE USE CASE:
-    //
-    // const firstMountAndConnect = concurrency.requireConditions(2, () => {
-    //   console.log('✓ FIRST STORE CONNECT after MOUNTING the APP ...');
-    //   triggerSearch({ force: true });
-    // });
-
-    // store.on('connected', () => {
-    //   firstMountAndConnect.oneConditionFulfilled();
-    // });
-
-    // onMount(() => {
-    //   firstMountAndConnect.oneConditionFulfilled();
-    // });
-
     var concurrency = /*#__PURE__*/Object.freeze({
         __proto__: null,
         promiseTimeout: promiseTimeout,
         requireConditions: requireConditions
     });
-
-    naclFast.util = naclUtil;
-
-    naclFast.util = naclUtil;
-
-    naclFast.util = naclUtil;
 
     /*!
      * https://github.com/Starcounter-Jack/JSON-Patch
@@ -6604,10 +6330,11 @@ var app = (function () {
         unescapePathComponent
     });
 
-    // 💡 Extending Emitter - used rarely or not at all...
-    // 💡 we do use it inside ConnectedStore so that it can emit 'ready' event
-    class SimpleStore extends Eev$1 {
-      constructor(initialState = {}) {
+    // 💡 we use Emitter inside ConnectedStore to emit 'ready' event
+    // 💡 and inside MultiConnectedStore to also emit a few events
+
+    class WritableStore extends Eev$1 {
+      constructor(initialState) {
         super();
 
         this.state = initialState;
@@ -6616,10 +6343,7 @@ var app = (function () {
       }
 
       set(state) {
-        Object.assign(this.state, state);
-
-        // attach state variables directly to store for easier reference from templates
-        Object.assign(this, this.state);
+        this.state = state;
 
         this.pushStateToSubscribers();
       }
@@ -6628,19 +6352,11 @@ var app = (function () {
         return this.state;
       }
 
-      clearState({ except }) {
-        for (const key of Object.keys(this.state)) {
-          if (!except.includes(key)) {
-            delete this[key];
-            delete this.state[key];
-          }
-        }
-      }
-
       subscribe(handler) {
         this.subscriptions.push(handler);
+
         handler(this.state);
-        // return unsubscribe function
+
         return () => {
           this.subscriptions = this.subscriptions.filter(sub => sub !== handler);
         };
@@ -6651,20 +6367,62 @@ var app = (function () {
       }
     }
 
-    // const store = new SimpleStore();
-    // store.set({ a: { b: 1, c: 2 } });
-    // console.log(store.state); // { a: { b: 1, c: 2 } }
+    class MergeStore extends WritableStore {
+      constructor(initialState = {}) {
+        super(initialState);
+      }
 
-    // store.set({ a: { d: 1 } });
-    // console.log(store.state); // { a: { d: 1 } }
+      set(state, { ignore = [] } = {}) {
+        const leaveState = {};
 
-    // store.set({ e: { f: 1 } });
-    // console.log(store.state); // { a: { d: 1 }, e: { f: 1 } }
+        for (const key of ignore) {
+          leaveState[key] = this.state[key];
+        }
+
+        super.set({ ...state, ...leaveState });
+      }
+
+      setMerge(patch) {
+        super.set({ ...this.state, ...patch });
+      }
+
+      clearState({ except = [] } = {}) {
+        for (const key of Object.keys(this.state)) {
+          if (!except.includes(key)) {
+            delete this.state[key];
+          }
+        }
+      }
+    }
+
+    class ConnectedStoreBase extends MergeStore {
+      constructor(initialState = {}) {
+        super(initialState);
+      }
+
+      set(state) {
+        super.set(state, { ignore: ['connected'] });
+      }
+
+      setConnected(connected) {
+        super.setMerge({ connected });
+      }
+    }
 
     const { applyPatch: applyJSONPatch } = fastJsonPatch;
 
-    class ConnectedStore extends SimpleStore {
-      constructor({ address, ssl = false, port, protocol, lane, keypair = newKeypair(), logStore, rpcRequestTimeout, verbose } = {}) {
+    class ConnectedStore extends ConnectedStoreBase {
+      constructor({
+        address,
+        ssl = false,
+        port,
+        protocol,
+        lane,
+        keypair = newKeypair(),
+        logStore,
+        rpcRequestTimeout,
+        verbose
+      } = {}) {
         super();
 
         if (!address) {
@@ -6684,10 +6442,6 @@ var app = (function () {
       }
 
       action({ action, namespace, payload }) {
-        // Special outgoing message: { action: ... }
-        // front end to backend ... actions go only this way
-        // TODO: check what happens if connector not connected ? ⚠️⚠️⚠️⚠️
-        // remove this IF clause and test
         if (this.connector.connected) {
           console.log(`Sending action ${action} over connector ${this.connector.address}`);
           this.connector.send({ action, namespace, payload });
@@ -6715,22 +6469,21 @@ var app = (function () {
         });
 
         this.connector.on('ready', ({ sharedSecret, sharedSecretHex }) => {
-          this.set({ connected: true });
-
-          this.emit('ready'); // store ready event! -- so far used only in ZetaSeek frontend -- multiconnected store does not need this
+          this.setConnected(true);
+          this.emit('ready');
         });
 
         // 💡 connected == undefined ==> while trying to connect
         // 💡 connected == false => while disconnected
         // 💡 connected == true => while connected
         setTimeout(() => {
-          if (this.connected == undefined) {
-            this.set({ connected: false });
+          if (this.state.connected == undefined) {
+            this.setConnected(false);
           }
         }, 300);
 
         this.connector.on('disconnect', () => {
-          this.set({ connected: false });
+          this.setConnected(false);
         });
 
         // 💡 Special incoming JSON message: { state: ... } ... parsed as part of 'Connectome State Syncing Protocol'
@@ -6742,7 +6495,7 @@ var app = (function () {
             console.log(state);
           }
 
-          this.set(state);
+          this.set(state); // will not loose / omit { connected } because ConnectedStoreBase includes this field in 'ignore'
         });
 
         // 💡 Special incoming JSON message: { diff: ... } ... parsed as part of 'Connectome State Syncing Protocol'
@@ -6755,288 +6508,14 @@ var app = (function () {
       }
     }
 
-    class ConnectDevice {
-      constructor({ mcs, foreground, connectToDeviceKey }) {
-        this.mcs = mcs;
-        this.foreground = foreground;
-        this.connectToDeviceKey = connectToDeviceKey;
-      }
-
-      // create new connected store which is connected to some address
-      createStore({ address }) {
-        const { port, protocol, lane, logStore, rpcRequestTimeout, verbose, privateKey: clientPrivateKey, publicKey: clientPublicKey } = this.mcs;
-
-        return new ConnectedStore({
-          address,
-          port,
-          protocol,
-          lane,
-          clientPrivateKey,
-          clientPublicKey,
-          logStore,
-          rpcRequestTimeout,
-          verbose
-        });
-      }
-
-      getDeviceKey(state) {
-        const { device } = state;
-
-        if (device && device.deviceKey) {
-          const { deviceKey } = device;
-          return deviceKey;
-        }
-      }
-
-      connectThisDevice({ address }) {
-        const thisStore = this.createStore({ address });
-
-        // ********************************
-        // STORE STATE CHANGE EVENT HANDLER
-        // ********************************
-        thisStore.subscribe(state => {
-          if (!state.nearbyDevices) {
-            // ⚠️  magic assignment -- extract ? / improve
-            state.nearbyDevices = [];
-          }
-
-          const deviceKey = this.getDeviceKey(state);
-
-          if (deviceKey) {
-            if (!this.thisDeviceAlreadySetup) {
-              this.mcs.stores[deviceKey] = thisStore;
-              this.mcs.set({ activeDeviceKey: deviceKey });
-            }
-
-            const needToConnectAnotherDevice = this.connectToDeviceKey && this.connectToDeviceKey != deviceKey;
-
-            if (this.mcs.activeDeviceKey == deviceKey && !needToConnectAnotherDevice) {
-              const optimisticDeviceName = state.device.deviceName;
-              this.foreground.set(state, { optimisticDeviceName });
-            }
-
-            // even if this device is not selected, we always copy over keys of interest which only come from this device
-            this.foreground.setSpecial(state);
-
-            if (!this.thisDeviceAlreadySetup) {
-              if (needToConnectAnotherDevice) {
-                this.mcs.switch({ deviceKey: this.connectToDeviceKey });
-                delete this.connectToDeviceKey;
-              }
-
-              this.thisDeviceAlreadySetup = true;
-            }
-          }
-        });
-
-        return thisStore;
-      }
-
-      connectOtherDevice({ address, deviceKey }) {
-        const newStore = this.createStore({ address });
-
-        this.mcs.stores[deviceKey] = newStore;
-
-        // ********************************
-        // STORE STATE CHANGE EVENT HANDLER
-        // ********************************
-        newStore.subscribe(state => {
-          if (this.mcs.activeDeviceKey == deviceKey) {
-            const optimisticDeviceName = state.device ? state.device.deviceName : null;
-            this.foreground.set(state, { optimisticDeviceName });
-          }
-        });
-      }
-    }
-
-    class Foreground {
-      constructor({ mcs, thisDeviceStateKeys }) {
-        this.mcs = mcs;
-        this.thisDeviceStateKeys = thisDeviceStateKeys;
-      }
-
-      specialStoreKeys() {
-        return this.thisDeviceStateKeys.concat(['activeDeviceKey', 'optimisticDeviceName']);
-      }
-
-      clear() {
-        this.mcs.clearState({ except: this.specialStoreKeys() });
-      }
-
-      set(state, { optimisticDeviceName = undefined } = {}) {
-        this.clear();
-
-        const setState = {};
-
-        for (const key of Object.keys(state)) {
-          if (!this.specialStoreKeys().includes(key)) {
-            setState[key] = state[key];
-          }
-        }
-
-        if (optimisticDeviceName) {
-          setState.optimisticDeviceName = optimisticDeviceName;
-        }
-
-        this.mcs.set(setState);
-      }
-
-      // nearbyDevices, time, notifications -> these appear in foreground state always taken
-      // from localDeviceState instead of actively selected device
-      setSpecial(localDeviceState) {
-        const setState = {};
-
-        for (const key of this.thisDeviceStateKeys) {
-          setState[key] = localDeviceState[key];
-        }
-
-        this.mcs.set(setState);
-      }
-    }
-
-    class SwitchDevice extends Eev$1 {
-      constructor({ mcs, connectDevice, foreground }) {
-        super();
-
-        this.mcs = mcs;
-        this.connectDevice = connectDevice;
-        this.foreground = foreground;
-      }
-
-      switchState({ deviceKey, deviceName }) {
-        this.mcs.set({ activeDeviceKey: deviceKey });
-        const { state } = this.mcs.stores[deviceKey];
-        this.foreground.set(state, { optimisticDeviceName: deviceName });
-      }
-
-      switch({ address, deviceKey, deviceName }) {
-        if (this.mcs.stores[deviceKey]) {
-          this.switchState({ deviceKey, deviceName });
-        } else if (address) {
-          // first connect to this address === each device goes through this on first connect
-
-          // ⚠️⚠️⚠️ NEEDED TO BE REALISTIC (but experiment further!):
-          this.foreground.clear(); // PROBLEMATIC !! :) partially .. GLITCHES... how to make less flickering and still be realistic
-          // OR WE JUST LIVE WITH THIS AND IT'S OK ?
-          // REMOVE THIS 👆 and see how it works then... it's not completely ok.. esp. if device is not online anymore but still in nearbyList!
-
-          // we don't set through foreground because it doesn't allow us to set activeDeviceKey
-          this.mcs.set({ activeDeviceKey: deviceKey, optimisticDeviceName: deviceName });
-
-          this.connectDevice.connectOtherDevice({ address, deviceKey });
-        } else {
-          // we land here via connectToDeviceKey initial option (for now)
-
-          // if first time switching to this address, create store and setup state transfer to multiConnectedStore
-          // get address from nearbyDevices... if thisDevice, don't do anything...
-          const matchingDevice = this.mcs.nearbyDevices.find(device => device.deviceKey == deviceKey && !device.thisDevice);
-
-          // we expect 'address' in our methods and nearbyDevices only have 'ip'
-          matchingDevice.address = matchingDevice.ip;
-
-          if (matchingDevice) {
-            this.switch(matchingDevice); // matchingDevice contains { deviceKey, address }
-          } else {
-            // ⚠️ TODO remove localstorage when we fail to connect to somedevice at first
-            this.emit('connect_to_device_key_failed');
-
-            // this is convenient... we need deviceName by out current logic so that it appears immediately without waiting for connect
-            // optimisticDeviceName is only set in foreground and on each this device state change
-            const thisDevice = this.mcs.nearbyDevices.find(device => device.thisDevice);
-            this.switchState(thisDevice);
-          }
-        }
-      }
-    }
-
-    class MultiConnectedStore extends SimpleStore {
-      // todo: add ssl argument
-      constructor({ address, port, protocol, lane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
-        super();
-
-        if (!address) {
-          throw new Error('MultiConnectedStore: missing address');
-        }
-
-        const thisDeviceStateKeys = ['time', 'environment', 'nearbyDevices', 'notifications'];
-
-        this.publicKey = keypair.publicKey;
-        this.privateKey = keypair.privateKey;
-
-        this.port = port;
-        this.protocol = protocol;
-        this.lane = lane;
-
-        this.logStore = logStore;
-        this.rpcRequestTimeout = rpcRequestTimeout;
-        this.verbose = verbose;
-
-        this.stores = {};
-
-        const foreground = new Foreground({ mcs: this, thisDeviceStateKeys });
-        const connectDevice = new ConnectDevice({ mcs: this, foreground, connectToDeviceKey });
-
-        this.switchDevice = new SwitchDevice({ mcs: this, connectDevice, foreground });
-        this.switchDevice.on('connect_to_device_key_failed', () => {
-          this.emit('connect_to_device_key_failed');
-        });
-
-        this.localDeviceStore = connectDevice.connectThisDevice({ address });
-      }
-
-      // send user actions from frontend (clicks, options etc...) to the appropriate backend (on local or currently tunneled device) via websocket
-      action({ action, namespace, payload }) {
-        // this is not really needed but we have it just in case if "pointer-events: none;" is not added exactly at te right time
-        // it will be added through componentBridge::aspectGui which also check videoOverlay() property
-        // if (this.videoOverlay()) {
-        //   return;
-        // }
-
-        //this.guiEngaged();
-        //this.currentStore();
-        if (this.activeStore()) {
-          this.activeStore().action({ action, namespace, payload });
-        } else {
-          console.log(`Error emitting remote action ${action} / ${namespace}. Debug info: activeDeviceKey=${this.activeDeviceKey}`);
-        }
-      }
-
-      actionAtLocalDevice({ action, namespace, payload }) {
-        this.localDeviceStore.action({ action, namespace, payload });
-      }
-
-      remoteObject(objectName) {
-        if (this.activeStore()) {
-          return this.activeStore().remoteObject(objectName);
-        }
-
-        console.log(`Error obtaining remote object ${objectName}. Debug info: activeDeviceKey=${this.activeDeviceKey}`);
-      }
-
-      switch({ address, deviceKey, deviceName }) {
-        this.switchDevice.switch({ address, deviceKey, deviceName });
-      }
-
-      // "INTERNAL API"
-      activeStore() {
-        if (this.activeDeviceKey) {
-          return this.stores[this.activeDeviceKey];
-        }
-      }
-    }
-
-    class LogStore extends SimpleStore {
+    class LogStore extends WritableStore {
       constructor() {
-        super();
+        super({ log: [] });
 
-        this.set({ log: [] });
+        // this.set();
       }
 
-      // todo: maybe move to MultiConnected store... and use only that store in place of connectedstore,,, but fix it to just one connection
-      // when used as single-connected store
-      // cannot use console.log from here!!, use "origLog" -- for debugging
       addToLog({ origConsoleLog, limit }, ...args) {
-        // arguments are collected and single argument passed in actually became an array with one element
         if (args.length == 1) {
           args = args[0];
         }
@@ -7058,154 +6537,6 @@ var app = (function () {
         this.set({ log });
       }
     }
-
-    /*
-      Deep clones all properties except functions
-
-      var arr = [1, 2, 3];
-      var subObj = {aa: 1};
-      var obj = {a: 3, b: 5, c: arr, d: subObj};
-      var objClone = clone(obj);
-      arr.push(4);
-      subObj.bb = 2;
-      obj; // {a: 3, b: 5, c: [1, 2, 3, 4], d: {aa: 1}}
-      objClone; // {a: 3, b: 5, c: [1, 2, 3], d: {aa: 1, bb: 2}}
-    */
-
-    function clone(obj) {
-      if (typeof obj == 'function') {
-        return obj;
-      }
-      var result = Array.isArray(obj) ? [] : {};
-      for (var key in obj) {
-        // include prototype properties
-        var value = obj[key];
-        var type = {}.toString.call(value).slice(8, -1);
-        if (type == 'Array' || type == 'Object') {
-          result[key] = clone(value);
-        } else if (type == 'Date') {
-          result[key] = new Date(value.getTime());
-        } else if (type == 'RegExp') {
-          result[key] = RegExp(value.source, getRegExpFlags(value));
-        } else {
-          result[key] = value;
-        }
-      }
-      return result;
-    }
-
-    function getRegExpFlags(regExp) {
-      if (typeof regExp.source.flags == 'string') {
-        return regExp.source.flags;
-      } else {
-        var flags = [];
-        regExp.global && flags.push('g');
-        regExp.ignoreCase && flags.push('i');
-        regExp.multiline && flags.push('m');
-        regExp.sticky && flags.push('y');
-        regExp.unicode && flags.push('u');
-        return flags.join('');
-      }
-    }
-
-    function isObject$1(val) {
-      return val != null && typeof val === 'object' && Array.isArray(val) === false;
-    }
-
-    function isObjectObject(o) {
-      return isObject$1(o) === true && Object.prototype.toString.call(o) === '[object Object]';
-    }
-
-    function isPlainObject(o) {
-      var ctor, prot;
-
-      if (isObjectObject(o) === false) return false;
-
-      // If has modified constructor
-      ctor = o.constructor;
-      if (typeof ctor !== 'function') return false;
-
-      // If has modified prototype
-      prot = ctor.prototype;
-      if (isObjectObject(prot) === false) return false;
-
-      // If constructor does not have an Object-specific method
-      if (prot.hasOwnProperty('isPrototypeOf') === false) {
-        return false;
-      }
-
-      // Most likely a plain Object
-      return true;
-    }
-
-    //The MIT License (MIT)
-
-    function emptyTarget(val) {
-      return Array.isArray(val) ? [] : {};
-    }
-
-    function cloneUnlessOtherwiseSpecified(value, options) {
-      return options.clone !== false && options.isMergeableObject(value) ? deepmerge(emptyTarget(value), value, options) : value;
-    }
-
-    function defaultArrayMerge(target, source, options) {
-      return target.concat(source).map(function(element) {
-        return cloneUnlessOtherwiseSpecified(element, options);
-      });
-    }
-
-    function getMergeFunction(key, options) {
-      if (!options.customMerge) {
-        return deepmerge;
-      }
-      var customMerge = options.customMerge(key);
-      return typeof customMerge === 'function' ? customMerge : deepmerge;
-    }
-
-    function mergeObject(target, source, options) {
-      var destination = {};
-      if (options.isMergeableObject(target)) {
-        Object.keys(target).forEach(function(key) {
-          destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
-        });
-      }
-      Object.keys(source).forEach(function(key) {
-        if (!options.isMergeableObject(source[key]) || !target[key]) {
-          destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
-        } else {
-          destination[key] = getMergeFunction(key, options)(target[key], source[key], options);
-        }
-      });
-      return destination;
-    }
-
-    function deepmerge(target, source, options) {
-      options = options || {};
-      options.arrayMerge = options.arrayMerge || defaultArrayMerge;
-      options.isMergeableObject = options.isMergeableObject || isPlainObject;
-
-      var sourceIsArray = Array.isArray(source);
-      var targetIsArray = Array.isArray(target);
-      var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
-
-      if (!sourceAndTargetTypesMatch) {
-        return cloneUnlessOtherwiseSpecified(source, options);
-      } else if (sourceIsArray) {
-        return options.arrayMerge(target, source, options);
-      } else {
-        return mergeObject(target, source, options);
-      }
-    }
-
-    deepmerge.all = function deepmergeAll(array, options) {
-      if (!Array.isArray(array)) {
-        throw new Error('first argument should be an array');
-      }
-
-      return array.reduce(function(prev, next) {
-        return deepmerge(prev, next, options);
-      }, {});
-    };
 
     var pointer = createCommonjsModule(function (module, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -7987,283 +7318,6 @@ var app = (function () {
 
     const generateJsonPatch = rfc6902$1.createPatch;
 
-    function getDiff(prevAnnouncedState, currentState) {
-      const diff = generateJsonPatch(prevAnnouncedState, currentState);
-
-      if (diff.length > 0) {
-        return diff;
-      }
-      // else {
-      //   log.red('No need to send patch');
-      // }
-    }
-
-    class MirroringStore extends Eev$1 {
-      constructor(initialState = {}) {
-        super();
-
-        this.state = initialState;
-        this.prevAnnouncedState = {};
-      }
-
-      // automatically create synced store
-      mirror(channelList) {
-        channelList.on('new_channel', channel => {
-          const { state } = this;
-          channel.send({ state }); // Sending initial state to each new ws connection !!
-        });
-
-        this.on('diff', diff => {
-          channelList.sendToAll({ diff });
-        });
-      }
-
-      set(patch, { announce = true } = {}) {
-        Object.assign(this.state, patch);
-        this.announceStateChange(announce);
-      }
-
-      announceStateChange(announce = true) {
-        if (!announce) {
-          return;
-        }
-
-        const { state } = this;
-
-        const diff = getDiff(this.prevAnnouncedState, state);
-
-        if (diff) {
-          this.emit('diff', diff);
-
-          this.prevAnnouncedState = clone(state);
-        }
-      }
-    }
-
-    function mergeState(state, patch) {
-      const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
-      return deepmerge(state, patch, { arrayMerge: overwriteMerge }); // => [3, 2, 1]
-    }
-
-    class KeyValueStore {
-      constructor() {
-        this.state = {};
-      }
-
-      update(patch) {
-        this.state = mergeState(this.state, patch);
-      }
-
-      // rarely used ...
-      replaceBaseKey(baseKey, value) {
-        this.state[baseKey] = value;
-      }
-
-      // set store to {}}
-      // cannot remove the baseKey once set!
-      // this is not to break the code... baseKey once defined has to always be an object, if empty then it is '{}'
-      // never undefined !
-      clearBaseKey(baseKey) {
-        delete this.state[baseKey];
-        //this.replaceBaseKey(baseKey, {}, { announce });
-      }
-
-      replaceSubKey({ baseKey, key, value }) {
-        this.state[baseKey] = this.state[baseKey] || {};
-        this.state[baseKey][key] = value;
-      }
-
-      removeSubKey({ baseKey, key }) {
-        this.state[baseKey] = this.state[baseKey] || {};
-        delete this.state[baseKey][key];
-      }
-
-      // RARELY USED -- PERHAPS TO BE REMOVED ??? CHECK:
-
-      // this is probaby not the cleanest way of doing it... this is very similar to updateState but our current
-      // implementation there cannot merge arrays, so we need a different way to achieve adding to array (for example for notifications...)
-      pushToArray(baseKey, el) {
-        this.state[baseKey].push(el);
-      }
-
-      removeFromArray(baseKey, removePredicate) {
-        this.state[baseKey] = this.state[baseKey].filter(el => !removePredicate(el));
-      }
-    }
-
-    // this store is not aware of any connectivity
-    // kvStore neither... other places can manipulate this store via actions received via connectivity
-    // as well as send out updates to this store when 'announcement' is needed
-    //
-    // CanonicStore also "CannonStore" also ReactiveDiffingStore
-    class ProgramStateStore extends Eev$1 {
-      constructor(initialState = {}, { loadState = null, saveState = null, omitStateFn = x => x, removeStateChangeFalseTriggers = x => x } = {}) {
-        super();
-
-        // what part of state to omit sending over to frontend (for performance reasons)
-        // for example long playlists are truncated
-        this.omitStateFn = omitStateFn;
-        this.saveState = saveState;
-        this.removeStateChangeFalseTriggers = removeStateChangeFalseTriggers;
-
-        this.kvStore = new KeyValueStore();
-
-        this.prevAnnouncedState = {};
-
-        if (loadState) {
-          const persistedState = loadState();
-
-          // load saved state from disk first
-          if (persistedState) {
-            this.kvStore.update(persistedState, { announce: false }); // no reactive announcement
-          }
-        }
-        // now merge (and overwrite when needed) our passed in initial state
-        // initial state pased into this store has priority over any persisted state
-        this.kvStore.update(initialState, { announce: false }); // no reactive announcement
-
-        this.stateChangesCount = 0; // only for informative purposes
-
-        this.subscriptions = [];
-      }
-
-      // new feature, if we wanted to automatically create synced store
-      mirror(channelList) {
-        channelList.on('new_channel', channel => {
-          const state = this.omitStateFn(clone(this.state()));
-          channel.send({ state }); // Sending initial state to each new ws connection !!
-
-          //console.log(`----------- Sent state:`);
-          ///console.log(state);
-        });
-
-        this.on('diff', diff => {
-          // if (channelList.channels.length > 0) {
-          //   console.log(`----------- Sent diff:`);
-          // }
-          channelList.sendToAll({ diff });
-        });
-      }
-
-      update(patch, { announce = true } = {}) {
-        this.kvStore.update(patch);
-        this.announceStateChange(announce);
-      }
-
-      // User rarely and is needed when we don't do any merging on new updates but can just replace the whole state
-      // for example:
-      // program.store.replaceSlot('nearbyDevices', nearbyDevicesNew, { announce: false });
-      // program.store.replaceSlot('environment', environment);
-      //
-      // not used for other things for now
-      replaceSlot(slotName, value, { announce = true } = {}) {
-        this.kvStore.replaceBaseKey(slotName, value);
-        this.announceStateChange(announce);
-      }
-
-      clearSlot(slotName, { announce = true } = {}) {
-        this.kvStore.clearBaseKey(slotName, { announce });
-        this.announceStateChange(announce);
-      }
-
-      // ⚠️ perhaps replace 'key' with 'element' ?
-      // will be another tricky semi-manual replace! do it soon
-      replaceSlotElement({ slotName, key, value }, { announce = true } = {}) {
-        this.kvStore.replaceSubKey({ baseKey: slotName, key, value }, { announce });
-        this.announceStateChange(announce);
-      }
-
-      removeSlotElement({ slotName, key }, { announce = true } = {}) {
-        this.kvStore.removeSubKey({ baseKey: slotName, key }, { announce });
-        this.announceStateChange(announce);
-      }
-
-      pushToSlotArrayElement(slotName, el, { announce = true } = {}) {
-        this.kvStore.pushToArray(slotName, el, { announce });
-        this.announceStateChange(announce);
-      }
-
-      removeFromSlotArrayElement(slotName, removePredicate, { announce = true } = {}) {
-        this.kvStore.removeFromArray(slotName, removePredicate, { announce });
-        this.announceStateChange(announce);
-      }
-
-      save(state) {
-        if (this.saveState) {
-          this.lastSavedState = this.saveState({ state: clone(state), lastSavedState: this.lastSavedState }) || this.lastSavedState;
-        }
-      }
-
-      // useful for custom protocols
-      state() {
-        return this.kvStore.state;
-      }
-
-      announceStateChange(announce = true) {
-        // GREAT FOR PROFILING / DEBUGGING:
-        // show who requested announcing state change ...
-        //  console.log(Error().stack);
-
-        if (!announce) {
-          return;
-        }
-
-        const { state } = this.kvStore;
-
-        const prunedState = this.removeStateChangeFalseTriggers(this.omitStateFn(clone(state)));
-
-        const diff = getDiff(this.prevAnnouncedState, prunedState);
-
-        if (diff) {
-          // --- dmt-release-exclude-begin ---
-          // const debug = false && dmt.isDevMachine();
-
-          // if (debug) {
-          //   console.log();
-          //   console.log('----  PATCH ----');
-          //   console.log(JSON.stringify(diff, null, 2));
-          //   console.log('------------');
-          // }
-          // --- dmt-release-exclude-end ---
-
-          // SOME PROBLEM!! TODO!!
-          // we moved this persisting here... because it has to check somehow other... reduced size will cause problems here!!
-          // TODO: has to be a bit optimized, check comments in statePersist.js
-          this.save(state); // we clone again
-
-          this.emit('diff', diff);
-
-          this.stateChangesCount += 1;
-
-          this.prevAnnouncedState = prunedState;
-
-          this.pushStateToSubscribers(); // added recently
-        }
-      }
-
-      subscribe(handler) {
-        this.subscriptions.push(handler);
-        handler(this.state());
-        // return unsubscribe function
-        return () => {
-          this.subscriptions = this.subscriptions.filter(sub => sub !== handler);
-        };
-      }
-
-      pushStateToSubscribers() {
-        this.subscriptions.forEach(handler => handler(this.state()));
-      }
-    }
-
-    var stores = /*#__PURE__*/Object.freeze({
-        __proto__: null,
-        ConnectedStore: ConnectedStore,
-        MultiConnectedStore: MultiConnectedStore,
-        LogStore: LogStore,
-        MirroringStore: MirroringStore,
-        ProgramStateStore: ProgramStateStore
-    });
-
     const subscriber_queue = [];
     /**
      * Creates a `Readable` store that allows reading by subscription.
@@ -8336,7 +7390,7 @@ var app = (function () {
         const isCorePromoter = corePromoters.find((name) => window.location.hostname.startsWith(`${name}.`));
 
         this.isLocalhost = window.location.hostname == 'localhost';
-        this.isLAN = window.location.hostname.startsWith('192.168.');
+        this.isLAN = this.isLocalhost || window.location.hostname.startsWith('192.168.');
         this.isZetaSeek = window.location.hostname == 'zetaseek.com';
         this.isZetaSeekCorePromoter = this.isZetaSeek || isCorePromoter;
         // || window.location.hostname == 'localhost';
@@ -8673,7 +7727,39 @@ var app = (function () {
     /* src/components/About.svelte generated by Svelte v3.29.0 */
     const file$1 = "src/components/About.svelte";
 
-    // (44:8) {#if app.isZetaSeekCorePromoter}
+    // (44:8) {#if app.isLocalhost}
+    function create_if_block_1(ctx) {
+    	let t;
+    	let br;
+
+    	const block = {
+    		c: function create() {
+    			t = text("🐺 Seek the wolf in thyself!");
+    			br = element("br");
+    			add_location(br, file$1, 44, 38, 1350);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    			insert_dev(target, br, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    			if (detaching) detach_dev(br);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1.name,
+    		type: "if",
+    		source: "(44:8) {#if app.isLocalhost}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (48:8) {#if app.isZetaSeekCorePromoter}
     function create_if_block(ctx) {
     	let a;
     	let img;
@@ -8683,12 +7769,12 @@ var app = (function () {
     		c: function create() {
     			a = element("a");
     			img = element("img");
-    			attr_dev(img, "class", "icon_symbol svelte-13wviz1");
+    			attr_dev(img, "class", "icon_symbol svelte-1gfm19g");
     			if (img.src !== (img_src_value = "/apps/zeta/img/twitter.svg")) attr_dev(img, "src", img_src_value);
-    			add_location(img, file$1, 44, 49, 1342);
+    			add_location(img, file$1, 48, 49, 1460);
     			attr_dev(a, "href", "https://twitter.com/zetaseek");
-    			attr_dev(a, "class", "svelte-13wviz1");
-    			add_location(a, file$1, 44, 10, 1303);
+    			attr_dev(a, "class", "svelte-1gfm19g");
+    			add_location(a, file$1, 48, 10, 1421);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, a, anchor);
@@ -8703,7 +7789,7 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(44:8) {#if app.isZetaSeekCorePromoter}",
+    		source: "(48:8) {#if app.isZetaSeekCorePromoter}",
     		ctx
     	});
 
@@ -8714,29 +7800,34 @@ var app = (function () {
     	let div;
     	let p;
     	let t0;
+    	let t1;
     	let span;
     	let a;
-    	let t1;
-    	let if_block = /*app*/ ctx[3].isZetaSeekCorePromoter && create_if_block(ctx);
+    	let t2;
+    	let if_block0 = /*app*/ ctx[3].isLocalhost && create_if_block_1(ctx);
+    	let if_block1 = /*app*/ ctx[3].isZetaSeekCorePromoter && create_if_block(ctx);
 
     	const block = {
     		c: function create() {
     			div = element("div");
     			p = element("p");
-    			if (if_block) if_block.c();
+    			if (if_block0) if_block0.c();
     			t0 = space();
+    			if (if_block1) if_block1.c();
+    			t1 = space();
     			span = element("span");
     			a = element("a");
-    			t1 = text(/*displayVersion*/ ctx[2]);
+    			t2 = text(/*displayVersion*/ ctx[2]);
     			attr_dev(a, "href", "https://dmt-system.com");
-    			attr_dev(a, "class", "svelte-13wviz1");
-    			add_location(a, file$1, 47, 30, 1452);
-    			attr_dev(span, "class", "version svelte-13wviz1");
-    			add_location(span, file$1, 47, 8, 1430);
-    			attr_dev(p, "class", "svelte-13wviz1");
-    			add_location(p, file$1, 29, 6, 688);
-    			attr_dev(div, "class", "about svelte-13wviz1");
+    			attr_dev(a, "class", "svelte-1gfm19g");
+    			add_location(a, file$1, 51, 30, 1570);
+    			attr_dev(span, "class", "version svelte-1gfm19g");
+    			add_location(span, file$1, 51, 8, 1548);
+    			attr_dev(p, "class", "svelte-1gfm19g");
+    			add_location(p, file$1, 29, 6, 718);
+    			attr_dev(div, "class", "about svelte-1gfm19g");
     			toggle_class(div, "visible", !/*minimized*/ ctx[1] && !/*searchQuery*/ ctx[0]);
+    			toggle_class(div, "wider", /*app*/ ctx[3].isLocalhost);
     			add_location(div, file$1, 24, 2, 507);
     		},
     		l: function claim(nodes) {
@@ -8745,24 +7836,31 @@ var app = (function () {
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
     			append_dev(div, p);
-    			if (if_block) if_block.m(p, null);
+    			if (if_block0) if_block0.m(p, null);
     			append_dev(p, t0);
+    			if (if_block1) if_block1.m(p, null);
+    			append_dev(p, t1);
     			append_dev(p, span);
     			append_dev(span, a);
-    			append_dev(a, t1);
+    			append_dev(a, t2);
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*displayVersion*/ 4) set_data_dev(t1, /*displayVersion*/ ctx[2]);
+    			if (dirty & /*displayVersion*/ 4) set_data_dev(t2, /*displayVersion*/ ctx[2]);
 
     			if (dirty & /*minimized, searchQuery*/ 3) {
     				toggle_class(div, "visible", !/*minimized*/ ctx[1] && !/*searchQuery*/ ctx[0]);
+    			}
+
+    			if (dirty & /*app*/ 8) {
+    				toggle_class(div, "wider", /*app*/ ctx[3].isLocalhost);
     			}
     		},
     		i: noop$1,
     		o: noop$1,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
-    			if (if_block) if_block.d();
+    			if (if_block0) if_block0.d();
+    			if (if_block1) if_block1.d();
     		}
     	};
 
@@ -8899,7 +7997,7 @@ var app = (function () {
     /* src/components/Login/DisplayLoggedInInfo.svelte generated by Svelte v3.29.0 */
     const file$2 = "src/components/Login/DisplayLoggedInInfo.svelte";
 
-    // (23:2) {:else}
+    // (54:2) {:else}
     function create_else_block(ctx) {
     	let t0;
     	let span;
@@ -8910,14 +8008,14 @@ var app = (function () {
 
     	const block = {
     		c: function create() {
-    			t0 = text("MetaMask ");
+    			t0 = text("MetaMask\n    ");
     			span = element("span");
     			t1 = text(/*ethAddress*/ ctx[0]);
     			t2 = space();
     			if (if_block) if_block.c();
     			if_block_anchor = empty();
     			attr_dev(span, "class", "svelte-1ymkiyd");
-    			add_location(span, file$2, 26, 13, 555);
+    			add_location(span, file$2, 58, 4, 1071);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, t0, anchor);
@@ -8943,21 +8041,21 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(23:2) {:else}",
+    		source: "(54:2) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (14:2) {#if displayName}
+    // (48:2) {#if displayName}
     function create_if_block$1(ctx) {
     	let t0;
     	let t1;
     	let t2;
     	let span;
     	let t3;
-    	let if_block = /*isAdmin*/ ctx[2] && create_if_block_1(ctx);
+    	let if_block = /*isAdmin*/ ctx[2] && create_if_block_1$1(ctx);
 
     	const block = {
     		c: function create() {
@@ -8968,7 +8066,7 @@ var app = (function () {
     			span = element("span");
     			t3 = text(/*ethAddress*/ ctx[0]);
     			attr_dev(span, "class", "svelte-1ymkiyd");
-    			add_location(span, file$2, 21, 4, 368);
+    			add_location(span, file$2, 52, 4, 880);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, t0, anchor);
@@ -8983,7 +8081,7 @@ var app = (function () {
 
     			if (/*isAdmin*/ ctx[2]) {
     				if (if_block) ; else {
-    					if_block = create_if_block_1(ctx);
+    					if_block = create_if_block_1$1(ctx);
     					if_block.c();
     					if_block.m(t2.parentNode, t2);
     				}
@@ -9007,14 +8105,14 @@ var app = (function () {
     		block,
     		id: create_if_block$1.name,
     		type: "if",
-    		source: "(14:2) {#if displayName}",
+    		source: "(48:2) {#if displayName}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (29:4) {#if app.isZetaSeek}
+    // (61:4) {#if app.isZetaSeek}
     function create_if_block_2(ctx) {
     	let br;
     	let t0;
@@ -9026,9 +8124,9 @@ var app = (function () {
     			t0 = space();
     			span = element("span");
     			span.textContent = "[ Zeta Balance: 0 ]";
-    			add_location(br, file$2, 29, 6, 613);
+    			add_location(br, file$2, 60, 24, 1122);
     			attr_dev(span, "class", "deemph svelte-1ymkiyd");
-    			add_location(span, file$2, 29, 11, 618);
+    			add_location(span, file$2, 60, 31, 1129);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, br, anchor);
@@ -9046,15 +8144,15 @@ var app = (function () {
     		block,
     		id: create_if_block_2.name,
     		type: "if",
-    		source: "(29:4) {#if app.isZetaSeek}",
+    		source: "(61:4) {#if app.isZetaSeek}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (18:4) {#if isAdmin}
-    function create_if_block_1(ctx) {
+    // (51:4) {#if isAdmin}
+    function create_if_block_1$1(ctx) {
     	let span;
 
     	const block = {
@@ -9062,7 +8160,7 @@ var app = (function () {
     			span = element("span");
     			span.textContent = "(+)";
     			attr_dev(span, "class", "admin svelte-1ymkiyd");
-    			add_location(span, file$2, 18, 6, 317);
+    			add_location(span, file$2, 50, 17, 834);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -9074,9 +8172,9 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1.name,
+    		id: create_if_block_1$1.name,
     		type: "if",
-    		source: "(18:4) {#if isAdmin}",
+    		source: "(51:4) {#if isAdmin}",
     		ctx
     	});
 
@@ -9100,7 +8198,7 @@ var app = (function () {
     			if_block.c();
     			attr_dev(div, "id", "eth_identity");
     			attr_dev(div, "class", "svelte-1ymkiyd");
-    			add_location(div, file$2, 12, 0, 229);
+    			add_location(div, file$2, 46, 0, 754);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -9465,7 +8563,7 @@ var app = (function () {
     }
 
     // (27:2) {#if metamaskConnect}
-    function create_if_block_1$1(ctx) {
+    function create_if_block_1$2(ctx) {
     	let div;
     	let a;
     	let img;
@@ -9528,7 +8626,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$1.name,
+    		id: create_if_block_1$2.name,
     		type: "if",
     		source: "(27:2) {#if metamaskConnect}",
     		ctx
@@ -9600,7 +8698,7 @@ var app = (function () {
     	let if_block;
     	let if_block_anchor;
     	let current;
-    	const if_block_creators = [create_if_block$3, create_if_block_1$1, create_else_block$1];
+    	const if_block_creators = [create_if_block$3, create_if_block_1$2, create_else_block$1];
     	const if_blocks = [];
 
     	function select_block_type(ctx, dirty) {
@@ -10192,7 +9290,7 @@ var app = (function () {
     const file$7 = "src/components/LeftBar/Profile.svelte";
 
     // (70:6) {#if editMode}
-    function create_if_block_1$2(ctx) {
+    function create_if_block_1$3(ctx) {
     	let t0;
     	let a;
     	let mounted;
@@ -10227,7 +9325,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$2.name,
+    		id: create_if_block_1$3.name,
     		type: "if",
     		source: "(70:6) {#if editMode}",
     		ctx
@@ -10336,7 +9434,7 @@ var app = (function () {
     	let t7;
     	let t8_value = (/*savedName*/ ctx[4] || missing) + "";
     	let t8;
-    	let if_block0 = /*editMode*/ ctx[2] && create_if_block_1$2(ctx);
+    	let if_block0 = /*editMode*/ ctx[2] && create_if_block_1$3(ctx);
 
     	function select_block_type(ctx, dirty) {
     		if (/*editMode*/ ctx[2]) return create_if_block$5;
@@ -10417,7 +9515,7 @@ var app = (function () {
     				if (if_block0) {
     					if_block0.p(ctx, dirty);
     				} else {
-    					if_block0 = create_if_block_1$2(ctx);
+    					if_block0 = create_if_block_1$3(ctx);
     					if_block0.c();
     					if_block0.m(h3, t1);
     				}
@@ -11026,6 +10124,7 @@ var app = (function () {
 
     //export const searchMode = writable(localStorage.getItem('searchMode') ? parseInt(localStorage.getItem('searchMode')) : 0);
     const searchMode = writable(0);
+    const searchResponse = writable({});
 
     /* node_modules/svelte-spinner/src/index.svelte generated by Svelte v3.29.0 */
 
@@ -11275,11 +10374,11 @@ var app = (function () {
     			span2 = element("span");
     			create_component(spinner.$$.fragment);
     			attr_dev(span0, "class", "device_name svelte-k7g394");
-    			add_location(span0, file$a, 38, 8, 1138);
+    			add_location(span0, file$a, 38, 8, 1098);
     			attr_dev(span1, "class", "device_status svelte-k7g394");
-    			add_location(span1, file$a, 37, 6, 1101);
+    			add_location(span1, file$a, 37, 6, 1061);
     			attr_dev(span2, "class", "spinner svelte-k7g394");
-    			add_location(span2, file$a, 41, 6, 1237);
+    			add_location(span2, file$a, 41, 6, 1197);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span1, anchor);
@@ -11325,11 +10424,7 @@ var app = (function () {
     // (22:2) {#if connected}
     function create_if_block$7(ctx) {
     	let span1;
-
-    	let t0_value = (/*app*/ ctx[3].isLocalhost || /*app*/ ctx[3].isLAN
-    	? "local node"
-    	: "") + "";
-
+    	let t0_value = (/*app*/ ctx[3].isLAN ? "local node" : "") + "";
     	let t0;
     	let t1;
     	let span0;
@@ -11341,7 +10436,7 @@ var app = (function () {
     	let current_block_type_index;
     	let if_block;
     	let current;
-    	const if_block_creators = [create_if_block_1$3, create_else_block$3];
+    	const if_block_creators = [create_if_block_1$4, create_else_block$3];
     	const if_blocks = [];
 
     	function select_block_type_1(ctx, dirty) {
@@ -11364,11 +10459,11 @@ var app = (function () {
     			div = element("div");
     			if_block.c();
     			attr_dev(span0, "class", "device_name svelte-k7g394");
-    			add_location(span0, file$a, 25, 8, 702);
+    			add_location(span0, file$a, 25, 8, 662);
     			attr_dev(span1, "class", "device_status svelte-k7g394");
-    			add_location(span1, file$a, 23, 6, 606);
+    			add_location(span1, file$a, 23, 6, 585);
     			attr_dev(div, "class", "spinner_or_mark svelte-k7g394");
-    			add_location(div, file$a, 28, 6, 795);
+    			add_location(div, file$a, 28, 6, 755);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span1, anchor);
@@ -11444,7 +10539,7 @@ var app = (function () {
     			img = element("img");
     			attr_dev(img, "class", "mark svelte-k7g394");
     			if (img.src !== (img_src_value = "/apps/zeta/img/redesign/zetaseek_icon-OK.svg")) attr_dev(img, "src", img_src_value);
-    			add_location(img, file$a, 32, 10, 985);
+    			add_location(img, file$a, 32, 10, 945);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, img, anchor);
@@ -11468,7 +10563,7 @@ var app = (function () {
     }
 
     // (30:8) {#if isSearching}
-    function create_if_block_1$3(ctx) {
+    function create_if_block_1$4(ctx) {
     	let span;
     	let spinner;
     	let current;
@@ -11489,7 +10584,7 @@ var app = (function () {
     			span = element("span");
     			create_component(spinner.$$.fragment);
     			attr_dev(span, "class", "spinner svelte-k7g394");
-    			add_location(span, file$a, 30, 10, 861);
+    			add_location(span, file$a, 30, 10, 821);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -11513,7 +10608,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$3.name,
+    		id: create_if_block_1$4.name,
     		type: "if",
     		source: "(30:8) {#if isSearching}",
     		ctx
@@ -11544,7 +10639,7 @@ var app = (function () {
     			if_block.c();
     			attr_dev(p, "class", "connection_status svelte-k7g394");
     			toggle_class(p, "ok", /*connected*/ ctx[0]);
-    			add_location(p, file$a, 20, 0, 479);
+    			add_location(p, file$a, 20, 0, 458);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -11619,7 +10714,7 @@ var app = (function () {
     	let { device } = $$props;
 
     	function displayDeviceName(deviceName) {
-    		return deviceName && (app.isLocalhost || app.isLAN)
+    		return deviceName && app.isLAN
     		? `@${deviceName}`
     		: `@${window.location.hostname}`;
     	}
@@ -11831,17 +10926,17 @@ var app = (function () {
     /* src/components/NodeTagline.svelte generated by Svelte v3.29.0 */
     const file$c = "src/components/NodeTagline.svelte";
 
-    // (13:2) {#if app.isZetaSeek}
+    // (12:2) {#if app.isZetaSeek}
     function create_if_block$8(ctx) {
     	let div;
-    	let if_block = /*connected*/ ctx[0] && create_if_block_1$4(ctx);
+    	let if_block = /*connected*/ ctx[0] && create_if_block_1$5(ctx);
 
     	const block = {
     		c: function create() {
     			div = element("div");
     			if (if_block) if_block.c();
     			attr_dev(div, "class", "tagline svelte-awns0o");
-    			add_location(div, file$c, 13, 4, 311);
+    			add_location(div, file$c, 12, 4, 283);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -11850,7 +10945,7 @@ var app = (function () {
     		p: function update(ctx, dirty) {
     			if (/*connected*/ ctx[0]) {
     				if (if_block) ; else {
-    					if_block = create_if_block_1$4(ctx);
+    					if_block = create_if_block_1$5(ctx);
     					if_block.c();
     					if_block.m(div, null);
     				}
@@ -11869,15 +10964,15 @@ var app = (function () {
     		block,
     		id: create_if_block$8.name,
     		type: "if",
-    		source: "(13:2) {#if app.isZetaSeek}",
+    		source: "(12:2) {#if app.isZetaSeek}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (15:6) {#if connected}
-    function create_if_block_1$4(ctx) {
+    // (14:6) {#if connected}
+    function create_if_block_1$5(ctx) {
     	let t0;
     	let a;
     	let t2;
@@ -11890,7 +10985,7 @@ var app = (function () {
     			t2 = text(", big leap each year.");
     			attr_dev(a, "href", "https://dmt-system.com");
     			attr_dev(a, "class", "svelte-awns0o");
-    			add_location(a, file$c, 15, 29, 384);
+    			add_location(a, file$c, 14, 29, 356);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, t0, anchor);
@@ -11906,9 +11001,9 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$4.name,
+    		id: create_if_block_1$5.name,
     		type: "if",
-    		source: "(15:6) {#if connected}",
+    		source: "(14:6) {#if connected}",
     		ctx
     	});
 
@@ -11958,10 +11053,9 @@ var app = (function () {
     	validate_slots("NodeTagline", slots, []);
     	let { connected } = $$props;
     	let { loggedIn } = $$props;
-    	let { searchResults } = $$props;
     	let { displayName } = $$props;
     	const app = getContext("app");
-    	const writable_props = ["connected", "loggedIn", "searchResults", "displayName"];
+    	const writable_props = ["connected", "loggedIn", "displayName"];
 
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<NodeTagline> was created with unknown prop '${key}'`);
@@ -11970,14 +11064,12 @@ var app = (function () {
     	$$self.$$set = $$props => {
     		if ("connected" in $$props) $$invalidate(0, connected = $$props.connected);
     		if ("loggedIn" in $$props) $$invalidate(2, loggedIn = $$props.loggedIn);
-    		if ("searchResults" in $$props) $$invalidate(3, searchResults = $$props.searchResults);
-    		if ("displayName" in $$props) $$invalidate(4, displayName = $$props.displayName);
+    		if ("displayName" in $$props) $$invalidate(3, displayName = $$props.displayName);
     	};
 
     	$$self.$capture_state = () => ({
     		connected,
     		loggedIn,
-    		searchResults,
     		displayName,
     		ZetaExplorersInvite,
     		getContext,
@@ -11988,15 +11080,14 @@ var app = (function () {
     	$$self.$inject_state = $$props => {
     		if ("connected" in $$props) $$invalidate(0, connected = $$props.connected);
     		if ("loggedIn" in $$props) $$invalidate(2, loggedIn = $$props.loggedIn);
-    		if ("searchResults" in $$props) $$invalidate(3, searchResults = $$props.searchResults);
-    		if ("displayName" in $$props) $$invalidate(4, displayName = $$props.displayName);
+    		if ("displayName" in $$props) $$invalidate(3, displayName = $$props.displayName);
     	};
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [connected, app, loggedIn, searchResults, displayName];
+    	return [connected, app, loggedIn, displayName];
     }
 
     class NodeTagline extends SvelteComponentDev {
@@ -12006,8 +11097,7 @@ var app = (function () {
     		init(this, options, instance$c, create_fragment$c, safe_not_equal, {
     			connected: 0,
     			loggedIn: 2,
-    			searchResults: 3,
-    			displayName: 4
+    			displayName: 3
     		});
 
     		dispatch_dev("SvelteRegisterComponent", {
@@ -12028,11 +11118,7 @@ var app = (function () {
     			console.warn("<NodeTagline> was created without expected prop 'loggedIn'");
     		}
 
-    		if (/*searchResults*/ ctx[3] === undefined && !("searchResults" in props)) {
-    			console.warn("<NodeTagline> was created without expected prop 'searchResults'");
-    		}
-
-    		if (/*displayName*/ ctx[4] === undefined && !("displayName" in props)) {
+    		if (/*displayName*/ ctx[3] === undefined && !("displayName" in props)) {
     			console.warn("<NodeTagline> was created without expected prop 'displayName'");
     		}
     	}
@@ -12053,14 +11139,6 @@ var app = (function () {
     		throw new Error("<NodeTagline>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	get searchResults() {
-    		throw new Error("<NodeTagline>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set searchResults(value) {
-    		throw new Error("<NodeTagline>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
     	get displayName() {
     		throw new Error("<NodeTagline>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
@@ -12078,7 +11156,7 @@ var app = (function () {
     	let div;
 
     	function select_block_type(ctx, dirty) {
-    		if (/*$searchMode*/ ctx[1] == 0) return create_if_block_1$5;
+    		if (/*$searchMode*/ ctx[1] == 0) return create_if_block_1$6;
     		return create_else_block$4;
     	}
 
@@ -12157,7 +11235,7 @@ var app = (function () {
     }
 
     // (28:4) {#if $searchMode == 0}
-    function create_if_block_1$5(ctx) {
+    function create_if_block_1$6(ctx) {
     	let img;
     	let img_src_value;
 
@@ -12179,7 +11257,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$5.name,
+    		id: create_if_block_1$6.name,
     		type: "if",
     		source: "(28:4) {#if $searchMode == 0}",
     		ctx
@@ -12444,7 +11522,7 @@ var app = (function () {
     	let t3;
     	let mounted;
     	let dispose;
-    	let if_block = /*$searchMode*/ ctx[0] == 1 && create_if_block_1$6(ctx);
+    	let if_block = /*$searchMode*/ ctx[0] == 1 && create_if_block_1$7(ctx);
 
     	const block = {
     		c: function create() {
@@ -12489,7 +11567,7 @@ var app = (function () {
 
     			if (/*$searchMode*/ ctx[0] == 1) {
     				if (if_block) ; else {
-    					if_block = create_if_block_1$6(ctx);
+    					if_block = create_if_block_1$7(ctx);
     					if_block.c();
     					if_block.m(span1, t3);
     				}
@@ -12551,7 +11629,7 @@ var app = (function () {
     }
 
     // (34:6) {#if $searchMode == 1}
-    function create_if_block_1$6(ctx) {
+    function create_if_block_1$7(ctx) {
     	let t;
 
     	const block = {
@@ -12568,7 +11646,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$6.name,
+    		id: create_if_block_1$7.name,
     		type: "if",
     		source: "(34:6) {#if $searchMode == 1}",
     		ctx
@@ -12769,7 +11847,7 @@ var app = (function () {
     }
 
     // (18:2) {#if mediaTypeIcon(tag)}
-    function create_if_block_1$7(ctx) {
+    function create_if_block_1$8(ctx) {
     	let t_value = mediaTypeIcon(/*tag*/ ctx[0]) + "";
     	let t;
 
@@ -12790,7 +11868,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$7.name,
+    		id: create_if_block_1$8.name,
     		type: "if",
     		source: "(18:2) {#if mediaTypeIcon(tag)}",
     		ctx
@@ -12834,7 +11912,7 @@ var app = (function () {
 
     	function select_block_type(ctx, dirty) {
     		if (show_if == null || dirty & /*tag*/ 1) show_if = !!mediaTypeIcon(/*tag*/ ctx[0]);
-    		if (show_if) return create_if_block_1$7;
+    		if (show_if) return create_if_block_1$8;
     		return create_else_block$6;
     	}
 
@@ -13247,7 +12325,7 @@ var app = (function () {
     }
 
     // (21:0) {#if resultType}
-    function create_if_block_1$8(ctx) {
+    function create_if_block_1$9(ctx) {
     	let resulttag;
     	let current;
 
@@ -13285,7 +12363,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$8.name,
+    		id: create_if_block_1$9.name,
     		type: "if",
     		source: "(21:0) {#if resultType}",
     		ctx
@@ -13348,7 +12426,7 @@ var app = (function () {
     	let if_block2_anchor;
     	let current;
     	let if_block0 = /*mediaType*/ ctx[0] && create_if_block_2$2(ctx);
-    	let if_block1 = /*resultType*/ ctx[1] && create_if_block_1$8(ctx);
+    	let if_block1 = /*resultType*/ ctx[1] && create_if_block_1$9(ctx);
     	let if_block2 = /*linkTag*/ ctx[2] && create_if_block$c(ctx);
 
     	const block = {
@@ -13404,7 +12482,7 @@ var app = (function () {
     						transition_in(if_block1, 1);
     					}
     				} else {
-    					if_block1 = create_if_block_1$8(ctx);
+    					if_block1 = create_if_block_1$9(ctx);
     					if_block1.c();
     					transition_in(if_block1, 1);
     					if_block1.m(t1.parentNode, t1);
@@ -13727,7 +12805,7 @@ var app = (function () {
     }
 
     // (69:2) {#if context && !context.startsWith(title)}
-    function create_if_block_1$9(ctx) {
+    function create_if_block_1$a(ctx) {
     	let span0;
     	let t1;
     	let b;
@@ -13767,7 +12845,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$9.name,
+    		id: create_if_block_1$a.name,
     		type: "if",
     		source: "(69:2) {#if context && !context.startsWith(title)}",
     		ctx
@@ -13827,7 +12905,7 @@ var app = (function () {
     	let mounted;
     	let dispose;
     	let if_block0 = /*linkTags*/ ctx[5] && create_if_block_2$3(ctx);
-    	let if_block1 = show_if && create_if_block_1$9(ctx);
+    	let if_block1 = show_if && create_if_block_1$a(ctx);
     	let if_block2 = /*linkNote*/ ctx[4] && create_if_block$d(ctx);
 
     	const block = {
@@ -13914,7 +12992,7 @@ var app = (function () {
     				if (if_block1) {
     					if_block1.p(ctx, dirty);
     				} else {
-    					if_block1 = create_if_block_1$9(ctx);
+    					if_block1 = create_if_block_1$a(ctx);
     					if_block1.c();
     					if_block1.m(span1, t3);
     				}
@@ -14589,7 +13667,7 @@ var app = (function () {
     	let current_block_type = select_block_type(ctx);
     	let if_block0 = current_block_type(ctx);
     	let if_block1 = /*entryType*/ ctx[3] != "ens" && create_if_block_2$4(ctx);
-    	let if_block2 = /*entryType*/ ctx[3] != "ens" && create_if_block_1$a(ctx);
+    	let if_block2 = /*entryType*/ ctx[3] != "ens" && create_if_block_1$b(ctx);
 
     	const block = {
     		c: function create() {
@@ -14636,7 +13714,7 @@ var app = (function () {
 
     			if (/*entryType*/ ctx[3] != "ens") {
     				if (if_block2) ; else {
-    					if_block2 = create_if_block_1$a(ctx);
+    					if_block2 = create_if_block_1$b(ctx);
     					if_block2.c();
     					if_block2.m(span, null);
     				}
@@ -14747,7 +13825,7 @@ var app = (function () {
     }
 
     // (38:63) {#if entryType != 'ens'}
-    function create_if_block_1$a(ctx) {
+    function create_if_block_1$b(ctx) {
     	let t;
 
     	const block = {
@@ -14764,7 +13842,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$a.name,
+    		id: create_if_block_1$b.name,
     		type: "if",
     		source: "(38:63) {#if entryType != 'ens'}",
     		ctx
@@ -15403,7 +14481,7 @@ var app = (function () {
     }
 
     // (88:4) {#if fileNote}
-    function create_if_block_1$b(ctx) {
+    function create_if_block_1$c(ctx) {
     	let t;
 
     	const block = {
@@ -15420,7 +14498,7 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$b.name,
+    		id: create_if_block_1$c.name,
     		type: "if",
     		source: "(88:4) {#if fileNote}",
     		ctx
@@ -15509,7 +14587,7 @@ var app = (function () {
     	let if_block1 = /*swarmUrl*/ ctx[9] && create_if_block_4$1(ctx);
     	let if_block2 = /*fileSizePretty*/ ctx[6] && create_if_block_3$2(ctx);
     	let if_block3 = /*fileUpdatedAtRelativePretty*/ ctx[7] && create_if_block_2$5(ctx);
-    	let if_block4 = /*fileNote*/ ctx[8] && create_if_block_1$b(ctx);
+    	let if_block4 = /*fileNote*/ ctx[8] && create_if_block_1$c(ctx);
     	let if_block5 = /*fileNote*/ ctx[8] && create_if_block$g(ctx);
 
     	const block = {
@@ -15637,7 +14715,7 @@ var app = (function () {
 
     			if (/*fileNote*/ ctx[8]) {
     				if (if_block4) ; else {
-    					if_block4 = create_if_block_1$b(ctx);
+    					if_block4 = create_if_block_1$c(ctx);
     					if_block4.c();
     					if_block4.m(div0, t8);
     				}
@@ -16499,48 +15577,48 @@ var app = (function () {
 
     function get_each_context_1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[12] = list[i].filePath;
-    	child_ctx[13] = list[i].fileName;
-    	child_ctx[14] = list[i].directory;
-    	child_ctx[15] = list[i].directoryHandle;
-    	child_ctx[16] = list[i].place;
-    	child_ctx[17] = list[i].fileNote;
-    	child_ctx[18] = list[i].url;
-    	child_ctx[19] = list[i].title;
-    	child_ctx[20] = list[i].name;
-    	child_ctx[21] = list[i].context;
-    	child_ctx[22] = list[i].linkNote;
-    	child_ctx[23] = list[i].hiddenContext;
-    	child_ctx[24] = list[i].githubReference;
-    	child_ctx[25] = list[i].score;
-    	child_ctx[26] = list[i].swarmBzzHash;
-    	child_ctx[27] = list[i].swarmUrl;
-    	child_ctx[28] = list[i].mediaType;
-    	child_ctx[29] = list[i].entryType;
-    	child_ctx[30] = list[i].prettyTime;
-    	child_ctx[31] = list[i].filePathANSI;
-    	child_ctx[32] = list[i].playableUrl;
-    	child_ctx[33] = list[i].fiberContentURL;
-    	child_ctx[34] = list[i].fileSizePretty;
-    	child_ctx[35] = list[i].fileUpdatedAtRelativePretty;
-    	child_ctx[36] = list[i].isNote;
-    	child_ctx[37] = list[i].notePreview;
-    	child_ctx[38] = list[i].noteUrl;
-    	child_ctx[39] = list[i].noteContents;
-    	child_ctx[40] = list[i].noteTags;
-    	child_ctx[41] = list[i].linkTags;
-    	child_ctx[43] = i;
+    	child_ctx[14] = list[i].filePath;
+    	child_ctx[15] = list[i].fileName;
+    	child_ctx[16] = list[i].directory;
+    	child_ctx[17] = list[i].directoryHandle;
+    	child_ctx[18] = list[i].place;
+    	child_ctx[19] = list[i].fileNote;
+    	child_ctx[20] = list[i].url;
+    	child_ctx[21] = list[i].title;
+    	child_ctx[22] = list[i].name;
+    	child_ctx[23] = list[i].context;
+    	child_ctx[24] = list[i].linkNote;
+    	child_ctx[25] = list[i].hiddenContext;
+    	child_ctx[26] = list[i].githubReference;
+    	child_ctx[27] = list[i].score;
+    	child_ctx[28] = list[i].swarmBzzHash;
+    	child_ctx[29] = list[i].swarmUrl;
+    	child_ctx[30] = list[i].mediaType;
+    	child_ctx[31] = list[i].entryType;
+    	child_ctx[32] = list[i].prettyTime;
+    	child_ctx[33] = list[i].filePathANSI;
+    	child_ctx[34] = list[i].playableUrl;
+    	child_ctx[35] = list[i].fiberContentURL;
+    	child_ctx[36] = list[i].fileSizePretty;
+    	child_ctx[37] = list[i].fileUpdatedAtRelativePretty;
+    	child_ctx[38] = list[i].isNote;
+    	child_ctx[39] = list[i].notePreview;
+    	child_ctx[40] = list[i].noteUrl;
+    	child_ctx[41] = list[i].noteContents;
+    	child_ctx[42] = list[i].noteTags;
+    	child_ctx[43] = list[i].linkTags;
+    	child_ctx[45] = i;
     	return child_ctx;
     }
 
     function get_each_context$1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[9] = list[i];
+    	child_ctx[11] = list[i];
     	return child_ctx;
     }
 
-    // (30:0) {:else}
-    function create_else_block_2(ctx) {
+    // (28:207) {:else}
+    function create_else_block_1$1(ctx) {
     	let t;
 
     	const block = {
@@ -16557,17 +15635,17 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_2.name,
+    		id: create_else_block_1$1.name,
     		type: "else",
-    		source: "(30:0) {:else}",
+    		source: "(28:207) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (28:0) {#if $searchMode == 0}
-    function create_if_block_8(ctx) {
+    // (28:178) {#if $searchMode == 0}
+    function create_if_block_7(ctx) {
     	let t;
 
     	const block = {
@@ -16584,98 +15662,20 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_8.name,
+    		id: create_if_block_7.name,
     		type: "if",
-    		source: "(28:0) {#if $searchMode == 0}",
+    		source: "(28:178) {#if $searchMode == 0}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (53:0) {#if searchResults}
-    function create_if_block$i(ctx) {
-    	let current_block_type_index;
-    	let if_block;
-    	let if_block_anchor;
-    	let current;
-    	const if_block_creators = [create_if_block_1$c, create_else_block$a];
-    	const if_blocks = [];
-
-    	function select_block_type_1(ctx, dirty) {
-    		if (/*searchResults*/ ctx[0].error) return 0;
-    		return 1;
-    	}
-
-    	current_block_type_index = select_block_type_1(ctx);
-    	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-
-    	const block = {
-    		c: function create() {
-    			if_block.c();
-    			if_block_anchor = empty();
-    		},
-    		m: function mount(target, anchor) {
-    			if_blocks[current_block_type_index].m(target, anchor);
-    			insert_dev(target, if_block_anchor, anchor);
-    			current = true;
-    		},
-    		p: function update(ctx, dirty) {
-    			let previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type_1(ctx);
-
-    			if (current_block_type_index === previous_block_index) {
-    				if_blocks[current_block_type_index].p(ctx, dirty);
-    			} else {
-    				group_outros();
-
-    				transition_out(if_blocks[previous_block_index], 1, 1, () => {
-    					if_blocks[previous_block_index] = null;
-    				});
-
-    				check_outros();
-    				if_block = if_blocks[current_block_type_index];
-
-    				if (!if_block) {
-    					if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
-    					if_block.c();
-    				}
-
-    				transition_in(if_block, 1);
-    				if_block.m(if_block_anchor.parentNode, if_block_anchor);
-    			}
-    		},
-    		i: function intro(local) {
-    			if (current) return;
-    			transition_in(if_block);
-    			current = true;
-    		},
-    		o: function outro(local) {
-    			transition_out(if_block);
-    			current = false;
-    		},
-    		d: function destroy(detaching) {
-    			if_blocks[current_block_type_index].d(detaching);
-    			if (detaching) detach_dev(if_block_anchor);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block$i.name,
-    		type: "if",
-    		source: "(53:0) {#if searchResults}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (61:2) {:else}
-    function create_else_block$a(ctx) {
+    // (54:26) 
+    function create_if_block_1$d(ctx) {
     	let each_1_anchor;
     	let current;
-    	let each_value = /*searchResults*/ ctx[0];
+    	let each_value = /*searchResults*/ ctx[5];
     	validate_each_argument(each_value);
     	let each_blocks = [];
 
@@ -16704,8 +15704,8 @@ var app = (function () {
     			current = true;
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*searchResults, store, loginStore, hasPlayer*/ 29) {
-    				each_value = /*searchResults*/ ctx[0];
+    			if (dirty[0] & /*searchResults, store, loginStore, hasPlayer*/ 46) {
+    				each_value = /*searchResults*/ ctx[5];
     				validate_each_argument(each_value);
     				let i;
 
@@ -16758,26 +15758,26 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block$a.name,
-    		type: "else",
-    		source: "(61:2) {:else}",
+    		id: create_if_block_1$d.name,
+    		type: "if",
+    		source: "(54:26) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (55:2) {#if searchResults.error}
-    function create_if_block_1$c(ctx) {
+    // (48:2) {#if searchError}
+    function create_if_block$i(ctx) {
     	let div;
     	let p;
     	let t1;
     	let span0;
-    	let t2_value = /*searchResults*/ ctx[0].error.message + "";
+    	let t2_value = /*searchError*/ ctx[4].message + "";
     	let t2;
     	let t3;
     	let span1;
-    	let raw_value = /*searchResults*/ ctx[0].error.stack.split("\n").join("<br>") + "";
+    	let raw_value = /*searchError*/ ctx[4].stack.split("\n").join("<br>") + "";
 
     	const block = {
     		c: function create() {
@@ -16789,13 +15789,13 @@ var app = (function () {
     			t2 = text(t2_value);
     			t3 = space();
     			span1 = element("span");
-    			add_location(p, file$o, 56, 6, 1598);
+    			add_location(p, file$o, 49, 6, 1678);
     			attr_dev(span0, "class", "svelte-ogrn4i");
-    			add_location(span0, file$o, 57, 6, 1642);
+    			add_location(span0, file$o, 50, 6, 1722);
     			attr_dev(span1, "class", "svelte-ogrn4i");
-    			add_location(span1, file$o, 58, 6, 1691);
+    			add_location(span1, file$o, 51, 6, 1763);
     			attr_dev(div, "class", "search_error svelte-ogrn4i");
-    			add_location(div, file$o, 55, 4, 1565);
+    			add_location(div, file$o, 48, 4, 1645);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -16808,8 +15808,8 @@ var app = (function () {
     			span1.innerHTML = raw_value;
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*searchResults*/ 1 && t2_value !== (t2_value = /*searchResults*/ ctx[0].error.message + "")) set_data_dev(t2, t2_value);
-    			if (dirty[0] & /*searchResults*/ 1 && raw_value !== (raw_value = /*searchResults*/ ctx[0].error.stack.split("\n").join("<br>") + "")) span1.innerHTML = raw_value;		},
+    			if (dirty[0] & /*searchError*/ 16 && t2_value !== (t2_value = /*searchError*/ ctx[4].message + "")) set_data_dev(t2, t2_value);
+    			if (dirty[0] & /*searchError*/ 16 && raw_value !== (raw_value = /*searchError*/ ctx[4].stack.split("\n").join("<br>") + "")) span1.innerHTML = raw_value;		},
     		i: noop$1,
     		o: noop$1,
     		d: function destroy(detaching) {
@@ -16819,91 +15819,16 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$c.name,
+    		id: create_if_block$i.name,
     		type: "if",
-    		source: "(55:2) {#if searchResults.error}",
+    		source: "(48:2) {#if searchError}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (65:8) {#if providerResponse.error}
-    function create_if_block_7(ctx) {
-    	let div1;
-    	let resultsmetatop;
-    	let t0;
-    	let div0;
-    	let t1;
-    	let span;
-    	let t2_value = JSON.stringify(/*providerResponse*/ ctx[9].error) + "";
-    	let t2;
-    	let current;
-
-    	resultsmetatop = new ResultsMetaTop({
-    			props: { meta: /*providerResponse*/ ctx[9].meta },
-    			$$inline: true
-    		});
-
-    	const block = {
-    		c: function create() {
-    			div1 = element("div");
-    			create_component(resultsmetatop.$$.fragment);
-    			t0 = space();
-    			div0 = element("div");
-    			t1 = text("Error: ");
-    			span = element("span");
-    			t2 = text(t2_value);
-    			attr_dev(span, "class", "svelte-ogrn4i");
-    			add_location(span, file$o, 69, 21, 2052);
-    			attr_dev(div0, "class", "result_error svelte-ogrn4i");
-    			add_location(div0, file$o, 68, 12, 2004);
-    			attr_dev(div1, "class", "results svelte-ogrn4i");
-    			add_location(div1, file$o, 65, 10, 1910);
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, div1, anchor);
-    			mount_component(resultsmetatop, div1, null);
-    			append_dev(div1, t0);
-    			append_dev(div1, div0);
-    			append_dev(div0, t1);
-    			append_dev(div0, span);
-    			append_dev(span, t2);
-    			current = true;
-    		},
-    		p: function update(ctx, dirty) {
-    			const resultsmetatop_changes = {};
-    			if (dirty[0] & /*searchResults*/ 1) resultsmetatop_changes.meta = /*providerResponse*/ ctx[9].meta;
-    			resultsmetatop.$set(resultsmetatop_changes);
-    			if ((!current || dirty[0] & /*searchResults*/ 1) && t2_value !== (t2_value = JSON.stringify(/*providerResponse*/ ctx[9].error) + "")) set_data_dev(t2, t2_value);
-    		},
-    		i: function intro(local) {
-    			if (current) return;
-    			transition_in(resultsmetatop.$$.fragment, local);
-    			current = true;
-    		},
-    		o: function outro(local) {
-    			transition_out(resultsmetatop.$$.fragment, local);
-    			current = false;
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div1);
-    			destroy_component(resultsmetatop);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_if_block_7.name,
-    		type: "if",
-    		source: "(65:8) {#if providerResponse.error}",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (76:8) {#if providerResponse.results && providerResponse.results.length > 0}
+    // (69:8) {#if providerResponse.results && providerResponse.results.length > 0}
     function create_if_block_2$6(ctx) {
     	let div;
     	let resultsmetatop;
@@ -16914,11 +15839,11 @@ var app = (function () {
     	let current;
 
     	resultsmetatop = new ResultsMetaTop({
-    			props: { meta: /*providerResponse*/ ctx[9].meta },
+    			props: { meta: /*providerResponse*/ ctx[11].meta },
     			$$inline: true
     		});
 
-    	let each_value_1 = /*providerResponse*/ ctx[9].results;
+    	let each_value_1 = /*providerResponse*/ ctx[11].results;
     	validate_each_argument(each_value_1);
     	let each_blocks = [];
 
@@ -16932,7 +15857,7 @@ var app = (function () {
 
     	resultsmetabottom = new ResultsMetaBottom({
     			props: {
-    				providerResponse: /*providerResponse*/ ctx[9]
+    				providerResponse: /*providerResponse*/ ctx[11]
     			},
     			$$inline: true
     		});
@@ -16951,7 +15876,7 @@ var app = (function () {
     			create_component(resultsmetabottom.$$.fragment);
     			t2 = space();
     			attr_dev(div, "class", "results svelte-ogrn4i");
-    			add_location(div, file$o, 76, 10, 2315);
+    			add_location(div, file$o, 69, 10, 2405);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -16969,11 +15894,11 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const resultsmetatop_changes = {};
-    			if (dirty[0] & /*searchResults*/ 1) resultsmetatop_changes.meta = /*providerResponse*/ ctx[9].meta;
+    			if (dirty[0] & /*searchResults*/ 32) resultsmetatop_changes.meta = /*providerResponse*/ ctx[11].meta;
     			resultsmetatop.$set(resultsmetatop_changes);
 
-    			if (dirty[0] & /*searchResults, store, loginStore, hasPlayer*/ 29) {
-    				each_value_1 = /*providerResponse*/ ctx[9].results;
+    			if (dirty[0] & /*searchResults, store, loginStore, hasPlayer*/ 46) {
+    				each_value_1 = /*providerResponse*/ ctx[11].results;
     				validate_each_argument(each_value_1);
     				let i;
 
@@ -17001,7 +15926,7 @@ var app = (function () {
     			}
 
     			const resultsmetabottom_changes = {};
-    			if (dirty[0] & /*searchResults*/ 1) resultsmetabottom_changes.providerResponse = /*providerResponse*/ ctx[9];
+    			if (dirty[0] & /*searchResults*/ 32) resultsmetabottom_changes.providerResponse = /*providerResponse*/ ctx[11];
     			resultsmetabottom.$set(resultsmetabottom_changes);
     		},
     		i: function intro(local) {
@@ -17038,15 +15963,15 @@ var app = (function () {
     		block,
     		id: create_if_block_2$6.name,
     		type: "if",
-    		source: "(76:8) {#if providerResponse.results && providerResponse.results.length > 0}",
+    		source: "(69:8) {#if providerResponse.results && providerResponse.results.length > 0}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (91:16) {:else}
-    function create_else_block_1$1(ctx) {
+    // (84:16) {:else}
+    function create_else_block$a(ctx) {
     	let div;
 
     	const block = {
@@ -17054,7 +15979,7 @@ var app = (function () {
     			div = element("div");
     			div.textContent = "Unsupported search results format.";
     			attr_dev(div, "class", "resultError");
-    			add_location(div, file$o, 91, 18, 3875);
+    			add_location(div, file$o, 84, 18, 3965);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -17069,25 +15994,25 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_else_block_1$1.name,
+    		id: create_else_block$a.name,
     		type: "else",
-    		source: "(91:16) {:else}",
+    		source: "(84:16) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (89:33) 
+    // (82:33) 
     function create_if_block_6$1(ctx) {
     	let resultnote;
     	let current;
 
     	resultnote = new ResultNote({
     			props: {
-    				noteUrl: /*noteUrl*/ ctx[38],
-    				notePreview: /*notePreview*/ ctx[37],
-    				noteTags: /*noteTags*/ ctx[40]
+    				noteUrl: /*noteUrl*/ ctx[40],
+    				notePreview: /*notePreview*/ ctx[39],
+    				noteTags: /*noteTags*/ ctx[42]
     			},
     			$$inline: true
     		});
@@ -17102,9 +16027,9 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const resultnote_changes = {};
-    			if (dirty[0] & /*searchResults*/ 1) resultnote_changes.noteUrl = /*noteUrl*/ ctx[38];
-    			if (dirty[0] & /*searchResults*/ 1) resultnote_changes.notePreview = /*notePreview*/ ctx[37];
-    			if (dirty[0] & /*searchResults*/ 1) resultnote_changes.noteTags = /*noteTags*/ ctx[40];
+    			if (dirty[0] & /*searchResults*/ 32) resultnote_changes.noteUrl = /*noteUrl*/ ctx[40];
+    			if (dirty[0] & /*searchResults*/ 32) resultnote_changes.notePreview = /*notePreview*/ ctx[39];
+    			if (dirty[0] & /*searchResults*/ 32) resultnote_changes.noteTags = /*noteTags*/ ctx[42];
     			resultnote.$set(resultnote_changes);
     		},
     		i: function intro(local) {
@@ -17125,35 +16050,35 @@ var app = (function () {
     		block,
     		id: create_if_block_6$1.name,
     		type: "if",
-    		source: "(89:33) ",
+    		source: "(82:33) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (87:35) 
+    // (80:35) 
     function create_if_block_5$2(ctx) {
     	let resultfs;
     	let current;
 
     	resultfs = new ResultFS({
     			props: {
-    				playableUrl: /*playableUrl*/ ctx[32],
-    				mediaType: /*mediaType*/ ctx[28],
-    				fileName: /*fileName*/ ctx[13],
-    				hasPlayer: /*hasPlayer*/ ctx[4],
-    				prevDirectory: /*i*/ ctx[43] > 0
-    				? /*providerResponse*/ ctx[9].results[/*i*/ ctx[43] - 1].directory
+    				playableUrl: /*playableUrl*/ ctx[34],
+    				mediaType: /*mediaType*/ ctx[30],
+    				fileName: /*fileName*/ ctx[15],
+    				hasPlayer: /*hasPlayer*/ ctx[3],
+    				prevDirectory: /*i*/ ctx[45] > 0
+    				? /*providerResponse*/ ctx[11].results[/*i*/ ctx[45] - 1].directory
     				: null,
-    				directory: /*directory*/ ctx[14],
-    				directoryHandle: /*directoryHandle*/ ctx[15],
-    				place: /*place*/ ctx[16],
-    				fileSizePretty: /*fileSizePretty*/ ctx[34],
-    				fileUpdatedAtRelativePretty: /*fileUpdatedAtRelativePretty*/ ctx[35],
-    				fileNote: /*fileNote*/ ctx[17],
-    				swarmUrl: /*swarmUrl*/ ctx[27],
-    				localResult: /*providerResponse*/ ctx[9].meta.providerAddress == "localhost"
+    				directory: /*directory*/ ctx[16],
+    				directoryHandle: /*directoryHandle*/ ctx[17],
+    				place: /*place*/ ctx[18],
+    				fileSizePretty: /*fileSizePretty*/ ctx[36],
+    				fileUpdatedAtRelativePretty: /*fileUpdatedAtRelativePretty*/ ctx[37],
+    				fileNote: /*fileNote*/ ctx[19],
+    				swarmUrl: /*swarmUrl*/ ctx[29],
+    				localResult: /*providerResponse*/ ctx[11].meta.providerAddress == "localhost"
     			},
     			$$inline: true
     		});
@@ -17168,23 +16093,23 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const resultfs_changes = {};
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.playableUrl = /*playableUrl*/ ctx[32];
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.mediaType = /*mediaType*/ ctx[28];
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.fileName = /*fileName*/ ctx[13];
-    			if (dirty[0] & /*hasPlayer*/ 16) resultfs_changes.hasPlayer = /*hasPlayer*/ ctx[4];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.playableUrl = /*playableUrl*/ ctx[34];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.mediaType = /*mediaType*/ ctx[30];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.fileName = /*fileName*/ ctx[15];
+    			if (dirty[0] & /*hasPlayer*/ 8) resultfs_changes.hasPlayer = /*hasPlayer*/ ctx[3];
 
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.prevDirectory = /*i*/ ctx[43] > 0
-    			? /*providerResponse*/ ctx[9].results[/*i*/ ctx[43] - 1].directory
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.prevDirectory = /*i*/ ctx[45] > 0
+    			? /*providerResponse*/ ctx[11].results[/*i*/ ctx[45] - 1].directory
     			: null;
 
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.directory = /*directory*/ ctx[14];
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.directoryHandle = /*directoryHandle*/ ctx[15];
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.place = /*place*/ ctx[16];
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.fileSizePretty = /*fileSizePretty*/ ctx[34];
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.fileUpdatedAtRelativePretty = /*fileUpdatedAtRelativePretty*/ ctx[35];
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.fileNote = /*fileNote*/ ctx[17];
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.swarmUrl = /*swarmUrl*/ ctx[27];
-    			if (dirty[0] & /*searchResults*/ 1) resultfs_changes.localResult = /*providerResponse*/ ctx[9].meta.providerAddress == "localhost";
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.directory = /*directory*/ ctx[16];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.directoryHandle = /*directoryHandle*/ ctx[17];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.place = /*place*/ ctx[18];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.fileSizePretty = /*fileSizePretty*/ ctx[36];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.fileUpdatedAtRelativePretty = /*fileUpdatedAtRelativePretty*/ ctx[37];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.fileNote = /*fileNote*/ ctx[19];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.swarmUrl = /*swarmUrl*/ ctx[29];
+    			if (dirty[0] & /*searchResults*/ 32) resultfs_changes.localResult = /*providerResponse*/ ctx[11].meta.providerAddress == "localhost";
     			resultfs.$set(resultfs_changes);
     		},
     		i: function intro(local) {
@@ -17205,28 +16130,28 @@ var app = (function () {
     		block,
     		id: create_if_block_5$2.name,
     		type: "if",
-    		source: "(87:35) ",
+    		source: "(80:35) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (85:39) 
+    // (78:39) 
     function create_if_block_4$2(ctx) {
     	let resultswarm;
     	let current;
 
     	resultswarm = new ResultSwarm({
     			props: {
-    				name: /*name*/ ctx[20],
-    				playableUrl: /*playableUrl*/ ctx[32],
-    				mediaType: /*mediaType*/ ctx[28],
-    				entryType: /*entryType*/ ctx[29],
-    				prettyTime: /*prettyTime*/ ctx[30],
-    				fileSizePretty: /*fileSizePretty*/ ctx[34],
-    				context: /*context*/ ctx[21],
-    				hasPlayer: /*hasPlayer*/ ctx[4]
+    				name: /*name*/ ctx[22],
+    				playableUrl: /*playableUrl*/ ctx[34],
+    				mediaType: /*mediaType*/ ctx[30],
+    				entryType: /*entryType*/ ctx[31],
+    				prettyTime: /*prettyTime*/ ctx[32],
+    				fileSizePretty: /*fileSizePretty*/ ctx[36],
+    				context: /*context*/ ctx[23],
+    				hasPlayer: /*hasPlayer*/ ctx[3]
     			},
     			$$inline: true
     		});
@@ -17241,14 +16166,14 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const resultswarm_changes = {};
-    			if (dirty[0] & /*searchResults*/ 1) resultswarm_changes.name = /*name*/ ctx[20];
-    			if (dirty[0] & /*searchResults*/ 1) resultswarm_changes.playableUrl = /*playableUrl*/ ctx[32];
-    			if (dirty[0] & /*searchResults*/ 1) resultswarm_changes.mediaType = /*mediaType*/ ctx[28];
-    			if (dirty[0] & /*searchResults*/ 1) resultswarm_changes.entryType = /*entryType*/ ctx[29];
-    			if (dirty[0] & /*searchResults*/ 1) resultswarm_changes.prettyTime = /*prettyTime*/ ctx[30];
-    			if (dirty[0] & /*searchResults*/ 1) resultswarm_changes.fileSizePretty = /*fileSizePretty*/ ctx[34];
-    			if (dirty[0] & /*searchResults*/ 1) resultswarm_changes.context = /*context*/ ctx[21];
-    			if (dirty[0] & /*hasPlayer*/ 16) resultswarm_changes.hasPlayer = /*hasPlayer*/ ctx[4];
+    			if (dirty[0] & /*searchResults*/ 32) resultswarm_changes.name = /*name*/ ctx[22];
+    			if (dirty[0] & /*searchResults*/ 32) resultswarm_changes.playableUrl = /*playableUrl*/ ctx[34];
+    			if (dirty[0] & /*searchResults*/ 32) resultswarm_changes.mediaType = /*mediaType*/ ctx[30];
+    			if (dirty[0] & /*searchResults*/ 32) resultswarm_changes.entryType = /*entryType*/ ctx[31];
+    			if (dirty[0] & /*searchResults*/ 32) resultswarm_changes.prettyTime = /*prettyTime*/ ctx[32];
+    			if (dirty[0] & /*searchResults*/ 32) resultswarm_changes.fileSizePretty = /*fileSizePretty*/ ctx[36];
+    			if (dirty[0] & /*searchResults*/ 32) resultswarm_changes.context = /*context*/ ctx[23];
+    			if (dirty[0] & /*hasPlayer*/ 8) resultswarm_changes.hasPlayer = /*hasPlayer*/ ctx[3];
     			resultswarm.$set(resultswarm_changes);
     		},
     		i: function intro(local) {
@@ -17269,30 +16194,30 @@ var app = (function () {
     		block,
     		id: create_if_block_4$2.name,
     		type: "if",
-    		source: "(85:39) ",
+    		source: "(78:39) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (83:16) {#if url}
+    // (76:16) {#if url}
     function create_if_block_3$3(ctx) {
     	let resultlink;
     	let current;
 
     	resultlink = new ResultLink({
     			props: {
-    				url: /*url*/ ctx[18],
-    				title: /*title*/ ctx[19],
-    				context: /*context*/ ctx[21],
-    				hiddenContext: /*hiddenContext*/ ctx[23],
-    				linkNote: /*linkNote*/ ctx[22],
-    				score: /*score*/ ctx[25],
-    				linkTags: /*linkTags*/ ctx[41],
-    				githubReference: /*githubReference*/ ctx[24],
-    				store: /*store*/ ctx[2],
-    				loginStore: /*loginStore*/ ctx[3]
+    				url: /*url*/ ctx[20],
+    				title: /*title*/ ctx[21],
+    				context: /*context*/ ctx[23],
+    				hiddenContext: /*hiddenContext*/ ctx[25],
+    				linkNote: /*linkNote*/ ctx[24],
+    				score: /*score*/ ctx[27],
+    				linkTags: /*linkTags*/ ctx[43],
+    				githubReference: /*githubReference*/ ctx[26],
+    				store: /*store*/ ctx[1],
+    				loginStore: /*loginStore*/ ctx[2]
     			},
     			$$inline: true
     		});
@@ -17307,16 +16232,16 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const resultlink_changes = {};
-    			if (dirty[0] & /*searchResults*/ 1) resultlink_changes.url = /*url*/ ctx[18];
-    			if (dirty[0] & /*searchResults*/ 1) resultlink_changes.title = /*title*/ ctx[19];
-    			if (dirty[0] & /*searchResults*/ 1) resultlink_changes.context = /*context*/ ctx[21];
-    			if (dirty[0] & /*searchResults*/ 1) resultlink_changes.hiddenContext = /*hiddenContext*/ ctx[23];
-    			if (dirty[0] & /*searchResults*/ 1) resultlink_changes.linkNote = /*linkNote*/ ctx[22];
-    			if (dirty[0] & /*searchResults*/ 1) resultlink_changes.score = /*score*/ ctx[25];
-    			if (dirty[0] & /*searchResults*/ 1) resultlink_changes.linkTags = /*linkTags*/ ctx[41];
-    			if (dirty[0] & /*searchResults*/ 1) resultlink_changes.githubReference = /*githubReference*/ ctx[24];
-    			if (dirty[0] & /*store*/ 4) resultlink_changes.store = /*store*/ ctx[2];
-    			if (dirty[0] & /*loginStore*/ 8) resultlink_changes.loginStore = /*loginStore*/ ctx[3];
+    			if (dirty[0] & /*searchResults*/ 32) resultlink_changes.url = /*url*/ ctx[20];
+    			if (dirty[0] & /*searchResults*/ 32) resultlink_changes.title = /*title*/ ctx[21];
+    			if (dirty[0] & /*searchResults*/ 32) resultlink_changes.context = /*context*/ ctx[23];
+    			if (dirty[0] & /*searchResults*/ 32) resultlink_changes.hiddenContext = /*hiddenContext*/ ctx[25];
+    			if (dirty[0] & /*searchResults*/ 32) resultlink_changes.linkNote = /*linkNote*/ ctx[24];
+    			if (dirty[0] & /*searchResults*/ 32) resultlink_changes.score = /*score*/ ctx[27];
+    			if (dirty[0] & /*searchResults*/ 32) resultlink_changes.linkTags = /*linkTags*/ ctx[43];
+    			if (dirty[0] & /*searchResults*/ 32) resultlink_changes.githubReference = /*githubReference*/ ctx[26];
+    			if (dirty[0] & /*store*/ 2) resultlink_changes.store = /*store*/ ctx[1];
+    			if (dirty[0] & /*loginStore*/ 4) resultlink_changes.loginStore = /*loginStore*/ ctx[2];
     			resultlink.$set(resultlink_changes);
     		},
     		i: function intro(local) {
@@ -17337,14 +16262,14 @@ var app = (function () {
     		block,
     		id: create_if_block_3$3.name,
     		type: "if",
-    		source: "(83:16) {#if url}",
+    		source: "(76:16) {#if url}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (81:12) {#each providerResponse.results as { filePath, fileName, directory, directoryHandle, place, fileNote, url, title, name, context, linkNote, hiddenContext, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, fileUpdatedAtRelativePretty, isNote, notePreview, noteUrl, noteContents, noteTags, linkTags }
+    // (74:12) {#each providerResponse.results as { filePath, fileName, directory, directoryHandle, place, fileNote, url, title, name, context, linkNote, hiddenContext, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, fileUpdatedAtRelativePretty, isNote, notePreview, noteUrl, noteContents, noteTags, linkTags }
     function create_each_block_1(ctx) {
     	let div;
     	let current_block_type_index;
@@ -17356,16 +16281,16 @@ var app = (function () {
     		create_if_block_4$2,
     		create_if_block_5$2,
     		create_if_block_6$1,
-    		create_else_block_1$1
+    		create_else_block$a
     	];
 
     	const if_blocks = [];
 
     	function select_block_type_2(ctx, dirty) {
-    		if (/*url*/ ctx[18]) return 0;
-    		if (/*swarmBzzHash*/ ctx[26]) return 1;
-    		if (/*filePath*/ ctx[12]) return 2;
-    		if (/*isNote*/ ctx[36]) return 3;
+    		if (/*url*/ ctx[20]) return 0;
+    		if (/*swarmBzzHash*/ ctx[28]) return 1;
+    		if (/*filePath*/ ctx[14]) return 2;
+    		if (/*isNote*/ ctx[38]) return 3;
     		return 4;
     	}
 
@@ -17377,8 +16302,8 @@ var app = (function () {
     			div = element("div");
     			if_block.c();
     			attr_dev(div, "class", "result svelte-ogrn4i");
-    			toggle_class(div, "url_result", /*url*/ ctx[18]);
-    			add_location(div, file$o, 81, 14, 2933);
+    			toggle_class(div, "url_result", /*url*/ ctx[20]);
+    			add_location(div, file$o, 74, 14, 3023);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -17410,8 +16335,8 @@ var app = (function () {
     				if_block.m(div, null);
     			}
 
-    			if (dirty[0] & /*searchResults*/ 1) {
-    				toggle_class(div, "url_result", /*url*/ ctx[18]);
+    			if (dirty[0] & /*searchResults*/ 32) {
+    				toggle_class(div, "url_result", /*url*/ ctx[20]);
     			}
     		},
     		i: function intro(local) {
@@ -17433,77 +16358,48 @@ var app = (function () {
     		block,
     		id: create_each_block_1.name,
     		type: "each",
-    		source: "(81:12) {#each providerResponse.results as { filePath, fileName, directory, directoryHandle, place, fileNote, url, title, name, context, linkNote, hiddenContext, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, fileUpdatedAtRelativePretty, isNote, notePreview, noteUrl, noteContents, noteTags, linkTags }",
+    		source: "(74:12) {#each providerResponse.results as { filePath, fileName, directory, directoryHandle, place, fileNote, url, title, name, context, linkNote, hiddenContext, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, fileUpdatedAtRelativePretty, isNote, notePreview, noteUrl, noteContents, noteTags, linkTags }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (62:4) {#each searchResults as providerResponse}
+    // (55:4) {#each searchResults as providerResponse}
     function create_each_block$1(ctx) {
-    	let t;
-    	let if_block1_anchor;
+    	let if_block_anchor;
     	let current;
-    	let if_block0 = /*providerResponse*/ ctx[9].error && create_if_block_7(ctx);
-    	let if_block1 = /*providerResponse*/ ctx[9].results && /*providerResponse*/ ctx[9].results.length > 0 && create_if_block_2$6(ctx);
+    	let if_block = /*providerResponse*/ ctx[11].results && /*providerResponse*/ ctx[11].results.length > 0 && create_if_block_2$6(ctx);
 
     	const block = {
     		c: function create() {
-    			if (if_block0) if_block0.c();
-    			t = space();
-    			if (if_block1) if_block1.c();
-    			if_block1_anchor = empty();
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
     		},
     		m: function mount(target, anchor) {
-    			if (if_block0) if_block0.m(target, anchor);
-    			insert_dev(target, t, anchor);
-    			if (if_block1) if_block1.m(target, anchor);
-    			insert_dev(target, if_block1_anchor, anchor);
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
     			current = true;
     		},
     		p: function update(ctx, dirty) {
-    			if (/*providerResponse*/ ctx[9].error) {
-    				if (if_block0) {
-    					if_block0.p(ctx, dirty);
+    			if (/*providerResponse*/ ctx[11].results && /*providerResponse*/ ctx[11].results.length > 0) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
 
-    					if (dirty[0] & /*searchResults*/ 1) {
-    						transition_in(if_block0, 1);
+    					if (dirty[0] & /*searchResults*/ 32) {
+    						transition_in(if_block, 1);
     					}
     				} else {
-    					if_block0 = create_if_block_7(ctx);
-    					if_block0.c();
-    					transition_in(if_block0, 1);
-    					if_block0.m(t.parentNode, t);
+    					if_block = create_if_block_2$6(ctx);
+    					if_block.c();
+    					transition_in(if_block, 1);
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
     				}
-    			} else if (if_block0) {
+    			} else if (if_block) {
     				group_outros();
 
-    				transition_out(if_block0, 1, 1, () => {
-    					if_block0 = null;
-    				});
-
-    				check_outros();
-    			}
-
-    			if (/*providerResponse*/ ctx[9].results && /*providerResponse*/ ctx[9].results.length > 0) {
-    				if (if_block1) {
-    					if_block1.p(ctx, dirty);
-
-    					if (dirty[0] & /*searchResults*/ 1) {
-    						transition_in(if_block1, 1);
-    					}
-    				} else {
-    					if_block1 = create_if_block_2$6(ctx);
-    					if_block1.c();
-    					transition_in(if_block1, 1);
-    					if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
-    				}
-    			} else if (if_block1) {
-    				group_outros();
-
-    				transition_out(if_block1, 1, 1, () => {
-    					if_block1 = null;
+    				transition_out(if_block, 1, 1, () => {
+    					if_block = null;
     				});
 
     				check_outros();
@@ -17511,20 +16407,16 @@ var app = (function () {
     		},
     		i: function intro(local) {
     			if (current) return;
-    			transition_in(if_block0);
-    			transition_in(if_block1);
+    			transition_in(if_block);
     			current = true;
     		},
     		o: function outro(local) {
-    			transition_out(if_block0);
-    			transition_out(if_block1);
+    			transition_out(if_block);
     			current = false;
     		},
     		d: function destroy(detaching) {
-    			if (if_block0) if_block0.d(detaching);
-    			if (detaching) detach_dev(t);
-    			if (if_block1) if_block1.d(detaching);
-    			if (detaching) detach_dev(if_block1_anchor);
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
     		}
     	};
 
@@ -17532,7 +16424,7 @@ var app = (function () {
     		block,
     		id: create_each_block$1.name,
     		type: "each",
-    		source: "(62:4) {#each searchResults as providerResponse}",
+    		source: "(55:4) {#each searchResults as providerResponse}",
     		ctx
     	});
 
@@ -17548,17 +16440,30 @@ var app = (function () {
     	let t2;
     	let t3;
     	let t4;
+    	let current_block_type_index;
+    	let if_block1;
     	let if_block1_anchor;
     	let current;
 
     	function select_block_type(ctx, dirty) {
-    		if (/*$searchMode*/ ctx[5] == 0) return create_if_block_8;
-    		return create_else_block_2;
+    		if (/*$searchMode*/ ctx[6] == 0) return create_if_block_7;
+    		return create_else_block_1$1;
     	}
 
     	let current_block_type = select_block_type(ctx);
     	let if_block0 = current_block_type(ctx);
-    	let if_block1 = /*searchResults*/ ctx[0] && create_if_block$i(ctx);
+    	const if_block_creators = [create_if_block$i, create_if_block_1$d];
+    	const if_blocks = [];
+
+    	function select_block_type_1(ctx, dirty) {
+    		if (/*searchError*/ ctx[4]) return 0;
+    		if (/*searchResults*/ ctx[5]) return 1;
+    		return -1;
+    	}
+
+    	if (~(current_block_type_index = select_block_type_1(ctx))) {
+    		if_block1 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+    	}
 
     	const block = {
     		c: function create() {
@@ -17567,18 +16472,18 @@ var app = (function () {
     			br = element("br");
     			t1 = space();
     			span = element("span");
-    			t2 = text("Have you tried turning the\n\n");
+    			t2 = text("Have you tried turning the ");
     			if_block0.c();
-    			t3 = text("\n\noff and on again?");
+    			t3 = text(" off and on again?");
     			t4 = space();
     			if (if_block1) if_block1.c();
     			if_block1_anchor = empty();
-    			add_location(br, file$o, 25, 75, 822);
+    			add_location(br, file$o, 27, 75, 911);
     			attr_dev(span, "class", "svelte-ogrn4i");
-    			add_location(span, file$o, 25, 145, 892);
+    			add_location(span, file$o, 27, 145, 981);
     			attr_dev(div, "class", "no_results svelte-ogrn4i");
-    			toggle_class(div, "visible", /*noSearchHits*/ ctx[1]);
-    			add_location(div, file$o, 25, 0, 747);
+    			toggle_class(div, "visible", /*noSearchHits*/ ctx[0]);
+    			add_location(div, file$o, 27, 0, 836);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -17593,7 +16498,11 @@ var app = (function () {
     			if_block0.m(span, null);
     			append_dev(span, t3);
     			insert_dev(target, t4, anchor);
-    			if (if_block1) if_block1.m(target, anchor);
+
+    			if (~current_block_type_index) {
+    				if_blocks[current_block_type_index].m(target, anchor);
+    			}
+
     			insert_dev(target, if_block1_anchor, anchor);
     			current = true;
     		},
@@ -17608,31 +16517,41 @@ var app = (function () {
     				}
     			}
 
-    			if (dirty[0] & /*noSearchHits*/ 2) {
-    				toggle_class(div, "visible", /*noSearchHits*/ ctx[1]);
+    			if (dirty[0] & /*noSearchHits*/ 1) {
+    				toggle_class(div, "visible", /*noSearchHits*/ ctx[0]);
     			}
 
-    			if (/*searchResults*/ ctx[0]) {
-    				if (if_block1) {
-    					if_block1.p(ctx, dirty);
+    			let previous_block_index = current_block_type_index;
+    			current_block_type_index = select_block_type_1(ctx);
 
-    					if (dirty[0] & /*searchResults*/ 1) {
-    						transition_in(if_block1, 1);
+    			if (current_block_type_index === previous_block_index) {
+    				if (~current_block_type_index) {
+    					if_blocks[current_block_type_index].p(ctx, dirty);
+    				}
+    			} else {
+    				if (if_block1) {
+    					group_outros();
+
+    					transition_out(if_blocks[previous_block_index], 1, 1, () => {
+    						if_blocks[previous_block_index] = null;
+    					});
+
+    					check_outros();
+    				}
+
+    				if (~current_block_type_index) {
+    					if_block1 = if_blocks[current_block_type_index];
+
+    					if (!if_block1) {
+    						if_block1 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+    						if_block1.c();
     					}
-    				} else {
-    					if_block1 = create_if_block$i(ctx);
-    					if_block1.c();
+
     					transition_in(if_block1, 1);
     					if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
-    				}
-    			} else if (if_block1) {
-    				group_outros();
-
-    				transition_out(if_block1, 1, 1, () => {
+    				} else {
     					if_block1 = null;
-    				});
-
-    				check_outros();
+    				}
     			}
     		},
     		i: function intro(local) {
@@ -17648,7 +16567,11 @@ var app = (function () {
     			if (detaching) detach_dev(div);
     			if_block0.d();
     			if (detaching) detach_dev(t4);
-    			if (if_block1) if_block1.d(detaching);
+
+    			if (~current_block_type_index) {
+    				if_blocks[current_block_type_index].d(detaching);
+    			}
+
     			if (detaching) detach_dev(if_block1_anchor);
     		}
     	};
@@ -17665,40 +16588,33 @@ var app = (function () {
     }
 
     function instance$p($$self, $$props, $$invalidate) {
+    	let $searchResponse;
     	let $searchMode;
+    	validate_store(searchResponse, "searchResponse");
+    	component_subscribe($$self, searchResponse, $$value => $$invalidate(8, $searchResponse = $$value));
     	validate_store(searchMode, "searchMode");
-    	component_subscribe($$self, searchMode, $$value => $$invalidate(5, $searchMode = $$value));
+    	component_subscribe($$self, searchMode, $$value => $$invalidate(6, $searchMode = $$value));
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots("SearchResults", slots, []);
     	const app = getContext("app");
     	const { dmtJS } = app.deps;
     	let { loggedIn } = $$props;
-    	let { searchResults } = $$props;
     	let { noSearchHits } = $$props;
     	let { store } = $$props;
     	let { loginStore } = $$props;
     	let { hasPlayer } = $$props;
-
-    	const writable_props = [
-    		"loggedIn",
-    		"searchResults",
-    		"noSearchHits",
-    		"store",
-    		"loginStore",
-    		"hasPlayer"
-    	];
+    	const writable_props = ["loggedIn", "noSearchHits", "store", "loginStore", "hasPlayer"];
 
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<SearchResults> was created with unknown prop '${key}'`);
     	});
 
     	$$self.$$set = $$props => {
-    		if ("loggedIn" in $$props) $$invalidate(6, loggedIn = $$props.loggedIn);
-    		if ("searchResults" in $$props) $$invalidate(0, searchResults = $$props.searchResults);
-    		if ("noSearchHits" in $$props) $$invalidate(1, noSearchHits = $$props.noSearchHits);
-    		if ("store" in $$props) $$invalidate(2, store = $$props.store);
-    		if ("loginStore" in $$props) $$invalidate(3, loginStore = $$props.loginStore);
-    		if ("hasPlayer" in $$props) $$invalidate(4, hasPlayer = $$props.hasPlayer);
+    		if ("loggedIn" in $$props) $$invalidate(7, loggedIn = $$props.loggedIn);
+    		if ("noSearchHits" in $$props) $$invalidate(0, noSearchHits = $$props.noSearchHits);
+    		if ("store" in $$props) $$invalidate(1, store = $$props.store);
+    		if ("loginStore" in $$props) $$invalidate(2, loginStore = $$props.loginStore);
+    		if ("hasPlayer" in $$props) $$invalidate(3, hasPlayer = $$props.hasPlayer);
     	};
 
     	$$self.$capture_state = () => ({
@@ -17712,35 +16628,53 @@ var app = (function () {
     		getContext,
     		app,
     		searchMode,
+    		searchResponse,
     		dmtJS,
     		loggedIn,
-    		searchResults,
     		noSearchHits,
     		store,
     		loginStore,
     		hasPlayer,
+    		searchError,
+    		$searchResponse,
+    		searchResults,
     		$searchMode
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ("loggedIn" in $$props) $$invalidate(6, loggedIn = $$props.loggedIn);
-    		if ("searchResults" in $$props) $$invalidate(0, searchResults = $$props.searchResults);
-    		if ("noSearchHits" in $$props) $$invalidate(1, noSearchHits = $$props.noSearchHits);
-    		if ("store" in $$props) $$invalidate(2, store = $$props.store);
-    		if ("loginStore" in $$props) $$invalidate(3, loginStore = $$props.loginStore);
-    		if ("hasPlayer" in $$props) $$invalidate(4, hasPlayer = $$props.hasPlayer);
+    		if ("loggedIn" in $$props) $$invalidate(7, loggedIn = $$props.loggedIn);
+    		if ("noSearchHits" in $$props) $$invalidate(0, noSearchHits = $$props.noSearchHits);
+    		if ("store" in $$props) $$invalidate(1, store = $$props.store);
+    		if ("loginStore" in $$props) $$invalidate(2, loginStore = $$props.loginStore);
+    		if ("hasPlayer" in $$props) $$invalidate(3, hasPlayer = $$props.hasPlayer);
+    		if ("searchError" in $$props) $$invalidate(4, searchError = $$props.searchError);
+    		if ("searchResults" in $$props) $$invalidate(5, searchResults = $$props.searchResults);
     	};
+
+    	let searchError;
+    	let searchResults;
 
     	if ($$props && "$$inject" in $$props) {
     		$$self.$inject_state($$props.$$inject);
     	}
 
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty[0] & /*$searchResponse*/ 256) {
+    			 $$invalidate(4, searchError = $searchResponse.searchError);
+    		}
+
+    		if ($$self.$$.dirty[0] & /*$searchResponse*/ 256) {
+    			 $$invalidate(5, searchResults = $searchResponse.searchResults);
+    		}
+    	};
+
     	return [
-    		searchResults,
     		noSearchHits,
     		store,
     		loginStore,
     		hasPlayer,
+    		searchError,
+    		searchResults,
     		$searchMode,
     		loggedIn
     	];
@@ -17757,12 +16691,11 @@ var app = (function () {
     			create_fragment$p,
     			safe_not_equal,
     			{
-    				loggedIn: 6,
-    				searchResults: 0,
-    				noSearchHits: 1,
-    				store: 2,
-    				loginStore: 3,
-    				hasPlayer: 4
+    				loggedIn: 7,
+    				noSearchHits: 0,
+    				store: 1,
+    				loginStore: 2,
+    				hasPlayer: 3
     			},
     			[-1, -1]
     		);
@@ -17777,27 +16710,23 @@ var app = (function () {
     		const { ctx } = this.$$;
     		const props = options.props || {};
 
-    		if (/*loggedIn*/ ctx[6] === undefined && !("loggedIn" in props)) {
+    		if (/*loggedIn*/ ctx[7] === undefined && !("loggedIn" in props)) {
     			console.warn("<SearchResults> was created without expected prop 'loggedIn'");
     		}
 
-    		if (/*searchResults*/ ctx[0] === undefined && !("searchResults" in props)) {
-    			console.warn("<SearchResults> was created without expected prop 'searchResults'");
-    		}
-
-    		if (/*noSearchHits*/ ctx[1] === undefined && !("noSearchHits" in props)) {
+    		if (/*noSearchHits*/ ctx[0] === undefined && !("noSearchHits" in props)) {
     			console.warn("<SearchResults> was created without expected prop 'noSearchHits'");
     		}
 
-    		if (/*store*/ ctx[2] === undefined && !("store" in props)) {
+    		if (/*store*/ ctx[1] === undefined && !("store" in props)) {
     			console.warn("<SearchResults> was created without expected prop 'store'");
     		}
 
-    		if (/*loginStore*/ ctx[3] === undefined && !("loginStore" in props)) {
+    		if (/*loginStore*/ ctx[2] === undefined && !("loginStore" in props)) {
     			console.warn("<SearchResults> was created without expected prop 'loginStore'");
     		}
 
-    		if (/*hasPlayer*/ ctx[4] === undefined && !("hasPlayer" in props)) {
+    		if (/*hasPlayer*/ ctx[3] === undefined && !("hasPlayer" in props)) {
     			console.warn("<SearchResults> was created without expected prop 'hasPlayer'");
     		}
     	}
@@ -17807,14 +16736,6 @@ var app = (function () {
     	}
 
     	set loggedIn(value) {
-    		throw new Error("<SearchResults>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get searchResults() {
-    		throw new Error("<SearchResults>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set searchResults(value) {
     		throw new Error("<SearchResults>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
@@ -17856,7 +16777,7 @@ var app = (function () {
     const { console: console_1$2 } = globals;
     const file$p = "src/App.svelte";
 
-    // (339:4) {#if !connected && isLocalhost}
+    // (338:4) {#if !connected && isLocalhost}
     function create_if_block_3$4(ctx) {
     	let p;
     	let t0;
@@ -17871,9 +16792,9 @@ var app = (function () {
     			span.textContent = "dmt-proc";
     			t2 = text(" ...");
     			attr_dev(span, "class", "svelte-a24143");
-    			add_location(span, file$p, 340, 28, 10414);
+    			add_location(span, file$p, 339, 28, 10417);
     			attr_dev(p, "class", "connection_status_help svelte-a24143");
-    			add_location(p, file$p, 339, 6, 10351);
+    			add_location(p, file$p, 338, 6, 10354);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -17890,14 +16811,14 @@ var app = (function () {
     		block,
     		id: create_if_block_3$4.name,
     		type: "if",
-    		source: "(339:4) {#if !connected && isLocalhost}",
+    		source: "(338:4) {#if !connected && isLocalhost}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (345:4) {#if connected}
+    // (344:4) {#if connected}
     function create_if_block_2$7(ctx) {
     	let searchmodeselector;
     	let current;
@@ -17907,7 +16828,7 @@ var app = (function () {
     			$$inline: true
     		});
 
-    	searchmodeselector.$on("searchModeChanged", /*searchModeChanged*/ ctx[24]);
+    	searchmodeselector.$on("searchModeChanged", /*searchModeChanged*/ ctx[23]);
 
     	const block = {
     		c: function create() {
@@ -17940,20 +16861,20 @@ var app = (function () {
     		block,
     		id: create_if_block_2$7.name,
     		type: "if",
-    		source: "(345:4) {#if connected}",
+    		source: "(344:4) {#if connected}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (349:4) {#if errorCode == 'file_not_found'}
+    // (348:4) {#if errorCode == 'file_not_found'}
     function create_if_block$j(ctx) {
     	let br;
     	let t0;
     	let div;
     	let t1;
-    	let if_block = !/*noSearchHits*/ ctx[4] && create_if_block_1$d(ctx);
+    	let if_block = !/*noSearchHits*/ ctx[4] && create_if_block_1$e(ctx);
 
     	const block = {
     		c: function create() {
@@ -17963,9 +16884,9 @@ var app = (function () {
     			t1 = text("⚠️ Requested file was renamed or moved ");
     			if (if_block) if_block.c();
     			attr_dev(br, "class", "svelte-a24143");
-    			add_location(br, file$p, 349, 6, 10625);
+    			add_location(br, file$p, 348, 6, 10628);
     			attr_dev(div, "class", "error svelte-a24143");
-    			add_location(div, file$p, 350, 6, 10636);
+    			add_location(div, file$p, 349, 6, 10639);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, br, anchor);
@@ -17977,7 +16898,7 @@ var app = (function () {
     		p: function update(ctx, dirty) {
     			if (!/*noSearchHits*/ ctx[4]) {
     				if (if_block) ; else {
-    					if_block = create_if_block_1$d(ctx);
+    					if_block = create_if_block_1$e(ctx);
     					if_block.c();
     					if_block.m(div, null);
     				}
@@ -17998,15 +16919,15 @@ var app = (function () {
     		block,
     		id: create_if_block$j.name,
     		type: "if",
-    		source: "(349:4) {#if errorCode == 'file_not_found'}",
+    		source: "(348:4) {#if errorCode == 'file_not_found'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (352:47) {#if !noSearchHits}
-    function create_if_block_1$d(ctx) {
+    // (351:47) {#if !noSearchHits}
+    function create_if_block_1$e(ctx) {
     	let t;
 
     	const block = {
@@ -18023,9 +16944,9 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_1$d.name,
+    		id: create_if_block_1$e.name,
     		type: "if",
-    		source: "(352:47) {#if !noSearchHits}",
+    		source: "(351:47) {#if !noSearchHits}",
     		ctx
     	});
 
@@ -18067,12 +16988,12 @@ var app = (function () {
 
     	leftbar = new LeftBar({
     			props: {
-    				connected: /*connected*/ ctx[10],
-    				loggedIn: /*loggedIn*/ ctx[15],
+    				connected: /*connected*/ ctx[9],
+    				loggedIn: /*loggedIn*/ ctx[14],
     				loginStore: /*loginStore*/ ctx[2],
-    				isAdmin: /*isAdmin*/ ctx[20],
+    				isAdmin: /*isAdmin*/ ctx[19],
     				metamaskConnect: /*metamaskConnect*/ ctx[1],
-    				displayName: /*displayName*/ ctx[21],
+    				displayName: /*displayName*/ ctx[20],
     				store: /*store*/ ctx[0],
     				searchQuery: /*searchQuery*/ ctx[5],
     				deviceName: /*deviceName*/ ctx[8]
@@ -18082,28 +17003,28 @@ var app = (function () {
 
     	about = new About({
     			props: {
-    				isMobile: /*isMobile*/ ctx[19],
+    				isMobile: /*isMobile*/ ctx[18],
     				searchQuery: /*searchQuery*/ ctx[5],
-    				dmtVersion: /*dmtVersion*/ ctx[13]
+    				dmtVersion: /*dmtVersion*/ ctx[12]
     			},
     			$$inline: true
     		});
 
     	login = new Login({
     			props: {
-    				connected: /*connected*/ ctx[10],
+    				connected: /*connected*/ ctx[9],
     				metamaskConnect: /*metamaskConnect*/ ctx[1],
-    				ethAddress: /*ethAddress*/ ctx[14],
-    				displayName: /*displayName*/ ctx[21],
-    				isAdmin: /*isAdmin*/ ctx[20]
+    				ethAddress: /*ethAddress*/ ctx[13],
+    				displayName: /*displayName*/ ctx[20],
+    				isAdmin: /*isAdmin*/ ctx[19]
     			},
     			$$inline: true
     		});
 
     	connectionstatus = new ConnectionStatus({
     			props: {
-    				connected: /*connected*/ ctx[10],
-    				device: /*device*/ ctx[11],
+    				connected: /*connected*/ ctx[9],
+    				device: /*device*/ ctx[10],
     				isSearching: /*isSearching*/ ctx[3],
     				deviceName: /*deviceName*/ ctx[8]
     			},
@@ -18112,27 +17033,25 @@ var app = (function () {
 
     	nodetagline = new NodeTagline({
     			props: {
-    				connected: /*connected*/ ctx[10],
-    				searchResults: /*searchResults*/ ctx[9],
-    				displayName: /*displayName*/ ctx[21],
-    				loggedIn: /*loggedIn*/ ctx[15]
+    				connected: /*connected*/ ctx[9],
+    				displayName: /*displayName*/ ctx[20],
+    				loggedIn: /*loggedIn*/ ctx[14]
     			},
     			$$inline: true
     		});
 
-    	nodetagline.$on("explorersClick", /*explorersClick*/ ctx[25]);
-    	let if_block0 = !/*connected*/ ctx[10] && /*isLocalhost*/ ctx[18] && create_if_block_3$4(ctx);
-    	let if_block1 = /*connected*/ ctx[10] && create_if_block_2$7(ctx);
+    	nodetagline.$on("explorersClick", /*explorersClick*/ ctx[24]);
+    	let if_block0 = !/*connected*/ ctx[9] && /*isLocalhost*/ ctx[17] && create_if_block_3$4(ctx);
+    	let if_block1 = /*connected*/ ctx[9] && create_if_block_2$7(ctx);
     	let if_block2 = /*errorCode*/ ctx[6] == "file_not_found" && create_if_block$j(ctx);
 
     	searchresults = new SearchResults({
     			props: {
-    				loggedIn: /*loggedIn*/ ctx[15],
-    				searchResults: /*searchResults*/ ctx[9],
+    				loggedIn: /*loggedIn*/ ctx[14],
     				noSearchHits: /*noSearchHits*/ ctx[4],
     				store: /*store*/ ctx[0],
     				loginStore: /*loginStore*/ ctx[2],
-    				hasPlayer: /*player*/ ctx[12] && /*player*/ ctx[12].volume != undefined
+    				hasPlayer: /*player*/ ctx[11] && /*player*/ ctx[11].volume != undefined
     			},
     			$$inline: true
     		});
@@ -18170,28 +17089,28 @@ var app = (function () {
     			if (img0.src !== (img0_src_value = "/apps/zeta/img/zetaseek_logo.svg?v=2")) attr_dev(img0, "src", img0_src_value);
     			attr_dev(img0, "alt", "zeta logo");
     			attr_dev(img0, "class", "svelte-a24143");
-    			add_location(img0, file$p, 323, 6, 9626);
+    			add_location(img0, file$p, 322, 6, 9645);
     			attr_dev(a, "href", "#");
     			attr_dev(a, "class", "svelte-a24143");
-    			add_location(a, file$p, 322, 4, 9561);
+    			add_location(a, file$p, 321, 4, 9580);
     			attr_dev(div0, "class", "logo svelte-a24143");
-    			add_location(div0, file$p, 321, 2, 9538);
+    			add_location(div0, file$p, 320, 2, 9557);
     			attr_dev(input, "id", "search_input");
-    			attr_dev(input, "placeholder", /*placeholderText*/ ctx[17]);
-    			input.disabled = input_disabled_value = !/*connected*/ ctx[10];
+    			attr_dev(input, "placeholder", /*placeholderText*/ ctx[16]);
+    			input.disabled = input_disabled_value = !/*connected*/ ctx[9];
     			attr_dev(input, "class", "svelte-a24143");
-    			toggle_class(input, "public_search", /*$searchMode*/ ctx[16] == 0);
-    			toggle_class(input, "this_node_search", /*$searchMode*/ ctx[16] == 1);
-    			add_location(input, file$p, 334, 6, 9960);
+    			toggle_class(input, "public_search", /*$searchMode*/ ctx[15] == 0);
+    			toggle_class(input, "this_node_search", /*$searchMode*/ ctx[15] == 1);
+    			add_location(input, file$p, 333, 6, 9963);
     			if (img1.src !== (img1_src_value = "/apps/zeta/img/redesign/zetaseek_icon-search.svg")) attr_dev(img1, "src", img1_src_value);
     			attr_dev(img1, "class", "svelte-a24143");
-    			add_location(img1, file$p, 335, 6, 10234);
+    			add_location(img1, file$p, 334, 6, 10237);
     			attr_dev(div1, "class", "search_input_wrapper svelte-a24143");
-    			add_location(div1, file$p, 333, 4, 9919);
+    			add_location(div1, file$p, 332, 4, 9922);
     			attr_dev(div2, "class", "search svelte-a24143");
-    			add_location(div2, file$p, 331, 2, 9893);
+    			add_location(div2, file$p, 330, 2, 9896);
     			attr_dev(main, "class", "svelte-a24143");
-    			add_location(main, file$p, 311, 0, 9338);
+    			add_location(main, file$p, 308, 0, 9311);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -18216,7 +17135,7 @@ var app = (function () {
     			append_dev(div2, div1);
     			append_dev(div1, input);
     			set_input_value(input, /*searchQuery*/ ctx[5]);
-    			/*input_binding*/ ctx[30](input);
+    			/*input_binding*/ ctx[29](input);
     			append_dev(div1, t6);
     			append_dev(div1, img1);
     			append_dev(div2, t7);
@@ -18231,10 +17150,10 @@ var app = (function () {
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(a, "click", prevent_default(/*click_handler*/ ctx[28]), false, true, false),
-    					listen_dev(input, "input", /*input_input_handler*/ ctx[29]),
-    					listen_dev(input, "keyup", /*searchInputChanged*/ ctx[22], false, false, false),
-    					listen_dev(input, "paste", /*searchInputChanged*/ ctx[22], false, false, false)
+    					listen_dev(a, "click", prevent_default(/*click_handler*/ ctx[27]), false, true, false),
+    					listen_dev(input, "input", /*input_input_handler*/ ctx[28]),
+    					listen_dev(input, "keyup", /*searchInputChanged*/ ctx[21], false, false, false),
+    					listen_dev(input, "paste", /*searchInputChanged*/ ctx[21], false, false, false)
     				];
 
     				mounted = true;
@@ -18242,8 +17161,8 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const leftbar_changes = {};
-    			if (dirty[0] & /*connected*/ 1024) leftbar_changes.connected = /*connected*/ ctx[10];
-    			if (dirty[0] & /*loggedIn*/ 32768) leftbar_changes.loggedIn = /*loggedIn*/ ctx[15];
+    			if (dirty[0] & /*connected*/ 512) leftbar_changes.connected = /*connected*/ ctx[9];
+    			if (dirty[0] & /*loggedIn*/ 16384) leftbar_changes.loggedIn = /*loggedIn*/ ctx[14];
     			if (dirty[0] & /*loginStore*/ 4) leftbar_changes.loginStore = /*loginStore*/ ctx[2];
     			if (dirty[0] & /*metamaskConnect*/ 2) leftbar_changes.metamaskConnect = /*metamaskConnect*/ ctx[1];
     			if (dirty[0] & /*store*/ 1) leftbar_changes.store = /*store*/ ctx[0];
@@ -18252,30 +17171,29 @@ var app = (function () {
     			leftbar.$set(leftbar_changes);
     			const about_changes = {};
     			if (dirty[0] & /*searchQuery*/ 32) about_changes.searchQuery = /*searchQuery*/ ctx[5];
-    			if (dirty[0] & /*dmtVersion*/ 8192) about_changes.dmtVersion = /*dmtVersion*/ ctx[13];
+    			if (dirty[0] & /*dmtVersion*/ 4096) about_changes.dmtVersion = /*dmtVersion*/ ctx[12];
     			about.$set(about_changes);
     			const login_changes = {};
-    			if (dirty[0] & /*connected*/ 1024) login_changes.connected = /*connected*/ ctx[10];
+    			if (dirty[0] & /*connected*/ 512) login_changes.connected = /*connected*/ ctx[9];
     			if (dirty[0] & /*metamaskConnect*/ 2) login_changes.metamaskConnect = /*metamaskConnect*/ ctx[1];
-    			if (dirty[0] & /*ethAddress*/ 16384) login_changes.ethAddress = /*ethAddress*/ ctx[14];
+    			if (dirty[0] & /*ethAddress*/ 8192) login_changes.ethAddress = /*ethAddress*/ ctx[13];
     			login.$set(login_changes);
     			const connectionstatus_changes = {};
-    			if (dirty[0] & /*connected*/ 1024) connectionstatus_changes.connected = /*connected*/ ctx[10];
-    			if (dirty[0] & /*device*/ 2048) connectionstatus_changes.device = /*device*/ ctx[11];
+    			if (dirty[0] & /*connected*/ 512) connectionstatus_changes.connected = /*connected*/ ctx[9];
+    			if (dirty[0] & /*device*/ 1024) connectionstatus_changes.device = /*device*/ ctx[10];
     			if (dirty[0] & /*isSearching*/ 8) connectionstatus_changes.isSearching = /*isSearching*/ ctx[3];
     			if (dirty[0] & /*deviceName*/ 256) connectionstatus_changes.deviceName = /*deviceName*/ ctx[8];
     			connectionstatus.$set(connectionstatus_changes);
     			const nodetagline_changes = {};
-    			if (dirty[0] & /*connected*/ 1024) nodetagline_changes.connected = /*connected*/ ctx[10];
-    			if (dirty[0] & /*searchResults*/ 512) nodetagline_changes.searchResults = /*searchResults*/ ctx[9];
-    			if (dirty[0] & /*loggedIn*/ 32768) nodetagline_changes.loggedIn = /*loggedIn*/ ctx[15];
+    			if (dirty[0] & /*connected*/ 512) nodetagline_changes.connected = /*connected*/ ctx[9];
+    			if (dirty[0] & /*loggedIn*/ 16384) nodetagline_changes.loggedIn = /*loggedIn*/ ctx[14];
     			nodetagline.$set(nodetagline_changes);
 
-    			if (!current || dirty[0] & /*placeholderText*/ 131072) {
-    				attr_dev(input, "placeholder", /*placeholderText*/ ctx[17]);
+    			if (!current || dirty[0] & /*placeholderText*/ 65536) {
+    				attr_dev(input, "placeholder", /*placeholderText*/ ctx[16]);
     			}
 
-    			if (!current || dirty[0] & /*connected*/ 1024 && input_disabled_value !== (input_disabled_value = !/*connected*/ ctx[10])) {
+    			if (!current || dirty[0] & /*connected*/ 512 && input_disabled_value !== (input_disabled_value = !/*connected*/ ctx[9])) {
     				prop_dev(input, "disabled", input_disabled_value);
     			}
 
@@ -18283,15 +17201,15 @@ var app = (function () {
     				set_input_value(input, /*searchQuery*/ ctx[5]);
     			}
 
-    			if (dirty[0] & /*$searchMode*/ 65536) {
-    				toggle_class(input, "public_search", /*$searchMode*/ ctx[16] == 0);
+    			if (dirty[0] & /*$searchMode*/ 32768) {
+    				toggle_class(input, "public_search", /*$searchMode*/ ctx[15] == 0);
     			}
 
-    			if (dirty[0] & /*$searchMode*/ 65536) {
-    				toggle_class(input, "this_node_search", /*$searchMode*/ ctx[16] == 1);
+    			if (dirty[0] & /*$searchMode*/ 32768) {
+    				toggle_class(input, "this_node_search", /*$searchMode*/ ctx[15] == 1);
     			}
 
-    			if (!/*connected*/ ctx[10] && /*isLocalhost*/ ctx[18]) {
+    			if (!/*connected*/ ctx[9] && /*isLocalhost*/ ctx[17]) {
     				if (if_block0) ; else {
     					if_block0 = create_if_block_3$4(ctx);
     					if_block0.c();
@@ -18302,11 +17220,11 @@ var app = (function () {
     				if_block0 = null;
     			}
 
-    			if (/*connected*/ ctx[10]) {
+    			if (/*connected*/ ctx[9]) {
     				if (if_block1) {
     					if_block1.p(ctx, dirty);
 
-    					if (dirty[0] & /*connected*/ 1024) {
+    					if (dirty[0] & /*connected*/ 512) {
     						transition_in(if_block1, 1);
     					}
     				} else {
@@ -18339,12 +17257,11 @@ var app = (function () {
     			}
 
     			const searchresults_changes = {};
-    			if (dirty[0] & /*loggedIn*/ 32768) searchresults_changes.loggedIn = /*loggedIn*/ ctx[15];
-    			if (dirty[0] & /*searchResults*/ 512) searchresults_changes.searchResults = /*searchResults*/ ctx[9];
+    			if (dirty[0] & /*loggedIn*/ 16384) searchresults_changes.loggedIn = /*loggedIn*/ ctx[14];
     			if (dirty[0] & /*noSearchHits*/ 16) searchresults_changes.noSearchHits = /*noSearchHits*/ ctx[4];
     			if (dirty[0] & /*store*/ 1) searchresults_changes.store = /*store*/ ctx[0];
     			if (dirty[0] & /*loginStore*/ 4) searchresults_changes.loginStore = /*loginStore*/ ctx[2];
-    			if (dirty[0] & /*player*/ 4096) searchresults_changes.hasPlayer = /*player*/ ctx[12] && /*player*/ ctx[12].volume != undefined;
+    			if (dirty[0] & /*player*/ 2048) searchresults_changes.hasPlayer = /*player*/ ctx[11] && /*player*/ ctx[11].volume != undefined;
     			searchresults.$set(searchresults_changes);
     		},
     		i: function intro(local) {
@@ -18377,7 +17294,7 @@ var app = (function () {
     			destroy_component(login);
     			destroy_component(connectionstatus);
     			destroy_component(nodetagline);
-    			/*input_binding*/ ctx[30](null);
+    			/*input_binding*/ ctx[29](null);
     			if (if_block0) if_block0.d();
     			if (if_block1) if_block1.d();
     			if (if_block2) if_block2.d();
@@ -18401,15 +17318,15 @@ var app = (function () {
     function instance$q($$self, $$props, $$invalidate) {
     	let $store,
     		$$unsubscribe_store = noop$1,
-    		$$subscribe_store = () => ($$unsubscribe_store(), $$unsubscribe_store = subscribe(store, $$value => $$invalidate(34, $store = $$value)), store);
+    		$$subscribe_store = () => ($$unsubscribe_store(), $$unsubscribe_store = subscribe(store, $$value => $$invalidate(33, $store = $$value)), store);
 
     	let $loginStore,
     		$$unsubscribe_loginStore = noop$1,
-    		$$subscribe_loginStore = () => ($$unsubscribe_loginStore(), $$unsubscribe_loginStore = subscribe(loginStore, $$value => $$invalidate(35, $loginStore = $$value)), loginStore);
+    		$$subscribe_loginStore = () => ($$unsubscribe_loginStore(), $$unsubscribe_loginStore = subscribe(loginStore, $$value => $$invalidate(34, $loginStore = $$value)), loginStore);
 
     	let $searchMode;
     	validate_store(searchMode, "searchMode");
-    	component_subscribe($$self, searchMode, $$value => $$invalidate(16, $searchMode = $$value));
+    	component_subscribe($$self, searchMode, $$value => $$invalidate(15, $searchMode = $$value));
     	$$self.$$.on_destroy.push(() => $$unsubscribe_store());
     	$$self.$$.on_destroy.push(() => $$unsubscribe_loginStore());
     	let { $$slots: slots = {}, $$scope } = $$props;
@@ -18451,9 +17368,8 @@ var app = (function () {
     	// $: userTeams = $loginStore.userTeams; // hmm ...
     	// // duplicate
     	// $: displayName = userName || userIdentity;
-    	store.set({ panels: {} });
-
     	let searchQuery;
+
     	let browsePlace;
     	let searchNodes = [];
 
@@ -18573,11 +17489,11 @@ var app = (function () {
     		const remoteMethod = "browsePlace";
 
     		remoteObject.call(remoteMethod, { place, searchMetadata: searchMetadata() }).then(searchResults => {
-    			console.log("browsePlace RESULTS:");
-    			console.dir(searchResults);
-    			store.set({ searchResults });
-    		}).catch(e => {
-    			store.set({ searchResults: { error: e } });
+    			// console.log("browsePlace RESULTS:");
+    			// console.dir(searchResults);
+    			searchResponse.set({ searchResults });
+    		}).catch(searchError => {
+    			searchResponse.set({ searchError });
     		});
     	}
 
@@ -18662,11 +17578,11 @@ var app = (function () {
     		}).then(searchResults => {
     			console.log("SEARCH RESULTS:");
     			console.dir(searchResults);
-    			store.set({ searchResults, searchQuery }); // searchQuery --> only used in search results to show "BANNER"
-    		}).catch(e => {
+    			searchResponse.set({ searchResults, searchQuery }); // searchQuery --> only used in search results to show "BANNER"
+    		}).catch(searchError => {
     			// console.log('SEARCH ERROR:');
     			// console.log(e);
-    			store.set({ searchResults: { error: e } });
+    			searchResponse.set({ searchError });
     		});
     	}
 
@@ -18721,8 +17637,8 @@ var app = (function () {
 
     	$$self.$$set = $$props => {
     		if ("store" in $$props) $$subscribe_store($$invalidate(0, store = $$props.store));
-    		if ("concurrency" in $$props) $$invalidate(26, concurrency = $$props.concurrency);
-    		if ("appHelper" in $$props) $$invalidate(27, appHelper = $$props.appHelper);
+    		if ("concurrency" in $$props) $$invalidate(25, concurrency = $$props.concurrency);
+    		if ("appHelper" in $$props) $$invalidate(26, appHelper = $$props.appHelper);
     		if ("metamaskConnect" in $$props) $$invalidate(1, metamaskConnect = $$props.metamaskConnect);
     		if ("loginStore" in $$props) $$subscribe_loginStore($$invalidate(2, loginStore = $$props.loginStore));
     	};
@@ -18739,6 +17655,7 @@ var app = (function () {
     		SearchModeSelector,
     		SearchResults,
     		searchMode,
+    		searchResponse,
     		store,
     		concurrency,
     		appHelper,
@@ -18783,7 +17700,6 @@ var app = (function () {
     		explorersClick,
     		deviceName,
     		$store,
-    		searchResults,
     		connected,
     		device,
     		player,
@@ -18797,17 +17713,17 @@ var app = (function () {
 
     	$$self.$inject_state = $$props => {
     		if ("store" in $$props) $$subscribe_store($$invalidate(0, store = $$props.store));
-    		if ("concurrency" in $$props) $$invalidate(26, concurrency = $$props.concurrency);
-    		if ("appHelper" in $$props) $$invalidate(27, appHelper = $$props.appHelper);
+    		if ("concurrency" in $$props) $$invalidate(25, concurrency = $$props.concurrency);
+    		if ("appHelper" in $$props) $$invalidate(26, appHelper = $$props.appHelper);
     		if ("metamaskConnect" in $$props) $$invalidate(1, metamaskConnect = $$props.metamaskConnect);
     		if ("loginStore" in $$props) $$subscribe_loginStore($$invalidate(2, loginStore = $$props.loginStore));
     		if ("isSearching" in $$props) $$invalidate(3, isSearching = $$props.isSearching);
     		if ("noSearchHits" in $$props) $$invalidate(4, noSearchHits = $$props.noSearchHits);
     		if ("userIdentity" in $$props) userIdentity = $$props.userIdentity;
     		if ("userName" in $$props) userName = $$props.userName;
-    		if ("isAdmin" in $$props) $$invalidate(20, isAdmin = $$props.isAdmin);
+    		if ("isAdmin" in $$props) $$invalidate(19, isAdmin = $$props.isAdmin);
     		if ("userTeams" in $$props) userTeams = $$props.userTeams;
-    		if ("displayName" in $$props) $$invalidate(21, displayName = $$props.displayName);
+    		if ("displayName" in $$props) $$invalidate(20, displayName = $$props.displayName);
     		if ("searchQuery" in $$props) $$invalidate(5, searchQuery = $$props.searchQuery);
     		if ("browsePlace" in $$props) browsePlace = $$props.browsePlace;
     		if ("searchNodes" in $$props) searchNodes = $$props.searchNodes;
@@ -18815,18 +17731,16 @@ var app = (function () {
     		if ("searchInput" in $$props) $$invalidate(7, searchInput = $$props.searchInput);
     		if ("searchTriggerTimeout" in $$props) searchTriggerTimeout = $$props.searchTriggerTimeout;
     		if ("deviceName" in $$props) $$invalidate(8, deviceName = $$props.deviceName);
-    		if ("searchResults" in $$props) $$invalidate(9, searchResults = $$props.searchResults);
-    		if ("connected" in $$props) $$invalidate(10, connected = $$props.connected);
-    		if ("device" in $$props) $$invalidate(11, device = $$props.device);
-    		if ("player" in $$props) $$invalidate(12, player = $$props.player);
-    		if ("dmtVersion" in $$props) $$invalidate(13, dmtVersion = $$props.dmtVersion);
-    		if ("ethAddress" in $$props) $$invalidate(14, ethAddress = $$props.ethAddress);
-    		if ("loggedIn" in $$props) $$invalidate(15, loggedIn = $$props.loggedIn);
-    		if ("placeholderText" in $$props) $$invalidate(17, placeholderText = $$props.placeholderText);
+    		if ("connected" in $$props) $$invalidate(9, connected = $$props.connected);
+    		if ("device" in $$props) $$invalidate(10, device = $$props.device);
+    		if ("player" in $$props) $$invalidate(11, player = $$props.player);
+    		if ("dmtVersion" in $$props) $$invalidate(12, dmtVersion = $$props.dmtVersion);
+    		if ("ethAddress" in $$props) $$invalidate(13, ethAddress = $$props.ethAddress);
+    		if ("loggedIn" in $$props) $$invalidate(14, loggedIn = $$props.loggedIn);
+    		if ("placeholderText" in $$props) $$invalidate(16, placeholderText = $$props.placeholderText);
     	};
 
     	let deviceName;
-    	let searchResults;
     	let connected;
     	let device;
     	let player;
@@ -18840,7 +17754,7 @@ var app = (function () {
     	}
 
     	$$self.$$.update = () => {
-    		if ($$self.$$.dirty[1] & /*$store*/ 8) {
+    		if ($$self.$$.dirty[1] & /*$store*/ 4) {
     			// if (isZetaSeek) {
     			//   cssBridge.setWallpaper('/apps/zeta/wallpapers/hilly_dark_forest_river_fog.jpg');
     			// } else {
@@ -18849,36 +17763,32 @@ var app = (function () {
     			 $$invalidate(8, deviceName = $store.deviceName);
     		}
 
-    		if ($$self.$$.dirty[1] & /*$store*/ 8) {
-    			 $$invalidate(9, searchResults = $store.searchResults);
+    		if ($$self.$$.dirty[1] & /*$store*/ 4) {
+    			 $$invalidate(9, connected = $store.connected);
     		}
 
-    		if ($$self.$$.dirty[1] & /*$store*/ 8) {
-    			 $$invalidate(10, connected = $store.connected);
+    		if ($$self.$$.dirty[1] & /*$store*/ 4) {
+    			 $$invalidate(10, device = $store.device);
     		}
 
-    		if ($$self.$$.dirty[1] & /*$store*/ 8) {
-    			 $$invalidate(11, device = $store.device);
+    		if ($$self.$$.dirty[1] & /*$store*/ 4) {
+    			 $$invalidate(11, player = $store.player);
     		}
 
-    		if ($$self.$$.dirty[1] & /*$store*/ 8) {
-    			 $$invalidate(12, player = $store.player);
+    		if ($$self.$$.dirty[0] & /*device*/ 1024) {
+    			 $$invalidate(12, dmtVersion = device ? device.dmtVersion : null);
     		}
 
-    		if ($$self.$$.dirty[0] & /*device*/ 2048) {
-    			 $$invalidate(13, dmtVersion = device ? device.dmtVersion : null);
+    		if ($$self.$$.dirty[1] & /*$loginStore*/ 8) {
+    			 $$invalidate(13, ethAddress = $loginStore.ethAddress);
     		}
 
-    		if ($$self.$$.dirty[1] & /*$loginStore*/ 16) {
-    			 $$invalidate(14, ethAddress = $loginStore.ethAddress);
+    		if ($$self.$$.dirty[1] & /*$loginStore*/ 8) {
+    			 $$invalidate(14, loggedIn = $loginStore.ethAddress);
     		}
 
-    		if ($$self.$$.dirty[1] & /*$loginStore*/ 16) {
-    			 $$invalidate(15, loggedIn = $loginStore.ethAddress);
-    		}
-
-    		if ($$self.$$.dirty[0] & /*connected, $searchMode*/ 66560) {
-    			 $$invalidate(17, placeholderText = !connected
+    		if ($$self.$$.dirty[0] & /*connected, $searchMode*/ 33280) {
+    			 $$invalidate(16, placeholderText = !connected
     			? "Search is currently not available"
     			: $searchMode == 0
     				? "Zeta network search"
@@ -18896,7 +17806,6 @@ var app = (function () {
     		errorCode,
     		searchInput,
     		deviceName,
-    		searchResults,
     		connected,
     		device,
     		player,
@@ -18933,8 +17842,8 @@ var app = (function () {
     			safe_not_equal,
     			{
     				store: 0,
-    				concurrency: 26,
-    				appHelper: 27,
+    				concurrency: 25,
+    				appHelper: 26,
     				metamaskConnect: 1,
     				loginStore: 2
     			},
@@ -18955,11 +17864,11 @@ var app = (function () {
     			console_1$2.warn("<App> was created without expected prop 'store'");
     		}
 
-    		if (/*concurrency*/ ctx[26] === undefined && !("concurrency" in props)) {
+    		if (/*concurrency*/ ctx[25] === undefined && !("concurrency" in props)) {
     			console_1$2.warn("<App> was created without expected prop 'concurrency'");
     		}
 
-    		if (/*appHelper*/ ctx[27] === undefined && !("appHelper" in props)) {
+    		if (/*appHelper*/ ctx[26] === undefined && !("appHelper" in props)) {
     			console_1$2.warn("<App> was created without expected prop 'appHelper'");
     		}
 
@@ -19019,15 +17928,13 @@ var app = (function () {
 
     appHelper.deps = { dmtJS };
 
-    const { LogStore: LogStore$1 } = stores;
-
     const { metamaskInit: metamaskInit$1 } = metamask$1;
 
     const port = appHelper.ssl ? '/ws' : 7780; // hackish ?
     const protocol = 'zeta';
     const lane = 'gui';
 
-    const logStore = new LogStore$1();
+    const logStore = new LogStore();
 
     // source: https://stackoverflow.com/a/9216488
     const log$2 = console.log.bind(console);

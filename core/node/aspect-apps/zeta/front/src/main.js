@@ -1,6 +1,6 @@
 import * as dmtJS from '../../../../dmt-js';
-import { stores, concurrency } from '../../../../connectome/src/client';
-
+import { concurrency } from '../../../../connectome/src/client';
+import { LogStore, ConnectedStore } from '../../../../connectome/src/stores';
 import { writable } from 'svelte/store';
 
 const { metamask } = dmtJS;
@@ -8,8 +8,6 @@ const { metamask } = dmtJS;
 import appHelper from './appHelper';
 
 appHelper.deps = { dmtJS };
-
-const { LogStore } = stores;
 
 const { metamaskInit } = metamask;
 
@@ -31,7 +29,7 @@ const verbose = false;
 const address = window.location.hostname;
 
 const rpcRequestTimeout = 5500;
-const store = new stores.ConnectedStore({
+const store = new ConnectedStore({
   address,
   port,
   ssl: appHelper.ssl,

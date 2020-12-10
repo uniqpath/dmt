@@ -1,4 +1,4 @@
-import Emitter from '../../../../utils/emitter/index.js';
+import Emitter from '../../../utils/emitter/index.js';
 
 // 💡 we use Emitter inside ConnectedStore to emit 'ready' event
 // 💡 and inside MultiConnectedStore to also emit a few events

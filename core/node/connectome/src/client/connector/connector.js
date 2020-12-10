@@ -10,7 +10,7 @@ import { EventEmitter, listify, hexToBuffer, bufferToHex } from '../../utils/ind
 import RpcClient from '../rpc/client.js';
 import RPCTarget from '../rpc/RPCTarget.js';
 
-import newKeypair from '../keypair/newKeypair.js';
+import { newKeypair } from '../../utils/crypto/index.js';
 
 class Connector extends EventEmitter {
   constructor({ address, protocol, lane, keypair = newKeypair(), rpcRequestTimeout, verbose = false } = {}) {
@@ -69,7 +69,11 @@ class Connector extends EventEmitter {
 
       const num = this.successfulConnectsCount;
 
-      this.diffieHellman({ clientPrivateKey: this.clientPrivateKey, clientPublicKey: this.clientPublicKey, lane: this.lane })
+      this.diffieHellman({
+        clientPrivateKey: this.clientPrivateKey,
+        clientPublicKey: this.clientPublicKey,
+        lane: this.lane
+      })
         .then(({ sharedSecret, sharedSecretHex }) => {
           this.ready = true;
           this.connectedAt = Date.now();

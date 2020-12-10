@@ -1,6 +1,4 @@
-import { stores } from 'dmt/connectome';
-
-const { MirroringStore } = stores;
+import { MirroringStore } from 'dmt/connectome-stores';
 
 import onConnect from './onConnect';
 

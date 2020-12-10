@@ -1,5 +1,6 @@
 const colors = require('colors');
-const { newKeypair, stores } = require('./dist/index.js');
+const { newKeypair } = require('./crypto/index.js');
+const { stores } = require('./stores/index.js');
 const { ConnectionsAcceptor } = require('./server/index.js');
 
 const store = new stores.proc.MirroringStore({});

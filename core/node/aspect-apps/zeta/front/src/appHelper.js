@@ -9,7 +9,7 @@ class App extends Emitter {
     const isCorePromoter = corePromoters.find(name => window.location.hostname.startsWith(`${name}.`));
 
     this.isLocalhost = window.location.hostname == 'localhost';
-    this.isLAN = window.location.hostname.startsWith('192.168.');
+    this.isLAN = this.isLocalhost || window.location.hostname.startsWith('192.168.');
     this.isZetaSeek = window.location.hostname == 'zetaseek.com';
     this.isZetaSeekCorePromoter = this.isZetaSeek || isCorePromoter;
     this.isDevMachine = window.location.hostname == 'david.zetaseek.com';

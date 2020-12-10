@@ -2,6 +2,11 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import builtinModules from 'builtin-modules';
 
+function onwarn(warning, defaultHandler) {
+  if (warning.code === 'THIS_IS_UNDEFINED') return;
+  defaultHandler(warning);
+}
+
 export default [
   {
     input: 'src/client/index.js',
@@ -16,10 +21,7 @@ export default [
         file: 'dist/index.js'
       }
     ],
-    onwarn: (warning, defaultHandler) => {
-      if (warning.code === 'THIS_IS_UNDEFINED') return;
-      defaultHandler(warning);
-    }
+    onwarn
   },
   {
     input: 'src/server/index.js',
@@ -35,5 +37,20 @@ export default [
         file: 'server/index.js'
       }
     ]
+  },
+  {
+    input: 'src/stores/index.js',
+    plugins: [nodeResolve({ preferBuiltins: false, browser: true }), commonjs()],
+    output: [
+      {
+        format: 'esm',
+        file: 'stores/index.mjs'
+      },
+      {
+        format: 'cjs',
+        file: 'stores/index.js'
+      }
+    ],
+    onwarn
   }
 ];

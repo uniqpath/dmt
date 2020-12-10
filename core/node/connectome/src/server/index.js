@@ -1,2 +1,4 @@
-export { default as ConnectionsAcceptor } from './connectionsAcceptor';
-export { default as newKeypair } from '../client/keypair/newKeypair';
+import ConnectionsAcceptor from './connectionsAcceptor';
+import { newKeypair } from '../utils/crypto/index.js';
+
+export { ConnectionsAcceptor, newKeypair as newServerKeypair };

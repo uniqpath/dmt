@@ -14,7 +14,7 @@
   export let device;
 
   function displayDeviceName(deviceName) {
-    return deviceName && (app.isLocalhost || app.isLAN) ? `@${deviceName}` : `@${window.location.hostname}`;
+    return deviceName && app.isLAN ? `@${deviceName}` : `@${window.location.hostname}`;
   }
 </script>
 
@@ -22,7 +22,7 @@
   {#if connected}
       <!-- maybe replace with serverMode check? -->
       <span class="device_status">
-        {app.isLocalhost || app.isLAN ? 'local node' : ''}
+        {app.isLAN ? 'local node' : ''}
         <span class="device_name"> {displayDeviceName(deviceName)}</span> ready
       </span>
 

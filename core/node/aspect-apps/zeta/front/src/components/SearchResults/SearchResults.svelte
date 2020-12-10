@@ -11,28 +11,21 @@
   import { getContext } from 'svelte';
   const app = getContext('app');
 
-  import { searchMode } from '../../testStore.js'
+  import { searchMode, searchResponse } from '../../testStore.js'
 
   const { dmtJS } = app.deps;
 
+  $: searchError = $searchResponse.searchError;
+  $: searchResults = $searchResponse.searchResults;
+
   export let loggedIn;
-  export let searchResults;
   export let noSearchHits;
   export let store;
   export let loginStore;
   export let hasPlayer;
 </script>
 
-<div class="no_results" class:visible={noSearchHits}>— NOTHING WAS FOUND — <br> <!-- <span>Please reboot some computer and try again.</span> --> <span>Have you tried turning the
-
-{#if $searchMode == 0}
-  network
-{:else}
-  machine
-{/if}
-
-off and on again?</span> </div>
-<!-- 🎃 -->
+<div class="no_results" class:visible={noSearchHits}>— NOTHING WAS FOUND — <br> <!-- <span>Please reboot some computer and try again.</span> --> <span>Have you tried turning the {#if $searchMode == 0}network{:else}machine{/if} off and on again?</span> </div> <!-- 🎃 -->
 
 
 <!-- {#if app.isZetaSeek}
@@ -50,19 +43,19 @@ off and on again?</span> </div>
 {/if} -->
 
 
-{#if searchResults}
+<!-- {#if searchResults} -->
 
-  {#if searchResults.error}
+  {#if searchError}
     <div class="search_error">
       <p>Search Error in Frontend Code:</p>
-      <span>{searchResults.error.message}</span>
-      <span>{@html searchResults.error.stack.split('\n').join('<br>')}</span>
+      <span>{searchError.message}</span>
+      <span>{@html searchError.stack.split('\n').join('<br>')}</span>
     </div>
-  {:else}
+  {:else if searchResults}
     {#each searchResults as providerResponse}
 
         <!-- PROVIDER ERROR -->
-        {#if providerResponse.error}
+        <!-- {#if providerResponse.error}
           <div class="results">
             <ResultsMetaTop meta={providerResponse.meta}/>
 
@@ -70,7 +63,7 @@ off and on again?</span> </div>
               Error: <span>{JSON.stringify(providerResponse.error)}</span>
             </div>
           </div>
-        {/if}
+        {/if} -->
 
         <!-- SOME RESULTS (if not results, we omit this provider) -->
         {#if providerResponse.results && providerResponse.results.length > 0}
@@ -100,7 +93,7 @@ off and on again?</span> </div>
 
     {/each}
   {/if}
-{/if}
+<!-- {/if} -->
 
 <style>
   .results {

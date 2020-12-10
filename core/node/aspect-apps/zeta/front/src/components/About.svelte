@@ -22,7 +22,7 @@
     <img src="/apps/zeta/img/wabbit.png" class="wabbit">
   {/if} -->
 
-  <div class="about" class:visible={!minimized && !searchQuery}>
+  <div class="about" class:visible={!minimized && !searchQuery} class:wider={app.isLocalhost}>
 
     <!-- <a href="#" class="minimize" on:click={() => minimize()}>X</a> -->
 
@@ -40,6 +40,10 @@
         <!-- {#if app.isZetaSeek}
           <a href="https://dmt-system.com">dmt-system</a> ·
         {/if} -->
+
+        {#if app.isLocalhost}
+          🐺 Seek the wolf in thyself!<br>
+        {/if}
 
         {#if app.isZetaSeekCorePromoter}
           <a href="https://twitter.com/zetaseek"><img class="icon_symbol" src="/apps/zeta/img/twitter.svg" /></a>
@@ -69,6 +73,7 @@
 
 
 <style>
+
 .wabbit {
   left: 0;
   bottom: 0;
@@ -94,6 +99,10 @@
   text-align: center;
   /*display: inline-block;
   vertical-align: middle;*/
+}
+
+.about.wider {
+  width: 150px;
 }
 
 .about.visible {

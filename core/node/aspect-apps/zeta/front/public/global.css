@@ -26,7 +26,8 @@ body {
   background: linear-gradient(180deg, rgba(27, 28, 52, 1) 0%, rgba(42, 27, 52, 1) 100%);
   background-attachment: fixed;
 
-  background: url(img/zeta_landscape.jpg) no-repeat center center fixed;
+  background: url(img/wallpapers/zeta_landscape.jpg) no-repeat center center fixed;
+  /*background: url(img/wallpapers/mountains.jpg) no-repeat center center fixed;*/
   background-size: cover;
 
   /*background-repeat: no-repeat;*/
@@ -34,20 +35,20 @@ body {
 }
 
 body:after {
-  content: url(img/zeta_landscape_dark.jpg);
+  content: url(img/wallpapers/zeta_landscape_dark.jpg);
   display: none;
 }
 
 @keyframes darken {
   0% {
-    background: url(img/zeta_landscape.jpg) no-repeat center center fixed;
+    background: url(img/wallpapers/zeta_landscape.jpg) no-repeat center center fixed;
     background-size: cover;
   }
   100% {
     /*background: rgb(27, 28, 52);
     background: linear-gradient(180deg, rgba(27, 28, 52, 1) 0%, rgba(42, 27, 52, 1) 100%);
     background-attachment: fixed;*/
-    background: url(img/zeta_landscape_dark.jpg) no-repeat center center fixed;
+    background: url(img/wallpapers/zeta_landscape_dark.jpg) no-repeat center center fixed;
     background-size: cover;
   }
 }

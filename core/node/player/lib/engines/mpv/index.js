@@ -340,13 +340,13 @@ class MpvEngine extends EventEmitter {
             success(engine);
           })
           .catch(e => {
-            const helpUrl = 'https://gist.github.com/davidhq/db86b1e09bf841730ad43fbf7a00c004';
-            const msg = `${colors.cyan('mpv media player')} binary not present\n or cannot be found at ${colors.yellow(
-              '/usr/local/bin/mpv'
-            )} or ${colors.yellow('/usr/bin/mpv')}`;
+            const helpUrl = 'https://github.com/uniqpath/dmt/blob/master/help/MPV_SETUP.md';
+            const msg = `${colors.cyan('mpv media player')} binary not present or cannot be found at ${colors.yellow('/usr/local/bin/mpv')} or ${colors.yellow(
+              '/usr/bin/mpv'
+            )}`;
             program.store.update({ player: { error: { msg: stripAnsi(msg), type: 'mpv_binary_missing', helpUrl } } });
-            log.red(`⚠️  ${msg}`);
-            log.green(`mpv install instructions: ${colors.gray(helpUrl)}`);
+            log.white(`${colors.yellow('WARN:')} ${msg}`);
+            log.white(`mpv install instructions: ${colors.gray(helpUrl)}`);
           });
       }
     });

@@ -129,7 +129,8 @@ readLinks().then(({ successfulResults, unsuccessfulResults }) => {
   const linkIndex = successfulResults;
   console.log();
   console.log(colors.green(`Indexed ${colors.yellow(linkIndex.length)} entries.`));
-  writeLinkIndexAtomicAsync(linkIndex);
+  fs.writeFileSync(indexFile, JSON.stringify(linkIndex, null, 2));
+
   if (unsuccessfulResults.length > 0) {
     console.log(colors.red('Failed links (cannot fetch or cannot scrape metainfo):'));
     console.log(colors.red(JSON.stringify(unsuccessfulResults, null, 2)));

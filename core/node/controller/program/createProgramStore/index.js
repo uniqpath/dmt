@@ -5,9 +5,7 @@ import { saveState, loadState } from './statePersist';
 
 import { reduceSizeOfStateForGUI as omitStateFn } from 'dmt/gui';
 
-import { stores } from 'dmt/connectome';
-
-const { ProgramStateStore } = stores;
+import { ProgramStateStore } from 'dmt/connectome-stores';
 
 function removeStateChangeFalseTriggers(stateClone) {
   if (stateClone.nearbyDevices) {

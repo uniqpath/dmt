@@ -15,7 +15,7 @@
   import SearchModeSelector from './components/SearchModeSelector.svelte';
   import SearchResults from './components/SearchResults/SearchResults.svelte';
 
-  import { searchMode } from './testStore.js'
+  import { searchMode, searchResponse } from './testStore.js'
 
   export let store;
   export let concurrency;
@@ -47,7 +47,6 @@
   //}
 
   $: deviceName = $store.deviceName;
-  $: searchResults = $store.searchResults;
   $: connected = $store.connected;
 
   $: device = $store.device;
@@ -74,8 +73,6 @@
 
   // // duplicate
   // $: displayName = userName || userIdentity;
-
-  store.set({ panels: {} });
 
   let searchQuery;
   let browsePlace;
@@ -191,12 +188,12 @@
     remoteObject
       .call(remoteMethod, { place, searchMetadata: searchMetadata() })
       .then(searchResults => {
-        console.log("browsePlace RESULTS:");
-        console.dir(searchResults);
+        // console.log("browsePlace RESULTS:");
+        // console.dir(searchResults);
 
-        store.set({ searchResults });
-      }).catch(e => {
-        store.set({ searchResults: { error: e } });
+        searchResponse.set({ searchResults });
+      }).catch(searchError => {
+        searchResponse.set({ searchError });
       });
   }
 
@@ -264,12 +261,12 @@
       console.log("SEARCH RESULTS:");
       console.dir(searchResults);
 
-      store.set({ searchResults, searchQuery }); // searchQuery --> only used in search results to show "BANNER"
-    }).catch(e => {
+      searchResponse.set({ searchResults, searchQuery }); // searchQuery --> only used in search results to show "BANNER"
+    }).catch(searchError => {
       // console.log('SEARCH ERROR:');
       // console.log(e);
 
-      store.set({ searchResults: { error: e } });
+      searchResponse.set({ searchError });
     });
   }
 
@@ -311,6 +308,8 @@
 
 <main>
 
+  <!-- {JSON.stringify(device, null, 2)} -->
+
   <!-- {#if appHelper.nodeHasBlog} -->
     <Login {connected} {metamaskConnect} {ethAddress} {displayName} {isAdmin} />
   <!-- {/if} -->
@@ -327,7 +326,7 @@
 
   <ConnectionStatus {connected} {device} {isSearching} {deviceName} />
 
-  <NodeTagline {connected} {searchResults} {displayName} {loggedIn} on:explorersClick="{explorersClick}" />
+  <NodeTagline {connected} {displayName} {loggedIn} on:explorersClick="{explorersClick}" />
 
   <div class="search">
 
@@ -353,7 +352,7 @@
       </div>
     {/if}
 
-    <SearchResults {loggedIn} {searchResults} {noSearchHits} {store} {loginStore} hasPlayer={player && player.volume != undefined} />
+    <SearchResults {loggedIn} {noSearchHits} {store} {loginStore} hasPlayer={player && player.volume != undefined} />
 
   </div>
 

@@ -1,7 +1,6 @@
 <script>
   export let connected;
   export let loggedIn;
-  export let searchResults;
   export let displayName;
 
   import ZetaExplorersInvite from './ZetaExplorersInvite.svelte';

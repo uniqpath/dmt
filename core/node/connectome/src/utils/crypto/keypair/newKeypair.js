@@ -1,7 +1,7 @@
 import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 
-import { bufferToHex } from '../../utils/index.js';
+import { bufferToHex } from '../../index.js';
 
 nacl.util = naclutil;
 
