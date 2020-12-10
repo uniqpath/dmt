@@ -4,11 +4,30 @@
 
 # suitable when installed from github
 
+AUTO_UPDATE_LOG=~/.dmt/log/.auto_update_log
+
 if [ ! -d ~/.dmt/.git ]; then
+  if [ -d ~/.dmt/log ]; then
+    echo $(date) > $AUTO_UPDATE_LOG
+    echo "" >> $AUTO_UPDATE_LOG
+    echo "Checked via 5-min cron job but ~/.dmt/.git was not present." >> $AUTO_UPDATE_LOG
+    echo "Aborted without doing anything, no outside requests were made." >> $AUTO_UPDATE_LOG
+    echo >> $AUTO_UPDATE_LOG
+    echo "Auto-update is effectively disabled." >> $AUTO_UPDATE_LOG
+  fi
+
   exit
 fi
 
 if [ ~/.dmt/.git ]; then
+
+  if [ -d ~/.dmt/log ]; then
+    echo $(date) > $AUTO_UPDATE_LOG
+    echo "" >> $AUTO_UPDATE_LOG
+    echo "Checked via 5-min cron job and ~/.dmt/.git dir was present." >> $AUTO_UPDATE_LOG
+    echo >> $AUTO_UPDATE_LOG
+    echo "Fetching repository updates from github ..." >> $AUTO_UPDATE_LOG
+  fi
 
   cwd="`pwd`"
 
@@ -20,8 +39,15 @@ if [ ~/.dmt/.git ]; then
   # local gitsource=`git remote get-url origin`
   # if [[ "$gitsource" =~ uniqpath/dmt ]]; then
   git fetch origin
-  git checkout master
-  git reset --hard origin/master
+  # git checkout master
+  # git reset --hard origin/master
+
+  git reset --hard origin/main # we have to do this because of possible local changes.. we will automatically create master branch as a side effect (in older version of git ?)
+  git checkout -b main origin/main # create our main branch and make it track origin/main
+  git branch -D master # delete accidentaly created master branch
+  # git branch -b main origin/main
+  #git branch --set-upstream-to=origin/main main
+  git reset --hard origin/main # "just in case"
 
   if [ ! -f ~/.dmt/.version ]; then
     echo "Problem: ~/.dmt/.version does not exist."
@@ -38,10 +64,17 @@ if [ ~/.dmt/.git ]; then
     currentVersion=$(cat ~/.dmt/.version)
 
     if [ "$prevVersion" != "$currentVersion" ]; then
-      echo "Restarting dmt-proc after dmt next because version changed"
+      MSG="Restarting dmt-proc after dmt next because version changed from ${prevVersion} → ${currentVersion}"
+      echo "$MSG"
+      if [ -d ~/.dmt/log ]; then
+        echo "$MSG" >> $AUTO_UPDATE_LOG
+      fi
       dmt_restart
     fi
   else
+    if [ -d ~/.dmt/log ]; then
+      echo "version did not change (it is still ${currentVersion}), not restarting dmt-proc" >> $AUTO_UPDATE_LOG
+    fi
     dmt_restart
   fi
 

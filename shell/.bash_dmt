@@ -13,6 +13,9 @@ function dmt {
     #printf "${CYAN}Freedom to imagine${NC}\n"
     printf "${CYAN}Digital Mastery Techniques${NC}\n"
     printf " ${CYAN}— ${GREEN}v$(cat "$DMT_PATH/.version") ${CYAN}—${NC}\n"
+    # printf " ${GRAY}It is reommended to update${NC}\n"
+    echo
+    printf "💡 Keep up with developments and ${CYAN}update with ${GREEN}dmt next${NC} ${NC}at least once every ${CYAN}1-3 months.${NC}\n"
     echo
   fi
 
@@ -80,6 +83,8 @@ function dmt {
     "unlink"
     "relink"
     "deactivate"
+    "autoupdate"
+    "shell"
     "bin"
     "media"
     "search"
@@ -377,6 +382,14 @@ function dmt {
 
     deactivate)
       dmt_deactivate
+      ;;
+
+    autoupdate)
+      dmt_autoupdate
+      ;;
+
+    shell)
+      dmt_shell_setup
       ;;
 
     link)
@@ -1283,8 +1296,18 @@ function dmt_next {
           printf "${GRAY}Updating from ${CYAN}${gitsource} ${GRAY}...${NC}\n"
 
           git fetch origin
-          git checkout master
-          git reset --hard origin/master
+          # git checkout master
+          # git reset --hard origin/master
+
+          git reset --hard origin/main # we have to do this because of possible local changes.. we will automatically create master branch as a side effect (in older version of git ?)
+          git checkout -b main origin/main # create our main branch and make it track origin/main
+          git branch -D master # delete accidentaly created master branch
+
+          # git branch -b main origin/main
+          #git branch --set-upstream-to=origin/main main
+          git reset --hard origin/main # "just in case"
+
+
           # yet to decide ... we do this with automatic updates on server but (for now) we don't clean everything on manual updates..
           # git clean -f -d
           # maybe do it in the future if it's concluded that some manual files can interfere
@@ -1521,6 +1544,150 @@ function dmt_deactivate {
   else
     printf "${RED}dmt is not installed${NC}\n"
   fi
+}
+
+function dmt_shell_setup {
+  echo "dmt shell setup"
+}
+
+function dmt_autoupdate_on {
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  if [ -d ~/.dmt ]; then
+
+    which git > /dev/null 2>&1
+
+    if [ ! $? -eq 0 ]; then
+      printf "⚠️  ${RED}git command does not seem to be installed, autoupdates will not work${NC}\n"
+      return
+    fi
+
+    local cwd="`pwd`"
+
+    if [ -d ~/.dmt/.git ]; then
+      rm -rf ~/.dmt/.git
+    fi
+
+    cd ~/.dmt
+
+    git init
+    git remote add origin https://github.com/uniqpath/dmt.git
+    git fetch origin
+
+    git reset --hard origin/main # we have to do this because of possible local changes.. we will automatically create master branch as a side effect (in older version of git ?)
+    git checkout -b main origin/main # create our main branch and make it track origin/main
+
+    git branch -D master # delete accidentaly created master branch
+
+    # git branch -b main origin/main
+    #git branch --set-upstream-to=origin/main main
+    git reset --hard origin/main # "just in case"
+
+    cd "$cwd"
+  else
+    printf "${RED}Directory ~/.dmt does not exist${NC}\n"
+  fi
+}
+
+function dmt_autoupdate {
+  local AUTO_UPDATE_LOG=~/.dmt/log/.auto_update_log
+
+  printf "1.) Prerequisites check — ${CYAN}5-min cron job checker setup status:${NC}\n"
+  echo
+
+  local basic_setup_correct=0
+
+  if [ -f $AUTO_UPDATE_LOG ]; then
+    local file_age=$(( `date +%s` - `stat -L --format %Y $AUTO_UPDATE_LOG` ))
+    printf "${MAGENTA}Auto-update was last tried ${WHITE}${file_age}s${NC} ${MAGENTA}ago ${GRAY}(this is a lightweight operation that does not take any noticeable resources)${NC}\n"
+
+    if [ $file_age -ge $((5*60+5)) ]; then # 5 minutes plus 5s
+      printf "⚠️  ${RED}It seems that cron-job is not setup correctly because more than 5 min elapsed since last auto-update check${NC}\n"
+      basic_setup_correct=1
+    else
+      printf "${GREEN}✓ This is less than 5min ago thus cron setup seems to be working correctly${NC}\n"
+      echo
+      printf "${YELLOW}Auto-update log:${NC}\n"
+      cat $AUTO_UPDATE_LOG
+    fi
+  else
+    basic_setup_correct=1
+    printf "${YELLOW}Auto-update seems to be disabled at cron-level${NC}\n"
+    echo "(cron job is not set up or is set up incorrectly)"
+    printf "${GRAY}It could also be very recently enabled → please wait 5min and run this command again to be sure of the status.${NC}\n"
+  fi
+
+  echo
+  printf "2.) ${CYAN}Conclusion${NC}\n"
+  echo
+
+  if [[ "$basic_setup_correct" -eq 0 ]]; then
+
+    if [ -d ~/.dmt/.git ]; then
+      which git > /dev/null 2>&1
+
+      if [ $? -eq 0 ]; then
+        printf "${GREEN}Auto-updates set up correctly${NC}\n"
+        printf "${MAGENTA}Source:${NC}\n"
+        git remote -v | grep origin
+        echo
+        printf "${CYAN}You can turn auto-updates off with ${GREEN}dmt autoupdate off${NC}\n"
+      else
+        printf "${GREEN}Basic setup seems correct with cron working but:${NC}\n"
+        printf "⚠️  ${RED}git command does not seem to be installed, autoupdates will not work${NC}\n"
+      fi
+    else
+      printf "${GREEN}✓ Basic setup is correct with periodic checks working but:${NC}\n"
+      echo
+      printf "${YELLOW}Auto-updates are currently disabled ${GRAY}because ~/.dmt is not a git repository.${NC}\n"
+      echo
+      printf "💡 ${CYAN}You can turn auto-updates on with: ${GREEN}dmt autoupdate on${NC}\n"
+      echo
+    fi
+  else
+    printf "${RED}✖ Basic setup is not correct.${NC}\n"
+    echo
+    printf "${WHITE}Please try to set up cron jobs with:${NC}\n"
+    printf "${GRAY}cd ~/.dmt/etc/cron${NC}\n"
+    printf "${GRAY}./setup_cron${NC}\n"
+    echo
+    printf "${YELLOW}Root (if you need Zeta certificate updates for lighttpd every 3 months${NC}\n"
+    # printf "${GRAY}sudo su${NC}\n"
+    printf "${GRAY}cd ~/.dmt/etc/cron/root${NC}\n"
+    printf "${GRAY}sudo ./setup_root${NC}\n"
+  fi
+
+  #echo "dmt autoupdate settings"
+  # if dev_machine; then
+  #   printf "${RED}Prevented on dev machine${NC}\n"
+  #   return
+  # fi
+
+  # local backup_file="$LOGNAME_HOME/.bash_aliases-backup-by-dmt"
+
+  # if [ -L "$LOGNAME_HOME/.bash_aliases" ] && [ "$(head -3 $LOGNAME_HOME/.bash_aliases | tail -1)" == "# DMT ALIASES" ]; then
+  #   rm ~/.bash_aliases
+
+  #   if [ -f "$backup_file" ]; then
+  #     mv "$backup_file" ~/.bash_aliases
+  #   fi
+
+  #   printf "${MAGENTA}dmt${NC} ${CYAN}was unlinked${NC}, only the folder ${CYAN}~/.dmt${NC} remains and is not active in any way.\n"
+  #   echo
+  #   printf "${CYAN}To reinstall${NC}\n"
+  #   printf "${GREEN}cd $LOGNAME_HOME/.dmt${NC}\n"
+  #   printf "${GREEN}./install${NC}\n"
+  #   echo
+  #   printf "${CYAN}To remove the unused directory${NC}\n"
+  #   printf "${GREEN}rm -rf $LOGNAME_HOME/.dmt${NC}\n"
+  #   echo
+  #   printf "${WHITE}If you want to confirm that dmt is uninstalled you have to first reload the shell.${NC}\n"
+  # else
+  #   printf "${RED}dmt is not installed${NC}\n"
+  # fi
 }
 
 function dmt_cd {

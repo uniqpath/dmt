@@ -408,7 +408,9 @@ function cloc {
 function loc {
   if [ -z "$1" ] || [ "$1" == "all" ]; then
     loc js "$2"
+    loc ts "$2"
     loc ls "$2"
+    loc svelte "$2"
     loc coffee "$2"
     loc c "$2"
     loc cpp "$2"
