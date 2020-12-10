@@ -435,7 +435,7 @@ alias cdr='cd $(git rev-parse --show-toplevel || echo ".")'
 
 function gco {
   if [ -z "$1" ]; then
-    git checkout master
+    git checkout main
   else
     git checkout $1
   fi
@@ -462,7 +462,7 @@ function ghclone {
   co_dir=${HOME}/Projects/source/$(echo $gh_url | sed -e 's/^git:\/\/github.com\///; s/\//-/; s/\.git$//')
 
   if [ -d $co_dir ]; then
-    cd $co_dir && git pull origin master
+    cd $co_dir && git pull origin main
   else
     git clone "${gh_url}" "${co_dir}" && cd "${co_dir}"
   fi

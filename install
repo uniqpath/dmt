@@ -209,8 +209,10 @@ else # clone to and install on remote device
         ssh -p $ssh_port "$host" 'if [ -f ~/.dmt/etc/scripts/dmt_via_git ]; then ~/.dmt/etc/scripts/dmt_via_git; fi' # exit code from remote script will carry over and we can check it!
 
         if [ $? -eq 1 ]; then # dmt_via_git script will return 1 if ~/.dmt/.git directory exists on the remote machine
-          printf "⚠️  ${RED}dmt comes from git(hub?) source on target machine. Refusing to override. ${NC}\n"
+          printf "⚠️  ${MAGENTA}dmt source ${RED}on target machine is through git, probably ${CYAN}github: uniqpath/dmt${RED}. Refusing to override. ${NC}\n"
           printf "${GRAY}Please remove the .git directory on target if you want to proceed.${NC}\n"
+          echo
+          printf "💡 The easiest way to achieve this is by SSH-ing into target machine and running ${GREEN}dmt autoupdate off${NC}.\n"
         else
 
           target="${host}:.dmt"

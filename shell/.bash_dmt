@@ -385,11 +385,11 @@ function dmt {
       ;;
 
     autoupdate)
-      dmt_autoupdate
+      dmt_autoupdate "$@"
       ;;
 
     shell)
-      dmt_shell_setup
+      dmt_shell_setup "$@"
       ;;
 
     link)
@@ -1179,6 +1179,11 @@ function dmt_nearby {
   fi
 }
 
+function dmt_cache_current_version {
+  mkdir -p ~/.dmt-here/tmp
+  cp ~/.dmt/.version ~/.dmt-here/tmp/.prev_version
+}
+
 function dmt_next {
   # option 1: specify from where to fetch via an argument:
   # dmt next [dmtSource]
@@ -1190,6 +1195,7 @@ function dmt_next {
   local save_zip=false
   local reflect_version=false
   local force=false
+  local origin=false
 
   ARGS=()
   while (( "$#" )); do
@@ -1204,6 +1210,10 @@ function dmt_next {
         ;;
       --force)
         force=true
+        shift 1
+        ;;
+      --origin)
+        origin=true
         shift 1
         ;;
       --help)
@@ -1229,6 +1239,18 @@ function dmt_next {
         ;;
     esac
   done
+
+  if $origin; then
+    read -r -p "Are you sure you want to reset to github: uniqpath/dmt origin? [Y/n] " response
+    if [[ $response =~ ^([nN])$ ]]
+    then
+      printf "${RED}Aborting ...${NC}\n"
+      return
+    fi
+
+    setup_github_uniqpath_dmt_origin
+    return
+  fi
 
   # dmt next --dry
   # dmt next --dry url.com
@@ -1262,7 +1284,7 @@ function dmt_next {
   else
     if $dry_run; then
       printf "${CYAN}1)${NC} ${MAGENTA}dmtSource ${GRAY}not provided as argument to this command ${NC}...\n"
-      printf "${CYAN}2)${NC} ${GRAY}Checking ~/.dmt/user/def/user.def for ${MAGENTA}dmtSource ${NC} ...\n"
+      printf "${CYAN}2)${NC} ${GRAY}Checking ~/.dmt/user/def/user.def for ${MAGENTA}dmtSource ${NC}...\n"
     fi
 
     get_dmt_source_from_user_def dmt_source
@@ -1296,32 +1318,62 @@ function dmt_next {
           printf "${GRAY}Updating from ${CYAN}${gitsource} ${GRAY}...${NC}\n"
 
           git fetch origin
-          # git checkout master
-          # git reset --hard origin/master
+          git checkout -f main
 
-          git reset --hard origin/main # we have to do this because of possible local changes.. we will automatically create master branch as a side effect (in older version of git ?)
-          git checkout -b main origin/main # create our main branch and make it track origin/main
-          git branch -D master # delete accidentaly created master branch
+          echo
+          printf "🔨 ${MAGENTA}Hard resetting to ${CYAN}origin/main${NC} ...\n"
 
-          # git branch -b main origin/main
-          #git branch --set-upstream-to=origin/main main
-          git reset --hard origin/main # "just in case"
+          git reset --hard origin/main
 
+          printf "${GREEN}✓ Done fetching latest code with git.${NC}\n\n"
+
+          # duplicated in cron 5min
+          if [ -f ~/.dmt-here/tmp/.prev_version ]; then
+            prevVersion=$(cat ~/.dmt-here/tmp/.prev_version)
+            currentVersion=$(cat ~/.dmt/.version)
+
+            if [ "$prevVersion" != "$currentVersion" ]; then
+              printf "Restarting dmt-proc after dmt next because version changed from ${CYAN}${prevVersion}${NC} to ${MAGENTA}${currentVersion}${NC}\n"
+              echo
+
+              dmt restart
+
+              echo
+              printf "It is also recommended to ${YELLOW}reload the terminal${NC} → "
+              printf "try ${GREEN}dmt reload${NC} command or logout and back in.\n"
+            else
+              printf "${WHITE}Version ${MAGENTA}(${currentVersion})${NC} did not change.${NC}\n"
+
+              if $force; then
+                printf "${GRAY}Restarting ${CYAN}dmt-proc ${GRAY}because of ${WHITE}--force${NC}\n"
+                echo
+                dmt restart
+              # else
+              #   printf "${GRAY}Not restarting ${CYAN}dmt-proc${NC}\n"
+              fi
+            fi
+          else
+            dmt restart
+          fi
 
           # yet to decide ... we do this with automatic updates on server but (for now) we don't clean everything on manual updates..
           # git clean -f -d
           # maybe do it in the future if it's concluded that some manual files can interfere
 
-          printf "${GREEN}✓✓ Done fetching latest version via git.${NC}\n\n"
-          printf "${CYAN}Please run ${GREEN}dmt restart${NC} ${CYAN}now${NC} ...\n\n"
-          printf "Sometimes it is recommended to ${YELLOW}reload the terminal${NC} as well → "
-          printf "try ${GREEN}dmt reload${NC} command or logout and back in.\n"
+          # printf "${CYAN}💡 Please run ${GREEN}dmt restart${NC} ${CYAN}now${NC} ...\n\n"
+
+          echo
+
+          dmt_cache_current_version
         else
           printf "${RED}Aborting fetch from unknown git source.${NC}"
         fi
       fi
     else
       if ! $dry_run; then printf "${RED}aborting.${NC}"; fi
+      echo
+      echo
+      printf "💡 You can use ${GREEN}dmt next --origin${NC} to setup updates from ${CYAN}github: uniqpath/dmt\n"
       echo
     fi
 
@@ -1388,12 +1440,24 @@ function dmt_next {
   fi
 
   # Safeguard
+  # duplicate above for --origin option
+  #
+  # we do this in adition to dev_machine check because it's safer
+  # if we switch between device definitions temporarily for testing
+  # then we're not "dev machine" anymore but it would still be a disaster to overwrite the main code
   if [ -f ~/.dmt/.prevent_dmt_next ]; then
     printf "${RED}Prevented operation because ~/.dmt/.prevent_dmt_next file is present, please remove it to continue${NC}\n"
     return
   fi
 
-  # ---------------------------
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  # -----------------------------------------
+  # .... Install from get-dmt.com server ....
+  # -----------------------------------------
 
   if [[ "$dmt_source" =~ get-dmt.com$ ]]; then # get-dmt.com || alpha.get-dmt.com || ...
 
@@ -1458,12 +1522,60 @@ function dmt_next {
   echo
 }
 
+function setup_github_uniqpath_dmt_origin {
+  # Safeguard
+  # duplicate
+  if [ -f ~/.dmt/.prevent_dmt_next ]; then
+    printf "${RED}Prevented operation because ~/.dmt/.prevent_dmt_next file is present, please remove it to continue${NC}\n"
+    return
+  fi
+
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  if [ ! -d ~/.dmt ]; then
+    printf "${RED}~/.dmt directory is missing${NC}\n"
+    return
+  fi
+
+  if [ -d ~/.dmt/.git ]; then
+    rm -rf ~/.dmt/.git
+  fi
+
+  local cwd="`pwd`"
+
+  cd ~/.dmt
+
+  git init
+  git remote add origin https://github.com/uniqpath/dmt.git
+  git fetch origin
+
+  git reset --hard origin/main # we have to do this because of possible local changes.. we will automatically create master branch as a side effect (in older version of git ?)
+  git checkout -b main origin/main # create our main branch and make it track origin/main
+
+  git branch -D master # delete accidentaly created master branch
+
+  dmt_cache_current_version
+
+  # git branch -b main origin/main
+  #git branch --set-upstream-to=origin/main main
+  #git reset --hard origin/main # "just in case"
+
+  cd "$cwd"
+}
+
 function dmt_next_help {
   printf "${YELLOW}Usage:${NC}\n"
   printf "${GREEN}dmt next ${GRAY}read ${MAGENTA}dmtSource ${GRAY}from user.def, dmtSource is just an url from where to fetch the entire ${CYAN}dmt-proc ${GRAY}code${NC}\n"
   printf "${GREEN}dmt next [dmtSource] ${GRAY}specify manually (has precedence over user.def, careful!)${NC}\n"
 
   printf "${GREEN}dmt next --dry ${GRAY}does not do anything except showing you what would be the determined ${MAGENTA}dmtSource ${GRAY}value${NC}\n"
+  echo
+  printf "${GRAY}Rarely used:${NC}\n"
+  printf "${CYAN}dmt next --force ${GRAY}fetch even if reported versions are the same${NC}\n"
+  printf "${CYAN}dmt next --origin ${GRAY}setup fetching from github: uniqpath/dmt${NC}\n"
 
   # echo
   # printf "${MAGENTA}Supported formats for ${CYAN}dmtSource${NC}:\n"
@@ -1558,6 +1670,13 @@ function dmt_autoupdate_on {
 
   if [ -d ~/.dmt ]; then
 
+    read -r -p "Are you sure you want to enable autoupdate? This will set up a git repo, any code changes to ~/.dmt will be overwritten [Y/n] " response
+    if [[ $response =~ ^([nN])$ ]]
+    then
+      printf "${RED}Aborting ...${NC}\n"
+      return
+    fi
+
     which git > /dev/null 2>&1
 
     if [ ! $? -eq 0 ]; then
@@ -1565,63 +1684,86 @@ function dmt_autoupdate_on {
       return
     fi
 
-    local cwd="`pwd`"
-
     if [ -d ~/.dmt/.git ]; then
       rm -rf ~/.dmt/.git
     fi
 
-    cd ~/.dmt
+    setup_github_uniqpath_dmt_origin # dangerous! -- we should always ask for permission before (Are you sure you want to enable autoupdate ↑)
 
-    git init
-    git remote add origin https://github.com/uniqpath/dmt.git
-    git fetch origin
-
-    git reset --hard origin/main # we have to do this because of possible local changes.. we will automatically create master branch as a side effect (in older version of git ?)
-    git checkout -b main origin/main # create our main branch and make it track origin/main
-
-    git branch -D master # delete accidentaly created master branch
-
-    # git branch -b main origin/main
-    #git branch --set-upstream-to=origin/main main
-    git reset --hard origin/main # "just in case"
-
-    cd "$cwd"
+    echo
+    dmt_autoupdate # print info
   else
     printf "${RED}Directory ~/.dmt does not exist${NC}\n"
   fi
 }
 
-function dmt_autoupdate {
-  local AUTO_UPDATE_LOG=~/.dmt/log/.auto_update_log
+function dmt_autoupdate_off {
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
 
-  printf "1.) Prerequisites check — ${CYAN}5-min cron job checker setup status:${NC}\n"
+  if [ -d ~/.dmt/.git ]; then
+
+    read -r -p "Are you sure you want to disable autoupdate? This will execute rm -rf ~/.dmt/.git [Y/n] " response
+    if [[ ! $response =~ ^([nN])$ ]]
+    then
+      rm -rf ~/.dmt/.git
+
+      printf "${CYAN}Auto-updates disabled.${NC}\n"
+      echo
+      dmt_autoupdate # print info
+    fi
+
+  else
+    printf "${YELLOW}This device is not currently auto-updating because ~/.dmt/.git does not exist.${NC}\n"
+  fi
+}
+
+function dmt_autoupdate {
+
+  if [ "$1" == "on" ]; then
+    dmt_autoupdate_on
+    return
+  fi
+
+  if [ "$1" == "off" ]; then
+    dmt_autoupdate_off
+    return
+  fi
+
+  printf "— 1.) Prerequisites check — ${CYAN}is periodic (5-min) cron job set up correctly?${NC}\n"
   echo
 
   local basic_setup_correct=0
 
-  if [ -f $AUTO_UPDATE_LOG ]; then
-    local file_age=$(( `date +%s` - `stat -L --format %Y $AUTO_UPDATE_LOG` ))
-    printf "${MAGENTA}Auto-update was last tried ${WHITE}${file_age}s${NC} ${MAGENTA}ago ${GRAY}(this is a lightweight operation that does not take any noticeable resources)${NC}\n"
+  local DMT_AUTO_UPDATE_LOG=~/.dmt/log/.auto_update_log
+
+  if [ -f $DMT_AUTO_UPDATE_LOG ]; then
+    local file_age=$(( `date +%s` - `stat -L --format %Y $DMT_AUTO_UPDATE_LOG` ))
+    printf "— ${MAGENTA}Auto-update was last tried ${WHITE}${file_age}s${NC} ${MAGENTA}ago via cron${NC}\n"
+    #printf "${GRAY}(it is an extremely lightweight operation — git fetch)${NC}\n"
 
     if [ $file_age -ge $((5*60+5)) ]; then # 5 minutes plus 5s
+      echo
       printf "⚠️  ${RED}It seems that cron-job is not setup correctly because more than 5 min elapsed since last auto-update check${NC}\n"
       basic_setup_correct=1
     else
-      printf "${GREEN}✓ This is less than 5min ago thus cron setup seems to be working correctly${NC}\n"
+      printf "${GREEN}✓ This is less than 5min ago ${CYAN}→${CYAN} cron setup seems to be working correctly${NC}\n"
       echo
-      printf "${YELLOW}Auto-update log:${NC}\n"
-      cat $AUTO_UPDATE_LOG
+      printf "${YELLOW}Auto-update log for previous check:${NC}\n"
+      printf "${GRAY}(if you recently enabled auto-updates wait for one 5min cycle to see up-to-date information)${NC}\n"
+      cat $DMT_AUTO_UPDATE_LOG
     fi
   else
     basic_setup_correct=1
     printf "${YELLOW}Auto-update seems to be disabled at cron-level${NC}\n"
     echo "(cron job is not set up or is set up incorrectly)"
-    printf "${GRAY}It could also be very recently enabled → please wait 5min and run this command again to be sure of the status.${NC}\n"
+    printf "${GRAY}It could also be very recently enabled → please wait 5min and run this command again to be sure.${NC}\n"
   fi
 
   echo
-  printf "2.) ${CYAN}Conclusion${NC}\n"
+  printf "— 2.) ${CYAN}Conclusion${NC}\n"
   echo
 
   if [[ "$basic_setup_correct" -eq 0 ]]; then
@@ -1630,11 +1772,28 @@ function dmt_autoupdate {
       which git > /dev/null 2>&1
 
       if [ $? -eq 0 ]; then
-        printf "${GREEN}Auto-updates set up correctly${NC}\n"
-        printf "${MAGENTA}Source:${NC}\n"
-        git remote -v | grep origin
+
+        local cwd="`pwd`"
+        cd ~/.dmt
+
+        local gitsource=`git remote get-url origin`
+
+        if [[ "$gitsource" =~ uniqpath/dmt ]]; then
+          printf "${GREEN}✓✓ Auto-updates set up correctly${NC}\n"
+        else
+          printf "⚠️  ${YELLOW}Auto-updates are working but from an incorrect source:${NC}\n"
+          printf "${RED}Source:${NC}\n"
+          git remote -v | grep origin | grep fetch
+          echo
+          printf "Should be: ${MAGENTA}origin  https://github.com/uniqpath/dmt.git${NC}\n"
+        fi
+
+        #...
+        cd "$cwd"
+
         echo
-        printf "${CYAN}You can turn auto-updates off with ${GREEN}dmt autoupdate off${NC}\n"
+        printf "💡 ${CYAN}You can turn auto-updates off with ${GREEN}dmt autoupdate off${NC}\n"
+        echo
       else
         printf "${GREEN}Basic setup seems correct with cron working but:${NC}\n"
         printf "⚠️  ${RED}git command does not seem to be installed, autoupdates will not work${NC}\n"
@@ -1642,52 +1801,25 @@ function dmt_autoupdate {
     else
       printf "${GREEN}✓ Basic setup is correct with periodic checks working but:${NC}\n"
       echo
-      printf "${YELLOW}Auto-updates are currently disabled ${GRAY}because ~/.dmt is not a git repository.${NC}\n"
+      printf "${YELLOW}Auto-updates are currently disabled ${CYAN}because ~/.dmt is not a git repository.${NC}\n"
       echo
       printf "💡 ${CYAN}You can turn auto-updates on with: ${GREEN}dmt autoupdate on${NC}\n"
       echo
     fi
   else
-    printf "${RED}✖ Basic setup is not correct.${NC}\n"
+    printf "${YELLOW}✖ Cron setup is likely not correct (or you have to wait up to 5 min for it to take effect).${NC}\n"
     echo
     printf "${WHITE}Please try to set up cron jobs with:${NC}\n"
     printf "${GRAY}cd ~/.dmt/etc/cron${NC}\n"
     printf "${GRAY}./setup_cron${NC}\n"
+    printf "${GRAY}(then wait for up to 5min to see the effects through ${GREEN}dmt autoupdate${GRAY})${NC}\n"
     echo
     printf "${YELLOW}Root (if you need Zeta certificate updates for lighttpd every 3 months${NC}\n"
     # printf "${GRAY}sudo su${NC}\n"
-    printf "${GRAY}cd ~/.dmt/etc/cron/root${NC}\n"
-    printf "${GRAY}sudo ./setup_root${NC}\n"
+    printf "${GRAY}sudo su${NC}\n"
+    printf "${GRAY}cd $HOME/.dmt/etc/cron/root${NC}\n"
+    printf "${GRAY}./setup_root ${USER}${NC}\n"
   fi
-
-  #echo "dmt autoupdate settings"
-  # if dev_machine; then
-  #   printf "${RED}Prevented on dev machine${NC}\n"
-  #   return
-  # fi
-
-  # local backup_file="$LOGNAME_HOME/.bash_aliases-backup-by-dmt"
-
-  # if [ -L "$LOGNAME_HOME/.bash_aliases" ] && [ "$(head -3 $LOGNAME_HOME/.bash_aliases | tail -1)" == "# DMT ALIASES" ]; then
-  #   rm ~/.bash_aliases
-
-  #   if [ -f "$backup_file" ]; then
-  #     mv "$backup_file" ~/.bash_aliases
-  #   fi
-
-  #   printf "${MAGENTA}dmt${NC} ${CYAN}was unlinked${NC}, only the folder ${CYAN}~/.dmt${NC} remains and is not active in any way.\n"
-  #   echo
-  #   printf "${CYAN}To reinstall${NC}\n"
-  #   printf "${GREEN}cd $LOGNAME_HOME/.dmt${NC}\n"
-  #   printf "${GREEN}./install${NC}\n"
-  #   echo
-  #   printf "${CYAN}To remove the unused directory${NC}\n"
-  #   printf "${GREEN}rm -rf $LOGNAME_HOME/.dmt${NC}\n"
-  #   echo
-  #   printf "${WHITE}If you want to confirm that dmt is uninstalled you have to first reload the shell.${NC}\n"
-  # else
-  #   printf "${RED}dmt is not installed${NC}\n"
-  # fi
 }
 
 function dmt_cd {
