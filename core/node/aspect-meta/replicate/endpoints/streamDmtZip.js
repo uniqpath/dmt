@@ -44,7 +44,6 @@ function replicateAllowed(entry) {
     entry.relpath != 'core/node/connectome/dist' &&
     entry.relpath != 'core/node/connectome/server' &&
     entry.relpath != 'core/node/connectome/stores' &&
-    entry.relpath != 'core/node/connectome/crypto' &&
     entry.relpath != 'shell/.bash_staging' &&
     entry.relpath != 'etc/.bash_aliases_bundle' &&
     entry.relpath != 'etc/.bash_aliases_slim' &&

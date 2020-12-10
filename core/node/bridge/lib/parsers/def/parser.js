@@ -66,7 +66,7 @@ function parseFileActual(filePath, { onlyBasicParsing = false } = {}) {
   const empty = { multi: [], empty: true };
 
   if (!fs.existsSync(filePath)) {
-    return empty;
+    throw new Error(`Def parser error: cannot read file ${colors.cyan(filePath)}`);
   }
 
   const contents = fs.readFileSync(filePath).toString();

@@ -8,9 +8,9 @@ import { tools } from 'dmt/crypto';
 const { newKeypair } = tools;
 
 function generateKeyPair(defFilePath) {
-  const { publicKey, privateKey } = newKeypair();
+  const { publicKeyHex, privateKeyHex } = newKeypair();
   log.green('✓ Keypair generated.');
-  const def = ['key:', `  public: ${publicKey}`, `  private: ${privateKey}`, ''];
+  const def = ['key:', `  public: ${publicKeyHex}`, `  private: ${privateKeyHex}`, ''];
   fs.writeFileSync(defFilePath, def.join(os.EOL));
 }
 

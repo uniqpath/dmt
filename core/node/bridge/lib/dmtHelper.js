@@ -28,6 +28,8 @@ const DEF_EXTENSION = '.def';
 const devices = [];
 const devicesBasic = [];
 
+let deviceKeypair;
+
 function isDevMachine() {
   return fs.existsSync(path.join(dmtUserDir, 'devices/this/.dev-machine'));
 }
@@ -53,10 +55,6 @@ function includeModule(obj, Module) {
 
 function readDeviceDef({ filePath, onlyBasicParsing, caching = true }) {
   try {
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`dmtHelper::readDeviceDef - Cannot read file ${colors.cyan(filePath)}`);
-    }
-
     const deviceDef = def.parseFile(filePath, { onlyBasicParsing, caching });
 
     return def.makeTryable(deviceDef.multi.length > 0 ? deviceDef.device : { empty: true });
@@ -84,21 +82,21 @@ function readFiberDef({ filePath }) {
 function readKeysDef({ filePath }) {
   try {
     if (!fs.existsSync(filePath)) {
-      return { empty: true };
+      return;
     }
 
     const keysDef = def.parseFile(filePath);
 
-    return keysDef.multi.length > 0
-      ? keysDef.multi.map(keyInfo => {
-          const result = { ...keyInfo, ...{ privateKeyHex: keyInfo.private, publicKeyHex: keyInfo.public } };
+    if (keysDef.multi.length > 0) {
+      return keysDef.multi.map(keyInfo => {
+        const result = { ...keyInfo, ...{ privateKeyHex: keyInfo.private, publicKeyHex: keyInfo.public } };
 
-          delete result.private;
-          delete result.public;
+        delete result.private;
+        delete result.public;
 
-          return result;
-        })
-      : { empty: true };
+        return result;
+      });
+    }
   } catch (e) {
     console.log(colors.red(e.message));
     process.exit();
@@ -282,15 +280,10 @@ export default {
   },
 
   device({ deviceName = 'this', onlyBasicParsing = false, caching = true } = {}) {
-    const defMissingMsg = `Cannot read ${colors.cyan('device.def')} file for ${colors.cyan(deviceName)} device`;
+    const defMissingMsg = `⚠️  Cannot read ${colors.cyan('device.def')} file for ${colors.cyan(deviceName)} device`;
 
     if (deviceName == 'this') {
       const filePath = this.deviceDefFile(deviceName);
-      if (!fs.existsSync(filePath)) {
-        const msg = `${defMissingMsg} — make sure device is selected - use ${colors.green('dmt device select')} to select device`;
-        console.log(colors.red(msg));
-        process.exit();
-      }
       return readDeviceDef({ filePath, onlyBasicParsing, caching });
     }
 
@@ -316,6 +309,7 @@ export default {
     }
 
     const list = scan.dir(path.join(dmtUserDir, 'devices'), { onlyDirs: true });
+
     for (const deviceDir of list) {
       const deviceDefFile = path.join(deviceDir, 'def/device.def');
       if (fs.existsSync(deviceDefFile)) {
@@ -345,7 +339,7 @@ export default {
 
   keypair() {
     const keys = this.keys();
-    if (!keys.empty) {
+    if (keys) {
       const keypair = util.listify(keys).find(keypair => !keypair.id);
       if (keypair) {
         return { ...keypair, ...{ privateKey: hexToBuffer(keypair.privateKeyHex), publicKey: hexToBuffer(keypair.publicKeyHex) } };
@@ -354,8 +348,12 @@ export default {
   },
 
   keys() {
-    const filePath = this.deviceDefFile('this', 'keys');
-    return readKeysDef({ filePath });
+    if (!deviceKeypair) {
+      const filePath = this.deviceDefFile('this', 'keys');
+      deviceKeypair = readKeysDef({ filePath });
+    }
+
+    return deviceKeypair;
   },
 
   allNetworkSegments() {
@@ -533,7 +531,8 @@ export default {
   },
 
   getLocalIpViaNearby({ program, deviceName }) {
-    const match = program.state().nearbyDevices.find(({ deviceName, stale }) => !stale && deviceName == deviceName);
+    const _deviceName = deviceName;
+    const match = program.state().nearbyDevices.find(({ deviceName, stale }) => !stale && deviceName == _deviceName);
     if (match) {
       return match.ip;
     }

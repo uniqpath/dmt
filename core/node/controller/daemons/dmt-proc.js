@@ -1,5 +1,3 @@
-import colors from 'colors';
-
 import dmt from 'dmt/bridge';
 const { log } = dmt;
 

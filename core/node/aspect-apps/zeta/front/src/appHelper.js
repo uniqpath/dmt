@@ -5,7 +5,7 @@ class App extends Emitter {
   constructor() {
     super();
 
-    const corePromoters = ['david', 'stanko', 'adnan', 'iztok'];
+    const corePromoters = ['guest', 'david', 'stanko', 'adnan', 'iztok'];
     const isCorePromoter = corePromoters.find(name => window.location.hostname.startsWith(`${name}.`));
 
     this.isLocalhost = window.location.hostname == 'localhost';

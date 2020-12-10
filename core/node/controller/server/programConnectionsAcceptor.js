@@ -32,8 +32,8 @@ class ProgramConnectionsAcceptor {
         log.brightWhite(`💡 Connectome protocol ${colors.cyan(protocol)}/${colors.cyan(lane)} ready.`);
       });
     } else {
-      log.red('ProgramConnectionsAcceptor not started because default keypair was not found for this device.');
-      log.red('GUI for localhost and dmt/apps will not work.');
+      log.red('ProgramConnectionsAcceptor not started because device keypair could not be established.');
+      process.exit();
     }
   }
 

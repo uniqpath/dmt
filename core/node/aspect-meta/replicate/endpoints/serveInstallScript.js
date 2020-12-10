@@ -4,17 +4,17 @@ import path from 'path';
 import dmt from 'dmt/bridge';
 const { util, dmtVersion } = dmt;
 
-import { dirname } from 'path';
+const { dirname } = path;
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function dmtSource(host) {
   if (host.includes(':')) {
     const source = dmt.user().dmtSource;
-    return source ? source : '';
-  } else {
-    return host;
+    return source || '';
   }
+
+  return host;
 }
 
 function determineVersion() {
@@ -47,30 +47,39 @@ function install({ req, res, isCurl, program, port }) {
     .replace(new RegExp('{{host}}', 'g'), host)
     .replace(new RegExp('{{dmtSource}}', 'g'), dmtSource(host));
 
+  const EOL = util.autoDetectEOLMarker(bashScript);
+
+  const lines = bashScript.split(EOL);
+
+  for (let i = 0; i < lines.length; i++) {
+    const num = `<span class="line_number">${(i + 1).toString().padStart(3, ' ')}</span>`;
+    lines[i] = {
+      num,
+      line: lines[i]
+    };
+  }
+
   if (isCurl) {
     res.setHeader('Content-type', 'text/plain');
     res.charset = 'UTF-8';
     res.send(bashScript);
   } else {
-    const EOL = util.autoDetectEOLMarker(bashScript);
-
     const keywords = ['function', 'if', 'fi', 'then', 'else', 'eval', 'local', 'return', 'echo', 'printf', 'exit'];
 
     const commands = ['unzip', 'mv', 'cd', 'rm', 'mkdir', 'pwd'];
 
-    const content = bashScript
-      .split(EOL)
-      .map(line => {
+    const content = lines
+      .map(({ num, line }) => {
         if (line.trim().startsWith('#!/bin/bash')) {
-          return `<span class="shebang">${line}</span>`;
+          return `${num} <span class="shebang">${line}</span>`;
         }
 
         if (line.trim().startsWith('# RPi')) {
-          return `<span class="comment">#</span><span class="green">${line.replace('#', '')}</span>`;
+          return `${num} <span class="comment">#</span><span class="green">${line.replace('#', '')}</span>`;
         }
 
         if (line.trim().startsWith('# curl')) {
-          return `<span class="comment">#</span><span class="install">${line.replace('#', '')}</span>`;
+          return `${num} <span class="comment">#</span><span class="install">${line.replace('#', '')}</span>`;
         }
 
         if (
@@ -81,11 +90,11 @@ function install({ req, res, isCurl, program, port }) {
           line.trim().startsWith('# Requirements:') ||
           line.trim().startsWith('# -')
         ) {
-          return `<span class="comment">#</span><span class="violet">${line.replace('#', '')}</span>`;
+          return `${num} <span class="comment">#</span><span class="violet">${line.replace('#', '')}</span>`;
         }
 
         if (line.trim().startsWith('#')) {
-          return `<span class="comment">${line}</span>`;
+          return `${num} <span class="comment">${line}</span>`;
         }
 
         line = line.replace(/\bfunction\b(.*?){/, 'function<span class="name">$1</span>');
@@ -98,7 +107,7 @@ function install({ req, res, isCurl, program, port }) {
           line = line.replace(new RegExp(`\\b${cmd}\\b`, 'g'), `<span class="command">${cmd}</span>`);
         }
 
-        return line;
+        return `${num} ${line}`;
       })
       .join(EOL);
 

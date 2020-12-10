@@ -176,6 +176,9 @@ function zeta_setup {
   printf "${GREEN}✓ Done${NC}\n"
   echo
 
+  # set up nano syntax highlighting
+  sudo ln -s ~/.dmt/etc/syntax/nano/def.nanorc /usr/share/nano/def.nanorc
+
   # NODE.JS
 
   printf "${GREEN}Installing ${YELLOW}nodejs ...${NC}\n"

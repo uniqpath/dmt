@@ -11,6 +11,16 @@ import scan from './scan';
 import colorJSON from './colorJSON';
 import ScreenOutput from './loggerScreenOutput';
 
+const deviceName = 'this';
+const filePath = dmt.deviceDefFile(deviceName);
+
+if (!fs.existsSync(filePath)) {
+  const defMissingMsg = `⚠️  Cannot read ${colors.cyan('device.def')} file for ${colors.cyan(deviceName)} device`;
+  const msg = `${defMissingMsg} — make sure device is selected - use ${colors.green('dmt device select')} to select device`;
+  console.log(colors.red(msg));
+  process.exit();
+}
+
 const device = dmt.device({ onlyBasicParsing: true });
 
 const LIMIT = 10000;
