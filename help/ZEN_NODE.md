@@ -22,13 +22,13 @@ After you have done a [BASIC SETUP](./SERVER_SETUP.md) of your server proceed wi
 
 Login to your **⚡new remote computer⚡** with your *non-root username*:
 
-```
+```bash
 ssh username@ip
 ```
 
  continue with setup:
 
-```
+```bash
 sudo apt-get update
 sudo apt-get -y install git
 ```
@@ -41,7 +41,7 @@ This is the 🚂 **engine** that runs our node and connects to other network nod
 
 Install (everything stays neatly inside the `~/.dmt` directory):
 
-```
+```bash
 git clone https://github.com/uniqpath/dmt.git ~/.dmt
 cd ~/.dmt
 ./install
@@ -55,7 +55,7 @@ Now enter `source ~/.bashrc` *to reload the shell* OR *logout and then ssh back*
 
 ⏱️ **3 min** max
 
-```
+```bash
 zeta_setup
 ```
 
@@ -79,15 +79,29 @@ This manual on GitHub is now concluded (short, eh? :) We wanted to utilize *the 
 
 After the script is done, you should be able to open `http://server_ip:7777/apps/zeta`.
 
+Try this as well:
+
+```bash
+ssh username@ip
+
+mkdir Files && cd $_
+
+echo "something" > my_test_file.txt
+```
+
+<img src="./img/zetaseek_test_file_search.png" alt="test file search" style="zoom:50%;" />
+
 # 2️⃣ Support info 🆘
 
-✉️ **Lighttpd webserver setup** (https, zetaseek subdomain etc.) docs *available on request* — please write to hello@uniqpath.com (or come talk to us at Discord chat server). This part will soon be integrated in **Zeta Explorer Node** GUI but it is not yet.
+✉️ **Lighttpd webserver setup** (https, zetaseek subdomain, or **your own domain** etc.) docs *available on request* — please write to hello@uniqpath.com (or come talk to us at Discord chat server). This part will soon be integrated in **Zeta Explorer Node** GUI but it is not yet.
 
 #### ⚠️ Important
 
 Make sure ports `7777` (for GUI) and `7780` (Zeta ws communication port) are not blocked by a firewall.
 
 💡To update `~/.dmt` to new version manually in the future if auto-updates fail for some reason use: `dmt next`.
+
+See the autoupdate status with `dmt autoupdate` command.
 
 #### 🆘 Support
 
@@ -97,8 +111,11 @@ You can also use hello@uniqpath.com email to contact your decentralized tech sup
 
 🐠 **Happy explorations!**
 
-## Visit the DMT Website to always learn more
+## More resources
 
-[dmt-system.com](https://dmt-system.com) 💡🚀🎸 (built with **[Svelte](https://svelte.dev) + [Connectome](https://github.com/uniqpath/connectome)**)
+Visit [DMT SYSTEM](https://dmt-system.com) website to visit **DMT / Zeta Open Hours** and Ask Anything.💡🚀🎸 
 
-<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt_research_space.jpg?raw=true">
+Another option is to just [follow the guides](https://github.com/uniqpath/info) on GitHub and use all of our {code} offerings completely disconnected / incognito.
+
+
+
