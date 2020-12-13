@@ -38,6 +38,8 @@ class Program extends EventEmitter {
 
     ensureDirectories();
 
+    generateKeypair();
+
     this.sideStore = {};
 
     this.log = dmt.log;
@@ -50,8 +52,6 @@ class Program extends EventEmitter {
     setupGlobalErrorHandler();
 
     log.cyan('Program booting ...');
-
-    generateKeypair();
 
     this.metamaskStore = new MetaMaskStore();
 

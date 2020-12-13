@@ -4,7 +4,7 @@ import initializeConnection from './initializeConnection.js';
 
 import { compareValues } from '../../utils/sorting/sorting.js';
 
-import ChannelList from '../../client/channel/channelList.js';
+import ChannelList from '../channel/channelList.js';
 
 class ConnectionsAcceptor extends EventEmitter {
   constructor({ ssl = false, port, keypair, verbose }) {

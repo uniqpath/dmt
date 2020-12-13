@@ -17,7 +17,9 @@
 
   import { searchMode, searchResponse } from './testStore.js'
 
-  export let store;
+  export let connected;
+  export let backend;
+
   export let concurrency;
   export let appHelper;
   export let metamaskConnect;
@@ -31,7 +33,7 @@
 
   appHelper.on('play', ({ playableUrl }) => {
     console.log(`Loading ${playableUrl} into mpv on localhost ...`);
-    store.remoteObject('GUIPlayerObject').call('playUrl', { playableUrl });
+    backend.remoteObject('GUIPlayerObject').call('playUrl', { playableUrl });
   });
   // ---------
 
@@ -46,11 +48,10 @@
   //   cssBridge.setWallpaper('/apps/zeta/wallpapers/black_triangles.jpg');
   //}
 
-  $: deviceName = $store.deviceName;
-  $: connected = $store.connected;
+  $: deviceName = $backend.deviceName;
 
-  $: device = $store.device;
-  $: player = $store.player;
+  $: device = $backend.device;
+  $: player = $backend.player;
 
   $: dmtVersion = device ? device.dmtVersion : null;
 
@@ -64,7 +65,7 @@
   let userTeams = undefined; // hmm ...
   let displayName = undefined;
 
-  //$: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
+  //$: ethAddress = $loginStore.ethAddress; // also present in $backend but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
   // $: userIdentity = $loginStore.userIdentity;
   // $: userName = $loginStore.userName;
   // $: loggedIn = $loginStore.loggedIn;
@@ -148,7 +149,7 @@
     }
   });
 
-  store.on('ready', () => {
+  backend.on('ready', () => {
     firstMountAndConnect.oneConditionFulfilled();
   });
 
@@ -182,7 +183,7 @@
   function _browsePlace(place) {
     console.log(`Browse place: ${place}`);
 
-    const remoteObject = store.remoteObject('GUISearchObject');
+    const remoteObject = backend.remoteObject('GUISearchObject');
     const remoteMethod = 'browsePlace';
 
     remoteObject
@@ -237,7 +238,7 @@
 
     console.log(`triggerSearch: ${searchQuery}`);
 
-    const remoteObject = store.remoteObject('GUISearchObject');
+    const remoteObject = backend.remoteObject('GUISearchObject');
     const remoteMethod = 'search';
 
     const searchStatusCallback = ({ searching, noHits }) => {
@@ -295,13 +296,13 @@
 
   appHelper.on('explorersClick', explorersClick);
 
-  $: placeholderText = !connected ? "Search is currently not available" : ($searchMode == 0 ? "Zeta network search" : "This machine search");
+  $: placeholderText = !$connected ? "Search is currently not available" : ($searchMode == 0 ? "Zeta network search" : "This machine search");
 
   appHelper.on('search', doSearch);
 </script>
 
 <!-- {#if loggedIn} -->
-  <LeftBar {connected} {loggedIn} {loginStore} {isAdmin} {metamaskConnect} {displayName} {store} {searchQuery} {deviceName} />
+  <LeftBar {loggedIn} {loginStore} {isAdmin} {metamaskConnect} {displayName} {backend} {searchQuery} {deviceName} />
 <!-- {/if} -->
 
 <About {isMobile} {searchQuery} {dmtVersion} />
@@ -311,7 +312,7 @@
   <!-- {JSON.stringify(device, null, 2)} -->
 
   <!-- {#if appHelper.nodeHasBlog} -->
-    <Login {connected} {metamaskConnect} {ethAddress} {displayName} {isAdmin} />
+    <Login {metamaskConnect} {ethAddress} {displayName} {isAdmin} />
   <!-- {/if} -->
 
   <!-- {:else}
@@ -331,17 +332,17 @@
   <div class="search">
 
     <div class="search_input_wrapper">
-      <input id="search_input" bind:value={searchQuery} bind:this={searchInput} on:keyup={searchInputChanged} on:paste={searchInputChanged} class:public_search={$searchMode == 0} class:this_node_search={$searchMode == 1} placeholder={placeholderText} disabled={!connected}>
+      <input id="search_input" bind:value={searchQuery} bind:this={searchInput} on:keyup={searchInputChanged} on:paste={searchInputChanged} class:public_search={$searchMode == 0} class:this_node_search={$searchMode == 1} placeholder={placeholderText} disabled={!$connected}>
       <img src="/apps/zeta/img/redesign/zetaseek_icon-search.svg" />
     </div>
 
-    {#if !connected && isLocalhost}
+    {#if !$connected && isLocalhost}
       <p class="connection_status_help">
         ⚠️ Please start the <span>dmt-proc</span> ...
       </p>
     {/if}
 
-    {#if connected}
+    {#if $connected}
       <SearchModeSelector {searchQuery} on:searchModeChanged="{searchModeChanged}" />
     {/if}
 
@@ -352,7 +353,7 @@
       </div>
     {/if}
 
-    <SearchResults {loggedIn} {noSearchHits} {store} {loginStore} hasPlayer={player && player.volume != undefined} />
+    <SearchResults {loggedIn} {noSearchHits} {backend} {loginStore} hasPlayer={player && player.volume != undefined} />
 
   </div>
 

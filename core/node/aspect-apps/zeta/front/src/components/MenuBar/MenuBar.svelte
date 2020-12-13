@@ -1,16 +1,16 @@
 <script>
-  export let store;
+  export let backend;
   export let loginStore;
 
   import { onMount, getContext } from 'svelte';
   const app = getContext('app');
 
-  $: panels = $store.panels;
+  $: panels = $backend.panels;
 
   function toggle(panel) {
     const newPanels = panels;
     newPanels[panel] = !newPanels[panel];
-    store.set({ panels: newPanels });
+    backend.set({ panels: newPanels });
   }
 
   onMount(() => {

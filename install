@@ -209,21 +209,23 @@ else # clone to and install on remote device
         ssh -p $ssh_port "$host" 'if [ -f ~/.dmt/etc/scripts/dmt_via_git ]; then ~/.dmt/etc/scripts/dmt_via_git; fi' # exit code from remote script will carry over and we can check it!
 
         if [ $? -eq 1 ]; then # dmt_via_git script will return 1 if ~/.dmt/.git directory exists on the remote machine
+          echo
           printf "⚠️  ${CYAN}~/.dmt${NC} on remote device ${YELLOW}is a git repository${NC}, origin is probably ${CYAN}github: uniqpath/dmt. ${GREEN}This is ok.${NC} ↴\n"
           printf "${WHITE}↳ but refusing to override remote DMT ENGINE because this is most likely not desirable.${NC}\n"
           echo
           printf "${CYAN}Please ssh into remote device and issue ${GREEN}dmt autoupdate off ${CYAN}to stop it from being updated from github source.${NC}\n"
           echo
-          printf "${YELLOW}— Sync just your ${CYAN}dmt user directory ${YELLOW}since remote device is most likely set up to ${MAGENTA}auto-update ${CYAN}DMT ENGINE${NC}?${NC}\n"
-          echo
-          # sync just user directory ? -- perhaps do this without asking soon !
-          read -r -p "Do you want to sync just your ~/.dmt/user directory to the remote DMT ENGINE? [Y/n] " response
-          if [[ $response =~ ^([nN])$ ]]
-          then
-            printf "${GRAY}↳ Exiting ...${NC}\n"
-            echo
-            return
-          fi
+          printf "${YELLOW}— Syncing just your ${CYAN}dmt user directory ${YELLOW}since remote device is most likely set up to ${MAGENTA}auto-update ${CYAN}DMT ENGINE ${NC}...${NC}\n"
+          # printf "${YELLOW}— Sync just your ${CYAN}dmt user directory ${YELLOW}since remote device is most likely set up to ${MAGENTA}auto-update ${CYAN}DMT ENGINE${NC}?${NC}\n"
+          # echo
+          # # sync just user directory ? -- perhaps do this without asking soon !
+          # read -r -p "Do you want to sync just your ~/.dmt/user directory to the remote DMT ENGINE? [Y/n] " response
+          # if [[ $response =~ ^([nN])$ ]]
+          # then
+          #   printf "${GRAY}↳ Exiting ...${NC}\n"
+          #   echo
+          #   return
+          # fi
 
           echo
           printf "${MAGENTA}Updating ${CYAN}~/.dmt/user${MAGENTA} on ${CYAN}$host:$ssh_port …${NC}\n"

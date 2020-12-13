@@ -1,10 +1,11 @@
-import MergeStore from './helperStores/mergeStore.js';
+import WritableStore from '../helperStores/writableStore.js';
+import MergeStore from '../helperStores/mergeStore.js';
 
-import ConnectDevice from './mcsHelpers/connectDevice.js';
-import Foreground from './mcsHelpers/foreground.js';
-import SwitchDevice from './mcsHelpers/switchDevice.js';
+import { newKeypair } from '../../../utils/crypto/index.js';
 
-import { newKeypair } from '../../utils/crypto/index.js';
+import ConnectDevice from './helpers/connectDevice.js';
+import Foreground from './helpers/foreground.js';
+import SwitchDevice from './helpers/switchDevice.js';
 
 class MultiConnectedStore extends MergeStore {
   constructor({ address, port, protocol, lane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
@@ -28,6 +29,8 @@ class MultiConnectedStore extends MergeStore {
     this.verbose = verbose;
 
     this.stores = {};
+
+    this.connected = new WritableStore();
 
     const foreground = new Foreground({ mcs: this, thisDeviceStateKeys });
     const connectDevice = new ConnectDevice({ mcs: this, foreground, connectToDeviceKey });

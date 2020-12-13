@@ -999,7 +999,7 @@ function oi {
 }
 
 # open
-function o {
+function op {
   if [ -z "$1" ] || [ "$1" == "." ]; then
     open .
   elif [ "$1" == "xcode" ] && [ -d "ios" ]; then

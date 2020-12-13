@@ -59,8 +59,6 @@ function messageReceived({ message, channel }) {
     } else {
       channel.emit('json_rpc', message);
     }
-  } else if (jsonData.tag == 'request_file') {
-    channel.streamFile(jsonData);
   } else if (jsonData.action && jsonData.namespace) {
     // 💡 actions received from frontend (usually GUI... we hook this up in GUI protocol endpoint)
     const { action, namespace, payload } = jsonData;

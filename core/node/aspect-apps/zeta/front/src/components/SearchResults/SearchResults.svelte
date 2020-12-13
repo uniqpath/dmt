@@ -20,7 +20,7 @@
 
   export let loggedIn;
   export let noSearchHits;
-  export let store;
+  export let backend;
   export let loginStore;
   export let hasPlayer;
 </script>
@@ -74,7 +74,7 @@
             {#each providerResponse.results as { filePath, fileName, directory, directoryHandle, place, fileNote, url, title, name, context, linkNote, hiddenContext, githubReference, score, swarmBzzHash, swarmUrl, mediaType, entryType, prettyTime, filePathANSI, playableUrl, fiberContentURL, fileSizePretty, fileUpdatedAtRelativePretty, isNote, notePreview, noteUrl, noteContents, noteTags, linkTags }, i}
               <div class="result" class:url_result={url}>
                 {#if url}
-                  <ResultLink {url} {title} {context} {hiddenContext} {linkNote} {score} {linkTags} {githubReference} {store} {loginStore} />
+                  <ResultLink {url} {title} {context} {hiddenContext} {linkNote} {score} {linkTags} {githubReference} {backend} {loginStore} />
                 {:else if swarmBzzHash}
                   <ResultSwarm {name} {playableUrl} {mediaType} {entryType} {prettyTime} {fileSizePretty} {context} {hasPlayer} />
                 {:else if filePath}

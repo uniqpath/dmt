@@ -4,9 +4,9 @@ import https from 'https';
 
 import { EventEmitter } from '../../utils/index.js';
 
-import getRemoteHost from '../../client/channel/getRemoteHost.js';
-import getRemoteIp from '../../client/channel/getRemoteIp.js';
-import Channel from '../../client/channel/channel.js';
+import getRemoteHost from '../channel/getRemoteHost.js';
+import getRemoteIp from '../channel/getRemoteIp.js';
+import Channel from '../channel/channel.js';
 
 function noop() {}
 

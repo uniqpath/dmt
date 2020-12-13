@@ -3,7 +3,7 @@
 
   export let connected;
   export let loginStore;
-  export let store;
+  export let backend;
   export let isAdmin;
 
   // load at start
@@ -38,7 +38,7 @@
     // const email = document.getElementById('email').value;
 
     //store.saveUserProfile({ ethAddress, userName: name, userEmail: email });
-    store.saveUserProfile({ ethAddress, userName: name });
+    backend.saveUserProfile({ ethAddress, userName: name });
 
     editMode = false;
   }

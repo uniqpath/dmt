@@ -1,4 +1,4 @@
-import { deepmerge } from '../util/index.js';
+import { deepmerge } from './util/index.js';
 
 function mergeState(state, patch) {
   const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;

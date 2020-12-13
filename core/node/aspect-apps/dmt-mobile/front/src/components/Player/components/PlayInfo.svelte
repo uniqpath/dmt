@@ -17,7 +17,7 @@
 -->
 <div class="player_media">
 
-  {#if player.currentMedia && player.currentMedia.song && connected}
+  {#if player.currentMedia && player.currentMedia.song && $connected}
     <p class="current_media" class:faded={player.paused}>
       {player.paused ? ' ' : (player.currentMedia.mediaType == 'video' ? '▶' : '♫')}
       {player.currentMedia.artist ? `${player.currentMedia.artist} - ${player.currentMedia.song}` : player.currentMedia.song}
@@ -33,11 +33,11 @@
         {/if}
       {/if}
     </p>
-  {:else if connected}
+  {:else if $connected}
     <p><b>No media loaded</b></p>
   {/if}
 
-  {#if connected}
+  {#if $connected}
     <p class:faded={player.paused}>Volume: {player.volume}</p>
   {/if}
 

@@ -2,7 +2,7 @@ import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 nacl.util = naclutil;
 
-import { isObject, addHeader } from '../channel/sendHelpers.js';
+import { isObject, addHeader } from '../../server/channel/sendHelpers.js';
 import { integerToByteArray } from '../../utils/index.js';
 
 function send({ data, connector }) {

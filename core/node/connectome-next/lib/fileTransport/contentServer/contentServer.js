@@ -57,6 +57,9 @@ function contentServer({ app, connectorPool, defaultPort, emitter }) {
               return;
             }
 
+            res.status(404).send('This feature is on hold -- streaming files over encrypted fibers');
+            return;
+
             const sessionId = sha256(crypto, Math.random().toString());
 
             let ip;

@@ -30,7 +30,7 @@ EOF
 echo >> "$target_slim"
 
 # essential dmt scripts
-cat .bash_util .bash_dmt_vars .bash_fs .bash_general .bash_process .bash_git .bash_swarm .bash_sbc .bash_devices >> "$target_slim"
+cat .bash_util .bash_dmt_vars .bash_fs .bash_general .bash_process .bash_git .bash_sbc .bash_devices >> "$target_slim"
 
 # essential zeta scripts
 cat ./zeta/.zeta_update ./zeta/.zeta_start ./zeta/.zeta_scripts ./zeta/.zeta_config ./zeta/.zeta_check ./zeta/.zeta_restart ./zeta/.zeta_setup >> "$target_slim"

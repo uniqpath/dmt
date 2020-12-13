@@ -21,7 +21,7 @@
 
 {#if deviceName}
   <!-- class:faded={!connected} --> <!-- add this attribute if you want faded while trying to reconnected -->
-  <h2 class:faded={connected == false}>{deviceName} {connected != false ? '' : '✖'}</h2>
+  <h2 class:faded={$connected == false}>{deviceName} {$connected != false ? '' : '✖'}</h2>
 {/if}
 
 <!--

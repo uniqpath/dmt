@@ -1,16 +1,26 @@
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/uniqpath_banner.png?raw=true">
 
-## Try uniqpath DMT ENGINE on you computer
-
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/uniqpath_dmt_engine_banner.png?raw=true">
+
+![dmt_device_types](https://github.com/uniqpath/info/blob/master/assets/img/dmt_device_types.png?raw=true)
 
 ## See the presentation
 
-You can check out 7 slides about [DMT ENGINE and Connectome design](https://zetaseek.com/file/dmt-engine%20and%20connectome%20-%20dmt%20meetup%20-%20dec%202020.pdf?place=localhost-2f686f6d652f7a6574612f46696c65732f444d542d53595354454d2f50726573656e746174696f6e73).
+Here is the presentation about [DMT ENGINE and Connectome design](https://zetaseek.com/file/dmt-engine%20and%20connectome%20-%20dmt%20meetup%20-%20dec%202020.pdf?place=localhost-2f686f6d652f7a6574612f46696c65732f444d542d53595354454d2f50726573656e746174696f6e73).
 
-## Try DMT ENGINE
+![my_connectome](https://github.com/uniqpath/info/blob/master/assets/img/my_connectome.png?raw=true)
 
-Clone the repo:
+This capability is coming in Q1 or Q2 2020 but you are welcome to provide input and even co-design it! Visit one of our informal discussion meetups. You can visit the next one [this coming friday](https://dmt-system.com). 
+
+The right question to ask is: **Why not?**
+
+![dmt_meetup](https://github.com/uniqpath/info/blob/master/assets/img/dmt_meetup.jpg?raw=true)
+
+## 💡Try uniqpath DMT ENGINE today
+
+Option 1 — **Personal Computer** (see [info](https://github.com/uniqpath/info) for information on server and single-board computer setup):
+
+**Begin by** cloning the repo:
 
 ```
 git clone https://github.com/uniqpath/dmt.git ~/.dmt
@@ -42,9 +52,7 @@ curl -L https://git.io/n-install | bash
 
 # Install
 
-Install is nothing more than enabling a `dmt` shell command which is a shortcut to what you wrote when trying out the engine.
-
-It also provides some other nice command line features but mostly there is no concept of "installation" here. You always have this one directory (`~/.dmt`) and whenever you want you start the **dmt process** based on source code in this directory.
+Install is nothing more than enabling a `dmt` shell command which is a shortcut to what you wrote when trying out the engine. It also provides some other nice command line features but mostly there is no concept of "installation" here. You always have this one directory (`~/.dmt`) and whenever you want you start the **dmt process** based on source code in this directory.
 
 ```
 cd ~/.dmt
@@ -121,13 +129,13 @@ We will work on some other ways of getting the code reliably by using digital si
 - Create a [personal (search) node](https://github.com/uniqpath/dmt/blob/main/help/ZEN_NODE.md) on public IP (personal server instance)
 - [Install on your Single Board Computer](https://github.com/uniqpath/info/blob/master/assets/pdf/rpi_guide.pdf) like [RaspberryPi 3B+](https://github.com/uniqpath/info/blob/master/hardware/README.md)
 
-Please reach out for further instructions (visit our DMT / Zeta Open Hours published via [dmt-system.com](https://dmt-system.com) or contact us on [Discord support](https://discord.gg/XvJzmtF)).
+Please reach out for further instructions (visit our DMT / Zeta Open Hours published via [dmt-system.com](https://dmt-system.com) or contact us on [Discord support](https://discord.gg/XvJzmtF)). Server and SBC setup instructions are easy as well but some guidance and context clarification is usually welcome. We will also show you how to use the built-in music player and some other candies!
 
-Server and SBC setup instructions are easy as well but some guidance and context clarification is probably welcome.
+![dmt_architecture](https://github.com/uniqpath/info/blob/master/assets/img/dmt_architecture2.png?raw=true)
 
 ## Read info repository for more resources
 
-There are some more resources listed in the [info](https://github.com/uniqpath/info) repository. 
+There are some more resources listed in [info](https://github.com/uniqpath/info) repository.
 
 More proper technical documentation for **DMT ENGINE** is coming online on (JAN 1 2022) after Connectome v1.0 documentation (JAN 1 2021).
 

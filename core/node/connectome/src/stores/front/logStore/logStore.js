@@ -1,4 +1,4 @@
-import WritableStore from './helperStores/writableStore.js';
+import WritableStore from '../helperStores/writableStore.js';
 
 class LogStore extends WritableStore {
   constructor() {

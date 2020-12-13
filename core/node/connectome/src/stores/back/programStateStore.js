@@ -1,6 +1,6 @@
 import { EventEmitter } from '../../utils/index.js';
 
-import { clone } from './util/index.js';
+import clone from './lib/clone.js';
 
 import KeyValueStore from './twoLevelMergeKVStore.js';
 

@@ -1,6 +1,6 @@
 import * as dmtJS from '../../../../dmt-js';
 import { concurrency } from '../../../../connectome/src/client';
-import { LogStore, ConnectedStore } from '../../../../connectome/src/stores';
+import { LogStore, makeConnectedStore } from '../../../../connectome/src/stores';
 import { writable } from 'svelte/store';
 
 const { metamask } = dmtJS;
@@ -29,7 +29,7 @@ const verbose = false;
 const address = window.location.hostname;
 
 const rpcRequestTimeout = 5500;
-const store = new ConnectedStore({
+const { state: backend, connected } = makeConnectedStore({
   address,
   port,
   ssl: appHelper.ssl,
@@ -50,7 +50,8 @@ const metamaskConnect = metamaskInit(ethAddress => {
 const app = new App({
   target: document.body,
   props: {
-    store,
+    backend,
+    connected,
     loginStore,
     concurrency,
     appHelper,

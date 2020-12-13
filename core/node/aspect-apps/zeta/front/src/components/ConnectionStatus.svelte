@@ -18,8 +18,8 @@
   }
 </script>
 
-<p class="connection_status" class:ok={connected}>
-  {#if connected}
+<p class="connection_status" class:ok={$connected}>
+  {#if $connected}
       <!-- maybe replace with serverMode check? -->
       <span class="device_status">
         {app.isLAN ? 'local node' : ''}

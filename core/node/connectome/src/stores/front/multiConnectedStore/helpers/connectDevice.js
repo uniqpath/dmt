@@ -1,4 +1,4 @@
-import ConnectedStore from '../connectedStore.js';
+import ConnectedStore from '../../connectedStore/connectedStore.js';
 
 class ConnectDevice {
   constructor({ mcs, foreground, connectToDeviceKey }) {
@@ -44,8 +44,8 @@ class ConnectDevice {
 
       if (deviceKey) {
         if (!this.thisDeviceAlreadySetup) {
-          this.mcs.stores[deviceKey] = thisStore;
           this.mcs.set({ activeDeviceKey: deviceKey });
+          this.setConnectedStore({ deviceKey, store: thisStore });
         }
 
         const needToConnectAnotherDevice = this.connectToDeviceKey && this.connectToDeviceKey != deviceKey;
@@ -74,12 +74,22 @@ class ConnectDevice {
   connectOtherDevice({ address, deviceKey }) {
     const newStore = this.createStore({ address });
 
-    this.mcs.stores[deviceKey] = newStore;
+    this.setConnectedStore({ deviceKey, store: newStore });
 
     newStore.subscribe(state => {
       if (this.mcs.activeDeviceKey() == deviceKey) {
         const optimisticDeviceName = state.device ? state.device.deviceName : null;
         this.foreground.set(state, { optimisticDeviceName });
+      }
+    });
+  }
+
+  setConnectedStore({ deviceKey, store }) {
+    this.mcs.stores[deviceKey] = store;
+
+    store.connected.subscribe(connected => {
+      if (this.mcs.activeDeviceKey() == deviceKey) {
+        this.mcs.connected.set(connected);
       }
     });
   }

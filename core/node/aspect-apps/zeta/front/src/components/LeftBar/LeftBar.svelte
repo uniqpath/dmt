@@ -2,7 +2,6 @@
   import { getContext } from 'svelte';
   const app = getContext('app');
 
-  export let connected;
   export let loggedIn;
   export let isAdmin;
 
@@ -12,9 +11,9 @@
 
   export let displayName;
 
-  export let store;
+  export let backend;
 
-  $: panels = $store.panels;
+  $: panels = $backend.panels;
 
   export let loginStore;
 
@@ -33,16 +32,6 @@
   {#if app.nodeHasBlog}
     <Links blogName={app.blogName} />
   {/if}
-
-  <!-- {#if loggedIn}
-
-    <MenuBar {connected} {loggedIn} {loginStore} />
-
-    {#if panels['Profile']}
-      <Profile {connected} {loginStore} {store} {isAdmin} />
-    {/if}
-
-  {/if} -->
 
 </div>
 

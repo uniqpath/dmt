@@ -3,9 +3,9 @@ import receive from './receive.js';
 
 import { EventEmitter, listify } from '../../utils/index.js';
 
-import RpcClient from '../rpc/client.js';
+import RpcClient from '../../client/rpc/client.js';
 
-import RPCTarget from '../rpc/RPCTarget.js';
+import RPCTarget from '../../client/rpc/RPCTarget.js';
 
 class Channel extends EventEmitter {
   constructor(ws, { rpcRequestTimeout, verbose = false }) {

@@ -5,7 +5,6 @@
   import DisplayLoggedInInfo from './DisplayLoggedInInfo.svelte';
   import DisplayMetamaskInvite from './DisplayMetamaskInvite.svelte';
 
-  export let connected;
   export let metamaskConnect;
   export let ethAddress;
   export let displayName;
@@ -21,7 +20,7 @@
 </script>
 
 {#if ethAddress}
-  <DisplayLoggedInInfo {connected} {ethAddress} {displayName} {isAdmin} {metamaskConnect} />
+  <DisplayLoggedInInfo {ethAddress} {displayName} {isAdmin} {metamaskConnect} />
   <!-- <svg id="eth_address"></svg> -->
 {:else}
   {#if metamaskConnect}

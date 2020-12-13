@@ -1,5 +1,9 @@
 #!/bin/bash
 
+function o {
+  dmt "o" "$@"
+}
+
 # can also do:
 # [some long process_with_text_result] | push_notify --> not anymore! check code in lib/apn.js and maybe put it back
 # in background: se "space|push_notify"

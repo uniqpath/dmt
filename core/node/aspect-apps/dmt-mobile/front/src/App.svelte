@@ -13,7 +13,7 @@
 
   const { util } = dmtJS;
 
-  $: connected = $store.connected;
+  const { connected } = store;
 
   $: device = $store.device;
   $: deviceName = $store.optimisticDeviceName;

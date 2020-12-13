@@ -1,4 +1,4 @@
-import { generateJsonPatch } from '../util/index.js';
+import { generateJsonPatch } from './util/index.js';
 
 function getDiff(prevAnnouncedState, currentState) {
   const diff = generateJsonPatch(prevAnnouncedState, currentState);

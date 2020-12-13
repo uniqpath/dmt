@@ -2,7 +2,6 @@
   import { getContext } from 'svelte';
   const app = getContext('app');
 
-  export let connected;
   export let ethAddress;
   export let displayName;
   export let isAdmin;
@@ -52,9 +51,6 @@
     ←
     <span>{ethAddress}</span>
   {:else}
-    <!-- {#if connected}
-      <span class="anon">Anonymous <span class="invite">[please edit your profile]</span> ←</span>
-    {/if} -->
     MetaMask
     <span>{ethAddress}</span>
 

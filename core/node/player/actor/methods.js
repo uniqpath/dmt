@@ -133,15 +133,14 @@ function doSearch({ args, zetaSearch, player }) {
       .then(aggregateResults => {
         const successfulResults = aggregateResults.filter(res => !res.error);
 
-        aggregateResults
-          .filter(res => res.error)
-          .forEach(results => {
-            log.gray(
-              `${colors.red('⚠️  Warning:')} could not get search results from provider ${colors.magenta(results.meta.providerHost)} (${
-                results.meta.providerAddress
-              }): ${colors.red(results.error)}`
-            );
-          });
+        const errors = aggregateResults.filter(res => res.error);
+        errors.forEach(results => {
+          log.gray(
+            `${colors.red('⚠️  Warning:')} could not get search results from provider ${colors.magenta(results.meta.providerHost)} (${
+              results.meta.providerAddress
+            }): ${colors.red(results.error)}`
+          );
+        });
 
         const mappedResults = successfulResults.map(results => player.mapToLocal(results));
 
@@ -157,13 +156,11 @@ function addOrInsertHandler({ args, method }, { zetaSearch, player }) {
   return new Promise((success, reject) => {
     doSearch({ args, zetaSearch, player })
       .then(({ aggregateResults, playableResults }) => {
-        const successfulResults = aggregateResults.filter(res => !res.error);
-
         player[method.name]({ files: playableResults })
           .then(success)
           .catch(reject);
 
-        success(successfulResults);
+        success(aggregateResults);
       })
       .catch(reject);
   });

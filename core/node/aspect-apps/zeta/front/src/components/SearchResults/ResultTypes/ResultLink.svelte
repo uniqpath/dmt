@@ -1,7 +1,7 @@
 <script>
   import ResultTags from '../ResultTags/ResultTags.svelte';
 
-  export let store;
+  export let backend;
   export let loginStore;
 
   export let url;
@@ -13,7 +13,7 @@
   export let hiddenContext;
   export let githubReference;
 
-  $: ethAddress = $loginStore.ethAddress; // also present in $store but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
+  $: ethAddress = $loginStore.ethAddress; // also present in $backend but we use it from frontEnd because it's more immediate -> it will work even if backend is currently disonnected
   $: userIdentity = $loginStore.userIdentity;
   $: userName = $loginStore.userName;
   // duplicate
@@ -27,7 +27,7 @@
     const clickMetadata = { userIdentity, displayName, ethAddress, host };
 
     try {
-      const remoteObject = store.remoteObject('GUISearchObject');
+      const remoteObject = backend.remoteObject('GUISearchObject');
       remoteObject.call('trackClick', { url, clickMetadata });
     } catch(e) {
       console.log(e);

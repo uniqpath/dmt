@@ -9,15 +9,27 @@ TAIL_LOG_LINES=300
 DMT_AUTO_UPDATE_LOG="$DMT_PATH/log/.auto_update_log"
 
 function dmt {
+  local o
+
+  if [ "$1" == "o" ]; then
+    o=true
+    shift
+  fi
+
   if [ -z "$1" ] || [ "$1" == "help" ]; then
     echo
-    printf "${MAGENTA}        ∞ DMT ∞${NC}\n"
-    #printf "${CYAN}Freedom to imagine${NC}\n"
-    printf "${CYAN}Digital Mastery Techniques${NC}\n"
-    printf " ${CYAN}— ${GREEN}v$(cat "$DMT_PATH/.version") ${CYAN}—${NC}\n"
-    # printf " ${GRAY}It is reommended to update${NC}\n"
-    echo
+    if [[ $o ]]; then
+      #printf "${CYAN}Freedom to Imagine${NC}"
+      printf "${CYAN}— ${MAGENTA}∞oOo∞ ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version")${NC}\n"
+    else
+      printf "${MAGENTA}        ∞ DMT ∞${NC}\n"
+      printf "${CYAN}Digital Mastery Techniques${NC}\n"
+      printf " ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version") ${CYAN}—${NC}\n"
+      echo
     printf "💡 Keep up with developments and ${CYAN}update with ${GREEN}dmt next${NC} ${NC}at least once every ${CYAN}1-3 months${NC}\n"
+    fi
+    #printf "${CYAN}Freedom to imagine${NC}\n"
+    # printf " ${GRAY}It is reommended to update${NC}\n"
 
     # show auto-update status !
     if [ -f $DMT_AUTO_UPDATE_LOG ] && [ -d ~/.dmt/.git ]; then
@@ -1578,10 +1590,6 @@ function setup_github_uniqpath_dmt_origin {
   git branch -D master # delete accidentaly created master branch
 
   dmt_cache_current_version
-
-  # git branch -b main origin/main
-  #git branch --set-upstream-to=origin/main main
-  #git reset --hard origin/main # "just in case"
 
   cd "$cwd"
 }
