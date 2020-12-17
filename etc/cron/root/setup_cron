@@ -37,3 +37,6 @@ fi
 (crontab -l ; echo "* * * * * ${path}/1min ${user}") | sort - | uniq - | crontab -
 (crontab -l ; echo "0 * * * * ${path}/hourly ${user}") | sort - | uniq - | crontab -
 (crontab -l ; echo "0 0 * * * ${path}/daily ${user}") | sort - | uniq - | crontab -
+
+echo
+echo "ok"

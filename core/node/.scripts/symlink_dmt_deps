@@ -42,10 +42,4 @@ fi
 #   ./.scripts/symlink_apps "$arg"
 # fi
 
-# symlink user core
-
-if [ -f .scripts/symlink_user_core ]; then
-  ./.scripts/symlink_user_core "$arg"
-fi
-
 cd "$cwd"

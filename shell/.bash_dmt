@@ -1726,6 +1726,9 @@ function dmt_autoupdate_on {
     setup_github_uniqpath_dmt_origin # dangerous! -- we should always ask for permission before (Are you sure you want to enable autoupdate ↑)
 
     echo
+    dmt restart
+
+    echo
     dmt_autoupdate # print info
   else
     printf "${RED}Directory ~/.dmt does not exist${NC}\n"

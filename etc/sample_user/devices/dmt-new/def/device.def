@@ -2,11 +2,9 @@ device: dmt-new
 
   service: player
     contentRef: music
-    #contentRef: @dmt-server/music
 
     defaultVolume:
       mpv: 70
 
   service: gui
-    #theme: dmt_mountains
-    #idleView: clock
+    theme: dmt_mountains

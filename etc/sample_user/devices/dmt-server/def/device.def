@@ -1,4 +1,0 @@
-device: dmt-server
-
-  service: gui
-    disable: true

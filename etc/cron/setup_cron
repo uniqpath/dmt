@@ -8,6 +8,11 @@ function dmt_is_linux {
   return 1 # false
 }
 
+if [ "$EUID" == 0 ]
+  then printf "${RED}Must not be root${NC}\n"
+  exit
+fi
+
 if ! dmt_is_linux; then
   echo "Not linux, aborting ..."
 fi
@@ -19,3 +24,6 @@ fi
 (crontab -l ; echo "* * * * * bash -ic ~/.dmt/etc/cron/1min") | sort - | uniq - | crontab -
 (crontab -l ; echo "0 * * * * bash -ic ~/.dmt/etc/cron/hourly") | sort - | uniq - | crontab -
 (crontab -l ; echo "0 0 * * * bash -ic ~/.dmt/etc/cron/daily") | sort - | uniq - | crontab -
+
+echo
+echo "ok"
