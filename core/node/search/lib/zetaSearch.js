@@ -20,20 +20,11 @@ class ZetaSearch {
     this.searchArray = localProviders.map(provider => new LocalProviderSearch({ provider }));
 
     remoteProviders.forEach(provider => {
-      connectorPool
-        .getConnector(provider.address, provider.port || 7780)
-        .then(connector => {
-          this.searchArray.push(new RemoteProviderSearch({ provider, connector }));
-        })
-        .catch(e => {
-          const { connector } = e;
-          if (!connector) {
-            log.red(e);
-            process.exit();
-          }
+      const { address, port } = provider;
 
-          this.searchArray.push(new RemoteProviderSearch({ provider, connector }));
-        });
+      connectorPool.getConnector({ address, port: port || 7780 }).then(connector => {
+        this.searchArray.push(new RemoteProviderSearch({ provider, connector }));
+      });
     });
   }
 

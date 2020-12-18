@@ -1,18 +1,6 @@
 import colors from 'colors';
 import dmt from '../../dmtHelper';
 
-function isValidIPv4Address(ipaddress) {
-  if (
-    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
-      ipaddress
-    )
-  ) {
-    return true;
-  }
-
-  return false;
-}
-
 function parseDeviceMention(attrData) {
   let host = attrData.name;
 
@@ -35,7 +23,7 @@ function parseDeviceMention(attrData) {
 
   const data = { host };
 
-  if (isValidIPv4Address(host)) {
+  if (dmt.isValidIPv4Address(host)) {
     if (host.startsWith('192.168.')) {
       data.ip = host;
     } else {

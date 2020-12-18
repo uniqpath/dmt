@@ -71,8 +71,7 @@ function readFiberDef({ filePath }) {
     }
 
     const fiberDef = def.parseFile(filePath);
-
-    return def.makeTryable(fiberDef.multi.length > 0 ? fiberDef.fiber : { empty: true });
+    return def.makeTryable(fiberDef.multi.length > 0 ? fiberDef.multi : { empty: true });
   } catch (e) {
     console.log(colors.red(e.message));
     process.exit();
@@ -156,6 +155,18 @@ export default {
 
       return categories.find(cat => cat == category);
     }
+  },
+
+  isValidIPv4Address(ipaddress) {
+    if (
+      /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
+        ipaddress
+      )
+    ) {
+      return true;
+    }
+
+    return false;
   },
 
   isMacOS() {
@@ -333,8 +344,9 @@ export default {
   },
 
   fiber() {
-    const filePath = this.deviceDefFile('this', 'fiber');
-    return readFiberDef({ filePath });
+    const filePath = this.deviceDefFile('this', 'connect');
+    const fibers = readFiberDef({ filePath });
+    return fibers.empty ? [] : fibers;
   },
 
   keypair() {

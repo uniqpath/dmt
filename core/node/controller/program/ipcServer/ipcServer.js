@@ -45,13 +45,16 @@ function server(program) {
             }
 
             program.connectorPool
-              .getConnector(address, port || 7780)
+              .getConnector({ address, port: port || 7780 })
               .then(connector => {
-                connector
-                  .remoteObject(actorName)
-                  .call(action, payload)
-                  .then(response => emitResponse({ response, socket }))
-                  .catch(error => emitError({ error, socket }));
+                if (connector.isReady()) {
+                  connector
+                    .remoteObject(actorName)
+                    .call(action, payload)
+                    .then(response => emitResponse({ response, socket }));
+                } else {
+                  emitError({ error: new Error('Connector was not ready in time, please retry the request.'), socket });
+                }
               })
               .catch(error => emitError({ error, socket }));
           } else {

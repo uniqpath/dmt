@@ -169,20 +169,20 @@ export default {
     return helper.devices(options);
   },
 
-  fiberInfo() {
-    const fiber = helper.fiber();
+  fiberlist() {
+    const connections = helper.fiber();
 
-    const connections = def.listify(fiber.connect);
-    const allowFollowers = def.id(fiber.server) == 'true';
+    return connections
+      .map(({ id }) => {
+        if (id.includes('.')) {
+          return { deviceName: id, address: id };
+        }
 
-    const result = { allowFollowers, connections, fiber };
-
-    if (allowFollowers) {
-      const authorizedKeys = def.values(fiber.try('server.authorizedKeys.pubkey'));
-      Object.assign(result, { authorizedKeys });
-    }
-
-    return result;
+        const globalIp = helper.getGlobalIp({ deviceName: id });
+        return { deviceName: id, address: globalIp };
+      })
+      .filter(({ address }) => !address.error)
+      .sort(util.compareValues('deviceName'));
   },
 
   keypair() {

@@ -142,15 +142,11 @@ class Program extends EventEmitter {
     const onConnect = ({ program, channel }) => program.actors.setupChannel(channel);
     this.registerProtocol({ protocol, lane, onConnect });
 
-    const keypair = dmt.keypair();
-    if (!keypair) {
-      log.red('Missing keypair, not preparing fiber pool...');
-      return;
-    }
-
-    const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
+    const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = dmt.keypair();
 
     this.connectorPool = new ConnectorPool({ protocol, lane, port, clientPrivateKey, clientPublicKey, log: log.write });
+
+    this.wirefiberlist({ connectorPool: this.connectorPool, port });
 
     const emitter = new EventEmitter();
 
@@ -159,6 +155,24 @@ class Program extends EventEmitter {
     });
 
     this.server.setupRoutes(app => contentServer({ app, connectorPool: this.connectorPool, defaultPort: port, emitter }));
+  }
+
+  wirefiberlist({ connectorPool, port }) {
+    for (const { deviceName, address } of dmt.fiberlist()) {
+      this.store.replaceSlotElement({ slotName: 'fiberlist', key: deviceName, value: {} }, { announce: false });
+
+      connectorPool.getConnector({ address, port, tag: deviceName }).then(connector => {
+        this.store.replaceSlotElement({ slotName: 'fiberlist', key: deviceName, value: { connected: connector.isReady() } });
+
+        connector.on('ready', () => {
+          this.store.replaceSlotElement({ slotName: 'fiberlist', key: deviceName, value: { connected: true } });
+        });
+
+        connector.on('disconnect', () => {
+          this.store.replaceSlotElement({ slotName: 'fiberlist', key: deviceName, value: { connected: false } });
+        });
+      });
+    }
   }
 
   continueBooting() {
