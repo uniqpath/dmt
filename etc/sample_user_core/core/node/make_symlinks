@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mkdir -p node_modules_helper && cd $_
+
+ln -s ../../../../core/node/connectome/src/client connectome
+ln -s ../../../../core/node/connectome/src/stores connectome-stores
+
+ln -s ../../../../core/node/bridge .
+ln -s ../../../../core/node/notify .
+
+
+
