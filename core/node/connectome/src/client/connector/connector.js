@@ -13,7 +13,7 @@ import RPCTarget from '../rpc/RPCTarget.js';
 import { newKeypair } from '../../utils/crypto/index.js';
 
 class Connector extends EventEmitter {
-  constructor({ address, protocol, lane, keypair = newKeypair(), rpcRequestTimeout, verbose = false } = {}) {
+  constructor({ address, protocol, lane, keypair = newKeypair(), rpcRequestTimeout, verbose = false, tag } = {}) {
     super();
 
     this.protocol = protocol;
@@ -29,6 +29,7 @@ class Connector extends EventEmitter {
 
     this.address = address;
     this.verbose = verbose;
+    this.tag = tag;
 
     this.sentCount = 0;
     this.receivedCount = 0;
@@ -80,7 +81,7 @@ class Connector extends EventEmitter {
 
           this.emit('ready', { sharedSecret, sharedSecretHex });
 
-          console.log(`✓ Ready: DMT Protocol Connector [ ${this.address} · ${this.protocol}/${this.lane} ]`);
+          console.log(`✓ Ready: DMT Protocol Connector [ ${this.address} (${this.tag}) · ${this.protocol}/${this.lane} ]`);
         })
         .catch(e => {
           if (num == this.successfulConnectsCount) {
@@ -95,7 +96,7 @@ class Connector extends EventEmitter {
       }
 
       if (this.connected == undefined) {
-        console.log(`Connector ${this.address} was not able to connect at first try, setting READY to false`);
+        console.log(`Connector ${this.address} (${this.tag}) was not able to connect at first try, setting READY to false`);
       }
 
       this.connected = false;

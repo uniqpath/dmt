@@ -7,11 +7,14 @@ const wsCLOSED = 3;
 
 import Connector from '../connector/connector.js';
 
-function establishAndMaintainConnection({ address, ssl = false, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose }, { WebSocket, log }) {
+function establishAndMaintainConnection(
+  { address, ssl = false, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose, tag },
+  { WebSocket, log }
+) {
   const wsProtocol = ssl ? 'wss' : 'ws';
   const endpoint = port.toString().startsWith('/') ? `${wsProtocol}://${address}${port}` : `${wsProtocol}://${address}:${port}`;
 
-  const connector = new Connector({ address, protocol, lane, rpcRequestTimeout, keypair, verbose });
+  const connector = new Connector({ address, protocol, lane, rpcRequestTimeout, keypair, verbose, tag });
 
   if (connector.connection) {
     return connector;

@@ -10,39 +10,31 @@ class ConnectorPool {
     this.isPreparingConnector = {};
   }
 
-  getConnector(ip, port) {
-    const ipWithPort = `${ip}:${port}`;
+  getConnector({ address, port, tag }) {
+    const addressWithPort = `${address}:${port}`;
 
-    if (!ip || !port) {
-      throw new Error(`Must provide both ip and port: ${ipWithPort}`);
+    if (!address || !port) {
+      throw new Error(`Must provide both address and port: ${addressWithPort}`);
     }
 
     return new Promise((success, reject) => {
-      if (this.connectors[ipWithPort]) {
-        success(this.connectors[ipWithPort]);
+      if (this.connectors[addressWithPort]) {
+        success(this.connectors[addressWithPort]);
         return;
       }
 
-      if (this.isPreparingConnector[ipWithPort]) {
+      if (this.isPreparingConnector[addressWithPort]) {
         setTimeout(() => {
-          this.getConnector(ip, port)
-            .then(success)
-            .catch(reject);
+          this.getConnector({ address, port, tag }).then(success);
         }, 10);
       } else {
-        this.isPreparingConnector[ipWithPort] = true;
+        this.isPreparingConnector[addressWithPort] = true;
 
-        firstConnectWaitAndContinue({ ...this.options, ...{ address: ip, port } }).then(connector => {
-          this.connectors[ipWithPort] = connector;
-          this.isPreparingConnector[ipWithPort] = false;
+        firstConnectWaitAndContinue({ ...this.options, ...{ address, port, tag } }).then(connector => {
+          this.connectors[addressWithPort] = connector;
+          this.isPreparingConnector[addressWithPort] = false;
 
-          if (connector.isReady()) {
-            success(connector);
-          } else {
-            const e = new Error('Connector was not ready in time, please retry the request.');
-            e.connector = connector;
-            reject(e);
-          }
+          success(connector);
         });
       }
     });

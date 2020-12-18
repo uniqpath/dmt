@@ -75,7 +75,7 @@ function contentServer({ app, connectorPool, defaultPort, emitter }) {
             }
 
             connectorPool
-              .getConnector(ip, port)
+              .getConnector({ address: ip, port })
               .then(connector => {
                 const context = { sessionId, res, connector };
 
