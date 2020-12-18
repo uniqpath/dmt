@@ -26,8 +26,11 @@ body {
   background: linear-gradient(180deg, rgba(27, 28, 52, 1) 0%, rgba(42, 27, 52, 1) 100%);
   background-attachment: fixed;
 
-  background: url(img/wallpapers/zeta_landscape.jpg) no-repeat center center fixed;
+  /*background: url(img/wallpapers/zeta_landscape.jpg) no-repeat center center fixed;*/
   /*background: url(img/wallpapers/mountains.jpg) no-repeat center center fixed;*/
+  /*background: url(img/wallpapers/back-to-the-future-dmt.jpg) no-repeat center center fixed;*/
+  /*background: url(img/wallpapers/geometry_black.jpg) no-repeat center center fixed;*/
+  background: url(img/wallpapers/simple_gray_abstract.jpg) no-repeat center center fixed;
   background-size: cover;
 
   /*background-repeat: no-repeat;*/

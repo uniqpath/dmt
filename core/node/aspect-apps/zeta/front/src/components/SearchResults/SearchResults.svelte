@@ -25,7 +25,18 @@
   export let hasPlayer;
 </script>
 
-<div class="no_results" class:visible={noSearchHits}>— NOTHING WAS FOUND — <br> <!-- <span>Please reboot some computer and try again.</span> --> <span>Have you tried turning the {#if $searchMode == 0}network{:else}machine{/if} off and on again?</span> </div> <!-- 🎃 -->
+<div class="no_results" class:visible={noSearchHits}>— THIS IS A DEMO — <br><br> <!-- <span>Please reboot some computer and try again.</span> -->
+  <!-- <span>Have you tried turning the {#if $searchMode == 0}network{:else}machine{/if} off and on again?</span> </div> <!-- 🎃 -->
+  <!-- <span>Have you tried turning the {#if $searchMode == 0}network{:else}machine{/if} off and on again?</span> </div> <!-- 🎃 -->
+  <span class="line">This <b>engine</b> works best as <a href="https://github.com/uniqpath/info">local-first service</a>.</span>
+  <span class="line">You can also join a regular weekly <a href="https://dmt-system.com">discourse about next steps</a>.</span>
+  <br>
+  <br>
+  Version 1.0 of ZetaSeek is not yet released.
+  <br>
+  <br>
+  This demo is a decentralized app build on top of <a href="http://zetaseek.com/file/dmt-engine%20and%20connectome%20-%20dmt%20meetup%20-%20dec%202020.pdf?place=localhost-2f686f6d652f7a6574612f46696c65732f444d542d53595354454d2f50726573656e746174696f6e73">DMT ENGINE 1.1</a>
+</div>
 
 
 <!-- {#if app.isZetaSeek}

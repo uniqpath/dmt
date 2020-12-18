@@ -1,4 +1,5 @@
 <script>
+
   import { getContext } from 'svelte';
   const app = getContext('app');
 
@@ -6,71 +7,25 @@
   export let searchQuery;
   export let dmtVersion;
 
-  // const d = new Date();
-  // const datestring = `${d.getFullYear()}-${(d.getMonth() + 1)}-${d.getDate()}`;
+  $: displayVersion = dmtVersion || '';
 
-  $: displayVersion = dmtVersion ? `v${dmtVersion}` : ''
-
-  let minimized;
-
-  function minimize() {
-    minimized = true;
-  }
 </script>
 
-  <!-- {#if app.isDevMachine}
-    <img src="/apps/zeta/img/wabbit.png" class="wabbit">
-  {/if} -->
+  <div class="about" class:visible={!searchQuery} class:wider={app.isLocalhost}>
 
-  <div class="about" class:visible={!minimized && !searchQuery} class:wider={app.isLocalhost}>
+    <p>
+      {#if app.isLocalhost}
+        🐺 Seek the wolf in thyself!<br>
+      {/if}
 
-    <!-- <a href="#" class="minimize" on:click={() => minimize()}>X</a> -->
+      {#if app.isZetaSeekCorePromoter}
+        <a href="https://twitter.com/zetaseek"><img class="icon_symbol" src="/apps/zeta/img/twitter.svg" /></a>
+      {/if}
 
-    <!-- {#if app.isZetaSeek} -->
-      <p>
-
-        <!-- <a href="https://zetaseek.com"><img src="/apps/zeta/img/zeta_symbol.png" class="icon_symbol" /></a> -->
-        <!-- <a href="https://github.com/uniqpath/dmt#we-are-now-ready-to-setup-the--zeta-explorer-node"><img src="/apps/zeta/img/tropical_fish.png" class="icon_symbol" /></a> -->
-
-
-        <!-- <b>Zeta</b> -->
-        <!-- <span class="dash">/</span> -->
-        <!-- <b><a href="https://dmt-system.com">DMT-SYSTEM</a></b> -->
-
-        <!-- {#if app.isZetaSeek}
-          <a href="https://dmt-system.com">dmt-system</a> ·
-        {/if} -->
-
-        {#if app.isLocalhost}
-          🐺 Seek the wolf in thyself!<br>
-        {/if}
-
-        {#if app.isZetaSeekCorePromoter}
-          <a href="https://twitter.com/zetaseek"><img class="icon_symbol" src="/apps/zeta/img/twitter.svg" /></a>
-        {/if}
-
-        <span class="version"><a href="https://dmt-system.com">{displayVersion}</a></span>
-
-        <!-- <img src="/apps/zeta/img/dmt_symbol.png" class="icon_symbol" /> -->
-        <!-- <a href="https://discord.gg/XvJzmtF"><img class="icon_symbol" src="/apps/zeta/img/discord.svg" />live support</a> -->
-      </p>
-
-    <!-- {:else}
-      <b><a href="https://zetaseek.com">zetaseek</a></b>
-      <span class="version">{displayVersion}</span>
-
-      <p>
-        An evolving search<sup>+</sup> technology for web3 revolution.
-      </p>
-    {/if} -->
-    <!-- {:else}
-      <b><a href="https://zetaseek.com">Zeta</a></b> <span class="version">{displayVersion}</span>
-    {/if} -->
-
-    <!-- {#if app.isZetaSeek} -->
+      <span class="version"><a href="https://dmt-system.com">{displayVersion}</a></span>
+    </p>
 
   </div>
-
 
 <style>
 
@@ -97,8 +52,6 @@
   background-color: #D9EBD5;
   display: none;
   text-align: center;
-  /*display: inline-block;
-  vertical-align: middle;*/
 }
 
 .about.wider {
@@ -112,7 +65,6 @@
 .about p {
   font-size: 0.9em;
   color: #232527;
-  /*margin: 0;*/
 }
 
 .about img.icon_symbol {
@@ -121,25 +73,11 @@
   padding-bottom: 3px;
 }
 
-/*.about span {
-  color: #777;
-  color: #535B62;
-  color: #5D6270;
-  color: var(--dmt-violet-dark);
-}*/
-
 .about span.dash {
   padding: 0 2px;
 }
 
 .about span.version {
-  font-size: 0.8em;
-}
-
-.about a.minimize {
-  float: right;
-  font-weight: bold;
-  text-decoration-style: dotted;
   font-size: 0.8em;
 }
 
@@ -159,7 +97,6 @@ a img:hover {
 
 a img.icon {
   width: 20px;
-  /*margin-left: 23px;*/
 }
 
 p.explorers {
@@ -171,10 +108,7 @@ p span.fish {
 }
 
 @media only screen and (max-width: 768px) {
-  .about {
-    /*display: none;*/
-    /*width: 300px;*/
-  }
+  /*.about { }*/
 }
 
 </style>

@@ -5,15 +5,33 @@
   export let loggedIn;
   export let isAdmin;
 
+  export let deviceName; // temp
+  export let metamaskConnect;
+  export let searchQuery;
+
+  export let displayName;
+
   export let backend;
 
-  import FiberList from './FiberList.svelte';
+  $: panels = $backend.panels;
+
+  export let loginStore;
+
+  import MenuBar from '../MenuBar/MenuBar.svelte';
+
+  import Links from './Links.svelte';
+  import Profile from './Profile.svelte';
+  // import InsideBox from './InsideBox.svelte';
+  // import TeamBox from './TeamBox.svelte';
+  // import ZetaDiscord from './ZetaDiscord.svelte';
+  // import ZetaDocuments from './ZetaDocuments.svelte';
 
 </script>
 
 <div class="leftbar">
-
-  <FiberList {backend} />
+  {#if app.nodeHasBlog}
+    <Links blogName={app.blogName} />
+  {/if}
 
 </div>
 

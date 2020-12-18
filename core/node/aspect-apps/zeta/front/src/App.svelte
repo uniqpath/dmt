@@ -296,7 +296,7 @@
 
   appHelper.on('explorersClick', explorersClick);
 
-  $: placeholderText = !$connected ? "Search is currently not available" : ($searchMode == 0 ? "Zeta network search" : "This machine search");
+  $: placeholderText = !$connected ? "Search is currently not available" : ($searchMode == 0 ? "Peer search" : "This machine search");
 
   appHelper.on('search', doSearch);
 </script>
@@ -315,13 +315,15 @@
     <Login {metamaskConnect} {ethAddress} {displayName} {isAdmin} />
   <!-- {/if} -->
 
-  <!-- {:else}
-    <Escape /> -->
-  <!-- {/if} -->
-
   <div class="logo">
     <a href="#" on:click|preventDefault={() => { goHome(); }}>
-      <img src="/apps/zeta/img/zetaseek_logo.svg?v=2" alt="zeta logo">
+      {#if appHelper.isLocalhost}
+        <h1>My Personal Computer</h1>
+      {:else if appHelper.isZetaSeek}
+        <img src="/apps/zeta/img/zetaseek_logo.svg?v=2" alt="zeta logo">
+      {:else}
+        <h1>My Personal Server</h1>
+      {/if}
     </a>
   </div>
 

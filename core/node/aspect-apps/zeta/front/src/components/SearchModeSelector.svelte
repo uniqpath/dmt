@@ -27,7 +27,7 @@
   {#if $searchMode == 0}
     <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>
       <!-- {#if $searchMode == 0}↑{/if} -->
-      ↑ <b>Network search</b>
+      ↑ <b>Peer search</b>
     </span> ·
     <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
     <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>
@@ -42,7 +42,7 @@
     <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
     <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>
       {#if $searchMode == 0}↑{/if}
-      Network search
+      Peer search
     </span>
   {/if}
 

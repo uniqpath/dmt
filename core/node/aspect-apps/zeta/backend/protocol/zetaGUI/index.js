@@ -9,6 +9,7 @@ export default function setup({ program }) {
   helperStore.mirror(channelList);
 
   program.store.subscribe(state => {
-    helperStore.set({ device: state.device });
+    const { device, fiberlist } = state;
+    helperStore.set({ device, fiberlist });
   });
 }
