@@ -17,7 +17,6 @@ const mids = [];
 mids.push('user');
 mids.push('player');
 mids.push('search');
-mids.push('identity');
 mids.push('apps');
 
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
@@ -32,6 +31,7 @@ mids.push('meta/replicate');
 mids.push('meta/update');
 mids.push('meta/holidays');
 
+mids.push('meta/identity');
 mids.push('meta/zeta-peers');
 
 try {

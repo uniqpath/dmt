@@ -77,7 +77,7 @@ This manual on GitHub is now concluded (short, eh? :) We wanted to utilize *the 
 
 ### ✓ Successful install 🎉
 
-After the script is done, you should be able to open `http://server_ip:7777/apps/zeta`.
+After the script is done, you should be able to open `http://server_ip:7777/apps/search`.
 
 Try this as well:
 
@@ -113,7 +113,7 @@ You can also use hello@uniqpath.com email to contact your decentralized tech sup
 
 ## More resources
 
-Visit [DMT SYSTEM](https://dmt-system.com) website to visit **DMT / Zeta Open Hours** and Ask Anything.💡🚀🎸 
+Visit [DMT SYSTEM](https://dmt-system.com) website to visit **DMT / Zeta Open Hours** and Ask Anything.💡🚀🎸
 
 Another option is to just [follow the guides](https://github.com/uniqpath/info) on GitHub and use all of our {code} offerings completely disconnected / incognito.
 

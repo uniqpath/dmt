@@ -20,7 +20,7 @@ export default function cleanupStateOnSave(state) {
   delete state.blinds;
   delete state.deviceRestarters;
 
-  delete state.fiberlist;
+  delete state.peerlist;
 
   if (state.player) {
     delete state.player.currentMedia;

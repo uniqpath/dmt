@@ -13,9 +13,9 @@ function setup({ program }) {
   const contentRefs = def.values(playerInfo.contentRef);
   const contentProviders = dmtContent.parseContentRefs(contentRefs);
 
-  const { connectorPool } = program;
+  const { fiberPool } = program;
 
-  const zetaSearch = new ZetaSearch({ connectorPool, contentProviders });
+  const zetaSearch = new ZetaSearch({ connectorPool: fiberPool, contentProviders });
   const player = new LocalPlayer({ program });
 
   return { zetaSearch, player };

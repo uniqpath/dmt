@@ -67,8 +67,8 @@ function connectionsHandler({ args, program }) {
   return new Promise((success, reject) => {
     const incoming = program.acceptor.connectionList({ warnForIsReady: false });
 
-    const { connectorPool } = program;
-    const outgoing = connectorPool.connectionList();
+    const { fiberPool } = program;
+    const outgoing = fiberPool.connectionList();
 
     success({
       incoming,

@@ -55,11 +55,17 @@ class Program extends EventEmitter {
 
     this.metamaskStore = new MetaMaskStore();
 
-    this.actors = new ActorManagement(this);
+    const port = 7780;
+    const protocol = 'dmt';
+    const lane = 'fiber';
 
+    this.setupFiberPool({ port, protocol, lane });
+
+    this.actors = new ActorManagement(this);
     this.acceptor = new ProgramConnectionsAcceptor(this);
 
-    this.setupConnectorPool();
+    const onConnect = ({ program, channel }) => program.actors.setupChannel(channel);
+    this.registerProtocol({ protocol, lane, onConnect });
 
     if (dmt.isRPi()) {
       this.store.update({ device: { isRPi: true } }, { announce: false });
@@ -134,19 +140,12 @@ class Program extends EventEmitter {
     return this.acceptor.registerProtocol({ protocol, lane, onConnect: onConnectWrap });
   }
 
-  setupConnectorPool() {
-    const port = 7780;
-    const protocol = 'dmt';
-    const lane = 'fiber';
-
-    const onConnect = ({ program, channel }) => program.actors.setupChannel(channel);
-    this.registerProtocol({ protocol, lane, onConnect });
-
+  setupFiberPool({ port, protocol, lane }) {
     const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = dmt.keypair();
 
-    this.connectorPool = new ConnectorPool({ protocol, lane, port, clientPrivateKey, clientPublicKey, log: log.write });
+    this.fiberPool = new ConnectorPool({ protocol, lane, port, clientPrivateKey, clientPublicKey, log: log.write });
 
-    this.wirefiberlist({ connectorPool: this.connectorPool, port });
+    this.keepPeerlistInSyncWithFiberpool({ connectorPool: this.fiberPool, port });
 
     const emitter = new EventEmitter();
 
@@ -154,22 +153,22 @@ class Program extends EventEmitter {
       this.emit('file_request', data);
     });
 
-    this.server.setupRoutes(app => contentServer({ app, connectorPool: this.connectorPool, defaultPort: port, emitter }));
+    this.server.setupRoutes(app => contentServer({ app, connectorPool: this.fiberPool, defaultPort: port, emitter }));
   }
 
-  wirefiberlist({ connectorPool, port }) {
-    for (const { deviceName, address } of dmt.fiberlist()) {
-      this.store.replaceSlotElement({ slotName: 'fiberlist', key: deviceName, value: {} }, { announce: false });
+  keepPeerlistInSyncWithFiberpool({ connectorPool, port }) {
+    for (const { deviceName, address } of dmt.peerlist()) {
+      this.store.replaceSlotElement({ slotName: 'peerlist', key: deviceName, value: {} }, { announce: false });
 
       connectorPool.getConnector({ address, port, tag: deviceName }).then(connector => {
-        this.store.replaceSlotElement({ slotName: 'fiberlist', key: deviceName, value: { connected: connector.isReady() } });
+        this.store.replaceSlotElement({ slotName: 'peerlist', key: deviceName, value: { connected: connector.isReady() } });
 
         connector.on('ready', () => {
-          this.store.replaceSlotElement({ slotName: 'fiberlist', key: deviceName, value: { connected: true } });
+          this.store.replaceSlotElement({ slotName: 'peerlist', key: deviceName, value: { connected: true } });
         });
 
         connector.on('disconnect', () => {
-          this.store.replaceSlotElement({ slotName: 'fiberlist', key: deviceName, value: { connected: false } });
+          this.store.replaceSlotElement({ slotName: 'peerlist', key: deviceName, value: { connected: false } });
         });
       });
     }

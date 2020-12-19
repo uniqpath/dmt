@@ -24,9 +24,9 @@ function search({ args, method }, { program }) {
 
     delete options.atDevices;
 
-    const { connectorPool } = program;
+    const { fiberPool } = program;
 
-    const zetaSearch = new ZetaSearch({ connectorPool, contentProviders, searchOriginHost });
+    const zetaSearch = new ZetaSearch({ connectorPool: fiberPool, contentProviders, searchOriginHost });
 
     zetaSearch
       .search(options)

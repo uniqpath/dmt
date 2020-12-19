@@ -228,7 +228,7 @@ function zeta_setup {
   echo
   printf "● Create a folder ${GREEN}mkdir ~/Files${NC} and put some files in it.\n"
   echo
-  printf "● Open ${CYAN}http://server_ip:7777/apps/zeta${NC} in browser and search for the files inside ${YELLOW}~/Files${NC} directory.\n"
+  printf "● Open ${CYAN}http://server_ip:7777/apps/search${NC} in browser and search for the files inside ${YELLOW}~/Files${NC} directory.\n"
 
   echo
   printf "To setup a subdomain on ${MAGENTA}*.zetaseek.com${NC} please configure your ${YELLOW}lighttpd${NC} server according to the ${CYAN}docs${NC} or ${CYAN}admin instructions${NC}.\n"

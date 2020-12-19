@@ -44,7 +44,7 @@ function server(program) {
               }
             }
 
-            program.connectorPool
+            program.fiberPool
               .getConnector({ address, port: port || 7780 })
               .then(connector => {
                 if (connector.isReady()) {

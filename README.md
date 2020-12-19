@@ -4,19 +4,19 @@
 
 ![dmt_device_types](https://github.com/uniqpath/info/blob/master/assets/img/dmt_device_types.png?raw=true)
 
-## See the presentation
+## See the presentations
 
-Here is the presentation about [DMT ENGINE and Connectome design](https://zetaseek.com/file/dmt-engine%20and%20connectome%20-%20dmt%20meetup%20-%20dec%202020.pdf?place=localhost-2f686f6d652f7a6574612f46696c65732f444d542d53595354454d2f50726573656e746174696f6e73).
+Here are the presentations about [DMT ENGINE, Connectome and Zeta* suite of apps](https://zetaseek.com/?place=2f686f6d652f7a6574612f46696c65732f444d542d53595354454d2f50726573656e746174696f6e73).
 
 ![my_connectome](https://github.com/uniqpath/info/blob/master/assets/img/my_connectome.png?raw=true)
 
-This capability is coming in Q1 or Q2 2020 but you are welcome to provide input and even co-design it! Visit one of our informal discussion meetups. You can visit the next one [this coming friday](https://dmt-system.com). 
+This capability is coming in Q1 or Q2 2020 but you are welcome to provide input and even co-design it!
 
-The right question to ask is: **Why not?**
+💡 Visit one of our [informal discussion meetups](https://dmt-system.com) when they are announced. This is usually a good time-investment.
 
 ![dmt_meetup](https://github.com/uniqpath/info/blob/master/assets/img/dmt_meetup.jpg?raw=true)
 
-## 💡Try uniqpath DMT ENGINE today
+## Try uniqpath DMT ENGINE today
 
 Option 1 — **Personal Computer** (see [info](https://github.com/uniqpath/info) for information on server and single-board computer setup):
 

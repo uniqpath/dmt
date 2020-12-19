@@ -169,7 +169,7 @@ export default {
     return helper.devices(options);
   },
 
-  fiberlist() {
+  peerlist() {
     const connections = helper.fiber();
 
     return connections
