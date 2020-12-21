@@ -1,7 +1,7 @@
 import dmt from 'dmt/bridge';
 const { def, dmtContent } = dmt;
 
-import { ZetaSearch } from 'dmt/search';
+import { ParaSearch } from 'dmt/search';
 import LocalPlayer from '../lib/localPlayer';
 
 function setup({ program }) {
@@ -15,10 +15,10 @@ function setup({ program }) {
 
   const { fiberPool } = program;
 
-  const zetaSearch = new ZetaSearch({ connectorPool: fiberPool, contentProviders });
+  const paraSearch = new ParaSearch({ connectorPool: fiberPool, contentProviders });
   const player = new LocalPlayer({ program });
 
-  return { zetaSearch, player };
+  return { paraSearch, player };
 }
 
 export default setup;

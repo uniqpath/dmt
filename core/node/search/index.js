@@ -1,4 +1,4 @@
-import ZetaSearch from './lib/zetaSearch';
+import ParaSearch from './lib/paraSearch';
 import settings from './settings';
 
 import detectMediaType from './lib/utils/detectMediaType';
@@ -12,4 +12,4 @@ function init(program) {
   initActor(program);
 }
 
-export { init, ZetaSearch, detectMediaType, parseSearchQuery, reconstructSearchQuery, serializeContentRefs, searchPredicate, settings };
+export { init, ParaSearch, detectMediaType, parseSearchQuery, reconstructSearchQuery, serializeContentRefs, searchPredicate, settings };

@@ -9,9 +9,7 @@ if (args.error) {
   process.exit();
 }
 
-const table = new Table({
-  chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' }
-});
+const table = new Table();
 
 const headers = ['slot', 'elements'];
 
@@ -59,6 +57,8 @@ ipcClient({ actorName: 'controller', action })
       console.log(colors.brightWhite(`🗒️  ${colors.cyan('dmt-proc')} in-memory ${colors.magenta('state:')}`));
       console.log();
       table.push(headers.map(h => colors.cyan(h)));
+
+      table.push(Table.divider);
 
       table.push(
         ...Object.keys(state)

@@ -7,7 +7,7 @@ import enhanceResult from './enhanceResult';
 
 const { log, util } = dmt;
 
-class ZetaSearch {
+class ParaSearch {
   constructor({ connectorPool, contentProviders, searchOriginHost } = {}) {
     this.searchOriginHost = searchOriginHost;
 
@@ -82,4 +82,4 @@ class ZetaSearch {
   }
 }
 
-export default ZetaSearch;
+export default ParaSearch;

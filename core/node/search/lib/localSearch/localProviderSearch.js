@@ -8,13 +8,13 @@ import contentSearch from './fsSearch/contentSearch';
 import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
 
 import linkSearch from './linkSearch/linkSearch';
-import swarmSearch from './swarmSearch/swarmSearch';
 import noteSearch from './noteSearch/noteSearch';
 
 class LocalProviderSearch {
   constructor({ provider }) {
     this.providerHost = provider.host;
     this.providerAddress = provider.address;
+
     this.contentId = provider.contentId;
     this.localhost = provider.localhost;
     this.providerKey = provider.deviceKey;
@@ -24,8 +24,6 @@ class LocalProviderSearch {
     switch (options.contentId) {
       case 'links':
         return this.timedLocalSearch({ func: linkSearch, options });
-      case 'swarm':
-        return this.timedLocalSearch({ func: swarmSearch, options });
       case 'notes':
         return this.timedLocalSearch({ func: noteSearch, options });
       default:

@@ -54,28 +54,40 @@ class ProgramStateStore extends EventEmitter {
   }
 
   clearSlot(slotName, { announce = true } = {}) {
-    this.kvStore.clearBaseKey(slotName, { announce });
+    this.kvStore.clearBaseKey(slotName);
     this.announceStateChange(announce);
   }
 
   replaceSlotElement({ slotName, key, value }, { announce = true } = {}) {
-    this.kvStore.replaceSubKey({ baseKey: slotName, key, value }, { announce });
+    this.kvStore.replaceSubKey({ baseKey: slotName, key, value });
     this.announceStateChange(announce);
   }
 
   removeSlotElement({ slotName, key }, { announce = true } = {}) {
-    this.kvStore.removeSubKey({ baseKey: slotName, key }, { announce });
+    this.kvStore.removeSubKey({ baseKey: slotName, key });
     this.announceStateChange(announce);
   }
 
-  pushToSlotArrayElement(slotName, el, { announce = true } = {}) {
-    this.kvStore.pushToArray(slotName, el, { announce });
+  pushToSlotArrayElement(slotName, entry, { announce = true } = {}) {
+    this.kvStore.pushToArray(slotName, entry);
     this.announceStateChange(announce);
   }
 
   removeFromSlotArrayElement(slotName, removePredicate, { announce = true } = {}) {
-    this.kvStore.removeFromArray(slotName, removePredicate, { announce });
+    this.kvStore.removeFromArray(slotName, removePredicate);
     this.announceStateChange(announce);
+  }
+
+  replaceSlotArrayElement(slotName, selectorPredicate, value, { announce = true } = {}) {
+    const foundMatch = this.kvStore.replaceArrayElement(slotName, selectorPredicate, value);
+    this.announceStateChange(announce);
+    return foundMatch;
+  }
+
+  updateSlotArrayElement(slotName, selectorPredicate, value, { announce = true } = {}) {
+    const foundMatch = this.kvStore.updateArrayElement(slotName, selectorPredicate, value);
+    this.announceStateChange(announce);
+    return foundMatch;
   }
 
   save(state) {

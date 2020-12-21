@@ -21,9 +21,7 @@ if (args.help == true) {
   process.exit();
 }
 
-const table = new Table({
-  chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' }
-});
+const table = new Table();
 
 const headers = ['device', 'dmtVersion', 'local ip', 'platform', 'uptime', 'user', 'apssid', 'deviceKey'];
 
@@ -121,7 +119,9 @@ function displayDmtVersion(thisDmtVersion, dmtVersion, thisDevice) {
 
 ipcClient({ actorName: 'controller', action })
   .then(_nearbyDevices => {
-    table.push(headers.map(h => colors.yellow(h)));
+    table.push(headers.map(h => colors.magenta(h)));
+
+    table.push(Table.divider);
 
     const nearbyDevices = _nearbyDevices.filter(({ stale }) => !stale).sort(compareValues('deviceName'));
 
@@ -143,7 +143,7 @@ ipcClient({ actorName: 'controller', action })
             platform ? colors.gray(platform) : '?',
             colors.green(uptime),
             colors.gray(username),
-            apssid ? colors.magenta(identifyDeviceByMac(apssid)) : colors.gray('/'),
+            apssid ? colors.gray(identifyDeviceByMac(apssid)) : colors.gray('/'),
             colors.gray(args.full ? deviceKey : `${deviceKey.substr(0, 8)}…`)
           ];
         })

@@ -2,6 +2,11 @@
   import { getContext, createEventDispatcher } from 'svelte';
   const app = getContext('app');
 
+  export let backend;
+
+  $: peerlist = $backend.peerlist;
+  $: peerlistConnectedLength = peerlist ? peerlist.filter(({ connected }) => connected).length : 0;
+
   import { searchMode } from '../testStore.js'
 
   import SearchModeDiagram from './SearchModeDiagram.svelte';
@@ -27,22 +32,22 @@
   {#if $searchMode == 0}
     <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>
       <!-- {#if $searchMode == 0}↑{/if} -->
-      ↑ <b>Peer search</b>
+      ↑ <b>Peer search ({peerlistConnectedLength} + This)</b>
     </span> ·
     <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
     <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>
       {#if $searchMode == 1}↑{/if}
-      This machine search
+      Only this machine
     </span>
   {:else}
     <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>
       <!-- {#if $searchMode == 1}↑{/if} -->
-      ↑ <b>This machine search</b>
+      ↑ <b>Only this machine</b>
     </span> ·
     <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
     <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>
       {#if $searchMode == 0}↑{/if}
-      Peer search
+      Peer search ({peerlistConnectedLength} + This)
     </span>
   {/if}
 

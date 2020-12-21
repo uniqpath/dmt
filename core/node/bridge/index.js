@@ -169,20 +169,22 @@ export default {
     return helper.devices(options);
   },
 
-  peerlist() {
-    const connections = helper.fiber();
+  peerConnections() {
+    const connections = helper.peerConnections();
 
     return connections
       .map(({ id }) => {
         if (id.includes('.')) {
-          return { deviceName: id, address: id };
+          const address = id;
+          return { address, deviceTag: address };
         }
 
-        const globalIp = helper.getGlobalIp({ deviceName: id });
-        return { deviceName: id, address: globalIp };
+        const deviceName = id;
+        const globalIp = helper.getIp({ deviceName });
+        return { deviceName, address: globalIp, deviceTag: deviceName };
       })
       .filter(({ address }) => !address.error)
-      .sort(util.compareValues('deviceName'));
+      .sort(util.compareValues('deviceTag'));
   },
 
   keypair() {

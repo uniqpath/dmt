@@ -109,14 +109,6 @@ class Program extends EventEmitter {
     }
   }
 
-  updatePeerlist(peerlist) {
-    this._peerlist = peerlist;
-  }
-
-  peerlist() {
-    return this._peerlist;
-  }
-
   logSearch(msg) {
     if (this.device.try('search.log') == 'true') {
       log.green(`ZetaSeek: ${msg}`);
@@ -157,21 +149,38 @@ class Program extends EventEmitter {
   }
 
   keepPeerlistInSyncWithFiberpool({ connectorPool, port }) {
-    for (const { deviceName, address } of dmt.peerlist()) {
-      this.store.replaceSlotElement({ slotName: 'peerlist', key: deviceName, value: {} }, { announce: false });
+    const slotName = 'peerlist';
 
-      connectorPool.getConnector({ address, port, tag: deviceName }).then(connector => {
-        this.store.replaceSlotElement({ slotName: 'peerlist', key: deviceName, value: { connected: connector.isReady() } });
+    this.store.replaceSlot(slotName, []);
+
+    for (const { deviceName, address, deviceTag } of dmt.peerConnections()) {
+      this.store.pushToSlotArrayElement(slotName, { deviceName, address, deviceTag }, { announce: false });
+
+      const selectorPredicate = peer => peer.deviceTag == deviceTag;
+
+      connectorPool.getConnector({ address, port, deviceTag }).then(connector => {
+        this.store.updateSlotArrayElement(slotName, selectorPredicate, { connected: connector.isReady() });
 
         connector.on('ready', () => {
-          this.store.replaceSlotElement({ slotName: 'peerlist', key: deviceName, value: { connected: true } });
+          this.store.updateSlotArrayElement(slotName, selectorPredicate, { connected: true });
         });
 
         connector.on('disconnect', () => {
-          this.store.replaceSlotElement({ slotName: 'peerlist', key: deviceName, value: { connected: false } });
+          this.store.updateSlotArrayElement(slotName, selectorPredicate, { connected: false });
         });
       });
     }
+  }
+
+  peerlist() {
+    const { peerlist } = this.state();
+    if (peerlist) {
+      return Object.entries(peerlist).map(([deviceName, values]) => {
+        return { deviceName, ...values };
+      });
+    }
+
+    return [];
   }
 
   continueBooting() {

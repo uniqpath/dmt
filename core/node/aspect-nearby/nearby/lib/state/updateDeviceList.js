@@ -1,20 +1,9 @@
-export default function updateDeviceList({ device, announce, program }) {
-  const { nearbyDevices } = program.state();
+export default function updateDeviceList({ device, program, announce }) {
+  const slotName = 'nearbyDevices';
 
-  let found;
+  const selectorPredicate = ({ deviceKey }) => deviceKey == device.deviceKey;
 
-  for (let i = 0; i < nearbyDevices.length; i++) {
-    if (nearbyDevices[i].deviceKey == device.deviceKey) {
-      nearbyDevices[i] = device;
-      found = true;
-    }
-  }
-
-  if (!found) {
-    nearbyDevices.push(device);
-  }
-
-  if (announce) {
-    program.store.announceStateChange();
+  if (!program.store.replaceSlotArrayElement(slotName, selectorPredicate, device, { announce })) {
+    program.store.pushToSlotArrayElement(slotName, device, { announce });
   }
 }

@@ -8,18 +8,18 @@
 <div class="peerlist">
 
   {#if $connected}
-    {#if peerlist && Object.keys(peerlist).length > 0}
+    {#if peerlist && peerlist.length > 0}
       <span class="title">— Following peers —</span>
     {:else}
       <span class="title">Peers → <span class="white">Not following anyone yet.</span></span>
     {/if}
 
     {#if peerlist}
-      {#each Object.keys(peerlist) as deviceName}
-        <div class="peer" class:connected={peerlist[deviceName].connected == true}>
+      {#each peerlist as { deviceTag, connected }}
+        <div class="peer" class:connected={connected == true}>
           <span class="ok">ok</span>
           <span class="cross">✖</span>
-          {deviceName}
+          {deviceTag}
         </div>
       {/each}
     {/if}

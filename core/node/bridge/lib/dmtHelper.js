@@ -64,14 +64,14 @@ function readDeviceDef({ filePath, onlyBasicParsing, caching = true }) {
   }
 }
 
-function readFiberDef({ filePath }) {
+function readConnectDef({ filePath }) {
   try {
     if (!fs.existsSync(filePath)) {
       return def.makeTryable({ empty: true });
     }
 
-    const fiberDef = def.parseFile(filePath);
-    return def.makeTryable(fiberDef.multi.length > 0 ? fiberDef.multi : { empty: true });
+    const connectDef = def.parseFile(filePath);
+    return def.makeTryable(connectDef.multi.length > 0 ? connectDef.multi : { empty: true });
   } catch (e) {
     console.log(colors.red(e.message));
     process.exit();
@@ -343,10 +343,10 @@ export default {
     return path.join(devicesDir, deviceName);
   },
 
-  fiber() {
+  peerConnections() {
     const filePath = this.deviceDefFile('this', 'connect');
-    const fibers = readFiberDef({ filePath });
-    return fibers.empty ? [] : fibers;
+    const connections = readConnectDef({ filePath });
+    return connections.empty ? [] : connections;
   },
 
   keypair() {

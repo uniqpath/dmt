@@ -13,35 +13,42 @@ class GUISearchObject {
   }
 
   search({ query, searchMode, searchMetadata }) {
-    const { searchOriginHost } = searchMetadata;
+    const { searchOriginHost, isLAN } = searchMetadata;
 
     console.log(`searchMode: ${searchMode}`);
 
     return new Promise(success => {
       const { terms, mediaType, count, page, atDevices } = parseSearchQuery({ query });
 
-      let providers = '';
+      const peerlist = searchMode == 0 ? this.program.peerlist() : [];
+      const peerAddresses = peerlist.length > 0 ? peerlist.map(({ address }) => address) : [];
 
-      if (atDevices.length > 0 && dmt.isDevMachine()) {
-        providers = serializeContentRefs(atDevices);
-      } else {
-        const thisProviders = ['this'];
-
-        let peers = [];
-        if (searchMode == 0) {
-          peers = this.program.peerlist().filter(peer => peer != searchOriginHost);
-        }
-
-        providers = thisProviders
-          .concat(peers)
-          .map(provider => `@${provider} @${provider}/links @${provider}/swarm`)
-          .join(' ');
-      }
-
+      const providers = ['this']
+        .concat(peerAddresses)
+        .map(provider => `@${provider} @${provider}/links`)
+        .join(' ');
       this.program
         .actor('search')
         .call('search', { query: `${terms.join(' ')} ${providers} @count=20`, searchOriginHost })
         .then(responses => {
+          for (const response of responses) {
+            const { meta } = response;
+            if (meta) {
+              const matchingPeer = peerlist.find(({ address }) => address == meta.providerAddress);
+              if (matchingPeer) {
+                meta.providerTag = matchingPeer.deviceTag;
+              } else {
+                meta.thisMachine = true;
+
+                if (isLAN) {
+                  meta.providerTag = meta.providerHost;
+                } else {
+                  meta.providerTag = 'this';
+                }
+              }
+            }
+          }
+
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           this.program.emit('zeta::user_search', { query, totalHits, searchMetadata });
           success(responses);

@@ -4,7 +4,7 @@ const { log, dmtContent } = dmt;
 import { parseSearchQuery } from '../../lib/utils/query';
 import normalizeTerms from '../../lib/utils/normalizeTerms';
 
-import ZetaSearch from '../../lib/zetaSearch';
+import ParaSearch from '../../lib/paraSearch';
 
 function search({ args, method }, { program }) {
   const { query, place, searchOriginHost } = args;
@@ -26,9 +26,9 @@ function search({ args, method }, { program }) {
 
     const { fiberPool } = program;
 
-    const zetaSearch = new ZetaSearch({ connectorPool: fiberPool, contentProviders, searchOriginHost });
+    const paraSearch = new ParaSearch({ connectorPool: fiberPool, contentProviders, searchOriginHost });
 
-    zetaSearch
+    paraSearch
       .search(options)
       .then(success)
       .catch(e => {

@@ -7,13 +7,13 @@ function colorizeDevice(device) {
 }
 
 function makeTable(devices) {
-  const table = new Table({
-    chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' }
-  });
+  const table = new Table();
 
   const header = ['last', 'ip', 'name', 'mac'].map(column => colors.yellow(column));
 
   table.push(header);
+
+  table.push(Table.divider);
 
   devices
     .filter(device => !device.missing)

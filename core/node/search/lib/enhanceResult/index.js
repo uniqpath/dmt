@@ -1,13 +1,12 @@
 import dmt from 'dmt/bridge';
 
 import enhanceFS from './enhanceFSResult';
-import enhanceSwarm from './enhanceSwarmResult';
 import enhanceNote from './enhanceNoteResult';
 
 const { log } = dmt;
 
 function enhanceResult({ result, providerAddress, providerPort, providerKey, searchOriginHost }) {
-  const { filePath, swarmBzzHash, isNote, url } = result;
+  const { filePath, isNote, url } = result;
 
   if (filePath) {
     enhanceFS(result, { providerAddress, providerPort, providerKey, searchOriginHost });
@@ -16,11 +15,6 @@ function enhanceResult({ result, providerAddress, providerPort, providerKey, sea
 
   if (isNote) {
     enhanceNote(result, { searchOriginHost });
-    return;
-  }
-
-  if (swarmBzzHash) {
-    enhanceSwarm(result, { swarmGateway: 'https://gateway.ethswarm.org' });
     return;
   }
 

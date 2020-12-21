@@ -113,7 +113,9 @@ You can also use hello@uniqpath.com email to contact your decentralized tech sup
 
 ## More resources
 
-Visit [DMT SYSTEM](https://dmt-system.com) website to visit **DMT / Zeta Open Hours** and Ask Anything.💡🚀🎸
+[DMT ENGINE 1.2 Documentation](https://docs.uniqpath.com/dmt) with explanation of core ideas and concepts.
+
+Visit [DMT SYSTEM](https://dmt-system.com) website to visit **DMT / Zeta Open Hours** (when published) and Ask Us Everything.💡🚀🎸
 
 Another option is to just [follow the guides](https://github.com/uniqpath/info) on GitHub and use all of our {code} offerings completely disconnected / incognito.
 

@@ -1687,7 +1687,7 @@ function dmt_deactivate {
 }
 
 function dmt_shell_setup {
-  echo "dmt shell setup"
+  echo "dmt shell setup -- soon: coming in v1.2.0 --"
   # if [ -f ~/.dmt/user/def/user.def ]; then # should exist for sure -- except if user forgot to do ./install (when sample_user gets copied over) after cloning the dmt repo
   #   sed -i 's/#shell: full/shell: full/' ~/.dmt/user/def/user.def # uncomment this line in user.def (#shell: full ==> shell: full)
   # fi

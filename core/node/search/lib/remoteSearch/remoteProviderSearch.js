@@ -12,13 +12,16 @@ class RemoteProviderSearch {
     this.providerHost = provider.host;
     this.providerAddress = provider.address;
     this.providerPort = provider.port;
+
     this.contentId = provider.contentId;
     this.localhost = provider.localhost;
   }
 
   searchResponse({ response, contentId, networkTime, networkTimePretty }) {
+    Object.assign(response.meta, basicMetaInfo(this));
+
     if (!response.error) {
-      Object.assign(response.meta, basicMetaInfo(this), { resultCount: response.results.length, contentId, networkTime, networkTimePretty });
+      Object.assign(response.meta, { resultCount: response.results.length, contentId, networkTime, networkTimePretty });
     }
 
     return response;

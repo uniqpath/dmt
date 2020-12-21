@@ -4,7 +4,11 @@
 
 ![dmt_device_types](https://github.com/uniqpath/info/blob/master/assets/img/dmt_device_types.png?raw=true)
 
-## See the presentations
+## Documentation
+
+[DMT ENGINE Documentation](https://docs.uniqpath.com/dmt) with explanation of core ideas and concepts.
+
+## Presentations
 
 Here are the presentations about [DMT ENGINE, Connectome and Zeta* suite of apps](https://zetaseek.com/?place=2f686f6d652f7a6574612f46696c65732f444d542d53595354454d2f50726573656e746174696f6e73).
 
@@ -26,17 +30,50 @@ Option 1 — **Personal Computer** (see [info](https://github.com/uniqpath/info)
 git clone https://github.com/uniqpath/dmt.git ~/.dmt
 ```
 
-Run dmt-proc in terminal foreground
+### Install
+
+Install is nothing more than enabling a `dmt` shell command which is a shortcut to what you wrote when trying out the engine. It also provides some other nice command line features but mostly there is no concept of "installation" here. You always have this one directory (`~/.dmt`) and whenever you want you start the **dmt process** based on source code in this directory.
+
+```
+cd ~/.dmt
+./install
+source ~/.dmt/shell/.loader
+```
+
+💡 Test by running the process in terminal foreground:
+
+```
+dmt run
+```
+
+<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-run.png?raw=true">
+
+FYI — This is equivalent to:
+
 ```
 cd ~/.dmt/core/node/controller/daemons
 node --experimental-modules --experimental-specifier-resolution=node --unhandled-rejections=strict dmt-proc.js
 ```
 
-<img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt-run.png?raw=true">
+### Run daemonized (in background)
 
-If you are disappointed you can get rid of it by simple `rm -rf ~/.dmt` (be careful only if you added some custom configuration in your `~/.dmt/user` dir)
+Start the process *daemonized* (running in background, not within one terminal window):
 
-# Prerequisites:
+```
+dmt start
+```
+
+Stop it with:
+
+```
+dmt stop
+```
+
+### Delete DMT
+
+If you are disappointed you can get rid of everything by simple `rm -rf ~/.dmt` (be careful only if you added some custom configuration in your `~/.dmt/user` dir)
+
+## Prerequisites:
 
 **Linux** (Debian, Raspbian etc.) / **macOS** / **Windows 10 Ubuntu shell**:
 
@@ -48,21 +85,6 @@ Like this:
 
 ```
 curl -L https://git.io/n-install | bash
-```
-
-# Install
-
-Install is nothing more than enabling a `dmt` shell command which is a shortcut to what you wrote when trying out the engine. It also provides some other nice command line features but mostly there is no concept of "installation" here. You always have this one directory (`~/.dmt`) and whenever you want you start the **dmt process** based on source code in this directory.
-
-```
-cd ~/.dmt
-./install
-source ~/.dmt/shell/.loader
-```
-
-Start the process again, this time *daemonized* (running in background, not within one terminal window):
-```
-dmt start
 ```
 
 ## DMT-GUI
@@ -99,11 +121,11 @@ See incoming and outgoing [Connectome](https://github.com/uniqpath/connectome) c
 dmt connections
 ```
 
-## Alternative dmtSource
+### Alternative dmtSource
 
 There is an equivalent version available from [get-dmt.com](http://get-dmt.com) (one line install `curl get-dmt.com | bash`).
 
-### Updating
+## Updating
 
 If you installed from github, you can just `git pull` to get the new version.
 
@@ -129,14 +151,18 @@ We will work on some other ways of getting the code reliably by using digital si
 - Create a [personal (search) node](https://github.com/uniqpath/dmt/blob/main/help/ZEN_NODE.md) on public IP (personal server instance)
 - [Install on your Single Board Computer](https://github.com/uniqpath/info/blob/master/assets/pdf/rpi_guide.pdf) like [RaspberryPi 3B+](https://github.com/uniqpath/info/blob/master/hardware/README.md)
 
-Please reach out for further instructions (visit our DMT / Zeta Open Hours published via [dmt-system.com](https://dmt-system.com) or contact us on [Discord support](https://discord.gg/XvJzmtF)). Server and SBC setup instructions are easy as well but some guidance and context clarification is usually welcome. We will also show you how to use the built-in music player and some other candies!
+Please reach out for further instructions (visit our DMT / Zeta Open Hours published via [dmt-system.com](https://dmt-system.com) or contact us on [Discord support](https://discord.gg/XvJzmtF)). Server and SBC setup instructions are easy as well but some guidance and context clarification is usually welcome. We will also show you how to use the built-in music player and some other things in development!
 
 ![dmt_architecture](https://github.com/uniqpath/info/blob/master/assets/img/dmt_architecture2.png?raw=true)
 
-## Read info repository for more resources
+## More resources
 
-There are some more resources listed in [info](https://github.com/uniqpath/info) repository.
+There are some more resources listed in [info](https://github.com/uniqpath/info) repository and also in already mentioned [DMT ENGINE DOCS](https://docs.uniqpath.com/dmt) with explanation of core ideas and concepts.
 
-More proper technical documentation for **DMT ENGINE** is coming online on (JAN 1 2022) after Connectome v1.0 documentation (JAN 1 2021).
+### Some parting advice :}
+
+Even if you do nothing else around this codebase for time being, do something else for sure:
+
+Read this great (and generally very applicable) thought from brilliant mind that helped make digital computing possible. This can help change anyone's life for the better.
 
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt_banner_quote.png?raw=true">

@@ -28,11 +28,9 @@ mids.push('iot');
 mids.push('content/samba');
 mids.push('meta/bash-exec');
 mids.push('meta/replicate');
-mids.push('meta/update');
 mids.push('meta/holidays');
 
 mids.push('meta/identity');
-mids.push('meta/zeta-peers');
 
 try {
   program({ mids });

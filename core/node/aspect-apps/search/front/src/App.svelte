@@ -48,10 +48,10 @@
   //   cssBridge.setWallpaper('/apps/search/wallpapers/black_triangles.jpg');
   //}
 
-  $: deviceName = $backend.deviceName;
-
   $: device = $backend.device;
   $: player = $backend.player;
+
+  $: deviceName = device ? device.deviceName : null;
 
   $: dmtVersion = device ? device.dmtVersion : null;
 
@@ -167,9 +167,10 @@
   });
 
   const searchOriginHost = window.location.host;
+  const isLAN = appHelper.isLAN;
 
   function searchMetadata() {
-    return { userIdentity, displayName, ethAddress, searchNodes, searchOriginHost }; // searchNode -- not yet implemented
+    return { userIdentity, displayName, ethAddress, searchNodes, searchOriginHost, isLAN }; // searchNode -- not yet implemented
   }
 
   // GLOBAL EVENTS (refactor?)
@@ -349,7 +350,7 @@
     {/if}
 
     {#if $connected}
-      <SearchModeSelector {searchQuery} on:searchModeChanged="{searchModeChanged}" />
+      <SearchModeSelector {searchQuery} {backend} on:searchModeChanged="{searchModeChanged}" />
     {/if}
 
     {#if errorCode == 'file_not_found'}

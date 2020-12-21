@@ -119,7 +119,8 @@ class Nearby {
           device.hiddenInGui = true;
         }
 
-        updateDeviceList({ device, announce, program: this.program });
+        const { program } = this;
+        updateDeviceList({ device, program, announce });
       } catch (e) {
         log.red(e);
       }

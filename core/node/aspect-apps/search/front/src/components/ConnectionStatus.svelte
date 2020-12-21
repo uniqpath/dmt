@@ -14,6 +14,7 @@
   export let device;
 
   function displayDeviceName(deviceName) {
+    console.log(deviceName);
     return deviceName && app.isLAN ? `@${deviceName}` : `@${window.location.hostname}`;
   }
 </script>

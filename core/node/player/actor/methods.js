@@ -79,10 +79,10 @@ function handler({ args, method }, { player }) {
   });
 }
 
-function searchHandler({ args, method }, { zetaSearch }) {
+function searchHandler({ args, method }, { paraSearch }) {
   return new Promise((success, reject) => {
     const query = args;
-    zetaSearch
+    paraSearch
       .search(parseSearchQuery(query))
       .then(aggregateResults => {
         success(aggregateResults);
@@ -94,7 +94,7 @@ function searchHandler({ args, method }, { zetaSearch }) {
   });
 }
 
-function playHandler({ args, method }, { zetaSearch, player }) {
+function playHandler({ args, method }, { paraSearch, player }) {
   const query = args;
 
   const { terms } = parseSearchQuery(query);
@@ -121,15 +121,15 @@ function playHandler({ args, method }, { zetaSearch, player }) {
       }
     }
 
-    addOrInsertHandler({ args, method }, { zetaSearch, player })
+    addOrInsertHandler({ args, method }, { paraSearch, player })
       .then(success)
       .catch(reject);
   });
 }
 
-function doSearch({ args, zetaSearch, player }) {
+function doSearch({ args, paraSearch, player }) {
   return new Promise((success, reject) => {
-    searchHandler({ args }, { zetaSearch })
+    searchHandler({ args }, { paraSearch })
       .then(aggregateResults => {
         const successfulResults = aggregateResults.filter(res => !res.error);
 
@@ -152,9 +152,9 @@ function doSearch({ args, zetaSearch, player }) {
   });
 }
 
-function addOrInsertHandler({ args, method }, { zetaSearch, player }) {
+function addOrInsertHandler({ args, method }, { paraSearch, player }) {
   return new Promise((success, reject) => {
-    doSearch({ args, zetaSearch, player })
+    doSearch({ args, paraSearch, player })
       .then(({ aggregateResults, playableResults }) => {
         player[method.name]({ files: playableResults })
           .then(success)
@@ -166,14 +166,14 @@ function addOrInsertHandler({ args, method }, { zetaSearch, player }) {
   });
 }
 
-function insertplayHandler({ args }, { zetaSearch, player }) {
+function insertplayHandler({ args }, { paraSearch, player }) {
   return new Promise((success, reject) => {
     if (!player.isInitialized()) {
       reject(playerNotReadyError());
       return;
     }
 
-    doSearch({ args, zetaSearch, player })
+    doSearch({ args, paraSearch, player })
       .then(({ aggregateResults, playableResults }) => {
         player
           .insert({ files: playableResults })
