@@ -15,6 +15,10 @@
     {/if}
   </span>
 
+  {#if !meta.contentId}
+    <span class="file_system_tag">[ File System ]</span>
+  {/if}
+
   <!-- {#if !providerResponse.error}
     <span class="searchTime">fs <span class="value">{providerResponse.meta.searchTimePretty}</span>
       {#if providerResponse.meta.networkTimePretty}
@@ -44,8 +48,11 @@
   }
 
   .provider_host.this {
-
     background-color: #BCCCCB;
+  }
+
+  .file_system_tag {
+    font-size: 0.7em;
   }
 
   .info {

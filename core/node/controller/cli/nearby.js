@@ -69,42 +69,12 @@ function ipInfo({ ip, isSpecialNode, thisDevice }) {
   return ip;
 }
 
-function compareDmtVersions(_v1, _v2) {
-  const re = new RegExp(/^[\d.]+/);
-
-  const v1 = _v1.match(re)[0];
-  const v2 = _v2.match(re)[0];
-
-  const [v1a, v1b, v1c] = v1.split('.').map(n => parseInt(n));
-  const [v2a, v2b, v2c] = v2.split('.').map(n => parseInt(n));
-
-  if (v1a > v2a) {
-    return 1;
-  }
-  if (v1a < v2a) {
-    return -1;
-  }
-  if (v1b > v2b) {
-    return 1;
-  }
-  if (v1b < v2b) {
-    return -1;
-  }
-  if (v1c > v2c) {
-    return 1;
-  }
-  if (v1c < v2c) {
-    return -1;
-  }
-  return 0;
-}
-
 function displayDmtVersion(thisDmtVersion, dmtVersion, thisDevice) {
   if (!dmtVersion) {
     return '?';
   }
 
-  const compareVersions = compareDmtVersions(dmtVersion, thisDmtVersion);
+  const compareVersions = dmt.compareDmtVersions(dmtVersion, thisDmtVersion);
 
   if (compareVersions > 0) {
     return colors.green(`↑ ${dmtVersion}`);
