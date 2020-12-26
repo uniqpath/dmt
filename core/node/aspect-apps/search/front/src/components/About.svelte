@@ -11,7 +11,7 @@
 
 </script>
 
-  <div class="about" class:visible={!searchQuery} class:wider={app.isLocalhost}>
+  <div class="about" class:visible={!searchQuery}>
 
     <!-- <p> -->
       <!-- {#if app.isLocalhost} -->
@@ -33,20 +33,12 @@
 
 <style>
 
-.wabbit {
-  left: 0;
-  bottom: 0;
-  position: fixed;
-  width: 70px;
-  padding: 20px;
-}
-
 .about {
-  width: 130px;
+  /*width: 100px;*/
   position: fixed;
   right: 0;
   bottom: 0;
-  padding: 15px 10px;
+  padding: 10px 15px;
   color: white;
   font-size: 0.8em;
   opacity: 0.8;
@@ -58,9 +50,9 @@
   text-align: center;
 }
 
-.about.wider {
+/*.about.wider {
   width: 150px;
-}
+}*/
 
 .about.visible {
   display: block;

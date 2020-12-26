@@ -83,6 +83,7 @@ class Program extends EventEmitter {
 
       program.actors.setupChannel(channel);
     };
+
     this.registerProtocol({ protocol, lane, onConnect });
 
     if (dmt.isRPi()) {

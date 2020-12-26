@@ -11,7 +11,7 @@ function compareVersionsSymbol(dmtVersion) {
     return '↓';
   }
 
-  return '≡';
+  return '';
 }
 
 export default function syncPeersToProgramState({ program, connectorPool, port }) {

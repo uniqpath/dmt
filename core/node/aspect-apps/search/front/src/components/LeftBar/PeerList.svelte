@@ -31,7 +31,7 @@
             {#if peerState.dmtVersion}
               <span class="dmt_version">
                 {#if versionCompareSymbol}
-                  {versionCompareSymbol}
+                  <span class="compare">{versionCompareSymbol}</span>
                 {/if}
                 {peerState.dmtVersion}
               </span>
@@ -70,8 +70,8 @@ span.white {
 
 .ok, .cross {
   width: 20px;
-  display: inline-block;
   text-align: center;
+  display: inline-block;
 }
 
 .ok {
@@ -96,6 +96,10 @@ span.white {
 .peer .dmt_version {
   font-size: 0.6em;
   color: #888;
+}
+
+.peer .dmt_version .compare {
+  color: var(--dmt-bright-cyan);
 }
 
 .peer .dmt_version.strong {

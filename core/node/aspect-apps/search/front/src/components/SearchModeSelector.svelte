@@ -32,22 +32,22 @@
   {#if $searchMode == 0}
     <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>
       <!-- {#if $searchMode == 0}↑{/if} -->
-      ↑ <b>Peer search ({peerlistConnectedLength} + This)</b>
+      ↑ <b>Search {peerlistConnectedLength+1} peers</b>
     </span> ·
     <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
     <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>
       {#if $searchMode == 1}↑{/if}
-      Only this machine
+      Only here
     </span>
   {:else}
     <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>
       <!-- {#if $searchMode == 1}↑{/if} -->
-      ↑ <b>Only this machine</b>
+      ↑ <b>Only here</b>
     </span> ·
     <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
     <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>
       {#if $searchMode == 0}↑{/if}
-      Peer search ({peerlistConnectedLength} + This)
+      Search {peerlistConnectedLength+1} peers
     </span>
   {/if}
 

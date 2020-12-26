@@ -51,6 +51,9 @@
   $: device = $backend.device;
   $: player = $backend.player;
 
+  $: peerlist = $backend.peerlist;
+  //$: peerlistConnectedLength = peerlist ? peerlist.filter(({ connected }) => connected).length : 0; // dup !
+
   $: deviceName = device ? device.deviceName : null;
 
   $: dmtVersion = device ? device.dmtVersion : null;
@@ -301,7 +304,7 @@
     triggerSearch({ userActivated: true });
   }
 
-  $: placeholderText = !$connected ? "Search is currently not available" : ($searchMode == 0 ? "Peer search" : "This machine search");
+  $: placeholderText = !$connected ? "Search is currently not available" : ($searchMode == 0 ? `Search network` : "Search only this peer");
 
   appHelper.on('search', doSearch);
 </script>

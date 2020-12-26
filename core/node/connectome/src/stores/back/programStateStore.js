@@ -33,6 +33,8 @@ class ProgramStateStore extends EventEmitter {
   }
 
   mirror(channelList) {
+    this.channelList = channelList;
+
     channelList.on('new_channel', channel => {
       const state = this.omitStateFn(clone(this.state()));
       channel.send({ state });
@@ -43,9 +45,9 @@ class ProgramStateStore extends EventEmitter {
     });
   }
 
-  update(patch, { announce = true } = {}) {
+  update(patch, { announce = true, skipDiffing = false } = {}) {
     this.kvStore.update(patch);
-    this.announceStateChange(announce);
+    this.announceStateChange(announce, skipDiffing);
   }
 
   replaceSlot(slotName, value, { announce = true } = {}) {
@@ -100,8 +102,16 @@ class ProgramStateStore extends EventEmitter {
     return this.kvStore.state;
   }
 
-  announceStateChange(announce = true) {
+  announceStateChange(announce = true, skipDiffing = false) {
     if (!announce) {
+      return;
+    }
+
+    if (skipDiffing && this.channelList) {
+      const state = this.omitStateFn(clone(this.state()));
+      this.channelList.sendToAll({ state });
+      this.prevAnnouncedState = state;
+      this.pushStateToSubscribers();
       return;
     }
 

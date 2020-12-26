@@ -7710,12 +7710,12 @@ var app = (function () {
     		c: function create() {
     			a = element("a");
     			img = element("img");
-    			attr_dev(img, "class", "icon_symbol svelte-1p5ough");
+    			attr_dev(img, "class", "icon_symbol svelte-1wzyex9");
     			if (img.src !== (img_src_value = "/apps/search/img/twitter.svg")) attr_dev(img, "src", img_src_value);
-    			add_location(img, file$1, 25, 47, 667);
+    			add_location(img, file$1, 25, 47, 637);
     			attr_dev(a, "href", "https://twitter.com/zetaseek");
-    			attr_dev(a, "class", "svelte-1p5ough");
-    			add_location(a, file$1, 25, 8, 628);
+    			attr_dev(a, "class", "svelte-1wzyex9");
+    			add_location(a, file$1, 25, 8, 598);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, a, anchor);
@@ -7759,15 +7759,14 @@ var app = (function () {
     			span = element("span");
     			t3 = text(/*displayVersion*/ ctx[1]);
     			attr_dev(a, "href", "https://uniqpath.com");
-    			attr_dev(a, "class", "svelte-1p5ough");
-    			add_location(a, file$1, 20, 10, 510);
-    			attr_dev(div0, "class", "tagline svelte-1p5ough");
-    			add_location(div0, file$1, 17, 8, 354);
-    			attr_dev(span, "class", "version svelte-1p5ough");
-    			add_location(span, file$1, 28, 6, 753);
-    			attr_dev(div1, "class", "about svelte-1p5ough");
+    			attr_dev(a, "class", "svelte-1wzyex9");
+    			add_location(a, file$1, 20, 10, 480);
+    			attr_dev(div0, "class", "tagline svelte-1wzyex9");
+    			add_location(div0, file$1, 17, 8, 324);
+    			attr_dev(span, "class", "version svelte-1wzyex9");
+    			add_location(span, file$1, 28, 6, 723);
+    			attr_dev(div1, "class", "about svelte-1wzyex9");
     			toggle_class(div1, "visible", !/*searchQuery*/ ctx[0]);
-    			toggle_class(div1, "wider", /*app*/ ctx[2].isLocalhost);
     			add_location(div1, file$1, 13, 2, 212);
     		},
     		l: function claim(nodes) {
@@ -7788,10 +7787,6 @@ var app = (function () {
 
     			if (dirty & /*searchQuery*/ 1) {
     				toggle_class(div1, "visible", !/*searchQuery*/ ctx[0]);
-    			}
-
-    			if (dirty & /*app*/ 4) {
-    				toggle_class(div1, "wider", /*app*/ ctx[2].isLocalhost);
     			}
     		},
     		i: noop$1,
@@ -8918,9 +8913,9 @@ var app = (function () {
     			t0 = text("Peers → ");
     			span0 = element("span");
     			span0.textContent = "Not following anyone yet.";
-    			attr_dev(span0, "class", "white svelte-1ik6598");
+    			attr_dev(span0, "class", "white svelte-u8ifq9");
     			add_location(span0, file$5, 20, 34, 454);
-    			attr_dev(span1, "class", "title svelte-1ik6598");
+    			attr_dev(span1, "class", "title svelte-u8ifq9");
     			add_location(span1, file$5, 20, 6, 426);
     		},
     		m: function mount(target, anchor) {
@@ -8952,7 +8947,7 @@ var app = (function () {
     		c: function create() {
     			span = element("span");
     			span.textContent = "— Following Peers —";
-    			attr_dev(span, "class", "title svelte-1ik6598");
+    			attr_dev(span, "class", "title svelte-u8ifq9");
     			add_location(span, file$5, 18, 6, 361);
     		},
     		m: function mount(target, anchor) {
@@ -9101,7 +9096,7 @@ var app = (function () {
     			if (if_block) if_block.c();
     			t0 = space();
     			t1 = text(t1_value);
-    			attr_dev(span, "class", "dmt_version svelte-1ik6598");
+    			attr_dev(span, "class", "dmt_version svelte-u8ifq9");
     			add_location(span, file$5, 31, 14, 868);
     		},
     		m: function mount(target, anchor) {
@@ -9145,21 +9140,26 @@ var app = (function () {
 
     // (33:16) {#if versionCompareSymbol}
     function create_if_block_4(ctx) {
+    	let span;
     	let t_value = /*versionCompareSymbol*/ ctx[9] + "";
     	let t;
 
     	const block = {
     		c: function create() {
+    			span = element("span");
     			t = text(t_value);
+    			attr_dev(span, "class", "compare svelte-u8ifq9");
+    			add_location(span, file$5, 33, 18, 956);
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, t, anchor);
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t);
     		},
     		p: function update(ctx, dirty) {
     			if (dirty & /*peerlist*/ 2 && t_value !== (t_value = /*versionCompareSymbol*/ ctx[9] + "")) set_data_dev(t, t_value);
     		},
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(t);
+    			if (detaching) detach_dev(span);
     		}
     	};
 
@@ -9200,11 +9200,11 @@ var app = (function () {
     			t5 = space();
     			if (if_block) if_block.c();
     			t6 = space();
-    			attr_dev(span0, "class", "ok svelte-1ik6598");
+    			attr_dev(span0, "class", "ok svelte-u8ifq9");
     			add_location(span0, file$5, 26, 10, 701);
-    			attr_dev(span1, "class", "cross svelte-1ik6598");
+    			attr_dev(span1, "class", "cross svelte-u8ifq9");
     			add_location(span1, file$5, 27, 10, 738);
-    			attr_dev(div, "class", "peer svelte-1ik6598");
+    			attr_dev(div, "class", "peer svelte-u8ifq9");
     			toggle_class(div, "connected", /*connected*/ ctx[3] == true);
     			add_location(div, file$5, 25, 8, 636);
     		},
@@ -9264,7 +9264,7 @@ var app = (function () {
     		c: function create() {
     			div = element("div");
     			if (if_block) if_block.c();
-    			attr_dev(div, "class", "peerlist svelte-1ik6598");
+    			attr_dev(div, "class", "peerlist svelte-u8ifq9");
     			add_location(div, file$5, 14, 0, 270);
     		},
     		l: function claim(nodes) {
@@ -10808,6 +10808,7 @@ var app = (function () {
     	let t2;
     	let span1;
     	let t3;
+    	let t4_value = /*peerlistConnectedLength*/ ctx[1] + 1 + "";
     	let t4;
     	let t5;
     	let mounted;
@@ -10819,20 +10820,20 @@ var app = (function () {
     			span0 = element("span");
     			t0 = text("↑ ");
     			b = element("b");
-    			b.textContent = "Only this machine";
+    			b.textContent = "Only here";
     			t2 = text(" ·\n    \n    ");
     			span1 = element("span");
     			if (if_block) if_block.c();
-    			t3 = text("\n      Peer search (");
-    			t4 = text(/*peerlistConnectedLength*/ ctx[1]);
-    			t5 = text(" + This)");
-    			add_location(b, file$b, 44, 8, 1629);
+    			t3 = text("\n      Search ");
+    			t4 = text(t4_value);
+    			t5 = text(" peers");
+    			add_location(b, file$b, 44, 8, 1615);
     			attr_dev(span0, "class", "this_node_search svelte-vdz3i6");
     			toggle_class(span0, "active", /*$searchMode*/ ctx[2] == 1);
-    			add_location(span0, file$b, 42, 4, 1479);
+    			add_location(span0, file$b, 42, 4, 1465);
     			attr_dev(span1, "class", "team_search svelte-vdz3i6");
     			toggle_class(span1, "active", /*$searchMode*/ ctx[2] == 0);
-    			add_location(span1, file$b, 47, 4, 1804);
+    			add_location(span1, file$b, 47, 4, 1782);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span0, anchor);
@@ -10870,7 +10871,7 @@ var app = (function () {
     				if_block = null;
     			}
 
-    			if (dirty & /*peerlistConnectedLength*/ 2) set_data_dev(t4, /*peerlistConnectedLength*/ ctx[1]);
+    			if (dirty & /*peerlistConnectedLength*/ 2 && t4_value !== (t4_value = /*peerlistConnectedLength*/ ctx[1] + 1 + "")) set_data_dev(t4, t4_value);
 
     			if (dirty & /*$searchMode*/ 4) {
     				toggle_class(span1, "active", /*$searchMode*/ ctx[2] == 0);
@@ -10903,6 +10904,7 @@ var app = (function () {
     	let t0;
     	let b;
     	let t1;
+    	let t2_value = /*peerlistConnectedLength*/ ctx[1] + 1 + "";
     	let t2;
     	let t3;
     	let t4;
@@ -10917,20 +10919,20 @@ var app = (function () {
     			span0 = element("span");
     			t0 = text("↑ ");
     			b = element("b");
-    			t1 = text("Peer search (");
-    			t2 = text(/*peerlistConnectedLength*/ ctx[1]);
-    			t3 = text(" + This)");
+    			t1 = text("Search ");
+    			t2 = text(t2_value);
+    			t3 = text(" peers");
     			t4 = text(" ·\n    \n    ");
     			span1 = element("span");
     			if (if_block) if_block.c();
-    			t5 = text("\n      Only this machine");
+    			t5 = text("\n      Only here");
     			add_location(b, file$b, 34, 8, 1092);
     			attr_dev(span0, "class", "team_search svelte-vdz3i6");
     			toggle_class(span0, "active", /*$searchMode*/ ctx[2] == 0);
     			add_location(span0, file$b, 32, 4, 947);
     			attr_dev(span1, "class", "this_node_search svelte-vdz3i6");
     			toggle_class(span1, "active", /*$searchMode*/ ctx[2] == 1);
-    			add_location(span1, file$b, 37, 4, 1296);
+    			add_location(span1, file$b, 37, 4, 1290);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span0, anchor);
@@ -10954,7 +10956,7 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*peerlistConnectedLength*/ 2) set_data_dev(t2, /*peerlistConnectedLength*/ ctx[1]);
+    			if (dirty & /*peerlistConnectedLength*/ 2 && t2_value !== (t2_value = /*peerlistConnectedLength*/ ctx[1] + 1 + "")) set_data_dev(t2, t2_value);
 
     			if (dirty & /*$searchMode*/ 4) {
     				toggle_class(span0, "active", /*$searchMode*/ ctx[2] == 0);
@@ -16347,7 +16349,7 @@ var app = (function () {
     const { console: console_1$3 } = globals;
     const file$m = "src/App.svelte";
 
-    // (329:6) {:else}
+    // (332:6) {:else}
     function create_else_block$b(ctx) {
     	let h1;
 
@@ -16356,7 +16358,7 @@ var app = (function () {
     			h1 = element("h1");
     			h1.textContent = "My Personal Server";
     			attr_dev(h1, "class", "svelte-a24143");
-    			add_location(h1, file$m, 329, 8, 10030);
+    			add_location(h1, file$m, 332, 8, 10182);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h1, anchor);
@@ -16370,14 +16372,14 @@ var app = (function () {
     		block,
     		id: create_else_block$b.name,
     		type: "else",
-    		source: "(329:6) {:else}",
+    		source: "(332:6) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (327:43) 
+    // (330:43) 
     function create_if_block_5$4(ctx) {
     	let img;
     	let img_src_value;
@@ -16388,7 +16390,7 @@ var app = (function () {
     			if (img.src !== (img_src_value = "/apps/search/img/zetaseek_logo.svg?v=2")) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "alt", "zeta logo");
     			attr_dev(img, "class", "svelte-a24143");
-    			add_location(img, file$m, 327, 8, 9941);
+    			add_location(img, file$m, 330, 8, 10093);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, img, anchor);
@@ -16402,14 +16404,14 @@ var app = (function () {
     		block,
     		id: create_if_block_5$4.name,
     		type: "if",
-    		source: "(327:43) ",
+    		source: "(330:43) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (325:6) {#if appHelper.isLocalhost}
+    // (328:6) {#if appHelper.isLocalhost}
     function create_if_block_4$4(ctx) {
     	let h1;
 
@@ -16418,7 +16420,7 @@ var app = (function () {
     			h1 = element("h1");
     			h1.textContent = "My Personal Computer";
     			attr_dev(h1, "class", "svelte-a24143");
-    			add_location(h1, file$m, 325, 8, 9859);
+    			add_location(h1, file$m, 328, 8, 10011);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, h1, anchor);
@@ -16432,14 +16434,14 @@ var app = (function () {
     		block,
     		id: create_if_block_4$4.name,
     		type: "if",
-    		source: "(325:6) {#if appHelper.isLocalhost}",
+    		source: "(328:6) {#if appHelper.isLocalhost}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (346:4) {#if !$connected && isLocalhost}
+    // (349:4) {#if !$connected && isLocalhost}
     function create_if_block_3$5(ctx) {
     	let p;
     	let t0;
@@ -16454,9 +16456,9 @@ var app = (function () {
     			span.textContent = "dmt-proc";
     			t2 = text(" ...");
     			attr_dev(span, "class", "svelte-a24143");
-    			add_location(span, file$m, 347, 28, 10744);
+    			add_location(span, file$m, 350, 28, 10896);
     			attr_dev(p, "class", "connection_status_help svelte-a24143");
-    			add_location(p, file$m, 346, 6, 10681);
+    			add_location(p, file$m, 349, 6, 10833);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, p, anchor);
@@ -16473,14 +16475,14 @@ var app = (function () {
     		block,
     		id: create_if_block_3$5.name,
     		type: "if",
-    		source: "(346:4) {#if !$connected && isLocalhost}",
+    		source: "(349:4) {#if !$connected && isLocalhost}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (352:4) {#if $connected}
+    // (355:4) {#if $connected}
     function create_if_block_2$8(ctx) {
     	let searchmodeselector;
     	let current;
@@ -16527,14 +16529,14 @@ var app = (function () {
     		block,
     		id: create_if_block_2$8.name,
     		type: "if",
-    		source: "(352:4) {#if $connected}",
+    		source: "(355:4) {#if $connected}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (356:4) {#if errorCode == 'file_not_found'}
+    // (359:4) {#if errorCode == 'file_not_found'}
     function create_if_block$g(ctx) {
     	let br;
     	let t0;
@@ -16550,9 +16552,9 @@ var app = (function () {
     			t1 = text("⚠️ Requested file was renamed or moved ");
     			if (if_block) if_block.c();
     			attr_dev(br, "class", "svelte-a24143");
-    			add_location(br, file$m, 356, 6, 10966);
+    			add_location(br, file$m, 359, 6, 11118);
     			attr_dev(div, "class", "error svelte-a24143");
-    			add_location(div, file$m, 357, 6, 10977);
+    			add_location(div, file$m, 360, 6, 11129);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, br, anchor);
@@ -16585,14 +16587,14 @@ var app = (function () {
     		block,
     		id: create_if_block$g.name,
     		type: "if",
-    		source: "(356:4) {#if errorCode == 'file_not_found'}",
+    		source: "(359:4) {#if errorCode == 'file_not_found'}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (359:47) {#if !noSearchHits}
+    // (362:47) {#if !noSearchHits}
     function create_if_block_1$d(ctx) {
     	let t;
 
@@ -16612,7 +16614,7 @@ var app = (function () {
     		block,
     		id: create_if_block_1$d.name,
     		type: "if",
-    		source: "(359:47) {#if !noSearchHits}",
+    		source: "(362:47) {#if !noSearchHits}",
     		ctx
     	});
 
@@ -16758,25 +16760,25 @@ var app = (function () {
     			create_component(searchresults.$$.fragment);
     			attr_dev(a, "href", "#");
     			attr_dev(a, "class", "svelte-a24143");
-    			add_location(a, file$m, 323, 4, 9758);
+    			add_location(a, file$m, 326, 4, 9910);
     			attr_dev(div0, "class", "logo svelte-a24143");
-    			add_location(div0, file$m, 322, 2, 9735);
+    			add_location(div0, file$m, 325, 2, 9887);
     			attr_dev(input, "id", "search_input");
     			attr_dev(input, "placeholder", /*placeholderText*/ ctx[17]);
     			input.disabled = input_disabled_value = !/*$connected*/ ctx[18];
     			attr_dev(input, "class", "svelte-a24143");
     			toggle_class(input, "public_search", /*$searchMode*/ ctx[16] == 0);
     			toggle_class(input, "this_node_search", /*$searchMode*/ ctx[16] == 1);
-    			add_location(input, file$m, 341, 6, 10286);
+    			add_location(input, file$m, 344, 6, 10438);
     			if (img.src !== (img_src_value = "/apps/search/img/redesign/zetaseek_icon-search.svg")) attr_dev(img, "src", img_src_value);
     			attr_dev(img, "class", "svelte-a24143");
-    			add_location(img, file$m, 342, 6, 10561);
+    			add_location(img, file$m, 345, 6, 10713);
     			attr_dev(div1, "class", "search_input_wrapper svelte-a24143");
-    			add_location(div1, file$m, 340, 4, 10245);
+    			add_location(div1, file$m, 343, 4, 10397);
     			attr_dev(div2, "class", "search svelte-a24143");
-    			add_location(div2, file$m, 338, 2, 10219);
+    			add_location(div2, file$m, 341, 2, 10371);
     			attr_dev(main, "class", "svelte-a24143");
-    			add_location(main, file$m, 314, 0, 9553);
+    			add_location(main, file$m, 317, 0, 9705);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -16998,7 +17000,7 @@ var app = (function () {
 
     	let $loginStore,
     		$$unsubscribe_loginStore = noop$1,
-    		$$subscribe_loginStore = () => ($$unsubscribe_loginStore(), $$unsubscribe_loginStore = subscribe(loginStore, $$value => $$invalidate(34, $loginStore = $$value)), loginStore);
+    		$$subscribe_loginStore = () => ($$unsubscribe_loginStore(), $$unsubscribe_loginStore = subscribe(loginStore, $$value => $$invalidate(35, $loginStore = $$value)), loginStore);
 
     	let $searchMode;
 
@@ -17401,6 +17403,7 @@ var app = (function () {
     		device,
     		$backend,
     		player,
+    		peerlist,
     		deviceName,
     		dmtVersion,
     		ethAddress,
@@ -17433,6 +17436,7 @@ var app = (function () {
     		if ("searchTriggerTimeout" in $$props) searchTriggerTimeout = $$props.searchTriggerTimeout;
     		if ("device" in $$props) $$invalidate(10, device = $$props.device);
     		if ("player" in $$props) $$invalidate(11, player = $$props.player);
+    		if ("peerlist" in $$props) peerlist = $$props.peerlist;
     		if ("deviceName" in $$props) $$invalidate(12, deviceName = $$props.deviceName);
     		if ("dmtVersion" in $$props) $$invalidate(13, dmtVersion = $$props.dmtVersion);
     		if ("ethAddress" in $$props) $$invalidate(14, ethAddress = $$props.ethAddress);
@@ -17442,6 +17446,7 @@ var app = (function () {
 
     	let device;
     	let player;
+    	let peerlist;
     	let deviceName;
     	let dmtVersion;
     	let ethAddress;
@@ -17466,7 +17471,12 @@ var app = (function () {
     			 $$invalidate(11, player = $backend.player);
     		}
 
+    		if ($$self.$$.dirty[1] & /*$backend*/ 4) {
+    			 peerlist = $backend.peerlist;
+    		}
+
     		if ($$self.$$.dirty[0] & /*device*/ 1024) {
+    			//$: peerlistConnectedLength = peerlist ? peerlist.filter(({ connected }) => connected).length : 0; // dup !
     			 $$invalidate(12, deviceName = device ? device.deviceName : null);
     		}
 
@@ -17474,18 +17484,20 @@ var app = (function () {
     			 $$invalidate(13, dmtVersion = device ? device.dmtVersion : null);
     		}
 
-    		if ($$self.$$.dirty[1] & /*$loginStore*/ 8) {
+    		if ($$self.$$.dirty[1] & /*$loginStore*/ 16) {
     			 $$invalidate(14, ethAddress = $loginStore.ethAddress);
     		}
 
-    		if ($$self.$$.dirty[1] & /*$loginStore*/ 8) {
+    		if ($$self.$$.dirty[1] & /*$loginStore*/ 16) {
     			 $$invalidate(15, loggedIn = $loginStore.ethAddress);
     		}
 
     		if ($$self.$$.dirty[0] & /*$connected, $searchMode*/ 327680) {
     			 $$invalidate(17, placeholderText = !$connected
     			? "Search is currently not available"
-    			: $searchMode == 0 ? "Peer search" : "This machine search");
+    			: $searchMode == 0
+    				? `Search network`
+    				: "Search only this peer");
     		}
     	};
 

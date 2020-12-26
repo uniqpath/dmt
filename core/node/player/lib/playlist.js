@@ -2,7 +2,7 @@ import { homedir } from 'os';
 import path from 'path';
 
 import dmt from 'dmt/bridge';
-const { log, util, numberRanges } = dmt;
+const { log, util, numberRanges, stopwatch } = dmt;
 
 import { detectMediaType, searchPredicate } from 'dmt/search';
 
@@ -223,7 +223,7 @@ class Playlist {
       for (let i = this.currentIndex + 1; i < this.playlist.length; i++) {
         if (!this.playlist[i].withinLimit) {
           this.playlist.splice(i, this.playlist.length);
-          this.broadcastPlaylistState();
+          this.broadcastPlaylistState({ skipDiffing: true });
           break;
         }
       }
@@ -243,7 +243,7 @@ class Playlist {
     }
 
     if (found) {
-      this.broadcastPlaylistState();
+      this.broadcastPlaylistState({ skipDiffing: true });
 
       this.cutTimerID = setTimeout(() => this.cutMarked(), 500);
     }
@@ -292,8 +292,8 @@ class Playlist {
     } else {
       this.chanceToPasteTimer = setTimeout(() => {
         this.clipboard = null;
-        this.broadcastPlaylistState();
-      }, 2000);
+        this.broadcastPlaylistState({ skipDiffing: true });
+      }, 5000);
 
       const prevCutCount = this.playlist.filter(songInfo => songInfo.id < this.currentSongId() && songInfo.aboutToBeCut).length;
 
@@ -302,7 +302,7 @@ class Playlist {
       this.currentIndex -= prevCutCount;
 
       this.renumberPlaylist();
-      this.broadcastPlaylistState();
+      this.broadcastPlaylistState({ skipDiffing: true });
     }
   }
 
@@ -322,7 +322,7 @@ class Playlist {
       this.clipboard = null;
 
       this.renumberPlaylist();
-      this.broadcastPlaylistState();
+      this.broadcastPlaylistState({ skipDiffing: true });
     }
   }
 
@@ -359,7 +359,7 @@ class Playlist {
     this.playlist.splice(this.currentIndex + 1, 0, ...util.shuffle(insertSongList));
 
     this.renumberPlaylist();
-    this.broadcastPlaylistState();
+    this.broadcastPlaylistState({ skipDiffing: true });
 
     return insertSongList.map(song => {
       return { title: song.title, path: song.path };
@@ -383,7 +383,7 @@ class Playlist {
     this.playlist.splice(this.currentIndex + 1, 0, ...playlist);
 
     this.renumberPlaylist();
-    this.broadcastPlaylistState();
+    this.broadcastPlaylistState({ skipDiffing: true });
   }
 
   renumberPlaylist() {
@@ -439,7 +439,7 @@ class Playlist {
       this.playlist = prevArr.concat(util.shuffle(nextArr));
 
       this.renumberPlaylist();
-      this.broadcastPlaylistState();
+      this.broadcastPlaylistState({ skipDiffing: true });
     }
   }
 
@@ -467,26 +467,29 @@ class Playlist {
     }
 
     this.renumberPlaylist();
-    this.broadcastPlaylistState();
+    this.broadcastPlaylistState({ skipDiffing: true });
   }
 
-  broadcastPlaylistState() {
+  broadcastPlaylistState({ skipDiffing = false } = {}) {
     const numberOfMissingMedia = this.playlist.filter(song => song.error).length;
     const { metadataReadCount } = this.updatePlaylistDerivedData();
     const playlistSelectedCount = this.playlist.filter(songInfo => songInfo.selected && !songInfo.aboutToBeCut && songInfo.id != this.currentSongId()).length;
     const playlistHasSelectedEntries = playlistSelectedCount > 0;
-    this.program.store.update({
-      player: { hasMissingMedia: numberOfMissingMedia > 0 },
-      playlist: this.playlist,
-      playlistMetadata: {
-        playlistLength: this.playlist.length,
-        numberOfMissingMedia,
-        metadataReadCount,
-        playlistSelectedCount,
-        playlistHasSelectedEntries,
-        playlistClipboard: !!this.clipboard
-      }
-    });
+    this.program.store.update(
+      {
+        player: { hasMissingMedia: numberOfMissingMedia > 0 },
+        playlist: this.playlist,
+        playlistMetadata: {
+          playlistLength: this.playlist.length,
+          numberOfMissingMedia,
+          metadataReadCount,
+          playlistSelectedCount,
+          playlistHasSelectedEntries,
+          playlistClipboard: this.clipboard ? this.clipboard.length : 0
+        }
+      },
+      { skipDiffing }
+    );
   }
 
   updatePlaylistDerivedData() {
@@ -579,7 +582,7 @@ class Playlist {
       }
 
       this.renumberPlaylist();
-      this.broadcastPlaylistState();
+      this.broadcastPlaylistState({ skipDiffing: true });
     }
   }
 }
