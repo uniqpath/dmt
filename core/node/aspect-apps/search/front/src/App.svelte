@@ -363,7 +363,7 @@
       </div>
     {/if}
 
-    <SearchResults {loggedIn} {noSearchHits} {backend} {loginStore} hasPlayer={player && player.volume != undefined} />
+    <SearchResults {loggedIn} {noSearchHits} {backend} {searchMode} {searchResponse} {loginStore} hasPlayer={player && player.volume != undefined} />
 
   </div>
 

@@ -56,15 +56,13 @@ function contentPaths({ contentId, deviceName = 'this', returnSambaSharesInfo = 
   const contentDef = readContentDef({ filePath });
 
   if (contentDef.empty) {
-    throw new Error(`${colors.gray('content.def')} on ${colors.magenta(`@${device.id}`)} is empty or missing.`);
+    return [];
   }
 
   const content = contentDef.multi.find(c => c.id == contentId);
 
   if (!content) {
-    throw new Error(
-      `Content ${colors.magenta(`@${device.id}/`)}${colors.cyan(contentId || `[no-name] ${colors.white('(= default content)')}`)} is not defined.`
-    );
+    return [];
   }
 
   sambaDefinitionErrorCheck(content, filePath);
@@ -82,4 +80,8 @@ function contentPaths({ contentId, deviceName = 'this', returnSambaSharesInfo = 
   }
 }
 
-export { parseDeviceMention, localDefaultContent, parseContentRefs, getContentIDs, contentPaths };
+function defaultContentPaths() {
+  return contentPaths({ contentId: undefined });
+}
+
+export { parseDeviceMention, localDefaultContent, parseContentRefs, getContentIDs, contentPaths, defaultContentPaths };

@@ -21050,30 +21050,30 @@ var app = (function (crypto) {
 				addListener(input, "input", input_input_handler);
 				addListener(input, "keyup", keyup_handler);
 				addListener(input, "paste", paste_handler);
-				input.className = "search_input svelte-197g9dk";
+				input.className = "search_input svelte-12jyfo2";
 				input.placeholder = "Search media";
 				addLoc(input, file$p, 6, 6, 138);
 				addListener(button0, "click", click_handler);
-				button0.className = "media_type svelte-197g9dk";
+				button0.className = "media_type svelte-12jyfo2";
 				toggleClass(button0, "selected", ctx.mediaType != 'video');
 				addLoc(button0, file$p, 8, 6, 288);
 				addListener(button1, "click", click_handler_1);
-				button1.className = "media_type svelte-197g9dk";
+				button1.className = "media_type svelte-12jyfo2";
 				toggleClass(button1, "selected", ctx.mediaType == 'video');
 				addLoc(button1, file$p, 9, 6, 410);
 				addListener(button2, "click", click_handler_2);
-				button2.className = "action svelte-197g9dk";
+				button2.className = "action svelte-12jyfo2";
 				toggleClass(button2, "hidden", !hasSearchResults(ctx.$searchResults));
 				addLoc(button2, file$p, 11, 6, 533);
 				addListener(button3, "click", click_handler_3);
-				button3.className = "action svelte-197g9dk";
+				button3.className = "action svelte-12jyfo2";
 				toggleClass(button3, "hidden", !hasSearchResults(ctx.$searchResults));
 				addLoc(button3, file$p, 12, 6, 652);
 				addListener(button4, "click", click_handler_4);
-				button4.className = "action svelte-197g9dk";
+				button4.className = "action svelte-12jyfo2";
 				toggleClass(button4, "hidden", !hasSearchResults(ctx.$searchResults));
 				addLoc(button4, file$p, 13, 6, 767);
-				div.className = "search svelte-197g9dk";
+				div.className = "search svelte-12jyfo2";
 				addLoc(div, file$p, 5, 4, 111);
 			},
 
@@ -21169,7 +21169,7 @@ var app = (function (crypto) {
 				button = createElement("button");
 				button.textContent = "Clear";
 				addListener(button, "click", click_handler);
-				button.className = "clear svelte-197g9dk";
+				button.className = "clear svelte-12jyfo2";
 				addLoc(button, file$p, 16, 8, 937);
 			},
 
@@ -21206,7 +21206,7 @@ var app = (function (crypto) {
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
-				div.className = "search_results svelte-197g9dk";
+				div.className = "search_results svelte-12jyfo2";
 				addLoc(div, file$p, 20, 8, 1085);
 			},
 
@@ -21271,7 +21271,7 @@ var app = (function (crypto) {
 
 				text = createText("\n\n              ");
 				div = createElement("div");
-				div.className = "results_info_bottom svelte-197g9dk";
+				div.className = "results_info_bottom svelte-12jyfo2";
 				addLoc(div, file$p, 39, 14, 1926);
 			},
 
@@ -21332,7 +21332,7 @@ var app = (function (crypto) {
 				div = createElement("div");
 				text0 = createText("⚠️  Error: ");
 				text1 = createText(text1_value);
-				div.className = "provider_error svelte-197g9dk";
+				div.className = "provider_error svelte-12jyfo2";
 				addLoc(div, file$p, 28, 14, 1412);
 			},
 
@@ -21365,7 +21365,7 @@ var app = (function (crypto) {
 				span = createElement("span");
 				text = createText(text_value);
 				span.style.cssText = span_style_value = ctx.span.css;
-				span.className = "svelte-197g9dk";
+				span.className = "svelte-12jyfo2";
 				addLoc(span, file$p, 34, 81, 1744);
 			},
 
@@ -21411,7 +21411,7 @@ var app = (function (crypto) {
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
-				div.className = "result svelte-197g9dk";
+				div.className = "result svelte-12jyfo2";
 				addLoc(div, file$p, 34, 16, 1679);
 			},
 
@@ -21474,7 +21474,7 @@ var app = (function (crypto) {
 				text = createText("\n\n            ");
 				if_block.c();
 				if_block_anchor = createComment();
-				div.className = "provider_title svelte-197g9dk";
+				div.className = "provider_title svelte-12jyfo2";
 				addLoc(div, file$p, 23, 12, 1249);
 			},
 
@@ -21599,9 +21599,9 @@ var app = (function (crypto) {
 				div = createElement("div");
 				h1 = createElement("h1");
 				h1.textContent = "There is no player available in serverMode";
-				h1.className = "svelte-197g9dk";
+				h1.className = "svelte-12jyfo2";
 				addLoc(h1, file$p, 51, 6, 2189);
-				div.className = "player svelte-197g9dk";
+				div.className = "player svelte-12jyfo2";
 				addLoc(div, file$p, 50, 4, 2162);
 			},
 
@@ -21645,12 +21645,12 @@ var app = (function (crypto) {
 				h2 = createElement("h2");
 				text3 = createText("\n\n        ");
 				if (if_block) if_block.c();
-				h1.className = "error svelte-197g9dk";
-				addLoc(h1, file$p, 246, 8, 11930);
-				h2.className = "error svelte-197g9dk";
-				addLoc(h2, file$p, 248, 8, 11986);
-				div.className = "player svelte-197g9dk";
-				addLoc(div, file$p, 245, 6, 11901);
+				h1.className = "error svelte-12jyfo2";
+				addLoc(h1, file$p, 246, 8, 11971);
+				h2.className = "error svelte-12jyfo2";
+				addLoc(h2, file$p, 248, 8, 12027);
+				div.className = "player svelte-12jyfo2";
+				addLoc(div, file$p, 245, 6, 11942);
 			},
 
 			m: function mount(target, anchor) {
@@ -21813,23 +21813,23 @@ var app = (function (crypto) {
 				text14 = createText("\n\n        ");
 				if (if_block10) if_block10.c();
 				addListener(button0, "click", click_handler);
-				button0.className = "volume svelte-197g9dk";
+				button0.className = "volume svelte-12jyfo2";
 				button0.disabled = button0_disabled_value = !ctx.$connected || ctx.$player.volume == 0;
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'volume_down');
 				addLoc(button0, file$p, 90, 10, 4506);
 				addListener(button1, "click", click_handler_1);
-				button1.className = "volume svelte-197g9dk";
+				button1.className = "volume svelte-12jyfo2";
 				button1.disabled = button1_disabled_value = !ctx.$connected || ctx.$player.volume == 100;
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'volume_up');
 				addLoc(button1, file$p, 91, 10, 4677);
-				div0.className = "control svelte-197g9dk";
+				div0.className = "control svelte-12jyfo2";
 				addLoc(div0, file$p, 58, 8, 2356);
-				div1.className = "time_position svelte-197g9dk";
+				div1.className = "time_position svelte-12jyfo2";
 				addLoc(div1, file$p, 127, 8, 6780);
 				div2.id = "player_ribbon_top";
-				div2.className = "svelte-197g9dk";
+				div2.className = "svelte-12jyfo2";
 				addLoc(div2, file$p, 170, 8, 8545);
-				div3.className = "player svelte-197g9dk";
+				div3.className = "player svelte-12jyfo2";
 				toggleClass(div3, "nonRPi", !ctx.atRPi);
 				addLoc(div3, file$p, 57, 6, 2305);
 			},
@@ -22128,8 +22128,8 @@ var app = (function (crypto) {
 				a = createElement("a");
 				text1 = createText("Click here for install instructions ...");
 				a.href = a_href_value = "$" + ctx.$player.error.helpUrl;
-				a.className = "svelte-197g9dk";
-				addLoc(a, file$p, 254, 15, 12247);
+				a.className = "svelte-12jyfo2";
+				addLoc(a, file$p, 254, 15, 12288);
 			},
 
 			m: function mount(target, anchor) {
@@ -22232,7 +22232,7 @@ var app = (function (crypto) {
 				button = createElement("button");
 				text = createText("● Pause");
 				addListener(button, "click", click_handler);
-				button.className = "pause svelte-197g9dk";
+				button.className = "pause svelte-12jyfo2";
 				button.disabled = button_disabled_value = !ctx.$connected;
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'pause');
 				addLoc(button, file$p, 69, 14, 2953);
@@ -22319,7 +22319,7 @@ var app = (function (crypto) {
 				button = createElement("button");
 				text = createText("▶ Play");
 				addListener(button, "click", click_handler);
-				button.className = "play foreign svelte-197g9dk";
+				button.className = "play foreign svelte-12jyfo2";
 				button.disabled = button_disabled_value = !ctx.$connected;
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'play');
 				addLoc(button, file$p, 66, 16, 2766);
@@ -22363,7 +22363,7 @@ var app = (function (crypto) {
 				button = createElement("button");
 				text = createText("▶ Play");
 				addListener(button, "click", click_handler);
-				button.className = "play svelte-197g9dk";
+				button.className = "play svelte-12jyfo2";
 				button.disabled = button_disabled_value = !ctx.$connected;
 				toggleClass(button, "touch_pressed", ctx.touchAction == 'play');
 				addLoc(button, file$p, 63, 16, 2529);
@@ -22433,24 +22433,24 @@ var app = (function (crypto) {
 				if (if_block) if_block.c();
 				addListener(button0, "click", click_handler);
 				button0.disabled = button0_disabled_value = !ctx.$connected;
-				button0.className = "svelte-197g9dk";
+				button0.className = "svelte-12jyfo2";
 				toggleClass(button0, "limit_active", ctx.$player.limit > 0);
 				toggleClass(button0, "time_limit_active", ctx.$player.timeLimit > 0);
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'limit' || ctx.touchAction == 'time_limit');
 				addLoc(button0, file$p, 74, 12, 3199);
 				addListener(button1, "click", click_handler_1);
 				button1.disabled = button1_disabled_value = !ctx.$connected;
-				button1.className = "svelte-197g9dk";
+				button1.className = "svelte-12jyfo2";
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'next');
 				addLoc(button1, file$p, 75, 12, 3471);
 				addListener(button2, "click", click_handler_2);
 				button2.disabled = button2_disabled_value = !ctx.$connected;
-				button2.className = "svelte-197g9dk";
+				button2.className = "svelte-12jyfo2";
 				toggleClass(button2, "touch_pressed", ctx.touchAction == 'shuffle');
 				addLoc(button2, file$p, 76, 12, 3594);
 				addListener(button3, "click", click_handler_3);
 				button3.disabled = button3_disabled_value = !ctx.$connected;
-				button3.className = "svelte-197g9dk";
+				button3.className = "svelte-12jyfo2";
 				toggleClass(button3, "touch_pressed", ctx.touchAction == 'repeat');
 				toggleClass(button3, "repeat_active1", ctx.$player.repeatCount == 1);
 				toggleClass(button3, "repeat_active2", ctx.$player.repeatCount == 2);
@@ -22613,13 +22613,13 @@ var app = (function (crypto) {
 				text2 = createText("Quit");
 				addListener(button0, "click", click_handler);
 				button0.disabled = button0_disabled_value = !ctx.$connected;
-				button0.className = "svelte-197g9dk";
+				button0.className = "svelte-12jyfo2";
 				toggleClass(button0, "time_limit_active", ctx.$player.timeLimit > 0);
 				toggleClass(button0, "touch_pressed", ctx.touchAction == 'limit' || ctx.touchAction == 'time_limit');
 				addLoc(button0, file$p, 86, 12, 4159);
 				addListener(button1, "click", click_handler_1);
 				button1.disabled = button1_disabled_value = !ctx.$connected;
-				button1.className = "svelte-197g9dk";
+				button1.className = "svelte-12jyfo2";
 				toggleClass(button1, "touch_pressed", ctx.touchAction == 'stop');
 				addLoc(button1, file$p, 87, 12, 4370);
 			},
@@ -22678,7 +22678,7 @@ var app = (function (crypto) {
 			c: function create() {
 				span = createElement("span");
 				text = createText(text_value);
-				span.className = "volume foreign svelte-197g9dk";
+				span.className = "volume foreign svelte-12jyfo2";
 				addLoc(span, file$p, 97, 12, 5080);
 			},
 
@@ -22709,7 +22709,7 @@ var app = (function (crypto) {
 			c: function create() {
 				span = createElement("span");
 				text = createText(text_value);
-				span.className = "volume svelte-197g9dk";
+				span.className = "volume svelte-12jyfo2";
 				addLoc(span, file$p, 94, 12, 4935);
 			},
 
@@ -22761,22 +22761,22 @@ var app = (function (crypto) {
 				text4 = createText("\n              ■ ");
 				a1 = createElement("a");
 				a1.textContent = "ADD MORE TIME";
-				span0.className = "limit_num svelte-197g9dk";
+				span0.className = "limit_num svelte-12jyfo2";
 				addLoc(span0, file$p, 108, 85, 5992);
 				addListener(a0, "click", click_handler);
 				a0.href = "#";
-				a0.className = "svelte-197g9dk";
+				a0.className = "svelte-12jyfo2";
 				toggleClass(a0, "touch_pressed", ctx.touchAction == 'remove_time_limit');
 				addLoc(a0, file$p, 109, 16, 6051);
 				addListener(a1, "click", click_handler_1);
 				a1.href = "#";
-				a1.className = "set_time_limit svelte-197g9dk";
+				a1.className = "set_time_limit svelte-12jyfo2";
 				toggleClass(a1, "touch_pressed", ctx.touchAction == 'time_limit');
 				addLoc(a1, file$p, 110, 16, 6212);
-				span1.className = "time_limit svelte-197g9dk";
+				span1.className = "time_limit svelte-12jyfo2";
 				toggleClass(span1, "grayed_out", ctx.$player.paused);
 				addLoc(span1, file$p, 108, 14, 5921);
-				div.className = "limit_info svelte-197g9dk";
+				div.className = "limit_info svelte-12jyfo2";
 				addLoc(div, file$p, 107, 12, 5882);
 			},
 
@@ -22849,21 +22849,21 @@ var app = (function (crypto) {
 				text6 = createText(" ■ ");
 				a1 = createElement("a");
 				a1.textContent = "SET TIME LIMIT";
-				span0.className = "limit_num svelte-197g9dk";
+				span0.className = "limit_num svelte-12jyfo2";
 				addLoc(span0, file$p, 104, 51, 5378);
 				addListener(a0, "click", click_handler);
 				a0.href = "#";
-				a0.className = "svelte-197g9dk";
+				a0.className = "svelte-12jyfo2";
 				toggleClass(a0, "touch_pressed", ctx.touchAction == 'remove_limit');
 				addLoc(a0, file$p, 104, 175, 5502);
 				addListener(a1, "click", click_handler_1);
 				a1.href = "#";
-				a1.className = "set_time_limit svelte-197g9dk";
+				a1.className = "set_time_limit svelte-12jyfo2";
 				toggleClass(a1, "touch_pressed", ctx.touchAction == 'time_limit');
 				addLoc(a1, file$p, 104, 313, 5640);
-				span1.className = "track_limit svelte-197g9dk";
+				span1.className = "track_limit svelte-12jyfo2";
 				addLoc(span1, file$p, 104, 14, 5341);
-				div.className = "limit_info svelte-197g9dk";
+				div.className = "limit_info svelte-12jyfo2";
 				addLoc(div, file$p, 103, 12, 5302);
 			},
 
@@ -22915,7 +22915,7 @@ var app = (function (crypto) {
 			c: function create() {
 				div = createElement("div");
 				div.textContent = "Paused because limit was reached.";
-				div.className = "limit_reached svelte-197g9dk";
+				div.className = "limit_reached svelte-12jyfo2";
 				addLoc(div, file$p, 115, 12, 6462);
 			},
 
@@ -22939,7 +22939,7 @@ var app = (function (crypto) {
 			c: function create() {
 				div = createElement("div");
 				div.textContent = "Paused because time limit was reached.";
-				div.className = "time_limit_reached svelte-197g9dk";
+				div.className = "time_limit_reached svelte-12jyfo2";
 				addLoc(div, file$p, 121, 12, 6627);
 			},
 
@@ -23003,7 +23003,7 @@ var app = (function (crypto) {
 		return {
 			c: function create() {
 				div = createElement("div");
-				div.className = "extra_option svelte-197g9dk";
+				div.className = "extra_option svelte-12jyfo2";
 				addLoc(div, file$p, 149, 12, 7537);
 			},
 
@@ -23028,9 +23028,9 @@ var app = (function (crypto) {
 				div = createElement("div");
 				h1 = createElement("h1");
 				h1.textContent = "Playlist is empty";
-				h1.className = "svelte-197g9dk";
+				h1.className = "svelte-12jyfo2";
 				addLoc(h1, file$p, 140, 14, 7202);
-				div.className = "player_notice svelte-197g9dk";
+				div.className = "player_notice svelte-12jyfo2";
 				addLoc(div, file$p, 139, 12, 7160);
 			},
 
@@ -23147,10 +23147,10 @@ var app = (function (crypto) {
 				for (var i = 0; i < each_blocks.length; i += 1) {
 					each_blocks[i].c();
 				}
-				ul.className = "svelte-197g9dk";
+				ul.className = "svelte-12jyfo2";
 				addLoc(ul, file$p, 180, 12, 9031);
 				div.id = "playlist";
-				div.className = "svelte-197g9dk";
+				div.className = "svelte-12jyfo2";
 				toggleClass(div, "nonRPi", !ctx.atRPi);
 				addLoc(div, file$p, 179, 10, 8977);
 			},
@@ -23209,7 +23209,7 @@ var app = (function (crypto) {
 			c: function create() {
 				li = createElement("li");
 				text = createText(text_value);
-				li.className = "album_title svelte-197g9dk";
+				li.className = "album_title svelte-12jyfo2";
 				addLoc(li, file$p, 184, 18, 9133);
 			},
 
@@ -23242,9 +23242,9 @@ var app = (function (crypto) {
 				text0 = createText("[");
 				text1 = createText(text1_value);
 				text2 = createText("]");
-				span.className = "duration svelte-197g9dk";
+				span.className = "duration svelte-12jyfo2";
 				toggleClass(span, "non_past", !ctx.song.past);
-				addLoc(span, file$p, 196, 22, 10191);
+				addLoc(span, file$p, 196, 22, 10230);
 			},
 
 			m: function mount(target, anchor) {
@@ -23282,8 +23282,8 @@ var app = (function (crypto) {
 				text0 = createText("(+");
 				text1 = createText(text1_value);
 				text2 = createText("x)");
-				span.className = "repeat_active1 svelte-197g9dk";
-				addLoc(span, file$p, 202, 24, 10444);
+				span.className = "repeat_song_mark svelte-12jyfo2";
+				addLoc(span, file$p, 202, 24, 10483);
 			},
 
 			m: function mount(target, anchor) {
@@ -23317,9 +23317,9 @@ var app = (function (crypto) {
 				text0 = createText("[");
 				text1 = createText(text1_value);
 				text2 = createText("]");
-				span.className = "duration svelte-197g9dk";
+				span.className = "duration svelte-12jyfo2";
 				toggleClass(span, "non_past", !ctx.song.past);
-				addLoc(span, file$p, 211, 22, 10838);
+				addLoc(span, file$p, 211, 22, 10879);
 			},
 
 			m: function mount(target, anchor) {
@@ -23379,17 +23379,18 @@ var app = (function (crypto) {
 				if (if_block2) if_block2.c();
 				text8 = createText("\n\n                    \n\n                    \n                    ");
 				if (if_block3) if_block3.c();
-				span0.className = "marker svelte-197g9dk";
+				span0.className = "marker svelte-12jyfo2";
+				toggleClass(span0, "limit_marker", ctx.$player.limit > 0);
 				addLoc(span0, file$p, 187, 16, 9219);
-				span1.className = "id svelte-197g9dk";
-				addLoc(span1, file$p, 191, 20, 9868);
-				span2.className = "song svelte-197g9dk";
-				addLoc(span2, file$p, 199, 20, 10323);
+				span1.className = "id svelte-12jyfo2";
+				addLoc(span1, file$p, 191, 20, 9907);
+				span2.className = "song svelte-12jyfo2";
+				addLoc(span2, file$p, 199, 20, 10362);
 
 				li._svelte = { component, ctx };
 
 				addListener(li, "click", click_handler$2);
-				li.className = "svelte-197g9dk";
+				li.className = "svelte-12jyfo2";
 				toggleClass(li, "playing", ctx.song.current && !ctx.$player.paused && !ctx.$player.isStream);
 				toggleClass(li, "past", ctx.song.past);
 				toggleClass(li, "within_limit", ctx.song.withinLimit);
@@ -23398,10 +23399,10 @@ var app = (function (crypto) {
 				toggleClass(li, "just_pasted", ctx.song.justPasted);
 				toggleClass(li, "error", ctx.song.error);
 				toggleClass(li, "metadata_read", ctx.song.metadata);
-				addLoc(li, file$p, 190, 18, 9512);
-				div.className = "li_wrapper svelte-197g9dk";
+				addLoc(li, file$p, 190, 18, 9551);
+				div.className = "li_wrapper svelte-12jyfo2";
 				toggleClass(div, "darker", ctx.song.directoryTogetherness);
-				addLoc(div, file$p, 189, 16, 9427);
+				addLoc(div, file$p, 189, 16, 9466);
 			},
 
 			m: function mount(target, anchor) {
@@ -23442,6 +23443,10 @@ var app = (function (crypto) {
 
 				if ((changed.$playlist || changed.$player) && text1_value !== (text1_value = ctx.song.current ? (ctx.$player.paused ? '●' : (!ctx.$player.currentMedia || !ctx.$player.currentMedia.mediaType || ctx.$player.currentMedia.mediaType == 'music' ? '♫' : '▶')) : '')) {
 					setData(text1, text1_value);
+				}
+
+				if (changed.$player) {
+					toggleClass(span0, "limit_marker", ctx.$player.limit > 0);
 				}
 
 				if ((changed.$playlist) && text3_value !== (text3_value = util.pad(ctx.song.id))) {
@@ -23541,14 +23546,14 @@ var app = (function (crypto) {
 				if (if_block) if_block.c();
 				text2 = createText("\n\n            ");
 				text3 = createText(text3_value);
-				div0.className = "notice svelte-197g9dk";
-				addLoc(div0, file$p, 225, 12, 11314);
-				div1.className = "song svelte-197g9dk";
+				div0.className = "notice svelte-12jyfo2";
+				addLoc(div0, file$p, 225, 12, 11355);
+				div1.className = "song svelte-12jyfo2";
 				toggleClass(div1, "bigger", ctx.$player.currentMedia.song.length < 35);
-				addLoc(div1, file$p, 227, 12, 11379);
-				div2.className = "streaming_media_info svelte-197g9dk";
+				addLoc(div1, file$p, 227, 12, 11420);
+				div2.className = "streaming_media_info svelte-12jyfo2";
 				toggleClass(div2, "faded", ctx.$player.paused);
-				addLoc(div2, file$p, 223, 10, 11237);
+				addLoc(div2, file$p, 223, 10, 11278);
 			},
 
 			m: function mount(target, anchor) {
@@ -23601,8 +23606,8 @@ var app = (function (crypto) {
 			c: function create() {
 				span = createElement("span");
 				span.textContent = "♪♫♬";
-				span.className = "svelte-197g9dk";
-				addLoc(span, file$p, 230, 16, 11504);
+				span.className = "svelte-12jyfo2";
+				addLoc(span, file$p, 230, 16, 11545);
 			},
 
 			m: function mount(target, anchor) {

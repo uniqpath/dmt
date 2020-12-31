@@ -37,12 +37,12 @@
     <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
     <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>
       {#if $searchMode == 1}↑{/if}
-      Only here
+      Search only this peer
     </span>
   {:else}
     <span class="this_node_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>
       <!-- {#if $searchMode == 1}↑{/if} -->
-      ↑ <b>Only here</b>
+      ↑ <b>Search only this peer</b>
     </span> ·
     <!-- <span class="connectome_search" on:click={() => setSearchMode(1)} class:active={$searchMode == 1}>My Connectome</span> -->
     <span class="team_search" on:click={() => setSearchMode(0)} class:active={$searchMode == 0}>

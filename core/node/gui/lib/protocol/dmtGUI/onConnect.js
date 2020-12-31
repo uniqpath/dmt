@@ -41,7 +41,10 @@ function loadInitialView(channel) {
 
     if (idleView) {
       setTimeout(() => {
-        channel.remoteObject('Frontend').call('reverseAction', { action: 'load', payload: idleView });
+        channel
+          .remoteObject('Frontend')
+          .call('reverseAction', { action: 'load', payload: idleView })
+          .catch(() => {});
       }, 500);
     }
   }

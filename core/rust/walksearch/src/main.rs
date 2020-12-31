@@ -35,6 +35,7 @@ fn escape(x: &str) -> String {
   let result = balkan_z.replace_all(&result, z);
 
   result.into_owned()
+
 }
 
 fn regex_helper(x: &str) -> String {
@@ -91,12 +92,29 @@ fn line_matches(line: String, color: bool, regs: &Vec<Regex>, neg_regs: &Vec<Reg
   return None;
 }
 
+// todo:
+// !!! author:einstein
+// !!! >2017
+// OK: " "
+// OK: a|b|c
+// ok: \bsomething\b
+//
+
+// cargo build --release; if [ $? -eq 0 ]; then ~/Projects/rust/search_catalog/target/release/search_catalog ~/Desktop/test.txt author:dav; fi
+// cargo build --release; if [ $? -eq 0 ]; then z @lib einstein author:bisac; fi
+
 fn main() -> Result<()> {
     let mut args: Vec<String> = env::args().collect();
 
     args.remove(0);
 
     let mut catalog: Option<String> = None;
+
+    // OPTIONS:
+
+    // --fs ● searches the file system current directory tree
+    // --catalog [file] ● searches over a list of files (or anything else) inside a file
+    // --total ● uses first two, --fs to iterate over all files and --catalog to search each file
 
     if args.len() > 0 && args[0] == "--catalog" {
       args.remove(0);
@@ -111,6 +129,7 @@ fn main() -> Result<()> {
     let mut color = true;
 
     if args.len() > 0 && args[0] == "--no-color" {
+      //println!("■ color = false");
       color = false;
       args.remove(0);
     }
@@ -130,6 +149,8 @@ fn main() -> Result<()> {
     }
 
     let terms = &mut args;
+
+    //println!("● {:?}", terms);
 
     terms.sort();
     terms.dedup();
@@ -172,11 +193,6 @@ fn main() -> Result<()> {
               line = entry.path().display().to_string();
             }
             // let absolute_path = Path::new(cur_dir.to_str().unwrap()).join(Regex::new("^\\./").unwrap().replace(entry.path(), ""));
-
-            //println!("LINE -- {}", line.to_str().unwrap());
-
-            // todo: try catch on this line to detect broken symlinks !! -- ignore these entries !! ...
-            // let md = metadata(&line).unwrap();
 
             let md = metadata(&line);
 
