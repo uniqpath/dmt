@@ -417,27 +417,27 @@ function dmt {
       dmt_shell_setup "$@"
       ;;
 
-    link)
-      local dir="$DMT_NODE_CORE/.scripts"
-      if [ -d "$dir" ]; then
-        local cwd="`pwd`"
-        cd "$dir"
-        ./symlink_dmt_deps
-        # printf "${GREEN}Linked.${NC}\n"
-        cd "$cwd"
-      fi
-      ;;
+    # link)
+    #   local dir="$DMT_NODE_CORE/.scripts"
+    #   if [ -d "$dir" ]; then
+    #     local cwd="`pwd`"
+    #     cd "$dir"
+    #     ./symlink_dmt_deps
+    #     # printf "${GREEN}Linked.${NC}\n"
+    #     cd "$cwd"
+    #   fi
+    #   ;;
 
-    unlink)
-      local dir="$DMT_NODE_CORE/.scripts"
-      if [ -d "$dir" ]; then
-        local cwd="`pwd`"
-        cd "$dir"
-        ./symlink_dmt_deps "remove"
-        # printf "${MAGENTA}Unlinked.${NC}\n"
-        cd "$cwd"
-      fi
-      ;;
+    # unlink)
+    #   local dir="$DMT_NODE_CORE/.scripts"
+    #   if [ -d "$dir" ]; then
+    #     local cwd="`pwd`"
+    #     cd "$dir"
+    #     ./symlink_dmt_deps "remove"
+    #     # printf "${MAGENTA}Unlinked.${NC}\n"
+    #     cd "$cwd"
+    #   fi
+    #   ;;
 
     # checklink)
     #   local cwd="`pwd`"
@@ -446,17 +446,17 @@ function dmt {
     #   cd "$cwd"
     #   ;;
 
-    relink) #rarely used, usually "dmt link" is enough for this purpose as well... use "dmt relink" only if suddenly symlinks should point somewewhere else... if just some new symlinks have to be added, there is no need to unlink first, the symlinking script (dmt link) will add what's missing
-      dmt unlink
-      dmt link
-      ;;
+    # relink) #rarely used, usually "dmt link" is enough for this purpose as well... use "dmt relink" only if suddenly symlinks should point somewewhere else... if just some new symlinks have to be added, there is no need to unlink first, the symlinking script (dmt link) will add what's missing
+    #   dmt unlink
+    #   dmt link
+    #   ;;
 
     start)
       if report_dmt_running "$dmt_proc_pid" "$dmt_fg_bg"; then
         return
       fi
 
-      dmt_symlink_nodejs_deps
+      #dmt_symlink_nodejs_deps
       compile_gui_if_missing
 
       printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is starting...${NC}\n\n"
@@ -486,7 +486,7 @@ function dmt {
         return
       fi
 
-      dmt_symlink_nodejs_deps
+      #dmt_symlink_nodejs_deps
       compile_gui_if_missing
 
       printf "${CYAN}🌀 DMT PROC${NC} ${WHITE}is running in terminal foreground ${NC}(this is marked with ${RED}'✝'${NC})\n"
@@ -545,7 +545,7 @@ function dmt {
       ;;
 
     restart)
-      dmt_symlink_nodejs_deps
+      #dmt_symlink_nodejs_deps
       compile_gui_if_missing
 
       printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is restarting...${NC}\n\n"
@@ -584,20 +584,20 @@ function dmt {
   esac
 }
 
-function dmt_symlink_nodejs_deps {
-  local script="$DMT_NODE_CORE/.scripts/symlink_dmt_deps"
+# function dmt_symlink_nodejs_deps {
+#   local script="$DMT_NODE_CORE/.scripts/symlink_dmt_deps"
 
-  if [ -f "$script" ]; then
-    # changed recently!! if symlinking logic changes, we cannot just check if one symlink is present to know
-    # if we have to do something!!
-    #if [ ! -L "$DMT_NODE_CORE/dmt-bridge/node_modules" ] || [ ! -d "$DMT_USER_PATH/core/node/node_modules" ]; then
-      local cwd="`pwd`"
-      cd "$DMT_NODE_CORE/.scripts"
-      ./symlink_dmt_deps
-      cd "$cwd"
-    #fi
-  fi
-}
+#   if [ -f "$script" ]; then
+#     # changed recently!! if symlinking logic changes, we cannot just check if one symlink is present to know
+#     # if we have to do something!!
+#     #if [ ! -L "$DMT_NODE_CORE/dmt-bridge/node_modules" ] || [ ! -d "$DMT_USER_PATH/core/node/node_modules" ]; then
+#       local cwd="`pwd`"
+#       cd "$DMT_NODE_CORE/.scripts"
+#       ./symlink_dmt_deps
+#       cd "$cwd"
+#     #fi
+#   fi
+# }
 
 function compile_gui_if_missing {
   if [ ! -f "$DMT_NODE_CORE/gui/gui-frontend-core/app/public/bundle.js" ]; then
@@ -963,7 +963,7 @@ function dmt_gui {
       ;;
 
     run)
-      dmt_symlink_nodejs_deps # does not have an influence - this builds dmt apps, not dmt core.. will fix later
+      #dmt_symlink_nodejs_deps # does not have an influence - this builds dmt apps, not dmt core.. will fix later
       local cwd="`pwd`"
       cd "$dir/app"
       npm run dev
@@ -982,7 +982,7 @@ function dmt_gui {
       ;;
 
     build)
-      dmt_symlink_nodejs_deps # does not have an influence - this builds dmt apps, not dmt core.. will fix later
+      #dmt_symlink_nodejs_deps # does not have an influence - this builds dmt apps, not dmt core.. will fix later
       local cwd="`pwd`"
       cd "$dir/app"
       npm run build
@@ -1641,7 +1641,7 @@ function dmt_copy {
     return
   fi
 
-  dmt_symlink_nodejs_deps
+  #dmt_symlink_nodejs_deps
 
   if [ -z "$1" ]; then
     if dev_machine; then
