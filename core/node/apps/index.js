@@ -8,7 +8,7 @@ import AppLoader from './loadApps';
 
 const { scan, log } = dmt;
 
-const appsDir = path.join(dmt.dmtPath, 'core/node/aspect-apps');
+const appsDir = path.join(dmt.dmtPath, 'apps');
 
 function appList() {
   return fs.existsSync(appsDir) ? scan.dir(appsDir, { onlyDirs: true }) : [];
@@ -16,13 +16,13 @@ function appList() {
 
 function appFrontendList() {
   return appList()
-    .filter(appDir => fs.existsSync(path.join(appDir, 'front/public')))
+    .filter(appDir => fs.existsSync(path.join(appDir, 'public')))
     .map(appDir => {
       const appName = path.basename(appDir);
 
       return {
         appName,
-        publicDir: path.join(appDir, 'front/public'),
+        publicDir: path.join(appDir, 'public'),
         appUrl: `/apps/${appName}`
       };
     });

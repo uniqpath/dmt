@@ -65,12 +65,19 @@ function memoryUsage() {
   return memUsage;
 }
 
+let _dmtVersion;
+
 function dmtVersion(versionFile = path.join(helper.dmtPath, '.version')) {
+  if (_dmtVersion) {
+    return _dmtVersion;
+  }
+
   if (fs.existsSync(versionFile)) {
-    return fs
+    _dmtVersion = fs
       .readFileSync(versionFile)
       .toString()
       .trim();
+    return _dmtVersion;
   }
 }
 

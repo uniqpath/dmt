@@ -261,8 +261,7 @@ class LocalPlayer {
   }
 
   setNext() {
-    this.cutSelected();
-    this.paste();
+    this.playlist.setSelectedAsNext();
   }
 
   async bump(args = '') {

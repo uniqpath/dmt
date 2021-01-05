@@ -1165,9 +1165,9 @@ function stop_dmt_if_running {
 }
 
 function dmt_nearby {
-  $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" "$@"
-
   if [ "$1" == "update" ] || [ "$1" == "copy" ]; then
+    $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js"
+
     local action="$1"
 
     shift
@@ -1195,6 +1195,7 @@ function dmt_nearby {
     # for some reason ... if we create array first then iterate over it, then it works in all cases !
     # done < <($DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" --simple "$@")
   else
+    $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" "$@"
     echo
     printf "💡 ${MAGENTA}Update all nearby devices:${NC}\n"
     echo

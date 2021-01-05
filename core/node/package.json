@@ -25,7 +25,6 @@
     "./cli": "./aspect-meta/cli-framework",
     "./resolve": "./aspect-meta/resolve",
     "./bash-exec": "./aspect-meta/bash-exec",
-    "./swarmindex": "./aspect-indices/swarmindex",
     "./webindex": "./aspect-indices/webindex",
     "./webspider": "./aspect-spiders/webspider"
   },

@@ -326,6 +326,13 @@ class Playlist {
     }
   }
 
+  setSelectedAsNext() {
+    if (this.playlist.find(songInfo => songInfo.selected)) {
+      this.cutSelected();
+      this.paste();
+    }
+  }
+
   bump(rangePattern) {
     if (rangePattern) {
       const songIDs = numberRanges.orderedMatchingNumbers({ rangePattern });
@@ -478,7 +485,7 @@ class Playlist {
     this.program.store.update(
       {
         player: { hasMissingMedia: numberOfMissingMedia > 0 },
-        playlist: this.playlist,
+        playlist: util.clone(this.playlist),
         playlistMetadata: {
           playlistLength: this.playlist.length,
           numberOfMissingMedia,

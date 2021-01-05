@@ -1,45 +1,45 @@
 #!/bin/bash
 
 # DEFINE COLORS
-YELLOW='\033[0;33m'
-GREEN='\033[0;32m'
-NC='\033[0m' # No Color
+# YELLOW='\033[0;33m'
+# GREEN='\033[0;32m'
+# NC='\033[0m' # No Color
 
-# parse cli arguments
+# # parse cli arguments
 
-arg="$1"
+# arg="$1"
 
-if [ "$arg" == "-h" ] || [ "$arg" == "help" ]; then
-  printf "${GREEN}-h${NC} or ${GREEN}help${NC}\n"
-  printf "${GREEN}remove${NC}\n"
-  exit
-fi
-
-# change working dir to ~/.dmt/core/node
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-cwd="`pwd`"
-cd "$DIR/.."
-
-# the only symlink we have to make:
-#   ~/.dmt/core/node/dmt-js/node_modules/connectome -> ../../connectome
-symlink="dmt-js/node_modules/connectome"
-
-if [ "$arg" == "remove" ]; then
-  if [ -L "$symlink" ]; then
-    rm "$symlink"
-  fi
-else # create symlink
-  if [ ! -L "$symlink" ]; then
-    ln -s ../../connectome "$symlink"
-  fi
-fi
-
-# symlink apps
-
-# if [ -f .scripts/symlink_apps ]; then
-#   ./.scripts/symlink_apps "$arg"
+# if [ "$arg" == "-h" ] || [ "$arg" == "help" ]; then
+#   printf "${GREEN}-h${NC} or ${GREEN}help${NC}\n"
+#   printf "${GREEN}remove${NC}\n"
+#   exit
 # fi
 
-cd "$cwd"
+# # change working dir to ~/.dmt/core/node
+
+# DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# cwd="`pwd`"
+# cd "$DIR/.."
+
+# # the only symlink we have to make:
+# #   ~/.dmt/core/node/dmt-js/node_modules/connectome -> ../../connectome
+# symlink="dmt-js/node_modules/connectome"
+
+# if [ "$arg" == "remove" ]; then
+#   if [ -L "$symlink" ]; then
+#     rm "$symlink"
+#   fi
+# else # create symlink
+#   if [ ! -L "$symlink" ]; then
+#     ln -s ../../connectome "$symlink"
+#   fi
+# fi
+
+# # symlink apps
+
+# # if [ -f .scripts/symlink_apps ]; then
+# #   ./.scripts/symlink_apps "$arg"
+# # fi
+
+# cd "$cwd"

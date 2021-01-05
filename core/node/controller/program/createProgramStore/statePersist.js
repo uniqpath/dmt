@@ -32,10 +32,13 @@ function loadState({ stateFilePath = dmt.programStateFile } = {}) {
         return loadedState;
       }
 
-      log.red('Rare event of schemaVersion bump: Ignoring persisted program state!.');
+      log.red('Rare event of schemaVersion bump: Ignoring persisted program state!');
     } catch (e) {
-      log.debug('Discarding invalid persisted state');
+      log.red('⚠️  Discarding invalid persisted state, starting with a clean state.');
+      log.red(e);
     }
+  } else {
+    log.yellow(`${stateFilePath} was not present, starting with a clean state.`);
   }
 
   return {};
