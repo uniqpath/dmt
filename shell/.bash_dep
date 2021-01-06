@@ -492,7 +492,11 @@ function dirsync {
 
     # Second best option - and when using from wireless to wireless device, MAKE SURE EITHER one (laptop or RPi) is on a cable!! This will make the biggest difference
     # https://gist.github.com/KartikTalwar/4393116
-    printf "${GREEN}Syncing...${NC}\n"
+
+    local SOURCE="$1"
+    local TARGET="$2"
+
+    printf "${GREEN}Syncing... ${GRAY}${SOURCE} ${CYAN}→ ${GRAY}${TARGET}${NC}\n"
 
     local e_params="ssh"
     if [ -n "$ssh_port" ]; then
@@ -514,12 +518,12 @@ function dirsync {
       # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules/optimist
       # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules
       # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules
-      rsync $params $excludes --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$" | grep -v ".gitignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+      rsync $params $excludes --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$" | grep -v ".gitignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
       return
     fi
 
     if $total; then
-      rsync $params $excludes -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+      rsync $params $excludes -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
       return
     fi
 
@@ -531,7 +535,7 @@ function dirsync {
       params="${params} --exclude-from ./.deployignore"
     fi
 
-    rsync $params $excludes -e "$e_params" "$1"/ "$2"/ 2>&1 | grep -v "$grep_ignore"
+    rsync $params $excludes -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
 
     echo
   fi

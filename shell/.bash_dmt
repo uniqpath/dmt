@@ -1650,6 +1650,12 @@ function dmt_copy {
   else
     compile_gui_if_missing
 
+    local SYNC_APPS_SCRIPT="$DMT_THIS_DEVICE/scripts/sync_dmt_apps_into_engine"
+
+    if [ -f "$SYNC_APPS_SCRIPT" ]; then
+      "$SYNC_APPS_SCRIPT"
+    fi
+
     local cwd="`pwd`"
     cd "$DMT_PATH"
     . ./install "$@" # calling with . preserves the newly loaded env

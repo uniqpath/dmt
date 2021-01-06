@@ -102,7 +102,7 @@ if [ -z "$1" ]; then # install here
     # node "${DMT_NODE_CORE}/dmt-gui/gui-backend/ws_servers/index.js" localhost reload gui
     # -- this is used to send the "reload" command to all connected guis so that they reload possible changes that arrived on update (sync)
 
-    dmt link
+    #dmt link
 
     # general deploy hooks -- all devices
     # was called after_copy b efore
