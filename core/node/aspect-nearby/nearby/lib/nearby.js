@@ -1,9 +1,10 @@
 import dmt from 'dmt/bridge';
-const { log } = dmt;
+const { log, util } = dmt;
 
-import attachNearbyDeviceAttributes from './attachNearbyDeviceAttributes';
-import nearbyDevicesListRefresh from './state/nearbyDevicesListRefresh';
-import updateDeviceList from './state/updateDeviceList';
+import constructOurMessage from './attach/constructOurMessage';
+import deriveDeviceData from './attach/deriveDeviceData';
+import detectStaleDevices from './state/detectStaleDevices';
+import updateDeviceInList from './state/updateDeviceInList';
 
 class Nearby {
   constructor(program) {
@@ -21,7 +22,7 @@ class Nearby {
   init() {
     this.lanbus = this.program.lanbus;
 
-    this.setupNearbyDevicesListRefresh();
+    this.setupdetectStaleDevices();
 
     this.program.on('player_play_state_changed', () => {
       this.broadcastOurHelloMessage();
@@ -53,7 +54,7 @@ class Nearby {
 
   ourMessage() {
     const msg = { processId: process.pid, message: 'ΞΞΞ HEY', origin: 'dmt' };
-    return attachNearbyDeviceAttributes({ program: this.program, msg });
+    return constructOurMessage({ program: this.program, msg });
   }
 
   broadcastOurHelloMessage({ onlyUdp = false } = {}) {
@@ -70,22 +71,25 @@ class Nearby {
     if (this.program.state().nearbyDevices) {
       const { nearbyDevices } = this.program.state();
 
-      const nearbyDevicesNew = nearbyDevicesListRefresh(
+      const nearbyDevicesNew = detectStaleDevices(
         {
           nearbyDevices,
-          ourMessage: this.ourMessage(),
           broadcastInterval: this.broadcastInterval
         },
         { removeStaleImmediately }
       );
 
-      this.program.store.replaceSlot('nearbyDevices', nearbyDevicesNew, { announce: false });
+      nearbyDevicesNew.push({ ...this.ourMessage(), thisDevice: true, stale: false, staleDetectedAt: undefined });
 
-      this.program.emit('nearby_devices', nearbyDevicesNew);
+      const sortedDevices = nearbyDevicesNew.sort(util.compareValues('deviceName'));
+
+      this.program.store.replaceSlot('nearbyDevices', sortedDevices, { announce: false });
+
+      this.program.emit('nearby_devices', sortedDevices);
     }
   }
 
-  setupNearbyDevicesListRefresh() {
+  setupdetectStaleDevices() {
     this.refreshNearbyDevicesList(true);
 
     this.program.on('tick', () => this.refreshNearbyDevicesList());
@@ -120,7 +124,7 @@ class Nearby {
         }
 
         const { program } = this;
-        updateDeviceList({ device, program, announce });
+        updateDeviceInList({ device: deriveDeviceData(device), program, announce });
       } catch (e) {
         log.red(e);
       }

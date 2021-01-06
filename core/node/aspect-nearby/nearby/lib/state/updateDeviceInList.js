@@ -1,4 +1,4 @@
-export default function updateDeviceList({ device, program, announce }) {
+export default function updateDeviceInList({ device, program, announce }) {
   const slotName = 'nearbyDevices';
 
   const selectorPredicate = ({ deviceKey }) => deviceKey == device.deviceKey;

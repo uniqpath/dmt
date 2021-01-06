@@ -577,8 +577,7 @@ class Playlist {
   }
 
   rollover() {
-    const maxLookBehind = MAX_LOOK_BEHIND;
-    const diff = this.currentIndex - maxLookBehind;
+    const diff = this.currentIndex - MAX_LOOK_BEHIND;
 
     if (diff > 0) {
       for (let i = 0; i < diff; i++) {

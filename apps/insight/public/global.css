@@ -28,6 +28,10 @@
   --zeta-green-highlight: #34fed7;
   --zeta-green_check: #32e6be;
   --search-input-width: 330px;
+
+  /* NEW */
+  --dmt-silver: #99B1BA;
+  --dmt-yellow: #DFDB83;
 }
 
 /* Font from: https://google-webfonts-helper.herokuapp.com/fonts/nunito-sans?subsets=latin */
@@ -188,14 +192,16 @@ table {
   width: 100%;
   text-align: left;
   border-collapse: collapse;
+  /*border-radius-bottom-left: 10px;
+  border-radius-bottom-right: 10px;*/
 }
 
 thead {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-tr {
-  border-top: 1px solid white;
+tr:first-child {
+  border-top: 1px solid #aaa;
 }
 
 th {
@@ -205,8 +211,16 @@ th {
 }
 
 td {
-  padding: 0.5rem;
+  padding: 0.2rem 0.5rem;
   font-size: 0.85rem;
+}
+
+tr:first-child td {
+  padding-top: 0.5rem;
+}
+
+tr:last-child td {
+  padding-bottom: 0.5rem;
 }
 
 input {

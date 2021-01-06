@@ -10,27 +10,19 @@ function userActionHandlers({ program, player }) {
         case 'play':
           player.play().catch(log.red);
           break;
+        case 'play_radio': {
+          const { radioId } = payload;
+          player.playRadio(radioId);
+          break;
+        }
         case 'pause':
           player.pause().catch(log.red);
-          break;
-        case 'toggle':
-          if (program.state().player.paused) {
-            player.play().catch(log.red);
-          } else {
-            player.pause().catch(log.red);
-          }
           break;
         case 'volume_up':
           player.volume('up').catch(log.red);
           break;
         case 'volume_down':
           player.volume('down').catch(log.red);
-          break;
-        case 'backward':
-          player.backward(payload ? payload.seconds : undefined).catch(log.red);
-          break;
-        case 'forward':
-          player.forward(payload ? payload.seconds : undefined).catch(log.red);
           break;
         case 'next':
           player.next().catch(log.red);
@@ -46,6 +38,12 @@ function userActionHandlers({ program, player }) {
           break;
         case 'set_next':
           player.setNext();
+          break;
+        case 'backward':
+          player.backward(payload ? payload.seconds : undefined).catch(log.red);
+          break;
+        case 'forward':
+          player.forward(payload ? payload.seconds : undefined).catch(log.red);
           break;
         case 'cut_selected':
           player.cutSelected();
@@ -85,11 +83,6 @@ function userActionHandlers({ program, player }) {
         case 'remove_missing_media':
           player.playlist.removeMissingMedia();
           break;
-        case 'play_radio': {
-          const { radioId } = payload;
-          player.playRadio(radioId);
-          break;
-        }
         default:
           break;
       }

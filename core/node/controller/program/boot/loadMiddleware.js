@@ -9,7 +9,7 @@ export default function loadMiddleware(program, mids) {
 
     const midLoader = new MidLoader();
 
-    if (mids.includes('user')) {
+    if (mids.includes('meta/load-user-core')) {
       midLoader.load({ program, mids: mids.filter(mid => mid != 'user') }).then(() => {
         midLoader.setup(program).then(() => {
           midLoader.load({ program, mids: ['user'] }).then(() => {

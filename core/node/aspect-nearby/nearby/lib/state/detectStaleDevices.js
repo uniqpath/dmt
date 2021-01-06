@@ -1,4 +1,4 @@
-export default function nearbyDevicesListRefresh({ nearbyDevices, ourMessage, broadcastInterval }, { removeStaleImmediately = false } = {}) {
+export default function detectStaleDevices({ nearbyDevices, broadcastInterval }, { removeStaleImmediately = false } = {}) {
   const list = [];
 
   const now = Date.now();
@@ -14,8 +14,6 @@ export default function nearbyDevicesListRefresh({ nearbyDevices, ourMessage, br
       list.push({ ...device, ...{ stale: false, staleDetectedAt: undefined } });
     }
   }
-
-  list.push({ ...ourMessage, ...{ thisDevice: true, stale: false, staleDetectedAt: undefined } });
 
   return list;
 }

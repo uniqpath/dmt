@@ -14,10 +14,10 @@ log.init({ logfile, foreground });
 
 const mids = [];
 
-mids.push('user');
+mids.push('meta/load-user-core');
 mids.push('player');
 mids.push('search');
-mids.push('apps');
+mids.push('meta/serve-apps');
 
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
 

@@ -19,7 +19,7 @@ function displayTable(registeredProtocols) {
 
   registeredProtocols.forEach(({ protocol, lanes }, key, arr) => {
     lanes.forEach(lane => {
-      table.push([colors.magenta(protocol), colors.cyan(lane)]);
+      table.push([colors.cyan(protocol), colors.yellow(lane)]);
     });
 
     if (!Object.is(arr.length - 1, key)) {

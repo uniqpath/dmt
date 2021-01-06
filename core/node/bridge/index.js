@@ -111,6 +111,24 @@ function compareDmtVersions(_v1, _v2) {
   return 0;
 }
 
+function versionCompareSymbol(otherDmtVersion) {
+  if (!otherDmtVersion) {
+    return '?';
+  }
+
+  const compareVersions = compareDmtVersions(otherDmtVersion, dmtVersion());
+
+  if (compareVersions > 0) {
+    return '↑';
+  }
+
+  if (compareVersions < 0) {
+    return '↓';
+  }
+
+  return '≡';
+}
+
 export default {
   log,
   util,
@@ -122,6 +140,7 @@ export default {
   def,
   dmtVersion,
   compareDmtVersions,
+  versionCompareSymbol,
   parseCliArgs,
   dmtContent,
   processBatch,

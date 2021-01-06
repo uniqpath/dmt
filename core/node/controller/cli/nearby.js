@@ -47,14 +47,14 @@ function identifyDeviceByMac(_mac) {
   return _mac;
 }
 
-function deviceWithMediaMark({ deviceName, playing, mediaType, isStream }) {
+function deviceWithMediaMark({ deviceName, thisDevice, playing, mediaType, isStream }) {
   let mark = playing ? (mediaType == 'video' ? ' ▶' : ' ♪♫♬') : '';
 
   if (playing && isStream) {
     mark = `${mark}${colors.gray(' [stream]')}`;
   }
 
-  return colors.cyan(`${deviceName}${colors.white(mark)}`);
+  return colors.cyan(`${thisDevice ? colors.white('→') : ''} ${deviceName}${colors.white(mark)}`.trim());
 }
 
 function ipInfo({ ip, isSpecialNode, thisDevice }) {
@@ -69,33 +69,17 @@ function ipInfo({ ip, isSpecialNode, thisDevice }) {
   return ip;
 }
 
-function displayDmtVersion(thisDmtVersion, dmtVersion, thisDevice) {
-  if (!dmtVersion) {
-    return '?';
-  }
-
-  const compareVersions = dmt.compareDmtVersions(dmtVersion, thisDmtVersion);
-
-  if (compareVersions > 0) {
-    return colors.green(`↑ ${dmtVersion}`);
-  }
-
-  if (compareVersions < 0) {
-    return colors.gray(`↓ ${dmtVersion}`);
-  }
-
-  return colors.cyan(`${thisDevice ? '✓' : '≡'} ${dmtVersion}`);
+function displayDmtVersion({ dmtVersion, versionCompareSymbol }) {
+  return colors.gray(`${colors.cyan(versionCompareSymbol)} ${dmtVersion}`);
 }
 
 ipcClient({ actorName: 'controller', action })
   .then(_nearbyDevices => {
-    table.push(headers.map(h => colors.magenta(h)));
+    table.push(headers.map(h => colors.cyan(h)));
 
     table.push(Table.divider);
 
-    const nearbyDevices = _nearbyDevices.filter(({ stale }) => !stale).sort(compareValues('deviceName'));
-
-    const thisDeviceData = nearbyDevices.find(({ thisDevice }) => thisDevice);
+    const nearbyDevices = _nearbyDevices.filter(({ stale }) => !stale);
 
     if (args.simple) {
       for (const { deviceName, username, ip } of nearbyDevices.filter(({ thisDevice }) => !thisDevice)) {
@@ -104,11 +88,26 @@ ipcClient({ actorName: 'controller', action })
     } else {
       table.push(
         ...nearbyDevices.map(device => {
-          const { deviceName, deviceKey, ip, platform, username, uptime, thisDevice, isSpecialNode, isStream, apssid, dmtVersion, playing, mediaType } = device;
+          const {
+            deviceName,
+            deviceKey,
+            ip,
+            platform,
+            username,
+            uptime,
+            thisDevice,
+            isSpecialNode,
+            isStream,
+            apssid,
+            dmtVersion,
+            versionCompareSymbol,
+            playing,
+            mediaType
+          } = device;
 
           return [
-            deviceWithMediaMark({ deviceName, playing, mediaType, isStream }),
-            displayDmtVersion(thisDeviceData.dmtVersion, dmtVersion, thisDevice),
+            deviceWithMediaMark({ deviceName, playing, mediaType, isStream, thisDevice }),
+            displayDmtVersion({ dmtVersion, versionCompareSymbol }),
             ipInfo({ ip, isSpecialNode, thisDevice }),
             platform ? colors.gray(platform) : '?',
             colors.green(uptime),

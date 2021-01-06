@@ -1,19 +1,5 @@
 import dmt from 'dmt/bridge';
 
-function compareVersionsSymbol(dmtVersion) {
-  const compareVersions = dmt.compareDmtVersions(dmtVersion, dmt.dmtVersion());
-
-  if (compareVersions > 0) {
-    return '↑';
-  }
-
-  if (compareVersions < 0) {
-    return '↓';
-  }
-
-  return '';
-}
-
 export default function syncPeersToProgramState({ program, connectorPool, port }) {
   const slotName = 'peerlist';
 
@@ -29,9 +15,8 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
     connectorPool.getConnector({ address, port, deviceTag }).then(connector => {
       connector.attachObject('peerState', {
         set: peerState => {
-          const sameVersion = dmt.dmtVersion() == peerState.dmtVersion;
-          const versionCompareSymbol = compareVersionsSymbol(peerState.dmtVersion);
-          program.store.updateSlotArrayElement(slotName, selectorPredicate, { sameVersion, versionCompareSymbol, peerState });
+          const versionCompareSymbol = dmt.versionCompareSymbol(peerState.dmtVersion);
+          program.store.updateSlotArrayElement(slotName, selectorPredicate, { versionCompareSymbol, peerState });
         }
       });
 

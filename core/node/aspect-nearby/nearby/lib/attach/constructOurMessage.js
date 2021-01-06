@@ -1,7 +1,9 @@
 import dmt from 'dmt/bridge';
 import os from 'os';
 
-export default function attachNearbyDeviceAttributes({ program, msg }) {
+import deriveDeviceData from './deriveDeviceData';
+
+export default function constructOurMessage({ program, msg }) {
   const { username } = os.userInfo();
   msg.username = username;
 
@@ -43,5 +45,5 @@ export default function attachNearbyDeviceAttributes({ program, msg }) {
     msg.networkId = dmt.definedNetworkId();
   }
 
-  return msg;
+  return deriveDeviceData(msg);
 }
