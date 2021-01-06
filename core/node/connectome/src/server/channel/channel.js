@@ -17,6 +17,8 @@ class Channel extends EventEmitter {
 
     this.reverseRpcClient = new RpcClient(this, rpcRequestTimeout);
 
+    this.remoteEventHandlers = [];
+
     ws.on('close', () => {
       this.emit('disconnect');
     });
@@ -27,6 +29,14 @@ class Channel extends EventEmitter {
 
   setLane(lane) {
     this.lane = lane;
+  }
+
+  emitRemoteEvent(_eventName, eventData) {
+    this.remoteEventHandlers.filter(({ eventName }) => eventName == _eventName).forEach(handler => handler(eventData));
+  }
+
+  onRemoteEvent(eventName, handler) {
+    this.remoteEventHandlers.push(handler);
   }
 
   setSharedSecret(sharedSecret) {

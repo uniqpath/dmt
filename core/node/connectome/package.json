@@ -1,6 +1,6 @@
 {
   "name": "connectome",
-  "version": "0.0.83",
+  "version": "0.0.85",
   "description": "Dynamic realtime connectivity and state management",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

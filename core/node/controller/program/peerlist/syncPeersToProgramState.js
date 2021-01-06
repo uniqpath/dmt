@@ -20,14 +20,14 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
         }
       });
 
-      program.store.updateSlotArrayElement(slotName, selectorPredicate, { connected: connector.isReady() });
+      program.store.updateSlotArrayElement(slotName, selectorPredicate, { operational: connector.isReady() });
 
       connector.on('ready', () => {
-        program.store.updateSlotArrayElement(slotName, selectorPredicate, { connected: true });
+        program.store.updateSlotArrayElement(slotName, selectorPredicate, { operational: true });
       });
 
       connector.on('disconnect', () => {
-        program.store.updateSlotArrayElement(slotName, selectorPredicate, { connected: false });
+        program.store.updateSlotArrayElement(slotName, selectorPredicate, { operational: false });
       });
     });
   }

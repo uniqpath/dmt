@@ -2,8 +2,12 @@ import firstConnectWaitAndContinue from '../connect/firstConnectWaitAndContinue.
 
 import { compareValues } from '../../utils/sorting/sorting.js';
 
-class ConnectorPool {
+import ReadableStore from '../../stores/front/helperStores/readableStore.js';
+
+class ConnectorPool extends ReadableStore {
   constructor(options) {
+    super({ connectionList: [] });
+
     this.options = options;
 
     this.connectors = {};
@@ -34,10 +38,36 @@ class ConnectorPool {
           this.connectors[addressWithPort] = connector;
           this.isPreparingConnector[addressWithPort] = false;
 
+          this.setupConnectorReactivity(connector);
+
           success(connector);
         });
       }
     });
+  }
+
+  setupConnectorReactivity(connector) {
+    this.publishState();
+
+    connector.on('ready', () => {
+      this.publishState();
+    });
+
+    connector.on('disconnect', () => {
+      this.publishState();
+    });
+  }
+
+  publishState() {
+    const connectionList = this.connectionList();
+
+    connectionList.forEach(connection => {
+      delete connection.lastMessageAt;
+      delete connection.readyState;
+    });
+
+    this.state = { connectionList };
+    this.announceStateChange();
   }
 
   // 💡 this method here is outgoing connections list
@@ -50,7 +80,7 @@ class ConnectorPool {
         protocol: conn.protocol,
         lane: conn.lane,
         remotePubkeyHex: conn.remotePubkeyHex(),
-        ready: conn.isReady(), // 💡 connected and agreed on shared key ... used to determine if we can already send via connector or "we wait for the next rouund"
+        operational: conn.isReady(), // 💡 connected and agreed on shared key ... used to determine if we can already send via connector or "we wait for the next rouund"
         //💡 informative-nature only, not used for distributed system logic
         readyState: conn.connection && conn.connection.websocket ? conn.connection.websocket.readyState : '?', // 💡 underlying ws-connection original 'readyState' -- useful only for debugging purposes, otherwise it's just informative
         connectedAt: conn.connectedAt,

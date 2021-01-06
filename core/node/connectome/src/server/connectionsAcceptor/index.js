@@ -1,14 +1,15 @@
-import { EventEmitter } from '../../utils/index.js';
 import WsServer from './wsServer.js';
 import initializeConnection from './initializeConnection.js';
+
+import ReadableStore from '../../stores/front/helperStores/readableStore.js';
 
 import { compareValues } from '../../utils/sorting/sorting.js';
 
 import ChannelList from '../channel/channelList.js';
 
-class ConnectionsAcceptor extends EventEmitter {
+class ConnectionsAcceptor extends ReadableStore {
   constructor({ ssl = false, port, keypair, verbose }) {
-    super();
+    super({ connectionList: [] });
 
     this.ssl = ssl;
     this.port = port;
@@ -41,8 +42,30 @@ class ConnectionsAcceptor extends EventEmitter {
   start() {
     this.wsServer = new WsServer({ ssl: this.ssl, port: this.port, verbose: this.verbose });
 
-    this.wsServer.on('connection', channel => initializeConnection({ server: this, channel }));
-    this.wsServer.on('connection_closed', channel => this.emit('connection_closed', channel));
+    this.wsServer.on('connection', channel => {
+      initializeConnection({ server: this, channel });
+    });
+
+    this.on('connection', () => {
+      this.publishState();
+    });
+
+    this.wsServer.on('connection_closed', channel => {
+      this.emit('connection_closed', channel);
+      this.publishState();
+    });
+  }
+
+  publishState() {
+    const connectionList = this.connectionList();
+
+    connectionList.forEach(connection => {
+      delete connection.lastMessageAt;
+      delete connection.readyState;
+    });
+
+    this.state = { connectionList };
+    this.announceStateChange();
   }
 
   registeredProtocols() {

@@ -89,7 +89,7 @@ class ConnectedStore extends WritableStore {
     this.connector.on('receive_diff', diff => {
       if (this.wireStateReceived) {
         applyJSONPatch(this.state, diff);
-        this.pushStateToSubscribers();
+        this.announceStateChange();
       }
     });
   }

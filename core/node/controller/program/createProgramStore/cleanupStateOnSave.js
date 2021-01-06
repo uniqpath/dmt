@@ -1,4 +1,6 @@
 export default function cleanupStateOnSave(state) {
+  delete state.undefined;
+
   delete state.device;
 
   delete state.controller;
@@ -21,6 +23,8 @@ export default function cleanupStateOnSave(state) {
   delete state.deviceRestarters;
 
   delete state.peerlist;
+  delete state.connectionsOut;
+  delete state.connectionsIn;
 
   if (state.player) {
     delete state.player.currentMedia;

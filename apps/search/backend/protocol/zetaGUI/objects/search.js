@@ -8,6 +8,46 @@ import { fiberHandle } from 'dmt/connectome-next';
 
 const { log } = dmt;
 
+function enhanceThisMachineResponse({ response, isLAN }) {
+  const { meta } = response;
+
+  meta.thisMachine = true;
+
+  if (isLAN) {
+    meta.providerTag = meta.providerHost;
+  } else {
+    meta.providerTag = 'this'; //searchOriginHost;
+  }
+}
+
+function enhanceResponses({ responses, peerlist, isLAN }) {
+  // TODO! useful... to search any device from the field!! @solar ... !! NICE!
+  // if (atDevices.length > 0 && dmt.isDevMachine()) {
+  //   // for now
+  //   // todo, improve ... now we loose device name... @solar is mapped to @192.168.0.10 ... how to keep this info? just use @host if type == 'dmt'
+  //   // verify if this is good enough
+  //   providers = serializeContentRefs(atDevices);
+  // } else {
+
+  //console.log(responses);
+
+  // inject local-perspective provider tags!
+  for (const response of responses) {
+    const { meta } = response;
+    if (meta) {
+      const matchingPeer = peerlist.find(({ address }) => address == meta.providerAddress);
+      //console.log(matchingPeer);
+      if (matchingPeer) {
+        meta.providerTag = matchingPeer.deviceTag;
+      } else {
+        enhanceThisMachineResponse({ response, isLAN });
+      }
+    }
+  }
+
+  return responses;
+}
+
 class GUISearchObject {
   constructor({ program, channel }) {
     this.program = program;
@@ -17,7 +57,8 @@ class GUISearchObject {
   search({ query, searchMode, searchMetadata }) {
     const { searchOriginHost, isLAN } = searchMetadata;
 
-    console.log(`searchMode: ${searchMode}`);
+    const peerlist = searchMode == 0 ? this.program.peerlist() : [];
+    const peerAddresses = peerlist.length > 0 ? peerlist.map(({ address }) => address) : [];
 
     // console.log(`SEARCH TRIGGERED:`);
     // console.log(query);
@@ -31,26 +72,10 @@ class GUISearchObject {
 
       // todo: serialize these missing ! for now they will be ignored
 
-      //let providers = '';
-
-      // TODO! useful... to search any device from the field!! @solar ... !! NICE!
-      // if (atDevices.length > 0 && dmt.isDevMachine()) {
-      //   // for now
-      //   // todo, improve ... now we loose device name... @solar is mapped to @192.168.0.10 ... how to keep this info? just use @host if type == 'dmt'
-      //   // verify if this is good enough
-      //   providers = serializeContentRefs(atDevices);
-      // } else {
-      const peerlist = searchMode == 0 ? this.program.peerlist() : [];
-      const peerAddresses = peerlist.length > 0 ? peerlist.map(({ address }) => address) : [];
-
-      // console.log(peerlist);
-      // console.log(peerAddresses);
-
       const providers = ['this']
         .concat(peerAddresses)
         .map(provider => `@${provider} @${provider}/links`)
         .join(' ');
-      //}
 
       this.program
         .actor('search')
@@ -58,31 +83,10 @@ class GUISearchObject {
         //.call('search', { query: `${providers.join(' ')} @count=10 ${query}`, searchOriginHost })
         .then(responses => {
           //console.log(responses);
-
-          // inject local-perspective provider tags!
-          for (const response of responses) {
-            const { meta } = response;
-            if (meta) {
-              const matchingPeer = peerlist.find(({ address }) => address == meta.providerAddress);
-              //console.log(matchingPeer);
-              if (matchingPeer) {
-                meta.providerTag = matchingPeer.deviceTag;
-              } else {
-                meta.thisMachine = true;
-
-                if (isLAN) {
-                  meta.providerTag = meta.providerHost;
-                } else {
-                  meta.providerTag = 'this'; //searchOriginHost;
-                }
-              }
-            }
-          }
-
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           //console.log('EMITTING SEARCH');
           this.program.emit('zeta::user_search', { query, totalHits, searchMetadata });
-          success(responses);
+          success(enhanceResponses({ responses, peerlist, isLAN }));
         })
         .catch(error => {
           // never happened so far
@@ -93,7 +97,9 @@ class GUISearchObject {
   }
 
   browsePlace({ place, searchMetadata }) {
-    const { searchOriginHost } = searchMetadata;
+    const { searchOriginHost, isLAN, searchMode } = searchMetadata;
+
+    const peerlist = searchMode == 0 ? this.program.peerlist() : [];
 
     return new Promise(success => {
       const count = 500; // remove after impolementin pagination!
@@ -107,7 +113,7 @@ class GUISearchObject {
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           //console.log('EMITTING SEARCH');
           this.program.emit('zeta::user_search', { query: `place: ${fiberHandle.decode(place)}`, totalHits, searchMetadata });
-          success(responses);
+          success(enhanceResponses({ responses, peerlist, isLAN }));
         })
         .catch(error => {
           // never happened so far

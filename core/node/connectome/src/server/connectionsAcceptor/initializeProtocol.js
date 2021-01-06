@@ -8,6 +8,7 @@ function initializeProtocol({ server, channel }) {
     console.log(
       `Error: request from ${channel.remoteIp()} (${channel.remotePubkeyHex()}) - unknown protocol ${channel.protocol}/${channel.lane}, disconnecting`
     );
+
     channel.terminate();
   }
 }

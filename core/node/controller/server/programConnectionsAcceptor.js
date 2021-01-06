@@ -18,6 +18,10 @@ class ProgramConnectionsAcceptor {
 
       this.acceptor = new ConnectionsAcceptor({ ssl: false, port, keypair: this.keypair });
 
+      this.acceptor.subscribe(({ connectionList }) => {
+        program.store.replaceSlot('connectionsIn', connectionList);
+      });
+
       log.cyan(`Starting ProgramConnectionsAcceptor on port ${colors.magenta(port)}`);
 
       this.acceptor.on('connection', channel => {});

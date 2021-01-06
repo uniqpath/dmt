@@ -23,6 +23,7 @@
   --dmt-cool-green-rgb: 93, 246, 153;
   --dmt-cool-green: #5df699;
   --dmt-cool-cyan: #51f5c8;
+  --dmt-cool-cyan-rgb: 81, 245, 200;
   --dmt-cool-cyan2: #58e288;
   --zeta-green: #31e5c1;
   --zeta-green-highlight: #34fed7;
@@ -30,8 +31,8 @@
   --search-input-width: 330px;
 
   /* NEW */
-  --dmt-silver: #99B1BA;
-  --dmt-yellow: #DFDB83;
+  --dmt-silver: #99b1ba;
+  --dmt-yellow: #dfdb83;
 }
 
 /* Font from: https://google-webfonts-helper.herokuapp.com/fonts/nunito-sans?subsets=latin */
@@ -187,21 +188,22 @@ a:hover {
   color: var(--dmt-cyan);
 }
 
+button {
+  cursor: pointer;
+}
+
 table {
   background-color: rgba(255, 255, 255, 0.1);
   width: 100%;
   text-align: left;
   border-collapse: collapse;
+  border-top: 1px solid #aaa;
   /*border-radius-bottom-left: 10px;
   border-radius-bottom-right: 10px;*/
 }
 
 thead {
   background-color: rgba(255, 255, 255, 0.15);
-}
-
-tr:first-child {
-  border-top: 1px solid #aaa;
 }
 
 th {
@@ -221,6 +223,20 @@ tr:first-child td {
 
 tr:last-child td {
   padding-bottom: 0.5rem;
+}
+
+table.vertical {
+  border-top: none;
+  border-left: 1px solid #aaa;
+}
+
+table.vertical th {
+  background-color: rgba(255, 255, 255, 0.15);
+  padding-right: 1rem;
+}
+
+table.vertical td {
+  padding-left: 1rem;
 }
 
 input {

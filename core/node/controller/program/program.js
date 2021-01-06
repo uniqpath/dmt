@@ -63,6 +63,10 @@ class Program extends EventEmitter {
 
     this.fiberPool = createFiberPool({ port, protocol, lane });
 
+    this.fiberPool.subscribe(({ connectionList }) => {
+      this.store.replaceSlot('connectionsOut', connectionList);
+    });
+
     const emitter = new EventEmitter();
 
     emitter.on('file_request', data => {

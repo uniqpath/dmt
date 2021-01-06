@@ -91,8 +91,9 @@ class Connector extends EventEmitter {
           }
         });
     } else {
+      let justDisconnected;
       if (this.connected) {
-        this.emit('disconnect');
+        justDisconnected = true;
       }
 
       if (this.connected == undefined) {
@@ -102,6 +103,10 @@ class Connector extends EventEmitter {
       this.connected = false;
       this.ready = false;
       delete this.connectedAt;
+
+      if (justDisconnected) {
+        this.emit('disconnect');
+      }
     }
   }
 

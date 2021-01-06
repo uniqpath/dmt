@@ -69,7 +69,7 @@ function displayTable(connectionList, outgoing = true) {
 
     console.log(table.toString());
   } else {
-    console.log(colors.gray(' — No open connections'));
+    console.log(colors.gray(' — No operational connections'));
   }
 }
 
