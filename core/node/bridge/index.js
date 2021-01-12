@@ -42,9 +42,6 @@ if (!fs.existsSync(helper.dmtPath)) {
   process.exit();
 }
 
-import Logger from './lib/logger';
-const log = new Logger();
-
 function promiseTimeout(ms, promise) {
   const timeout = new Promise((resolve, reject) => {
     const id = setTimeout(() => {
@@ -130,7 +127,7 @@ function versionCompareSymbol(otherDmtVersion) {
 }
 
 export default {
-  log,
+  log: helper.log,
   util,
   scan,
   nacl,
@@ -293,10 +290,6 @@ export default {
   debugCategory: helper.debugCategory,
   includeModule: helper.includeModule,
   determineTimeAndDate: helper.determineTimeAndDate,
-  debugExit() {
-    console.log(colors.red('Stopping here as specified for debug mode'));
-    process.exit();
-  },
   fsState: new FsState(helper.stateDir),
   stateDir: helper.stateDir,
   dmtPath: helper.dmtPath,

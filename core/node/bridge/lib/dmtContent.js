@@ -1,4 +1,3 @@
-import colors from 'colors';
 import fs from 'fs';
 import def from './parsers/def/parser';
 
@@ -7,6 +6,7 @@ import parseDeviceMention from './parsers/cli/parseDeviceMention';
 import { sambaDefinitionErrorCheck } from './sambaHelpers';
 
 import dmt from './dmtHelper';
+const { log } = dmt;
 
 function parseContentRefs(contentRefs) {
   contentRefs = contentRefs.map(contentRef => {
@@ -38,7 +38,7 @@ function readContentDef({ filePath }) {
 
     return def.makeTryable(contentDef);
   } catch (e) {
-    console.log(colors.red(e.message));
+    log.red(`content.def: ${e.message}`);
     process.exit();
   }
 }

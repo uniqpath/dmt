@@ -11,9 +11,13 @@ const _daynames = {
   slo: ['NED', 'PON', 'TOR', 'SRE', 'ČET', 'PET', 'SOB']
 };
 
-const device = dmt.device({ onlyBasicParsing: true });
+let device;
 
 function determineTimeAndDate({ latlng, lang }) {
+  if (!device) {
+    device = dmt.device({ onlyBasicParsing: true });
+  }
+
   let d = new Date();
 
   const demoDevice = def.isTruthy(device.demo);

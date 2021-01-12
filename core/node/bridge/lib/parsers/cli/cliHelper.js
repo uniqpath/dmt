@@ -12,14 +12,6 @@ function parseArgs(allArgs) {
     util.dir(parsedArgs);
   }
 
-  const errors = parsedArgs.filter(arg => arg.error);
-  if (errors.length > 0) {
-    for (const arg of errors) {
-      console.log(colors.red(`Error: ${arg.error}`));
-    }
-    process.exit();
-  }
-
   const atArguments = parsedArgs.filter(arg => arg.type == 'attr');
   const terms = parsedArgs.map(arg => (arg.term ? arg.originalArg : arg)).filter(arg => typeof arg == 'string' && arg.trim() != '');
 

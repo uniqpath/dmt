@@ -4,24 +4,12 @@ import os from 'os';
 import util from 'util';
 import colors from 'colors';
 
-import dmt from './dmtHelper';
+import { includeModule, deviceDefFile, dmtPath, isDevMachine, debugMode } from './dmtPreHelper';
 import dmtUtil from './util';
 import scan from './scan';
 
 import colorJSON from './colorJSON';
 import ScreenOutput from './loggerScreenOutput';
-
-const deviceName = 'this';
-const filePath = dmt.deviceDefFile(deviceName);
-
-if (!fs.existsSync(filePath)) {
-  const defMissingMsg = `⚠️  Cannot read ${colors.cyan('device.def')} file for ${colors.cyan(deviceName)} device`;
-  const msg = `${defMissingMsg} — make sure device is selected - use ${colors.green('dmt device select')} to select device`;
-  console.log(colors.red(msg));
-  process.exit();
-}
-
-const device = dmt.device({ onlyBasicParsing: true });
 
 const LIMIT = 10000;
 
@@ -34,7 +22,7 @@ class Logger {
 
     this.startTimestamp = Date.now();
 
-    dmt.includeModule(this, ScreenOutput);
+    includeModule(this, ScreenOutput);
   }
 
   initCallback(entryLoggedCallback) {
@@ -45,15 +33,38 @@ class Logger {
     return this.buffer.slice(-lines);
   }
 
-  init({ logfile, foreground }) {
-    this.logfile = logfile;
-    this.isForeground = foreground;
+  init({ dmt, logfile, foreground }) {
+    if (logfile) {
+      this.logfile = logfile;
+    }
 
-    this.white(`${colors.cyan('dmt-proc')} running in terminal (foreground)`);
+    const filePath = deviceDefFile();
+
+    if (!fs.existsSync(filePath)) {
+      const defMissingMsg = `⚠️  Cannot read ${colors.cyan('device.def')} file  device`;
+      const msg = `${defMissingMsg} — make sure device is selected - use ${colors.green('dmt device select')} to select device`;
+      this.red(msg);
+      process.exit();
+    }
+
+    if (foreground) {
+      this.isForeground = foreground;
+    }
+
+    try {
+      this.deviceName = dmt.device({ onlyBasicParsing: true }).id;
+    } catch (e) {
+      this.red(e);
+      process.exit();
+    }
+
+    if (foreground) {
+      this.white(`${colors.cyan('dmt-proc')} running in terminal (foreground)`);
+    }
   }
 
   fwrite(msg) {
-    const logfilePath = path.join(dmt.dmtPath, `log/${this.logfile}`);
+    const logfilePath = path.join(dmtPath, `log/${this.logfile}`);
 
     if (this.linesWrittenCount % (LIMIT / 10) === 0) {
       if (fs.existsSync(logfilePath)) {
@@ -76,7 +87,7 @@ class Logger {
 
   lineMetadata({ error }) {
     const meta = {
-      deviceName: device.id,
+      deviceName: this.deviceName,
       pid: process.pid,
       time: new Date().toLocaleString(),
       epoch: Date.now() - this.startTimestamp
@@ -89,8 +100,10 @@ class Logger {
     return meta;
   }
 
-  infoLine(data) {
-    return `${data.deviceName ? `${colors.magenta(data.deviceName)}` : ''} pid ${data.pid} ${colors.gray(data.time)} ${this.formatEpoch(data.epoch)}`;
+  infoLine({ deviceName, pid, time, epoch }) {
+    return `${deviceName ? `${colors.magenta(deviceName)}` : '[unknown deviceName, before log init]'} pid ${pid} ${colors.gray(time)} ${this.formatEpoch(
+      epoch
+    )}`;
   }
 
   logOutput(color, { onlyToFile = false, skipMeta = false, error = false } = {}, ...args) {
@@ -109,7 +122,15 @@ class Logger {
         }
       }
 
-      msg = `${this.isForeground ? colors.red('✝ ') : ''}${infoLine}${diffStr} ∞ ${msg}`;
+      let foregroundSymbol = colors.cyan('unknown fg status (before init) ');
+
+      if (this.isForeground == true) {
+        foregroundSymbol = colors.red('✝ ');
+      } else if (this.isForeground == false) {
+        foregroundSymbol = '';
+      }
+
+      msg = `${foregroundSymbol}${infoLine}${diffStr} ∞ ${msg}`;
     }
 
     if (!onlyToFile) {
@@ -141,13 +162,13 @@ class Logger {
   }
 
   dev(msg) {
-    if (dmt.isDevMachine()) {
+    if (isDevMachine()) {
       this.logOutput(colors.yellow, {}, msg);
     }
   }
 
   debug(title, { obj = null, cat = null } = {}) {
-    if (dmt.debugMode(cat)) {
+    if (debugMode(cat)) {
       console.log();
       const debugMarker = colors.cyan('🔧 DEBUG:');
       console.log(debugMarker);

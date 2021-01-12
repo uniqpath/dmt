@@ -83,6 +83,10 @@ class Program extends EventEmitter {
       channel
         .remoteObject('peerState')
         .call('set', { dmtVersion: dmt.dmtVersion() })
+        .then(incomingPeerState => {
+          log.cyan('incomingPeerState:');
+          log.write(incomingPeerState);
+        })
         .catch(e => {});
 
       program.actors.setupChannel(channel);

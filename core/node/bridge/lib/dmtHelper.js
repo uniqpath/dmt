@@ -1,68 +1,48 @@
 import fs from 'fs';
 import path from 'path';
 import colors from 'colors';
-
 import os from 'os';
+
 const { homedir } = os;
 const { username } = os.userInfo();
 
 import isRPi from './detectRPi';
 import def from './parsers/def/parser';
 
-import scan from './scan';
 import util from './util';
+
+import {
+  dmtPath,
+  dmtUserDir,
+  stateDir,
+  device,
+  devices,
+  includeModule,
+  deviceDefFile,
+  isDevMachine,
+  isDevCluster,
+  debugMode,
+  debugCategory
+} from './dmtPreHelper';
+
+import Logger from './logger';
+const log = new Logger();
 
 import * as dateFns from './timeutils/dateFnsCompacted';
 
 const { hexToBuffer } = util.hexutils;
 
-const dmtPath = path.join(homedir(), '.dmt');
 const dmtHerePath = path.join(homedir(), '.dmt-here');
-const dmtUserDir = path.join(dmtPath, 'user');
 const dmtCatalogsDir = path.join(dmtUserDir, 'catalogs');
 const defDir = path.join(dmtUserDir, 'def');
-const stateDir = path.join(dmtPath, 'state');
 
 const DEF_EXTENSION = '.def';
 
-const devices = [];
-const devicesBasic = [];
-
 let deviceKeypair;
-
-function isDevMachine() {
-  return fs.existsSync(path.join(dmtUserDir, 'devices/this/.dev-machine'));
-}
-
-function isDevCluster() {
-  return isDevMachine() || fs.existsSync(path.join(dmtUserDir, 'devices/this/.dev-cluster'));
-}
 
 const globals = {
   tickerPeriod: 2
 };
-
-function getAllFuncs(obj) {
-  return Object.getOwnPropertyNames(obj.prototype).filter(prop => prop != 'constructor' && typeof obj.prototype[prop] == 'function');
-}
-
-function includeModule(obj, Module) {
-  const module = new Module();
-  for (const func of getAllFuncs(Module)) {
-    obj[func] = module[func].bind(obj);
-  }
-}
-
-function readDeviceDef({ filePath, onlyBasicParsing, caching = true }) {
-  try {
-    const deviceDef = def.parseFile(filePath, { onlyBasicParsing, caching });
-
-    return def.makeTryable(deviceDef.multi.length > 0 ? deviceDef.device : { empty: true });
-  } catch (e) {
-    console.log(colors.red(e.message));
-    process.exit();
-  }
-}
 
 function readConnectDef({ filePath }) {
   try {
@@ -73,7 +53,7 @@ function readConnectDef({ filePath }) {
     const connectDef = def.parseFile(filePath);
     return def.makeTryable(connectDef.multi.length > 0 ? connectDef.multi : { empty: true });
   } catch (e) {
-    console.log(colors.red(e.message));
+    log.red(`connect.def: ${e.message}`);
     process.exit();
   }
 }
@@ -97,7 +77,7 @@ function readKeysDef({ filePath }) {
       });
     }
   } catch (e) {
-    console.log(colors.red(e.message));
+    log.red(`keys.def: ${e.message}`);
     process.exit();
   }
 }
@@ -105,6 +85,7 @@ function readKeysDef({ filePath }) {
 let checkedForDuplicateMacs = false;
 
 export default {
+  log,
   dmtPath,
   dmtHerePath,
   userDir: dmtUserDir,
@@ -113,49 +94,13 @@ export default {
   globals,
   isDevMachine,
   isDevCluster,
+  debugMode,
+  debugCategory,
   includeModule,
   dateFns,
-
-  debugMode(category = null) {
-    const debugInfoFile = path.join(stateDir, '.debug-mode');
-
-    if (fs.existsSync(debugInfoFile)) {
-      if (category) {
-        return this.debugCategory(category);
-      }
-
-      return true;
-    }
-  },
-
-  debugCategory(category = null) {
-    if (!this.deviceDef) {
-      this.deviceDef = this.device({ onlyBasicParsing: false });
-    }
-
-    if (category) {
-      const debugInfoFile = path.join(stateDir, '.debug-mode');
-
-      const categoriesDebugModeFile = !fs.existsSync(debugInfoFile)
-        ? []
-        : scan
-            .readFileLines(debugInfoFile)
-            .map(line => line.trim())
-            .filter(line => line != '' && !line.startsWith('#'));
-
-      const categoriesDeviceDef = def.values(this.deviceDef.try('debug.log'));
-
-      const categories = categoriesDebugModeFile.concat(categoriesDeviceDef);
-
-      if (categoriesDeviceDef.find(cat => cat == category)) {
-        console.log(
-          `⚠️  Warning: debug category ${colors.yellow(category)} is defined in ${colors.cyan('device.def')}, ${colors.red('not the best permanent practice')}.`
-        );
-      }
-
-      return categories.find(cat => cat == category);
-    }
-  },
+  deviceDefFile,
+  device,
+  devices,
 
   isValidIPv4Address(ipaddress) {
     if (
@@ -281,60 +226,9 @@ export default {
     return def.makeTryable(network || emptyObj);
   },
 
-  deviceDefFile(deviceName, file = 'device') {
-    return path.join(dmtUserDir, `devices/${deviceName}/def/${file}.def`);
-  },
-
   deviceDefIsMissing(deviceName = 'this') {
     const filePath = this.deviceDefFile(deviceName);
     return !fs.existsSync(filePath);
-  },
-
-  device({ deviceName = 'this', onlyBasicParsing = false, caching = true } = {}) {
-    const defMissingMsg = `⚠️  Cannot read ${colors.cyan('device.def')} file for ${colors.cyan(deviceName)} device`;
-
-    if (deviceName == 'this') {
-      const filePath = this.deviceDefFile(deviceName);
-      return readDeviceDef({ filePath, onlyBasicParsing, caching });
-    }
-
-    const list = this.devices({ onlyBasicParsing, caching });
-
-    const match = list.find(device => device.id == deviceName);
-
-    if (!match) {
-      console.log(colors.red(defMissingMsg));
-      process.exit();
-    }
-
-    return match;
-  },
-
-  devices({ onlyBasicParsing = false, caching = true } = {}) {
-    if (onlyBasicParsing && devicesBasic.length > 0) {
-      return devicesBasic;
-    }
-
-    if (!onlyBasicParsing && devices.length > 0) {
-      return devices;
-    }
-
-    const list = scan.dir(path.join(dmtUserDir, 'devices'), { onlyDirs: true });
-
-    for (const deviceDir of list) {
-      const deviceDefFile = path.join(deviceDir, 'def/device.def');
-      if (fs.existsSync(deviceDefFile)) {
-        const def = readDeviceDef({ filePath: deviceDefFile, onlyBasicParsing, caching });
-
-        if (onlyBasicParsing) {
-          devicesBasic.push(def);
-        } else {
-          devices.push(def);
-        }
-      }
-    }
-
-    return onlyBasicParsing ? devicesBasic : devices;
   },
 
   deviceDir(deviceName = this.device().id) {
@@ -523,7 +417,7 @@ export default {
   },
 
   getIp({ deviceName }) {
-    const match = this.devices({ onlyBasicParsing: true }).find(device => device.id == deviceName);
+    const match = devices({ onlyBasicParsing: true }).find(device => device.id == deviceName);
 
     if (match) {
       const ip = match.try('network.ip');
@@ -551,7 +445,7 @@ export default {
   },
 
   getGlobalIp({ deviceName }) {
-    const match = this.devices().find(device => device.id == deviceName);
+    const match = devices().find(device => device.id == deviceName);
 
     if (match) {
       const globalIp = def.id(match.try('network.globalIp'));

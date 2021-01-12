@@ -10,7 +10,7 @@ if (process.argv.length > 2 && process.argv[2] == '--fg') {
 }
 
 const logfile = 'dmt.log';
-log.init({ logfile, foreground });
+log.init({ dmt, foreground, logfile });
 
 const mids = [];
 

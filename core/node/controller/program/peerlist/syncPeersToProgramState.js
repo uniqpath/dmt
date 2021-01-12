@@ -17,6 +17,8 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
         set: peerState => {
           const versionCompareSymbol = dmt.versionCompareSymbol(peerState.dmtVersion);
           program.store.updateSlotArrayElement(slotName, selectorPredicate, { versionCompareSymbol, peerState });
+
+          return { deviceName: program.device.id, dmtVersion: dmt.dmtVersion() };
         }
       });
 
