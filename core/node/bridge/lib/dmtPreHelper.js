@@ -72,17 +72,43 @@ function devices({ onlyBasicParsing = false, caching = true } = {}) {
     return devicesFull;
   }
 
-  const list = scan.dir(path.join(dmtUserDir, 'devices'), { onlyDirs: true });
+  const devicesDir = path.join(dmtUserDir, 'devices');
+
+  const list = scan.dir(devicesDir, { onlyDirs: true });
+
+  const thisSymlink = path.join(devicesDir, 'this');
+
+  let thisDeviceDir;
+
+  if (fs.existsSync(thisSymlink)) {
+    thisDeviceDir = fs.readlinkSync(thisSymlink);
+  }
 
   for (const deviceDir of list) {
+    let _coredata;
+
+    if (!onlyBasicParsing) {
+      _coredata = { deviceDir: path.basename(deviceDir) };
+
+      if (_coredata.deviceDir == thisDeviceDir) {
+        Object.assign(_coredata, { thisDevice: true });
+      }
+    }
+
     const deviceDefFile = path.join(deviceDir, 'def/device.def');
     if (fs.existsSync(deviceDefFile)) {
       const def = readDeviceDef({ filePath: deviceDefFile, onlyBasicParsing, caching });
 
       if (onlyBasicParsing) {
-        devicesBasic.push(def);
+        devicesBasic.push({ ...def });
       } else {
-        devicesFull.push(def);
+        Object.assign(_coredata, { deviceName: def.id });
+
+        if (def.try('main') == 'true') {
+          Object.assign(_coredata, { mainDevice: true });
+        }
+
+        devicesFull.push({ ...def, _coredata });
       }
     }
   }

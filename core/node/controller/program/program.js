@@ -25,6 +25,7 @@ import Server from '../server/mainHttpServer';
 import ProgramConnectionsAcceptor from '../server/programConnectionsAcceptor';
 
 import ensureDirectories from './boot/ensureDirectories';
+import preventMultipleMainDevices from './boot/preventMultipleMainDevices';
 import getDeviceInfo from './boot/getDeviceInfo';
 import createProgramStore from './createProgramStore/index.js';
 import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
@@ -41,6 +42,8 @@ class Program extends EventEmitter {
     ensureDirectories();
 
     generateKeypair();
+
+    preventMultipleMainDevices();
 
     this.sideStore = {};
 
@@ -83,10 +86,6 @@ class Program extends EventEmitter {
       channel
         .remoteObject('peerState')
         .call('set', { dmtVersion: dmt.dmtVersion() })
-        .then(incomingPeerState => {
-          log.cyan('incomingPeerState:');
-          log.write(incomingPeerState);
-        })
         .catch(e => {});
 
       program.actors.setupChannel(channel);

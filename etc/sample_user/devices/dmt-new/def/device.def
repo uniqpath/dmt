@@ -1,5 +1,7 @@
 device: dmt-new
 
+  main: true
+
   service: player
     contentRef: music
 

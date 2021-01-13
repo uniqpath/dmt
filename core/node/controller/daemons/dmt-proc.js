@@ -35,7 +35,6 @@ mids.push('meta/identity');
 try {
   program({ mids });
 } catch (e) {
-  log.cyan('⚠️ ⚠️ ⚠️  GENERAL ERROR:');
-  log.red(e.toString());
-  log.gray(e);
+  log.magenta('⚠️  GENERAL ERROR ⚠️');
+  log.red(e);
 }
