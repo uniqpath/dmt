@@ -10185,12 +10185,12 @@ var app = (function () {
     		c: function create() {
     			a = element("a");
     			img = element("img");
-    			attr_dev(img, "class", "icon_symbol svelte-1wzyex9");
+    			attr_dev(img, "class", "icon_symbol svelte-9hpty3");
     			if (img.src !== (img_src_value = "/apps/search/img/twitter.svg")) attr_dev(img, "src", img_src_value);
-    			add_location(img, file, 25, 47, 637);
+    			add_location(img, file, 25, 47, 608);
     			attr_dev(a, "href", "https://twitter.com/zetaseek");
-    			attr_dev(a, "class", "svelte-1wzyex9");
-    			add_location(a, file, 25, 8, 598);
+    			attr_dev(a, "class", "svelte-9hpty3");
+    			add_location(a, file, 25, 8, 569);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, a, anchor);
@@ -10220,7 +10220,7 @@ var app = (function () {
     	let t2;
     	let span;
     	let t3;
-    	let if_block = /*app*/ ctx[2].isCorePromoter && create_if_block(ctx);
+    	let if_block = /*app*/ ctx[1].isCorePromoter && create_if_block(ctx);
 
     	const block = {
     		c: function create() {
@@ -10232,16 +10232,15 @@ var app = (function () {
     			if (if_block) if_block.c();
     			t2 = space();
     			span = element("span");
-    			t3 = text(/*displayVersion*/ ctx[1]);
+    			t3 = text(/*displayVersion*/ ctx[0]);
     			attr_dev(a, "href", "https://uniqpath.com");
-    			attr_dev(a, "class", "svelte-1wzyex9");
-    			add_location(a, file, 20, 10, 480);
-    			attr_dev(div0, "class", "tagline svelte-1wzyex9");
-    			add_location(div0, file, 17, 8, 324);
-    			attr_dev(span, "class", "version svelte-1wzyex9");
-    			add_location(span, file, 28, 6, 723);
-    			attr_dev(div1, "class", "about svelte-1wzyex9");
-    			toggle_class(div1, "visible", !/*searchQuery*/ ctx[0]);
+    			attr_dev(a, "class", "svelte-9hpty3");
+    			add_location(a, file, 20, 10, 451);
+    			attr_dev(div0, "class", "tagline svelte-9hpty3");
+    			add_location(div0, file, 17, 8, 295);
+    			attr_dev(span, "class", "version svelte-9hpty3");
+    			add_location(span, file, 28, 6, 694);
+    			attr_dev(div1, "class", "about svelte-9hpty3");
     			add_location(div1, file, 13, 2, 212);
     		},
     		l: function claim(nodes) {
@@ -10258,11 +10257,7 @@ var app = (function () {
     			append_dev(span, t3);
     		},
     		p: function update(ctx, [dirty]) {
-    			if (dirty & /*displayVersion*/ 2) set_data_dev(t3, /*displayVersion*/ ctx[1]);
-
-    			if (dirty & /*searchQuery*/ 1) {
-    				toggle_class(div1, "visible", !/*searchQuery*/ ctx[0]);
-    			}
+    			if (dirty & /*displayVersion*/ 1) set_data_dev(t3, /*displayVersion*/ ctx[0]);
     		},
     		i: noop$2,
     		o: noop$2,
@@ -10298,8 +10293,8 @@ var app = (function () {
     	});
 
     	$$self.$$set = $$props => {
-    		if ("isMobile" in $$props) $$invalidate(3, isMobile = $$props.isMobile);
-    		if ("searchQuery" in $$props) $$invalidate(0, searchQuery = $$props.searchQuery);
+    		if ("isMobile" in $$props) $$invalidate(2, isMobile = $$props.isMobile);
+    		if ("searchQuery" in $$props) $$invalidate(3, searchQuery = $$props.searchQuery);
     		if ("dmtVersion" in $$props) $$invalidate(4, dmtVersion = $$props.dmtVersion);
     	};
 
@@ -10313,10 +10308,10 @@ var app = (function () {
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ("isMobile" in $$props) $$invalidate(3, isMobile = $$props.isMobile);
-    		if ("searchQuery" in $$props) $$invalidate(0, searchQuery = $$props.searchQuery);
+    		if ("isMobile" in $$props) $$invalidate(2, isMobile = $$props.isMobile);
+    		if ("searchQuery" in $$props) $$invalidate(3, searchQuery = $$props.searchQuery);
     		if ("dmtVersion" in $$props) $$invalidate(4, dmtVersion = $$props.dmtVersion);
-    		if ("displayVersion" in $$props) $$invalidate(1, displayVersion = $$props.displayVersion);
+    		if ("displayVersion" in $$props) $$invalidate(0, displayVersion = $$props.displayVersion);
     	};
 
     	if ($$props && "$$inject" in $$props) {
@@ -10325,11 +10320,11 @@ var app = (function () {
 
     	$$self.$$.update = () => {
     		if ($$self.$$.dirty & /*dmtVersion*/ 16) {
-    			 $$invalidate(1, displayVersion = dmtVersion || "");
+    			 $$invalidate(0, displayVersion = dmtVersion || "");
     		}
     	};
 
-    	return [searchQuery, displayVersion, app, isMobile, dmtVersion];
+    	return [displayVersion, app, isMobile, searchQuery, dmtVersion];
     }
 
     class About extends SvelteComponentDev {
@@ -10337,8 +10332,8 @@ var app = (function () {
     		super(options);
 
     		init(this, options, instance, create_fragment, safe_not_equal, {
-    			isMobile: 3,
-    			searchQuery: 0,
+    			isMobile: 2,
+    			searchQuery: 3,
     			dmtVersion: 4
     		});
 
@@ -10352,11 +10347,11 @@ var app = (function () {
     		const { ctx } = this.$$;
     		const props = options.props || {};
 
-    		if (/*isMobile*/ ctx[3] === undefined && !("isMobile" in props)) {
+    		if (/*isMobile*/ ctx[2] === undefined && !("isMobile" in props)) {
     			console.warn("<About> was created without expected prop 'isMobile'");
     		}
 
-    		if (/*searchQuery*/ ctx[0] === undefined && !("searchQuery" in props)) {
+    		if (/*searchQuery*/ ctx[3] === undefined && !("searchQuery" in props)) {
     			console.warn("<About> was created without expected prop 'searchQuery'");
     		}
 
@@ -13285,7 +13280,11 @@ var app = (function () {
     	let t4_value = /*operationalPeersCount*/ ctx[1] + 1 + "";
     	let t4;
     	let t5;
-    	let t6_value = (/*operationalPeersCount*/ ctx[1] == 1 ? "peer" : "peers") + "";
+
+    	let t6_value = (/*operationalPeersCount*/ ctx[1] + 1 == 1
+    	? "peer"
+    	: "peers") + "";
+
     	let t6;
     	let mounted;
     	let dispose;
@@ -13304,13 +13303,13 @@ var app = (function () {
     			t4 = text(t4_value);
     			t5 = space();
     			t6 = text(t6_value);
-    			add_location(b, file$a, 44, 8, 1669);
+    			add_location(b, file$a, 44, 8, 1673);
     			attr_dev(span0, "class", "this_node_search svelte-vdz3i6");
     			toggle_class(span0, "active", /*$searchMode*/ ctx[2] == 1);
-    			add_location(span0, file$a, 42, 4, 1519);
+    			add_location(span0, file$a, 42, 4, 1523);
     			attr_dev(span1, "class", "team_search svelte-vdz3i6");
     			toggle_class(span1, "active", /*$searchMode*/ ctx[2] == 0);
-    			add_location(span1, file$a, 47, 4, 1848);
+    			add_location(span1, file$a, 47, 4, 1852);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span0, anchor);
@@ -13350,7 +13349,10 @@ var app = (function () {
     			}
 
     			if (dirty & /*operationalPeersCount*/ 2 && t4_value !== (t4_value = /*operationalPeersCount*/ ctx[1] + 1 + "")) set_data_dev(t4, t4_value);
-    			if (dirty & /*operationalPeersCount*/ 2 && t6_value !== (t6_value = (/*operationalPeersCount*/ ctx[1] == 1 ? "peer" : "peers") + "")) set_data_dev(t6, t6_value);
+
+    			if (dirty & /*operationalPeersCount*/ 2 && t6_value !== (t6_value = (/*operationalPeersCount*/ ctx[1] + 1 == 1
+    			? "peer"
+    			: "peers") + "")) set_data_dev(t6, t6_value);
 
     			if (dirty & /*$searchMode*/ 4) {
     				toggle_class(span1, "active", /*$searchMode*/ ctx[2] == 0);
@@ -13386,7 +13388,11 @@ var app = (function () {
     	let t2_value = /*operationalPeersCount*/ ctx[1] + 1 + "";
     	let t2;
     	let t3;
-    	let t4_value = (/*operationalPeersCount*/ ctx[1] == 1 ? "peer" : "peers") + "";
+
+    	let t4_value = (/*operationalPeersCount*/ ctx[1] + 1 == 1
+    	? "peer"
+    	: "peers") + "";
+
     	let t4;
     	let t5;
     	let span1;
@@ -13414,7 +13420,7 @@ var app = (function () {
     			add_location(span0, file$a, 32, 4, 949);
     			attr_dev(span1, "class", "this_node_search svelte-vdz3i6");
     			toggle_class(span1, "active", /*$searchMode*/ ctx[2] == 1);
-    			add_location(span1, file$a, 37, 4, 1332);
+    			add_location(span1, file$a, 37, 4, 1336);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span0, anchor);
@@ -13440,7 +13446,10 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			if (dirty & /*operationalPeersCount*/ 2 && t2_value !== (t2_value = /*operationalPeersCount*/ ctx[1] + 1 + "")) set_data_dev(t2, t2_value);
-    			if (dirty & /*operationalPeersCount*/ 2 && t4_value !== (t4_value = (/*operationalPeersCount*/ ctx[1] == 1 ? "peer" : "peers") + "")) set_data_dev(t4, t4_value);
+
+    			if (dirty & /*operationalPeersCount*/ 2 && t4_value !== (t4_value = (/*operationalPeersCount*/ ctx[1] + 1 == 1
+    			? "peer"
+    			: "peers") + "")) set_data_dev(t4, t4_value);
 
     			if (dirty & /*$searchMode*/ 4) {
     				toggle_class(span0, "active", /*$searchMode*/ ctx[2] == 0);
@@ -19701,8 +19710,8 @@ var app = (function () {
     const { metamaskInit: metamaskInit$1 } = metamask$1;
 
     const port = appHelper.ssl ? '/ws' : 7780; // hackish ?
-    const protocol = 'zeta';
-    const lane = 'gui';
+    const protocol = 'dmtapp';
+    const lane = 'search';
 
     const logStore = new LogStore();
 

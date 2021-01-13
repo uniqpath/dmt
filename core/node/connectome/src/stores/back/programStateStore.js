@@ -37,7 +37,7 @@ class ProgramStateStore extends EventEmitter {
     this.channelList = channelList;
 
     channelList.on('new_channel', channel => {
-      channel.send({ state: this.cloneState() });
+      channel.send({ state: this.lastAnnouncedState });
     });
   }
 
@@ -51,7 +51,7 @@ class ProgramStateStore extends EventEmitter {
     return this.kvStore.state;
   }
 
-  cloneState() {
+  omitAndCloneState() {
     return this.omitStateFn(clone(this.state()));
   }
 
@@ -102,9 +102,9 @@ class ProgramStateStore extends EventEmitter {
     return foundMatch;
   }
 
-  save(state) {
+  save() {
     if (this.saveState) {
-      this.lastSavedState = this.saveState({ state: clone(state), lastSavedState: this.lastSavedState }) || this.lastSavedState;
+      this.lastSavedState = this.saveState({ state: clone(this.state()), lastSavedState: this.lastSavedState }) || this.lastSavedState;
     }
   }
 
@@ -113,11 +113,11 @@ class ProgramStateStore extends EventEmitter {
       return;
     }
 
-    const remoteState = this.cloneState();
+    const remoteState = this.omitAndCloneState();
 
     if (skipDiffing) {
       this.sendRemote({ state: remoteState });
-      this.tagState({ remoteState });
+      this.tagState({ state: remoteState });
       return;
     }
 
@@ -126,13 +126,13 @@ class ProgramStateStore extends EventEmitter {
     if (diff) {
       this.sendRemote({ diff });
       this.stateChangesCount += 1;
-      this.tagState({ remoteState });
+      this.tagState({ state: remoteState });
     }
   }
 
-  tagState({ remoteState }) {
-    this.save(this.state());
-    this.lastAnnouncedState = remoteState;
+  tagState({ state }) {
+    this.save();
+    this.lastAnnouncedState = state;
     this.pushStateToLocalSubscribers();
   }
 

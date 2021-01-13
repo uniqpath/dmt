@@ -10,12 +10,13 @@ export default function preventMultipleMainDevices() {
     .filter(({ mainDevice }) => mainDevice);
 
   if (mainDevices.length > 1) {
-    throw new Error(`Multiple main devices, there can be at most one!\n${colors.gray(mainDevices)}`);
+    throw new Error(`Multiple main devices: ${colors.magenta(mainDevices.map(({ deviceName }) => deviceName))} (there can be at most one!)`);
   }
 
   if (mainDevices.length == 1) {
     const mainDevice = mainDevices[0];
-    log.cyan(`${colors.green('✍️')}  mainDevice: ${colors.magenta(mainDevice.deviceName)}`);
+    const thisStr = mainDevice.thisDevice ? colors.cyan(' (this)') : '';
+    log.cyan(`${colors.green('✍️')}  mainDevice: ${colors.magenta(mainDevice.deviceName)}${thisStr}`);
   } else {
     log.yellow('⚠️  mainDevice is not defined');
     log.gray("You won't be able to edit device configurations from Device Management GUIs (coming soon)");

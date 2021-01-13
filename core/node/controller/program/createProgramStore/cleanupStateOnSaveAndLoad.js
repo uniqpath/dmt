@@ -1,4 +1,4 @@
-export default function cleanupStateOnSave(state) {
+export default function cleanupStateOnSaveAndLoad(state) {
   delete state.undefined;
 
   delete state.device;

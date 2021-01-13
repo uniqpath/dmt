@@ -18,7 +18,7 @@ function restore_alsa {
 }
 
 function video_test {
-  local test_file="/root/Media/Video/Neutron_Stars_Colliding_1080p.mp4"
+  local test_file="/root/Video/Neutron_Stars_Colliding_1080p.mp4"
 
   if [ ! -f "$test_file" ]; then
     test_file="${DMT_PATH}/etc/videotest/video.mp4"
@@ -36,9 +36,13 @@ function video_test {
   fi
 }
 
-function video_test2 {
-  video_test "/root/Media/Video/Flight of the Starlings.mkv"
-}
+# function video_test2 {
+#   video_test "/root/Video/Neutron_Stars_Colliding_1080p.mp4"
+# }
+
+# function video_test3 {
+#   video_test "/root/Video/Flight of the Starlings.mkv"
+# }
 
 function jazz {
   # see recent playlist here (if needed) ;) https://www.radio.net/s/smoothjazzfl
@@ -63,6 +67,10 @@ function s {
 
 function m {
   dmt_media "$@"
+}
+
+function v {
+  dmt_media "$@" @media=video
 }
 
 function u {

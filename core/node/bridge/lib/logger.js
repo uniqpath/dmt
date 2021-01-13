@@ -36,6 +36,10 @@ class Logger {
   init({ dmt, logfile, foreground }) {
     if (logfile) {
       this.logfile = logfile;
+
+      if (this.isForeground == undefined) {
+        this.isForeground = false;
+      }
     }
 
     const filePath = deviceDefFile();

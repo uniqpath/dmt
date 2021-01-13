@@ -1,5 +1,6 @@
 view: home
-  wallpaper: /wallpapers/geometry/purple_diagonal.jpg
+  #wallpaper: /wallpapers/geometry/purple_diagonal.jpg
+  wallpaper: /wallpapers/default/wave.jpg
     theme: dmt_default
 
   wallpaper: /wallpapers/space/space_surfer.jpg
@@ -19,10 +20,11 @@ view: home
 ---
 
 view: player
-  wallpaper: /wallpapers/at_home/headphones.jpg
+  #wallpaper: /wallpapers/at_home/headphones.jpg
+  wallpaper: /wallpapers/default/grid.jpg
     theme: dmt_default
 
-  wallpaper: /wallpapers/fantasy/mr_robot2.jpg
+  wallpaper: /wallpapers/fantasy/mr_robot.jpg
     theme: dmt_code
 
   wallpaper: /wallpapers/space/earth.jpg
@@ -40,13 +42,14 @@ view: player
 ---
 
 view: clock
-  wallpaper: /wallpapers/geometry/black_triangles.jpg
+  wallpaper: /wallpapers/default/wave.jpg
+  #wallpaper: /wallpapers/geometry/black_triangles.jpg
     theme: dmt_default
 
   wallpaper: /wallpapers/geometry/dark_shiny.jpg
     theme: dmt_code
 
-  wallpaper: /wallpapers/space/violet-wave-planet.jpg
+  wallpaper: /wallpapers/space/dmt_planet.jpg
     theme: dmt_space
 
   wallpaper: /wallpapers/mountains/bridge.jpg
@@ -61,7 +64,8 @@ view: clock
 ---
 
 view: apps
-  wallpaper: /wallpapers/landscape/zeta_landscape.jpg
+  wallpaper: /wallpapers/default/wave.jpg
+  #wallpaper: /wallpapers/green/zeta_landscape.jpg
     theme: dmt_default
 
   sidebar: top-only-transparent
@@ -70,7 +74,8 @@ view: apps
 ---
 
 view: device
-  wallpaper: /wallpapers/fantasy/mr_robot3.jpg
+  #wallpaper: /wallpapers/fantasy/mr_robot3.jpg
+  wallpaper: /wallpapers/default/grid.jpg
     theme: dmt_default
 
   wallpaper: /wallpapers/abstract/connecting.jpg

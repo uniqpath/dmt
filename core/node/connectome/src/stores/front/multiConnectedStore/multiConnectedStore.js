@@ -43,16 +43,16 @@ class MultiConnectedStore extends MergeStore {
     this.localDeviceStore = connectDevice.connectThisDevice({ address });
   }
 
-  action({ action, namespace, payload }) {
+  signal(signal, data) {
     if (this.activeStore()) {
-      this.activeStore().action({ action, namespace, payload });
+      this.activeStore().signal(signal, data);
     } else {
-      console.log(`Error emitting remote action ${action} / ${namespace}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
+      console.log(`Error emitting remote signal ${signal} / ${data}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
     }
   }
 
-  actionAtLocalDevice({ action, namespace, payload }) {
-    this.localDeviceStore.action({ action, namespace, payload });
+  signalLocalDevice(signal, data) {
+    this.localDeviceStore.signal(signal, data);
   }
 
   remoteObject(objectName) {

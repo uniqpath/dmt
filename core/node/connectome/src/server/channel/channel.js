@@ -17,8 +17,6 @@ class Channel extends EventEmitter {
 
     this.reverseRpcClient = new RpcClient(this, rpcRequestTimeout);
 
-    this.remoteEventHandlers = [];
-
     ws.on('close', () => {
       this.emit('disconnect');
     });
@@ -29,14 +27,6 @@ class Channel extends EventEmitter {
 
   setLane(lane) {
     this.lane = lane;
-  }
-
-  emitRemoteEvent(_eventName, eventData) {
-    this.remoteEventHandlers.filter(({ eventName }) => eventName == _eventName).forEach(handler => handler(eventData));
-  }
-
-  onRemoteEvent(eventName, handler) {
-    this.remoteEventHandlers.push(handler);
   }
 
   setSharedSecret(sharedSecret) {
@@ -71,6 +61,10 @@ class Channel extends EventEmitter {
   send(message) {
     send({ message, channel: this });
     this.sentCount += 1;
+  }
+
+  signal(signal, data) {
+    this.send({ signal, data });
   }
 
   // 💡 we have to send a "special message" { state: {…} } to sync state to frontend ('other side')

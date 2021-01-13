@@ -59,13 +59,8 @@ function messageReceived({ message, channel }) {
     } else {
       channel.emit('json_rpc', message);
     }
-  } else if (jsonData.action && jsonData.namespace) {
-    // 💡 actions received from frontend (usually GUI... we hook this up in GUI protocol endpoint)
-    const { action, namespace, payload } = jsonData;
-    channel.emit('action', { action, namespace, payload });
-  } else if (jsonData.eventName) {
-    const { eventName, eventData } = jsonData;
-    channel.emitRemoteEvent(eventName, eventData);
+  } else if (jsonData.signal) {
+    channel.emit(jsonData.signal, jsonData.data);
   } else {
     channel.emit('message', message);
   }

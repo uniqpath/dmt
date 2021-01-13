@@ -15,6 +15,8 @@ import {
   dmtPath,
   dmtUserDir,
   stateDir,
+  user,
+  userDef,
   device,
   devices,
   includeModule,
@@ -34,9 +36,6 @@ const { hexToBuffer } = util.hexutils;
 
 const dmtHerePath = path.join(homedir(), '.dmt-here');
 const dmtCatalogsDir = path.join(dmtUserDir, 'catalogs');
-const defDir = path.join(dmtUserDir, 'def');
-
-const DEF_EXTENSION = '.def';
 
 let deviceKeypair;
 
@@ -98,6 +97,8 @@ export default {
   debugCategory,
   includeModule,
   dateFns,
+  user,
+  userDef,
   deviceDefFile,
   device,
   devices,
@@ -167,27 +168,6 @@ export default {
     return def.parseFile(filePath, { caching });
   },
 
-  user() {
-    const userDef = this.userDef();
-    if (userDef.user) {
-      return def.makeTryable(userDef.user);
-    }
-    return def.makeTryable({ empty: true });
-  },
-
-  userDef(fileName = 'user', { onlyBasicParsing = false } = {}) {
-    if (path.extname(fileName) != DEF_EXTENSION) {
-      fileName = `${fileName}${DEF_EXTENSION}`;
-    }
-
-    const filePath = path.join(defDir, fileName);
-    if (fs.existsSync(filePath)) {
-      return def.parseFile(filePath, { onlyBasicParsing });
-    }
-
-    return def.makeTryable({ empty: true });
-  },
-
   userDefaults(str) {
     const defaults = def.parseFile(path.join(dmtUserDir, 'def/defaults.def')).try('defaults');
     if (str) {
@@ -202,7 +182,7 @@ export default {
   },
 
   networks(networkId) {
-    const netDef = this.userDef('networks.def');
+    const netDef = userDef('networks.def');
 
     if (netDef) {
       const networks = netDef.multi;
@@ -263,7 +243,7 @@ export default {
   },
 
   allNetworkSegments() {
-    const segmentsDef = this.userDef('network_segments.def');
+    const segmentsDef = userDef('network_segments.def');
 
     if (segmentsDef && !segmentsDef.empty) {
       return segmentsDef.multi;

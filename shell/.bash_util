@@ -83,6 +83,30 @@ function dmt_ensure_nodejs_npm_warn {
   echo
 }
 
+# for usage see dmt_file_age_test function
+function dmt_get_file_age {
+  local filename="$2"
+
+  local __file_age
+
+  # https://unix.stackexchange.com/a/102698
+  if dmt_macos; then
+    __file_age=$(($(date +%s) - $(stat -t %s -f %m -- "$filename")))
+  else # linux
+    __file_age=$(( `date +%s` - `stat -L --format %Y $filename` ))
+  fi
+
+  # return file age
+  eval "$1='$__file_age'"
+}
+
+function dmt_file_age_test {
+  local filename="$1"
+  local file_age=''
+  dmt_get_file_age file_age $filename
+  echo $file_age
+}
+
 function dmt_ensure_nodejs_npm {
   dmt_check_binary_exists npm
 

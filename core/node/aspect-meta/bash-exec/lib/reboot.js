@@ -12,10 +12,12 @@ export default ({ program }) => {
 
   log.yellow(`Executing bash action: ${colors.green(bashAction)} ...`);
 
-  exec(bashAction, (error, stdout, stderr) => {
-    if (error) {
-      log.write(stdout);
-      log.red(stderr);
-    }
-  });
+  setTimeout(() => {
+    exec(bashAction, (error, stdout, stderr) => {
+      if (error) {
+        log.write(stdout);
+        log.red(stderr);
+      }
+    });
+  }, 500);
 };

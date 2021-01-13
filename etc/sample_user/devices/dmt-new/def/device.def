@@ -1,6 +1,6 @@
 device: dmt-new
 
-  main: true
+  #main: true
 
   service: player
     contentRef: music
@@ -9,4 +9,4 @@ device: dmt-new
       mpv: 70
 
   service: gui
-    theme: dmt_mountains
+    #theme: dmt_mountains

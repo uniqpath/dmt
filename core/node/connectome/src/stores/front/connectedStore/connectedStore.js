@@ -28,13 +28,13 @@ class ConnectedStore extends WritableStore {
     this.connect(address, port, keypair);
   }
 
-  action({ action, namespace, payload }) {
+  signal(signal, data) {
     if (this.connector.connected) {
-      console.log(`Sending action ${action} over connector ${this.connector.address}`);
-      this.connector.send({ action, namespace, payload });
+      console.log(`Sending signal '${signal}' over connector ${this.connector.address}`);
+      this.connector.signal(signal, data);
     } else {
       console.log(
-        'Warning: trying to send action over disconnected connector, this should be prevented by GUI (to disable any state-changing element when not connected)'
+        'Warning: trying to send signal over disconnected connector, this should be prevented by GUI (to disable any backend state-change when disconnected)'
       );
     }
   }

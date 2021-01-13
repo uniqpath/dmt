@@ -42,6 +42,10 @@ class Connector extends EventEmitter {
     this.sentCount += 1;
   }
 
+  signal(signal, data) {
+    this.send({ signal, data });
+  }
+
   wireReceive({ jsonData, encryptedData, rawMessage }) {
     receive({ jsonData, encryptedData, rawMessage, connector: this });
     this.receivedCount += 1;

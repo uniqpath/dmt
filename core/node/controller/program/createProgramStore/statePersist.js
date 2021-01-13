@@ -6,12 +6,12 @@ const { log, util } = dmt;
 
 const { compare } = util;
 
-import cleanupStateOnSave from './cleanupStateOnSave';
+import cleanupStateOnSaveAndLoad from './cleanupStateOnSaveAndLoad';
 
 const STATE_SCHEMA_VERSION = 0.8;
 
 function saveState({ state, lastSavedState, stateFilePath = dmt.programStateFile } = {}) {
-  const _state = cleanupStateOnSave(state);
+  const _state = cleanupStateOnSaveAndLoad(state);
 
   _state.schemaVersion = STATE_SCHEMA_VERSION;
 
@@ -29,7 +29,7 @@ function loadState({ stateFilePath = dmt.programStateFile } = {}) {
       const loadedState = JSON.parse(fs.readFileSync(stateFilePath));
 
       if (loadedState.schemaVersion == STATE_SCHEMA_VERSION) {
-        return loadedState;
+        return cleanupStateOnSaveAndLoad(loadedState);
       }
 
       log.red('Rare event of schemaVersion bump: Ignoring persisted program state!');

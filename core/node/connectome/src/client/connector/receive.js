@@ -80,6 +80,8 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         } else if (jsonData.diff) {
           // 💡 Subsequent JSON patch diffs (rfc6902)* ... part of Connectome protocol
           connector.emit('receive_diff', jsonData.diff);
+        } else if (jsonData.signal) {
+          connector.emit(jsonData.signal, jsonData.data);
         } else {
           connector.emit('receive', { jsonData, rawMessage: decodedMessage });
         }

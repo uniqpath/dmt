@@ -1,7 +1,7 @@
-import setupZetaGUIProtocol from './protocol/zetaGUI/index';
+import setupSearchGUIProtocol from './protocol/searchGUI/index';
 
 function init({ program }) {
-  setupZetaGUIProtocol({ program });
+  setupSearchGUIProtocol({ program });
 }
 
 export { init };

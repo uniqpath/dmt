@@ -9828,7 +9828,7 @@ var app = (function () {
     function create_fragment$p(ctx) {
     	let navbar;
     	let t0;
-    	let div2;
+    	let div4;
     	let section0;
     	let h10;
     	let t2;
@@ -9846,8 +9846,15 @@ var app = (function () {
     	let t10;
     	let div1;
     	let div0;
-    	let connectionstable;
+    	let connectionstable0;
     	let t11;
+    	let section3;
+    	let h13;
+    	let t13;
+    	let div3;
+    	let div2;
+    	let connectionstable1;
+    	let t14;
     	let current_block_type_index;
     	let if_block;
     	let if_block_anchor;
@@ -9868,7 +9875,12 @@ var app = (function () {
     			$$inline: true
     		});
 
-    	connectionstable = new ConnectionsTable({
+    	connectionstable0 = new ConnectionsTable({
+    			props: { data: /*state*/ ctx[0].connectionsOut },
+    			$$inline: true
+    		});
+
+    	connectionstable1 = new ConnectionsTable({
     			props: { data: /*state*/ ctx[0].connectionsIn },
     			$$inline: true
     		});
@@ -9890,7 +9902,7 @@ var app = (function () {
     		c: function create() {
     			create_component(navbar.$$.fragment);
     			t0 = space();
-    			div2 = element("div");
+    			div4 = element("div");
     			section0 = element("section");
     			h10 = element("h1");
     			h10.textContent = "Nearby devices";
@@ -9908,12 +9920,20 @@ var app = (function () {
     			t8 = space();
     			section2 = element("section");
     			h12 = element("h1");
-    			h12.textContent = "Incoming Connections";
+    			h12.textContent = "Outgoing Connections";
     			t10 = space();
     			div1 = element("div");
     			div0 = element("div");
-    			create_component(connectionstable.$$.fragment);
+    			create_component(connectionstable0.$$.fragment);
     			t11 = space();
+    			section3 = element("section");
+    			h13 = element("h1");
+    			h13.textContent = "Incoming Connections";
+    			t13 = space();
+    			div3 = element("div");
+    			div2 = element("div");
+    			create_component(connectionstable1.$$.fragment);
+    			t14 = space();
     			if (if_block) if_block.c();
     			if_block_anchor = empty();
     			add_location(h10, file$j, 19, 4, 534);
@@ -9924,15 +9944,22 @@ var app = (function () {
     			add_location(h2, file$j, 25, 4, 664);
     			attr_dev(section1, "class", "svelte-1ebxwgt");
     			add_location(section1, file$j, 23, 2, 628);
-    			add_location(h12, file$j, 39, 4, 1064);
+    			add_location(h12, file$j, 30, 4, 836);
     			attr_dev(div0, "class", "connections-grid__left svelte-1ebxwgt");
-    			add_location(div0, file$j, 41, 6, 1135);
+    			add_location(div0, file$j, 32, 6, 907);
     			attr_dev(div1, "class", "connections-grid svelte-1ebxwgt");
-    			add_location(div1, file$j, 40, 4, 1098);
+    			add_location(div1, file$j, 31, 4, 870);
     			attr_dev(section2, "class", "svelte-1ebxwgt");
-    			add_location(section2, file$j, 38, 2, 1050);
-    			attr_dev(div2, "class", "view-container svelte-1ebxwgt");
-    			add_location(div2, file$j, 17, 0, 489);
+    			add_location(section2, file$j, 29, 2, 822);
+    			add_location(h13, file$j, 39, 4, 1055);
+    			attr_dev(div2, "class", "connections-grid__left svelte-1ebxwgt");
+    			add_location(div2, file$j, 41, 6, 1126);
+    			attr_dev(div3, "class", "connections-grid svelte-1ebxwgt");
+    			add_location(div3, file$j, 40, 4, 1089);
+    			attr_dev(section3, "class", "svelte-1ebxwgt");
+    			add_location(section3, file$j, 38, 2, 1041);
+    			attr_dev(div4, "class", "view-container svelte-1ebxwgt");
+    			add_location(div4, file$j, 17, 0, 489);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -9940,26 +9967,33 @@ var app = (function () {
     		m: function mount(target, anchor) {
     			mount_component(navbar, target, anchor);
     			insert_dev(target, t0, anchor);
-    			insert_dev(target, div2, anchor);
-    			append_dev(div2, section0);
+    			insert_dev(target, div4, anchor);
+    			append_dev(div4, section0);
     			append_dev(section0, h10);
     			append_dev(section0, t2);
     			mount_component(nearbydevicestable, section0, null);
-    			append_dev(div2, t3);
-    			append_dev(div2, section1);
+    			append_dev(div4, t3);
+    			append_dev(div4, section1);
     			append_dev(section1, h11);
     			append_dev(section1, t5);
     			append_dev(section1, h2);
     			append_dev(section1, t7);
     			mount_component(peerlisttable, section1, null);
-    			append_dev(div2, t8);
-    			append_dev(div2, section2);
+    			append_dev(div4, t8);
+    			append_dev(div4, section2);
     			append_dev(section2, h12);
     			append_dev(section2, t10);
     			append_dev(section2, div1);
     			append_dev(div1, div0);
-    			mount_component(connectionstable, div0, null);
-    			insert_dev(target, t11, anchor);
+    			mount_component(connectionstable0, div0, null);
+    			append_dev(div4, t11);
+    			append_dev(div4, section3);
+    			append_dev(section3, h13);
+    			append_dev(section3, t13);
+    			append_dev(section3, div3);
+    			append_dev(div3, div2);
+    			mount_component(connectionstable1, div2, null);
+    			insert_dev(target, t14, anchor);
 
     			if (~current_block_type_index) {
     				if_blocks[current_block_type_index].m(target, anchor);
@@ -9978,9 +10012,12 @@ var app = (function () {
     			const peerlisttable_changes = {};
     			if (dirty & /*state*/ 1) peerlisttable_changes.data = /*state*/ ctx[0].peerlist;
     			peerlisttable.$set(peerlisttable_changes);
-    			const connectionstable_changes = {};
-    			if (dirty & /*state*/ 1) connectionstable_changes.data = /*state*/ ctx[0].connectionsIn;
-    			connectionstable.$set(connectionstable_changes);
+    			const connectionstable0_changes = {};
+    			if (dirty & /*state*/ 1) connectionstable0_changes.data = /*state*/ ctx[0].connectionsOut;
+    			connectionstable0.$set(connectionstable0_changes);
+    			const connectionstable1_changes = {};
+    			if (dirty & /*state*/ 1) connectionstable1_changes.data = /*state*/ ctx[0].connectionsIn;
+    			connectionstable1.$set(connectionstable1_changes);
     			let previous_block_index = current_block_type_index;
     			current_block_type_index = select_block_type(ctx);
 
@@ -10021,7 +10058,8 @@ var app = (function () {
     			transition_in(navbar.$$.fragment, local);
     			transition_in(nearbydevicestable.$$.fragment, local);
     			transition_in(peerlisttable.$$.fragment, local);
-    			transition_in(connectionstable.$$.fragment, local);
+    			transition_in(connectionstable0.$$.fragment, local);
+    			transition_in(connectionstable1.$$.fragment, local);
     			transition_in(if_block);
     			current = true;
     		},
@@ -10029,18 +10067,20 @@ var app = (function () {
     			transition_out(navbar.$$.fragment, local);
     			transition_out(nearbydevicestable.$$.fragment, local);
     			transition_out(peerlisttable.$$.fragment, local);
-    			transition_out(connectionstable.$$.fragment, local);
+    			transition_out(connectionstable0.$$.fragment, local);
+    			transition_out(connectionstable1.$$.fragment, local);
     			transition_out(if_block);
     			current = false;
     		},
     		d: function destroy(detaching) {
     			destroy_component(navbar, detaching);
     			if (detaching) detach_dev(t0);
-    			if (detaching) detach_dev(div2);
+    			if (detaching) detach_dev(div4);
     			destroy_component(nearbydevicestable);
     			destroy_component(peerlisttable);
-    			destroy_component(connectionstable);
-    			if (detaching) detach_dev(t11);
+    			destroy_component(connectionstable0);
+    			destroy_component(connectionstable1);
+    			if (detaching) detach_dev(t14);
 
     			if (~current_block_type_index) {
     				if_blocks[current_block_type_index].d(detaching);

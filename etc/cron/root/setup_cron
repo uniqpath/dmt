@@ -28,7 +28,7 @@ fi
 path="/home/${user}/.dmt/etc/cron/root"
 
 if [ ! -d "$path" ]; then
-  echo "Missing directory: #{dir}"
+  echo "Missing directory: ${path}"
   exit
 fi
 

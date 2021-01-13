@@ -5,11 +5,15 @@ import def from './parsers/def/parser';
 import colors from 'colors';
 import scan from './scan';
 
+const DEF_EXTENSION = '.def';
+
 const { homedir } = os;
 
 const dmtPath = path.join(homedir(), '.dmt');
 const dmtUserDir = path.join(dmtPath, 'user');
 const stateDir = path.join(dmtPath, 'state');
+
+const defDir = path.join(dmtUserDir, 'def');
 
 const devicesFull = [];
 const devicesBasic = [];
@@ -23,6 +27,27 @@ function includeModule(obj, Module) {
   for (const func of getAllFuncs(Module)) {
     obj[func] = module[func].bind(obj);
   }
+}
+
+function user() {
+  const _userDef = userDef();
+  if (_userDef.user) {
+    return def.makeTryable(_userDef.user);
+  }
+  return def.makeTryable({ empty: true });
+}
+
+function userDef(fileName = 'user', { onlyBasicParsing = false } = {}) {
+  if (path.extname(fileName) != DEF_EXTENSION) {
+    fileName = `${fileName}${DEF_EXTENSION}`;
+  }
+
+  const filePath = path.join(defDir, fileName);
+  if (fs.existsSync(filePath)) {
+    return def.parseFile(filePath, { onlyBasicParsing });
+  }
+
+  return def.makeTryable({ empty: true });
 }
 
 function deviceDefFile(deviceName = 'this', file = 'device') {
@@ -40,7 +65,7 @@ function isDevMachine() {
 }
 
 function isDevCluster() {
-  return isDevMachine() || fs.existsSync(path.join(dmtUserDir, 'devices/this/.dev-cluster'));
+  return isDevMachine() || fs.existsSync(path.join(dmtUserDir, 'devices/this/.dev-cluster')) || user().dev == 'true';
 }
 
 function device({ deviceName = 'this', onlyBasicParsing = false, caching = true } = {}) {
@@ -100,7 +125,7 @@ function devices({ onlyBasicParsing = false, caching = true } = {}) {
       const def = readDeviceDef({ filePath: deviceDefFile, onlyBasicParsing, caching });
 
       if (onlyBasicParsing) {
-        devicesBasic.push({ ...def });
+        devicesBasic.push(def);
       } else {
         Object.assign(_coredata, { deviceName: def.id });
 
@@ -153,4 +178,4 @@ function debugCategory(category = null) {
   }
 }
 
-export { dmtPath, dmtUserDir, stateDir, device, devices, includeModule, deviceDefFile, isDevMachine, isDevCluster, debugMode, debugCategory };
+export { dmtPath, dmtUserDir, stateDir, user, userDef, device, devices, includeModule, deviceDefFile, isDevMachine, isDevCluster, debugMode, debugCategory };

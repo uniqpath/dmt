@@ -4,6 +4,21 @@
 
 # suitable when installed from github
 
+RED='\033[0;31m'
+
+function dev_machine {
+  if [ -f ~/.dmt/user/devices/this/.dev-machine ]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+if dev_machine; then
+  printf "${RED}Prevented on dev machine${NC}\n"
+  exit
+fi
+
 AUTO_UPDATE_LOG=~/.dmt/log/.auto_update_log
 
 if [ ! -d ~/.dmt/.git ]; then

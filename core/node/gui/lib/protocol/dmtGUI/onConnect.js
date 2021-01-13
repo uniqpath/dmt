@@ -4,11 +4,9 @@ import dmt from 'dmt/bridge';
 import handleErrorFromGui from './helpers/handleErrorFromGui';
 
 import PlayerRemoteTarget from './objects/player';
-import LegacyActionHandler from './objects/legacyActionHandler--brisi-after-svelte2';
 
 function onConnect({ program, channel }) {
   channel.attachObject('player', new PlayerRemoteTarget({ program }));
-  channel.attachObject('gui', new LegacyActionHandler({ program }));
 
   loadInitialView(channel);
 

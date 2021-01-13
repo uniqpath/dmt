@@ -7,7 +7,7 @@ import onConnect from './onConnect';
 export default function setup({ program }) {
   const helperStore = new MirroringStore();
 
-  const channelList = program.registerProtocol({ protocol: 'zeta', lane: 'gui', onConnect });
+  const channelList = program.registerProtocol({ protocol: 'dmtapp', lane: 'search', onConnect });
   helperStore.mirror(channelList);
 
   program.store.subscribe(state => {

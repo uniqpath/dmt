@@ -25,17 +25,23 @@ class MirroringStore extends EventEmitter {
 
   set(state, { announce = true } = {}) {
     this.state = state;
+    this.announceStateChange(announce);
+  }
 
-    if (announce) {
-      this.announceStateChange();
-    }
+  update(patch, { announce = true } = {}) {
+    this.state = { ...this.state, ...patch };
+    this.announceStateChange(announce);
   }
 
   get() {
     return this.state;
   }
 
-  announceStateChange() {
+  announceStateChange(announce = true) {
+    if (!announce) {
+      return;
+    }
+
     const { state } = this;
 
     const diff = getDiff(this.prevAnnouncedState, state);
