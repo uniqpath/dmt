@@ -6,7 +6,7 @@
   "type": "module",
   "exports": {
     "./bridge": "./bridge",
-    "./connectome": "./connectome/src/client",
+    "./connectome": "./connectome/src/client/node",
     "./connectome-server": "./connectome/src/server",
     "./connectome-stores": "./connectome/src/stores",
     "./connectome-next": "./connectome-next",

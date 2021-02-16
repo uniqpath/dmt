@@ -19,7 +19,7 @@ class MirroringStore extends EventEmitter {
     });
 
     this.on('diff', diff => {
-      channelList.sendToAll({ diff });
+      channelList.sendAll({ diff });
     });
   }
 

@@ -27,7 +27,13 @@ class ChannelList extends EventEmitter {
     this.reportStatus();
   }
 
-  sendToAll(msg) {
+  signalAll(signal, data) {
+    for (const channel of this.channels) {
+      channel.signal(signal, data);
+    }
+  }
+
+  sendAll(msg) {
     for (const channel of this.channels) {
       channel.send(msg);
     }

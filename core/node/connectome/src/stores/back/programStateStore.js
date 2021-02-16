@@ -43,7 +43,7 @@ class ProgramStateStore extends EventEmitter {
 
   sendRemote({ state, diff }) {
     if (this.channelList) {
-      this.channelList.sendToAll({ state, diff });
+      this.channelList.sendAll({ state, diff });
     }
   }
 

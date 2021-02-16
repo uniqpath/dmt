@@ -27,6 +27,6 @@ export default function initProtocol({ program }) {
       loadGuiViewsDef(program);
     }
 
-    channelList.remoteCallAll('Frontend', 'reverseAction', { action, payload });
+    channelList.signalAll('frontend_action', { action, payload });
   });
 }

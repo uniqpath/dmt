@@ -5,21 +5,21 @@ import { MirroringStore } from 'dmt/connectome-stores';
 
 import state from './state';
 
+const MAX_PEERS = 100; // this is the max number allowed for chat room.
+const settings = { reconnectingTimeout: 30000 };
+
 import makeApi from './makeApi';
 
 function init({ program }) {
   const store = new MirroringStore(state);
 
-  const MAX_PEERS = 100;
-
   let channelNum = 0;
 
   const api = makeApi(store);
 
-  function onConnect({ channel }) {
+  function onConnect() {
     channelNum++;
-    // channel.attachObject('dmtapp:meet:rooms', api);
-    console.log(colors.blue(`channel ${channelNum} connected`));
+    console.log(colors.blue(`channel ${channelNum}`));
   }
 
   const channelList = program.registerProtocol({
@@ -33,6 +33,12 @@ function init({ program }) {
       constructor(key) {
         this.channel = this.get(key, false);
         this.key = key;
+      }
+      get connected() {
+        return !this.disconnected;
+      }
+      get disconnected() {
+        return this.channel.closed();
       }
       in_room(key) {
         return this.room.participants.find((participant) => participant.peerId === key);
@@ -52,9 +58,12 @@ function init({ program }) {
       on(signal, fn) {
         this.channel.on(signal, fn);
       }
+      emitLocal(signal, data) {
+        this.channel.emit(signal, data);
+      }
 
       emit(signal, data) {
-        this.channel.send({ signal, data });
+        this.channel.signal(signal, data);
       }
 
       to(key) {
@@ -63,11 +72,16 @@ function init({ program }) {
         return {
           emit(signal, data) {
             if (!channel) {
-              This.emit('signal-error', { msg: `channel with key: ${key} is not in the room` });
+              api.leave({ peerId: key });
+              This.emit('signal-error', {
+                key,
+                code: 'CHANNEL-DISCONNECT',
+                msg: `NOT in the room - channel key: ${key}`,
+              });
               console.log('signal-error');
               return;
             }
-            channel.send({ signal, data });
+            channel.signal(signal, data);
           },
         };
       }
@@ -77,28 +91,26 @@ function init({ program }) {
           const channel = this.get(participant.peerId);
           if (!channel) {
             this.emit('signal-error', {
-              msg: `channel with key: ${participant.peerId} is not in the room`,
+              key,
+              code: 'CHANNEL-DISCONNECT',
+              msg: `NOT in the room - channel key: ${key}`,
             });
             console.log('signal-error');
             return;
           }
-          if (channel._remotePubkeyHex !== this.key) channel.send({ signal, data });
+          if (channel._remotePubkeyHex !== this.key) channel.signal(signal, data);
         });
       }
     }
     return new _socket_(key);
   };
 
-  store.mirror(channelList);
   channelList.on('new_channel', (channel) => {
     const socket = makeSocket(channel._remotePubkeyHex);
 
-    socket.on('signal-connect', () => {
-      socket.emit('signal-connect');
-    });
+    socket.on('join-room', ({ roomId, peerName }) => {
+      console.log('join-room: ', peerName);
 
-    socket.on('join-room', ({ roomId, name }) => {
-      console.log('join-room: ', name);
       if (api.getRoom(roomId)) {
         const len = api.getRoom(roomId).participants.length;
         // console.log(len)
@@ -108,29 +120,26 @@ function init({ program }) {
           socket.emit('room-full');
           api
             .getRoom(roomId)
-            .participants.forEach((s) => socket.to(s.id).emit('notAllowed-room-full', name));
+            .participants.forEach((s) => socket.to(s.id).emit('notAllowed-room-full', peerName));
           return;
         }
-        api.join({ peerId: socket.key, peerName: name, roomId });
-      } else api.join({ peerId: socket.key, peerName: name, roomId });
-      // peerRoom[socket.key] = roomId;
+      }
+      api.join({ peerId: socket.key, peerName, roomId });
       const peers = api
         .getRoom(roomId)
         .participants.filter((participant) => participant.peerId !== socket.key);
       // console.log(peers)
       socket.emit('joined-in-room', peers);
-      // socket.join(roomId)
-      // socket.to(roomId).broadcast.emit('user-connected', {userId, data})
-      // console.log(userId)
+      socket.emit('settings', settings);
     });
     socket.on('signaling-peer', (payload) => {
       const signaledPeer = socket.to(payload.peerId);
-      console.log('signaling-peer');
+      // console.log('signaling-peer');
       if (payload.signal.type === 'offer')
         signaledPeer.emit('user-joined', {
           signal: payload.signal,
           peerId: socket.key,
-          name: payload.name,
+          peerName: payload.peerName,
         });
       else
         signaledPeer.emit('receiving-candidate', {
@@ -142,14 +151,29 @@ function init({ program }) {
       socket.to(payload.peerId).emit('receiving-returned-signal', {
         signal: payload.signal,
         id: socket.key,
-        name: payload.name,
+        peerName: payload.peerName,
       });
-      console.log('returning-signal', payload.name);
+      // console.log('returning-signal', payload.peerName);
     });
-    socket.on('signal-disconnect', () => {
-      socket.broadcast('peer-left', socket.key);
+    socket.on('signal-disconnect', (reason) => {
+      socket.broadcast('peer-disconnect', socket.key);
       api.leave({ peerId: socket.key });
-      console.log('signal-disconnect');
+      // console.log('signal-disconnect');
+      if (reason) console.log(reason);
+      // socket.emit('signal-disconnect');
+    });
+    socket.on('disconnect', () => {
+      let reconnected;
+      socket.on('reconnected', () => {
+        reconnected = true;
+      });
+      setTimeout(() => {
+        console.log('socket.reconnected', reconnected);
+        if (reconnected) {
+          socket.emitLocal('signal-disconnect', 'Reconnecting Timeout');
+        } else console.log('connected again');
+      }, settings.reconnectingTimeout);
+      // console.log('disconnected');
     });
   });
   // console.log('store', store, channelList);

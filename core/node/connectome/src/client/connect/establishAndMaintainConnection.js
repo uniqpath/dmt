@@ -6,15 +6,23 @@ const wsCLOSING = 2;
 const wsCLOSED = 3;
 
 import Connector from '../connector/connector.js';
+import determineEndpoint from './determineEndpoint.js';
 
 function establishAndMaintainConnection(
-  { address, ssl = false, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose, tag },
+  { endpoint, address, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose, tag },
   { WebSocket, log }
 ) {
-  const wsProtocol = ssl ? 'wss' : 'ws';
-  const endpoint = port.toString().startsWith('/') ? `${wsProtocol}://${address}${port}` : `${wsProtocol}://${address}:${port}`;
+  endpoint = determineEndpoint({ endpoint, address, port });
 
-  const connector = new Connector({ address, protocol, lane, rpcRequestTimeout, keypair, verbose, tag });
+  const connector = new Connector({
+    address: endpoint,
+    protocol,
+    lane,
+    rpcRequestTimeout,
+    keypair,
+    verbose,
+    tag
+  });
 
   if (connector.connection) {
     return connector;

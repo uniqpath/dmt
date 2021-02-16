@@ -7,14 +7,9 @@ import { newKeypair } from '../../../utils/crypto/index.js';
 const { applyPatch: applyJSONPatch } = fastJsonPatch;
 
 class ConnectedStore extends WritableStore {
-  constructor({ address, ssl = false, port, protocol, lane, keypair = newKeypair(), logStore, rpcRequestTimeout, verbose } = {}) {
+  constructor({ endpoint, address, port, protocol, lane, keypair = newKeypair(), logStore, rpcRequestTimeout, verbose } = {}) {
     super({});
 
-    if (!address) {
-      throw new Error('ConnectedStore: missing address');
-    }
-
-    this.ssl = ssl;
     this.protocol = protocol;
     this.lane = lane;
 
@@ -25,7 +20,7 @@ class ConnectedStore extends WritableStore {
 
     this.connected = new WritableStore();
 
-    this.connect(address, port, keypair);
+    this.connect(endpoint, address, port, keypair);
   }
 
   signal(signal, data) {
@@ -43,10 +38,10 @@ class ConnectedStore extends WritableStore {
     return this.connector.remoteObject(handle);
   }
 
-  connect(address, port, keypair) {
+  connect(endpoint, address, port, keypair) {
     this.connector = connect({
+      endpoint,
       address,
-      ssl: this.ssl,
       port,
       protocol: this.protocol,
       lane: this.lane,

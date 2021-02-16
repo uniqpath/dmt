@@ -9,6 +9,8 @@ import Mpv from './engines/mpv';
 
 import setupUserActionHandlers from './userActionHandlers';
 
+const DEFAULT_SKIP_SECONDS = 20;
+
 class LocalPlayer {
   constructor({ program }) {
     this.program = program;
@@ -494,7 +496,7 @@ class LocalPlayer {
     });
   }
 
-  forward(seconds = 30) {
+  forward(seconds = DEFAULT_SKIP_SECONDS) {
     return new Promise((success, reject) => {
       this.engine
         .forward({ seconds })
@@ -503,7 +505,7 @@ class LocalPlayer {
     });
   }
 
-  backward(seconds = 30) {
+  backward(seconds = DEFAULT_SKIP_SECONDS) {
     return this.forward(-Math.abs(seconds));
   }
 

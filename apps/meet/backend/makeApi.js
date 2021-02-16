@@ -1,6 +1,8 @@
 export default function makeApi(store) {
   const { state } = store;
+
   state.rooms = state.rooms || [];
+
   return {
     getRoom(roomId) {
       return state.rooms.find((room) => room.roomId === roomId);

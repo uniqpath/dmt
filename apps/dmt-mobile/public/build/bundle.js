@@ -4237,8 +4237,8 @@ var app = (function () {
       this.sentCount += 1;
     }
 
-    signal(name, data) {
-      this.send({ signal: name, data });
+    signal(signal, data) {
+      this.send({ signal, data });
     }
 
     wireReceive({ jsonData, encryptedData, rawMessage }) {
@@ -4581,10 +4581,10 @@ var app = (function () {
       this.connect(address, port, keypair);
     }
 
-    signal(name, data) {
+    signal(signal, data) {
       if (this.connector.connected) {
-        console.log(`Sending signal '${name}' over connector ${this.connector.address}`);
-        this.connector.signal(name, data);
+        console.log(`Sending signal '${signal}' over connector ${this.connector.address}`);
+        this.connector.signal(signal, data);
       } else {
         console.log(
           'Warning: trying to send signal over disconnected connector, this should be prevented by GUI (to disable any backend state-change when disconnected)'
@@ -4914,18 +4914,18 @@ var app = (function () {
       this.localDeviceStore = connectDevice.connectThisDevice({ address });
     }
 
-    signal(name, data) {
+    signal(signal, data) {
       if (this.activeStore()) {
-        this.activeStore().signal(name, data);
+        this.activeStore().signal(signal, data);
       } else {
         console.log(
-          `Error emitting remote signal ${name} / ${data}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`
+          `Error emitting remote signal ${signal} / ${data}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`
         );
       }
     }
 
-    signalLocalDevice(name, data) {
-      this.localDeviceStore.signal(name, data);
+    signalLocalDevice(signal, data) {
+      this.localDeviceStore.signal(signal, data);
     }
 
     remoteObject(objectName) {

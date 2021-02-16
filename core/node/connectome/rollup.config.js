@@ -9,7 +9,7 @@ function onwarn(warning, defaultHandler) {
 
 export default [
   {
-    input: 'src/client/index.js',
+    input: 'src/client/browser.js',
     plugins: [nodeResolve({ preferBuiltins: false, browser: true }), commonjs()],
     output: [
       {
@@ -19,6 +19,22 @@ export default [
       {
         format: 'cjs',
         file: 'dist/index.js'
+      }
+    ],
+    onwarn
+  },
+  {
+    input: 'src/client/node.js',
+    external: builtinModules,
+    plugins: [nodeResolve({ preferBuiltins: true }), commonjs()],
+    output: [
+      {
+        format: 'esm',
+        file: 'dist/node/index.mjs'
+      },
+      {
+        format: 'cjs',
+        file: 'dist/node/index.js'
       }
     ],
     onwarn

@@ -1,9 +1,7 @@
 {
   "name": "connectome",
-  "version": "0.0.88",
+  "version": "0.0.93",
   "description": "Dynamic realtime connectivity and state management",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
   "typings": "typings/src/client/index.d.ts",
   "scripts": {
     "build": "rollup -c && node scripts/build-artifacts",
@@ -11,8 +9,12 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "node": {
+        "import": "./dist/node/index.mjs",
+        "require": "./dist/node/index.js"
+      },
+      "default": "./dist/index.js",
+      "import": "./dist/index.mjs"
     },
     "./server": {
       "import": "./server/index.mjs",

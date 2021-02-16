@@ -8,12 +8,8 @@ import Foreground from './helpers/foreground.js';
 import SwitchDevice from './helpers/switchDevice.js';
 
 class MultiConnectedStore extends MergeStore {
-  constructor({ address, port, protocol, lane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
+  constructor({ endpoint, address, port, protocol, lane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
     super();
-
-    if (!address) {
-      throw new Error('MultiConnectedStore: missing address');
-    }
 
     const thisDeviceStateKeys = ['time', 'environment', 'nearbyDevices', 'notifications'];
 
