@@ -29,7 +29,7 @@ class AppLoader {
   }
 
   async tryLoadApp(program, appInit, appName) {
-    log.cyan(`Loading app → ${colors.magenta(appName)} ${colors.cyan('server-side')}`);
+    log.cyan(`Loading app → ${colors.magenta(appName)} ${colors.cyan('backend')}`);
 
     return new Promise((success, reject) => {
       this.loadApp(program, appInit)

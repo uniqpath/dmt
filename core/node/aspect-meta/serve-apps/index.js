@@ -23,7 +23,7 @@ function appFrontendList() {
       return {
         appName,
         publicDir: path.join(appDir, 'public'),
-        appUrl: `/apps/${appName}`
+        appUrl: `/${appName}`
       };
     });
 }
@@ -31,7 +31,7 @@ function appFrontendList() {
 function expressAppSetup(app) {
   appFrontendList().forEach(({ appName, publicDir, appUrl }) => {
     log.cyan(`Loading app → ${colors.magenta(appName)} ${colors.cyan('frontend')} at ${colors.gray(appUrl)}`);
-    app.use(`/apps/${appName}`, express.static(publicDir));
+    app.use(appUrl, express.static(publicDir));
   });
 }
 

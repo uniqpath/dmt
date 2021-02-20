@@ -1,5 +1,0 @@
-This is only needed for legacy lighttpd link.
-
-todo: implement updating lighttpd config from root cron !
-
-... then remove this directory ...
