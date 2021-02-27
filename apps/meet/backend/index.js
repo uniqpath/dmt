@@ -108,6 +108,10 @@ function init({ program }) {
   channelList.on('new_channel', (channel) => {
     const socket = makeSocket(channel._remotePubkeyHex);
 
+    socket.on('signal-connect', () => {
+      socket.emit('signal-connect');
+    });
+
     socket.on('join-room', ({ roomId, peerName }) => {
       console.log('join-room: ', peerName);
 
@@ -163,16 +167,17 @@ function init({ program }) {
       // socket.emit('signal-disconnect');
     });
     socket.on('disconnect', () => {
-      let reconnected;
-      socket.on('reconnected', () => {
-        reconnected = true;
-      });
-      setTimeout(() => {
-        console.log('socket.reconnected', reconnected);
-        if (reconnected) {
-          socket.emitLocal('signal-disconnect', 'Reconnecting Timeout');
-        } else console.log('connected again');
-      }, settings.reconnectingTimeout);
+      socket.emitLocal('signal-disconnect', 'disconnected');
+      // let reconnected;
+      // socket.on('reconnected', () => {
+      //   reconnected = true;
+      // });
+      // setTimeout(() => {
+      //   console.log('socket.reconnected', reconnected);
+      //   if (reconnected) {
+      //     socket.emitLocal('signal-disconnect', 'Reconnecting Timeout');
+      //   } else console.log('connected again');
+      // }, settings.reconnectingTimeout);
       // console.log('disconnected');
     });
   });

@@ -53,7 +53,7 @@ function restart({ notifyOnFail = false } = {}) {
       shouldTryAgain = false;
       daemon.start();
     } else if (notifyOnFail) {
-      push.notify(`Failed to (re)start process on ${dmt.device().id} (check log)`, () => {
+      push.notify(`Failed to (re)start process on ${dmt.device().id} (check log)`).then(() => {
         process.exit();
       });
     }

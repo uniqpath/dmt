@@ -4,8 +4,6 @@
 
 ![dmt_device_types](https://github.com/uniqpath/info/blob/master/assets/img/dmt_device_types.png?raw=true)
 
-![ZetaNext](https://github.com/uniqpath/info/blob/master/assets/img/ZetaNext.png?raw=true)
-
 ## Documentation
 
 [DMT ENGINE Documentation](https://docs.uniqpath.com/dmt) with explanation of core ideas and concepts.

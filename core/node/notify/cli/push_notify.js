@@ -1,5 +1,5 @@
 import colors from 'colors';
-import { sendAdminRaw } from '../lib/apn';
+import { notify } from '../lib/apn';
 
 function help() {
   console.log(colors.green('Send message to Apple push notifications server'));
@@ -11,8 +11,8 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
   process.exit();
 }
 function cli(argv) {
-  sendAdminRaw(argv[2])
-    .then(result => {
+  notify(argv[2])
+    .then(() => {
       console.log(colors.green('Push message sent'));
       process.exit();
     })

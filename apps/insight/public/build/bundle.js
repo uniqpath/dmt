@@ -1,20 +1,16511 @@
-var app=function(){"use strict";function e(){}const t=e=>e;function n(e){return e()}function r(){return Object.create(null)}function o(e){e.forEach(n)}function s(e){return"function"==typeof e}function i(e,t){return e!=e?t==t:e!==t||e&&"object"==typeof e||"function"==typeof e}function a(t,...n){if(null==t)return e;const r=t.subscribe(...n);return r.unsubscribe?()=>r.unsubscribe():r}function c(e,t,n,r){if(e){const o=l(e,t,n,r);return e[0](o)}}function l(e,t,n,r){return e[1]&&r?function(e,t){for(const n in t)e[n]=t[n];return e}(n.ctx.slice(),e[1](r(t))):n.ctx}function u(e,t,n,r,o,s,i){const a=function(e,t,n,r){if(e[2]&&r){const o=e[2](r(n));if(void 0===t.dirty)return o;if("object"==typeof o){const e=[],n=Math.max(t.dirty.length,o.length);for(let r=0;r<n;r+=1)e[r]=t.dirty[r]|o[r];return e}return t.dirty|o}return t.dirty}(t,r,o,s);if(a){const o=l(t,n,r,i);e.p(o,a)}}function f(e){return null==e?"":e}function h(e,t,n=t){return e.set(n),t}const d="undefined"!=typeof window;let p=d?()=>window.performance.now():()=>Date.now(),v=d?e=>requestAnimationFrame(e):e;const g=new Set;function y(e){g.forEach((t=>{t.c(e)||(g.delete(t),t.f())})),0!==g.size&&v(y)}function m(e){let t;return 0===g.size&&v(y),{promise:new Promise((n=>{g.add(t={c:e,f:n})})),abort(){g.delete(t)}}}function b(e,t){e.appendChild(t)}function w(e,t,n){e.insertBefore(t,n||null)}function x(e){e.parentNode.removeChild(e)}function $(e,t){for(let n=0;n<e.length;n+=1)e[n]&&e[n].d(t)}function _(e){return document.createElement(e)}function k(e){return document.createElementNS("http://www.w3.org/2000/svg",e)}function E(e){return document.createTextNode(e)}function A(){return E(" ")}function P(){return E("")}function S(e,t,n,r){return e.addEventListener(t,n,r),()=>e.removeEventListener(t,n,r)}function O(e,t,n){null==n?e.removeAttribute(t):e.getAttribute(t)!==n&&e.setAttribute(t,n)}function T(e,t){t=""+t,e.wholeText!==t&&(e.data=t)}function C(e,t){e.value=null==t?"":t}function R(e,t,n){e.classList[n?"add":"remove"](t)}function N(e,t){const n=document.createEvent("CustomEvent");return n.initCustomEvent(e,!1,!1,t),n}class j{constructor(e=null){this.a=e,this.e=this.n=null}m(e,t,n=null){this.e||(this.e=_(t.nodeName),this.t=t,this.h(e)),this.i(n)}h(e){this.e.innerHTML=e,this.n=Array.from(this.e.childNodes)}i(e){for(let t=0;t<this.n.length;t+=1)w(this.t,this.n[t],e)}p(e){this.d(),this.h(e),this.i(this.a)}d(){this.n.forEach(x)}}const I=new Set;let M,L=0;function D(e,t,n,r,o,s,i,a=0){const c=16.666/r;let l="{\n";for(let e=0;e<=1;e+=c){const r=t+(n-t)*s(e);l+=100*e+`%{${i(r,1-r)}}\n`}const u=l+`100% {${i(n,1-n)}}\n}`,f=`__svelte_${function(e){let t=5381,n=e.length;for(;n--;)t=(t<<5)-t^e.charCodeAt(n);return t>>>0}(u)}_${a}`,h=e.ownerDocument;I.add(h);const d=h.__svelte_stylesheet||(h.__svelte_stylesheet=h.head.appendChild(_("style")).sheet),p=h.__svelte_rules||(h.__svelte_rules={});p[f]||(p[f]=!0,d.insertRule(`@keyframes ${f} ${u}`,d.cssRules.length));const v=e.style.animation||"";return e.style.animation=`${v?`${v}, `:""}${f} ${r}ms linear ${o}ms 1 both`,L+=1,f}function U(e,t){const n=(e.style.animation||"").split(", "),r=n.filter(t?e=>e.indexOf(t)<0:e=>-1===e.indexOf("__svelte")),o=n.length-r.length;o&&(e.style.animation=r.join(", "),L-=o,L||v((()=>{L||(I.forEach((e=>{const t=e.__svelte_stylesheet;let n=t.cssRules.length;for(;n--;)t.deleteRule(n);e.__svelte_rules={}})),I.clear())})))}function K(e){M=e}function B(){if(!M)throw new Error("Function called outside component initialization");return M}function q(e){B().$$.on_mount.push(e)}function F(e,t){B().$$.context.set(e,t)}function H(e){return B().$$.context.get(e)}function J(e,t){const n=e.$$.callbacks[t.type];n&&n.slice().forEach((e=>e(t)))}const z=[],V=[],W=[],Y=[],G=Promise.resolve();let Z=!1;function Q(e){W.push(e)}let X=!1;const ee=new Set;function te(){if(!X){X=!0;do{for(let e=0;e<z.length;e+=1){const t=z[e];K(t),ne(t.$$)}for(K(null),z.length=0;V.length;)V.pop()();for(let e=0;e<W.length;e+=1){const t=W[e];ee.has(t)||(ee.add(t),t())}W.length=0}while(z.length);for(;Y.length;)Y.pop()();Z=!1,X=!1,ee.clear()}}function ne(e){if(null!==e.fragment){e.update(),o(e.before_update);const t=e.dirty;e.dirty=[-1],e.fragment&&e.fragment.p(e.ctx,t),e.after_update.forEach(Q)}}let re;function oe(){return re||(re=Promise.resolve(),re.then((()=>{re=null}))),re}function se(e,t,n){e.dispatchEvent(N(`${t?"intro":"outro"}${n}`))}const ie=new Set;let ae;function ce(){ae={r:0,c:[],p:ae}}function le(){ae.r||o(ae.c),ae=ae.p}function ue(e,t){e&&e.i&&(ie.delete(e),e.i(t))}function fe(e,t,n,r){if(e&&e.o){if(ie.has(e))return;ie.add(e),ae.c.push((()=>{ie.delete(e),r&&(n&&e.d(1),r())})),e.o(t)}}const he={duration:0};function de(n,r,i,a){let c=r(n,i),l=a?0:1,u=null,f=null,h=null;function d(){h&&U(n,h)}function v(e,t){const n=e.b-l;return t*=Math.abs(n),{a:l,b:e.b,d:n,duration:t,start:e.start,end:e.start+t,group:e.group}}function g(r){const{delay:s=0,duration:i=300,easing:a=t,tick:g=e,css:y}=c||he,b={start:p()+s,b:r};r||(b.group=ae,ae.r+=1),u||f?f=b:(y&&(d(),h=D(n,l,r,i,s,a,y)),r&&g(0,1),u=v(b,i),Q((()=>se(n,r,"start"))),m((e=>{if(f&&e>f.start&&(u=v(f,i),f=null,se(n,u.b,"start"),y&&(d(),h=D(n,l,u.b,u.duration,0,a,c.css))),u)if(e>=u.end)g(l=u.b,1-l),se(n,u.b,"end"),f||(u.b?d():--u.group.r||o(u.group.c)),u=null;else if(e>=u.start){const t=e-u.start;l=u.a+u.d*a(t/u.duration),g(l,1-l)}return!(!u&&!f)})))}return{run(e){s(c)?oe().then((()=>{c=c(),g(e)})):g(e)},end(){d(),u=f=null}}}function pe(e){e&&e.c()}function ve(e,t,r){const{fragment:i,on_mount:a,on_destroy:c,after_update:l}=e.$$;i&&i.m(t,r),Q((()=>{const t=a.map(n).filter(s);c?c.push(...t):o(t),e.$$.on_mount=[]})),l.forEach(Q)}function ge(e,t){const n=e.$$;null!==n.fragment&&(o(n.on_destroy),n.fragment&&n.fragment.d(t),n.on_destroy=n.fragment=null,n.ctx=[])}function ye(e,t){-1===e.$$.dirty[0]&&(z.push(e),Z||(Z=!0,G.then(te)),e.$$.dirty.fill(0)),e.$$.dirty[t/31|0]|=1<<t%31}function me(t,n,s,i,a,c,l=[-1]){const u=M;K(t);const f=n.props||{},h=t.$$={fragment:null,ctx:null,props:c,update:e,not_equal:a,bound:r(),on_mount:[],on_destroy:[],before_update:[],after_update:[],context:new Map(u?u.$$.context:[]),callbacks:r(),dirty:l,skip_bound:!1};let d=!1;if(h.ctx=s?s(t,f,((e,n,...r)=>{const o=r.length?r[0]:n;return h.ctx&&a(h.ctx[e],h.ctx[e]=o)&&(!h.skip_bound&&h.bound[e]&&h.bound[e](o),d&&ye(t,e)),n})):[],h.update(),d=!0,o(h.before_update),h.fragment=!!i&&i(h.ctx),n.target){if(n.hydrate){const e=function(e){return Array.from(e.childNodes)}(n.target);h.fragment&&h.fragment.l(e),e.forEach(x)}else h.fragment&&h.fragment.c();n.intro&&ue(t.$$.fragment),ve(t,n.target,n.anchor),te()}K(u)}class be{$destroy(){ge(this,1),this.$destroy=e}$on(e,t){const n=this.$$.callbacks[e]||(this.$$.callbacks[e]=[]);return n.push(t),()=>{const e=n.indexOf(t);-1!==e&&n.splice(e,1)}}$set(e){var t;this.$$set&&(t=e,0!==Object.keys(t).length)&&(this.$$.skip_bound=!0,this.$$set(e),this.$$.skip_bound=!1)}}function we(t){let n;return{c(){n=_("div"),n.innerHTML='<span class="dmt svelte-1jo2jc7">DMT</span>  <span class="insight svelte-1jo2jc7">Insight</span>'},m(e,t){w(e,n,t)},p:e,i:e,o:e,d(e){e&&x(n)}}}class xe extends be{constructor(e){super(),me(this,e,null,we,i,{})}}function $e(e){let t,n,r,o,s,i,a,c=".".repeat(e[0])+"";return n=new xe({}),{c(){t=_("div"),pe(n.$$.fragment),r=A(),o=_("p"),s=E("Connecting to host"),i=E(c),O(t,"class","wrapper svelte-uacyvv")},m(e,c){w(e,t,c),ve(n,t,null),b(t,r),b(t,o),b(o,s),b(o,i),a=!0},p(e,[t]){(!a||1&t)&&c!==(c=".".repeat(e[0])+"")&&T(i,c)},i(e){a||(ue(n.$$.fragment,e),a=!0)},o(e){fe(n.$$.fragment,e),a=!1},d(e){e&&x(t),ge(n)}}}function _e(e,t,n){let r=1;return q((()=>{const e=setInterval((()=>{r>=3&&n(0,r=0),n(0,r+=1)}),500);return()=>clearInterval(e)})),[r]}class ke extends be{constructor(e){super(),me(this,e,_e,$e,i,{})}}function Ee(e){let t,n;const r=e[2].default,o=c(r,e,e[1],null);return{c(){t=_("a"),o&&o.c(),O(t,"href",e[0]),O(t,"class","svelte-1szhc1f")},m(e,r){w(e,t,r),o&&o.m(t,null),n=!0},p(e,[s]){o&&o.p&&2&s&&u(o,r,e,e[1],s,null,null),(!n||1&s)&&O(t,"href",e[0])},i(e){n||(ue(o,e),n=!0)},o(e){fe(o,e),n=!1},d(e){e&&x(t),o&&o.d(e)}}}function Ae(e,t,n){let{$$slots:r={},$$scope:o}=t,{href:s}=t;return e.$$set=e=>{"href"in e&&n(0,s=e.href),"$$scope"in e&&n(1,o=e.$$scope)},[s,o,r]}class Pe extends be{constructor(e){super(),me(this,e,Ae,Ee,i,{href:0})}}function Se(e){const t=1.70158;return--e*e*((t+1)*e+t)+1}function Oe(e){const t=e-1;return t*t*t+1}function Te(e){return e*e}function Ce(e,{delay:n=0,duration:r=400,easing:o=t}){const s=+getComputedStyle(e).opacity;return{delay:n,duration:r,easing:o,css:e=>"opacity: "+e*s}}function Re(e,{delay:t=0,duration:n=400,easing:r=Oe,x:o=0,y:s=0,opacity:i=0}){const a=getComputedStyle(e),c=+a.opacity,l="none"===a.transform?"":a.transform,u=c*(1-i);return{delay:t,duration:n,easing:r,css:(e,t)=>`\n\t\t\ttransform: ${l} translate(${(1-e)*o}px, ${(1-e)*s}px);\n\t\t\topacity: ${c-u*t}`}}function Ne(e,{delay:t=0,duration:n=400,easing:r=Oe,start:o=0,opacity:s=0}){const i=getComputedStyle(e),a=+i.opacity,c="none"===i.transform?"":i.transform,l=1-o,u=a*(1-s);return{delay:t,duration:n,easing:r,css:(e,t)=>`\n\t\t\ttransform: ${c} scale(${1-l*t});\n\t\t\topacity: ${a-u*t}\n\t\t`}}function je(e){function t(t){t.target instanceof Node&&!e.contains(t.target)&&!t.defaultPrevented&&e.dispatchEvent(new MouseEvent("clickoutside",t))}return document.addEventListener("click",t),{destroy(){document.removeEventListener("click",t)}}}function Ie(e){let t,n,r=e[0].deviceKey.substring(0,8)+"";return{c(){t=E(r),n=E("...")},m(e,r){w(e,t,r),w(e,n,r)},p(e,n){1&n&&r!==(r=e[0].deviceKey.substring(0,8)+"")&&T(t,r)},d(e){e&&x(t),e&&x(n)}}}function Me(t){let n,r,o,s,i,a,c,l,u,f,h,d,p,v,g,y,m,$,k,P,S,C,N,j,I,M,L,D,U,K,B,q,F,H,J,z,V,W,Y,G,Z,Q,X,ee=t[0].deviceName+"",te=t[0].dmtVersion+"",ne=t[0].mpvVersion+"",re=t[0].ip+"",oe=t[0].platform+"",se=t[0].apMode+"",ie=t[0].deviceKey&&Ie(t);return{c(){n=_("table"),r=_("tbody"),o=_("tr"),s=_("th"),s.textContent="Name",i=A(),a=_("td"),c=E(ee),l=A(),u=_("tr"),f=_("th"),f.textContent="DMT version",h=A(),d=_("td"),p=E(te),v=A(),g=_("tr"),y=_("th"),y.textContent="MPV version",m=A(),$=_("td"),k=E(ne),P=A(),S=_("tr"),C=_("th"),C.textContent="Local IP",N=A(),j=_("td"),I=E(re),M=A(),L=_("tr"),D=_("th"),D.textContent="Platform",U=A(),K=_("td"),B=E(oe),q=A(),F=_("tr"),H=_("th"),H.textContent="AP Mode",J=A(),z=_("td"),V=E(se),W=A(),Y=_("tr"),G=_("th"),G.textContent="Device key",Z=A(),Q=_("td"),ie&&ie.c(),O(a,"class","device_name svelte-8savom"),O(d,"class","version svelte-8savom"),O($,"class","version svelte-8savom"),O(j,"class","device_ip svelte-8savom"),O(K,"class","platform svelte-8savom"),O(z,"class","ap_mode svelte-8savom"),R(z,"yes",t[0].apMode),O(Q,"class","device_key svelte-8savom"),O(Q,"title",X=t[0].deviceKey),O(n,"class","vertical svelte-8savom")},m(e,t){w(e,n,t),b(n,r),b(r,o),b(o,s),b(o,i),b(o,a),b(a,c),b(r,l),b(r,u),b(u,f),b(u,h),b(u,d),b(d,p),b(r,v),b(r,g),b(g,y),b(g,m),b(g,$),b($,k),b(r,P),b(r,S),b(S,C),b(S,N),b(S,j),b(j,I),b(r,M),b(r,L),b(L,D),b(L,U),b(L,K),b(K,B),b(r,q),b(r,F),b(F,H),b(F,J),b(F,z),b(z,V),b(r,W),b(r,Y),b(Y,G),b(Y,Z),b(Y,Q),ie&&ie.m(Q,null)},p(e,[t]){1&t&&ee!==(ee=e[0].deviceName+"")&&T(c,ee),1&t&&te!==(te=e[0].dmtVersion+"")&&T(p,te),1&t&&ne!==(ne=e[0].mpvVersion+"")&&T(k,ne),1&t&&re!==(re=e[0].ip+"")&&T(I,re),1&t&&oe!==(oe=e[0].platform+"")&&T(B,oe),1&t&&se!==(se=e[0].apMode+"")&&T(V,se),1&t&&R(z,"yes",e[0].apMode),e[0].deviceKey?ie?ie.p(e,t):(ie=Ie(e),ie.c(),ie.m(Q,null)):ie&&(ie.d(1),ie=null),1&t&&X!==(X=e[0].deviceKey)&&O(Q,"title",X)},i:e,o:e,d(e){e&&x(n),ie&&ie.d()}}}function Le(e,t,n){let{data:r}=t;return e.$$set=e=>{"data"in e&&n(0,r=e.data)},[r]}class De extends be{constructor(e){super(),me(this,e,Le,Me,i,{data:0})}}function Ue(e){let t,n,r,o,s,i;return o=new De({props:{data:e[1]}}),{c(){t=_("div"),n=_("h1"),n.textContent="Device info",r=A(),pe(o.$$.fragment),O(t,"class","popup svelte-4dxfsm")},m(e,s){w(e,t,s),b(t,n),b(t,r),ve(o,t,null),i=!0},p(e,t){const n={};2&t&&(n.data=e[1]),o.$set(n)},i(e){i||(ue(o.$$.fragment,e),Q((()=>{s||(s=de(t,Re,{duration:200,y:5},!0)),s.run(1)})),i=!0)},o(e){fe(o.$$.fragment,e),s||(s=de(t,Re,{duration:200,y:5},!1)),s.run(0),i=!1},d(e){e&&x(t),ge(o),e&&s&&s.end()}}}function Ke(t){let n,r,i,a,c,l,u,f=t[0]&&Ue(t);return{c(){n=_("div"),r=_("button"),r.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="svelte-4dxfsm"><path d="M13 16H11V18H13V16Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M5 4C5 2.89543 5.89543 2 7 2H17C18.1046 2 19 2.89543 19 4V20C19 21.1046 18.1046 22 17 22H7C5.89543 22 5 21.1046 5 20V4ZM7 4H17V20H7L7 4Z" fill="currentColor"></path></svg>',i=A(),f&&f.c(),O(r,"title","Device info"),O(r,"class","svelte-4dxfsm"),R(r,"active",t[0]),O(n,"class","wrapper svelte-4dxfsm")},m(o,h){var d;w(o,n,h),b(n,r),b(n,i),f&&f.m(n,null),c=!0,l||(u=[S(r,"click",t[2]),(d=a=je.call(null,n),d&&s(d.destroy)?d.destroy:e),S(n,"clickoutside",t[3])],l=!0)},p(e,[t]){1&t&&R(r,"active",e[0]),e[0]?f?(f.p(e,t),1&t&&ue(f,1)):(f=Ue(e),f.c(),ue(f,1),f.m(n,null)):f&&(ce(),fe(f,1,1,(()=>{f=null})),le())},i(e){c||(ue(f),c=!0)},o(e){fe(f),c=!1},d(e){e&&x(n),f&&f.d(),l=!1,o(u)}}}function Be(e,t,n){let{deviceData:r}=t,{showPopup:o=!1}=t;return e.$$set=e=>{"deviceData"in e&&n(1,r=e.deviceData),"showPopup"in e&&n(0,o=e.showPopup)},[o,r,()=>n(0,o=!o),()=>n(0,o=!1)]}class qe extends be{constructor(e){super(),me(this,e,Be,Ke,i,{deviceData:1,showPopup:0})}}function Fe(e){let t;return{c(){t=E("Device Log")},m(e,n){w(e,t,n)},d(e){e&&x(t)}}}function He(e){let t;return{c(){t=E("Raw JSON")},m(e,n){w(e,t,n)},d(e){e&&x(t)}}}function Je(e){let t,n,r,o,s,i,a,c,l,u;return n=new xe({}),s=new Pe({props:{href:"#log",$$slots:{default:[Fe]},$$scope:{ctx:e}}}),a=new Pe({props:{href:"#json",$$slots:{default:[He]},$$scope:{ctx:e}}}),l=new qe({props:{deviceData:e[0]}}),{c(){t=_("nav"),pe(n.$$.fragment),r=A(),o=_("div"),pe(s.$$.fragment),i=A(),pe(a.$$.fragment),c=A(),pe(l.$$.fragment),O(t,"class","view-container svelte-it26em")},m(e,f){w(e,t,f),ve(n,t,null),b(t,r),b(t,o),ve(s,o,null),b(o,i),ve(a,o,null),b(o,c),ve(l,o,null),u=!0},p(e,[t]){const n={};2&t&&(n.$$scope={dirty:t,ctx:e}),s.$set(n);const r={};2&t&&(r.$$scope={dirty:t,ctx:e}),a.$set(r);const o={};1&t&&(o.deviceData=e[0]),l.$set(o)},i(e){u||(ue(n.$$.fragment,e),ue(s.$$.fragment,e),ue(a.$$.fragment,e),ue(l.$$.fragment,e),u=!0)},o(e){fe(n.$$.fragment,e),fe(s.$$.fragment,e),fe(a.$$.fragment,e),fe(l.$$.fragment,e),u=!1},d(e){e&&x(t),ge(n),ge(s),ge(a),ge(l)}}}function ze(e,t,n){let{deviceData:r={}}=t;return e.$$set=e=>{"deviceData"in e&&n(0,r=e.deviceData)},[r]}class Ve extends be{constructor(e){super(),me(this,e,ze,Je,i,{deviceData:0})}}var We="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:{};function Ye(e){return e&&e.__esModule&&Object.prototype.hasOwnProperty.call(e,"default")?e.default:e}function Ge(e,t,n){return e(n={path:t,exports:{},require:function(e,t){return function(){throw new Error("Dynamic requires are not currently supported by @rollup/plugin-commonjs")}(null==t&&n.path)}},n.exports),n.exports}var Ze=Ye(Ge((function(e,t){!function(e,n){if("string"!=typeof t.nodeName)n(t);else{var r={};n(r),e.AnsiUp=r.default}}(We,(function(e){var t,n=this&&this.__makeTemplateObject||function(e,t){return Object.defineProperty?Object.defineProperty(e,"raw",{value:t}):e.raw=t,e};!function(e){e[e.EOS=0]="EOS",e[e.Text=1]="Text",e[e.Incomplete=2]="Incomplete",e[e.ESC=3]="ESC",e[e.Unknown=4]="Unknown",e[e.SGR=5]="SGR",e[e.OSCURL=6]="OSCURL"}(t||(t={}));var r=function(){function e(){this.VERSION="4.0.4",this.setup_palettes(),this._use_classes=!1,this._escape_for_html=!0,this.bold=!1,this.fg=this.bg=null,this._buffer="",this._url_whitelist={http:1,https:1}}return Object.defineProperty(e.prototype,"use_classes",{get:function(){return this._use_classes},set:function(e){this._use_classes=e},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"escape_for_html",{get:function(){return this._escape_for_html},set:function(e){this._escape_for_html=e},enumerable:!0,configurable:!0}),Object.defineProperty(e.prototype,"url_whitelist",{get:function(){return this._url_whitelist},set:function(e){this._url_whitelist=e},enumerable:!0,configurable:!0}),e.prototype.setup_palettes=function(){var e=this;this.ansi_colors=[[{rgb:[0,0,0],class_name:"ansi-black"},{rgb:[187,0,0],class_name:"ansi-red"},{rgb:[0,187,0],class_name:"ansi-green"},{rgb:[187,187,0],class_name:"ansi-yellow"},{rgb:[0,0,187],class_name:"ansi-blue"},{rgb:[187,0,187],class_name:"ansi-magenta"},{rgb:[0,187,187],class_name:"ansi-cyan"},{rgb:[255,255,255],class_name:"ansi-white"}],[{rgb:[85,85,85],class_name:"ansi-bright-black"},{rgb:[255,85,85],class_name:"ansi-bright-red"},{rgb:[0,255,0],class_name:"ansi-bright-green"},{rgb:[255,255,85],class_name:"ansi-bright-yellow"},{rgb:[85,85,255],class_name:"ansi-bright-blue"},{rgb:[255,85,255],class_name:"ansi-bright-magenta"},{rgb:[85,255,255],class_name:"ansi-bright-cyan"},{rgb:[255,255,255],class_name:"ansi-bright-white"}]],this.palette_256=[],this.ansi_colors.forEach((function(t){t.forEach((function(t){e.palette_256.push(t)}))}));for(var t=[0,95,135,175,215,255],n=0;n<6;++n)for(var r=0;r<6;++r)for(var o=0;o<6;++o){var s={rgb:[t[n],t[r],t[o]],class_name:"truecolor"};this.palette_256.push(s)}for(var i=8,a=0;a<24;++a,i+=10){var c={rgb:[i,i,i],class_name:"truecolor"};this.palette_256.push(c)}},e.prototype.escape_txt_for_html=function(e){return e.replace(/[&<>]/gm,(function(e){return"&"===e?"&amp;":"<"===e?"&lt;":">"===e?"&gt;":void 0}))},e.prototype.append_buffer=function(e){var t=this._buffer+e;this._buffer=t},e.prototype.get_next_packet=function(){var e={kind:t.EOS,text:"",url:""},r=this._buffer.length;if(0==r)return e;var s=this._buffer.indexOf("");if(-1==s)return e.kind=t.Text,e.text=this._buffer,this._buffer="",e;if(s>0)return e.kind=t.Text,e.text=this._buffer.slice(0,s),this._buffer=this._buffer.slice(s),e;if(0==s){if(1==r)return e.kind=t.Incomplete,e;var i=this._buffer.charAt(1);if("["!=i&&"]"!=i)return e.kind=t.ESC,e.text=this._buffer.slice(0,1),this._buffer=this._buffer.slice(1),e;if("["==i){if(this._csi_regex||(this._csi_regex=o(n(["\n                        ^                           # beginning of line\n                                                    #\n                                                    # First attempt\n                        (?:                         # legal sequence\n                          [                      # CSI\n                          ([<-?]?)              # private-mode char\n                          ([d;]*)                    # any digits or semicolons\n                          ([ -/]?               # an intermediate modifier\n                          [@-~])                # the command\n                        )\n                        |                           # alternate (second attempt)\n                        (?:                         # illegal sequence\n                          [                      # CSI\n                          [ -~]*                # anything legal\n                          ([\0-:])              # anything illegal\n                        )\n                    "],["\n                        ^                           # beginning of line\n                                                    #\n                                                    # First attempt\n                        (?:                         # legal sequence\n                          \\x1b\\[                      # CSI\n                          ([\\x3c-\\x3f]?)              # private-mode char\n                          ([\\d;]*)                    # any digits or semicolons\n                          ([\\x20-\\x2f]?               # an intermediate modifier\n                          [\\x40-\\x7e])                # the command\n                        )\n                        |                           # alternate (second attempt)\n                        (?:                         # illegal sequence\n                          \\x1b\\[                      # CSI\n                          [\\x20-\\x7e]*                # anything legal\n                          ([\\x00-\\x1f:])              # anything illegal\n                        )\n                    "]))),null===(l=this._buffer.match(this._csi_regex)))return e.kind=t.Incomplete,e;if(l[4])return e.kind=t.ESC,e.text=this._buffer.slice(0,1),this._buffer=this._buffer.slice(1),e;""!=l[1]||"m"!=l[3]?e.kind=t.Unknown:e.kind=t.SGR,e.text=l[2];var a=l[0].length;return this._buffer=this._buffer.slice(a),e}if("]"==i){if(r<4)return e.kind=t.Incomplete,e;if("8"!=this._buffer.charAt(2)||";"!=this._buffer.charAt(3))return e.kind=t.ESC,e.text=this._buffer.slice(0,1),this._buffer=this._buffer.slice(1),e;this._osc_st||(this._osc_st=function(e){for(var t=[],n=1;n<arguments.length;n++)t[n-1]=arguments[n];var r=e.raw[0],o=/^\s+|\s+\n|\s*#[\s\S]*?\n|\n/gm,s=r.replace(o,"");return new RegExp(s,"g")}(n(["\n                        (?:                         # legal sequence\n                          (\\)                    # ESC                           |                           # alternate\n                          ()                      # BEL (what xterm did)\n                        )\n                        |                           # alternate (second attempt)\n                        (                           # illegal sequence\n                          [\0-]                 # anything illegal\n                          |                           # alternate\n                          [\b-]                 # anything illegal\n                          |                           # alternate\n                          [-]                 # anything illegal\n                        )\n                    "],["\n                        (?:                         # legal sequence\n                          (\\x1b\\\\)                    # ESC \\\n                          |                           # alternate\n                          (\\x07)                      # BEL (what xterm did)\n                        )\n                        |                           # alternate (second attempt)\n                        (                           # illegal sequence\n                          [\\x00-\\x06]                 # anything illegal\n                          |                           # alternate\n                          [\\x08-\\x1a]                 # anything illegal\n                          |                           # alternate\n                          [\\x1c-\\x1f]                 # anything illegal\n                        )\n                    "]))),this._osc_st.lastIndex=0;var c=this._osc_st.exec(this._buffer);if(null===c)return e.kind=t.Incomplete,e;if(c[3])return e.kind=t.ESC,e.text=this._buffer.slice(0,1),this._buffer=this._buffer.slice(1),e;var l,u=this._osc_st.exec(this._buffer);if(null===u)return e.kind=t.Incomplete,e;if(u[3])return e.kind=t.ESC,e.text=this._buffer.slice(0,1),this._buffer=this._buffer.slice(1),e;if(this._osc_regex||(this._osc_regex=o(n(["\n                        ^                           # beginning of line\n                                                    #\n                        ]8;                    # OSC Hyperlink\n                        [ -:<-~]*       # params (excluding ;)\n                        ;                           # end of params\n                        ([!-~]{0,512})        # URL capture\n                        (?:                         # ST\n                          (?:\\)                  # ESC                           |                           # alternate\n                          (?:)                    # BEL (what xterm did)\n                        )\n                        ([!-~]+)              # TEXT capture\n                        ]8;;                   # OSC Hyperlink End\n                        (?:                         # ST\n                          (?:\\)                  # ESC                           |                           # alternate\n                          (?:)                    # BEL (what xterm did)\n                        )\n                    "],["\n                        ^                           # beginning of line\n                                                    #\n                        \\x1b\\]8;                    # OSC Hyperlink\n                        [\\x20-\\x3a\\x3c-\\x7e]*       # params (excluding ;)\n                        ;                           # end of params\n                        ([\\x21-\\x7e]{0,512})        # URL capture\n                        (?:                         # ST\n                          (?:\\x1b\\\\)                  # ESC \\\n                          |                           # alternate\n                          (?:\\x07)                    # BEL (what xterm did)\n                        )\n                        ([\\x21-\\x7e]+)              # TEXT capture\n                        \\x1b\\]8;;                   # OSC Hyperlink End\n                        (?:                         # ST\n                          (?:\\x1b\\\\)                  # ESC \\\n                          |                           # alternate\n                          (?:\\x07)                    # BEL (what xterm did)\n                        )\n                    "]))),null===(l=this._buffer.match(this._osc_regex)))return e.kind=t.ESC,e.text=this._buffer.slice(0,1),this._buffer=this._buffer.slice(1),e;e.kind=t.OSCURL,e.url=l[1],e.text=l[2];a=l[0].length;return this._buffer=this._buffer.slice(a),e}}},e.prototype.ansi_to_html=function(e){this.append_buffer(e);for(var n=[];;){var r=this.get_next_packet();if(r.kind==t.EOS||r.kind==t.Incomplete)break;r.kind!=t.ESC&&r.kind!=t.Unknown&&(r.kind==t.Text?n.push(this.transform_to_html(this.with_state(r))):r.kind==t.SGR?this.process_ansi(r):r.kind==t.OSCURL&&n.push(this.process_hyperlink(r)))}return n.join("")},e.prototype.with_state=function(e){return{bold:this.bold,fg:this.fg,bg:this.bg,text:e.text}},e.prototype.process_ansi=function(e){for(var t=e.text.split(";");t.length>0;){var n=t.shift(),r=parseInt(n,10);if(isNaN(r)||0===r)this.fg=this.bg=null,this.bold=!1;else if(1===r)this.bold=!0;else if(22===r)this.bold=!1;else if(39===r)this.fg=null;else if(49===r)this.bg=null;else if(r>=30&&r<38)this.fg=this.ansi_colors[0][r-30];else if(r>=40&&r<48)this.bg=this.ansi_colors[0][r-40];else if(r>=90&&r<98)this.fg=this.ansi_colors[1][r-90];else if(r>=100&&r<108)this.bg=this.ansi_colors[1][r-100];else if((38===r||48===r)&&t.length>0){var o=38===r,s=t.shift();if("5"===s&&t.length>0){var i=parseInt(t.shift(),10);i>=0&&i<=255&&(o?this.fg=this.palette_256[i]:this.bg=this.palette_256[i])}if("2"===s&&t.length>2){var a=parseInt(t.shift(),10),c=parseInt(t.shift(),10),l=parseInt(t.shift(),10);if(a>=0&&a<=255&&c>=0&&c<=255&&l>=0&&l<=255){var u={rgb:[a,c,l],class_name:"truecolor"};o?this.fg=u:this.bg=u}}}}},e.prototype.transform_to_html=function(e){var t=e.text;if(0===t.length)return t;if(this._escape_for_html&&(t=this.escape_txt_for_html(t)),!e.bold&&null===e.fg&&null===e.bg)return t;var n=[],r=[],o=e.fg,s=e.bg;e.bold&&n.push("font-weight:bold"),this._use_classes?(o&&("truecolor"!==o.class_name?r.push(o.class_name+"-fg"):n.push("color:rgb("+o.rgb.join(",")+")")),s&&("truecolor"!==s.class_name?r.push(s.class_name+"-bg"):n.push("background-color:rgb("+s.rgb.join(",")+")"))):(o&&n.push("color:rgb("+o.rgb.join(",")+")"),s&&n.push("background-color:rgb("+s.rgb+")"));var i="",a="";return r.length&&(i=' class="'+r.join(" ")+'"'),n.length&&(a=' style="'+n.join(";")+'"'),"<span"+a+i+">"+t+"</span>"},e.prototype.process_hyperlink=function(e){var t=e.url.split(":");return t.length<1?"":this._url_whitelist[t[0]]?'<a href="'+this.escape_txt_for_html(e.url)+'">'+this.escape_txt_for_html(e.text)+"</a>":""},e}();function o(e){for(var t=[],n=1;n<arguments.length;n++)t[n-1]=arguments[n];var r=e.raw[0],o=/^\s+|\s+\n|\s*#[\s\S]*?\n|\n/gm,s=r.replace(o,"");return new RegExp(s)}Object.defineProperty(e,"__esModule",{value:!0}),e.default=r}))}))),Qe=Ge((function(e,t){
-/*!***************************************************
+var app = (function () {
+    'use strict';
+
+    function noop() { }
+    const identity = x => x;
+    function assign(tar, src) {
+        // @ts-ignore
+        for (const k in src)
+            tar[k] = src[k];
+        return tar;
+    }
+    function add_location(element, file, line, column, char) {
+        element.__svelte_meta = {
+            loc: { file, line, column, char }
+        };
+    }
+    function run(fn) {
+        return fn();
+    }
+    function blank_object() {
+        return Object.create(null);
+    }
+    function run_all(fns) {
+        fns.forEach(run);
+    }
+    function is_function(thing) {
+        return typeof thing === 'function';
+    }
+    function safe_not_equal(a, b) {
+        return a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function');
+    }
+    function is_empty(obj) {
+        return Object.keys(obj).length === 0;
+    }
+    function validate_store(store, name) {
+        if (store != null && typeof store.subscribe !== 'function') {
+            throw new Error(`'${name}' is not a store with a 'subscribe' method`);
+        }
+    }
+    function subscribe(store, ...callbacks) {
+        if (store == null) {
+            return noop;
+        }
+        const unsub = store.subscribe(...callbacks);
+        return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
+    }
+    function component_subscribe(component, store, callback) {
+        component.$$.on_destroy.push(subscribe(store, callback));
+    }
+    function create_slot(definition, ctx, $$scope, fn) {
+        if (definition) {
+            const slot_ctx = get_slot_context(definition, ctx, $$scope, fn);
+            return definition[0](slot_ctx);
+        }
+    }
+    function get_slot_context(definition, ctx, $$scope, fn) {
+        return definition[1] && fn
+            ? assign($$scope.ctx.slice(), definition[1](fn(ctx)))
+            : $$scope.ctx;
+    }
+    function get_slot_changes(definition, $$scope, dirty, fn) {
+        if (definition[2] && fn) {
+            const lets = definition[2](fn(dirty));
+            if ($$scope.dirty === undefined) {
+                return lets;
+            }
+            if (typeof lets === 'object') {
+                const merged = [];
+                const len = Math.max($$scope.dirty.length, lets.length);
+                for (let i = 0; i < len; i += 1) {
+                    merged[i] = $$scope.dirty[i] | lets[i];
+                }
+                return merged;
+            }
+            return $$scope.dirty | lets;
+        }
+        return $$scope.dirty;
+    }
+    function update_slot(slot, slot_definition, ctx, $$scope, dirty, get_slot_changes_fn, get_slot_context_fn) {
+        const slot_changes = get_slot_changes(slot_definition, $$scope, dirty, get_slot_changes_fn);
+        if (slot_changes) {
+            const slot_context = get_slot_context(slot_definition, ctx, $$scope, get_slot_context_fn);
+            slot.p(slot_context, slot_changes);
+        }
+    }
+    function exclude_internal_props(props) {
+        const result = {};
+        for (const k in props)
+            if (k[0] !== '$')
+                result[k] = props[k];
+        return result;
+    }
+    function compute_rest_props(props, keys) {
+        const rest = {};
+        keys = new Set(keys);
+        for (const k in props)
+            if (!keys.has(k) && k[0] !== '$')
+                rest[k] = props[k];
+        return rest;
+    }
+    function null_to_empty(value) {
+        return value == null ? '' : value;
+    }
+    function set_store_value(store, ret, value = ret) {
+        store.set(value);
+        return ret;
+    }
+    function action_destroyer(action_result) {
+        return action_result && is_function(action_result.destroy) ? action_result.destroy : noop;
+    }
+
+    const is_client = typeof window !== 'undefined';
+    let now = is_client
+        ? () => window.performance.now()
+        : () => Date.now();
+    let raf = is_client ? cb => requestAnimationFrame(cb) : noop;
+
+    const tasks = new Set();
+    function run_tasks(now) {
+        tasks.forEach(task => {
+            if (!task.c(now)) {
+                tasks.delete(task);
+                task.f();
+            }
+        });
+        if (tasks.size !== 0)
+            raf(run_tasks);
+    }
+    /**
+     * Creates a new task that runs on each raf frame
+     * until it returns a falsy value or is aborted
+     */
+    function loop(callback) {
+        let task;
+        if (tasks.size === 0)
+            raf(run_tasks);
+        return {
+            promise: new Promise(fulfill => {
+                tasks.add(task = { c: callback, f: fulfill });
+            }),
+            abort() {
+                tasks.delete(task);
+            }
+        };
+    }
+
+    function append(target, node) {
+        target.appendChild(node);
+    }
+    function insert(target, node, anchor) {
+        target.insertBefore(node, anchor || null);
+    }
+    function detach(node) {
+        node.parentNode.removeChild(node);
+    }
+    function destroy_each(iterations, detaching) {
+        for (let i = 0; i < iterations.length; i += 1) {
+            if (iterations[i])
+                iterations[i].d(detaching);
+        }
+    }
+    function element(name) {
+        return document.createElement(name);
+    }
+    function svg_element(name) {
+        return document.createElementNS('http://www.w3.org/2000/svg', name);
+    }
+    function text(data) {
+        return document.createTextNode(data);
+    }
+    function space() {
+        return text(' ');
+    }
+    function empty() {
+        return text('');
+    }
+    function listen(node, event, handler, options) {
+        node.addEventListener(event, handler, options);
+        return () => node.removeEventListener(event, handler, options);
+    }
+    function self$1(fn) {
+        return function (event) {
+            // @ts-ignore
+            if (event.target === this)
+                fn.call(this, event);
+        };
+    }
+    function attr(node, attribute, value) {
+        if (value == null)
+            node.removeAttribute(attribute);
+        else if (node.getAttribute(attribute) !== value)
+            node.setAttribute(attribute, value);
+    }
+    function set_attributes(node, attributes) {
+        // @ts-ignore
+        const descriptors = Object.getOwnPropertyDescriptors(node.__proto__);
+        for (const key in attributes) {
+            if (attributes[key] == null) {
+                node.removeAttribute(key);
+            }
+            else if (key === 'style') {
+                node.style.cssText = attributes[key];
+            }
+            else if (key === '__value') {
+                node.value = node[key] = attributes[key];
+            }
+            else if (descriptors[key] && descriptors[key].set) {
+                node[key] = attributes[key];
+            }
+            else {
+                attr(node, key, attributes[key]);
+            }
+        }
+    }
+    function children(element) {
+        return Array.from(element.childNodes);
+    }
+    function set_input_value(input, value) {
+        input.value = value == null ? '' : value;
+    }
+    function toggle_class(element, name, toggle) {
+        element.classList[toggle ? 'add' : 'remove'](name);
+    }
+    function custom_event(type, detail) {
+        const e = document.createEvent('CustomEvent');
+        e.initCustomEvent(type, false, false, detail);
+        return e;
+    }
+    class HtmlTag {
+        constructor(anchor = null) {
+            this.a = anchor;
+            this.e = this.n = null;
+        }
+        m(html, target, anchor = null) {
+            if (!this.e) {
+                this.e = element(target.nodeName);
+                this.t = target;
+                this.h(html);
+            }
+            this.i(anchor);
+        }
+        h(html) {
+            this.e.innerHTML = html;
+            this.n = Array.from(this.e.childNodes);
+        }
+        i(anchor) {
+            for (let i = 0; i < this.n.length; i += 1) {
+                insert(this.t, this.n[i], anchor);
+            }
+        }
+        p(html) {
+            this.d();
+            this.h(html);
+            this.i(this.a);
+        }
+        d() {
+            this.n.forEach(detach);
+        }
+    }
+
+    const active_docs = new Set();
+    let active = 0;
+    // https://github.com/darkskyapp/string-hash/blob/master/index.js
+    function hash(str) {
+        let hash = 5381;
+        let i = str.length;
+        while (i--)
+            hash = ((hash << 5) - hash) ^ str.charCodeAt(i);
+        return hash >>> 0;
+    }
+    function create_rule(node, a, b, duration, delay, ease, fn, uid = 0) {
+        const step = 16.666 / duration;
+        let keyframes = '{\n';
+        for (let p = 0; p <= 1; p += step) {
+            const t = a + (b - a) * ease(p);
+            keyframes += p * 100 + `%{${fn(t, 1 - t)}}\n`;
+        }
+        const rule = keyframes + `100% {${fn(b, 1 - b)}}\n}`;
+        const name = `__svelte_${hash(rule)}_${uid}`;
+        const doc = node.ownerDocument;
+        active_docs.add(doc);
+        const stylesheet = doc.__svelte_stylesheet || (doc.__svelte_stylesheet = doc.head.appendChild(element('style')).sheet);
+        const current_rules = doc.__svelte_rules || (doc.__svelte_rules = {});
+        if (!current_rules[name]) {
+            current_rules[name] = true;
+            stylesheet.insertRule(`@keyframes ${name} ${rule}`, stylesheet.cssRules.length);
+        }
+        const animation = node.style.animation || '';
+        node.style.animation = `${animation ? `${animation}, ` : ''}${name} ${duration}ms linear ${delay}ms 1 both`;
+        active += 1;
+        return name;
+    }
+    function delete_rule(node, name) {
+        const previous = (node.style.animation || '').split(', ');
+        const next = previous.filter(name
+            ? anim => anim.indexOf(name) < 0 // remove specific animation
+            : anim => anim.indexOf('__svelte') === -1 // remove all Svelte animations
+        );
+        const deleted = previous.length - next.length;
+        if (deleted) {
+            node.style.animation = next.join(', ');
+            active -= deleted;
+            if (!active)
+                clear_rules();
+        }
+    }
+    function clear_rules() {
+        raf(() => {
+            if (active)
+                return;
+            active_docs.forEach(doc => {
+                const stylesheet = doc.__svelte_stylesheet;
+                let i = stylesheet.cssRules.length;
+                while (i--)
+                    stylesheet.deleteRule(i);
+                doc.__svelte_rules = {};
+            });
+            active_docs.clear();
+        });
+    }
+
+    let current_component;
+    function set_current_component(component) {
+        current_component = component;
+    }
+    function get_current_component() {
+        if (!current_component)
+            throw new Error('Function called outside component initialization');
+        return current_component;
+    }
+    function onMount(fn) {
+        get_current_component().$$.on_mount.push(fn);
+    }
+    function createEventDispatcher() {
+        const component = get_current_component();
+        return (type, detail) => {
+            const callbacks = component.$$.callbacks[type];
+            if (callbacks) {
+                // TODO are there situations where events could be dispatched
+                // in a server (non-DOM) environment?
+                const event = custom_event(type, detail);
+                callbacks.slice().forEach(fn => {
+                    fn.call(component, event);
+                });
+            }
+        };
+    }
+    function setContext(key, context) {
+        get_current_component().$$.context.set(key, context);
+    }
+    function getContext(key) {
+        return get_current_component().$$.context.get(key);
+    }
+    // TODO figure out if we still want to support
+    // shorthand events, or if we want to implement
+    // a real bubbling mechanism
+    function bubble(component, event) {
+        const callbacks = component.$$.callbacks[event.type];
+        if (callbacks) {
+            callbacks.slice().forEach(fn => fn(event));
+        }
+    }
+
+    const dirty_components = [];
+    const binding_callbacks = [];
+    const render_callbacks = [];
+    const flush_callbacks = [];
+    const resolved_promise = Promise.resolve();
+    let update_scheduled = false;
+    function schedule_update() {
+        if (!update_scheduled) {
+            update_scheduled = true;
+            resolved_promise.then(flush);
+        }
+    }
+    function add_render_callback(fn) {
+        render_callbacks.push(fn);
+    }
+    function add_flush_callback(fn) {
+        flush_callbacks.push(fn);
+    }
+    let flushing = false;
+    const seen_callbacks = new Set();
+    function flush() {
+        if (flushing)
+            return;
+        flushing = true;
+        do {
+            // first, call beforeUpdate functions
+            // and update components
+            for (let i = 0; i < dirty_components.length; i += 1) {
+                const component = dirty_components[i];
+                set_current_component(component);
+                update(component.$$);
+            }
+            set_current_component(null);
+            dirty_components.length = 0;
+            while (binding_callbacks.length)
+                binding_callbacks.pop()();
+            // then, once components are updated, call
+            // afterUpdate functions. This may cause
+            // subsequent updates...
+            for (let i = 0; i < render_callbacks.length; i += 1) {
+                const callback = render_callbacks[i];
+                if (!seen_callbacks.has(callback)) {
+                    // ...so guard against infinite loops
+                    seen_callbacks.add(callback);
+                    callback();
+                }
+            }
+            render_callbacks.length = 0;
+        } while (dirty_components.length);
+        while (flush_callbacks.length) {
+            flush_callbacks.pop()();
+        }
+        update_scheduled = false;
+        flushing = false;
+        seen_callbacks.clear();
+    }
+    function update($$) {
+        if ($$.fragment !== null) {
+            $$.update();
+            run_all($$.before_update);
+            const dirty = $$.dirty;
+            $$.dirty = [-1];
+            $$.fragment && $$.fragment.p($$.ctx, dirty);
+            $$.after_update.forEach(add_render_callback);
+        }
+    }
+
+    let promise;
+    function wait() {
+        if (!promise) {
+            promise = Promise.resolve();
+            promise.then(() => {
+                promise = null;
+            });
+        }
+        return promise;
+    }
+    function dispatch(node, direction, kind) {
+        node.dispatchEvent(custom_event(`${direction ? 'intro' : 'outro'}${kind}`));
+    }
+    const outroing = new Set();
+    let outros;
+    function group_outros() {
+        outros = {
+            r: 0,
+            c: [],
+            p: outros // parent group
+        };
+    }
+    function check_outros() {
+        if (!outros.r) {
+            run_all(outros.c);
+        }
+        outros = outros.p;
+    }
+    function transition_in(block, local) {
+        if (block && block.i) {
+            outroing.delete(block);
+            block.i(local);
+        }
+    }
+    function transition_out(block, local, detach, callback) {
+        if (block && block.o) {
+            if (outroing.has(block))
+                return;
+            outroing.add(block);
+            outros.c.push(() => {
+                outroing.delete(block);
+                if (callback) {
+                    if (detach)
+                        block.d(1);
+                    callback();
+                }
+            });
+            block.o(local);
+        }
+    }
+    const null_transition = { duration: 0 };
+    function create_in_transition(node, fn, params) {
+        let config = fn(node, params);
+        let running = false;
+        let animation_name;
+        let task;
+        let uid = 0;
+        function cleanup() {
+            if (animation_name)
+                delete_rule(node, animation_name);
+        }
+        function go() {
+            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
+            if (css)
+                animation_name = create_rule(node, 0, 1, duration, delay, easing, css, uid++);
+            tick(0, 1);
+            const start_time = now() + delay;
+            const end_time = start_time + duration;
+            if (task)
+                task.abort();
+            running = true;
+            add_render_callback(() => dispatch(node, true, 'start'));
+            task = loop(now => {
+                if (running) {
+                    if (now >= end_time) {
+                        tick(1, 0);
+                        dispatch(node, true, 'end');
+                        cleanup();
+                        return running = false;
+                    }
+                    if (now >= start_time) {
+                        const t = easing((now - start_time) / duration);
+                        tick(t, 1 - t);
+                    }
+                }
+                return running;
+            });
+        }
+        let started = false;
+        return {
+            start() {
+                if (started)
+                    return;
+                delete_rule(node);
+                if (is_function(config)) {
+                    config = config();
+                    wait().then(go);
+                }
+                else {
+                    go();
+                }
+            },
+            invalidate() {
+                started = false;
+            },
+            end() {
+                if (running) {
+                    cleanup();
+                    running = false;
+                }
+            }
+        };
+    }
+    function create_out_transition(node, fn, params) {
+        let config = fn(node, params);
+        let running = true;
+        let animation_name;
+        const group = outros;
+        group.r += 1;
+        function go() {
+            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
+            if (css)
+                animation_name = create_rule(node, 1, 0, duration, delay, easing, css);
+            const start_time = now() + delay;
+            const end_time = start_time + duration;
+            add_render_callback(() => dispatch(node, false, 'start'));
+            loop(now => {
+                if (running) {
+                    if (now >= end_time) {
+                        tick(0, 1);
+                        dispatch(node, false, 'end');
+                        if (!--group.r) {
+                            // this will result in `end()` being called,
+                            // so we don't need to clean up here
+                            run_all(group.c);
+                        }
+                        return false;
+                    }
+                    if (now >= start_time) {
+                        const t = easing((now - start_time) / duration);
+                        tick(1 - t, t);
+                    }
+                }
+                return running;
+            });
+        }
+        if (is_function(config)) {
+            wait().then(() => {
+                // @ts-ignore
+                config = config();
+                go();
+            });
+        }
+        else {
+            go();
+        }
+        return {
+            end(reset) {
+                if (reset && config.tick) {
+                    config.tick(1, 0);
+                }
+                if (running) {
+                    if (animation_name)
+                        delete_rule(node, animation_name);
+                    running = false;
+                }
+            }
+        };
+    }
+    function create_bidirectional_transition(node, fn, params, intro) {
+        let config = fn(node, params);
+        let t = intro ? 0 : 1;
+        let running_program = null;
+        let pending_program = null;
+        let animation_name = null;
+        function clear_animation() {
+            if (animation_name)
+                delete_rule(node, animation_name);
+        }
+        function init(program, duration) {
+            const d = program.b - t;
+            duration *= Math.abs(d);
+            return {
+                a: t,
+                b: program.b,
+                d,
+                duration,
+                start: program.start,
+                end: program.start + duration,
+                group: program.group
+            };
+        }
+        function go(b) {
+            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
+            const program = {
+                start: now() + delay,
+                b
+            };
+            if (!b) {
+                // @ts-ignore todo: improve typings
+                program.group = outros;
+                outros.r += 1;
+            }
+            if (running_program || pending_program) {
+                pending_program = program;
+            }
+            else {
+                // if this is an intro, and there's a delay, we need to do
+                // an initial tick and/or apply CSS animation immediately
+                if (css) {
+                    clear_animation();
+                    animation_name = create_rule(node, t, b, duration, delay, easing, css);
+                }
+                if (b)
+                    tick(0, 1);
+                running_program = init(program, duration);
+                add_render_callback(() => dispatch(node, b, 'start'));
+                loop(now => {
+                    if (pending_program && now > pending_program.start) {
+                        running_program = init(pending_program, duration);
+                        pending_program = null;
+                        dispatch(node, running_program.b, 'start');
+                        if (css) {
+                            clear_animation();
+                            animation_name = create_rule(node, t, running_program.b, running_program.duration, 0, easing, config.css);
+                        }
+                    }
+                    if (running_program) {
+                        if (now >= running_program.end) {
+                            tick(t = running_program.b, 1 - t);
+                            dispatch(node, running_program.b, 'end');
+                            if (!pending_program) {
+                                // we're done
+                                if (running_program.b) {
+                                    // intro — we can tidy up immediately
+                                    clear_animation();
+                                }
+                                else {
+                                    // outro — needs to be coordinated
+                                    if (!--running_program.group.r)
+                                        run_all(running_program.group.c);
+                                }
+                            }
+                            running_program = null;
+                        }
+                        else if (now >= running_program.start) {
+                            const p = now - running_program.start;
+                            t = running_program.a + running_program.d * easing(p / running_program.duration);
+                            tick(t, 1 - t);
+                        }
+                    }
+                    return !!(running_program || pending_program);
+                });
+            }
+        }
+        return {
+            run(b) {
+                if (is_function(config)) {
+                    wait().then(() => {
+                        // @ts-ignore
+                        config = config();
+                        go(b);
+                    });
+                }
+                else {
+                    go(b);
+                }
+            },
+            end() {
+                clear_animation();
+                running_program = pending_program = null;
+            }
+        };
+    }
+
+    const globals = (typeof window !== 'undefined'
+        ? window
+        : typeof globalThis !== 'undefined'
+            ? globalThis
+            : global);
+
+    function get_spread_update(levels, updates) {
+        const update = {};
+        const to_null_out = {};
+        const accounted_for = { $$scope: 1 };
+        let i = levels.length;
+        while (i--) {
+            const o = levels[i];
+            const n = updates[i];
+            if (n) {
+                for (const key in o) {
+                    if (!(key in n))
+                        to_null_out[key] = 1;
+                }
+                for (const key in n) {
+                    if (!accounted_for[key]) {
+                        update[key] = n[key];
+                        accounted_for[key] = 1;
+                    }
+                }
+                levels[i] = n;
+            }
+            else {
+                for (const key in o) {
+                    accounted_for[key] = 1;
+                }
+            }
+        }
+        for (const key in to_null_out) {
+            if (!(key in update))
+                update[key] = undefined;
+        }
+        return update;
+    }
+
+    function bind(component, name, callback) {
+        const index = component.$$.props[name];
+        if (index !== undefined) {
+            component.$$.bound[index] = callback;
+            callback(component.$$.ctx[index]);
+        }
+    }
+    function create_component(block) {
+        block && block.c();
+    }
+    function mount_component(component, target, anchor) {
+        const { fragment, on_mount, on_destroy, after_update } = component.$$;
+        fragment && fragment.m(target, anchor);
+        // onMount happens before the initial afterUpdate
+        add_render_callback(() => {
+            const new_on_destroy = on_mount.map(run).filter(is_function);
+            if (on_destroy) {
+                on_destroy.push(...new_on_destroy);
+            }
+            else {
+                // Edge case - component was destroyed immediately,
+                // most likely as a result of a binding initialising
+                run_all(new_on_destroy);
+            }
+            component.$$.on_mount = [];
+        });
+        after_update.forEach(add_render_callback);
+    }
+    function destroy_component(component, detaching) {
+        const $$ = component.$$;
+        if ($$.fragment !== null) {
+            run_all($$.on_destroy);
+            $$.fragment && $$.fragment.d(detaching);
+            // TODO null out other refs, including component.$$ (but need to
+            // preserve final state?)
+            $$.on_destroy = $$.fragment = null;
+            $$.ctx = [];
+        }
+    }
+    function make_dirty(component, i) {
+        if (component.$$.dirty[0] === -1) {
+            dirty_components.push(component);
+            schedule_update();
+            component.$$.dirty.fill(0);
+        }
+        component.$$.dirty[(i / 31) | 0] |= (1 << (i % 31));
+    }
+    function init(component, options, instance, create_fragment, not_equal, props, dirty = [-1]) {
+        const parent_component = current_component;
+        set_current_component(component);
+        const prop_values = options.props || {};
+        const $$ = component.$$ = {
+            fragment: null,
+            ctx: null,
+            // state
+            props,
+            update: noop,
+            not_equal,
+            bound: blank_object(),
+            // lifecycle
+            on_mount: [],
+            on_destroy: [],
+            before_update: [],
+            after_update: [],
+            context: new Map(parent_component ? parent_component.$$.context : []),
+            // everything else
+            callbacks: blank_object(),
+            dirty,
+            skip_bound: false
+        };
+        let ready = false;
+        $$.ctx = instance
+            ? instance(component, prop_values, (i, ret, ...rest) => {
+                const value = rest.length ? rest[0] : ret;
+                if ($$.ctx && not_equal($$.ctx[i], $$.ctx[i] = value)) {
+                    if (!$$.skip_bound && $$.bound[i])
+                        $$.bound[i](value);
+                    if (ready)
+                        make_dirty(component, i);
+                }
+                return ret;
+            })
+            : [];
+        $$.update();
+        ready = true;
+        run_all($$.before_update);
+        // `false` as a special case of no DOM component
+        $$.fragment = create_fragment ? create_fragment($$.ctx) : false;
+        if (options.target) {
+            if (options.hydrate) {
+                const nodes = children(options.target);
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                $$.fragment && $$.fragment.l(nodes);
+                nodes.forEach(detach);
+            }
+            else {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                $$.fragment && $$.fragment.c();
+            }
+            if (options.intro)
+                transition_in(component.$$.fragment);
+            mount_component(component, options.target, options.anchor);
+            flush();
+        }
+        set_current_component(parent_component);
+    }
+    /**
+     * Base class for Svelte components. Used when dev=false.
+     */
+    class SvelteComponent {
+        $destroy() {
+            destroy_component(this, 1);
+            this.$destroy = noop;
+        }
+        $on(type, callback) {
+            const callbacks = (this.$$.callbacks[type] || (this.$$.callbacks[type] = []));
+            callbacks.push(callback);
+            return () => {
+                const index = callbacks.indexOf(callback);
+                if (index !== -1)
+                    callbacks.splice(index, 1);
+            };
+        }
+        $set($$props) {
+            if (this.$$set && !is_empty($$props)) {
+                this.$$.skip_bound = true;
+                this.$$set($$props);
+                this.$$.skip_bound = false;
+            }
+        }
+    }
+
+    function dispatch_dev(type, detail) {
+        document.dispatchEvent(custom_event(type, Object.assign({ version: '3.31.0' }, detail)));
+    }
+    function append_dev(target, node) {
+        dispatch_dev('SvelteDOMInsert', { target, node });
+        append(target, node);
+    }
+    function insert_dev(target, node, anchor) {
+        dispatch_dev('SvelteDOMInsert', { target, node, anchor });
+        insert(target, node, anchor);
+    }
+    function detach_dev(node) {
+        dispatch_dev('SvelteDOMRemove', { node });
+        detach(node);
+    }
+    function listen_dev(node, event, handler, options, has_prevent_default, has_stop_propagation) {
+        const modifiers = options === true ? ['capture'] : options ? Array.from(Object.keys(options)) : [];
+        if (has_prevent_default)
+            modifiers.push('preventDefault');
+        if (has_stop_propagation)
+            modifiers.push('stopPropagation');
+        dispatch_dev('SvelteDOMAddEventListener', { node, event, handler, modifiers });
+        const dispose = listen(node, event, handler, options);
+        return () => {
+            dispatch_dev('SvelteDOMRemoveEventListener', { node, event, handler, modifiers });
+            dispose();
+        };
+    }
+    function attr_dev(node, attribute, value) {
+        attr(node, attribute, value);
+        if (value == null)
+            dispatch_dev('SvelteDOMRemoveAttribute', { node, attribute });
+        else
+            dispatch_dev('SvelteDOMSetAttribute', { node, attribute, value });
+    }
+    function set_data_dev(text, data) {
+        data = '' + data;
+        if (text.wholeText === data)
+            return;
+        dispatch_dev('SvelteDOMSetData', { node: text, data });
+        text.data = data;
+    }
+    function validate_each_argument(arg) {
+        if (typeof arg !== 'string' && !(arg && typeof arg === 'object' && 'length' in arg)) {
+            let msg = '{#each} only iterates over array-like objects.';
+            if (typeof Symbol === 'function' && arg && Symbol.iterator in arg) {
+                msg += ' You can use a spread to convert this iterable into an array.';
+            }
+            throw new Error(msg);
+        }
+    }
+    function validate_slots(name, slot, keys) {
+        for (const slot_key of Object.keys(slot)) {
+            if (!~keys.indexOf(slot_key)) {
+                console.warn(`<${name}> received an unexpected slot "${slot_key}".`);
+            }
+        }
+    }
+    /**
+     * Base class for Svelte components with some minor dev-enhancements. Used when dev=true.
+     */
+    class SvelteComponentDev extends SvelteComponent {
+        constructor(options) {
+            if (!options || (!options.target && !options.$$inline)) {
+                throw new Error("'target' is a required option");
+            }
+            super();
+        }
+        $destroy() {
+            super.$destroy();
+            this.$destroy = () => {
+                console.warn('Component was already destroyed'); // eslint-disable-line no-console
+            };
+        }
+        $capture_state() { }
+        $inject_state() { }
+    }
+
+    /* ../dmt-frontend-components/src/components/icons/CloseIcon.svelte generated by Svelte v3.31.0 */
+
+    const file = "../dmt-frontend-components/src/components/icons/CloseIcon.svelte";
+
+    function create_fragment(ctx) {
+    	let svg;
+    	let path;
+
+    	const block = {
+    		c: function create() {
+    			svg = svg_element("svg");
+    			path = svg_element("path");
+    			attr_dev(path, "d", "M6.2253 4.81108C5.83477 4.42056 5.20161 4.42056 4.81108 4.81108C4.42056 5.20161 4.42056 5.83477 4.81108 6.2253L10.5858 12L4.81114 17.7747C4.42062 18.1652 4.42062 18.7984 4.81114 19.1889C5.20167 19.5794 5.83483 19.5794 6.22535 19.1889L12 13.4142L17.7747 19.1889C18.1652 19.5794 18.7984 19.5794 19.1889 19.1889C19.5794 18.7984 19.5794 18.1652 19.1889 17.7747L13.4142 12L19.189 6.2253C19.5795 5.83477 19.5795 5.20161 19.189 4.81108C18.7985 4.42056 18.1653 4.42056 17.7748 4.81108L12 10.5858L6.2253 4.81108Z");
+    			attr_dev(path, "fill", "currentColor");
+    			add_location(path, file, 2, 2, 145);
+    			attr_dev(svg, "class", "svg-icon");
+    			attr_dev(svg, "width", "24");
+    			attr_dev(svg, "height", "24");
+    			attr_dev(svg, "viewBox", "0 0 24 24");
+    			attr_dev(svg, "fill", "none");
+    			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
+    			add_location(svg, file, 1, 0, 30);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, svg, anchor);
+    			append_dev(svg, path);
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(svg);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance($$self, $$props) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("CloseIcon", slots, []);
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<CloseIcon> was created with unknown prop '${key}'`);
+    	});
+
+    	return [];
+    }
+
+    class CloseIcon extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance, create_fragment, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "CloseIcon",
+    			options,
+    			id: create_fragment.name
+    		});
+    	}
+    }
+
+    /* ../dmt-frontend-components/src/components/Button.svelte generated by Svelte v3.31.0 */
+
+    const file$1 = "../dmt-frontend-components/src/components/Button.svelte";
+
+    // (12:0) {:else}
+    function create_else_block(ctx) {
+    	let button;
+    	let button_class_value;
+    	let current;
+    	let mounted;
+    	let dispose;
+    	const default_slot_template = /*#slots*/ ctx[6].default;
+    	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[5], null);
+
+    	let button_levels = [
+    		{
+    			class: button_class_value = "btn " + /*size*/ ctx[1] + " " + /*variant*/ ctx[2]
+    		},
+    		/*$$restProps*/ ctx[4]
+    	];
+
+    	let button_data = {};
+
+    	for (let i = 0; i < button_levels.length; i += 1) {
+    		button_data = assign(button_data, button_levels[i]);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			button = element("button");
+    			if (default_slot) default_slot.c();
+    			set_attributes(button, button_data);
+    			toggle_class(button, "icon", /*icon*/ ctx[0]);
+    			toggle_class(button, "svelte-13wc5r6", true);
+    			add_location(button, file$1, 12, 2, 315);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, button, anchor);
+
+    			if (default_slot) {
+    				default_slot.m(button, null);
+    			}
+
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = listen_dev(button, "click", /*click_handler_1*/ ctx[8], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, dirty) {
+    			if (default_slot) {
+    				if (default_slot.p && dirty & /*$$scope*/ 32) {
+    					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[5], dirty, null, null);
+    				}
+    			}
+
+    			set_attributes(button, button_data = get_spread_update(button_levels, [
+    				(!current || dirty & /*size, variant*/ 6 && button_class_value !== (button_class_value = "btn " + /*size*/ ctx[1] + " " + /*variant*/ ctx[2])) && { class: button_class_value },
+    				dirty & /*$$restProps*/ 16 && /*$$restProps*/ ctx[4]
+    			]));
+
+    			toggle_class(button, "icon", /*icon*/ ctx[0]);
+    			toggle_class(button, "svelte-13wc5r6", true);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(default_slot, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(default_slot, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(button);
+    			if (default_slot) default_slot.d(detaching);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block.name,
+    		type: "else",
+    		source: "(12:0) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (10:0) {#if href}
+    function create_if_block(ctx) {
+    	let a;
+    	let a_class_value;
+    	let current;
+    	let mounted;
+    	let dispose;
+    	const default_slot_template = /*#slots*/ ctx[6].default;
+    	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[5], null);
+
+    	let a_levels = [
+    		{
+    			class: a_class_value = "btn " + /*size*/ ctx[1] + " " + /*variant*/ ctx[2]
+    		},
+    		{ href: /*href*/ ctx[3] },
+    		/*$$restProps*/ ctx[4]
+    	];
+
+    	let a_data = {};
+
+    	for (let i = 0; i < a_levels.length; i += 1) {
+    		a_data = assign(a_data, a_levels[i]);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			a = element("a");
+    			if (default_slot) default_slot.c();
+    			set_attributes(a, a_data);
+    			toggle_class(a, "icon", /*icon*/ ctx[0]);
+    			toggle_class(a, "svelte-13wc5r6", true);
+    			add_location(a, file$1, 10, 2, 216);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, a, anchor);
+
+    			if (default_slot) {
+    				default_slot.m(a, null);
+    			}
+
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = listen_dev(a, "click", /*click_handler*/ ctx[7], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, dirty) {
+    			if (default_slot) {
+    				if (default_slot.p && dirty & /*$$scope*/ 32) {
+    					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[5], dirty, null, null);
+    				}
+    			}
+
+    			set_attributes(a, a_data = get_spread_update(a_levels, [
+    				(!current || dirty & /*size, variant*/ 6 && a_class_value !== (a_class_value = "btn " + /*size*/ ctx[1] + " " + /*variant*/ ctx[2])) && { class: a_class_value },
+    				(!current || dirty & /*href*/ 8) && { href: /*href*/ ctx[3] },
+    				dirty & /*$$restProps*/ 16 && /*$$restProps*/ ctx[4]
+    			]));
+
+    			toggle_class(a, "icon", /*icon*/ ctx[0]);
+    			toggle_class(a, "svelte-13wc5r6", true);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(default_slot, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(default_slot, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(a);
+    			if (default_slot) default_slot.d(detaching);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block.name,
+    		type: "if",
+    		source: "(10:0) {#if href}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$1(ctx) {
+    	let current_block_type_index;
+    	let if_block;
+    	let if_block_anchor;
+    	let current;
+    	const if_block_creators = [create_if_block, create_else_block];
+    	const if_blocks = [];
+
+    	function select_block_type(ctx, dirty) {
+    		if (/*href*/ ctx[3]) return 0;
+    		return 1;
+    	}
+
+    	current_block_type_index = select_block_type(ctx);
+    	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+
+    	const block = {
+    		c: function create() {
+    			if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			if_blocks[current_block_type_index].m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			let previous_block_index = current_block_type_index;
+    			current_block_type_index = select_block_type(ctx);
+
+    			if (current_block_type_index === previous_block_index) {
+    				if_blocks[current_block_type_index].p(ctx, dirty);
+    			} else {
+    				group_outros();
+
+    				transition_out(if_blocks[previous_block_index], 1, 1, () => {
+    					if_blocks[previous_block_index] = null;
+    				});
+
+    				check_outros();
+    				if_block = if_blocks[current_block_type_index];
+
+    				if (!if_block) {
+    					if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+    					if_block.c();
+    				} else {
+    					if_block.p(ctx, dirty);
+    				}
+
+    				transition_in(if_block, 1);
+    				if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if_blocks[current_block_type_index].d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$1.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$1($$self, $$props, $$invalidate) {
+    	const omit_props_names = ["icon","size","variant","href"];
+    	let $$restProps = compute_rest_props($$props, omit_props_names);
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("Button", slots, ['default']);
+    	let { icon = false } = $$props;
+    	let { size = "md" } = $$props;
+    	let { variant = "normal" } = $$props;
+    	let { href = "" } = $$props;
+
+    	function click_handler(event) {
+    		bubble($$self, event);
+    	}
+
+    	function click_handler_1(event) {
+    		bubble($$self, event);
+    	}
+
+    	$$self.$$set = $$new_props => {
+    		$$props = assign(assign({}, $$props), exclude_internal_props($$new_props));
+    		$$invalidate(4, $$restProps = compute_rest_props($$props, omit_props_names));
+    		if ("icon" in $$new_props) $$invalidate(0, icon = $$new_props.icon);
+    		if ("size" in $$new_props) $$invalidate(1, size = $$new_props.size);
+    		if ("variant" in $$new_props) $$invalidate(2, variant = $$new_props.variant);
+    		if ("href" in $$new_props) $$invalidate(3, href = $$new_props.href);
+    		if ("$$scope" in $$new_props) $$invalidate(5, $$scope = $$new_props.$$scope);
+    	};
+
+    	$$self.$capture_state = () => ({ icon, size, variant, href });
+
+    	$$self.$inject_state = $$new_props => {
+    		if ("icon" in $$props) $$invalidate(0, icon = $$new_props.icon);
+    		if ("size" in $$props) $$invalidate(1, size = $$new_props.size);
+    		if ("variant" in $$props) $$invalidate(2, variant = $$new_props.variant);
+    		if ("href" in $$props) $$invalidate(3, href = $$new_props.href);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [
+    		icon,
+    		size,
+    		variant,
+    		href,
+    		$$restProps,
+    		$$scope,
+    		slots,
+    		click_handler,
+    		click_handler_1
+    	];
+    }
+
+    class Button extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$1, create_fragment$1, safe_not_equal, { icon: 0, size: 1, variant: 2, href: 3 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Button",
+    			options,
+    			id: create_fragment$1.name
+    		});
+    	}
+
+    	get icon() {
+    		throw new Error("<Button>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set icon(value) {
+    		throw new Error("<Button>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get size() {
+    		throw new Error("<Button>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set size(value) {
+    		throw new Error("<Button>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get variant() {
+    		throw new Error("<Button>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set variant(value) {
+    		throw new Error("<Button>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get href() {
+    		throw new Error("<Button>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set href(value) {
+    		throw new Error("<Button>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* ../dmt-frontend-components/src/components/Logo.svelte generated by Svelte v3.31.0 */
+
+    const file$2 = "../dmt-frontend-components/src/components/Logo.svelte";
+
+    function create_fragment$2(ctx) {
+    	let div;
+    	let span0;
+    	let t1;
+    	let span1;
+    	let t2;
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			span0 = element("span");
+    			span0.textContent = "DMT";
+    			t1 = space();
+    			span1 = element("span");
+    			t2 = text(/*name*/ ctx[0]);
+    			attr_dev(span0, "class", "dmt svelte-1xl7bmb");
+    			add_location(span0, file$2, 4, 5, 44);
+    			attr_dev(span1, "class", "name svelte-1xl7bmb");
+    			add_location(span1, file$2, 4, 34, 73);
+    			add_location(div, file$2, 4, 0, 39);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, span0);
+    			append_dev(div, t1);
+    			append_dev(div, span1);
+    			append_dev(span1, t2);
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*name*/ 1) set_data_dev(t2, /*name*/ ctx[0]);
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$2.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$2($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("Logo", slots, []);
+    	let { name } = $$props;
+    	const writable_props = ["name"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Logo> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("name" in $$props) $$invalidate(0, name = $$props.name);
+    	};
+
+    	$$self.$capture_state = () => ({ name });
+
+    	$$self.$inject_state = $$props => {
+    		if ("name" in $$props) $$invalidate(0, name = $$props.name);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [name];
+    }
+
+    class Logo extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$2, create_fragment$2, safe_not_equal, { name: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Logo",
+    			options,
+    			id: create_fragment$2.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*name*/ ctx[0] === undefined && !("name" in props)) {
+    			console.warn("<Logo> was created without expected prop 'name'");
+    		}
+    	}
+
+    	get name() {
+    		throw new Error("<Logo>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set name(value) {
+    		throw new Error("<Logo>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    function backOut(t) {
+        const s = 1.70158;
+        return --t * t * ((s + 1) * t + s) + 1;
+    }
+    function cubicOut(t) {
+        const f = t - 1.0;
+        return f * f * f + 1.0;
+    }
+    function quadIn(t) {
+        return t * t;
+    }
+
+    function fade(node, { delay = 0, duration = 400, easing = identity }) {
+        const o = +getComputedStyle(node).opacity;
+        return {
+            delay,
+            duration,
+            easing,
+            css: t => `opacity: ${t * o}`
+        };
+    }
+    function fly(node, { delay = 0, duration = 400, easing = cubicOut, x = 0, y = 0, opacity = 0 }) {
+        const style = getComputedStyle(node);
+        const target_opacity = +style.opacity;
+        const transform = style.transform === 'none' ? '' : style.transform;
+        const od = target_opacity * (1 - opacity);
+        return {
+            delay,
+            duration,
+            easing,
+            css: (t, u) => `
+			transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
+			opacity: ${target_opacity - (od * u)}`
+        };
+    }
+    function scale(node, { delay = 0, duration = 400, easing = cubicOut, start = 0, opacity = 0 }) {
+        const style = getComputedStyle(node);
+        const target_opacity = +style.opacity;
+        const transform = style.transform === 'none' ? '' : style.transform;
+        const sd = 1 - start;
+        const od = target_opacity * (1 - opacity);
+        return {
+            delay,
+            duration,
+            easing,
+            css: (_t, u) => `
+			transform: ${transform} scale(${1 - (sd * u)});
+			opacity: ${target_opacity - (od * u)}
+		`
+        };
+    }
+
+    /* ../dmt-frontend-components/src/components/Dialog.svelte generated by Svelte v3.31.0 */
+    const file$3 = "../dmt-frontend-components/src/components/Dialog.svelte";
+
+    // (20:0) {#if show}
+    function create_if_block$1(ctx) {
+    	let div3;
+    	let div2;
+    	let div0;
+    	let h1;
+    	let t0;
+    	let t1;
+    	let button;
+    	let t2;
+    	let div1;
+    	let div2_intro;
+    	let div2_outro;
+    	let div3_transition;
+    	let current;
+    	let mounted;
+    	let dispose;
+
+    	button = new Button({
+    			props: {
+    				icon: true,
+    				$$slots: { default: [create_default_slot] },
+    				$$scope: { ctx }
+    			},
+    			$$inline: true
+    		});
+
+    	button.$on("click", /*closeDialog*/ ctx[3]);
+    	const default_slot_template = /*#slots*/ ctx[4].default;
+    	const default_slot = create_slot(default_slot_template, ctx, /*$$scope*/ ctx[5], null);
+
+    	const block = {
+    		c: function create() {
+    			div3 = element("div");
+    			div2 = element("div");
+    			div0 = element("div");
+    			h1 = element("h1");
+    			t0 = text(/*title*/ ctx[1]);
+    			t1 = space();
+    			create_component(button.$$.fragment);
+    			t2 = space();
+    			div1 = element("div");
+    			if (default_slot) default_slot.c();
+    			attr_dev(h1, "class", "svelte-1nzvowk");
+    			add_location(h1, file$3, 23, 8, 752);
+    			attr_dev(div0, "class", "dialog-header svelte-1nzvowk");
+    			add_location(div0, file$3, 22, 6, 716);
+    			attr_dev(div1, "class", "dialog-content svelte-1nzvowk");
+    			add_location(div1, file$3, 28, 6, 875);
+    			attr_dev(div2, "class", "dialog svelte-1nzvowk");
+    			toggle_class(div2, "large", /*large*/ ctx[2]);
+    			add_location(div2, file$3, 21, 4, 561);
+    			attr_dev(div3, "class", "dialog-backdrop svelte-1nzvowk");
+    			add_location(div3, file$3, 20, 2, 463);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div3, anchor);
+    			append_dev(div3, div2);
+    			append_dev(div2, div0);
+    			append_dev(div0, h1);
+    			append_dev(h1, t0);
+    			append_dev(div0, t1);
+    			mount_component(button, div0, null);
+    			append_dev(div2, t2);
+    			append_dev(div2, div1);
+
+    			if (default_slot) {
+    				default_slot.m(div1, null);
+    			}
+
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = listen_dev(div3, "click", self$1(/*closeDialog*/ ctx[3]), false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(new_ctx, dirty) {
+    			ctx = new_ctx;
+    			if (!current || dirty & /*title*/ 2) set_data_dev(t0, /*title*/ ctx[1]);
+    			const button_changes = {};
+
+    			if (dirty & /*$$scope*/ 32) {
+    				button_changes.$$scope = { dirty, ctx };
+    			}
+
+    			button.$set(button_changes);
+
+    			if (default_slot) {
+    				if (default_slot.p && dirty & /*$$scope*/ 32) {
+    					update_slot(default_slot, default_slot_template, ctx, /*$$scope*/ ctx[5], dirty, null, null);
+    				}
+    			}
+
+    			if (dirty & /*large*/ 4) {
+    				toggle_class(div2, "large", /*large*/ ctx[2]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(button.$$.fragment, local);
+    			transition_in(default_slot, local);
+
+    			add_render_callback(() => {
+    				if (div2_outro) div2_outro.end(1);
+
+    				if (!div2_intro) div2_intro = create_in_transition(div2, scale, {
+    					start: 0.9,
+    					easing: backOut,
+    					duration: 200
+    				});
+
+    				div2_intro.start();
+    			});
+
+    			add_render_callback(() => {
+    				if (!div3_transition) div3_transition = create_bidirectional_transition(div3, fade, { duration: 150 }, true);
+    				div3_transition.run(1);
+    			});
+
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(button.$$.fragment, local);
+    			transition_out(default_slot, local);
+    			if (div2_intro) div2_intro.invalidate();
+
+    			div2_outro = create_out_transition(div2, scale, {
+    				start: 0.9,
+    				easing: quadIn,
+    				duration: 150
+    			});
+
+    			if (!div3_transition) div3_transition = create_bidirectional_transition(div3, fade, { duration: 150 }, false);
+    			div3_transition.run(0);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div3);
+    			destroy_component(button);
+    			if (default_slot) default_slot.d(detaching);
+    			if (detaching && div2_outro) div2_outro.end();
+    			if (detaching && div3_transition) div3_transition.end();
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$1.name,
+    		type: "if",
+    		source: "(20:0) {#if show}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (25:8) <Button icon on:click={closeDialog}>
+    function create_default_slot(ctx) {
+    	let closeicon;
+    	let current;
+    	closeicon = new CloseIcon({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(closeicon.$$.fragment);
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(closeicon, target, anchor);
+    			current = true;
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(closeicon.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(closeicon.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(closeicon, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot.name,
+    		type: "slot",
+    		source: "(25:8) <Button icon on:click={closeDialog}>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$3(ctx) {
+    	let if_block_anchor;
+    	let current;
+    	let if_block = /*show*/ ctx[0] && create_if_block$1(ctx);
+
+    	const block = {
+    		c: function create() {
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (/*show*/ ctx[0]) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+
+    					if (dirty & /*show*/ 1) {
+    						transition_in(if_block, 1);
+    					}
+    				} else {
+    					if_block = create_if_block$1(ctx);
+    					if_block.c();
+    					transition_in(if_block, 1);
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    				}
+    			} else if (if_block) {
+    				group_outros();
+
+    				transition_out(if_block, 1, 1, () => {
+    					if_block = null;
+    				});
+
+    				check_outros();
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$3.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$3($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("Dialog", slots, ['default']);
+    	const dispatch = createEventDispatcher();
+    	let { title } = $$props;
+    	let { show } = $$props;
+    	let { large = false } = $$props;
+
+    	function closeDialog() {
+    		$$invalidate(0, show = false);
+    		dispatch("close");
+    	}
+
+    	const writable_props = ["title", "show", "large"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Dialog> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("title" in $$props) $$invalidate(1, title = $$props.title);
+    		if ("show" in $$props) $$invalidate(0, show = $$props.show);
+    		if ("large" in $$props) $$invalidate(2, large = $$props.large);
+    		if ("$$scope" in $$props) $$invalidate(5, $$scope = $$props.$$scope);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		createEventDispatcher,
+    		scale,
+    		fade,
+    		backOut,
+    		quadIn,
+    		CloseIcon,
+    		Button,
+    		dispatch,
+    		title,
+    		show,
+    		large,
+    		closeDialog
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("title" in $$props) $$invalidate(1, title = $$props.title);
+    		if ("show" in $$props) $$invalidate(0, show = $$props.show);
+    		if ("large" in $$props) $$invalidate(2, large = $$props.large);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [show, title, large, closeDialog, slots, $$scope];
+    }
+
+    class Dialog extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$3, create_fragment$3, safe_not_equal, { title: 1, show: 0, large: 2 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Dialog",
+    			options,
+    			id: create_fragment$3.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*title*/ ctx[1] === undefined && !("title" in props)) {
+    			console.warn("<Dialog> was created without expected prop 'title'");
+    		}
+
+    		if (/*show*/ ctx[0] === undefined && !("show" in props)) {
+    			console.warn("<Dialog> was created without expected prop 'show'");
+    		}
+    	}
+
+    	get title() {
+    		throw new Error("<Dialog>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set title(value) {
+    		throw new Error("<Dialog>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get show() {
+    		throw new Error("<Dialog>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set show(value) {
+    		throw new Error("<Dialog>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get large() {
+    		throw new Error("<Dialog>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set large(value) {
+    		throw new Error("<Dialog>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/components/Logo.svelte generated by Svelte v3.31.0 */
+
+    function create_fragment$4(ctx) {
+    	let logo;
+    	let current;
+
+    	logo = new Logo({
+    			props: { name: "Insight" },
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			create_component(logo.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(logo, target, anchor);
+    			current = true;
+    		},
+    		p: noop,
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(logo.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(logo.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(logo, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$4.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$4($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("Logo", slots, []);
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Logo> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$capture_state = () => ({ Logo });
+    	return [];
+    }
+
+    class Logo_1 extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$4, create_fragment$4, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Logo_1",
+    			options,
+    			id: create_fragment$4.name
+    		});
+    	}
+    }
+
+    /* src/views/Loading.svelte generated by Svelte v3.31.0 */
+    const file$4 = "src/views/Loading.svelte";
+
+    function create_fragment$5(ctx) {
+    	let div;
+    	let logo;
+    	let t0;
+    	let p;
+    	let t1;
+    	let t2_value = (".").repeat(/*dots*/ ctx[0]) + "";
+    	let t2;
+    	let current;
+    	logo = new Logo_1({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			create_component(logo.$$.fragment);
+    			t0 = space();
+    			p = element("p");
+    			t1 = text("Connecting to host");
+    			t2 = text(t2_value);
+    			add_location(p, file$4, 19, 2, 360);
+    			attr_dev(div, "class", "wrapper svelte-uacyvv");
+    			add_location(div, file$4, 17, 0, 325);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			mount_component(logo, div, null);
+    			append_dev(div, t0);
+    			append_dev(div, p);
+    			append_dev(p, t1);
+    			append_dev(p, t2);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if ((!current || dirty & /*dots*/ 1) && t2_value !== (t2_value = (".").repeat(/*dots*/ ctx[0]) + "")) set_data_dev(t2, t2_value);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(logo.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(logo.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			destroy_component(logo);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$5.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$5($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("Loading", slots, []);
+    	let dots = 1;
+
+    	onMount(() => {
+    		const handler = setInterval(
+    			() => {
+    				if (dots >= 3) $$invalidate(0, dots = 0);
+    				$$invalidate(0, dots = dots + 1);
+    			},
+    			500
+    		);
+
+    		return () => clearInterval(handler);
+    	});
+
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Loading> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$capture_state = () => ({ onMount, Logo: Logo_1, dots });
+
+    	$$self.$inject_state = $$props => {
+    		if ("dots" in $$props) $$invalidate(0, dots = $$props.dots);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [dots];
+    }
+
+    class Loading extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$5, create_fragment$5, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Loading",
+    			options,
+    			id: create_fragment$5.name
+    		});
+    	}
+    }
+
+    /**
+     * Emits `clickoutside` event whenever pointer clicks outside of node
+     *
+     * Reference: https://svelte.dev/repl/0ace7a508bd843b798ae599940a91783?version=3.16.7
+     */
+    function clickOutside(node) {
+      function handleClick(e) {
+        if (e.target instanceof Node && !node.contains(e.target) && !e.defaultPrevented) {
+          node.dispatchEvent(new MouseEvent('clickoutside', e));
+        }
+      }
+
+      document.addEventListener('click', handleClick);
+
+      return {
+        destroy() {
+          document.removeEventListener('click', handleClick);
+        }
+      };
+    }
+
+    /* src/tables/DeviceTable.svelte generated by Svelte v3.31.0 */
+
+    const file$5 = "src/tables/DeviceTable.svelte";
+
+    // (34:8) {#if data.deviceKey}
+    function create_if_block$2(ctx) {
+    	let t0_value = /*data*/ ctx[0].deviceKey.substring(0, 8) + "";
+    	let t0;
+    	let t1;
+
+    	const block = {
+    		c: function create() {
+    			t0 = text(t0_value);
+    			t1 = text("...");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, t1, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*data*/ 1 && t0_value !== (t0_value = /*data*/ ctx[0].deviceKey.substring(0, 8) + "")) set_data_dev(t0, t0_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(t1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$2.name,
+    		type: "if",
+    		source: "(34:8) {#if data.deviceKey}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$6(ctx) {
+    	let table;
+    	let tbody;
+    	let tr0;
+    	let th0;
+    	let t1;
+    	let td0;
+    	let t2_value = /*data*/ ctx[0].deviceName + "";
+    	let t2;
+    	let t3;
+    	let tr1;
+    	let th1;
+    	let t5;
+    	let td1;
+    	let t6_value = /*data*/ ctx[0].dmtVersion + "";
+    	let t6;
+    	let t7;
+    	let tr2;
+    	let th2;
+    	let t9;
+    	let td2;
+    	let t10_value = /*data*/ ctx[0].mpvVersion + "";
+    	let t10;
+    	let t11;
+    	let tr3;
+    	let th3;
+    	let t13;
+    	let td3;
+    	let t14_value = /*data*/ ctx[0].ip + "";
+    	let t14;
+    	let t15;
+    	let tr4;
+    	let th4;
+    	let t17;
+    	let td4;
+    	let t18_value = /*data*/ ctx[0].platform + "";
+    	let t18;
+    	let t19;
+    	let tr5;
+    	let th5;
+    	let t21;
+    	let td5;
+    	let t22_value = /*data*/ ctx[0].apMode + "";
+    	let t22;
+    	let t23;
+    	let tr6;
+    	let th6;
+    	let t25;
+    	let td6;
+    	let td6_title_value;
+    	let if_block = /*data*/ ctx[0].deviceKey && create_if_block$2(ctx);
+
+    	const block = {
+    		c: function create() {
+    			table = element("table");
+    			tbody = element("tbody");
+    			tr0 = element("tr");
+    			th0 = element("th");
+    			th0.textContent = "Name";
+    			t1 = space();
+    			td0 = element("td");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			tr1 = element("tr");
+    			th1 = element("th");
+    			th1.textContent = "DMT version";
+    			t5 = space();
+    			td1 = element("td");
+    			t6 = text(t6_value);
+    			t7 = space();
+    			tr2 = element("tr");
+    			th2 = element("th");
+    			th2.textContent = "MPV version";
+    			t9 = space();
+    			td2 = element("td");
+    			t10 = text(t10_value);
+    			t11 = space();
+    			tr3 = element("tr");
+    			th3 = element("th");
+    			th3.textContent = "Local IP";
+    			t13 = space();
+    			td3 = element("td");
+    			t14 = text(t14_value);
+    			t15 = space();
+    			tr4 = element("tr");
+    			th4 = element("th");
+    			th4.textContent = "Platform";
+    			t17 = space();
+    			td4 = element("td");
+    			t18 = text(t18_value);
+    			t19 = space();
+    			tr5 = element("tr");
+    			th5 = element("th");
+    			th5.textContent = "AP Mode";
+    			t21 = space();
+    			td5 = element("td");
+    			t22 = text(t22_value);
+    			t23 = space();
+    			tr6 = element("tr");
+    			th6 = element("th");
+    			th6.textContent = "Device key";
+    			t25 = space();
+    			td6 = element("td");
+    			if (if_block) if_block.c();
+    			add_location(th0, file$5, 7, 6, 89);
+    			attr_dev(td0, "class", "device_name svelte-8savom");
+    			add_location(td0, file$5, 8, 6, 109);
+    			add_location(tr0, file$5, 6, 4, 78);
+    			add_location(th1, file$5, 11, 6, 181);
+    			attr_dev(td1, "class", "version svelte-8savom");
+    			add_location(td1, file$5, 12, 6, 208);
+    			add_location(tr1, file$5, 10, 4, 170);
+    			add_location(th2, file$5, 15, 6, 276);
+    			attr_dev(td2, "class", "version svelte-8savom");
+    			add_location(td2, file$5, 16, 6, 303);
+    			add_location(tr2, file$5, 14, 4, 265);
+    			add_location(th3, file$5, 19, 6, 371);
+    			attr_dev(td3, "class", "device_ip svelte-8savom");
+    			add_location(td3, file$5, 20, 6, 395);
+    			add_location(tr3, file$5, 18, 4, 360);
+    			add_location(th4, file$5, 23, 6, 457);
+    			attr_dev(td4, "class", "platform svelte-8savom");
+    			add_location(td4, file$5, 24, 6, 481);
+    			add_location(tr4, file$5, 22, 4, 446);
+    			add_location(th5, file$5, 27, 6, 548);
+    			attr_dev(td5, "class", "ap_mode svelte-8savom");
+    			toggle_class(td5, "yes", /*data*/ ctx[0].apMode);
+    			add_location(td5, file$5, 28, 6, 571);
+    			add_location(tr5, file$5, 26, 4, 537);
+    			add_location(th6, file$5, 31, 6, 659);
+    			attr_dev(td6, "class", "device_key svelte-8savom");
+    			attr_dev(td6, "title", td6_title_value = /*data*/ ctx[0].deviceKey);
+    			add_location(td6, file$5, 32, 6, 685);
+    			add_location(tr6, file$5, 30, 4, 648);
+    			add_location(tbody, file$5, 5, 2, 66);
+    			attr_dev(table, "class", "vertical svelte-8savom");
+    			add_location(table, file$5, 4, 0, 39);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, table, anchor);
+    			append_dev(table, tbody);
+    			append_dev(tbody, tr0);
+    			append_dev(tr0, th0);
+    			append_dev(tr0, t1);
+    			append_dev(tr0, td0);
+    			append_dev(td0, t2);
+    			append_dev(tbody, t3);
+    			append_dev(tbody, tr1);
+    			append_dev(tr1, th1);
+    			append_dev(tr1, t5);
+    			append_dev(tr1, td1);
+    			append_dev(td1, t6);
+    			append_dev(tbody, t7);
+    			append_dev(tbody, tr2);
+    			append_dev(tr2, th2);
+    			append_dev(tr2, t9);
+    			append_dev(tr2, td2);
+    			append_dev(td2, t10);
+    			append_dev(tbody, t11);
+    			append_dev(tbody, tr3);
+    			append_dev(tr3, th3);
+    			append_dev(tr3, t13);
+    			append_dev(tr3, td3);
+    			append_dev(td3, t14);
+    			append_dev(tbody, t15);
+    			append_dev(tbody, tr4);
+    			append_dev(tr4, th4);
+    			append_dev(tr4, t17);
+    			append_dev(tr4, td4);
+    			append_dev(td4, t18);
+    			append_dev(tbody, t19);
+    			append_dev(tbody, tr5);
+    			append_dev(tr5, th5);
+    			append_dev(tr5, t21);
+    			append_dev(tr5, td5);
+    			append_dev(td5, t22);
+    			append_dev(tbody, t23);
+    			append_dev(tbody, tr6);
+    			append_dev(tr6, th6);
+    			append_dev(tr6, t25);
+    			append_dev(tr6, td6);
+    			if (if_block) if_block.m(td6, null);
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*data*/ 1 && t2_value !== (t2_value = /*data*/ ctx[0].deviceName + "")) set_data_dev(t2, t2_value);
+    			if (dirty & /*data*/ 1 && t6_value !== (t6_value = /*data*/ ctx[0].dmtVersion + "")) set_data_dev(t6, t6_value);
+    			if (dirty & /*data*/ 1 && t10_value !== (t10_value = /*data*/ ctx[0].mpvVersion + "")) set_data_dev(t10, t10_value);
+    			if (dirty & /*data*/ 1 && t14_value !== (t14_value = /*data*/ ctx[0].ip + "")) set_data_dev(t14, t14_value);
+    			if (dirty & /*data*/ 1 && t18_value !== (t18_value = /*data*/ ctx[0].platform + "")) set_data_dev(t18, t18_value);
+    			if (dirty & /*data*/ 1 && t22_value !== (t22_value = /*data*/ ctx[0].apMode + "")) set_data_dev(t22, t22_value);
+
+    			if (dirty & /*data*/ 1) {
+    				toggle_class(td5, "yes", /*data*/ ctx[0].apMode);
+    			}
+
+    			if (/*data*/ ctx[0].deviceKey) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block$2(ctx);
+    					if_block.c();
+    					if_block.m(td6, null);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			if (dirty & /*data*/ 1 && td6_title_value !== (td6_title_value = /*data*/ ctx[0].deviceKey)) {
+    				attr_dev(td6, "title", td6_title_value);
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(table);
+    			if (if_block) if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$6.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$6($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("DeviceTable", slots, []);
+    	let { data } = $$props;
+    	const writable_props = ["data"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<DeviceTable> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("data" in $$props) $$invalidate(0, data = $$props.data);
+    	};
+
+    	$$self.$capture_state = () => ({ data });
+
+    	$$self.$inject_state = $$props => {
+    		if ("data" in $$props) $$invalidate(0, data = $$props.data);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [data];
+    }
+
+    class DeviceTable extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$6, create_fragment$6, safe_not_equal, { data: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "DeviceTable",
+    			options,
+    			id: create_fragment$6.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*data*/ ctx[0] === undefined && !("data" in props)) {
+    			console.warn("<DeviceTable> was created without expected prop 'data'");
+    		}
+    	}
+
+    	get data() {
+    		throw new Error("<DeviceTable>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set data(value) {
+    		throw new Error("<DeviceTable>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/components/DeviceIcon.svelte generated by Svelte v3.31.0 */
+
+    const file$6 = "src/components/DeviceIcon.svelte";
+
+    function create_fragment$7(ctx) {
+    	let svg;
+    	let path0;
+    	let path1;
+
+    	const block = {
+    		c: function create() {
+    			svg = svg_element("svg");
+    			path0 = svg_element("path");
+    			path1 = svg_element("path");
+    			attr_dev(path0, "d", "M13 16H11V18H13V16Z");
+    			attr_dev(path0, "fill", "currentColor");
+    			add_location(path0, file$6, 1, 2, 115);
+    			attr_dev(path1, "fill-rule", "evenodd");
+    			attr_dev(path1, "clip-rule", "evenodd");
+    			attr_dev(path1, "d", "M5 4C5 2.89543 5.89543 2 7 2H17C18.1046 2 19 2.89543 19 4V20C19 21.1046 18.1046 22 17 22H7C5.89543 22 5 21.1046 5 20V4ZM7 4H17V20H7L7 4Z");
+    			attr_dev(path1, "fill", "currentColor");
+    			add_location(path1, file$6, 2, 2, 170);
+    			attr_dev(svg, "class", "svg-icon");
+    			attr_dev(svg, "width", "22");
+    			attr_dev(svg, "height", "22");
+    			attr_dev(svg, "viewBox", "0 0 24 24");
+    			attr_dev(svg, "fill", "none");
+    			attr_dev(svg, "xmlns", "http://www.w3.org/2000/svg");
+    			add_location(svg, file$6, 0, 0, 0);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, svg, anchor);
+    			append_dev(svg, path0);
+    			append_dev(svg, path1);
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(svg);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$7.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$7($$self, $$props) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("DeviceIcon", slots, []);
+    	const writable_props = [];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<DeviceIcon> was created with unknown prop '${key}'`);
+    	});
+
+    	return [];
+    }
+
+    class DeviceIcon extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$7, create_fragment$7, safe_not_equal, {});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "DeviceIcon",
+    			options,
+    			id: create_fragment$7.name
+    		});
+    	}
+    }
+
+    /* src/components/DeviceInfo.svelte generated by Svelte v3.31.0 */
+    const file$7 = "src/components/DeviceInfo.svelte";
+
+    // (13:2) <Button icon size="lg" variant="primary" title="Device info" on:click={() => (showPopup = !showPopup)}>
+    function create_default_slot$1(ctx) {
+    	let deviceicon;
+    	let current;
+    	deviceicon = new DeviceIcon({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(deviceicon.$$.fragment);
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(deviceicon, target, anchor);
+    			current = true;
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(deviceicon.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(deviceicon.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(deviceicon, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$1.name,
+    		type: "slot",
+    		source: "(13:2) <Button icon size=\\\"lg\\\" variant=\\\"primary\\\" title=\\\"Device info\\\" on:click={() => (showPopup = !showPopup)}>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (16:2) {#if showPopup}
+    function create_if_block$3(ctx) {
+    	let div;
+    	let h1;
+    	let t1;
+    	let devicetable;
+    	let div_transition;
+    	let current;
+
+    	devicetable = new DeviceTable({
+    			props: { data: /*deviceData*/ ctx[1] },
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			h1 = element("h1");
+    			h1.textContent = "Device info";
+    			t1 = space();
+    			create_component(devicetable.$$.fragment);
+    			add_location(h1, file$7, 17, 6, 647);
+    			attr_dev(div, "class", "popup svelte-1cbmh6f");
+    			add_location(div, file$7, 16, 4, 580);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			append_dev(div, h1);
+    			append_dev(div, t1);
+    			mount_component(devicetable, div, null);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			const devicetable_changes = {};
+    			if (dirty & /*deviceData*/ 2) devicetable_changes.data = /*deviceData*/ ctx[1];
+    			devicetable.$set(devicetable_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(devicetable.$$.fragment, local);
+
+    			add_render_callback(() => {
+    				if (!div_transition) div_transition = create_bidirectional_transition(div, fly, { duration: 200, y: 5 }, true);
+    				div_transition.run(1);
+    			});
+
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(devicetable.$$.fragment, local);
+    			if (!div_transition) div_transition = create_bidirectional_transition(div, fly, { duration: 200, y: 5 }, false);
+    			div_transition.run(0);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			destroy_component(devicetable);
+    			if (detaching && div_transition) div_transition.end();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$3.name,
+    		type: "if",
+    		source: "(16:2) {#if showPopup}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$8(ctx) {
+    	let div;
+    	let button;
+    	let t;
+    	let clickOutside_action;
+    	let current;
+    	let mounted;
+    	let dispose;
+
+    	button = new Button({
+    			props: {
+    				icon: true,
+    				size: "lg",
+    				variant: "primary",
+    				title: "Device info",
+    				$$slots: { default: [create_default_slot$1] },
+    				$$scope: { ctx }
+    			},
+    			$$inline: true
+    		});
+
+    	button.$on("click", /*click_handler*/ ctx[2]);
+    	let if_block = /*showPopup*/ ctx[0] && create_if_block$3(ctx);
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			create_component(button.$$.fragment);
+    			t = space();
+    			if (if_block) if_block.c();
+    			attr_dev(div, "class", "wrapper svelte-1cbmh6f");
+    			add_location(div, file$7, 11, 0, 338);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			mount_component(button, div, null);
+    			append_dev(div, t);
+    			if (if_block) if_block.m(div, null);
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = [
+    					action_destroyer(clickOutside_action = clickOutside.call(null, div)),
+    					listen_dev(div, "clickoutside", /*clickoutside_handler*/ ctx[3], false, false, false)
+    				];
+
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const button_changes = {};
+
+    			if (dirty & /*$$scope*/ 16) {
+    				button_changes.$$scope = { dirty, ctx };
+    			}
+
+    			button.$set(button_changes);
+
+    			if (/*showPopup*/ ctx[0]) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+
+    					if (dirty & /*showPopup*/ 1) {
+    						transition_in(if_block, 1);
+    					}
+    				} else {
+    					if_block = create_if_block$3(ctx);
+    					if_block.c();
+    					transition_in(if_block, 1);
+    					if_block.m(div, null);
+    				}
+    			} else if (if_block) {
+    				group_outros();
+
+    				transition_out(if_block, 1, 1, () => {
+    					if_block = null;
+    				});
+
+    				check_outros();
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(button.$$.fragment, local);
+    			transition_in(if_block);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(button.$$.fragment, local);
+    			transition_out(if_block);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			destroy_component(button);
+    			if (if_block) if_block.d();
+    			mounted = false;
+    			run_all(dispose);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$8.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$8($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("DeviceInfo", slots, []);
+    	let { deviceData } = $$props;
+    	let { showPopup = false } = $$props;
+    	const writable_props = ["deviceData", "showPopup"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<DeviceInfo> was created with unknown prop '${key}'`);
+    	});
+
+    	const click_handler = () => $$invalidate(0, showPopup = !showPopup);
+    	const clickoutside_handler = () => $$invalidate(0, showPopup = false);
+
+    	$$self.$$set = $$props => {
+    		if ("deviceData" in $$props) $$invalidate(1, deviceData = $$props.deviceData);
+    		if ("showPopup" in $$props) $$invalidate(0, showPopup = $$props.showPopup);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		fly,
+    		Button,
+    		clickOutside,
+    		DeviceTable,
+    		DeviceIcon,
+    		deviceData,
+    		showPopup
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("deviceData" in $$props) $$invalidate(1, deviceData = $$props.deviceData);
+    		if ("showPopup" in $$props) $$invalidate(0, showPopup = $$props.showPopup);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [showPopup, deviceData, click_handler, clickoutside_handler];
+    }
+
+    class DeviceInfo extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$8, create_fragment$8, safe_not_equal, { deviceData: 1, showPopup: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "DeviceInfo",
+    			options,
+    			id: create_fragment$8.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*deviceData*/ ctx[1] === undefined && !("deviceData" in props)) {
+    			console.warn("<DeviceInfo> was created without expected prop 'deviceData'");
+    		}
+    	}
+
+    	get deviceData() {
+    		throw new Error("<DeviceInfo>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set deviceData(value) {
+    		throw new Error("<DeviceInfo>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get showPopup() {
+    		throw new Error("<DeviceInfo>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set showPopup(value) {
+    		throw new Error("<DeviceInfo>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/components/Navbar.svelte generated by Svelte v3.31.0 */
+    const file$8 = "src/components/Navbar.svelte";
+
+    // (13:6) <Button href="#log" size="lg" variant="primary">
+    function create_default_slot_1(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text("Device Log");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot_1.name,
+    		type: "slot",
+    		source: "(13:6) <Button href=\\\"#log\\\" size=\\\"lg\\\" variant=\\\"primary\\\">",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (16:6) <Button href="#json" size="lg" variant="primary">
+    function create_default_slot$2(ctx) {
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			t = text("Raw JSON");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$2.name,
+    		type: "slot",
+    		source: "(16:6) <Button href=\\\"#json\\\" size=\\\"lg\\\" variant=\\\"primary\\\">",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$9(ctx) {
+    	let nav;
+    	let logo;
+    	let t0;
+    	let div3;
+    	let div0;
+    	let button0;
+    	let t1;
+    	let div1;
+    	let button1;
+    	let t2;
+    	let div2;
+    	let deviceinfo;
+    	let current;
+    	logo = new Logo_1({ $$inline: true });
+
+    	button0 = new Button({
+    			props: {
+    				href: "#log",
+    				size: "lg",
+    				variant: "primary",
+    				$$slots: { default: [create_default_slot_1] },
+    				$$scope: { ctx }
+    			},
+    			$$inline: true
+    		});
+
+    	button1 = new Button({
+    			props: {
+    				href: "#json",
+    				size: "lg",
+    				variant: "primary",
+    				$$slots: { default: [create_default_slot$2] },
+    				$$scope: { ctx }
+    			},
+    			$$inline: true
+    		});
+
+    	deviceinfo = new DeviceInfo({
+    			props: { deviceData: /*deviceData*/ ctx[0] },
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			nav = element("nav");
+    			create_component(logo.$$.fragment);
+    			t0 = space();
+    			div3 = element("div");
+    			div0 = element("div");
+    			create_component(button0.$$.fragment);
+    			t1 = space();
+    			div1 = element("div");
+    			create_component(button1.$$.fragment);
+    			t2 = space();
+    			div2 = element("div");
+    			create_component(deviceinfo.$$.fragment);
+    			attr_dev(div0, "class", "svelte-194trns");
+    			add_location(div0, file$8, 11, 4, 253);
+    			attr_dev(div1, "class", "svelte-194trns");
+    			add_location(div1, file$8, 14, 4, 348);
+    			attr_dev(div2, "class", "svelte-194trns");
+    			add_location(div2, file$8, 17, 4, 442);
+    			attr_dev(div3, "class", "links svelte-194trns");
+    			add_location(div3, file$8, 10, 2, 229);
+    			attr_dev(nav, "class", "view-container svelte-194trns");
+    			add_location(nav, file$8, 8, 0, 187);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, nav, anchor);
+    			mount_component(logo, nav, null);
+    			append_dev(nav, t0);
+    			append_dev(nav, div3);
+    			append_dev(div3, div0);
+    			mount_component(button0, div0, null);
+    			append_dev(div3, t1);
+    			append_dev(div3, div1);
+    			mount_component(button1, div1, null);
+    			append_dev(div3, t2);
+    			append_dev(div3, div2);
+    			mount_component(deviceinfo, div2, null);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const button0_changes = {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				button0_changes.$$scope = { dirty, ctx };
+    			}
+
+    			button0.$set(button0_changes);
+    			const button1_changes = {};
+
+    			if (dirty & /*$$scope*/ 2) {
+    				button1_changes.$$scope = { dirty, ctx };
+    			}
+
+    			button1.$set(button1_changes);
+    			const deviceinfo_changes = {};
+    			if (dirty & /*deviceData*/ 1) deviceinfo_changes.deviceData = /*deviceData*/ ctx[0];
+    			deviceinfo.$set(deviceinfo_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(logo.$$.fragment, local);
+    			transition_in(button0.$$.fragment, local);
+    			transition_in(button1.$$.fragment, local);
+    			transition_in(deviceinfo.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(logo.$$.fragment, local);
+    			transition_out(button0.$$.fragment, local);
+    			transition_out(button1.$$.fragment, local);
+    			transition_out(deviceinfo.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(nav);
+    			destroy_component(logo);
+    			destroy_component(button0);
+    			destroy_component(button1);
+    			destroy_component(deviceinfo);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$9.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$9($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("Navbar", slots, []);
+    	let { deviceData = {} } = $$props;
+    	const writable_props = ["deviceData"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Navbar> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("deviceData" in $$props) $$invalidate(0, deviceData = $$props.deviceData);
+    	};
+
+    	$$self.$capture_state = () => ({ Button, Logo: Logo_1, DeviceInfo, deviceData });
+
+    	$$self.$inject_state = $$props => {
+    		if ("deviceData" in $$props) $$invalidate(0, deviceData = $$props.deviceData);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [deviceData];
+    }
+
+    class Navbar extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$9, create_fragment$9, safe_not_equal, { deviceData: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Navbar",
+    			options,
+    			id: create_fragment$9.name
+    		});
+    	}
+
+    	get deviceData() {
+    		throw new Error("<Navbar>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set deviceData(value) {
+    		throw new Error("<Navbar>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+    function getDefaultExportFromCjs (x) {
+    	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+    }
+
+    function createCommonjsModule(fn, basedir, module) {
+    	return module = {
+    		path: basedir,
+    		exports: {},
+    		require: function (path, base) {
+    			return commonjsRequire(path, (base === undefined || base === null) ? module.path : base);
+    		}
+    	}, fn(module, module.exports), module.exports;
+    }
+
+    function commonjsRequire () {
+    	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
+    }
+
+    var ansi_up = createCommonjsModule(function (module, exports) {
+    /*  ansi_up.js
+     *  author : Dru Nelson
+     *  license : MIT
+     *  http://github.com/drudru/ansi_up
+     */
+    (function (root, factory) {
+        if ( typeof exports.nodeName !== 'string') {
+            // CommonJS
+            factory(exports);
+        } else {
+            // Browser globals
+            var exp = {};
+            factory(exp);
+            root.AnsiUp = exp.default;
+        }
+    }(commonjsGlobal, function (exports) {
+    var __makeTemplateObject = (this && this.__makeTemplateObject) || function (cooked, raw) {
+        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
+        return cooked;
+    };
+    var PacketKind;
+    (function (PacketKind) {
+        PacketKind[PacketKind["EOS"] = 0] = "EOS";
+        PacketKind[PacketKind["Text"] = 1] = "Text";
+        PacketKind[PacketKind["Incomplete"] = 2] = "Incomplete";
+        PacketKind[PacketKind["ESC"] = 3] = "ESC";
+        PacketKind[PacketKind["Unknown"] = 4] = "Unknown";
+        PacketKind[PacketKind["SGR"] = 5] = "SGR";
+        PacketKind[PacketKind["OSCURL"] = 6] = "OSCURL";
+    })(PacketKind || (PacketKind = {}));
+    var AnsiUp = (function () {
+        function AnsiUp() {
+            this.VERSION = "4.0.4";
+            this.setup_palettes();
+            this._use_classes = false;
+            this._escape_for_html = true;
+            this.bold = false;
+            this.fg = this.bg = null;
+            this._buffer = '';
+            this._url_whitelist = { 'http': 1, 'https': 1 };
+        }
+        Object.defineProperty(AnsiUp.prototype, "use_classes", {
+            get: function () {
+                return this._use_classes;
+            },
+            set: function (arg) {
+                this._use_classes = arg;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AnsiUp.prototype, "escape_for_html", {
+            get: function () {
+                return this._escape_for_html;
+            },
+            set: function (arg) {
+                this._escape_for_html = arg;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AnsiUp.prototype, "url_whitelist", {
+            get: function () {
+                return this._url_whitelist;
+            },
+            set: function (arg) {
+                this._url_whitelist = arg;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        AnsiUp.prototype.setup_palettes = function () {
+            var _this = this;
+            this.ansi_colors =
+                [
+                    [
+                        { rgb: [0, 0, 0], class_name: "ansi-black" },
+                        { rgb: [187, 0, 0], class_name: "ansi-red" },
+                        { rgb: [0, 187, 0], class_name: "ansi-green" },
+                        { rgb: [187, 187, 0], class_name: "ansi-yellow" },
+                        { rgb: [0, 0, 187], class_name: "ansi-blue" },
+                        { rgb: [187, 0, 187], class_name: "ansi-magenta" },
+                        { rgb: [0, 187, 187], class_name: "ansi-cyan" },
+                        { rgb: [255, 255, 255], class_name: "ansi-white" }
+                    ],
+                    [
+                        { rgb: [85, 85, 85], class_name: "ansi-bright-black" },
+                        { rgb: [255, 85, 85], class_name: "ansi-bright-red" },
+                        { rgb: [0, 255, 0], class_name: "ansi-bright-green" },
+                        { rgb: [255, 255, 85], class_name: "ansi-bright-yellow" },
+                        { rgb: [85, 85, 255], class_name: "ansi-bright-blue" },
+                        { rgb: [255, 85, 255], class_name: "ansi-bright-magenta" },
+                        { rgb: [85, 255, 255], class_name: "ansi-bright-cyan" },
+                        { rgb: [255, 255, 255], class_name: "ansi-bright-white" }
+                    ]
+                ];
+            this.palette_256 = [];
+            this.ansi_colors.forEach(function (palette) {
+                palette.forEach(function (rec) {
+                    _this.palette_256.push(rec);
+                });
+            });
+            var levels = [0, 95, 135, 175, 215, 255];
+            for (var r = 0; r < 6; ++r) {
+                for (var g = 0; g < 6; ++g) {
+                    for (var b = 0; b < 6; ++b) {
+                        var col = { rgb: [levels[r], levels[g], levels[b]], class_name: 'truecolor' };
+                        this.palette_256.push(col);
+                    }
+                }
+            }
+            var grey_level = 8;
+            for (var i = 0; i < 24; ++i, grey_level += 10) {
+                var gry = { rgb: [grey_level, grey_level, grey_level], class_name: 'truecolor' };
+                this.palette_256.push(gry);
+            }
+        };
+        AnsiUp.prototype.escape_txt_for_html = function (txt) {
+            return txt.replace(/[&<>]/gm, function (str) {
+                if (str === "&")
+                    return "&amp;";
+                if (str === "<")
+                    return "&lt;";
+                if (str === ">")
+                    return "&gt;";
+            });
+        };
+        AnsiUp.prototype.append_buffer = function (txt) {
+            var str = this._buffer + txt;
+            this._buffer = str;
+        };
+        AnsiUp.prototype.get_next_packet = function () {
+            var pkt = {
+                kind: PacketKind.EOS,
+                text: '',
+                url: ''
+            };
+            var len = this._buffer.length;
+            if (len == 0)
+                return pkt;
+            var pos = this._buffer.indexOf("\x1B");
+            if (pos == -1) {
+                pkt.kind = PacketKind.Text;
+                pkt.text = this._buffer;
+                this._buffer = '';
+                return pkt;
+            }
+            if (pos > 0) {
+                pkt.kind = PacketKind.Text;
+                pkt.text = this._buffer.slice(0, pos);
+                this._buffer = this._buffer.slice(pos);
+                return pkt;
+            }
+            if (pos == 0) {
+                if (len == 1) {
+                    pkt.kind = PacketKind.Incomplete;
+                    return pkt;
+                }
+                var next_char = this._buffer.charAt(1);
+                if ((next_char != '[') && (next_char != ']')) {
+                    pkt.kind = PacketKind.ESC;
+                    pkt.text = this._buffer.slice(0, 1);
+                    this._buffer = this._buffer.slice(1);
+                    return pkt;
+                }
+                if (next_char == '[') {
+                    if (!this._csi_regex) {
+                        this._csi_regex = rgx(__makeTemplateObject(["\n                        ^                           # beginning of line\n                                                    #\n                                                    # First attempt\n                        (?:                         # legal sequence\n                          \u001B[                      # CSI\n                          ([<-?]?)              # private-mode char\n                          ([d;]*)                    # any digits or semicolons\n                          ([ -/]?               # an intermediate modifier\n                          [@-~])                # the command\n                        )\n                        |                           # alternate (second attempt)\n                        (?:                         # illegal sequence\n                          \u001B[                      # CSI\n                          [ -~]*                # anything legal\n                          ([\0-\u001F:])              # anything illegal\n                        )\n                    "], ["\n                        ^                           # beginning of line\n                                                    #\n                                                    # First attempt\n                        (?:                         # legal sequence\n                          \\x1b\\[                      # CSI\n                          ([\\x3c-\\x3f]?)              # private-mode char\n                          ([\\d;]*)                    # any digits or semicolons\n                          ([\\x20-\\x2f]?               # an intermediate modifier\n                          [\\x40-\\x7e])                # the command\n                        )\n                        |                           # alternate (second attempt)\n                        (?:                         # illegal sequence\n                          \\x1b\\[                      # CSI\n                          [\\x20-\\x7e]*                # anything legal\n                          ([\\x00-\\x1f:])              # anything illegal\n                        )\n                    "]));
+                    }
+                    var match = this._buffer.match(this._csi_regex);
+                    if (match === null) {
+                        pkt.kind = PacketKind.Incomplete;
+                        return pkt;
+                    }
+                    if (match[4]) {
+                        pkt.kind = PacketKind.ESC;
+                        pkt.text = this._buffer.slice(0, 1);
+                        this._buffer = this._buffer.slice(1);
+                        return pkt;
+                    }
+                    if ((match[1] != '') || (match[3] != 'm'))
+                        pkt.kind = PacketKind.Unknown;
+                    else
+                        pkt.kind = PacketKind.SGR;
+                    pkt.text = match[2];
+                    var rpos = match[0].length;
+                    this._buffer = this._buffer.slice(rpos);
+                    return pkt;
+                }
+                if (next_char == ']') {
+                    if (len < 4) {
+                        pkt.kind = PacketKind.Incomplete;
+                        return pkt;
+                    }
+                    if ((this._buffer.charAt(2) != '8')
+                        || (this._buffer.charAt(3) != ';')) {
+                        pkt.kind = PacketKind.ESC;
+                        pkt.text = this._buffer.slice(0, 1);
+                        this._buffer = this._buffer.slice(1);
+                        return pkt;
+                    }
+                    if (!this._osc_st) {
+                        this._osc_st = rgxG(__makeTemplateObject(["\n                        (?:                         # legal sequence\n                          (\u001B\\)                    # ESC                           |                           # alternate\n                          (\u0007)                      # BEL (what xterm did)\n                        )\n                        |                           # alternate (second attempt)\n                        (                           # illegal sequence\n                          [\0-\u0006]                 # anything illegal\n                          |                           # alternate\n                          [\b-\u001A]                 # anything illegal\n                          |                           # alternate\n                          [\u001C-\u001F]                 # anything illegal\n                        )\n                    "], ["\n                        (?:                         # legal sequence\n                          (\\x1b\\\\)                    # ESC \\\n                          |                           # alternate\n                          (\\x07)                      # BEL (what xterm did)\n                        )\n                        |                           # alternate (second attempt)\n                        (                           # illegal sequence\n                          [\\x00-\\x06]                 # anything illegal\n                          |                           # alternate\n                          [\\x08-\\x1a]                 # anything illegal\n                          |                           # alternate\n                          [\\x1c-\\x1f]                 # anything illegal\n                        )\n                    "]));
+                    }
+                    this._osc_st.lastIndex = 0;
+                    {
+                        var match_1 = this._osc_st.exec(this._buffer);
+                        if (match_1 === null) {
+                            pkt.kind = PacketKind.Incomplete;
+                            return pkt;
+                        }
+                        if (match_1[3]) {
+                            pkt.kind = PacketKind.ESC;
+                            pkt.text = this._buffer.slice(0, 1);
+                            this._buffer = this._buffer.slice(1);
+                            return pkt;
+                        }
+                    }
+                    {
+                        var match_2 = this._osc_st.exec(this._buffer);
+                        if (match_2 === null) {
+                            pkt.kind = PacketKind.Incomplete;
+                            return pkt;
+                        }
+                        if (match_2[3]) {
+                            pkt.kind = PacketKind.ESC;
+                            pkt.text = this._buffer.slice(0, 1);
+                            this._buffer = this._buffer.slice(1);
+                            return pkt;
+                        }
+                    }
+                    if (!this._osc_regex) {
+                        this._osc_regex = rgx(__makeTemplateObject(["\n                        ^                           # beginning of line\n                                                    #\n                        \u001B]8;                    # OSC Hyperlink\n                        [ -:<-~]*       # params (excluding ;)\n                        ;                           # end of params\n                        ([!-~]{0,512})        # URL capture\n                        (?:                         # ST\n                          (?:\u001B\\)                  # ESC                           |                           # alternate\n                          (?:\u0007)                    # BEL (what xterm did)\n                        )\n                        ([!-~]+)              # TEXT capture\n                        \u001B]8;;                   # OSC Hyperlink End\n                        (?:                         # ST\n                          (?:\u001B\\)                  # ESC                           |                           # alternate\n                          (?:\u0007)                    # BEL (what xterm did)\n                        )\n                    "], ["\n                        ^                           # beginning of line\n                                                    #\n                        \\x1b\\]8;                    # OSC Hyperlink\n                        [\\x20-\\x3a\\x3c-\\x7e]*       # params (excluding ;)\n                        ;                           # end of params\n                        ([\\x21-\\x7e]{0,512})        # URL capture\n                        (?:                         # ST\n                          (?:\\x1b\\\\)                  # ESC \\\n                          |                           # alternate\n                          (?:\\x07)                    # BEL (what xterm did)\n                        )\n                        ([\\x21-\\x7e]+)              # TEXT capture\n                        \\x1b\\]8;;                   # OSC Hyperlink End\n                        (?:                         # ST\n                          (?:\\x1b\\\\)                  # ESC \\\n                          |                           # alternate\n                          (?:\\x07)                    # BEL (what xterm did)\n                        )\n                    "]));
+                    }
+                    var match = this._buffer.match(this._osc_regex);
+                    if (match === null) {
+                        pkt.kind = PacketKind.ESC;
+                        pkt.text = this._buffer.slice(0, 1);
+                        this._buffer = this._buffer.slice(1);
+                        return pkt;
+                    }
+                    pkt.kind = PacketKind.OSCURL;
+                    pkt.url = match[1];
+                    pkt.text = match[2];
+                    var rpos = match[0].length;
+                    this._buffer = this._buffer.slice(rpos);
+                    return pkt;
+                }
+            }
+        };
+        AnsiUp.prototype.ansi_to_html = function (txt) {
+            this.append_buffer(txt);
+            var blocks = [];
+            while (true) {
+                var packet = this.get_next_packet();
+                if ((packet.kind == PacketKind.EOS)
+                    || (packet.kind == PacketKind.Incomplete))
+                    break;
+                if ((packet.kind == PacketKind.ESC)
+                    || (packet.kind == PacketKind.Unknown))
+                    continue;
+                if (packet.kind == PacketKind.Text)
+                    blocks.push(this.transform_to_html(this.with_state(packet)));
+                else if (packet.kind == PacketKind.SGR)
+                    this.process_ansi(packet);
+                else if (packet.kind == PacketKind.OSCURL)
+                    blocks.push(this.process_hyperlink(packet));
+            }
+            return blocks.join("");
+        };
+        AnsiUp.prototype.with_state = function (pkt) {
+            return { bold: this.bold, fg: this.fg, bg: this.bg, text: pkt.text };
+        };
+        AnsiUp.prototype.process_ansi = function (pkt) {
+            var sgr_cmds = pkt.text.split(';');
+            while (sgr_cmds.length > 0) {
+                var sgr_cmd_str = sgr_cmds.shift();
+                var num = parseInt(sgr_cmd_str, 10);
+                if (isNaN(num) || num === 0) {
+                    this.fg = this.bg = null;
+                    this.bold = false;
+                }
+                else if (num === 1) {
+                    this.bold = true;
+                }
+                else if (num === 22) {
+                    this.bold = false;
+                }
+                else if (num === 39) {
+                    this.fg = null;
+                }
+                else if (num === 49) {
+                    this.bg = null;
+                }
+                else if ((num >= 30) && (num < 38)) {
+                    this.fg = this.ansi_colors[0][(num - 30)];
+                }
+                else if ((num >= 40) && (num < 48)) {
+                    this.bg = this.ansi_colors[0][(num - 40)];
+                }
+                else if ((num >= 90) && (num < 98)) {
+                    this.fg = this.ansi_colors[1][(num - 90)];
+                }
+                else if ((num >= 100) && (num < 108)) {
+                    this.bg = this.ansi_colors[1][(num - 100)];
+                }
+                else if (num === 38 || num === 48) {
+                    if (sgr_cmds.length > 0) {
+                        var is_foreground = (num === 38);
+                        var mode_cmd = sgr_cmds.shift();
+                        if (mode_cmd === '5' && sgr_cmds.length > 0) {
+                            var palette_index = parseInt(sgr_cmds.shift(), 10);
+                            if (palette_index >= 0 && palette_index <= 255) {
+                                if (is_foreground)
+                                    this.fg = this.palette_256[palette_index];
+                                else
+                                    this.bg = this.palette_256[palette_index];
+                            }
+                        }
+                        if (mode_cmd === '2' && sgr_cmds.length > 2) {
+                            var r = parseInt(sgr_cmds.shift(), 10);
+                            var g = parseInt(sgr_cmds.shift(), 10);
+                            var b = parseInt(sgr_cmds.shift(), 10);
+                            if ((r >= 0 && r <= 255) && (g >= 0 && g <= 255) && (b >= 0 && b <= 255)) {
+                                var c = { rgb: [r, g, b], class_name: 'truecolor' };
+                                if (is_foreground)
+                                    this.fg = c;
+                                else
+                                    this.bg = c;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        AnsiUp.prototype.transform_to_html = function (fragment) {
+            var txt = fragment.text;
+            if (txt.length === 0)
+                return txt;
+            if (this._escape_for_html)
+                txt = this.escape_txt_for_html(txt);
+            if (!fragment.bold && fragment.fg === null && fragment.bg === null)
+                return txt;
+            var styles = [];
+            var classes = [];
+            var fg = fragment.fg;
+            var bg = fragment.bg;
+            if (fragment.bold)
+                styles.push('font-weight:bold');
+            if (!this._use_classes) {
+                if (fg)
+                    styles.push("color:rgb(" + fg.rgb.join(',') + ")");
+                if (bg)
+                    styles.push("background-color:rgb(" + bg.rgb + ")");
+            }
+            else {
+                if (fg) {
+                    if (fg.class_name !== 'truecolor') {
+                        classes.push(fg.class_name + "-fg");
+                    }
+                    else {
+                        styles.push("color:rgb(" + fg.rgb.join(',') + ")");
+                    }
+                }
+                if (bg) {
+                    if (bg.class_name !== 'truecolor') {
+                        classes.push(bg.class_name + "-bg");
+                    }
+                    else {
+                        styles.push("background-color:rgb(" + bg.rgb.join(',') + ")");
+                    }
+                }
+            }
+            var class_string = '';
+            var style_string = '';
+            if (classes.length)
+                class_string = " class=\"" + classes.join(' ') + "\"";
+            if (styles.length)
+                style_string = " style=\"" + styles.join(';') + "\"";
+            return "<span" + style_string + class_string + ">" + txt + "</span>";
+        };
+        AnsiUp.prototype.process_hyperlink = function (pkt) {
+            var parts = pkt.url.split(':');
+            if (parts.length < 1)
+                return '';
+            if (!this._url_whitelist[parts[0]])
+                return '';
+            var result = "<a href=\"" + this.escape_txt_for_html(pkt.url) + "\">" + this.escape_txt_for_html(pkt.text) + "</a>";
+            return result;
+        };
+        return AnsiUp;
+    }());
+    function rgx(tmplObj) {
+        var subst = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            subst[_i - 1] = arguments[_i];
+        }
+        var regexText = tmplObj.raw[0];
+        var wsrgx = /^\s+|\s+\n|\s*#[\s\S]*?\n|\n/gm;
+        var txt2 = regexText.replace(wsrgx, '');
+        return new RegExp(txt2);
+    }
+    function rgxG(tmplObj) {
+        var subst = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            subst[_i - 1] = arguments[_i];
+        }
+        var regexText = tmplObj.raw[0];
+        var wsrgx = /^\s+|\s+\n|\s*#[\s\S]*?\n|\n/gm;
+        var txt2 = regexText.replace(wsrgx, '');
+        return new RegExp(txt2, 'g');
+    }
+
+        Object.defineProperty(exports, "__esModule", { value: true });
+        exports.default = AnsiUp;
+    }));
+    });
+
+    var AnsiUp = /*@__PURE__*/getDefaultExportFromCjs(ansi_up);
+
+    var mark = createCommonjsModule(function (module, exports) {
+    /*!***************************************************
     * mark.js v8.11.1
     * https://markjs.io/
     * Copyright (c) 2014–2018, Julian Kühnel
     * Released under the MIT license https://git.io/vwTVl
     *****************************************************/
-e.exports=function(){var e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},t=function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")},n=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),r=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var r in n)Object.prototype.hasOwnProperty.call(n,r)&&(e[r]=n[r])}return e},o=function(){function e(n){var r=!(arguments.length>1&&void 0!==arguments[1])||arguments[1],o=arguments.length>2&&void 0!==arguments[2]?arguments[2]:[],s=arguments.length>3&&void 0!==arguments[3]?arguments[3]:5e3;t(this,e),this.ctx=n,this.iframes=r,this.exclude=o,this.iframesTimeout=s}return n(e,[{key:"getContexts",value:function(){var e=[];return(void 0!==this.ctx&&this.ctx?NodeList.prototype.isPrototypeOf(this.ctx)?Array.prototype.slice.call(this.ctx):Array.isArray(this.ctx)?this.ctx:"string"==typeof this.ctx?Array.prototype.slice.call(document.querySelectorAll(this.ctx)):[this.ctx]:[]).forEach((function(t){var n=e.filter((function(e){return e.contains(t)})).length>0;-1!==e.indexOf(t)||n||e.push(t)})),e}},{key:"getIframeContents",value:function(e,t){var n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:function(){},r=void 0;try{var o=e.contentWindow;if(r=o.document,!o||!r)throw new Error("iframe inaccessible")}catch(e){n()}r&&t(r)}},{key:"isIframeBlank",value:function(e){var t="about:blank",n=e.getAttribute("src").trim();return e.contentWindow.location.href===t&&n!==t&&n}},{key:"observeIframeLoad",value:function(e,t,n){var r=this,o=!1,s=null,i=function i(){if(!o){o=!0,clearTimeout(s);try{r.isIframeBlank(e)||(e.removeEventListener("load",i),r.getIframeContents(e,t,n))}catch(e){n()}}};e.addEventListener("load",i),s=setTimeout(i,this.iframesTimeout)}},{key:"onIframeReady",value:function(e,t,n){try{"complete"===e.contentWindow.document.readyState?this.isIframeBlank(e)?this.observeIframeLoad(e,t,n):this.getIframeContents(e,t,n):this.observeIframeLoad(e,t,n)}catch(e){n()}}},{key:"waitForIframes",value:function(e,t){var n=this,r=0;this.forEachIframe(e,(function(){return!0}),(function(e){r++,n.waitForIframes(e.querySelector("html"),(function(){--r||t()}))}),(function(e){e||t()}))}},{key:"forEachIframe",value:function(t,n,r){var o=this,s=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},i=t.querySelectorAll("iframe"),a=i.length,c=0;i=Array.prototype.slice.call(i);var l=function(){--a<=0&&s(c)};a||l(),i.forEach((function(t){e.matches(t,o.exclude)?l():o.onIframeReady(t,(function(e){n(t)&&(c++,r(e)),l()}),l)}))}},{key:"createIterator",value:function(e,t,n){return document.createNodeIterator(e,t,n,!1)}},{key:"createInstanceOnIframe",value:function(t){return new e(t.querySelector("html"),this.iframes)}},{key:"compareNodeIframe",value:function(e,t,n){if(e.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_PRECEDING){if(null===t)return!0;if(t.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_FOLLOWING)return!0}return!1}},{key:"getIteratorNode",value:function(e){var t=e.previousNode();return{prevNode:t,node:(null===t||e.nextNode())&&e.nextNode()}}},{key:"checkIframeFilter",value:function(e,t,n,r){var o=!1,s=!1;return r.forEach((function(e,t){e.val===n&&(o=t,s=e.handled)})),this.compareNodeIframe(e,t,n)?(!1!==o||s?!1===o||s||(r[o].handled=!0):r.push({val:n,handled:!0}),!0):(!1===o&&r.push({val:n,handled:!1}),!1)}},{key:"handleOpenIframes",value:function(e,t,n,r){var o=this;e.forEach((function(e){e.handled||o.getIframeContents(e.val,(function(e){o.createInstanceOnIframe(e).forEachNode(t,n,r)}))}))}},{key:"iterateThroughNodes",value:function(e,t,n,r,o){for(var s=this,i=this.createIterator(t,e,r),a=[],c=[],l=void 0,u=void 0,f=function(){var e=s.getIteratorNode(i);return u=e.prevNode,l=e.node};f();)this.iframes&&this.forEachIframe(t,(function(e){return s.checkIframeFilter(l,u,e,a)}),(function(t){s.createInstanceOnIframe(t).forEachNode(e,(function(e){return c.push(e)}),r)})),c.push(l);c.forEach((function(e){n(e)})),this.iframes&&this.handleOpenIframes(a,e,n,r),o()}},{key:"forEachNode",value:function(e,t,n){var r=this,o=arguments.length>3&&void 0!==arguments[3]?arguments[3]:function(){},s=this.getContexts(),i=s.length;i||o(),s.forEach((function(s){var a=function(){r.iterateThroughNodes(e,s,t,n,(function(){--i<=0&&o()}))};r.iframes?r.waitForIframes(s,a):a()}))}}],[{key:"matches",value:function(e,t){var n="string"==typeof t?[t]:t,r=e.matches||e.matchesSelector||e.msMatchesSelector||e.mozMatchesSelector||e.oMatchesSelector||e.webkitMatchesSelector;if(r){var o=!1;return n.every((function(t){return!r.call(e,t)||(o=!0,!1)})),o}return!1}}]),e}(),s=function(){function s(e){t(this,s),this.ctx=e,this.ie=!1;var n=window.navigator.userAgent;(n.indexOf("MSIE")>-1||n.indexOf("Trident")>-1)&&(this.ie=!0)}return n(s,[{key:"log",value:function(t){var n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"debug",r=this.opt.log;this.opt.debug&&"object"===(void 0===r?"undefined":e(r))&&"function"==typeof r[n]&&r[n]("mark.js: "+t)}},{key:"escapeStr",value:function(e){return e.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g,"\\$&")}},{key:"createRegExp",value:function(e){return"disabled"!==this.opt.wildcards&&(e=this.setupWildcardsRegExp(e)),e=this.escapeStr(e),Object.keys(this.opt.synonyms).length&&(e=this.createSynonymsRegExp(e)),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),this.opt.diacritics&&(e=this.createDiacriticsRegExp(e)),e=this.createMergedBlanksRegExp(e),(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.createJoinersRegExp(e)),"disabled"!==this.opt.wildcards&&(e=this.createWildcardsRegExp(e)),e=this.createAccuracyRegExp(e)}},{key:"createSynonymsRegExp",value:function(e){var t=this.opt.synonyms,n=this.opt.caseSensitive?"":"i",r=this.opt.ignoreJoiners||this.opt.ignorePunctuation.length?"\0":"";for(var o in t)if(t.hasOwnProperty(o)){var s=t[o],i="disabled"!==this.opt.wildcards?this.setupWildcardsRegExp(o):this.escapeStr(o),a="disabled"!==this.opt.wildcards?this.setupWildcardsRegExp(s):this.escapeStr(s);""!==i&&""!==a&&(e=e.replace(new RegExp("("+this.escapeStr(i)+"|"+this.escapeStr(a)+")","gm"+n),r+"("+this.processSynomyms(i)+"|"+this.processSynomyms(a)+")"+r))}return e}},{key:"processSynomyms",value:function(e){return(this.opt.ignoreJoiners||this.opt.ignorePunctuation.length)&&(e=this.setupIgnoreJoinersRegExp(e)),e}},{key:"setupWildcardsRegExp",value:function(e){return(e=e.replace(/(?:\\)*\?/g,(function(e){return"\\"===e.charAt(0)?"?":""}))).replace(/(?:\\)*\*/g,(function(e){return"\\"===e.charAt(0)?"*":""}))}},{key:"createWildcardsRegExp",value:function(e){var t="withSpaces"===this.opt.wildcards;return e.replace(/\u0001/g,t?"[\\S\\s]?":"\\S?").replace(/\u0002/g,t?"[\\S\\s]*?":"\\S*")}},{key:"setupIgnoreJoinersRegExp",value:function(e){return e.replace(/[^(|)\\]/g,(function(e,t,n){var r=n.charAt(t+1);return/[(|)\\]/.test(r)||""===r?e:e+"\0"}))}},{key:"createJoinersRegExp",value:function(e){var t=[],n=this.opt.ignorePunctuation;return Array.isArray(n)&&n.length&&t.push(this.escapeStr(n.join(""))),this.opt.ignoreJoiners&&t.push("\\u00ad\\u200b\\u200c\\u200d"),t.length?e.split(/\u0000+/).join("["+t.join("")+"]*"):e}},{key:"createDiacriticsRegExp",value:function(e){var t=this.opt.caseSensitive?"":"i",n=this.opt.caseSensitive?["aàáảãạăằắẳẵặâầấẩẫậäåāą","AÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ","cçćč","CÇĆČ","dđď","DĐĎ","eèéẻẽẹêềếểễệëěēę","EÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ","iìíỉĩịîïī","IÌÍỈĨỊÎÏĪ","lł","LŁ","nñňń","NÑŇŃ","oòóỏõọôồốổỗộơởỡớờợöøō","OÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ","rř","RŘ","sšśșş","SŠŚȘŞ","tťțţ","TŤȚŢ","uùúủũụưừứửữựûüůū","UÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ","yýỳỷỹỵÿ","YÝỲỶỸỴŸ","zžżź","ZŽŻŹ"]:["aàáảãạăằắẳẵặâầấẩẫậäåāąAÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ","cçćčCÇĆČ","dđďDĐĎ","eèéẻẽẹêềếểễệëěēęEÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ","iìíỉĩịîïīIÌÍỈĨỊÎÏĪ","lłLŁ","nñňńNÑŇŃ","oòóỏõọôồốổỗộơởỡớờợöøōOÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ","rřRŘ","sšśșşSŠŚȘŞ","tťțţTŤȚŢ","uùúủũụưừứửữựûüůūUÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ","yýỳỷỹỵÿYÝỲỶỸỴŸ","zžżźZŽŻŹ"],r=[];return e.split("").forEach((function(o){n.every((function(n){if(-1!==n.indexOf(o)){if(r.indexOf(n)>-1)return!1;e=e.replace(new RegExp("["+n+"]","gm"+t),"["+n+"]"),r.push(n)}return!0}))})),e}},{key:"createMergedBlanksRegExp",value:function(e){return e.replace(/[\s]+/gim,"[\\s]+")}},{key:"createAccuracyRegExp",value:function(e){var t=this,n="!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~¡¿",r=this.opt.accuracy,o="string"==typeof r?r:r.value,s="string"==typeof r?[]:r.limiters,i="";switch(s.forEach((function(e){i+="|"+t.escapeStr(e)})),o){case"partially":default:return"()("+e+")";case"complementary":return"()([^"+(i="\\s"+(i||this.escapeStr(n)))+"]*"+e+"[^"+i+"]*)";case"exactly":return"(^|\\s"+i+")("+e+")(?=$|\\s"+i+")"}}},{key:"getSeparatedKeywords",value:function(e){var t=this,n=[];return e.forEach((function(e){t.opt.separateWordSearch?e.split(" ").forEach((function(e){e.trim()&&-1===n.indexOf(e)&&n.push(e)})):e.trim()&&-1===n.indexOf(e)&&n.push(e)})),{keywords:n.sort((function(e,t){return t.length-e.length})),length:n.length}}},{key:"isNumeric",value:function(e){return Number(parseFloat(e))==e}},{key:"checkRanges",value:function(e){var t=this;if(!Array.isArray(e)||"[object Object]"!==Object.prototype.toString.call(e[0]))return this.log("markRanges() will only accept an array of objects"),this.opt.noMatch(e),[];var n=[],r=0;return e.sort((function(e,t){return e.start-t.start})).forEach((function(e){var o=t.callNoMatchOnInvalidRanges(e,r),s=o.start,i=o.end;o.valid&&(e.start=s,e.length=i-s,n.push(e),r=i)})),n}},{key:"callNoMatchOnInvalidRanges",value:function(e,t){var n=void 0,r=void 0,o=!1;return e&&void 0!==e.start?(r=(n=parseInt(e.start,10))+parseInt(e.length,10),this.isNumeric(e.start)&&this.isNumeric(e.length)&&r-t>0&&r-n>0?o=!0:(this.log("Ignoring invalid or overlapping range: "+JSON.stringify(e)),this.opt.noMatch(e))):(this.log("Ignoring invalid range: "+JSON.stringify(e)),this.opt.noMatch(e)),{start:n,end:r,valid:o}}},{key:"checkWhitespaceRanges",value:function(e,t,n){var r=void 0,o=!0,s=n.length,i=t-s,a=parseInt(e.start,10)-i;return(r=(a=a>s?s:a)+parseInt(e.length,10))>s&&(r=s,this.log("End range automatically set to the max value of "+s)),a<0||r-a<0||a>s||r>s?(o=!1,this.log("Invalid range: "+JSON.stringify(e)),this.opt.noMatch(e)):""===n.substring(a,r).replace(/\s+/g,"")&&(o=!1,this.log("Skipping whitespace only range: "+JSON.stringify(e)),this.opt.noMatch(e)),{start:a,end:r,valid:o}}},{key:"getTextNodes",value:function(e){var t=this,n="",r=[];this.iterator.forEachNode(NodeFilter.SHOW_TEXT,(function(e){r.push({start:n.length,end:(n+=e.textContent).length,node:e})}),(function(e){return t.matchesExclude(e.parentNode)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}),(function(){e({value:n,nodes:r})}))}},{key:"matchesExclude",value:function(e){return o.matches(e,this.opt.exclude.concat(["script","style","title","head","html"]))}},{key:"wrapRangeInTextNode",value:function(e,t,n){var r=this.opt.element?this.opt.element:"mark",o=e.splitText(t),s=o.splitText(n-t),i=document.createElement(r);return i.setAttribute("data-markjs","true"),this.opt.className&&i.setAttribute("class",this.opt.className),i.textContent=o.textContent,o.parentNode.replaceChild(i,o),s}},{key:"wrapRangeInMappedTextNode",value:function(e,t,n,r,o){var s=this;e.nodes.every((function(i,a){var c=e.nodes[a+1];if(void 0===c||c.start>t){if(!r(i.node))return!1;var l=t-i.start,u=(n>i.end?i.end:n)-i.start,f=e.value.substr(0,i.start),h=e.value.substr(u+i.start);if(i.node=s.wrapRangeInTextNode(i.node,l,u),e.value=f+h,e.nodes.forEach((function(t,n){n>=a&&(e.nodes[n].start>0&&n!==a&&(e.nodes[n].start-=u),e.nodes[n].end-=u)})),n-=u,o(i.node.previousSibling,i.start),!(n>i.end))return!1;t=i.end}return!0}))}},{key:"wrapMatches",value:function(e,t,n,r,o){var s=this,i=0===t?0:t+1;this.getTextNodes((function(t){t.nodes.forEach((function(t){t=t.node;for(var o=void 0;null!==(o=e.exec(t.textContent))&&""!==o[i];)if(n(o[i],t)){var a=o.index;if(0!==i)for(var c=1;c<i;c++)a+=o[c].length;t=s.wrapRangeInTextNode(t,a,a+o[i].length),r(t.previousSibling),e.lastIndex=0}})),o()}))}},{key:"wrapMatchesAcrossElements",value:function(e,t,n,r,o){var s=this,i=0===t?0:t+1;this.getTextNodes((function(t){for(var a=void 0;null!==(a=e.exec(t.value))&&""!==a[i];){var c=a.index;if(0!==i)for(var l=1;l<i;l++)c+=a[l].length;var u=c+a[i].length;s.wrapRangeInMappedTextNode(t,c,u,(function(e){return n(a[i],e)}),(function(t,n){e.lastIndex=n,r(t)}))}o()}))}},{key:"wrapRangeFromIndex",value:function(e,t,n,r){var o=this;this.getTextNodes((function(s){var i=s.value.length;e.forEach((function(e,r){var a=o.checkWhitespaceRanges(e,i,s.value),c=a.start,l=a.end;a.valid&&o.wrapRangeInMappedTextNode(s,c,l,(function(n){return t(n,e,s.value.substring(c,l),r)}),(function(t){n(t,e)}))})),r()}))}},{key:"unwrapMatches",value:function(e){for(var t=e.parentNode,n=document.createDocumentFragment();e.firstChild;)n.appendChild(e.removeChild(e.firstChild));t.replaceChild(n,e),this.ie?this.normalizeTextNode(t):t.normalize()}},{key:"normalizeTextNode",value:function(e){if(e){if(3===e.nodeType)for(;e.nextSibling&&3===e.nextSibling.nodeType;)e.nodeValue+=e.nextSibling.nodeValue,e.parentNode.removeChild(e.nextSibling);else this.normalizeTextNode(e.firstChild);this.normalizeTextNode(e.nextSibling)}}},{key:"markRegExp",value:function(e,t){var n=this;this.opt=t,this.log('Searching with expression "'+e+'"');var r=0,o="wrapMatches",s=function(e){r++,n.opt.each(e)};this.opt.acrossElements&&(o="wrapMatchesAcrossElements"),this[o](e,this.opt.ignoreGroups,(function(e,t){return n.opt.filter(t,e,r)}),s,(function(){0===r&&n.opt.noMatch(e),n.opt.done(r)}))}},{key:"mark",value:function(e,t){var n=this;this.opt=t;var r=0,o="wrapMatches",s=this.getSeparatedKeywords("string"==typeof e?[e]:e),i=s.keywords,a=s.length,c=this.opt.caseSensitive?"":"i",l=function e(t){var s=new RegExp(n.createRegExp(t),"gm"+c),l=0;n.log('Searching with expression "'+s+'"'),n[o](s,1,(function(e,o){return n.opt.filter(o,t,r,l)}),(function(e){l++,r++,n.opt.each(e)}),(function(){0===l&&n.opt.noMatch(t),i[a-1]===t?n.opt.done(r):e(i[i.indexOf(t)+1])}))};this.opt.acrossElements&&(o="wrapMatchesAcrossElements"),0===a?this.opt.done(r):l(i[0])}},{key:"markRanges",value:function(e,t){var n=this;this.opt=t;var r=0,o=this.checkRanges(e);o&&o.length?(this.log("Starting to mark with the following ranges: "+JSON.stringify(o)),this.wrapRangeFromIndex(o,(function(e,t,r,o){return n.opt.filter(e,t,r,o)}),(function(e,t){r++,n.opt.each(e,t)}),(function(){n.opt.done(r)}))):this.opt.done(r)}},{key:"unmark",value:function(e){var t=this;this.opt=e;var n=this.opt.element?this.opt.element:"*";n+="[data-markjs]",this.opt.className&&(n+="."+this.opt.className),this.log('Removal selector "'+n+'"'),this.iterator.forEachNode(NodeFilter.SHOW_ELEMENT,(function(e){t.unwrapMatches(e)}),(function(e){var r=o.matches(e,n),s=t.matchesExclude(e);return!r||s?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}),this.opt.done)}},{key:"opt",set:function(e){this._opt=r({},{element:"",className:"",exclude:[],iframes:!1,iframesTimeout:5e3,separateWordSearch:!0,diacritics:!0,synonyms:{},accuracy:"partially",acrossElements:!1,caseSensitive:!1,ignoreJoiners:!1,ignoreGroups:0,ignorePunctuation:[],wildcards:"disabled",each:function(){},noMatch:function(){},filter:function(){return!0},done:function(){},debug:!1,log:window.console},e)},get:function(){return this._opt}},{key:"iterator",get:function(){return new o(this.ctx,this.opt.iframes,this.opt.exclude,this.opt.iframesTimeout)}}]),s}();function i(e){var t=this,n=new s(e);return this.mark=function(e,r){return n.mark(e,r),t},this.markRegExp=function(e,r){return n.markRegExp(e,r),t},this.markRanges=function(e,r){return n.markRanges(e,r),t},this.unmark=function(e){return n.unmark(e),t},this}return i}()}));function Xe(e){let t,n,r,o;const s=e[1].default,i=c(s,e,e[0],null);return{c(){t=_("button"),i&&i.c(),O(t,"class","svelte-1t1iahb")},m(s,a){w(s,t,a),i&&i.m(t,null),n=!0,r||(o=S(t,"click",e[2]),r=!0)},p(e,[t]){i&&i.p&&1&t&&u(i,s,e,e[0],t,null,null)},i(e){n||(ue(i,e),n=!0)},o(e){fe(i,e),n=!1},d(e){e&&x(t),i&&i.d(e),r=!1,o()}}}function et(e,t,n){let{$$slots:r={},$$scope:o}=t;return e.$$set=e=>{"$$scope"in e&&n(0,o=e.$$scope)},[o,r,function(t){J(e,t)}]}class tt extends be{constructor(e){super(),me(this,e,et,Xe,i,{})}}const nt=e=>({}),rt=e=>({});function ot(e){let t,n;return{c(){t=k("svg"),n=k("path"),O(n,"d","M6.2253 4.81108C5.83477 4.42056 5.20161 4.42056 4.81108 4.81108C4.42056 5.20161 4.42056 5.83477 4.81108 6.2253L10.5858 12L4.81114 17.7747C4.42062 18.1652 4.42062 18.7984 4.81114 19.1889C5.20167 19.5794 5.83483 19.5794 6.22535 19.1889L12 13.4142L17.7747 19.1889C18.1652 19.5794 18.7984 19.5794 19.1889 19.1889C19.5794 18.7984 19.5794 18.1652 19.1889 17.7747L13.4142 12L19.189 6.2253C19.5795 5.83477 19.5795 5.20161 19.189 4.81108C18.7985 4.42056 18.1653 4.42056 17.7748 4.81108L12 10.5858L6.2253 4.81108Z"),O(n,"fill","currentColor"),O(t,"width","24"),O(t,"height","24"),O(t,"viewBox","0 0 24 24"),O(t,"fill","none"),O(t,"xmlns","http://www.w3.org/2000/svg")},m(e,r){w(e,t,r),b(t,n)},d(e){e&&x(t)}}}function st(n){let r,i,a,l,f,h,d,v,g,y,$,k,P,C,R,N,j,I,M;const L=n[2].extra,K=c(L,n,n[3],rt);$=new tt({props:{$$slots:{default:[ot]},$$scope:{ctx:n}}}),$.$on("click",n[1]);const B=n[2].default,q=c(B,n,n[3],null);return{c(){r=_("div"),i=_("div"),a=_("div"),l=_("div"),f=_("div"),h=_("div"),d=_("h1"),v=E(n[0]),g=A(),K&&K.c(),y=A(),pe($.$$.fragment),k=A(),P=_("div"),q&&q.c(),O(d,"class","svelte-18ut3js"),O(h,"class","dialog__header svelte-18ut3js"),O(P,"class","dialog__content svelte-18ut3js"),O(f,"class","dialog svelte-18ut3js"),O(l,"class","view-container svelte-18ut3js"),O(a,"class","dialog-container svelte-18ut3js"),O(r,"class","dialog-backdrop svelte-18ut3js")},m(e,t){var o;w(e,r,t),b(r,i),b(i,a),b(a,l),b(l,f),b(f,h),b(h,d),b(d,v),b(h,g),K&&K.m(h,null),b(h,y),ve($,h,null),b(f,k),b(f,P),q&&q.m(P,null),j=!0,I||(M=S(r,"click",(o=n[1],function(e){e.target===this&&o.call(this,e)})),I=!0)},p(e,[t]){n=e,(!j||1&t)&&T(v,n[0]),K&&K.p&&8&t&&u(K,L,n,n[3],t,nt,rt);const r={};8&t&&(r.$$scope={dirty:t,ctx:n}),$.$set(r),q&&q.p&&8&t&&u(q,B,n,n[3],t,null,null)},i(n){j||(ue(K,n),ue($.$$.fragment,n),ue(q,n),Q((()=>{R&&R.end(1),C||(C=function(n,r,o){let i,a,c=r(n,o),l=!1,u=0;function f(){i&&U(n,i)}function h(){const{delay:r=0,duration:o=300,easing:s=t,tick:h=e,css:d}=c||he;d&&(i=D(n,0,1,o,r,s,d,u++)),h(0,1);const v=p()+r,g=v+o;a&&a.abort(),l=!0,Q((()=>se(n,!0,"start"))),a=m((e=>{if(l){if(e>=g)return h(1,0),se(n,!0,"end"),f(),l=!1;if(e>=v){const t=s((e-v)/o);h(t,1-t)}}return l}))}let d=!1;return{start(){d||(U(n),s(c)?(c=c(),oe().then(h)):h())},invalidate(){d=!1},end(){l&&(f(),l=!1)}}}(i,Ne,{start:.9,easing:Se,duration:200})),C.start()})),Q((()=>{N||(N=de(r,Ce,{duration:150},!0)),N.run(1)})),j=!0)},o(n){fe(K,n),fe($.$$.fragment,n),fe(q,n),C&&C.invalidate(),R=function(n,r,i){let a,c=r(n,i),l=!0;const u=ae;function f(){const{delay:r=0,duration:s=300,easing:i=t,tick:f=e,css:h}=c||he;h&&(a=D(n,1,0,s,r,i,h));const d=p()+r,v=d+s;Q((()=>se(n,!1,"start"))),m((e=>{if(l){if(e>=v)return f(0,1),se(n,!1,"end"),--u.r||o(u.c),!1;if(e>=d){const t=i((e-d)/s);f(1-t,t)}}return l}))}return u.r+=1,s(c)?oe().then((()=>{c=c(),f()})):f(),{end(e){e&&c.tick&&c.tick(1,0),l&&(a&&U(n,a),l=!1)}}}(i,Ne,{start:.9,easing:Te,duration:150}),N||(N=de(r,Ce,{duration:150},!1)),N.run(0),j=!1},d(e){e&&x(r),K&&K.d(e),ge($),q&&q.d(e),e&&R&&R.end(),e&&N&&N.end(),I=!1,M()}}}function it(e,t,n){let{$$slots:r={},$$scope:o}=t;const s=function(){const e=B();return(t,n)=>{const r=e.$$.callbacks[t];if(r){const o=N(t,n);r.slice().forEach((t=>{t.call(e,o)}))}}}();let{title:i}=t;return e.$$set=e=>{"title"in e&&n(0,i=e.title),"$$scope"in e&&n(3,o=e.$$scope)},[i,function(){s("close")},r,o]}class at extends be{constructor(e){super(),me(this,e,it,st,i,{title:0})}}function ct(e,t,n){const r=e.slice();return r[12]=t[n],r}function lt(e){let t,n,r,o=e[12]+"";return{c(){t=_("div"),r=A(),n=new j(r)},m(e,s){w(e,t,s),n.m(o,t),b(t,r)},p(e,t){4&t&&o!==(o=e[12]+"")&&n.p(o)},d(e){e&&x(t)}}}function ut(e){let t,n,r,s,i,a,c,l,u,f,h,d,p,v=e[2],g=[];for(let t=0;t<v.length;t+=1)g[t]=lt(ct(e,v,t));return{c(){t=_("div"),n=_("div"),r=_("label"),s=_("input"),i=A(),a=_("span"),a.textContent="Wrap lines",c=A(),l=_("div"),u=_("input"),f=A(),h=_("div");for(let e=0;e<g.length;e+=1)g[e].c();O(s,"type","checkbox"),O(u,"type","search"),O(u,"placeholder","Search log..."),O(l,"class","search-wrapper svelte-fuevcu"),O(n,"class","log__header svelte-fuevcu"),O(h,"class","log-content svelte-fuevcu"),R(h,"lineWrap",e[3]),O(t,"class","log svelte-fuevcu")},m(o,v){w(o,t,v),b(t,n),b(n,r),b(r,s),s.checked=e[3],b(r,i),b(r,a),b(n,c),b(n,l),b(l,u),C(u,e[0]),b(t,f),b(t,h);for(let e=0;e<g.length;e+=1)g[e].m(h,null);e[7](h),d||(p=[S(s,"change",e[5]),S(u,"input",e[6])],d=!0)},p(e,t){if(8&t&&(s.checked=e[3]),1&t&&C(u,e[0]),4&t){let n;for(v=e[2],n=0;n<v.length;n+=1){const r=ct(e,v,n);g[n]?g[n].p(r,t):(g[n]=lt(r),g[n].c(),g[n].m(h,null))}for(;n<g.length;n+=1)g[n].d(1);g.length=v.length}8&t&&R(h,"lineWrap",e[3])},d(n){n&&x(t),$(g,n),e[7](null),d=!1,o(p)}}}function ft(e){let t,n;return t=new at({props:{title:"Device Log",$$slots:{default:[ut]},$$scope:{ctx:e}}}),t.$on("close",e[8]),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,[n]){const r={};32783&n&&(r.$$scope={dirty:n,ctx:e}),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function ht(e,t,n){let{data:r}=t,o=!1,s="";const i=new Ze;let a,c,l;return e.$$set=e=>{"data"in e&&n(4,r=e.data)},e.$$.update=()=>{var t;16&e.$$.dirty&&n(2,c=r.map((e=>i.ansi_to_html(e.msg)))||[]),2&e.$$.dirty&&(l=null!=a?new Qe(a):void 0),5&e.$$.dirty&&(t=s,l?.unmark(),t&&l?.mark(t))},[s,a,c,o,r,function(){o=this.checked,n(3,o)},function(){s=this.value,n(0,s)},function(e){V[e?"unshift":"push"]((()=>{a=e,n(1,a)}))},function(t){J(e,t)}]}class dt extends be{constructor(e){super(),me(this,e,ht,ft,i,{data:4})}}var pt={};function vt(t){let n,r,o,s;return{c(){n=_("div"),r=_("div"),r.textContent="▶",O(r,"class","arrow svelte-1vyml86"),R(r,"expanded",t[0]),O(n,"class","container svelte-1vyml86")},m(e,i){w(e,n,i),b(n,r),o||(s=S(n,"click",t[1]),o=!0)},p(e,[t]){1&t&&R(r,"expanded",e[0])},i:e,o:e,d(e){e&&x(n),o=!1,s()}}}function gt(e,t,n){let{expanded:r}=t;return e.$$set=e=>{"expanded"in e&&n(0,r=e.expanded)},[r,function(t){J(e,t)}]}class yt extends be{constructor(e){super(),me(this,e,gt,vt,i,{expanded:0})}}function mt(e){let t,n,r,o,s,i;return{c(){t=_("label"),n=_("span"),r=E(e[0]),o=E(e[2]),O(t,"class","svelte-1vlbacg"),R(t,"spaced",e[1])},m(a,c){w(a,t,c),b(t,n),b(n,r),b(n,o),s||(i=S(t,"click",e[5]),s=!0)},p(e,n){1&n&&T(r,e[0]),4&n&&T(o,e[2]),2&n&&R(t,"spaced",e[1])},d(e){e&&x(t),s=!1,i()}}}function bt(t){let n,r=t[3]&&t[0]&&mt(t);return{c(){r&&r.c(),n=P()},m(e,t){r&&r.m(e,t),w(e,n,t)},p(e,[t]){e[3]&&e[0]?r?r.p(e,t):(r=mt(e),r.c(),r.m(n.parentNode,n)):r&&(r.d(1),r=null)},i:e,o:e,d(e){r&&r.d(e),e&&x(n)}}}function wt(e,t,n){let r,{key:o}=t,{isParentExpanded:s}=t,{isParentArray:i=!1}=t,{colon:a=":"}=t;return e.$$set=e=>{"key"in e&&n(0,o=e.key),"isParentExpanded"in e&&n(1,s=e.isParentExpanded),"isParentArray"in e&&n(4,i=e.isParentArray),"colon"in e&&n(2,a=e.colon)},e.$$.update=()=>{19&e.$$.dirty&&n(3,r=s||!i||o!=+o)},[o,s,a,r,i,function(t){J(e,t)}]}class xt extends be{constructor(e){super(),me(this,e,wt,bt,i,{key:0,isParentExpanded:1,isParentArray:4,colon:2})}}function $t(e,t,n){const r=e.slice();return r[12]=t[n],r[20]=n,r}function _t(e){let t,n;return t=new yt({props:{expanded:e[0]}}),t.$on("click",e[15]),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,n){const r={};1&n&&(r.expanded=e[0]),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function kt(t){let n;return{c(){n=_("span"),n.textContent="…"},m(e,t){w(e,n,t)},p:e,i:e,o:e,d(e){e&&x(n)}}}function Et(e){let t,n,r,o,s,i=e[13],a=[];for(let t=0;t<i.length;t+=1)a[t]=Pt($t(e,i,t));const c=e=>fe(a[e],1,1,(()=>{a[e]=null}));let l=e[13].length<e[7].length&&St();return{c(){t=_("ul");for(let e=0;e<a.length;e+=1)a[e].c();n=A(),l&&l.c(),O(t,"class","svelte-rwxv37"),R(t,"collapse",!e[0])},m(i,c){w(i,t,c);for(let e=0;e<a.length;e+=1)a[e].m(t,null);b(t,n),l&&l.m(t,null),r=!0,o||(s=S(t,"click",e[16]),o=!0)},p(e,r){if(10129&r){let o;for(i=e[13],o=0;o<i.length;o+=1){const s=$t(e,i,o);a[o]?(a[o].p(s,r),ue(a[o],1)):(a[o]=Pt(s),a[o].c(),ue(a[o],1),a[o].m(t,n))}for(ce(),o=i.length;o<a.length;o+=1)c(o);le()}e[13].length<e[7].length?l||(l=St(),l.c(),l.m(t,null)):l&&(l.d(1),l=null),1&r&&R(t,"collapse",!e[0])},i(e){if(!r){for(let e=0;e<i.length;e+=1)ue(a[e]);r=!0}},o(e){a=a.filter(Boolean);for(let e=0;e<a.length;e+=1)fe(a[e]);r=!1},d(e){e&&x(t),$(a,e),l&&l.d(),o=!1,s()}}}function At(e){let t;return{c(){t=_("span"),t.textContent=",",O(t,"class","comma svelte-rwxv37")},m(e,n){w(e,t,n)},d(e){e&&x(t)}}}function Pt(e){let t,n,r,o;t=new hn({props:{key:e[8](e[12]),isParentExpanded:e[0],isParentArray:e[4],value:e[0]?e[9](e[12]):e[10](e[12])}});let s=!e[0]&&e[20]<e[7].length-1&&At();return{c(){pe(t.$$.fragment),n=A(),s&&s.c(),r=P()},m(e,i){ve(t,e,i),w(e,n,i),s&&s.m(e,i),w(e,r,i),o=!0},p(e,n){const o={};8448&n&&(o.key=e[8](e[12])),1&n&&(o.isParentExpanded=e[0]),16&n&&(o.isParentArray=e[4]),9729&n&&(o.value=e[0]?e[9](e[12]):e[10](e[12])),t.$set(o),!e[0]&&e[20]<e[7].length-1?s||(s=At(),s.c(),s.m(r.parentNode,r)):s&&(s.d(1),s=null)},i(e){o||(ue(t.$$.fragment,e),o=!0)},o(e){fe(t.$$.fragment,e),o=!1},d(e){ge(t,e),e&&x(n),s&&s.d(e),e&&x(r)}}}function St(e){let t;return{c(){t=_("span"),t.textContent="…"},m(e,n){w(e,t,n)},d(e){e&&x(t)}}}function Ot(e){let t,n,r,o,s,i,a,c,l,u,f,h,d,p,v,g,y,m,$=e[11]&&e[2]&&_t(e);o=new xt({props:{key:e[12],colon:e[14].colon,isParentExpanded:e[2],isParentArray:e[3]}}),o.$on("click",e[15]);const k=[Et,kt],P=[];function C(e,t){return e[2]?0:1}return f=C(e),h=P[f]=k[f](e),{c(){t=_("li"),n=_("label"),$&&$.c(),r=A(),pe(o.$$.fragment),s=A(),i=_("span"),a=_("span"),c=E(e[1]),l=E(e[5]),u=A(),h.c(),d=A(),p=_("span"),v=E(e[6]),O(n,"class","svelte-rwxv37"),O(t,"class","svelte-rwxv37"),R(t,"indent",e[2])},m(h,x){w(h,t,x),b(t,n),$&&$.m(n,null),b(n,r),ve(o,n,null),b(n,s),b(n,i),b(i,a),b(a,c),b(i,l),b(t,u),P[f].m(t,null),b(t,d),b(t,p),b(p,v),g=!0,y||(m=S(i,"click",e[15]),y=!0)},p(e,[s]){e[11]&&e[2]?$?($.p(e,s),2052&s&&ue($,1)):($=_t(e),$.c(),ue($,1),$.m(n,r)):$&&(ce(),fe($,1,1,(()=>{$=null})),le());const i={};4096&s&&(i.key=e[12]),4&s&&(i.isParentExpanded=e[2]),8&s&&(i.isParentArray=e[3]),o.$set(i),(!g||2&s)&&T(c,e[1]),(!g||32&s)&&T(l,e[5]);let a=f;f=C(e),f===a?P[f].p(e,s):(ce(),fe(P[a],1,1,(()=>{P[a]=null})),le(),h=P[f],h?h.p(e,s):(h=P[f]=k[f](e),h.c()),ue(h,1),h.m(t,d)),(!g||64&s)&&T(v,e[6]),4&s&&R(t,"indent",e[2])},i(e){g||(ue($),ue(o.$$.fragment,e),ue(h),g=!0)},o(e){fe($),fe(o.$$.fragment,e),fe(h),g=!1},d(e){e&&x(t),$&&$.d(),ge(o),P[f].d(),y=!1,m()}}}function Tt(e,t,n){let{key:r}=t,{keys:o}=t,{colon:s=":"}=t,{label:i=""}=t,{isParentExpanded:a}=t,{isParentArray:c}=t,{isArray:l=!1}=t,{bracketOpen:u}=t,{bracketClose:f}=t,{previewKeys:h=o}=t,{getKey:d=(e=>e)}=t,{getValue:p=(e=>e)}=t,{getPreviewValue:v=p}=t,{expanded:g=!1}=t,{expandable:y=!0}=t;const m=H(pt);let b;return F(pt,{...m,colon:s}),e.$$set=e=>{"key"in e&&n(12,r=e.key),"keys"in e&&n(17,o=e.keys),"colon"in e&&n(18,s=e.colon),"label"in e&&n(1,i=e.label),"isParentExpanded"in e&&n(2,a=e.isParentExpanded),"isParentArray"in e&&n(3,c=e.isParentArray),"isArray"in e&&n(4,l=e.isArray),"bracketOpen"in e&&n(5,u=e.bracketOpen),"bracketClose"in e&&n(6,f=e.bracketClose),"previewKeys"in e&&n(7,h=e.previewKeys),"getKey"in e&&n(8,d=e.getKey),"getValue"in e&&n(9,p=e.getValue),"getPreviewValue"in e&&n(10,v=e.getPreviewValue),"expanded"in e&&n(0,g=e.expanded),"expandable"in e&&n(11,y=e.expandable)},e.$$.update=()=>{4&e.$$.dirty&&(a||n(0,g=!1)),131201&e.$$.dirty&&n(13,b=g?o:h.slice(0,5))},[g,i,a,c,l,u,f,h,d,p,v,y,r,b,m,function(){n(0,g=!g)},function(){n(0,g=!0)},o,s]}class Ct extends be{constructor(e){super(),me(this,e,Tt,Ot,i,{key:12,keys:17,colon:18,label:1,isParentExpanded:2,isParentArray:3,isArray:4,bracketOpen:5,bracketClose:6,previewKeys:7,getKey:8,getValue:9,getPreviewValue:10,expanded:0,expandable:11})}}function Rt(e){let t,n;return t=new Ct({props:{key:e[0],expanded:e[4],isParentExpanded:e[1],isParentArray:e[2],keys:e[5],previewKeys:e[5],getValue:e[6],label:e[3]+" ",bracketOpen:"{",bracketClose:"}"}}),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,[n]){const r={};1&n&&(r.key=e[0]),16&n&&(r.expanded=e[4]),2&n&&(r.isParentExpanded=e[1]),4&n&&(r.isParentArray=e[2]),32&n&&(r.keys=e[5]),32&n&&(r.previewKeys=e[5]),8&n&&(r.label=e[3]+" "),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function Nt(e,t,n){let r,{key:o}=t,{value:s}=t,{isParentExpanded:i}=t,{isParentArray:a}=t,{nodeType:c}=t,{expanded:l=!1}=t;return e.$$set=e=>{"key"in e&&n(0,o=e.key),"value"in e&&n(7,s=e.value),"isParentExpanded"in e&&n(1,i=e.isParentExpanded),"isParentArray"in e&&n(2,a=e.isParentArray),"nodeType"in e&&n(3,c=e.nodeType),"expanded"in e&&n(4,l=e.expanded)},e.$$.update=()=>{128&e.$$.dirty&&n(5,r=Object.getOwnPropertyNames(s))},[o,i,a,c,l,r,function(e){return s[e]},s]}class jt extends be{constructor(e){super(),me(this,e,Nt,Rt,i,{key:0,value:7,isParentExpanded:1,isParentArray:2,nodeType:3,expanded:4})}}function It(e){let t,n;return t=new Ct({props:{key:e[0],expanded:e[4],isParentExpanded:e[2],isParentArray:e[3],isArray:!0,keys:e[5],previewKeys:e[6],getValue:e[7],label:"Array("+e[1].length+")",bracketOpen:"[",bracketClose:"]"}}),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,[n]){const r={};1&n&&(r.key=e[0]),16&n&&(r.expanded=e[4]),4&n&&(r.isParentExpanded=e[2]),8&n&&(r.isParentArray=e[3]),32&n&&(r.keys=e[5]),64&n&&(r.previewKeys=e[6]),2&n&&(r.label="Array("+e[1].length+")"),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function Mt(e,t,n){let{key:r}=t,{value:o}=t,{isParentExpanded:s}=t,{isParentArray:i}=t,{expanded:a=!1}=t;const c=new Set(["length"]);let l,u;return e.$$set=e=>{"key"in e&&n(0,r=e.key),"value"in e&&n(1,o=e.value),"isParentExpanded"in e&&n(2,s=e.isParentExpanded),"isParentArray"in e&&n(3,i=e.isParentArray),"expanded"in e&&n(4,a=e.expanded)},e.$$.update=()=>{2&e.$$.dirty&&n(5,l=Object.getOwnPropertyNames(o)),32&e.$$.dirty&&n(6,u=l.filter((e=>!c.has(e))))},[r,o,s,i,a,l,u,function(e){return o[e]}]}class Lt extends be{constructor(e){super(),me(this,e,Mt,It,i,{key:0,value:1,isParentExpanded:2,isParentArray:3,expanded:4})}}function Dt(e){let t,n;return t=new Ct({props:{key:e[0],isParentExpanded:e[1],isParentArray:e[2],keys:e[4],getKey:Ut,getValue:Kt,isArray:!0,label:e[3]+"("+e[4].length+")",bracketOpen:"{",bracketClose:"}"}}),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,[n]){const r={};1&n&&(r.key=e[0]),2&n&&(r.isParentExpanded=e[1]),4&n&&(r.isParentArray=e[2]),16&n&&(r.keys=e[4]),24&n&&(r.label=e[3]+"("+e[4].length+")"),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function Ut(e){return String(e[0])}function Kt(e){return e[1]}function Bt(e,t,n){let{key:r}=t,{value:o}=t,{isParentExpanded:s}=t,{isParentArray:i}=t,{nodeType:a}=t,c=[];return e.$$set=e=>{"key"in e&&n(0,r=e.key),"value"in e&&n(5,o=e.value),"isParentExpanded"in e&&n(1,s=e.isParentExpanded),"isParentArray"in e&&n(2,i=e.isParentArray),"nodeType"in e&&n(3,a=e.nodeType)},e.$$.update=()=>{if(32&e.$$.dirty){let e=[],t=0;for(const n of o)e.push([t++,n]);n(4,c=e)}},[r,s,i,a,c,o]}class qt extends be{constructor(e){super(),me(this,e,Bt,Dt,i,{key:0,value:5,isParentExpanded:1,isParentArray:2,nodeType:3})}}class Ft{constructor(e,t){this.key=e,this.value=t}}function Ht(e){let t,n;return t=new Ct({props:{key:e[0],isParentExpanded:e[1],isParentArray:e[2],keys:e[4],getKey:Jt,getValue:zt,label:e[3]+"("+e[4].length+")",colon:"",bracketOpen:"{",bracketClose:"}"}}),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,[n]){const r={};1&n&&(r.key=e[0]),2&n&&(r.isParentExpanded=e[1]),4&n&&(r.isParentArray=e[2]),16&n&&(r.keys=e[4]),24&n&&(r.label=e[3]+"("+e[4].length+")"),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function Jt(e){return e[0]}function zt(e){return e[1]}function Vt(e,t,n){let{key:r}=t,{value:o}=t,{isParentExpanded:s}=t,{isParentArray:i}=t,{nodeType:a}=t,c=[];return e.$$set=e=>{"key"in e&&n(0,r=e.key),"value"in e&&n(5,o=e.value),"isParentExpanded"in e&&n(1,s=e.isParentExpanded),"isParentArray"in e&&n(2,i=e.isParentArray),"nodeType"in e&&n(3,a=e.nodeType)},e.$$.update=()=>{if(32&e.$$.dirty){let e=[],t=0;for(const n of o)e.push([t++,new Ft(n[0],n[1])]);n(4,c=e)}},[r,s,i,a,c,o]}class Wt extends be{constructor(e){super(),me(this,e,Vt,Ht,i,{key:0,value:5,isParentExpanded:1,isParentArray:2,nodeType:3})}}function Yt(e){let t,n;return t=new Ct({props:{expanded:e[4],isParentExpanded:e[2],isParentArray:e[3],key:e[2]?String(e[0]):e[1].key,keys:e[5],getValue:e[6],label:e[2]?"Entry ":"=> ",bracketOpen:"{",bracketClose:"}"}}),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,[n]){const r={};16&n&&(r.expanded=e[4]),4&n&&(r.isParentExpanded=e[2]),8&n&&(r.isParentArray=e[3]),7&n&&(r.key=e[2]?String(e[0]):e[1].key),4&n&&(r.label=e[2]?"Entry ":"=> "),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function Gt(e,t,n){let{key:r}=t,{value:o}=t,{isParentExpanded:s}=t,{isParentArray:i}=t,{expanded:a=!1}=t;return e.$$set=e=>{"key"in e&&n(0,r=e.key),"value"in e&&n(1,o=e.value),"isParentExpanded"in e&&n(2,s=e.isParentExpanded),"isParentArray"in e&&n(3,i=e.isParentArray),"expanded"in e&&n(4,a=e.expanded)},[r,o,s,i,a,["key","value"],function(e){return o[e]}]}class Zt extends be{constructor(e){super(),me(this,e,Gt,Yt,i,{key:0,value:1,isParentExpanded:2,isParentArray:3,expanded:4})}}function Qt(e){let t,n,r,o,s,i,a,c=(e[2]?e[2](e[1]):e[1])+"";return n=new xt({props:{key:e[0],colon:e[6],isParentExpanded:e[3],isParentArray:e[4]}}),{c(){t=_("li"),pe(n.$$.fragment),r=A(),o=_("span"),s=E(c),O(o,"class",i=f(e[5])+" svelte-3bjyvl"),O(t,"class","svelte-3bjyvl"),R(t,"indent",e[3])},m(e,i){w(e,t,i),ve(n,t,null),b(t,r),b(t,o),b(o,s),a=!0},p(e,[r]){const l={};1&r&&(l.key=e[0]),8&r&&(l.isParentExpanded=e[3]),16&r&&(l.isParentArray=e[4]),n.$set(l),(!a||6&r)&&c!==(c=(e[2]?e[2](e[1]):e[1])+"")&&T(s,c),(!a||32&r&&i!==(i=f(e[5])+" svelte-3bjyvl"))&&O(o,"class",i),8&r&&R(t,"indent",e[3])},i(e){a||(ue(n.$$.fragment,e),a=!0)},o(e){fe(n.$$.fragment,e),a=!1},d(e){e&&x(t),ge(n)}}}function Xt(e,t,n){let{key:r}=t,{value:o}=t,{valueGetter:s=null}=t,{isParentExpanded:i}=t,{isParentArray:a}=t,{nodeType:c}=t;const{colon:l}=H(pt);return e.$$set=e=>{"key"in e&&n(0,r=e.key),"value"in e&&n(1,o=e.value),"valueGetter"in e&&n(2,s=e.valueGetter),"isParentExpanded"in e&&n(3,i=e.isParentExpanded),"isParentArray"in e&&n(4,a=e.isParentArray),"nodeType"in e&&n(5,c=e.nodeType)},[r,o,s,i,a,c,l]}class en extends be{constructor(e){super(),me(this,e,Xt,Qt,i,{key:0,value:1,valueGetter:2,isParentExpanded:3,isParentArray:4,nodeType:5})}}function tn(e,t,n){const r=e.slice();return r[8]=t[n],r[10]=n,r}function nn(e){let t,n;return t=new yt({props:{expanded:e[0]}}),t.$on("click",e[7]),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,n){const r={};1&n&&(r.expanded=e[0]),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function rn(e){let t,n,r=e[0]&&on(e);return{c(){t=_("ul"),r&&r.c(),O(t,"class","svelte-1ca3gb2"),R(t,"collapse",!e[0])},m(e,o){w(e,t,o),r&&r.m(t,null),n=!0},p(e,n){e[0]?r?(r.p(e,n),1&n&&ue(r,1)):(r=on(e),r.c(),ue(r,1),r.m(t,null)):r&&(ce(),fe(r,1,1,(()=>{r=null})),le()),1&n&&R(t,"collapse",!e[0])},i(e){n||(ue(r),n=!0)},o(e){fe(r),n=!1},d(e){e&&x(t),r&&r.d()}}}function on(e){let t,n,r,o,s,i,a;t=new hn({props:{key:"message",value:e[2].message}}),o=new xt({props:{key:"stack",colon:":",isParentExpanded:e[3]}});let c=e[5],l=[];for(let t=0;t<c.length;t+=1)l[t]=sn(tn(e,c,t));return{c(){pe(t.$$.fragment),n=A(),r=_("li"),pe(o.$$.fragment),s=A(),i=_("span");for(let e=0;e<l.length;e+=1)l[e].c();O(r,"class","svelte-1ca3gb2")},m(e,c){ve(t,e,c),w(e,n,c),w(e,r,c),ve(o,r,null),b(r,s),b(r,i);for(let e=0;e<l.length;e+=1)l[e].m(i,null);a=!0},p(e,n){const r={};4&n&&(r.value=e[2].message),t.$set(r);const s={};if(8&n&&(s.isParentExpanded=e[3]),o.$set(s),32&n){let t;for(c=e[5],t=0;t<c.length;t+=1){const r=tn(e,c,t);l[t]?l[t].p(r,n):(l[t]=sn(r),l[t].c(),l[t].m(i,null))}for(;t<l.length;t+=1)l[t].d(1);l.length=c.length}},i(e){a||(ue(t.$$.fragment,e),ue(o.$$.fragment,e),a=!0)},o(e){fe(t.$$.fragment,e),fe(o.$$.fragment,e),a=!1},d(e){ge(t,e),e&&x(n),e&&x(r),ge(o),$(l,e)}}}function sn(e){let t,n,r,o=e[8]+"";return{c(){t=_("span"),n=E(o),r=_("br"),O(t,"class","svelte-1ca3gb2"),R(t,"indent",e[10]>0)},m(e,o){w(e,t,o),b(t,n),w(e,r,o)},p(e,t){32&t&&o!==(o=e[8]+"")&&T(n,o)},d(e){e&&x(t),e&&x(r)}}}function an(e){let t,n,r,o,s,i,a,c,l,u,f,h=(e[0]?"":e[2].message)+"",d=e[3]&&nn(e);r=new xt({props:{key:e[1],colon:e[6].colon,isParentExpanded:e[3],isParentArray:e[4]}});let p=e[3]&&rn(e);return{c(){t=_("li"),d&&d.c(),n=A(),pe(r.$$.fragment),o=A(),s=_("span"),i=E("Error: "),a=E(h),c=A(),p&&p.c(),O(t,"class","svelte-1ca3gb2"),R(t,"indent",e[3])},m(h,v){w(h,t,v),d&&d.m(t,null),b(t,n),ve(r,t,null),b(t,o),b(t,s),b(s,i),b(s,a),b(t,c),p&&p.m(t,null),l=!0,u||(f=S(s,"click",e[7]),u=!0)},p(e,[o]){e[3]?d?(d.p(e,o),8&o&&ue(d,1)):(d=nn(e),d.c(),ue(d,1),d.m(t,n)):d&&(ce(),fe(d,1,1,(()=>{d=null})),le());const s={};2&o&&(s.key=e[1]),8&o&&(s.isParentExpanded=e[3]),16&o&&(s.isParentArray=e[4]),r.$set(s),(!l||5&o)&&h!==(h=(e[0]?"":e[2].message)+"")&&T(a,h),e[3]?p?(p.p(e,o),8&o&&ue(p,1)):(p=rn(e),p.c(),ue(p,1),p.m(t,null)):p&&(ce(),fe(p,1,1,(()=>{p=null})),le()),8&o&&R(t,"indent",e[3])},i(e){l||(ue(d),ue(r.$$.fragment,e),ue(p),l=!0)},o(e){fe(d),fe(r.$$.fragment,e),fe(p),l=!1},d(e){e&&x(t),d&&d.d(),ge(r),p&&p.d(),u=!1,f()}}}function cn(e,t,n){let{key:r}=t,{value:o}=t,{isParentExpanded:s}=t,{isParentArray:i}=t,{expanded:a=!1}=t;const c=H(pt);let l;return F(pt,{...c,colon:":"}),e.$$set=e=>{"key"in e&&n(1,r=e.key),"value"in e&&n(2,o=e.value),"isParentExpanded"in e&&n(3,s=e.isParentExpanded),"isParentArray"in e&&n(4,i=e.isParentArray),"expanded"in e&&n(0,a=e.expanded)},e.$$.update=()=>{4&e.$$.dirty&&n(5,l=o.stack.split("\n")),8&e.$$.dirty&&(s||n(0,a=!1))},[a,r,o,s,i,l,c,function(){n(0,a=!a)}]}class ln extends be{constructor(e){super(),me(this,e,cn,an,i,{key:1,value:2,isParentExpanded:3,isParentArray:4,expanded:0})}}function un(e){let t,n,r;var o=e[5];function s(e){return{props:{key:e[0],value:e[1],isParentExpanded:e[2],isParentArray:e[3],nodeType:e[4],valueGetter:e[6]}}}return o&&(t=new o(s(e))),{c(){t&&pe(t.$$.fragment),n=P()},m(e,o){t&&ve(t,e,o),w(e,n,o),r=!0},p(e,[r]){const i={};if(1&r&&(i.key=e[0]),2&r&&(i.value=e[1]),4&r&&(i.isParentExpanded=e[2]),8&r&&(i.isParentArray=e[3]),16&r&&(i.nodeType=e[4]),64&r&&(i.valueGetter=e[6]),o!==(o=e[5])){if(t){ce();const e=t;fe(e.$$.fragment,1,0,(()=>{ge(e,1)})),le()}o?(t=new o(s(e)),pe(t.$$.fragment),ue(t.$$.fragment,1),ve(t,n.parentNode,n)):t=null}else o&&t.$set(i)},i(e){r||(t&&ue(t.$$.fragment,e),r=!0)},o(e){t&&fe(t.$$.fragment,e),r=!1},d(e){e&&x(n),t&&ge(t,e)}}}function fn(e,t,n){let r,o,s,{key:i}=t,{value:a}=t,{isParentExpanded:c}=t,{isParentArray:l}=t;return e.$$set=e=>{"key"in e&&n(0,i=e.key),"value"in e&&n(1,a=e.value),"isParentExpanded"in e&&n(2,c=e.isParentExpanded),"isParentArray"in e&&n(3,l=e.isParentArray)},e.$$.update=()=>{2&e.$$.dirty&&n(4,r=function(e){const t=Object.prototype.toString.call(e).slice(8,-1);return"Object"===t?"function"==typeof e[Symbol.iterator]?"Iterable":e.constructor.name:t}(a)),16&e.$$.dirty&&n(5,o=function(e){switch(e){case"Object":return jt;case"Error":return ln;case"Array":return Lt;case"Iterable":case"Map":case"Set":return"function"==typeof a.set?Wt:qt;case"MapEntry":return Zt;default:return en}}(r)),16&e.$$.dirty&&n(6,s=function(e){switch(e){case"Object":case"Error":case"Array":case"Iterable":case"Map":case"Set":case"MapEntry":case"Number":return;case"String":return e=>`"${e}"`;case"Boolean":return e=>e?"true":"false";case"Date":return e=>e.toISOString();case"Null":return()=>"null";case"Undefined":return()=>"undefined";case"Function":case"Symbol":return e=>e.toString();default:return()=>`<${e}>`}}(r))},[i,a,c,l,r,o,s]}class hn extends be{constructor(e){super(),me(this,e,fn,un,i,{key:0,value:1,isParentExpanded:2,isParentArray:3})}}function dn(e){let t,n,r;return n=new hn({props:{key:e[0],value:e[1],isParentExpanded:!0,isParentArray:!1}}),{c(){t=_("ul"),pe(n.$$.fragment),O(t,"class","svelte-773n60")},m(e,o){w(e,t,o),ve(n,t,null),r=!0},p(e,[t]){const r={};1&t&&(r.key=e[0]),2&t&&(r.value=e[1]),n.$set(r)},i(e){r||(ue(n.$$.fragment,e),r=!0)},o(e){fe(n.$$.fragment,e),r=!1},d(e){e&&x(t),ge(n)}}}function pn(e,t,n){F(pt,{});let{key:r=""}=t,{value:o}=t;return e.$$set=e=>{"key"in e&&n(0,r=e.key),"value"in e&&n(1,o=e.value)},[r,o]}class vn extends be{constructor(e){super(),me(this,e,pn,dn,i,{key:0,value:1})}}function gn(e){let t,n,r;return n=new vn({props:{value:e[0]}}),{c(){t=_("div"),pe(n.$$.fragment),O(t,"class","json-tree-wrapper svelte-tu2m8r")},m(o,s){w(o,t,s),ve(n,t,null),e[2](t),r=!0},p(e,t){const r={};1&t&&(r.value=e[0]),n.$set(r)},i(e){r||(ue(n.$$.fragment,e),r=!0)},o(e){fe(n.$$.fragment,e),r=!1},d(r){r&&x(t),ge(n),e[2](null)}}}function yn(e){let t,n;return t=new at({props:{title:"Raw JSON",$$slots:{default:[gn]},$$scope:{ctx:e}}}),t.$on("close",e[3]),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,[n]){const r={};19&n&&(r.$$scope={dirty:n,ctx:e}),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function mn(e,t,n){let r,{data:o=!0}=t;return q((()=>{r.querySelector(".container").click()})),e.$$set=e=>{"data"in e&&n(0,o=e.data)},[o,r,function(e){V[e?"unshift":"push"]((()=>{r=e,n(1,r)}))},function(t){J(e,t)}]}class bn extends be{constructor(e){super(),me(this,e,mn,yn,i,{data:0})}}function wn(e,t,n){const r=e.slice();return r[1]=t[n],r}function xn(e){let t;return{c(){t=_("tr"),t.innerHTML='<td class="table-empty-text svelte-1u7sob6" colspan="100">No nearby devices found</td> \n      '},m(e,n){w(e,t,n)},d(e){e&&x(t)}}}function $n(e){let t;return{c(){t=_("span"),t.textContent="this",O(t,"class","svelte-1u7sob6")},m(e,n){w(e,t,n)},d(e){e&&x(t)}}}function _n(e){let t,n,r,o,s,i,a,c,l,u,f,h,d,p,v,g,y,m,$,k,P,S,C,N,j,I,M,L,D,U,K,B=e[1].deviceName+"",q=(e[1].versionCompareSymbol?e[1].versionCompareSymbol:"")+"",F=e[1].dmtVersion+"",H=e[1].ip+"",J=e[1].platform+"",z=e[1].uptime+"",V=e[1].username+"",W=(e[1].apssid?e[1].apssid:"/")+"",Y=e[1].deviceKey.substring(0,8)+"",G=e[1].thisDevice&&$n();return{c(){t=_("tr"),n=_("td"),G&&G.c(),r=A(),o=E(B),s=A(),i=_("td"),a=_("span"),c=E(q),l=A(),u=E(F),f=A(),h=_("td"),d=E(H),p=A(),v=_("td"),g=E(J),y=A(),m=_("td"),$=E(z),k=A(),P=_("td"),S=E(V),C=A(),N=_("td"),j=E(W),I=A(),M=_("td"),L=E(Y),D=E("..."),K=A(),O(n,"class","device_name svelte-1u7sob6"),O(a,"class","svelte-1u7sob6"),O(i,"class","dmt_version svelte-1u7sob6"),O(h,"class","device_ip svelte-1u7sob6"),O(v,"class","platform svelte-1u7sob6"),O(m,"class","uptime svelte-1u7sob6"),O(P,"class","user svelte-1u7sob6"),O(N,"class","apssid svelte-1u7sob6"),O(M,"class","device_key svelte-1u7sob6"),O(M,"title",U=e[1].deviceKey),R(t,"stale",e[1].stale)},m(e,x){w(e,t,x),b(t,n),G&&G.m(n,null),b(n,r),b(n,o),b(t,s),b(t,i),b(i,a),b(a,c),b(i,l),b(i,u),b(t,f),b(t,h),b(h,d),b(t,p),b(t,v),b(v,g),b(t,y),b(t,m),b(m,$),b(t,k),b(t,P),b(P,S),b(t,C),b(t,N),b(N,j),b(t,I),b(t,M),b(M,L),b(M,D),b(t,K)},p(e,s){e[1].thisDevice?G||(G=$n(),G.c(),G.m(n,r)):G&&(G.d(1),G=null),1&s&&B!==(B=e[1].deviceName+"")&&T(o,B),1&s&&q!==(q=(e[1].versionCompareSymbol?e[1].versionCompareSymbol:"")+"")&&T(c,q),1&s&&F!==(F=e[1].dmtVersion+"")&&T(u,F),1&s&&H!==(H=e[1].ip+"")&&T(d,H),1&s&&J!==(J=e[1].platform+"")&&T(g,J),1&s&&z!==(z=e[1].uptime+"")&&T($,z),1&s&&V!==(V=e[1].username+"")&&T(S,V),1&s&&W!==(W=(e[1].apssid?e[1].apssid:"/")+"")&&T(j,W),1&s&&Y!==(Y=e[1].deviceKey.substring(0,8)+"")&&T(L,Y),1&s&&U!==(U=e[1].deviceKey)&&O(M,"title",U),1&s&&R(t,"stale",e[1].stale)},d(e){e&&x(t),G&&G.d()}}}function kn(t){let n,r,o,s,i=t[0],a=[];for(let e=0;e<i.length;e+=1)a[e]=_n(wn(t,i,e));let c=null;return i.length||(c=xn()),{c(){n=_("table"),r=_("thead"),r.innerHTML="<tr><th>Device</th> \n      <th>DMT version</th> \n      <th>Local IP</th> \n      <th>Platform</th> \n      <th>Uptime</th> \n      <th>User</th> \n      <th>AP SSID</th> \n      <th>Device key</th></tr>",o=A(),s=_("tbody");for(let e=0;e<a.length;e+=1)a[e].c();c&&c.c(),O(n,"class","svelte-1u7sob6")},m(e,t){w(e,n,t),b(n,r),b(n,o),b(n,s);for(let e=0;e<a.length;e+=1)a[e].m(s,null);c&&c.m(s,null)},p(e,[t]){if(1&t){let n;for(i=e[0],n=0;n<i.length;n+=1){const r=wn(e,i,n);a[n]?a[n].p(r,t):(a[n]=_n(r),a[n].c(),a[n].m(s,null))}for(;n<a.length;n+=1)a[n].d(1);a.length=i.length,i.length?c&&(c.d(1),c=null):c||(c=xn(),c.c(),c.m(s,null))}},i:e,o:e,d(e){e&&x(n),$(a,e),c&&c.d()}}}function En(e,t,n){let{data:r=[]}=t;return e.$$set=e=>{"data"in e&&n(0,r=e.data)},[r]}class An extends be{constructor(e){super(),me(this,e,En,kn,i,{data:0})}}function Pn(e,t,n){const r=e.slice();return r[1]=t[n],r}function Sn(e){let t;return{c(){t=_("tr"),t.innerHTML='<td class="table-empty-text" colspan="100">No connections found</td> \n      '},m(e,n){w(e,t,n)},d(e){e&&x(t)}}}function On(e){let t,n,r=e[1].remotePubkeyHex.substring(0,8)+"";return{c(){t=E(r),n=E("...")},m(e,r){w(e,t,r),w(e,n,r)},p(e,n){1&n&&r!==(r=e[1].remotePubkeyHex.substring(0,8)+"")&&T(t,r)},d(e){e&&x(t),e&&x(n)}}}function Tn(e){let t,n,r,o,s,i,a,c,l,u,f,h,d,p,v,g,y=e[1].address+"",m=e[1].operational?"YES":"✖",$=e[1].protocol+"",k=e[1].lane+"",P=e[1].remotePubkeyHex&&On(e);return{c(){t=_("tr"),n=_("td"),r=E(y),o=A(),s=_("td"),i=E(m),a=A(),c=_("td"),l=E($),u=A(),f=_("td"),h=E(k),d=A(),p=_("td"),P&&P.c(),g=A(),O(s,"class","operational svelte-88ml1e"),R(s,"yes",e[1].operational),O(c,"class","protocol svelte-88ml1e"),O(f,"class","lane svelte-88ml1e"),O(p,"class","device_key svelte-88ml1e"),O(p,"title",v=e[1].remotePubkeyHex)},m(e,v){w(e,t,v),b(t,n),b(n,r),b(t,o),b(t,s),b(s,i),b(t,a),b(t,c),b(c,l),b(t,u),b(t,f),b(f,h),b(t,d),b(t,p),P&&P.m(p,null),b(t,g)},p(e,t){1&t&&y!==(y=e[1].address+"")&&T(r,y),1&t&&m!==(m=e[1].operational?"YES":"✖")&&T(i,m),1&t&&R(s,"yes",e[1].operational),1&t&&$!==($=e[1].protocol+"")&&T(l,$),1&t&&k!==(k=e[1].lane+"")&&T(h,k),e[1].remotePubkeyHex?P?P.p(e,t):(P=On(e),P.c(),P.m(p,null)):P&&(P.d(1),P=null),1&t&&v!==(v=e[1].remotePubkeyHex)&&O(p,"title",v)},d(e){e&&x(t),P&&P.d()}}}function Cn(t){let n,r,o,s,i=t[0],a=[];for(let e=0;e<i.length;e+=1)a[e]=Tn(Pn(t,i,e));let c=null;return i.length||(c=Sn()),{c(){n=_("table"),r=_("thead"),r.innerHTML="<tr><th>Address</th> \n      \n      <th>Operational</th> \n      <th>Protocol</th> \n      <th>Lane</th> \n      <th>Remote device key</th></tr>",o=A(),s=_("tbody");for(let e=0;e<a.length;e+=1)a[e].c();c&&c.c(),O(n,"class","svelte-88ml1e")},m(e,t){w(e,n,t),b(n,r),b(n,o),b(n,s);for(let e=0;e<a.length;e+=1)a[e].m(s,null);c&&c.m(s,null)},p(e,[t]){if(1&t){let n;for(i=e[0],n=0;n<i.length;n+=1){const r=Pn(e,i,n);a[n]?a[n].p(r,t):(a[n]=Tn(r),a[n].c(),a[n].m(s,null))}for(;n<a.length;n+=1)a[n].d(1);a.length=i.length,i.length?c&&(c.d(1),c=null):c||(c=Sn(),c.c(),c.m(s,null))}},i:e,o:e,d(e){e&&x(n),$(a,e),c&&c.d()}}}function Rn(e,t,n){let{data:r=[]}=t;return e.$$set=e=>{"data"in e&&n(0,r=e.data)},[r]}class Nn extends be{constructor(e){super(),me(this,e,Rn,Cn,i,{data:0})}}function jn(e,t,n){const r=e.slice();return r[1]=t[n],r}function In(e){let t;return{c(){t=_("tr"),t.innerHTML='<td class="table-empty-text" colspan="100">No peers</td> \n      '},m(e,n){w(e,t,n)},d(e){e&&x(t)}}}function Mn(t){let n,r;return{c(){n=_("span"),r=E(" unknown"),O(n,"class","svelte-1xamzjs")},m(e,t){w(e,n,t),w(e,r,t)},p:e,d(e){e&&x(n),e&&x(r)}}}function Ln(e){let t,n,r,o,s=(e[1].versionCompareSymbol?e[1].versionCompareSymbol:"")+"",i=e[1].peerState.dmtVersion+"";return{c(){t=_("span"),n=E(s),r=A(),o=E(i),O(t,"class","svelte-1xamzjs")},m(e,s){w(e,t,s),b(t,n),w(e,r,s),w(e,o,s)},p(e,t){1&t&&s!==(s=(e[1].versionCompareSymbol?e[1].versionCompareSymbol:"")+"")&&T(n,s),1&t&&i!==(i=e[1].peerState.dmtVersion+"")&&T(o,i)},d(e){e&&x(t),e&&x(r),e&&x(o)}}}function Dn(e){let t,n,r,o,s,i,a,c,l,u,f,h,d=e[1].deviceTag+"",p=e[1].address+"",v=e[1].operational?"YES":"✖";function g(e,t){return e[1].peerState?Ln:Mn}let y=g(e),m=y(e);return{c(){t=_("tr"),n=_("td"),r=E(d),o=A(),s=_("td"),i=E(p),a=A(),c=_("td"),l=E(v),u=A(),f=_("td"),m.c(),h=A(),O(n,"class","device_tag svelte-1xamzjs"),O(c,"class","operational svelte-1xamzjs"),R(c,"yes",e[1].operational),O(f,"class","dmt_version svelte-1xamzjs")},m(e,d){w(e,t,d),b(t,n),b(n,r),b(t,o),b(t,s),b(s,i),b(t,a),b(t,c),b(c,l),b(t,u),b(t,f),m.m(f,null),b(t,h)},p(e,t){1&t&&d!==(d=e[1].deviceTag+"")&&T(r,d),1&t&&p!==(p=e[1].address+"")&&T(i,p),1&t&&v!==(v=e[1].operational?"YES":"✖")&&T(l,v),1&t&&R(c,"yes",e[1].operational),y===(y=g(e))&&m?m.p(e,t):(m.d(1),m=y(e),m&&(m.c(),m.m(f,null)))},d(e){e&&x(t),m.d()}}}function Un(t){let n,r,o,s,i=t[0],a=[];for(let e=0;e<i.length;e+=1)a[e]=Dn(jn(t,i,e));let c=null;return i.length||(c=In()),{c(){n=_("table"),r=_("thead"),r.innerHTML="<tr><th>Peer</th> \n      <th>Address</th> \n      <th>Operational</th> \n      <th>DMT version</th></tr>",o=A(),s=_("tbody");for(let e=0;e<a.length;e+=1)a[e].c();c&&c.c(),O(n,"class","svelte-1xamzjs")},m(e,t){w(e,n,t),b(n,r),b(n,o),b(n,s);for(let e=0;e<a.length;e+=1)a[e].m(s,null);c&&c.m(s,null)},p(e,[t]){if(1&t){let n;for(i=e[0],n=0;n<i.length;n+=1){const r=jn(e,i,n);a[n]?a[n].p(r,t):(a[n]=Dn(r),a[n].c(),a[n].m(s,null))}for(;n<a.length;n+=1)a[n].d(1);a.length=i.length,i.length?c&&(c.d(1),c=null):c||(c=In(),c.c(),c.m(s,null))}},i:e,o:e,d(e){e&&x(n),$(a,e),c&&c.d()}}}function Kn(e,t,n){let{data:r=[]}=t;return e.$$set=e=>{"data"in e&&n(0,r=e.data)},[r]}class Bn extends be{constructor(e){super(),me(this,e,Kn,Un,i,{data:0})}}const qn=[];function Fn(t,n=e){let r;const o=[];function s(e){if(i(t,e)&&(t=e,r)){const e=!qn.length;for(let e=0;e<o.length;e+=1){const n=o[e];n[1](),qn.push(n,t)}if(e){for(let e=0;e<qn.length;e+=2)qn[e][0](qn[e+1]);qn.length=0}}}return{set:s,update:function(e){s(e(t))},subscribe:function(i,a=e){const c=[i,a];return o.push(c),1===o.length&&(r=n(s)||e),i(t),()=>{const e=o.indexOf(c);-1!==e&&o.splice(e,1),0===o.length&&(r(),r=null)}}}}const Hn={subscribe:Fn(window.location.hash,(e=>{const t=()=>e(window.location.hash);return window.addEventListener("hashchange",t),()=>window.removeEventListener("hashchange",t)})).subscribe,set:e=>window.location.hash=e,update:e=>set(e(window.location.hash))};function Jn(e){let t,n;return t=new bn({props:{data:e[0]}}),t.$on("close",e[3]),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,n){const r={};1&n&&(r.data=e[0]),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function zn(e){let t,n;return t=new dt({props:{data:e[0].log||[]}}),t.$on("close",e[2]),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,n){const r={};1&n&&(r.data=e[0].log||[]),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function Vn(e){let t,n,r,o,s,i,a,c,l,u,f,h,d,p,v,g,y,m,$,k,E,S,T,C,R,N,j,I,M,L,D,U,K;t=new Ve({props:{deviceData:e[0].device}}),a=new An({props:{data:e[0].nearbyDevices}}),p=new Bn({props:{data:e[0].peerlist}}),E=new Nn({props:{data:e[0].connectionsOut}}),I=new Nn({props:{data:e[0].connectionsIn}});const B=[zn,Jn],q=[];function F(e,t){return"#log"===e[1]?0:"#json"===e[1]?1:-1}return~(L=F(e))&&(D=q[L]=B[L](e)),{c(){pe(t.$$.fragment),n=A(),r=_("div"),o=_("section"),s=_("h1"),s.textContent="Nearby devices",i=A(),pe(a.$$.fragment),c=A(),l=_("section"),u=_("h1"),u.textContent="Peerlist",f=A(),h=_("h2"),h.textContent="[ following · permanent outgoing ws connections · using dmt/fiber protocol · port 7780 ]",d=A(),pe(p.$$.fragment),v=A(),g=_("section"),y=_("h1"),y.textContent="Outgoing Connections",m=A(),$=_("div"),k=_("div"),pe(E.$$.fragment),S=A(),T=_("section"),C=_("h1"),C.textContent="Incoming Connections",R=A(),N=_("div"),j=_("div"),pe(I.$$.fragment),M=A(),D&&D.c(),U=P(),O(o,"class","svelte-1ebxwgt"),O(h,"class","svelte-1ebxwgt"),O(l,"class","svelte-1ebxwgt"),O(k,"class","connections-grid__left svelte-1ebxwgt"),O($,"class","connections-grid svelte-1ebxwgt"),O(g,"class","svelte-1ebxwgt"),O(j,"class","connections-grid__left svelte-1ebxwgt"),O(N,"class","connections-grid svelte-1ebxwgt"),O(T,"class","svelte-1ebxwgt"),O(r,"class","view-container svelte-1ebxwgt")},m(e,x){ve(t,e,x),w(e,n,x),w(e,r,x),b(r,o),b(o,s),b(o,i),ve(a,o,null),b(r,c),b(r,l),b(l,u),b(l,f),b(l,h),b(l,d),ve(p,l,null),b(r,v),b(r,g),b(g,y),b(g,m),b(g,$),b($,k),ve(E,k,null),b(r,S),b(r,T),b(T,C),b(T,R),b(T,N),b(N,j),ve(I,j,null),w(e,M,x),~L&&q[L].m(e,x),w(e,U,x),K=!0},p(e,[n]){const r={};1&n&&(r.deviceData=e[0].device),t.$set(r);const o={};1&n&&(o.data=e[0].nearbyDevices),a.$set(o);const s={};1&n&&(s.data=e[0].peerlist),p.$set(s);const i={};1&n&&(i.data=e[0].connectionsOut),E.$set(i);const c={};1&n&&(c.data=e[0].connectionsIn),I.$set(c);let l=L;L=F(e),L===l?~L&&q[L].p(e,n):(D&&(ce(),fe(q[l],1,1,(()=>{q[l]=null})),le()),~L?(D=q[L],D?D.p(e,n):(D=q[L]=B[L](e),D.c()),ue(D,1),D.m(U.parentNode,U)):D=null)},i(e){K||(ue(t.$$.fragment,e),ue(a.$$.fragment,e),ue(p.$$.fragment,e),ue(E.$$.fragment,e),ue(I.$$.fragment,e),ue(D),K=!0)},o(e){fe(t.$$.fragment,e),fe(a.$$.fragment,e),fe(p.$$.fragment,e),fe(E.$$.fragment,e),fe(I.$$.fragment,e),fe(D),K=!1},d(e){ge(t,e),e&&x(n),e&&x(r),ge(a),ge(p),ge(E),ge(I),e&&x(M),~L&&q[L].d(e),e&&x(U)}}}function Wn(e,t,n){let r;var o,s;o=Hn,s=e=>n(1,r=e),e.$$.on_destroy.push(a(o,s));let{state:i}=t;return e.$$set=e=>{"state"in e&&n(0,i=e.state)},[i,r,()=>h(Hn,r="",r),()=>h(Hn,r="",r)]}class Yn extends be{constructor(e){super(),me(this,e,Wn,Vn,i,{state:0})}}function Gn(e){let t,n;return t=new Yn({props:{state:e[2]}}),{c(){pe(t.$$.fragment)},m(e,r){ve(t,e,r),n=!0},p(e,n){const r={};4&n&&(r.state=e[2]),t.$set(r)},i(e){n||(ue(t.$$.fragment,e),n=!0)},o(e){fe(t.$$.fragment,e),n=!1},d(e){ge(t,e)}}}function Zn(t){let n,r;return n=new ke({}),{c(){pe(n.$$.fragment)},m(e,t){ve(n,e,t),r=!0},p:e,i(e){r||(ue(n.$$.fragment,e),r=!0)},o(e){fe(n.$$.fragment,e),r=!1},d(e){ge(n,e)}}}function Qn(e){let t,n,r,o;const s=[Zn,Gn],i=[];function a(e,t){return e[3]?1:0}return n=a(e),r=i[n]=s[n](e),{c(){t=_("main"),r.c(),O(t,"class","svelte-m6ykvc")},m(e,r){w(e,t,r),i[n].m(t,null),o=!0},p(e,[o]){let c=n;n=a(e),n===c?i[n].p(e,o):(ce(),fe(i[c],1,1,(()=>{i[c]=null})),le(),r=i[n],r?r.p(e,o):(r=i[n]=s[n](e),r.c()),ue(r,1),r.m(t,null))},i(e){o||(ue(r),o=!0)},o(e){fe(r),o=!1},d(e){e&&x(t),i[n].d()}}}function Xn(t,n,r){let o,s,i=e,c=()=>(i(),i=a(d,(e=>r(2,o=e))),d),l=e,u=()=>(l(),l=a(f,(e=>r(3,s=e))),f);t.$$.on_destroy.push((()=>i())),t.$$.on_destroy.push((()=>l()));let{connected:f}=n;u();let h,{state:d}=n;return c(),d.subscribe((({device:e})=>{e&&e.deviceName&&(document.title=`${e.deviceName} — DMT Insight`)})),t.$$set=e=>{"connected"in e&&u(r(0,f=e.connected)),"state"in e&&c(r(1,d=e.state))},t.$$.update=()=>{4&t.$$.dirty&&(h=o.device)},[f,d,o,s]}
-/*!
+
+    (function (global, factory) {
+    	 module.exports = factory() ;
+    }(commonjsGlobal, (function () {
+    var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+      return typeof obj;
+    } : function (obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+
+
+
+
+
+
+
+
+
+
+
+    var classCallCheck = function (instance, Constructor) {
+      if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+      }
+    };
+
+    var createClass = function () {
+      function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
+        }
+      }
+
+      return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) defineProperties(Constructor, staticProps);
+        return Constructor;
+      };
+    }();
+
+
+
+
+
+
+
+    var _extends = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    var DOMIterator = function () {
+      function DOMIterator(ctx) {
+        var iframes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+        var exclude = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+        var iframesTimeout = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 5000;
+        classCallCheck(this, DOMIterator);
+
+        this.ctx = ctx;
+        this.iframes = iframes;
+        this.exclude = exclude;
+        this.iframesTimeout = iframesTimeout;
+      }
+
+      createClass(DOMIterator, [{
+        key: 'getContexts',
+        value: function getContexts() {
+          var ctx = void 0,
+              filteredCtx = [];
+          if (typeof this.ctx === 'undefined' || !this.ctx) {
+            ctx = [];
+          } else if (NodeList.prototype.isPrototypeOf(this.ctx)) {
+            ctx = Array.prototype.slice.call(this.ctx);
+          } else if (Array.isArray(this.ctx)) {
+            ctx = this.ctx;
+          } else if (typeof this.ctx === 'string') {
+            ctx = Array.prototype.slice.call(document.querySelectorAll(this.ctx));
+          } else {
+            ctx = [this.ctx];
+          }
+          ctx.forEach(function (ctx) {
+            var isDescendant = filteredCtx.filter(function (contexts) {
+              return contexts.contains(ctx);
+            }).length > 0;
+            if (filteredCtx.indexOf(ctx) === -1 && !isDescendant) {
+              filteredCtx.push(ctx);
+            }
+          });
+          return filteredCtx;
+        }
+      }, {
+        key: 'getIframeContents',
+        value: function getIframeContents(ifr, successFn) {
+          var errorFn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {};
+
+          var doc = void 0;
+          try {
+            var ifrWin = ifr.contentWindow;
+            doc = ifrWin.document;
+            if (!ifrWin || !doc) {
+              throw new Error('iframe inaccessible');
+            }
+          } catch (e) {
+            errorFn();
+          }
+          if (doc) {
+            successFn(doc);
+          }
+        }
+      }, {
+        key: 'isIframeBlank',
+        value: function isIframeBlank(ifr) {
+          var bl = 'about:blank',
+              src = ifr.getAttribute('src').trim(),
+              href = ifr.contentWindow.location.href;
+          return href === bl && src !== bl && src;
+        }
+      }, {
+        key: 'observeIframeLoad',
+        value: function observeIframeLoad(ifr, successFn, errorFn) {
+          var _this = this;
+
+          var called = false,
+              tout = null;
+          var listener = function listener() {
+            if (called) {
+              return;
+            }
+            called = true;
+            clearTimeout(tout);
+            try {
+              if (!_this.isIframeBlank(ifr)) {
+                ifr.removeEventListener('load', listener);
+                _this.getIframeContents(ifr, successFn, errorFn);
+              }
+            } catch (e) {
+              errorFn();
+            }
+          };
+          ifr.addEventListener('load', listener);
+          tout = setTimeout(listener, this.iframesTimeout);
+        }
+      }, {
+        key: 'onIframeReady',
+        value: function onIframeReady(ifr, successFn, errorFn) {
+          try {
+            if (ifr.contentWindow.document.readyState === 'complete') {
+              if (this.isIframeBlank(ifr)) {
+                this.observeIframeLoad(ifr, successFn, errorFn);
+              } else {
+                this.getIframeContents(ifr, successFn, errorFn);
+              }
+            } else {
+              this.observeIframeLoad(ifr, successFn, errorFn);
+            }
+          } catch (e) {
+            errorFn();
+          }
+        }
+      }, {
+        key: 'waitForIframes',
+        value: function waitForIframes(ctx, done) {
+          var _this2 = this;
+
+          var eachCalled = 0;
+          this.forEachIframe(ctx, function () {
+            return true;
+          }, function (ifr) {
+            eachCalled++;
+            _this2.waitForIframes(ifr.querySelector('html'), function () {
+              if (! --eachCalled) {
+                done();
+              }
+            });
+          }, function (handled) {
+            if (!handled) {
+              done();
+            }
+          });
+        }
+      }, {
+        key: 'forEachIframe',
+        value: function forEachIframe(ctx, filter, each) {
+          var _this3 = this;
+
+          var end = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {};
+
+          var ifr = ctx.querySelectorAll('iframe'),
+              open = ifr.length,
+              handled = 0;
+          ifr = Array.prototype.slice.call(ifr);
+          var checkEnd = function checkEnd() {
+            if (--open <= 0) {
+              end(handled);
+            }
+          };
+          if (!open) {
+            checkEnd();
+          }
+          ifr.forEach(function (ifr) {
+            if (DOMIterator.matches(ifr, _this3.exclude)) {
+              checkEnd();
+            } else {
+              _this3.onIframeReady(ifr, function (con) {
+                if (filter(ifr)) {
+                  handled++;
+                  each(con);
+                }
+                checkEnd();
+              }, checkEnd);
+            }
+          });
+        }
+      }, {
+        key: 'createIterator',
+        value: function createIterator(ctx, whatToShow, filter) {
+          return document.createNodeIterator(ctx, whatToShow, filter, false);
+        }
+      }, {
+        key: 'createInstanceOnIframe',
+        value: function createInstanceOnIframe(contents) {
+          return new DOMIterator(contents.querySelector('html'), this.iframes);
+        }
+      }, {
+        key: 'compareNodeIframe',
+        value: function compareNodeIframe(node, prevNode, ifr) {
+          var compCurr = node.compareDocumentPosition(ifr),
+              prev = Node.DOCUMENT_POSITION_PRECEDING;
+          if (compCurr & prev) {
+            if (prevNode !== null) {
+              var compPrev = prevNode.compareDocumentPosition(ifr),
+                  after = Node.DOCUMENT_POSITION_FOLLOWING;
+              if (compPrev & after) {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          }
+          return false;
+        }
+      }, {
+        key: 'getIteratorNode',
+        value: function getIteratorNode(itr) {
+          var prevNode = itr.previousNode();
+          var node = void 0;
+          if (prevNode === null) {
+            node = itr.nextNode();
+          } else {
+            node = itr.nextNode() && itr.nextNode();
+          }
+          return {
+            prevNode: prevNode,
+            node: node
+          };
+        }
+      }, {
+        key: 'checkIframeFilter',
+        value: function checkIframeFilter(node, prevNode, currIfr, ifr) {
+          var key = false,
+              handled = false;
+          ifr.forEach(function (ifrDict, i) {
+            if (ifrDict.val === currIfr) {
+              key = i;
+              handled = ifrDict.handled;
+            }
+          });
+          if (this.compareNodeIframe(node, prevNode, currIfr)) {
+            if (key === false && !handled) {
+              ifr.push({
+                val: currIfr,
+                handled: true
+              });
+            } else if (key !== false && !handled) {
+              ifr[key].handled = true;
+            }
+            return true;
+          }
+          if (key === false) {
+            ifr.push({
+              val: currIfr,
+              handled: false
+            });
+          }
+          return false;
+        }
+      }, {
+        key: 'handleOpenIframes',
+        value: function handleOpenIframes(ifr, whatToShow, eCb, fCb) {
+          var _this4 = this;
+
+          ifr.forEach(function (ifrDict) {
+            if (!ifrDict.handled) {
+              _this4.getIframeContents(ifrDict.val, function (con) {
+                _this4.createInstanceOnIframe(con).forEachNode(whatToShow, eCb, fCb);
+              });
+            }
+          });
+        }
+      }, {
+        key: 'iterateThroughNodes',
+        value: function iterateThroughNodes(whatToShow, ctx, eachCb, filterCb, doneCb) {
+          var _this5 = this;
+
+          var itr = this.createIterator(ctx, whatToShow, filterCb);
+          var ifr = [],
+              elements = [],
+              node = void 0,
+              prevNode = void 0,
+              retrieveNodes = function retrieveNodes() {
+            var _getIteratorNode = _this5.getIteratorNode(itr);
+
+            prevNode = _getIteratorNode.prevNode;
+            node = _getIteratorNode.node;
+
+            return node;
+          };
+          while (retrieveNodes()) {
+            if (this.iframes) {
+              this.forEachIframe(ctx, function (currIfr) {
+                return _this5.checkIframeFilter(node, prevNode, currIfr, ifr);
+              }, function (con) {
+                _this5.createInstanceOnIframe(con).forEachNode(whatToShow, function (ifrNode) {
+                  return elements.push(ifrNode);
+                }, filterCb);
+              });
+            }
+            elements.push(node);
+          }
+          elements.forEach(function (node) {
+            eachCb(node);
+          });
+          if (this.iframes) {
+            this.handleOpenIframes(ifr, whatToShow, eachCb, filterCb);
+          }
+          doneCb();
+        }
+      }, {
+        key: 'forEachNode',
+        value: function forEachNode(whatToShow, each, filter) {
+          var _this6 = this;
+
+          var done = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {};
+
+          var contexts = this.getContexts();
+          var open = contexts.length;
+          if (!open) {
+            done();
+          }
+          contexts.forEach(function (ctx) {
+            var ready = function ready() {
+              _this6.iterateThroughNodes(whatToShow, ctx, each, filter, function () {
+                if (--open <= 0) {
+                  done();
+                }
+              });
+            };
+            if (_this6.iframes) {
+              _this6.waitForIframes(ctx, ready);
+            } else {
+              ready();
+            }
+          });
+        }
+      }], [{
+        key: 'matches',
+        value: function matches(element, selector) {
+          var selectors = typeof selector === 'string' ? [selector] : selector,
+              fn = element.matches || element.matchesSelector || element.msMatchesSelector || element.mozMatchesSelector || element.oMatchesSelector || element.webkitMatchesSelector;
+          if (fn) {
+            var match = false;
+            selectors.every(function (sel) {
+              if (fn.call(element, sel)) {
+                match = true;
+                return false;
+              }
+              return true;
+            });
+            return match;
+          } else {
+            return false;
+          }
+        }
+      }]);
+      return DOMIterator;
+    }();
+
+    var Mark$1 = function () {
+      function Mark(ctx) {
+        classCallCheck(this, Mark);
+
+        this.ctx = ctx;
+        this.ie = false;
+        var ua = window.navigator.userAgent;
+        if (ua.indexOf('MSIE') > -1 || ua.indexOf('Trident') > -1) {
+          this.ie = true;
+        }
+      }
+
+      createClass(Mark, [{
+        key: 'log',
+        value: function log(msg) {
+          var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'debug';
+
+          var log = this.opt.log;
+          if (!this.opt.debug) {
+            return;
+          }
+          if ((typeof log === 'undefined' ? 'undefined' : _typeof(log)) === 'object' && typeof log[level] === 'function') {
+            log[level]('mark.js: ' + msg);
+          }
+        }
+      }, {
+        key: 'escapeStr',
+        value: function escapeStr(str) {
+          return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+        }
+      }, {
+        key: 'createRegExp',
+        value: function createRegExp(str) {
+          if (this.opt.wildcards !== 'disabled') {
+            str = this.setupWildcardsRegExp(str);
+          }
+          str = this.escapeStr(str);
+          if (Object.keys(this.opt.synonyms).length) {
+            str = this.createSynonymsRegExp(str);
+          }
+          if (this.opt.ignoreJoiners || this.opt.ignorePunctuation.length) {
+            str = this.setupIgnoreJoinersRegExp(str);
+          }
+          if (this.opt.diacritics) {
+            str = this.createDiacriticsRegExp(str);
+          }
+          str = this.createMergedBlanksRegExp(str);
+          if (this.opt.ignoreJoiners || this.opt.ignorePunctuation.length) {
+            str = this.createJoinersRegExp(str);
+          }
+          if (this.opt.wildcards !== 'disabled') {
+            str = this.createWildcardsRegExp(str);
+          }
+          str = this.createAccuracyRegExp(str);
+          return str;
+        }
+      }, {
+        key: 'createSynonymsRegExp',
+        value: function createSynonymsRegExp(str) {
+          var syn = this.opt.synonyms,
+              sens = this.opt.caseSensitive ? '' : 'i',
+              joinerPlaceholder = this.opt.ignoreJoiners || this.opt.ignorePunctuation.length ? '\0' : '';
+          for (var index in syn) {
+            if (syn.hasOwnProperty(index)) {
+              var value = syn[index],
+                  k1 = this.opt.wildcards !== 'disabled' ? this.setupWildcardsRegExp(index) : this.escapeStr(index),
+                  k2 = this.opt.wildcards !== 'disabled' ? this.setupWildcardsRegExp(value) : this.escapeStr(value);
+              if (k1 !== '' && k2 !== '') {
+                str = str.replace(new RegExp('(' + this.escapeStr(k1) + '|' + this.escapeStr(k2) + ')', 'gm' + sens), joinerPlaceholder + ('(' + this.processSynomyms(k1) + '|') + (this.processSynomyms(k2) + ')') + joinerPlaceholder);
+              }
+            }
+          }
+          return str;
+        }
+      }, {
+        key: 'processSynomyms',
+        value: function processSynomyms(str) {
+          if (this.opt.ignoreJoiners || this.opt.ignorePunctuation.length) {
+            str = this.setupIgnoreJoinersRegExp(str);
+          }
+          return str;
+        }
+      }, {
+        key: 'setupWildcardsRegExp',
+        value: function setupWildcardsRegExp(str) {
+          str = str.replace(/(?:\\)*\?/g, function (val) {
+            return val.charAt(0) === '\\' ? '?' : '\x01';
+          });
+          return str.replace(/(?:\\)*\*/g, function (val) {
+            return val.charAt(0) === '\\' ? '*' : '\x02';
+          });
+        }
+      }, {
+        key: 'createWildcardsRegExp',
+        value: function createWildcardsRegExp(str) {
+          var spaces = this.opt.wildcards === 'withSpaces';
+          return str.replace(/\u0001/g, spaces ? '[\\S\\s]?' : '\\S?').replace(/\u0002/g, spaces ? '[\\S\\s]*?' : '\\S*');
+        }
+      }, {
+        key: 'setupIgnoreJoinersRegExp',
+        value: function setupIgnoreJoinersRegExp(str) {
+          return str.replace(/[^(|)\\]/g, function (val, indx, original) {
+            var nextChar = original.charAt(indx + 1);
+            if (/[(|)\\]/.test(nextChar) || nextChar === '') {
+              return val;
+            } else {
+              return val + '\0';
+            }
+          });
+        }
+      }, {
+        key: 'createJoinersRegExp',
+        value: function createJoinersRegExp(str) {
+          var joiner = [];
+          var ignorePunctuation = this.opt.ignorePunctuation;
+          if (Array.isArray(ignorePunctuation) && ignorePunctuation.length) {
+            joiner.push(this.escapeStr(ignorePunctuation.join('')));
+          }
+          if (this.opt.ignoreJoiners) {
+            joiner.push('\\u00ad\\u200b\\u200c\\u200d');
+          }
+          return joiner.length ? str.split(/\u0000+/).join('[' + joiner.join('') + ']*') : str;
+        }
+      }, {
+        key: 'createDiacriticsRegExp',
+        value: function createDiacriticsRegExp(str) {
+          var sens = this.opt.caseSensitive ? '' : 'i',
+              dct = this.opt.caseSensitive ? ['aàáảãạăằắẳẵặâầấẩẫậäåāą', 'AÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ', 'cçćč', 'CÇĆČ', 'dđď', 'DĐĎ', 'eèéẻẽẹêềếểễệëěēę', 'EÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ', 'iìíỉĩịîïī', 'IÌÍỈĨỊÎÏĪ', 'lł', 'LŁ', 'nñňń', 'NÑŇŃ', 'oòóỏõọôồốổỗộơởỡớờợöøō', 'OÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ', 'rř', 'RŘ', 'sšśșş', 'SŠŚȘŞ', 'tťțţ', 'TŤȚŢ', 'uùúủũụưừứửữựûüůū', 'UÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ', 'yýỳỷỹỵÿ', 'YÝỲỶỸỴŸ', 'zžżź', 'ZŽŻŹ'] : ['aàáảãạăằắẳẵặâầấẩẫậäåāąAÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÄÅĀĄ', 'cçćčCÇĆČ', 'dđďDĐĎ', 'eèéẻẽẹêềếểễệëěēęEÈÉẺẼẸÊỀẾỂỄỆËĚĒĘ', 'iìíỉĩịîïīIÌÍỈĨỊÎÏĪ', 'lłLŁ', 'nñňńNÑŇŃ', 'oòóỏõọôồốổỗộơởỡớờợöøōOÒÓỎÕỌÔỒỐỔỖỘƠỞỠỚỜỢÖØŌ', 'rřRŘ', 'sšśșşSŠŚȘŞ', 'tťțţTŤȚŢ', 'uùúủũụưừứửữựûüůūUÙÚỦŨỤƯỪỨỬỮỰÛÜŮŪ', 'yýỳỷỹỵÿYÝỲỶỸỴŸ', 'zžżźZŽŻŹ'];
+          var handled = [];
+          str.split('').forEach(function (ch) {
+            dct.every(function (dct) {
+              if (dct.indexOf(ch) !== -1) {
+                if (handled.indexOf(dct) > -1) {
+                  return false;
+                }
+                str = str.replace(new RegExp('[' + dct + ']', 'gm' + sens), '[' + dct + ']');
+                handled.push(dct);
+              }
+              return true;
+            });
+          });
+          return str;
+        }
+      }, {
+        key: 'createMergedBlanksRegExp',
+        value: function createMergedBlanksRegExp(str) {
+          return str.replace(/[\s]+/gmi, '[\\s]+');
+        }
+      }, {
+        key: 'createAccuracyRegExp',
+        value: function createAccuracyRegExp(str) {
+          var _this = this;
+
+          var chars = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~¡¿';
+          var acc = this.opt.accuracy,
+              val = typeof acc === 'string' ? acc : acc.value,
+              ls = typeof acc === 'string' ? [] : acc.limiters,
+              lsJoin = '';
+          ls.forEach(function (limiter) {
+            lsJoin += '|' + _this.escapeStr(limiter);
+          });
+          switch (val) {
+            case 'partially':
+            default:
+              return '()(' + str + ')';
+            case 'complementary':
+              lsJoin = '\\s' + (lsJoin ? lsJoin : this.escapeStr(chars));
+              return '()([^' + lsJoin + ']*' + str + '[^' + lsJoin + ']*)';
+            case 'exactly':
+              return '(^|\\s' + lsJoin + ')(' + str + ')(?=$|\\s' + lsJoin + ')';
+          }
+        }
+      }, {
+        key: 'getSeparatedKeywords',
+        value: function getSeparatedKeywords(sv) {
+          var _this2 = this;
+
+          var stack = [];
+          sv.forEach(function (kw) {
+            if (!_this2.opt.separateWordSearch) {
+              if (kw.trim() && stack.indexOf(kw) === -1) {
+                stack.push(kw);
+              }
+            } else {
+              kw.split(' ').forEach(function (kwSplitted) {
+                if (kwSplitted.trim() && stack.indexOf(kwSplitted) === -1) {
+                  stack.push(kwSplitted);
+                }
+              });
+            }
+          });
+          return {
+            'keywords': stack.sort(function (a, b) {
+              return b.length - a.length;
+            }),
+            'length': stack.length
+          };
+        }
+      }, {
+        key: 'isNumeric',
+        value: function isNumeric(value) {
+          return Number(parseFloat(value)) == value;
+        }
+      }, {
+        key: 'checkRanges',
+        value: function checkRanges(array) {
+          var _this3 = this;
+
+          if (!Array.isArray(array) || Object.prototype.toString.call(array[0]) !== '[object Object]') {
+            this.log('markRanges() will only accept an array of objects');
+            this.opt.noMatch(array);
+            return [];
+          }
+          var stack = [];
+          var last = 0;
+          array.sort(function (a, b) {
+            return a.start - b.start;
+          }).forEach(function (item) {
+            var _callNoMatchOnInvalid = _this3.callNoMatchOnInvalidRanges(item, last),
+                start = _callNoMatchOnInvalid.start,
+                end = _callNoMatchOnInvalid.end,
+                valid = _callNoMatchOnInvalid.valid;
+
+            if (valid) {
+              item.start = start;
+              item.length = end - start;
+              stack.push(item);
+              last = end;
+            }
+          });
+          return stack;
+        }
+      }, {
+        key: 'callNoMatchOnInvalidRanges',
+        value: function callNoMatchOnInvalidRanges(range, last) {
+          var start = void 0,
+              end = void 0,
+              valid = false;
+          if (range && typeof range.start !== 'undefined') {
+            start = parseInt(range.start, 10);
+            end = start + parseInt(range.length, 10);
+            if (this.isNumeric(range.start) && this.isNumeric(range.length) && end - last > 0 && end - start > 0) {
+              valid = true;
+            } else {
+              this.log('Ignoring invalid or overlapping range: ' + ('' + JSON.stringify(range)));
+              this.opt.noMatch(range);
+            }
+          } else {
+            this.log('Ignoring invalid range: ' + JSON.stringify(range));
+            this.opt.noMatch(range);
+          }
+          return {
+            start: start,
+            end: end,
+            valid: valid
+          };
+        }
+      }, {
+        key: 'checkWhitespaceRanges',
+        value: function checkWhitespaceRanges(range, originalLength, string) {
+          var end = void 0,
+              valid = true,
+              max = string.length,
+              offset = originalLength - max,
+              start = parseInt(range.start, 10) - offset;
+          start = start > max ? max : start;
+          end = start + parseInt(range.length, 10);
+          if (end > max) {
+            end = max;
+            this.log('End range automatically set to the max value of ' + max);
+          }
+          if (start < 0 || end - start < 0 || start > max || end > max) {
+            valid = false;
+            this.log('Invalid range: ' + JSON.stringify(range));
+            this.opt.noMatch(range);
+          } else if (string.substring(start, end).replace(/\s+/g, '') === '') {
+            valid = false;
+            this.log('Skipping whitespace only range: ' + JSON.stringify(range));
+            this.opt.noMatch(range);
+          }
+          return {
+            start: start,
+            end: end,
+            valid: valid
+          };
+        }
+      }, {
+        key: 'getTextNodes',
+        value: function getTextNodes(cb) {
+          var _this4 = this;
+
+          var val = '',
+              nodes = [];
+          this.iterator.forEachNode(NodeFilter.SHOW_TEXT, function (node) {
+            nodes.push({
+              start: val.length,
+              end: (val += node.textContent).length,
+              node: node
+            });
+          }, function (node) {
+            if (_this4.matchesExclude(node.parentNode)) {
+              return NodeFilter.FILTER_REJECT;
+            } else {
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          }, function () {
+            cb({
+              value: val,
+              nodes: nodes
+            });
+          });
+        }
+      }, {
+        key: 'matchesExclude',
+        value: function matchesExclude(el) {
+          return DOMIterator.matches(el, this.opt.exclude.concat(['script', 'style', 'title', 'head', 'html']));
+        }
+      }, {
+        key: 'wrapRangeInTextNode',
+        value: function wrapRangeInTextNode(node, start, end) {
+          var hEl = !this.opt.element ? 'mark' : this.opt.element,
+              startNode = node.splitText(start),
+              ret = startNode.splitText(end - start);
+          var repl = document.createElement(hEl);
+          repl.setAttribute('data-markjs', 'true');
+          if (this.opt.className) {
+            repl.setAttribute('class', this.opt.className);
+          }
+          repl.textContent = startNode.textContent;
+          startNode.parentNode.replaceChild(repl, startNode);
+          return ret;
+        }
+      }, {
+        key: 'wrapRangeInMappedTextNode',
+        value: function wrapRangeInMappedTextNode(dict, start, end, filterCb, eachCb) {
+          var _this5 = this;
+
+          dict.nodes.every(function (n, i) {
+            var sibl = dict.nodes[i + 1];
+            if (typeof sibl === 'undefined' || sibl.start > start) {
+              if (!filterCb(n.node)) {
+                return false;
+              }
+              var s = start - n.start,
+                  e = (end > n.end ? n.end : end) - n.start,
+                  startStr = dict.value.substr(0, n.start),
+                  endStr = dict.value.substr(e + n.start);
+              n.node = _this5.wrapRangeInTextNode(n.node, s, e);
+              dict.value = startStr + endStr;
+              dict.nodes.forEach(function (k, j) {
+                if (j >= i) {
+                  if (dict.nodes[j].start > 0 && j !== i) {
+                    dict.nodes[j].start -= e;
+                  }
+                  dict.nodes[j].end -= e;
+                }
+              });
+              end -= e;
+              eachCb(n.node.previousSibling, n.start);
+              if (end > n.end) {
+                start = n.end;
+              } else {
+                return false;
+              }
+            }
+            return true;
+          });
+        }
+      }, {
+        key: 'wrapMatches',
+        value: function wrapMatches(regex, ignoreGroups, filterCb, eachCb, endCb) {
+          var _this6 = this;
+
+          var matchIdx = ignoreGroups === 0 ? 0 : ignoreGroups + 1;
+          this.getTextNodes(function (dict) {
+            dict.nodes.forEach(function (node) {
+              node = node.node;
+              var match = void 0;
+              while ((match = regex.exec(node.textContent)) !== null && match[matchIdx] !== '') {
+                if (!filterCb(match[matchIdx], node)) {
+                  continue;
+                }
+                var pos = match.index;
+                if (matchIdx !== 0) {
+                  for (var i = 1; i < matchIdx; i++) {
+                    pos += match[i].length;
+                  }
+                }
+                node = _this6.wrapRangeInTextNode(node, pos, pos + match[matchIdx].length);
+                eachCb(node.previousSibling);
+                regex.lastIndex = 0;
+              }
+            });
+            endCb();
+          });
+        }
+      }, {
+        key: 'wrapMatchesAcrossElements',
+        value: function wrapMatchesAcrossElements(regex, ignoreGroups, filterCb, eachCb, endCb) {
+          var _this7 = this;
+
+          var matchIdx = ignoreGroups === 0 ? 0 : ignoreGroups + 1;
+          this.getTextNodes(function (dict) {
+            var match = void 0;
+            while ((match = regex.exec(dict.value)) !== null && match[matchIdx] !== '') {
+              var start = match.index;
+              if (matchIdx !== 0) {
+                for (var i = 1; i < matchIdx; i++) {
+                  start += match[i].length;
+                }
+              }
+              var end = start + match[matchIdx].length;
+              _this7.wrapRangeInMappedTextNode(dict, start, end, function (node) {
+                return filterCb(match[matchIdx], node);
+              }, function (node, lastIndex) {
+                regex.lastIndex = lastIndex;
+                eachCb(node);
+              });
+            }
+            endCb();
+          });
+        }
+      }, {
+        key: 'wrapRangeFromIndex',
+        value: function wrapRangeFromIndex(ranges, filterCb, eachCb, endCb) {
+          var _this8 = this;
+
+          this.getTextNodes(function (dict) {
+            var originalLength = dict.value.length;
+            ranges.forEach(function (range, counter) {
+              var _checkWhitespaceRange = _this8.checkWhitespaceRanges(range, originalLength, dict.value),
+                  start = _checkWhitespaceRange.start,
+                  end = _checkWhitespaceRange.end,
+                  valid = _checkWhitespaceRange.valid;
+
+              if (valid) {
+                _this8.wrapRangeInMappedTextNode(dict, start, end, function (node) {
+                  return filterCb(node, range, dict.value.substring(start, end), counter);
+                }, function (node) {
+                  eachCb(node, range);
+                });
+              }
+            });
+            endCb();
+          });
+        }
+      }, {
+        key: 'unwrapMatches',
+        value: function unwrapMatches(node) {
+          var parent = node.parentNode;
+          var docFrag = document.createDocumentFragment();
+          while (node.firstChild) {
+            docFrag.appendChild(node.removeChild(node.firstChild));
+          }
+          parent.replaceChild(docFrag, node);
+          if (!this.ie) {
+            parent.normalize();
+          } else {
+            this.normalizeTextNode(parent);
+          }
+        }
+      }, {
+        key: 'normalizeTextNode',
+        value: function normalizeTextNode(node) {
+          if (!node) {
+            return;
+          }
+          if (node.nodeType === 3) {
+            while (node.nextSibling && node.nextSibling.nodeType === 3) {
+              node.nodeValue += node.nextSibling.nodeValue;
+              node.parentNode.removeChild(node.nextSibling);
+            }
+          } else {
+            this.normalizeTextNode(node.firstChild);
+          }
+          this.normalizeTextNode(node.nextSibling);
+        }
+      }, {
+        key: 'markRegExp',
+        value: function markRegExp(regexp, opt) {
+          var _this9 = this;
+
+          this.opt = opt;
+          this.log('Searching with expression "' + regexp + '"');
+          var totalMatches = 0,
+              fn = 'wrapMatches';
+          var eachCb = function eachCb(element) {
+            totalMatches++;
+            _this9.opt.each(element);
+          };
+          if (this.opt.acrossElements) {
+            fn = 'wrapMatchesAcrossElements';
+          }
+          this[fn](regexp, this.opt.ignoreGroups, function (match, node) {
+            return _this9.opt.filter(node, match, totalMatches);
+          }, eachCb, function () {
+            if (totalMatches === 0) {
+              _this9.opt.noMatch(regexp);
+            }
+            _this9.opt.done(totalMatches);
+          });
+        }
+      }, {
+        key: 'mark',
+        value: function mark(sv, opt) {
+          var _this10 = this;
+
+          this.opt = opt;
+          var totalMatches = 0,
+              fn = 'wrapMatches';
+
+          var _getSeparatedKeywords = this.getSeparatedKeywords(typeof sv === 'string' ? [sv] : sv),
+              kwArr = _getSeparatedKeywords.keywords,
+              kwArrLen = _getSeparatedKeywords.length,
+              sens = this.opt.caseSensitive ? '' : 'i',
+              handler = function handler(kw) {
+            var regex = new RegExp(_this10.createRegExp(kw), 'gm' + sens),
+                matches = 0;
+            _this10.log('Searching with expression "' + regex + '"');
+            _this10[fn](regex, 1, function (term, node) {
+              return _this10.opt.filter(node, kw, totalMatches, matches);
+            }, function (element) {
+              matches++;
+              totalMatches++;
+              _this10.opt.each(element);
+            }, function () {
+              if (matches === 0) {
+                _this10.opt.noMatch(kw);
+              }
+              if (kwArr[kwArrLen - 1] === kw) {
+                _this10.opt.done(totalMatches);
+              } else {
+                handler(kwArr[kwArr.indexOf(kw) + 1]);
+              }
+            });
+          };
+
+          if (this.opt.acrossElements) {
+            fn = 'wrapMatchesAcrossElements';
+          }
+          if (kwArrLen === 0) {
+            this.opt.done(totalMatches);
+          } else {
+            handler(kwArr[0]);
+          }
+        }
+      }, {
+        key: 'markRanges',
+        value: function markRanges(rawRanges, opt) {
+          var _this11 = this;
+
+          this.opt = opt;
+          var totalMatches = 0,
+              ranges = this.checkRanges(rawRanges);
+          if (ranges && ranges.length) {
+            this.log('Starting to mark with the following ranges: ' + JSON.stringify(ranges));
+            this.wrapRangeFromIndex(ranges, function (node, range, match, counter) {
+              return _this11.opt.filter(node, range, match, counter);
+            }, function (element, range) {
+              totalMatches++;
+              _this11.opt.each(element, range);
+            }, function () {
+              _this11.opt.done(totalMatches);
+            });
+          } else {
+            this.opt.done(totalMatches);
+          }
+        }
+      }, {
+        key: 'unmark',
+        value: function unmark(opt) {
+          var _this12 = this;
+
+          this.opt = opt;
+          var sel = this.opt.element ? this.opt.element : '*';
+          sel += '[data-markjs]';
+          if (this.opt.className) {
+            sel += '.' + this.opt.className;
+          }
+          this.log('Removal selector "' + sel + '"');
+          this.iterator.forEachNode(NodeFilter.SHOW_ELEMENT, function (node) {
+            _this12.unwrapMatches(node);
+          }, function (node) {
+            var matchesSel = DOMIterator.matches(node, sel),
+                matchesExclude = _this12.matchesExclude(node);
+            if (!matchesSel || matchesExclude) {
+              return NodeFilter.FILTER_REJECT;
+            } else {
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          }, this.opt.done);
+        }
+      }, {
+        key: 'opt',
+        set: function set$$1(val) {
+          this._opt = _extends({}, {
+            'element': '',
+            'className': '',
+            'exclude': [],
+            'iframes': false,
+            'iframesTimeout': 5000,
+            'separateWordSearch': true,
+            'diacritics': true,
+            'synonyms': {},
+            'accuracy': 'partially',
+            'acrossElements': false,
+            'caseSensitive': false,
+            'ignoreJoiners': false,
+            'ignoreGroups': 0,
+            'ignorePunctuation': [],
+            'wildcards': 'disabled',
+            'each': function each() {},
+            'noMatch': function noMatch() {},
+            'filter': function filter() {
+              return true;
+            },
+            'done': function done() {},
+            'debug': false,
+            'log': window.console
+          }, val);
+        },
+        get: function get$$1() {
+          return this._opt;
+        }
+      }, {
+        key: 'iterator',
+        get: function get$$1() {
+          return new DOMIterator(this.ctx, this.opt.iframes, this.opt.exclude, this.opt.iframesTimeout);
+        }
+      }]);
+      return Mark;
+    }();
+
+    function Mark(ctx) {
+      var _this = this;
+
+      var instance = new Mark$1(ctx);
+      this.mark = function (sv, opt) {
+        instance.mark(sv, opt);
+        return _this;
+      };
+      this.markRegExp = function (sv, opt) {
+        instance.markRegExp(sv, opt);
+        return _this;
+      };
+      this.markRanges = function (sv, opt) {
+        instance.markRanges(sv, opt);
+        return _this;
+      };
+      this.unmark = function (opt) {
+        instance.unmark(opt);
+        return _this;
+      };
+      return this;
+    }
+
+    return Mark;
+
+    })));
+    });
+
+    /* src/views/DeviceLogDialog.svelte generated by Svelte v3.31.0 */
+    const file$9 = "src/views/DeviceLogDialog.svelte";
+
+    function get_each_context(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[14] = list[i];
+    	return child_ctx;
+    }
+
+    // (41:6) {#each log as msg}
+    function create_each_block(ctx) {
+    	let div;
+    	let html_tag;
+    	let raw_value = /*msg*/ ctx[14] + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			t = space();
+    			html_tag = new HtmlTag(t);
+    			add_location(div, file$9, 41, 8, 1068);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			html_tag.m(raw_value, div);
+    			append_dev(div, t);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*log*/ 8 && raw_value !== (raw_value = /*msg*/ ctx[14] + "")) html_tag.p(raw_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block.name,
+    		type: "each",
+    		source: "(41:6) {#each log as msg}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (34:0) <Dialog bind:show title="Device Log" large on:close>
+    function create_default_slot$3(ctx) {
+    	let div3;
+    	let div1;
+    	let label;
+    	let input0;
+    	let t0;
+    	let span;
+    	let t2;
+    	let div0;
+    	let input1;
+    	let t3;
+    	let div2;
+    	let mounted;
+    	let dispose;
+    	let each_value = /*log*/ ctx[3];
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div3 = element("div");
+    			div1 = element("div");
+    			label = element("label");
+    			input0 = element("input");
+    			t0 = space();
+    			span = element("span");
+    			span.textContent = "Wrap lines";
+    			t2 = space();
+    			div0 = element("div");
+    			input1 = element("input");
+    			t3 = space();
+    			div2 = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(input0, "type", "checkbox");
+    			add_location(input0, file$9, 36, 14, 761);
+    			add_location(span, file$9, 36, 64, 811);
+    			add_location(label, file$9, 36, 6, 753);
+    			attr_dev(input1, "type", "search");
+    			attr_dev(input1, "placeholder", "Search log...");
+    			add_location(input1, file$9, 37, 34, 878);
+    			attr_dev(div0, "class", "search-wrapper svelte-fuevcu");
+    			add_location(div0, file$9, 37, 6, 850);
+    			attr_dev(div1, "class", "log__header svelte-fuevcu");
+    			add_location(div1, file$9, 35, 4, 721);
+    			attr_dev(div2, "class", "log-content svelte-fuevcu");
+    			toggle_class(div2, "lineWrap", /*lineWrap*/ ctx[4]);
+    			add_location(div2, file$9, 39, 4, 971);
+    			attr_dev(div3, "class", "log svelte-fuevcu");
+    			add_location(div3, file$9, 34, 2, 699);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div3, anchor);
+    			append_dev(div3, div1);
+    			append_dev(div1, label);
+    			append_dev(label, input0);
+    			input0.checked = /*lineWrap*/ ctx[4];
+    			append_dev(label, t0);
+    			append_dev(label, span);
+    			append_dev(div1, t2);
+    			append_dev(div1, div0);
+    			append_dev(div0, input1);
+    			set_input_value(input1, /*search*/ ctx[1]);
+    			append_dev(div3, t3);
+    			append_dev(div3, div2);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div2, null);
+    			}
+
+    			/*div2_binding*/ ctx[8](div2);
+
+    			if (!mounted) {
+    				dispose = [
+    					listen_dev(input0, "change", /*input0_change_handler*/ ctx[6]),
+    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[7])
+    				];
+
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*lineWrap*/ 16) {
+    				input0.checked = /*lineWrap*/ ctx[4];
+    			}
+
+    			if (dirty & /*search*/ 2) {
+    				set_input_value(input1, /*search*/ ctx[1]);
+    			}
+
+    			if (dirty & /*log*/ 8) {
+    				each_value = /*log*/ ctx[3];
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div2, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+
+    			if (dirty & /*lineWrap*/ 16) {
+    				toggle_class(div2, "lineWrap", /*lineWrap*/ ctx[4]);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div3);
+    			destroy_each(each_blocks, detaching);
+    			/*div2_binding*/ ctx[8](null);
+    			mounted = false;
+    			run_all(dispose);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$3.name,
+    		type: "slot",
+    		source: "(34:0) <Dialog bind:show title=\\\"Device Log\\\" large on:close>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$a(ctx) {
+    	let dialog;
+    	let updating_show;
+    	let current;
+
+    	function dialog_show_binding(value) {
+    		/*dialog_show_binding*/ ctx[9].call(null, value);
+    	}
+
+    	let dialog_props = {
+    		title: "Device Log",
+    		large: true,
+    		$$slots: { default: [create_default_slot$3] },
+    		$$scope: { ctx }
+    	};
+
+    	if (/*show*/ ctx[0] !== void 0) {
+    		dialog_props.show = /*show*/ ctx[0];
+    	}
+
+    	dialog = new Dialog({ props: dialog_props, $$inline: true });
+    	binding_callbacks.push(() => bind(dialog, "show", dialog_show_binding));
+    	dialog.$on("close", /*close_handler*/ ctx[10]);
+
+    	const block = {
+    		c: function create() {
+    			create_component(dialog.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(dialog, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const dialog_changes = {};
+
+    			if (dirty & /*$$scope, logContent, lineWrap, log, search*/ 131102) {
+    				dialog_changes.$$scope = { dirty, ctx };
+    			}
+
+    			if (!updating_show && dirty & /*show*/ 1) {
+    				updating_show = true;
+    				dialog_changes.show = /*show*/ ctx[0];
+    				add_flush_callback(() => updating_show = false);
+    			}
+
+    			dialog.$set(dialog_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(dialog.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(dialog.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(dialog, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$a.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$a($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("DeviceLogDialog", slots, []);
+    	let { show } = $$props;
+    	let { data } = $$props;
+    	let lineWrap = false;
+    	let search = "";
+    	const ansiUp = new AnsiUp();
+    	let logContent;
+
+    	function highlightSearchText(value) {
+    		// Always unmark before highlight
+    		marker?.unmark();
+
+    		// Mark value if truthy
+    		if (value) {
+    			marker?.mark(value);
+    		}
+    	}
+
+    	const writable_props = ["show", "data"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<DeviceLogDialog> was created with unknown prop '${key}'`);
+    	});
+
+    	function input0_change_handler() {
+    		lineWrap = this.checked;
+    		$$invalidate(4, lineWrap);
+    	}
+
+    	function input1_input_handler() {
+    		search = this.value;
+    		$$invalidate(1, search);
+    	}
+
+    	function div2_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			logContent = $$value;
+    			$$invalidate(2, logContent);
+    		});
+    	}
+
+    	function dialog_show_binding(value) {
+    		show = value;
+    		$$invalidate(0, show);
+    	}
+
+    	function close_handler(event) {
+    		bubble($$self, event);
+    	}
+
+    	$$self.$$set = $$props => {
+    		if ("show" in $$props) $$invalidate(0, show = $$props.show);
+    		if ("data" in $$props) $$invalidate(5, data = $$props.data);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		Dialog,
+    		AnsiUp,
+    		Mark: mark,
+    		show,
+    		data,
+    		lineWrap,
+    		search,
+    		ansiUp,
+    		logContent,
+    		highlightSearchText,
+    		log,
+    		marker
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("show" in $$props) $$invalidate(0, show = $$props.show);
+    		if ("data" in $$props) $$invalidate(5, data = $$props.data);
+    		if ("lineWrap" in $$props) $$invalidate(4, lineWrap = $$props.lineWrap);
+    		if ("search" in $$props) $$invalidate(1, search = $$props.search);
+    		if ("logContent" in $$props) $$invalidate(2, logContent = $$props.logContent);
+    		if ("log" in $$props) $$invalidate(3, log = $$props.log);
+    		if ("marker" in $$props) marker = $$props.marker;
+    	};
+
+    	let log;
+    	let marker;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*data*/ 32) {
+    			 $$invalidate(3, log = data.map(v => ansiUp.ansi_to_html(v.msg)) || []);
+    		}
+
+    		if ($$self.$$.dirty & /*logContent*/ 4) {
+    			 marker = logContent != null ? new mark(logContent) : undefined;
+    		}
+
+    		if ($$self.$$.dirty & /*log, search*/ 10) {
+    			 (highlightSearchText(search));
+    		}
+    	};
+
+    	return [
+    		show,
+    		search,
+    		logContent,
+    		log,
+    		lineWrap,
+    		data,
+    		input0_change_handler,
+    		input1_input_handler,
+    		div2_binding,
+    		dialog_show_binding,
+    		close_handler
+    	];
+    }
+
+    class DeviceLogDialog extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$a, create_fragment$a, safe_not_equal, { show: 0, data: 5 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "DeviceLogDialog",
+    			options,
+    			id: create_fragment$a.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*show*/ ctx[0] === undefined && !("show" in props)) {
+    			console.warn("<DeviceLogDialog> was created without expected prop 'show'");
+    		}
+
+    		if (/*data*/ ctx[5] === undefined && !("data" in props)) {
+    			console.warn("<DeviceLogDialog> was created without expected prop 'data'");
+    		}
+    	}
+
+    	get show() {
+    		throw new Error("<DeviceLogDialog>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set show(value) {
+    		throw new Error("<DeviceLogDialog>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get data() {
+    		throw new Error("<DeviceLogDialog>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set data(value) {
+    		throw new Error("<DeviceLogDialog>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    var contextKey = {};
+
+    /* node_modules/svelte-json-tree/src/JSONArrow.svelte generated by Svelte v3.31.0 */
+
+    const file$a = "node_modules/svelte-json-tree/src/JSONArrow.svelte";
+
+    function create_fragment$b(ctx) {
+    	let div1;
+    	let div0;
+    	let mounted;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			div1 = element("div");
+    			div0 = element("div");
+    			div0.textContent = `${"▶"}`;
+    			attr_dev(div0, "class", "arrow svelte-1vyml86");
+    			toggle_class(div0, "expanded", /*expanded*/ ctx[0]);
+    			add_location(div0, file$a, 29, 2, 622);
+    			attr_dev(div1, "class", "container svelte-1vyml86");
+    			add_location(div1, file$a, 28, 0, 587);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div1, anchor);
+    			append_dev(div1, div0);
+
+    			if (!mounted) {
+    				dispose = listen_dev(div1, "click", /*click_handler*/ ctx[1], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*expanded*/ 1) {
+    				toggle_class(div0, "expanded", /*expanded*/ ctx[0]);
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div1);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$b.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$b($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONArrow", slots, []);
+    	let { expanded } = $$props;
+    	const writable_props = ["expanded"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONArrow> was created with unknown prop '${key}'`);
+    	});
+
+    	function click_handler(event) {
+    		bubble($$self, event);
+    	}
+
+    	$$self.$$set = $$props => {
+    		if ("expanded" in $$props) $$invalidate(0, expanded = $$props.expanded);
+    	};
+
+    	$$self.$capture_state = () => ({ expanded });
+
+    	$$self.$inject_state = $$props => {
+    		if ("expanded" in $$props) $$invalidate(0, expanded = $$props.expanded);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [expanded, click_handler];
+    }
+
+    class JSONArrow extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$b, create_fragment$b, safe_not_equal, { expanded: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONArrow",
+    			options,
+    			id: create_fragment$b.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*expanded*/ ctx[0] === undefined && !("expanded" in props)) {
+    			console.warn("<JSONArrow> was created without expected prop 'expanded'");
+    		}
+    	}
+
+    	get expanded() {
+    		throw new Error("<JSONArrow>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set expanded(value) {
+    		throw new Error("<JSONArrow>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-json-tree/src/JSONKey.svelte generated by Svelte v3.31.0 */
+
+    const file$b = "node_modules/svelte-json-tree/src/JSONKey.svelte";
+
+    // (16:0) {#if showKey && key}
+    function create_if_block$4(ctx) {
+    	let label;
+    	let span;
+    	let t0;
+    	let t1;
+    	let mounted;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			label = element("label");
+    			span = element("span");
+    			t0 = text(/*key*/ ctx[0]);
+    			t1 = text(/*colon*/ ctx[2]);
+    			add_location(span, file$b, 17, 4, 399);
+    			attr_dev(label, "class", "svelte-1vlbacg");
+    			toggle_class(label, "spaced", /*isParentExpanded*/ ctx[1]);
+    			add_location(label, file$b, 16, 2, 346);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, label, anchor);
+    			append_dev(label, span);
+    			append_dev(span, t0);
+    			append_dev(span, t1);
+
+    			if (!mounted) {
+    				dispose = listen_dev(label, "click", /*click_handler*/ ctx[5], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*key*/ 1) set_data_dev(t0, /*key*/ ctx[0]);
+    			if (dirty & /*colon*/ 4) set_data_dev(t1, /*colon*/ ctx[2]);
+
+    			if (dirty & /*isParentExpanded*/ 2) {
+    				toggle_class(label, "spaced", /*isParentExpanded*/ ctx[1]);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(label);
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$4.name,
+    		type: "if",
+    		source: "(16:0) {#if showKey && key}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$c(ctx) {
+    	let if_block_anchor;
+    	let if_block = /*showKey*/ ctx[3] && /*key*/ ctx[0] && create_if_block$4(ctx);
+
+    	const block = {
+    		c: function create() {
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (/*showKey*/ ctx[3] && /*key*/ ctx[0]) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block$4(ctx);
+    					if_block.c();
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$c.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$c($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONKey", slots, []);
+
+    	let { key } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray = false } = $$props,
+    		{ colon = ":" } = $$props;
+
+    	const writable_props = ["key", "isParentExpanded", "isParentArray", "colon"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONKey> was created with unknown prop '${key}'`);
+    	});
+
+    	function click_handler(event) {
+    		bubble($$self, event);
+    	}
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("isParentExpanded" in $$props) $$invalidate(1, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(4, isParentArray = $$props.isParentArray);
+    		if ("colon" in $$props) $$invalidate(2, colon = $$props.colon);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		key,
+    		isParentExpanded,
+    		isParentArray,
+    		colon,
+    		showKey
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("isParentExpanded" in $$props) $$invalidate(1, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(4, isParentArray = $$props.isParentArray);
+    		if ("colon" in $$props) $$invalidate(2, colon = $$props.colon);
+    		if ("showKey" in $$props) $$invalidate(3, showKey = $$props.showKey);
+    	};
+
+    	let showKey;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*isParentExpanded, isParentArray, key*/ 19) {
+    			 $$invalidate(3, showKey = isParentExpanded || !isParentArray || key != +key);
+    		}
+    	};
+
+    	return [key, isParentExpanded, colon, showKey, isParentArray, click_handler];
+    }
+
+    class JSONKey extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$c, create_fragment$c, safe_not_equal, {
+    			key: 0,
+    			isParentExpanded: 1,
+    			isParentArray: 4,
+    			colon: 2
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONKey",
+    			options,
+    			id: create_fragment$c.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[0] === undefined && !("key" in props)) {
+    			console.warn("<JSONKey> was created without expected prop 'key'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[1] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<JSONKey> was created without expected prop 'isParentExpanded'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<JSONKey>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<JSONKey>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<JSONKey>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<JSONKey>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<JSONKey>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<JSONKey>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get colon() {
+    		throw new Error("<JSONKey>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set colon(value) {
+    		throw new Error("<JSONKey>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-json-tree/src/JSONNested.svelte generated by Svelte v3.31.0 */
+    const file$c = "node_modules/svelte-json-tree/src/JSONNested.svelte";
+
+    function get_each_context$1(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[12] = list[i];
+    	child_ctx[20] = i;
+    	return child_ctx;
+    }
+
+    // (57:4) {#if expandable && isParentExpanded}
+    function create_if_block_3(ctx) {
+    	let jsonarrow;
+    	let current;
+
+    	jsonarrow = new JSONArrow({
+    			props: { expanded: /*expanded*/ ctx[0] },
+    			$$inline: true
+    		});
+
+    	jsonarrow.$on("click", /*toggleExpand*/ ctx[15]);
+
+    	const block = {
+    		c: function create() {
+    			create_component(jsonarrow.$$.fragment);
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(jsonarrow, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			const jsonarrow_changes = {};
+    			if (dirty & /*expanded*/ 1) jsonarrow_changes.expanded = /*expanded*/ ctx[0];
+    			jsonarrow.$set(jsonarrow_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonarrow.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonarrow.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(jsonarrow, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_3.name,
+    		type: "if",
+    		source: "(57:4) {#if expandable && isParentExpanded}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (75:4) {:else}
+    function create_else_block$1(ctx) {
+    	let span;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			span.textContent = "…";
+    			add_location(span, file$c, 75, 6, 2085);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    		},
+    		p: noop,
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block$1.name,
+    		type: "else",
+    		source: "(75:4) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (63:4) {#if isParentExpanded}
+    function create_if_block$5(ctx) {
+    	let ul;
+    	let t;
+    	let current;
+    	let mounted;
+    	let dispose;
+    	let each_value = /*slicedKeys*/ ctx[13];
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	let if_block = /*slicedKeys*/ ctx[13].length < /*previewKeys*/ ctx[7].length && create_if_block_1(ctx);
+
+    	const block = {
+    		c: function create() {
+    			ul = element("ul");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			t = space();
+    			if (if_block) if_block.c();
+    			attr_dev(ul, "class", "svelte-rwxv37");
+    			toggle_class(ul, "collapse", !/*expanded*/ ctx[0]);
+    			add_location(ul, file$c, 63, 6, 1589);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, ul, anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(ul, null);
+    			}
+
+    			append_dev(ul, t);
+    			if (if_block) if_block.m(ul, null);
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = listen_dev(ul, "click", /*expand*/ ctx[16], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*expanded, previewKeys, getKey, slicedKeys, isArray, getValue, getPreviewValue*/ 10129) {
+    				each_value = /*slicedKeys*/ ctx[13];
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$1(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block$1(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(ul, t);
+    					}
+    				}
+
+    				group_outros();
+
+    				for (i = each_value.length; i < each_blocks.length; i += 1) {
+    					out(i);
+    				}
+
+    				check_outros();
+    			}
+
+    			if (/*slicedKeys*/ ctx[13].length < /*previewKeys*/ ctx[7].length) {
+    				if (if_block) ; else {
+    					if_block = create_if_block_1(ctx);
+    					if_block.c();
+    					if_block.m(ul, null);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			if (dirty & /*expanded*/ 1) {
+    				toggle_class(ul, "collapse", !/*expanded*/ ctx[0]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+
+    			for (let i = 0; i < each_value.length; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(ul);
+    			destroy_each(each_blocks, detaching);
+    			if (if_block) if_block.d();
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$5.name,
+    		type: "if",
+    		source: "(63:4) {#if isParentExpanded}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (67:10) {#if !expanded && index < previewKeys.length - 1}
+    function create_if_block_2(ctx) {
+    	let span;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			span.textContent = ",";
+    			attr_dev(span, "class", "comma svelte-rwxv37");
+    			add_location(span, file$c, 67, 12, 1901);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_2.name,
+    		type: "if",
+    		source: "(67:10) {#if !expanded && index < previewKeys.length - 1}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (65:8) {#each slicedKeys as key, index}
+    function create_each_block$1(ctx) {
+    	let jsonnode;
+    	let t;
+    	let if_block_anchor;
+    	let current;
+
+    	jsonnode = new JSONNode({
+    			props: {
+    				key: /*getKey*/ ctx[8](/*key*/ ctx[12]),
+    				isParentExpanded: /*expanded*/ ctx[0],
+    				isParentArray: /*isArray*/ ctx[4],
+    				value: /*expanded*/ ctx[0]
+    				? /*getValue*/ ctx[9](/*key*/ ctx[12])
+    				: /*getPreviewValue*/ ctx[10](/*key*/ ctx[12])
+    			},
+    			$$inline: true
+    		});
+
+    	let if_block = !/*expanded*/ ctx[0] && /*index*/ ctx[20] < /*previewKeys*/ ctx[7].length - 1 && create_if_block_2(ctx);
+
+    	const block = {
+    		c: function create() {
+    			create_component(jsonnode.$$.fragment);
+    			t = space();
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(jsonnode, target, anchor);
+    			insert_dev(target, t, anchor);
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, if_block_anchor, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			const jsonnode_changes = {};
+    			if (dirty & /*getKey, slicedKeys*/ 8448) jsonnode_changes.key = /*getKey*/ ctx[8](/*key*/ ctx[12]);
+    			if (dirty & /*expanded*/ 1) jsonnode_changes.isParentExpanded = /*expanded*/ ctx[0];
+    			if (dirty & /*isArray*/ 16) jsonnode_changes.isParentArray = /*isArray*/ ctx[4];
+
+    			if (dirty & /*expanded, getValue, slicedKeys, getPreviewValue*/ 9729) jsonnode_changes.value = /*expanded*/ ctx[0]
+    			? /*getValue*/ ctx[9](/*key*/ ctx[12])
+    			: /*getPreviewValue*/ ctx[10](/*key*/ ctx[12]);
+
+    			jsonnode.$set(jsonnode_changes);
+
+    			if (!/*expanded*/ ctx[0] && /*index*/ ctx[20] < /*previewKeys*/ ctx[7].length - 1) {
+    				if (if_block) ; else {
+    					if_block = create_if_block_2(ctx);
+    					if_block.c();
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonnode.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonnode.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(jsonnode, detaching);
+    			if (detaching) detach_dev(t);
+    			if (if_block) if_block.d(detaching);
+    			if (detaching) detach_dev(if_block_anchor);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block$1.name,
+    		type: "each",
+    		source: "(65:8) {#each slicedKeys as key, index}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (71:8) {#if slicedKeys.length < previewKeys.length }
+    function create_if_block_1(ctx) {
+    	let span;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			span.textContent = "…";
+    			add_location(span, file$c, 71, 10, 2026);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1.name,
+    		type: "if",
+    		source: "(71:8) {#if slicedKeys.length < previewKeys.length }",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$d(ctx) {
+    	let li;
+    	let label_1;
+    	let t0;
+    	let jsonkey;
+    	let t1;
+    	let span1;
+    	let span0;
+    	let t2;
+    	let t3;
+    	let t4;
+    	let current_block_type_index;
+    	let if_block1;
+    	let t5;
+    	let span2;
+    	let t6;
+    	let current;
+    	let mounted;
+    	let dispose;
+    	let if_block0 = /*expandable*/ ctx[11] && /*isParentExpanded*/ ctx[2] && create_if_block_3(ctx);
+
+    	jsonkey = new JSONKey({
+    			props: {
+    				key: /*key*/ ctx[12],
+    				colon: /*context*/ ctx[14].colon,
+    				isParentExpanded: /*isParentExpanded*/ ctx[2],
+    				isParentArray: /*isParentArray*/ ctx[3]
+    			},
+    			$$inline: true
+    		});
+
+    	jsonkey.$on("click", /*toggleExpand*/ ctx[15]);
+    	const if_block_creators = [create_if_block$5, create_else_block$1];
+    	const if_blocks = [];
+
+    	function select_block_type(ctx, dirty) {
+    		if (/*isParentExpanded*/ ctx[2]) return 0;
+    		return 1;
+    	}
+
+    	current_block_type_index = select_block_type(ctx);
+    	if_block1 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+
+    	const block = {
+    		c: function create() {
+    			li = element("li");
+    			label_1 = element("label");
+    			if (if_block0) if_block0.c();
+    			t0 = space();
+    			create_component(jsonkey.$$.fragment);
+    			t1 = space();
+    			span1 = element("span");
+    			span0 = element("span");
+    			t2 = text(/*label*/ ctx[1]);
+    			t3 = text(/*bracketOpen*/ ctx[5]);
+    			t4 = space();
+    			if_block1.c();
+    			t5 = space();
+    			span2 = element("span");
+    			t6 = text(/*bracketClose*/ ctx[6]);
+    			add_location(span0, file$c, 60, 34, 1504);
+    			add_location(span1, file$c, 60, 4, 1474);
+    			attr_dev(label_1, "class", "svelte-rwxv37");
+    			add_location(label_1, file$c, 55, 2, 1253);
+    			add_location(span2, file$c, 77, 2, 2112);
+    			attr_dev(li, "class", "svelte-rwxv37");
+    			toggle_class(li, "indent", /*isParentExpanded*/ ctx[2]);
+    			add_location(li, file$c, 54, 0, 1214);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, li, anchor);
+    			append_dev(li, label_1);
+    			if (if_block0) if_block0.m(label_1, null);
+    			append_dev(label_1, t0);
+    			mount_component(jsonkey, label_1, null);
+    			append_dev(label_1, t1);
+    			append_dev(label_1, span1);
+    			append_dev(span1, span0);
+    			append_dev(span0, t2);
+    			append_dev(span1, t3);
+    			append_dev(li, t4);
+    			if_blocks[current_block_type_index].m(li, null);
+    			append_dev(li, t5);
+    			append_dev(li, span2);
+    			append_dev(span2, t6);
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = listen_dev(span1, "click", /*toggleExpand*/ ctx[15], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (/*expandable*/ ctx[11] && /*isParentExpanded*/ ctx[2]) {
+    				if (if_block0) {
+    					if_block0.p(ctx, dirty);
+
+    					if (dirty & /*expandable, isParentExpanded*/ 2052) {
+    						transition_in(if_block0, 1);
+    					}
+    				} else {
+    					if_block0 = create_if_block_3(ctx);
+    					if_block0.c();
+    					transition_in(if_block0, 1);
+    					if_block0.m(label_1, t0);
+    				}
+    			} else if (if_block0) {
+    				group_outros();
+
+    				transition_out(if_block0, 1, 1, () => {
+    					if_block0 = null;
+    				});
+
+    				check_outros();
+    			}
+
+    			const jsonkey_changes = {};
+    			if (dirty & /*key*/ 4096) jsonkey_changes.key = /*key*/ ctx[12];
+    			if (dirty & /*isParentExpanded*/ 4) jsonkey_changes.isParentExpanded = /*isParentExpanded*/ ctx[2];
+    			if (dirty & /*isParentArray*/ 8) jsonkey_changes.isParentArray = /*isParentArray*/ ctx[3];
+    			jsonkey.$set(jsonkey_changes);
+    			if (!current || dirty & /*label*/ 2) set_data_dev(t2, /*label*/ ctx[1]);
+    			if (!current || dirty & /*bracketOpen*/ 32) set_data_dev(t3, /*bracketOpen*/ ctx[5]);
+    			let previous_block_index = current_block_type_index;
+    			current_block_type_index = select_block_type(ctx);
+
+    			if (current_block_type_index === previous_block_index) {
+    				if_blocks[current_block_type_index].p(ctx, dirty);
+    			} else {
+    				group_outros();
+
+    				transition_out(if_blocks[previous_block_index], 1, 1, () => {
+    					if_blocks[previous_block_index] = null;
+    				});
+
+    				check_outros();
+    				if_block1 = if_blocks[current_block_type_index];
+
+    				if (!if_block1) {
+    					if_block1 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+    					if_block1.c();
+    				} else {
+    					if_block1.p(ctx, dirty);
+    				}
+
+    				transition_in(if_block1, 1);
+    				if_block1.m(li, t5);
+    			}
+
+    			if (!current || dirty & /*bracketClose*/ 64) set_data_dev(t6, /*bracketClose*/ ctx[6]);
+
+    			if (dirty & /*isParentExpanded*/ 4) {
+    				toggle_class(li, "indent", /*isParentExpanded*/ ctx[2]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block0);
+    			transition_in(jsonkey.$$.fragment, local);
+    			transition_in(if_block1);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block0);
+    			transition_out(jsonkey.$$.fragment, local);
+    			transition_out(if_block1);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(li);
+    			if (if_block0) if_block0.d();
+    			destroy_component(jsonkey);
+    			if_blocks[current_block_type_index].d();
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$d.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$d($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONNested", slots, []);
+
+    	let { key } = $$props,
+    		{ keys } = $$props,
+    		{ colon = ":" } = $$props,
+    		{ label = "" } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray } = $$props,
+    		{ isArray = false } = $$props,
+    		{ bracketOpen } = $$props,
+    		{ bracketClose } = $$props;
+
+    	let { previewKeys = keys } = $$props;
+    	let { getKey = key => key } = $$props;
+    	let { getValue = key => key } = $$props;
+    	let { getPreviewValue = getValue } = $$props;
+    	let { expanded = false } = $$props, { expandable = true } = $$props;
+    	const context = getContext(contextKey);
+    	setContext(contextKey, { ...context, colon });
+
+    	function toggleExpand() {
+    		$$invalidate(0, expanded = !expanded);
+    	}
+
+    	function expand() {
+    		$$invalidate(0, expanded = true);
+    	}
+
+    	const writable_props = [
+    		"key",
+    		"keys",
+    		"colon",
+    		"label",
+    		"isParentExpanded",
+    		"isParentArray",
+    		"isArray",
+    		"bracketOpen",
+    		"bracketClose",
+    		"previewKeys",
+    		"getKey",
+    		"getValue",
+    		"getPreviewValue",
+    		"expanded",
+    		"expandable"
+    	];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONNested> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(12, key = $$props.key);
+    		if ("keys" in $$props) $$invalidate(17, keys = $$props.keys);
+    		if ("colon" in $$props) $$invalidate(18, colon = $$props.colon);
+    		if ("label" in $$props) $$invalidate(1, label = $$props.label);
+    		if ("isParentExpanded" in $$props) $$invalidate(2, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(3, isParentArray = $$props.isParentArray);
+    		if ("isArray" in $$props) $$invalidate(4, isArray = $$props.isArray);
+    		if ("bracketOpen" in $$props) $$invalidate(5, bracketOpen = $$props.bracketOpen);
+    		if ("bracketClose" in $$props) $$invalidate(6, bracketClose = $$props.bracketClose);
+    		if ("previewKeys" in $$props) $$invalidate(7, previewKeys = $$props.previewKeys);
+    		if ("getKey" in $$props) $$invalidate(8, getKey = $$props.getKey);
+    		if ("getValue" in $$props) $$invalidate(9, getValue = $$props.getValue);
+    		if ("getPreviewValue" in $$props) $$invalidate(10, getPreviewValue = $$props.getPreviewValue);
+    		if ("expanded" in $$props) $$invalidate(0, expanded = $$props.expanded);
+    		if ("expandable" in $$props) $$invalidate(11, expandable = $$props.expandable);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		setContext,
+    		contextKey,
+    		JSONArrow,
+    		JSONNode,
+    		JSONKey,
+    		key,
+    		keys,
+    		colon,
+    		label,
+    		isParentExpanded,
+    		isParentArray,
+    		isArray,
+    		bracketOpen,
+    		bracketClose,
+    		previewKeys,
+    		getKey,
+    		getValue,
+    		getPreviewValue,
+    		expanded,
+    		expandable,
+    		context,
+    		toggleExpand,
+    		expand,
+    		slicedKeys
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(12, key = $$props.key);
+    		if ("keys" in $$props) $$invalidate(17, keys = $$props.keys);
+    		if ("colon" in $$props) $$invalidate(18, colon = $$props.colon);
+    		if ("label" in $$props) $$invalidate(1, label = $$props.label);
+    		if ("isParentExpanded" in $$props) $$invalidate(2, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(3, isParentArray = $$props.isParentArray);
+    		if ("isArray" in $$props) $$invalidate(4, isArray = $$props.isArray);
+    		if ("bracketOpen" in $$props) $$invalidate(5, bracketOpen = $$props.bracketOpen);
+    		if ("bracketClose" in $$props) $$invalidate(6, bracketClose = $$props.bracketClose);
+    		if ("previewKeys" in $$props) $$invalidate(7, previewKeys = $$props.previewKeys);
+    		if ("getKey" in $$props) $$invalidate(8, getKey = $$props.getKey);
+    		if ("getValue" in $$props) $$invalidate(9, getValue = $$props.getValue);
+    		if ("getPreviewValue" in $$props) $$invalidate(10, getPreviewValue = $$props.getPreviewValue);
+    		if ("expanded" in $$props) $$invalidate(0, expanded = $$props.expanded);
+    		if ("expandable" in $$props) $$invalidate(11, expandable = $$props.expandable);
+    		if ("slicedKeys" in $$props) $$invalidate(13, slicedKeys = $$props.slicedKeys);
+    	};
+
+    	let slicedKeys;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*isParentExpanded*/ 4) {
+    			 if (!isParentExpanded) {
+    				$$invalidate(0, expanded = false);
+    			}
+    		}
+
+    		if ($$self.$$.dirty & /*expanded, keys, previewKeys*/ 131201) {
+    			 $$invalidate(13, slicedKeys = expanded ? keys : previewKeys.slice(0, 5));
+    		}
+    	};
+
+    	return [
+    		expanded,
+    		label,
+    		isParentExpanded,
+    		isParentArray,
+    		isArray,
+    		bracketOpen,
+    		bracketClose,
+    		previewKeys,
+    		getKey,
+    		getValue,
+    		getPreviewValue,
+    		expandable,
+    		key,
+    		slicedKeys,
+    		context,
+    		toggleExpand,
+    		expand,
+    		keys,
+    		colon
+    	];
+    }
+
+    class JSONNested extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$d, create_fragment$d, safe_not_equal, {
+    			key: 12,
+    			keys: 17,
+    			colon: 18,
+    			label: 1,
+    			isParentExpanded: 2,
+    			isParentArray: 3,
+    			isArray: 4,
+    			bracketOpen: 5,
+    			bracketClose: 6,
+    			previewKeys: 7,
+    			getKey: 8,
+    			getValue: 9,
+    			getPreviewValue: 10,
+    			expanded: 0,
+    			expandable: 11
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONNested",
+    			options,
+    			id: create_fragment$d.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[12] === undefined && !("key" in props)) {
+    			console.warn("<JSONNested> was created without expected prop 'key'");
+    		}
+
+    		if (/*keys*/ ctx[17] === undefined && !("keys" in props)) {
+    			console.warn("<JSONNested> was created without expected prop 'keys'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[2] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<JSONNested> was created without expected prop 'isParentExpanded'");
+    		}
+
+    		if (/*isParentArray*/ ctx[3] === undefined && !("isParentArray" in props)) {
+    			console.warn("<JSONNested> was created without expected prop 'isParentArray'");
+    		}
+
+    		if (/*bracketOpen*/ ctx[5] === undefined && !("bracketOpen" in props)) {
+    			console.warn("<JSONNested> was created without expected prop 'bracketOpen'");
+    		}
+
+    		if (/*bracketClose*/ ctx[6] === undefined && !("bracketClose" in props)) {
+    			console.warn("<JSONNested> was created without expected prop 'bracketClose'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get keys() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set keys(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get colon() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set colon(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get label() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set label(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isArray() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isArray(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get bracketOpen() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set bracketOpen(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get bracketClose() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set bracketClose(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get previewKeys() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set previewKeys(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get getKey() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set getKey(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get getValue() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set getValue(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get getPreviewValue() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set getPreviewValue(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get expanded() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set expanded(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get expandable() {
+    		throw new Error("<JSONNested>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set expandable(value) {
+    		throw new Error("<JSONNested>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-json-tree/src/JSONObjectNode.svelte generated by Svelte v3.31.0 */
+
+    const { Object: Object_1 } = globals;
+
+    function create_fragment$e(ctx) {
+    	let jsonnested;
+    	let current;
+
+    	jsonnested = new JSONNested({
+    			props: {
+    				key: /*key*/ ctx[0],
+    				expanded: /*expanded*/ ctx[4],
+    				isParentExpanded: /*isParentExpanded*/ ctx[1],
+    				isParentArray: /*isParentArray*/ ctx[2],
+    				keys: /*keys*/ ctx[5],
+    				previewKeys: /*keys*/ ctx[5],
+    				getValue: /*getValue*/ ctx[6],
+    				label: "" + (/*nodeType*/ ctx[3] + " "),
+    				bracketOpen: "{",
+    				bracketClose: "}"
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			create_component(jsonnested.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(jsonnested, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const jsonnested_changes = {};
+    			if (dirty & /*key*/ 1) jsonnested_changes.key = /*key*/ ctx[0];
+    			if (dirty & /*expanded*/ 16) jsonnested_changes.expanded = /*expanded*/ ctx[4];
+    			if (dirty & /*isParentExpanded*/ 2) jsonnested_changes.isParentExpanded = /*isParentExpanded*/ ctx[1];
+    			if (dirty & /*isParentArray*/ 4) jsonnested_changes.isParentArray = /*isParentArray*/ ctx[2];
+    			if (dirty & /*keys*/ 32) jsonnested_changes.keys = /*keys*/ ctx[5];
+    			if (dirty & /*keys*/ 32) jsonnested_changes.previewKeys = /*keys*/ ctx[5];
+    			if (dirty & /*nodeType*/ 8) jsonnested_changes.label = "" + (/*nodeType*/ ctx[3] + " ");
+    			jsonnested.$set(jsonnested_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonnested.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonnested.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(jsonnested, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$e.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$e($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONObjectNode", slots, []);
+
+    	let { key } = $$props,
+    		{ value } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray } = $$props,
+    		{ nodeType } = $$props;
+
+    	let { expanded = false } = $$props;
+
+    	function getValue(key) {
+    		return value[key];
+    	}
+
+    	const writable_props = ["key", "value", "isParentExpanded", "isParentArray", "nodeType", "expanded"];
+
+    	Object_1.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONObjectNode> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(7, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(1, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(2, isParentArray = $$props.isParentArray);
+    		if ("nodeType" in $$props) $$invalidate(3, nodeType = $$props.nodeType);
+    		if ("expanded" in $$props) $$invalidate(4, expanded = $$props.expanded);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		JSONNested,
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		nodeType,
+    		expanded,
+    		getValue,
+    		keys
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(7, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(1, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(2, isParentArray = $$props.isParentArray);
+    		if ("nodeType" in $$props) $$invalidate(3, nodeType = $$props.nodeType);
+    		if ("expanded" in $$props) $$invalidate(4, expanded = $$props.expanded);
+    		if ("keys" in $$props) $$invalidate(5, keys = $$props.keys);
+    	};
+
+    	let keys;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*value*/ 128) {
+    			 $$invalidate(5, keys = Object.getOwnPropertyNames(value));
+    		}
+    	};
+
+    	return [
+    		key,
+    		isParentExpanded,
+    		isParentArray,
+    		nodeType,
+    		expanded,
+    		keys,
+    		getValue,
+    		value
+    	];
+    }
+
+    class JSONObjectNode extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$e, create_fragment$e, safe_not_equal, {
+    			key: 0,
+    			value: 7,
+    			isParentExpanded: 1,
+    			isParentArray: 2,
+    			nodeType: 3,
+    			expanded: 4
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONObjectNode",
+    			options,
+    			id: create_fragment$e.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[0] === undefined && !("key" in props)) {
+    			console.warn("<JSONObjectNode> was created without expected prop 'key'");
+    		}
+
+    		if (/*value*/ ctx[7] === undefined && !("value" in props)) {
+    			console.warn("<JSONObjectNode> was created without expected prop 'value'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[1] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<JSONObjectNode> was created without expected prop 'isParentExpanded'");
+    		}
+
+    		if (/*isParentArray*/ ctx[2] === undefined && !("isParentArray" in props)) {
+    			console.warn("<JSONObjectNode> was created without expected prop 'isParentArray'");
+    		}
+
+    		if (/*nodeType*/ ctx[3] === undefined && !("nodeType" in props)) {
+    			console.warn("<JSONObjectNode> was created without expected prop 'nodeType'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<JSONObjectNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<JSONObjectNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get value() {
+    		throw new Error("<JSONObjectNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set value(value) {
+    		throw new Error("<JSONObjectNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<JSONObjectNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<JSONObjectNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<JSONObjectNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<JSONObjectNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get nodeType() {
+    		throw new Error("<JSONObjectNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set nodeType(value) {
+    		throw new Error("<JSONObjectNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get expanded() {
+    		throw new Error("<JSONObjectNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set expanded(value) {
+    		throw new Error("<JSONObjectNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-json-tree/src/JSONArrayNode.svelte generated by Svelte v3.31.0 */
+
+    const { Object: Object_1$1 } = globals;
+
+    function create_fragment$f(ctx) {
+    	let jsonnested;
+    	let current;
+
+    	jsonnested = new JSONNested({
+    			props: {
+    				key: /*key*/ ctx[0],
+    				expanded: /*expanded*/ ctx[4],
+    				isParentExpanded: /*isParentExpanded*/ ctx[2],
+    				isParentArray: /*isParentArray*/ ctx[3],
+    				isArray: true,
+    				keys: /*keys*/ ctx[5],
+    				previewKeys: /*previewKeys*/ ctx[6],
+    				getValue: /*getValue*/ ctx[7],
+    				label: "Array(" + /*value*/ ctx[1].length + ")",
+    				bracketOpen: "[",
+    				bracketClose: "]"
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			create_component(jsonnested.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(jsonnested, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const jsonnested_changes = {};
+    			if (dirty & /*key*/ 1) jsonnested_changes.key = /*key*/ ctx[0];
+    			if (dirty & /*expanded*/ 16) jsonnested_changes.expanded = /*expanded*/ ctx[4];
+    			if (dirty & /*isParentExpanded*/ 4) jsonnested_changes.isParentExpanded = /*isParentExpanded*/ ctx[2];
+    			if (dirty & /*isParentArray*/ 8) jsonnested_changes.isParentArray = /*isParentArray*/ ctx[3];
+    			if (dirty & /*keys*/ 32) jsonnested_changes.keys = /*keys*/ ctx[5];
+    			if (dirty & /*previewKeys*/ 64) jsonnested_changes.previewKeys = /*previewKeys*/ ctx[6];
+    			if (dirty & /*value*/ 2) jsonnested_changes.label = "Array(" + /*value*/ ctx[1].length + ")";
+    			jsonnested.$set(jsonnested_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonnested.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonnested.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(jsonnested, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$f.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$f($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONArrayNode", slots, []);
+
+    	let { key } = $$props,
+    		{ value } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray } = $$props;
+
+    	let { expanded = false } = $$props;
+    	const filteredKey = new Set(["length"]);
+
+    	function getValue(key) {
+    		return value[key];
+    	}
+
+    	const writable_props = ["key", "value", "isParentExpanded", "isParentArray", "expanded"];
+
+    	Object_1$1.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONArrayNode> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(2, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(3, isParentArray = $$props.isParentArray);
+    		if ("expanded" in $$props) $$invalidate(4, expanded = $$props.expanded);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		JSONNested,
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		expanded,
+    		filteredKey,
+    		getValue,
+    		keys,
+    		previewKeys
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(2, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(3, isParentArray = $$props.isParentArray);
+    		if ("expanded" in $$props) $$invalidate(4, expanded = $$props.expanded);
+    		if ("keys" in $$props) $$invalidate(5, keys = $$props.keys);
+    		if ("previewKeys" in $$props) $$invalidate(6, previewKeys = $$props.previewKeys);
+    	};
+
+    	let keys;
+    	let previewKeys;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*value*/ 2) {
+    			 $$invalidate(5, keys = Object.getOwnPropertyNames(value));
+    		}
+
+    		if ($$self.$$.dirty & /*keys*/ 32) {
+    			 $$invalidate(6, previewKeys = keys.filter(key => !filteredKey.has(key)));
+    		}
+    	};
+
+    	return [
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		expanded,
+    		keys,
+    		previewKeys,
+    		getValue
+    	];
+    }
+
+    class JSONArrayNode extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$f, create_fragment$f, safe_not_equal, {
+    			key: 0,
+    			value: 1,
+    			isParentExpanded: 2,
+    			isParentArray: 3,
+    			expanded: 4
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONArrayNode",
+    			options,
+    			id: create_fragment$f.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[0] === undefined && !("key" in props)) {
+    			console.warn("<JSONArrayNode> was created without expected prop 'key'");
+    		}
+
+    		if (/*value*/ ctx[1] === undefined && !("value" in props)) {
+    			console.warn("<JSONArrayNode> was created without expected prop 'value'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[2] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<JSONArrayNode> was created without expected prop 'isParentExpanded'");
+    		}
+
+    		if (/*isParentArray*/ ctx[3] === undefined && !("isParentArray" in props)) {
+    			console.warn("<JSONArrayNode> was created without expected prop 'isParentArray'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<JSONArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<JSONArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get value() {
+    		throw new Error("<JSONArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set value(value) {
+    		throw new Error("<JSONArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<JSONArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<JSONArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<JSONArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<JSONArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get expanded() {
+    		throw new Error("<JSONArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set expanded(value) {
+    		throw new Error("<JSONArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-json-tree/src/JSONIterableArrayNode.svelte generated by Svelte v3.31.0 */
+
+    function create_fragment$g(ctx) {
+    	let jsonnested;
+    	let current;
+
+    	jsonnested = new JSONNested({
+    			props: {
+    				key: /*key*/ ctx[0],
+    				isParentExpanded: /*isParentExpanded*/ ctx[1],
+    				isParentArray: /*isParentArray*/ ctx[2],
+    				keys: /*keys*/ ctx[4],
+    				getKey,
+    				getValue,
+    				isArray: true,
+    				label: "" + (/*nodeType*/ ctx[3] + "(" + /*keys*/ ctx[4].length + ")"),
+    				bracketOpen: "{",
+    				bracketClose: "}"
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			create_component(jsonnested.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(jsonnested, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const jsonnested_changes = {};
+    			if (dirty & /*key*/ 1) jsonnested_changes.key = /*key*/ ctx[0];
+    			if (dirty & /*isParentExpanded*/ 2) jsonnested_changes.isParentExpanded = /*isParentExpanded*/ ctx[1];
+    			if (dirty & /*isParentArray*/ 4) jsonnested_changes.isParentArray = /*isParentArray*/ ctx[2];
+    			if (dirty & /*keys*/ 16) jsonnested_changes.keys = /*keys*/ ctx[4];
+    			if (dirty & /*nodeType, keys*/ 24) jsonnested_changes.label = "" + (/*nodeType*/ ctx[3] + "(" + /*keys*/ ctx[4].length + ")");
+    			jsonnested.$set(jsonnested_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonnested.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonnested.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(jsonnested, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$g.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function getKey(key) {
+    	return String(key[0]);
+    }
+
+    function getValue(key) {
+    	return key[1];
+    }
+
+    function instance$g($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONIterableArrayNode", slots, []);
+
+    	let { key } = $$props,
+    		{ value } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray } = $$props,
+    		{ nodeType } = $$props;
+
+    	let keys = [];
+    	const writable_props = ["key", "value", "isParentExpanded", "isParentArray", "nodeType"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONIterableArrayNode> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(5, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(1, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(2, isParentArray = $$props.isParentArray);
+    		if ("nodeType" in $$props) $$invalidate(3, nodeType = $$props.nodeType);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		JSONNested,
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		nodeType,
+    		keys,
+    		getKey,
+    		getValue
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(5, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(1, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(2, isParentArray = $$props.isParentArray);
+    		if ("nodeType" in $$props) $$invalidate(3, nodeType = $$props.nodeType);
+    		if ("keys" in $$props) $$invalidate(4, keys = $$props.keys);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*value*/ 32) {
+    			 {
+    				let result = [];
+    				let i = 0;
+
+    				for (const entry of value) {
+    					result.push([i++, entry]);
+    				}
+
+    				$$invalidate(4, keys = result);
+    			}
+    		}
+    	};
+
+    	return [key, isParentExpanded, isParentArray, nodeType, keys, value];
+    }
+
+    class JSONIterableArrayNode extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$g, create_fragment$g, safe_not_equal, {
+    			key: 0,
+    			value: 5,
+    			isParentExpanded: 1,
+    			isParentArray: 2,
+    			nodeType: 3
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONIterableArrayNode",
+    			options,
+    			id: create_fragment$g.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[0] === undefined && !("key" in props)) {
+    			console.warn("<JSONIterableArrayNode> was created without expected prop 'key'");
+    		}
+
+    		if (/*value*/ ctx[5] === undefined && !("value" in props)) {
+    			console.warn("<JSONIterableArrayNode> was created without expected prop 'value'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[1] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<JSONIterableArrayNode> was created without expected prop 'isParentExpanded'");
+    		}
+
+    		if (/*isParentArray*/ ctx[2] === undefined && !("isParentArray" in props)) {
+    			console.warn("<JSONIterableArrayNode> was created without expected prop 'isParentArray'");
+    		}
+
+    		if (/*nodeType*/ ctx[3] === undefined && !("nodeType" in props)) {
+    			console.warn("<JSONIterableArrayNode> was created without expected prop 'nodeType'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get value() {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set value(value) {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get nodeType() {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set nodeType(value) {
+    		throw new Error("<JSONIterableArrayNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    class MapEntry {
+      constructor(key, value) {
+        this.key = key;
+        this.value = value;
+      }
+    }
+
+    /* node_modules/svelte-json-tree/src/JSONIterableMapNode.svelte generated by Svelte v3.31.0 */
+
+    function create_fragment$h(ctx) {
+    	let jsonnested;
+    	let current;
+
+    	jsonnested = new JSONNested({
+    			props: {
+    				key: /*key*/ ctx[0],
+    				isParentExpanded: /*isParentExpanded*/ ctx[1],
+    				isParentArray: /*isParentArray*/ ctx[2],
+    				keys: /*keys*/ ctx[4],
+    				getKey: getKey$1,
+    				getValue: getValue$1,
+    				label: "" + (/*nodeType*/ ctx[3] + "(" + /*keys*/ ctx[4].length + ")"),
+    				colon: "",
+    				bracketOpen: "{",
+    				bracketClose: "}"
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			create_component(jsonnested.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(jsonnested, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const jsonnested_changes = {};
+    			if (dirty & /*key*/ 1) jsonnested_changes.key = /*key*/ ctx[0];
+    			if (dirty & /*isParentExpanded*/ 2) jsonnested_changes.isParentExpanded = /*isParentExpanded*/ ctx[1];
+    			if (dirty & /*isParentArray*/ 4) jsonnested_changes.isParentArray = /*isParentArray*/ ctx[2];
+    			if (dirty & /*keys*/ 16) jsonnested_changes.keys = /*keys*/ ctx[4];
+    			if (dirty & /*nodeType, keys*/ 24) jsonnested_changes.label = "" + (/*nodeType*/ ctx[3] + "(" + /*keys*/ ctx[4].length + ")");
+    			jsonnested.$set(jsonnested_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonnested.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonnested.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(jsonnested, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$h.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function getKey$1(entry) {
+    	return entry[0];
+    }
+
+    function getValue$1(entry) {
+    	return entry[1];
+    }
+
+    function instance$h($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONIterableMapNode", slots, []);
+
+    	let { key } = $$props,
+    		{ value } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray } = $$props,
+    		{ nodeType } = $$props;
+
+    	let keys = [];
+    	const writable_props = ["key", "value", "isParentExpanded", "isParentArray", "nodeType"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONIterableMapNode> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(5, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(1, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(2, isParentArray = $$props.isParentArray);
+    		if ("nodeType" in $$props) $$invalidate(3, nodeType = $$props.nodeType);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		JSONNested,
+    		MapEntry,
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		nodeType,
+    		keys,
+    		getKey: getKey$1,
+    		getValue: getValue$1
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(5, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(1, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(2, isParentArray = $$props.isParentArray);
+    		if ("nodeType" in $$props) $$invalidate(3, nodeType = $$props.nodeType);
+    		if ("keys" in $$props) $$invalidate(4, keys = $$props.keys);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*value*/ 32) {
+    			 {
+    				let result = [];
+    				let i = 0;
+
+    				for (const entry of value) {
+    					result.push([i++, new MapEntry(entry[0], entry[1])]);
+    				}
+
+    				$$invalidate(4, keys = result);
+    			}
+    		}
+    	};
+
+    	return [key, isParentExpanded, isParentArray, nodeType, keys, value];
+    }
+
+    class JSONIterableMapNode extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$h, create_fragment$h, safe_not_equal, {
+    			key: 0,
+    			value: 5,
+    			isParentExpanded: 1,
+    			isParentArray: 2,
+    			nodeType: 3
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONIterableMapNode",
+    			options,
+    			id: create_fragment$h.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[0] === undefined && !("key" in props)) {
+    			console.warn("<JSONIterableMapNode> was created without expected prop 'key'");
+    		}
+
+    		if (/*value*/ ctx[5] === undefined && !("value" in props)) {
+    			console.warn("<JSONIterableMapNode> was created without expected prop 'value'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[1] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<JSONIterableMapNode> was created without expected prop 'isParentExpanded'");
+    		}
+
+    		if (/*isParentArray*/ ctx[2] === undefined && !("isParentArray" in props)) {
+    			console.warn("<JSONIterableMapNode> was created without expected prop 'isParentArray'");
+    		}
+
+    		if (/*nodeType*/ ctx[3] === undefined && !("nodeType" in props)) {
+    			console.warn("<JSONIterableMapNode> was created without expected prop 'nodeType'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get value() {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set value(value) {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get nodeType() {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set nodeType(value) {
+    		throw new Error("<JSONIterableMapNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-json-tree/src/JSONMapEntryNode.svelte generated by Svelte v3.31.0 */
+
+    function create_fragment$i(ctx) {
+    	let jsonnested;
+    	let current;
+
+    	jsonnested = new JSONNested({
+    			props: {
+    				expanded: /*expanded*/ ctx[4],
+    				isParentExpanded: /*isParentExpanded*/ ctx[2],
+    				isParentArray: /*isParentArray*/ ctx[3],
+    				key: /*isParentExpanded*/ ctx[2]
+    				? String(/*key*/ ctx[0])
+    				: /*value*/ ctx[1].key,
+    				keys: /*keys*/ ctx[5],
+    				getValue: /*getValue*/ ctx[6],
+    				label: /*isParentExpanded*/ ctx[2] ? "Entry " : "=> ",
+    				bracketOpen: "{",
+    				bracketClose: "}"
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			create_component(jsonnested.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(jsonnested, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const jsonnested_changes = {};
+    			if (dirty & /*expanded*/ 16) jsonnested_changes.expanded = /*expanded*/ ctx[4];
+    			if (dirty & /*isParentExpanded*/ 4) jsonnested_changes.isParentExpanded = /*isParentExpanded*/ ctx[2];
+    			if (dirty & /*isParentArray*/ 8) jsonnested_changes.isParentArray = /*isParentArray*/ ctx[3];
+
+    			if (dirty & /*isParentExpanded, key, value*/ 7) jsonnested_changes.key = /*isParentExpanded*/ ctx[2]
+    			? String(/*key*/ ctx[0])
+    			: /*value*/ ctx[1].key;
+
+    			if (dirty & /*isParentExpanded*/ 4) jsonnested_changes.label = /*isParentExpanded*/ ctx[2] ? "Entry " : "=> ";
+    			jsonnested.$set(jsonnested_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonnested.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonnested.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(jsonnested, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$i.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$i($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONMapEntryNode", slots, []);
+
+    	let { key } = $$props,
+    		{ value } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray } = $$props;
+
+    	let { expanded = false } = $$props;
+    	const keys = ["key", "value"];
+
+    	function getValue(key) {
+    		return value[key];
+    	}
+
+    	const writable_props = ["key", "value", "isParentExpanded", "isParentArray", "expanded"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONMapEntryNode> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(2, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(3, isParentArray = $$props.isParentArray);
+    		if ("expanded" in $$props) $$invalidate(4, expanded = $$props.expanded);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		JSONNested,
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		expanded,
+    		keys,
+    		getValue
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(2, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(3, isParentArray = $$props.isParentArray);
+    		if ("expanded" in $$props) $$invalidate(4, expanded = $$props.expanded);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [key, value, isParentExpanded, isParentArray, expanded, keys, getValue];
+    }
+
+    class JSONMapEntryNode extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$i, create_fragment$i, safe_not_equal, {
+    			key: 0,
+    			value: 1,
+    			isParentExpanded: 2,
+    			isParentArray: 3,
+    			expanded: 4
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONMapEntryNode",
+    			options,
+    			id: create_fragment$i.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[0] === undefined && !("key" in props)) {
+    			console.warn("<JSONMapEntryNode> was created without expected prop 'key'");
+    		}
+
+    		if (/*value*/ ctx[1] === undefined && !("value" in props)) {
+    			console.warn("<JSONMapEntryNode> was created without expected prop 'value'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[2] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<JSONMapEntryNode> was created without expected prop 'isParentExpanded'");
+    		}
+
+    		if (/*isParentArray*/ ctx[3] === undefined && !("isParentArray" in props)) {
+    			console.warn("<JSONMapEntryNode> was created without expected prop 'isParentArray'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get value() {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set value(value) {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get expanded() {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set expanded(value) {
+    		throw new Error("<JSONMapEntryNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-json-tree/src/JSONValueNode.svelte generated by Svelte v3.31.0 */
+    const file$d = "node_modules/svelte-json-tree/src/JSONValueNode.svelte";
+
+    function create_fragment$j(ctx) {
+    	let li;
+    	let jsonkey;
+    	let t0;
+    	let span;
+
+    	let t1_value = (/*valueGetter*/ ctx[2]
+    	? /*valueGetter*/ ctx[2](/*value*/ ctx[1])
+    	: /*value*/ ctx[1]) + "";
+
+    	let t1;
+    	let span_class_value;
+    	let current;
+
+    	jsonkey = new JSONKey({
+    			props: {
+    				key: /*key*/ ctx[0],
+    				colon: /*colon*/ ctx[6],
+    				isParentExpanded: /*isParentExpanded*/ ctx[3],
+    				isParentArray: /*isParentArray*/ ctx[4]
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			li = element("li");
+    			create_component(jsonkey.$$.fragment);
+    			t0 = space();
+    			span = element("span");
+    			t1 = text(t1_value);
+    			attr_dev(span, "class", span_class_value = "" + (null_to_empty(/*nodeType*/ ctx[5]) + " svelte-3bjyvl"));
+    			add_location(span, file$d, 47, 2, 948);
+    			attr_dev(li, "class", "svelte-3bjyvl");
+    			toggle_class(li, "indent", /*isParentExpanded*/ ctx[3]);
+    			add_location(li, file$d, 45, 0, 846);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, li, anchor);
+    			mount_component(jsonkey, li, null);
+    			append_dev(li, t0);
+    			append_dev(li, span);
+    			append_dev(span, t1);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const jsonkey_changes = {};
+    			if (dirty & /*key*/ 1) jsonkey_changes.key = /*key*/ ctx[0];
+    			if (dirty & /*isParentExpanded*/ 8) jsonkey_changes.isParentExpanded = /*isParentExpanded*/ ctx[3];
+    			if (dirty & /*isParentArray*/ 16) jsonkey_changes.isParentArray = /*isParentArray*/ ctx[4];
+    			jsonkey.$set(jsonkey_changes);
+
+    			if ((!current || dirty & /*valueGetter, value*/ 6) && t1_value !== (t1_value = (/*valueGetter*/ ctx[2]
+    			? /*valueGetter*/ ctx[2](/*value*/ ctx[1])
+    			: /*value*/ ctx[1]) + "")) set_data_dev(t1, t1_value);
+
+    			if (!current || dirty & /*nodeType*/ 32 && span_class_value !== (span_class_value = "" + (null_to_empty(/*nodeType*/ ctx[5]) + " svelte-3bjyvl"))) {
+    				attr_dev(span, "class", span_class_value);
+    			}
+
+    			if (dirty & /*isParentExpanded*/ 8) {
+    				toggle_class(li, "indent", /*isParentExpanded*/ ctx[3]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonkey.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonkey.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(li);
+    			destroy_component(jsonkey);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$j.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$j($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONValueNode", slots, []);
+
+    	let { key } = $$props,
+    		{ value } = $$props,
+    		{ valueGetter = null } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray } = $$props,
+    		{ nodeType } = $$props;
+
+    	const { colon } = getContext(contextKey);
+    	const writable_props = ["key", "value", "valueGetter", "isParentExpanded", "isParentArray", "nodeType"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONValueNode> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    		if ("valueGetter" in $$props) $$invalidate(2, valueGetter = $$props.valueGetter);
+    		if ("isParentExpanded" in $$props) $$invalidate(3, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(4, isParentArray = $$props.isParentArray);
+    		if ("nodeType" in $$props) $$invalidate(5, nodeType = $$props.nodeType);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		contextKey,
+    		JSONKey,
+    		key,
+    		value,
+    		valueGetter,
+    		isParentExpanded,
+    		isParentArray,
+    		nodeType,
+    		colon
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    		if ("valueGetter" in $$props) $$invalidate(2, valueGetter = $$props.valueGetter);
+    		if ("isParentExpanded" in $$props) $$invalidate(3, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(4, isParentArray = $$props.isParentArray);
+    		if ("nodeType" in $$props) $$invalidate(5, nodeType = $$props.nodeType);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [key, value, valueGetter, isParentExpanded, isParentArray, nodeType, colon];
+    }
+
+    class JSONValueNode extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$j, create_fragment$j, safe_not_equal, {
+    			key: 0,
+    			value: 1,
+    			valueGetter: 2,
+    			isParentExpanded: 3,
+    			isParentArray: 4,
+    			nodeType: 5
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONValueNode",
+    			options,
+    			id: create_fragment$j.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[0] === undefined && !("key" in props)) {
+    			console.warn("<JSONValueNode> was created without expected prop 'key'");
+    		}
+
+    		if (/*value*/ ctx[1] === undefined && !("value" in props)) {
+    			console.warn("<JSONValueNode> was created without expected prop 'value'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[3] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<JSONValueNode> was created without expected prop 'isParentExpanded'");
+    		}
+
+    		if (/*isParentArray*/ ctx[4] === undefined && !("isParentArray" in props)) {
+    			console.warn("<JSONValueNode> was created without expected prop 'isParentArray'");
+    		}
+
+    		if (/*nodeType*/ ctx[5] === undefined && !("nodeType" in props)) {
+    			console.warn("<JSONValueNode> was created without expected prop 'nodeType'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<JSONValueNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<JSONValueNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get value() {
+    		throw new Error("<JSONValueNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set value(value) {
+    		throw new Error("<JSONValueNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get valueGetter() {
+    		throw new Error("<JSONValueNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set valueGetter(value) {
+    		throw new Error("<JSONValueNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<JSONValueNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<JSONValueNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<JSONValueNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<JSONValueNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get nodeType() {
+    		throw new Error("<JSONValueNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set nodeType(value) {
+    		throw new Error("<JSONValueNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-json-tree/src/ErrorNode.svelte generated by Svelte v3.31.0 */
+    const file$e = "node_modules/svelte-json-tree/src/ErrorNode.svelte";
+
+    function get_each_context$2(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[8] = list[i];
+    	child_ctx[10] = i;
+    	return child_ctx;
+    }
+
+    // (40:2) {#if isParentExpanded}
+    function create_if_block_2$1(ctx) {
+    	let jsonarrow;
+    	let current;
+
+    	jsonarrow = new JSONArrow({
+    			props: { expanded: /*expanded*/ ctx[0] },
+    			$$inline: true
+    		});
+
+    	jsonarrow.$on("click", /*toggleExpand*/ ctx[7]);
+
+    	const block = {
+    		c: function create() {
+    			create_component(jsonarrow.$$.fragment);
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(jsonarrow, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			const jsonarrow_changes = {};
+    			if (dirty & /*expanded*/ 1) jsonarrow_changes.expanded = /*expanded*/ ctx[0];
+    			jsonarrow.$set(jsonarrow_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonarrow.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonarrow.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(jsonarrow, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_2$1.name,
+    		type: "if",
+    		source: "(40:2) {#if isParentExpanded}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (45:2) {#if isParentExpanded}
+    function create_if_block$6(ctx) {
+    	let ul;
+    	let current;
+    	let if_block = /*expanded*/ ctx[0] && create_if_block_1$1(ctx);
+
+    	const block = {
+    		c: function create() {
+    			ul = element("ul");
+    			if (if_block) if_block.c();
+    			attr_dev(ul, "class", "svelte-1ca3gb2");
+    			toggle_class(ul, "collapse", !/*expanded*/ ctx[0]);
+    			add_location(ul, file$e, 45, 4, 1134);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, ul, anchor);
+    			if (if_block) if_block.m(ul, null);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*expanded*/ ctx[0]) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+
+    					if (dirty & /*expanded*/ 1) {
+    						transition_in(if_block, 1);
+    					}
+    				} else {
+    					if_block = create_if_block_1$1(ctx);
+    					if_block.c();
+    					transition_in(if_block, 1);
+    					if_block.m(ul, null);
+    				}
+    			} else if (if_block) {
+    				group_outros();
+
+    				transition_out(if_block, 1, 1, () => {
+    					if_block = null;
+    				});
+
+    				check_outros();
+    			}
+
+    			if (dirty & /*expanded*/ 1) {
+    				toggle_class(ul, "collapse", !/*expanded*/ ctx[0]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(ul);
+    			if (if_block) if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$6.name,
+    		type: "if",
+    		source: "(45:2) {#if isParentExpanded}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (47:6) {#if expanded}
+    function create_if_block_1$1(ctx) {
+    	let jsonnode;
+    	let t0;
+    	let li;
+    	let jsonkey;
+    	let t1;
+    	let span;
+    	let current;
+
+    	jsonnode = new JSONNode({
+    			props: {
+    				key: "message",
+    				value: /*value*/ ctx[2].message
+    			},
+    			$$inline: true
+    		});
+
+    	jsonkey = new JSONKey({
+    			props: {
+    				key: "stack",
+    				colon: ":",
+    				isParentExpanded: /*isParentExpanded*/ ctx[3]
+    			},
+    			$$inline: true
+    		});
+
+    	let each_value = /*stack*/ ctx[5];
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$2(get_each_context$2(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			create_component(jsonnode.$$.fragment);
+    			t0 = space();
+    			li = element("li");
+    			create_component(jsonkey.$$.fragment);
+    			t1 = space();
+    			span = element("span");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			add_location(span, file$e, 50, 10, 1330);
+    			attr_dev(li, "class", "svelte-1ca3gb2");
+    			add_location(li, file$e, 48, 8, 1252);
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(jsonnode, target, anchor);
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, li, anchor);
+    			mount_component(jsonkey, li, null);
+    			append_dev(li, t1);
+    			append_dev(li, span);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(span, null);
+    			}
+
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			const jsonnode_changes = {};
+    			if (dirty & /*value*/ 4) jsonnode_changes.value = /*value*/ ctx[2].message;
+    			jsonnode.$set(jsonnode_changes);
+    			const jsonkey_changes = {};
+    			if (dirty & /*isParentExpanded*/ 8) jsonkey_changes.isParentExpanded = /*isParentExpanded*/ ctx[3];
+    			jsonkey.$set(jsonkey_changes);
+
+    			if (dirty & /*stack*/ 32) {
+    				each_value = /*stack*/ ctx[5];
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$2(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block$2(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(span, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonnode.$$.fragment, local);
+    			transition_in(jsonkey.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonnode.$$.fragment, local);
+    			transition_out(jsonkey.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(jsonnode, detaching);
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(li);
+    			destroy_component(jsonkey);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1$1.name,
+    		type: "if",
+    		source: "(47:6) {#if expanded}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (52:12) {#each stack as line, index}
+    function create_each_block$2(ctx) {
+    	let span;
+    	let t_value = /*line*/ ctx[8] + "";
+    	let t;
+    	let br;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			t = text(t_value);
+    			br = element("br");
+    			attr_dev(span, "class", "svelte-1ca3gb2");
+    			toggle_class(span, "indent", /*index*/ ctx[10] > 0);
+    			add_location(span, file$e, 52, 14, 1392);
+    			add_location(br, file$e, 52, 58, 1436);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t);
+    			insert_dev(target, br, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*stack*/ 32 && t_value !== (t_value = /*line*/ ctx[8] + "")) set_data_dev(t, t_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    			if (detaching) detach_dev(br);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block$2.name,
+    		type: "each",
+    		source: "(52:12) {#each stack as line, index}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$k(ctx) {
+    	let li;
+    	let t0;
+    	let jsonkey;
+    	let t1;
+    	let span;
+    	let t2;
+    	let t3_value = (/*expanded*/ ctx[0] ? "" : /*value*/ ctx[2].message) + "";
+    	let t3;
+    	let t4;
+    	let current;
+    	let mounted;
+    	let dispose;
+    	let if_block0 = /*isParentExpanded*/ ctx[3] && create_if_block_2$1(ctx);
+
+    	jsonkey = new JSONKey({
+    			props: {
+    				key: /*key*/ ctx[1],
+    				colon: /*context*/ ctx[6].colon,
+    				isParentExpanded: /*isParentExpanded*/ ctx[3],
+    				isParentArray: /*isParentArray*/ ctx[4]
+    			},
+    			$$inline: true
+    		});
+
+    	let if_block1 = /*isParentExpanded*/ ctx[3] && create_if_block$6(ctx);
+
+    	const block = {
+    		c: function create() {
+    			li = element("li");
+    			if (if_block0) if_block0.c();
+    			t0 = space();
+    			create_component(jsonkey.$$.fragment);
+    			t1 = space();
+    			span = element("span");
+    			t2 = text("Error: ");
+    			t3 = text(t3_value);
+    			t4 = space();
+    			if (if_block1) if_block1.c();
+    			add_location(span, file$e, 43, 2, 1033);
+    			attr_dev(li, "class", "svelte-1ca3gb2");
+    			toggle_class(li, "indent", /*isParentExpanded*/ ctx[3]);
+    			add_location(li, file$e, 38, 0, 831);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, li, anchor);
+    			if (if_block0) if_block0.m(li, null);
+    			append_dev(li, t0);
+    			mount_component(jsonkey, li, null);
+    			append_dev(li, t1);
+    			append_dev(li, span);
+    			append_dev(span, t2);
+    			append_dev(span, t3);
+    			append_dev(li, t4);
+    			if (if_block1) if_block1.m(li, null);
+    			current = true;
+
+    			if (!mounted) {
+    				dispose = listen_dev(span, "click", /*toggleExpand*/ ctx[7], false, false, false);
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (/*isParentExpanded*/ ctx[3]) {
+    				if (if_block0) {
+    					if_block0.p(ctx, dirty);
+
+    					if (dirty & /*isParentExpanded*/ 8) {
+    						transition_in(if_block0, 1);
+    					}
+    				} else {
+    					if_block0 = create_if_block_2$1(ctx);
+    					if_block0.c();
+    					transition_in(if_block0, 1);
+    					if_block0.m(li, t0);
+    				}
+    			} else if (if_block0) {
+    				group_outros();
+
+    				transition_out(if_block0, 1, 1, () => {
+    					if_block0 = null;
+    				});
+
+    				check_outros();
+    			}
+
+    			const jsonkey_changes = {};
+    			if (dirty & /*key*/ 2) jsonkey_changes.key = /*key*/ ctx[1];
+    			if (dirty & /*isParentExpanded*/ 8) jsonkey_changes.isParentExpanded = /*isParentExpanded*/ ctx[3];
+    			if (dirty & /*isParentArray*/ 16) jsonkey_changes.isParentArray = /*isParentArray*/ ctx[4];
+    			jsonkey.$set(jsonkey_changes);
+    			if ((!current || dirty & /*expanded, value*/ 5) && t3_value !== (t3_value = (/*expanded*/ ctx[0] ? "" : /*value*/ ctx[2].message) + "")) set_data_dev(t3, t3_value);
+
+    			if (/*isParentExpanded*/ ctx[3]) {
+    				if (if_block1) {
+    					if_block1.p(ctx, dirty);
+
+    					if (dirty & /*isParentExpanded*/ 8) {
+    						transition_in(if_block1, 1);
+    					}
+    				} else {
+    					if_block1 = create_if_block$6(ctx);
+    					if_block1.c();
+    					transition_in(if_block1, 1);
+    					if_block1.m(li, null);
+    				}
+    			} else if (if_block1) {
+    				group_outros();
+
+    				transition_out(if_block1, 1, 1, () => {
+    					if_block1 = null;
+    				});
+
+    				check_outros();
+    			}
+
+    			if (dirty & /*isParentExpanded*/ 8) {
+    				toggle_class(li, "indent", /*isParentExpanded*/ ctx[3]);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block0);
+    			transition_in(jsonkey.$$.fragment, local);
+    			transition_in(if_block1);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block0);
+    			transition_out(jsonkey.$$.fragment, local);
+    			transition_out(if_block1);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(li);
+    			if (if_block0) if_block0.d();
+    			destroy_component(jsonkey);
+    			if (if_block1) if_block1.d();
+    			mounted = false;
+    			dispose();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$k.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$k($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("ErrorNode", slots, []);
+
+    	let { key } = $$props,
+    		{ value } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray } = $$props;
+
+    	let { expanded = false } = $$props;
+    	const context = getContext(contextKey);
+    	setContext(contextKey, { ...context, colon: ":" });
+
+    	function toggleExpand() {
+    		$$invalidate(0, expanded = !expanded);
+    	}
+
+    	const writable_props = ["key", "value", "isParentExpanded", "isParentArray", "expanded"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<ErrorNode> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(1, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(2, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(3, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(4, isParentArray = $$props.isParentArray);
+    		if ("expanded" in $$props) $$invalidate(0, expanded = $$props.expanded);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		getContext,
+    		setContext,
+    		contextKey,
+    		JSONArrow,
+    		JSONNode,
+    		JSONKey,
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		expanded,
+    		context,
+    		toggleExpand,
+    		stack
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(1, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(2, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(3, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(4, isParentArray = $$props.isParentArray);
+    		if ("expanded" in $$props) $$invalidate(0, expanded = $$props.expanded);
+    		if ("stack" in $$props) $$invalidate(5, stack = $$props.stack);
+    	};
+
+    	let stack;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*value*/ 4) {
+    			 $$invalidate(5, stack = value.stack.split("\n"));
+    		}
+
+    		if ($$self.$$.dirty & /*isParentExpanded*/ 8) {
+    			 if (!isParentExpanded) {
+    				$$invalidate(0, expanded = false);
+    			}
+    		}
+    	};
+
+    	return [
+    		expanded,
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		stack,
+    		context,
+    		toggleExpand
+    	];
+    }
+
+    class ErrorNode extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$k, create_fragment$k, safe_not_equal, {
+    			key: 1,
+    			value: 2,
+    			isParentExpanded: 3,
+    			isParentArray: 4,
+    			expanded: 0
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "ErrorNode",
+    			options,
+    			id: create_fragment$k.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[1] === undefined && !("key" in props)) {
+    			console.warn("<ErrorNode> was created without expected prop 'key'");
+    		}
+
+    		if (/*value*/ ctx[2] === undefined && !("value" in props)) {
+    			console.warn("<ErrorNode> was created without expected prop 'value'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[3] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<ErrorNode> was created without expected prop 'isParentExpanded'");
+    		}
+
+    		if (/*isParentArray*/ ctx[4] === undefined && !("isParentArray" in props)) {
+    			console.warn("<ErrorNode> was created without expected prop 'isParentArray'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<ErrorNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<ErrorNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get value() {
+    		throw new Error("<ErrorNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set value(value) {
+    		throw new Error("<ErrorNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<ErrorNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<ErrorNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<ErrorNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<ErrorNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get expanded() {
+    		throw new Error("<ErrorNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set expanded(value) {
+    		throw new Error("<ErrorNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    function objType(obj) {
+      const type = Object.prototype.toString.call(obj).slice(8, -1);
+      if (type === 'Object') {
+        if (typeof obj[Symbol.iterator] === 'function') {
+          return 'Iterable';
+        }
+        return obj.constructor.name;
+      }
+
+      return type;
+    }
+
+    /* node_modules/svelte-json-tree/src/JSONNode.svelte generated by Svelte v3.31.0 */
+
+    function create_fragment$l(ctx) {
+    	let switch_instance;
+    	let switch_instance_anchor;
+    	let current;
+    	var switch_value = /*componentType*/ ctx[5];
+
+    	function switch_props(ctx) {
+    		return {
+    			props: {
+    				key: /*key*/ ctx[0],
+    				value: /*value*/ ctx[1],
+    				isParentExpanded: /*isParentExpanded*/ ctx[2],
+    				isParentArray: /*isParentArray*/ ctx[3],
+    				nodeType: /*nodeType*/ ctx[4],
+    				valueGetter: /*valueGetter*/ ctx[6]
+    			},
+    			$$inline: true
+    		};
+    	}
+
+    	if (switch_value) {
+    		switch_instance = new switch_value(switch_props(ctx));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			if (switch_instance) create_component(switch_instance.$$.fragment);
+    			switch_instance_anchor = empty();
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			if (switch_instance) {
+    				mount_component(switch_instance, target, anchor);
+    			}
+
+    			insert_dev(target, switch_instance_anchor, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const switch_instance_changes = {};
+    			if (dirty & /*key*/ 1) switch_instance_changes.key = /*key*/ ctx[0];
+    			if (dirty & /*value*/ 2) switch_instance_changes.value = /*value*/ ctx[1];
+    			if (dirty & /*isParentExpanded*/ 4) switch_instance_changes.isParentExpanded = /*isParentExpanded*/ ctx[2];
+    			if (dirty & /*isParentArray*/ 8) switch_instance_changes.isParentArray = /*isParentArray*/ ctx[3];
+    			if (dirty & /*nodeType*/ 16) switch_instance_changes.nodeType = /*nodeType*/ ctx[4];
+    			if (dirty & /*valueGetter*/ 64) switch_instance_changes.valueGetter = /*valueGetter*/ ctx[6];
+
+    			if (switch_value !== (switch_value = /*componentType*/ ctx[5])) {
+    				if (switch_instance) {
+    					group_outros();
+    					const old_component = switch_instance;
+
+    					transition_out(old_component.$$.fragment, 1, 0, () => {
+    						destroy_component(old_component, 1);
+    					});
+
+    					check_outros();
+    				}
+
+    				if (switch_value) {
+    					switch_instance = new switch_value(switch_props(ctx));
+    					create_component(switch_instance.$$.fragment);
+    					transition_in(switch_instance.$$.fragment, 1);
+    					mount_component(switch_instance, switch_instance_anchor.parentNode, switch_instance_anchor);
+    				} else {
+    					switch_instance = null;
+    				}
+    			} else if (switch_value) {
+    				switch_instance.$set(switch_instance_changes);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			if (switch_instance) transition_in(switch_instance.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			if (switch_instance) transition_out(switch_instance.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(switch_instance_anchor);
+    			if (switch_instance) destroy_component(switch_instance, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$l.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$l($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("JSONNode", slots, []);
+
+    	let { key } = $$props,
+    		{ value } = $$props,
+    		{ isParentExpanded } = $$props,
+    		{ isParentArray } = $$props;
+
+    	function getComponent(nodeType) {
+    		switch (nodeType) {
+    			case "Object":
+    				return JSONObjectNode;
+    			case "Error":
+    				return ErrorNode;
+    			case "Array":
+    				return JSONArrayNode;
+    			case "Iterable":
+    			case "Map":
+    			case "Set":
+    				return typeof value.set === "function"
+    				? JSONIterableMapNode
+    				: JSONIterableArrayNode;
+    			case "MapEntry":
+    				return JSONMapEntryNode;
+    			default:
+    				return JSONValueNode;
+    		}
+    	}
+
+    	function getValueGetter(nodeType) {
+    		switch (nodeType) {
+    			case "Object":
+    			case "Error":
+    			case "Array":
+    			case "Iterable":
+    			case "Map":
+    			case "Set":
+    			case "MapEntry":
+    			case "Number":
+    				return undefined;
+    			case "String":
+    				return raw => `"${raw}"`;
+    			case "Boolean":
+    				return raw => raw ? "true" : "false";
+    			case "Date":
+    				return raw => raw.toISOString();
+    			case "Null":
+    				return () => "null";
+    			case "Undefined":
+    				return () => "undefined";
+    			case "Function":
+    			case "Symbol":
+    				return raw => raw.toString();
+    			default:
+    				return () => `<${nodeType}>`;
+    		}
+    	}
+
+    	const writable_props = ["key", "value", "isParentExpanded", "isParentArray"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<JSONNode> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(2, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(3, isParentArray = $$props.isParentArray);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		JSONObjectNode,
+    		JSONArrayNode,
+    		JSONIterableArrayNode,
+    		JSONIterableMapNode,
+    		JSONMapEntryNode,
+    		JSONValueNode,
+    		ErrorNode,
+    		objType,
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		getComponent,
+    		getValueGetter,
+    		nodeType,
+    		componentType,
+    		valueGetter
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    		if ("isParentExpanded" in $$props) $$invalidate(2, isParentExpanded = $$props.isParentExpanded);
+    		if ("isParentArray" in $$props) $$invalidate(3, isParentArray = $$props.isParentArray);
+    		if ("nodeType" in $$props) $$invalidate(4, nodeType = $$props.nodeType);
+    		if ("componentType" in $$props) $$invalidate(5, componentType = $$props.componentType);
+    		if ("valueGetter" in $$props) $$invalidate(6, valueGetter = $$props.valueGetter);
+    	};
+
+    	let nodeType;
+    	let componentType;
+    	let valueGetter;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*value*/ 2) {
+    			 $$invalidate(4, nodeType = objType(value));
+    		}
+
+    		if ($$self.$$.dirty & /*nodeType*/ 16) {
+    			 $$invalidate(5, componentType = getComponent(nodeType));
+    		}
+
+    		if ($$self.$$.dirty & /*nodeType*/ 16) {
+    			 $$invalidate(6, valueGetter = getValueGetter(nodeType));
+    		}
+    	};
+
+    	return [
+    		key,
+    		value,
+    		isParentExpanded,
+    		isParentArray,
+    		nodeType,
+    		componentType,
+    		valueGetter
+    	];
+    }
+
+    class JSONNode extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$l, create_fragment$l, safe_not_equal, {
+    			key: 0,
+    			value: 1,
+    			isParentExpanded: 2,
+    			isParentArray: 3
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "JSONNode",
+    			options,
+    			id: create_fragment$l.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*key*/ ctx[0] === undefined && !("key" in props)) {
+    			console.warn("<JSONNode> was created without expected prop 'key'");
+    		}
+
+    		if (/*value*/ ctx[1] === undefined && !("value" in props)) {
+    			console.warn("<JSONNode> was created without expected prop 'value'");
+    		}
+
+    		if (/*isParentExpanded*/ ctx[2] === undefined && !("isParentExpanded" in props)) {
+    			console.warn("<JSONNode> was created without expected prop 'isParentExpanded'");
+    		}
+
+    		if (/*isParentArray*/ ctx[3] === undefined && !("isParentArray" in props)) {
+    			console.warn("<JSONNode> was created without expected prop 'isParentArray'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<JSONNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<JSONNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get value() {
+    		throw new Error("<JSONNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set value(value) {
+    		throw new Error("<JSONNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentExpanded() {
+    		throw new Error("<JSONNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentExpanded(value) {
+    		throw new Error("<JSONNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get isParentArray() {
+    		throw new Error("<JSONNode>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set isParentArray(value) {
+    		throw new Error("<JSONNode>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* node_modules/svelte-json-tree/src/Root.svelte generated by Svelte v3.31.0 */
+    const file$f = "node_modules/svelte-json-tree/src/Root.svelte";
+
+    function create_fragment$m(ctx) {
+    	let ul;
+    	let jsonnode;
+    	let current;
+
+    	jsonnode = new JSONNode({
+    			props: {
+    				key: /*key*/ ctx[0],
+    				value: /*value*/ ctx[1],
+    				isParentExpanded: true,
+    				isParentArray: false
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			ul = element("ul");
+    			create_component(jsonnode.$$.fragment);
+    			attr_dev(ul, "class", "svelte-773n60");
+    			add_location(ul, file$f, 37, 0, 1295);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, ul, anchor);
+    			mount_component(jsonnode, ul, null);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const jsonnode_changes = {};
+    			if (dirty & /*key*/ 1) jsonnode_changes.key = /*key*/ ctx[0];
+    			if (dirty & /*value*/ 2) jsonnode_changes.value = /*value*/ ctx[1];
+    			jsonnode.$set(jsonnode_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsonnode.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsonnode.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(ul);
+    			destroy_component(jsonnode);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$m.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$m($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("Root", slots, []);
+    	setContext(contextKey, {});
+    	let { key = "" } = $$props, { value } = $$props;
+    	const writable_props = ["key", "value"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Root> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		JSONNode,
+    		setContext,
+    		contextKey,
+    		key,
+    		value
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("key" in $$props) $$invalidate(0, key = $$props.key);
+    		if ("value" in $$props) $$invalidate(1, value = $$props.value);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [key, value];
+    }
+
+    class Root extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$m, create_fragment$m, safe_not_equal, { key: 0, value: 1 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Root",
+    			options,
+    			id: create_fragment$m.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*value*/ ctx[1] === undefined && !("value" in props)) {
+    			console.warn("<Root> was created without expected prop 'value'");
+    		}
+    	}
+
+    	get key() {
+    		throw new Error("<Root>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set key(value) {
+    		throw new Error("<Root>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get value() {
+    		throw new Error("<Root>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set value(value) {
+    		throw new Error("<Root>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/views/RawJSONDialog.svelte generated by Svelte v3.31.0 */
+    const file$g = "src/views/RawJSONDialog.svelte";
+
+    // (17:0) <Dialog bind:show title="Raw JSON" large on:close>
+    function create_default_slot$4(ctx) {
+    	let div;
+    	let jsontree;
+    	let current;
+
+    	jsontree = new Root({
+    			props: { value: /*data*/ ctx[1] },
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			create_component(jsontree.$$.fragment);
+    			attr_dev(div, "class", "json-tree-wrapper svelte-tu2m8r");
+    			add_location(div, file$g, 17, 2, 402);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			mount_component(jsontree, div, null);
+    			/*div_binding*/ ctx[3](div);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			const jsontree_changes = {};
+    			if (dirty & /*data*/ 2) jsontree_changes.value = /*data*/ ctx[1];
+    			jsontree.$set(jsontree_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(jsontree.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(jsontree.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			destroy_component(jsontree);
+    			/*div_binding*/ ctx[3](null);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_default_slot$4.name,
+    		type: "slot",
+    		source: "(17:0) <Dialog bind:show title=\\\"Raw JSON\\\" large on:close>",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$n(ctx) {
+    	let dialog;
+    	let updating_show;
+    	let current;
+
+    	function dialog_show_binding(value) {
+    		/*dialog_show_binding*/ ctx[4].call(null, value);
+    	}
+
+    	let dialog_props = {
+    		title: "Raw JSON",
+    		large: true,
+    		$$slots: { default: [create_default_slot$4] },
+    		$$scope: { ctx }
+    	};
+
+    	if (/*show*/ ctx[0] !== void 0) {
+    		dialog_props.show = /*show*/ ctx[0];
+    	}
+
+    	dialog = new Dialog({ props: dialog_props, $$inline: true });
+    	binding_callbacks.push(() => bind(dialog, "show", dialog_show_binding));
+    	dialog.$on("close", /*close_handler*/ ctx[5]);
+
+    	const block = {
+    		c: function create() {
+    			create_component(dialog.$$.fragment);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(dialog, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const dialog_changes = {};
+
+    			if (dirty & /*$$scope, wrapper, data*/ 70) {
+    				dialog_changes.$$scope = { dirty, ctx };
+    			}
+
+    			if (!updating_show && dirty & /*show*/ 1) {
+    				updating_show = true;
+    				dialog_changes.show = /*show*/ ctx[0];
+    				add_flush_callback(() => updating_show = false);
+    			}
+
+    			dialog.$set(dialog_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(dialog.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(dialog.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(dialog, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$n.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$n($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("RawJSONDialog", slots, []);
+    	let { show } = $$props;
+    	let { data } = $$props;
+    	let wrapper;
+    	const writable_props = ["show", "data"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<RawJSONDialog> was created with unknown prop '${key}'`);
+    	});
+
+    	function div_binding($$value) {
+    		binding_callbacks[$$value ? "unshift" : "push"](() => {
+    			wrapper = $$value;
+    			$$invalidate(2, wrapper);
+    		});
+    	}
+
+    	function dialog_show_binding(value) {
+    		show = value;
+    		$$invalidate(0, show);
+    	}
+
+    	function close_handler(event) {
+    		bubble($$self, event);
+    	}
+
+    	$$self.$$set = $$props => {
+    		if ("show" in $$props) $$invalidate(0, show = $$props.show);
+    		if ("data" in $$props) $$invalidate(1, data = $$props.data);
+    	};
+
+    	$$self.$capture_state = () => ({ Dialog, JSONTree: Root, show, data, wrapper });
+
+    	$$self.$inject_state = $$props => {
+    		if ("show" in $$props) $$invalidate(0, show = $$props.show);
+    		if ("data" in $$props) $$invalidate(1, data = $$props.data);
+    		if ("wrapper" in $$props) $$invalidate(2, wrapper = $$props.wrapper);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*show, wrapper*/ 5) {
+    			 if (show && wrapper) {
+    				// Open one-level of the JSON tree component
+    				wrapper.querySelector(".container").click();
+    			}
+    		}
+    	};
+
+    	return [show, data, wrapper, div_binding, dialog_show_binding, close_handler];
+    }
+
+    class RawJSONDialog extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$n, create_fragment$n, safe_not_equal, { show: 0, data: 1 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "RawJSONDialog",
+    			options,
+    			id: create_fragment$n.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*show*/ ctx[0] === undefined && !("show" in props)) {
+    			console.warn("<RawJSONDialog> was created without expected prop 'show'");
+    		}
+
+    		if (/*data*/ ctx[1] === undefined && !("data" in props)) {
+    			console.warn("<RawJSONDialog> was created without expected prop 'data'");
+    		}
+    	}
+
+    	get show() {
+    		throw new Error("<RawJSONDialog>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set show(value) {
+    		throw new Error("<RawJSONDialog>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get data() {
+    		throw new Error("<RawJSONDialog>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set data(value) {
+    		throw new Error("<RawJSONDialog>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/tables/NearbyDevicesTable.svelte generated by Svelte v3.31.0 */
+
+    const file$h = "src/tables/NearbyDevicesTable.svelte";
+
+    function get_each_context$3(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[1] = list[i];
+    	return child_ctx;
+    }
+
+    // (35:4) {:else}
+    function create_else_block$2(ctx) {
+    	let tr;
+    	let td;
+    	let t1;
+
+    	const block = {
+    		c: function create() {
+    			tr = element("tr");
+    			td = element("td");
+    			td.textContent = "No nearby devices found";
+    			t1 = space();
+    			attr_dev(td, "class", "table-empty-text svelte-1u7sob6");
+    			attr_dev(td, "colspan", "100");
+    			add_location(td, file$h, 36, 8, 1009);
+    			add_location(tr, file$h, 35, 6, 996);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, tr, anchor);
+    			append_dev(tr, td);
+    			append_dev(tr, t1);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(tr);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block$2.name,
+    		type: "else",
+    		source: "(35:4) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (22:10) {#if row.thisDevice}
+    function create_if_block$7(ctx) {
+    	let span;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			span.textContent = "this";
+    			attr_dev(span, "class", "svelte-1u7sob6");
+    			add_location(span, file$h, 22, 12, 425);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$7.name,
+    		type: "if",
+    		source: "(22:10) {#if row.thisDevice}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (19:4) {#each data as row}
+    function create_each_block$3(ctx) {
+    	let tr;
+    	let td0;
+    	let t0;
+    	let t1_value = /*row*/ ctx[1].deviceName + "";
+    	let t1;
+    	let t2;
+    	let td1;
+    	let span;
+
+    	let t3_value = (/*row*/ ctx[1].versionCompareSymbol
+    	? /*row*/ ctx[1].versionCompareSymbol
+    	: "") + "";
+
+    	let t3;
+    	let t4;
+    	let t5_value = /*row*/ ctx[1].dmtVersion + "";
+    	let t5;
+    	let t6;
+    	let td2;
+    	let t7_value = /*row*/ ctx[1].ip + "";
+    	let t7;
+    	let t8;
+    	let td3;
+    	let t9_value = /*row*/ ctx[1].platform + "";
+    	let t9;
+    	let t10;
+    	let td4;
+    	let t11_value = /*row*/ ctx[1].uptime + "";
+    	let t11;
+    	let t12;
+    	let td5;
+    	let t13_value = /*row*/ ctx[1].username + "";
+    	let t13;
+    	let t14;
+    	let td6;
+    	let t15_value = (/*row*/ ctx[1].apssid ? /*row*/ ctx[1].apssid : "/") + "";
+    	let t15;
+    	let t16;
+    	let td7;
+    	let t17_value = /*row*/ ctx[1].deviceKey.substring(0, 8) + "";
+    	let t17;
+    	let t18;
+    	let td7_title_value;
+    	let t19;
+    	let if_block = /*row*/ ctx[1].thisDevice && create_if_block$7(ctx);
+
+    	const block = {
+    		c: function create() {
+    			tr = element("tr");
+    			td0 = element("td");
+    			if (if_block) if_block.c();
+    			t0 = space();
+    			t1 = text(t1_value);
+    			t2 = space();
+    			td1 = element("td");
+    			span = element("span");
+    			t3 = text(t3_value);
+    			t4 = space();
+    			t5 = text(t5_value);
+    			t6 = space();
+    			td2 = element("td");
+    			t7 = text(t7_value);
+    			t8 = space();
+    			td3 = element("td");
+    			t9 = text(t9_value);
+    			t10 = space();
+    			td4 = element("td");
+    			t11 = text(t11_value);
+    			t12 = space();
+    			td5 = element("td");
+    			t13 = text(t13_value);
+    			t14 = space();
+    			td6 = element("td");
+    			t15 = text(t15_value);
+    			t16 = space();
+    			td7 = element("td");
+    			t17 = text(t17_value);
+    			t18 = text("...");
+    			t19 = space();
+    			attr_dev(td0, "class", "device_name svelte-1u7sob6");
+    			add_location(td0, file$h, 20, 8, 357);
+    			attr_dev(span, "class", "svelte-1u7sob6");
+    			add_location(span, file$h, 26, 32, 532);
+    			attr_dev(td1, "class", "dmt_version svelte-1u7sob6");
+    			add_location(td1, file$h, 26, 8, 508);
+    			attr_dev(td2, "class", "device_ip svelte-1u7sob6");
+    			add_location(td2, file$h, 27, 8, 634);
+    			attr_dev(td3, "class", "platform svelte-1u7sob6");
+    			add_location(td3, file$h, 28, 8, 678);
+    			attr_dev(td4, "class", "uptime svelte-1u7sob6");
+    			add_location(td4, file$h, 29, 8, 727);
+    			attr_dev(td5, "class", "user svelte-1u7sob6");
+    			add_location(td5, file$h, 30, 8, 772);
+    			attr_dev(td6, "class", "apssid svelte-1u7sob6");
+    			add_location(td6, file$h, 31, 8, 817);
+    			attr_dev(td7, "class", "device_key svelte-1u7sob6");
+    			attr_dev(td7, "title", td7_title_value = /*row*/ ctx[1].deviceKey);
+    			add_location(td7, file$h, 32, 8, 881);
+    			toggle_class(tr, "stale", /*row*/ ctx[1].stale);
+    			add_location(tr, file$h, 19, 6, 320);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, tr, anchor);
+    			append_dev(tr, td0);
+    			if (if_block) if_block.m(td0, null);
+    			append_dev(td0, t0);
+    			append_dev(td0, t1);
+    			append_dev(tr, t2);
+    			append_dev(tr, td1);
+    			append_dev(td1, span);
+    			append_dev(span, t3);
+    			append_dev(td1, t4);
+    			append_dev(td1, t5);
+    			append_dev(tr, t6);
+    			append_dev(tr, td2);
+    			append_dev(td2, t7);
+    			append_dev(tr, t8);
+    			append_dev(tr, td3);
+    			append_dev(td3, t9);
+    			append_dev(tr, t10);
+    			append_dev(tr, td4);
+    			append_dev(td4, t11);
+    			append_dev(tr, t12);
+    			append_dev(tr, td5);
+    			append_dev(td5, t13);
+    			append_dev(tr, t14);
+    			append_dev(tr, td6);
+    			append_dev(td6, t15);
+    			append_dev(tr, t16);
+    			append_dev(tr, td7);
+    			append_dev(td7, t17);
+    			append_dev(td7, t18);
+    			append_dev(tr, t19);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (/*row*/ ctx[1].thisDevice) {
+    				if (if_block) ; else {
+    					if_block = create_if_block$7(ctx);
+    					if_block.c();
+    					if_block.m(td0, t0);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			if (dirty & /*data*/ 1 && t1_value !== (t1_value = /*row*/ ctx[1].deviceName + "")) set_data_dev(t1, t1_value);
+
+    			if (dirty & /*data*/ 1 && t3_value !== (t3_value = (/*row*/ ctx[1].versionCompareSymbol
+    			? /*row*/ ctx[1].versionCompareSymbol
+    			: "") + "")) set_data_dev(t3, t3_value);
+
+    			if (dirty & /*data*/ 1 && t5_value !== (t5_value = /*row*/ ctx[1].dmtVersion + "")) set_data_dev(t5, t5_value);
+    			if (dirty & /*data*/ 1 && t7_value !== (t7_value = /*row*/ ctx[1].ip + "")) set_data_dev(t7, t7_value);
+    			if (dirty & /*data*/ 1 && t9_value !== (t9_value = /*row*/ ctx[1].platform + "")) set_data_dev(t9, t9_value);
+    			if (dirty & /*data*/ 1 && t11_value !== (t11_value = /*row*/ ctx[1].uptime + "")) set_data_dev(t11, t11_value);
+    			if (dirty & /*data*/ 1 && t13_value !== (t13_value = /*row*/ ctx[1].username + "")) set_data_dev(t13, t13_value);
+    			if (dirty & /*data*/ 1 && t15_value !== (t15_value = (/*row*/ ctx[1].apssid ? /*row*/ ctx[1].apssid : "/") + "")) set_data_dev(t15, t15_value);
+    			if (dirty & /*data*/ 1 && t17_value !== (t17_value = /*row*/ ctx[1].deviceKey.substring(0, 8) + "")) set_data_dev(t17, t17_value);
+
+    			if (dirty & /*data*/ 1 && td7_title_value !== (td7_title_value = /*row*/ ctx[1].deviceKey)) {
+    				attr_dev(td7, "title", td7_title_value);
+    			}
+
+    			if (dirty & /*data*/ 1) {
+    				toggle_class(tr, "stale", /*row*/ ctx[1].stale);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(tr);
+    			if (if_block) if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block$3.name,
+    		type: "each",
+    		source: "(19:4) {#each data as row}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$o(ctx) {
+    	let table;
+    	let thead;
+    	let tr;
+    	let th0;
+    	let t1;
+    	let th1;
+    	let t3;
+    	let th2;
+    	let t5;
+    	let th3;
+    	let t7;
+    	let th4;
+    	let t9;
+    	let th5;
+    	let t11;
+    	let th6;
+    	let t13;
+    	let th7;
+    	let t15;
+    	let tbody;
+    	let each_value = /*data*/ ctx[0];
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$3(get_each_context$3(ctx, each_value, i));
+    	}
+
+    	let each_1_else = null;
+
+    	if (!each_value.length) {
+    		each_1_else = create_else_block$2(ctx);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			table = element("table");
+    			thead = element("thead");
+    			tr = element("tr");
+    			th0 = element("th");
+    			th0.textContent = "Device";
+    			t1 = space();
+    			th1 = element("th");
+    			th1.textContent = "DMT version";
+    			t3 = space();
+    			th2 = element("th");
+    			th2.textContent = "Local IP";
+    			t5 = space();
+    			th3 = element("th");
+    			th3.textContent = "Platform";
+    			t7 = space();
+    			th4 = element("th");
+    			th4.textContent = "Uptime";
+    			t9 = space();
+    			th5 = element("th");
+    			th5.textContent = "User";
+    			t11 = space();
+    			th6 = element("th");
+    			th6.textContent = "AP SSID";
+    			t13 = space();
+    			th7 = element("th");
+    			th7.textContent = "Device key";
+    			t15 = space();
+    			tbody = element("tbody");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			if (each_1_else) {
+    				each_1_else.c();
+    			}
+
+    			add_location(th0, file$h, 7, 6, 77);
+    			add_location(th1, file$h, 8, 6, 99);
+    			add_location(th2, file$h, 9, 6, 126);
+    			add_location(th3, file$h, 10, 6, 150);
+    			add_location(th4, file$h, 11, 6, 174);
+    			add_location(th5, file$h, 12, 6, 196);
+    			add_location(th6, file$h, 13, 6, 216);
+    			add_location(th7, file$h, 14, 6, 239);
+    			add_location(tr, file$h, 6, 4, 66);
+    			add_location(thead, file$h, 5, 2, 54);
+    			add_location(tbody, file$h, 17, 2, 282);
+    			attr_dev(table, "class", "svelte-1u7sob6");
+    			add_location(table, file$h, 4, 0, 44);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, table, anchor);
+    			append_dev(table, thead);
+    			append_dev(thead, tr);
+    			append_dev(tr, th0);
+    			append_dev(tr, t1);
+    			append_dev(tr, th1);
+    			append_dev(tr, t3);
+    			append_dev(tr, th2);
+    			append_dev(tr, t5);
+    			append_dev(tr, th3);
+    			append_dev(tr, t7);
+    			append_dev(tr, th4);
+    			append_dev(tr, t9);
+    			append_dev(tr, th5);
+    			append_dev(tr, t11);
+    			append_dev(tr, th6);
+    			append_dev(tr, t13);
+    			append_dev(tr, th7);
+    			append_dev(table, t15);
+    			append_dev(table, tbody);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(tbody, null);
+    			}
+
+    			if (each_1_else) {
+    				each_1_else.m(tbody, null);
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*data*/ 1) {
+    				each_value = /*data*/ ctx[0];
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$3(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block$3(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(tbody, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+
+    				if (each_value.length) {
+    					if (each_1_else) {
+    						each_1_else.d(1);
+    						each_1_else = null;
+    					}
+    				} else if (!each_1_else) {
+    					each_1_else = create_else_block$2(ctx);
+    					each_1_else.c();
+    					each_1_else.m(tbody, null);
+    				}
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(table);
+    			destroy_each(each_blocks, detaching);
+    			if (each_1_else) each_1_else.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$o.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$o($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("NearbyDevicesTable", slots, []);
+    	let { data = [] } = $$props;
+    	const writable_props = ["data"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<NearbyDevicesTable> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("data" in $$props) $$invalidate(0, data = $$props.data);
+    	};
+
+    	$$self.$capture_state = () => ({ data });
+
+    	$$self.$inject_state = $$props => {
+    		if ("data" in $$props) $$invalidate(0, data = $$props.data);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [data];
+    }
+
+    class NearbyDevicesTable extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$o, create_fragment$o, safe_not_equal, { data: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "NearbyDevicesTable",
+    			options,
+    			id: create_fragment$o.name
+    		});
+    	}
+
+    	get data() {
+    		throw new Error("<NearbyDevicesTable>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set data(value) {
+    		throw new Error("<NearbyDevicesTable>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/tables/ConnectionsTable.svelte generated by Svelte v3.31.0 */
+
+    const file$i = "src/tables/ConnectionsTable.svelte";
+
+    function get_each_context$4(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[1] = list[i];
+    	return child_ctx;
+    }
+
+    // (30:4) {:else}
+    function create_else_block$3(ctx) {
+    	let tr;
+    	let td;
+    	let t1;
+
+    	const block = {
+    		c: function create() {
+    			tr = element("tr");
+    			td = element("td");
+    			td.textContent = "No connections found";
+    			t1 = space();
+    			attr_dev(td, "class", "table-empty-text");
+    			attr_dev(td, "colspan", "100");
+    			add_location(td, file$i, 31, 8, 800);
+    			add_location(tr, file$i, 30, 6, 787);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, tr, anchor);
+    			append_dev(tr, td);
+    			append_dev(tr, t1);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(tr);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block$3.name,
+    		type: "else",
+    		source: "(30:4) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (25:10) {#if row.remotePubkeyHex}
+    function create_if_block$8(ctx) {
+    	let t0_value = /*row*/ ctx[1].remotePubkeyHex.substring(0, 8) + "";
+    	let t0;
+    	let t1;
+
+    	const block = {
+    		c: function create() {
+    			t0 = text(t0_value);
+    			t1 = text("...");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, t1, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*data*/ 1 && t0_value !== (t0_value = /*row*/ ctx[1].remotePubkeyHex.substring(0, 8) + "")) set_data_dev(t0, t0_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(t1);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$8.name,
+    		type: "if",
+    		source: "(25:10) {#if row.remotePubkeyHex}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (17:4) {#each data as row}
+    function create_each_block$4(ctx) {
+    	let tr;
+    	let td0;
+    	let t0_value = /*row*/ ctx[1].address + "";
+    	let t0;
+    	let t1;
+    	let td1;
+    	let t2_value = (/*row*/ ctx[1].operational ? "YES" : "✖") + "";
+    	let t2;
+    	let t3;
+    	let td2;
+    	let t4_value = /*row*/ ctx[1].protocol + "";
+    	let t4;
+    	let t5;
+    	let td3;
+    	let t6_value = /*row*/ ctx[1].lane + "";
+    	let t6;
+    	let t7;
+    	let td4;
+    	let td4_title_value;
+    	let t8;
+    	let if_block = /*row*/ ctx[1].remotePubkeyHex && create_if_block$8(ctx);
+
+    	const block = {
+    		c: function create() {
+    			tr = element("tr");
+    			td0 = element("td");
+    			t0 = text(t0_value);
+    			t1 = space();
+    			td1 = element("td");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			td2 = element("td");
+    			t4 = text(t4_value);
+    			t5 = space();
+    			td3 = element("td");
+    			t6 = text(t6_value);
+    			t7 = space();
+    			td4 = element("td");
+    			if (if_block) if_block.c();
+    			t8 = space();
+    			add_location(td0, file$i, 18, 8, 307);
+    			attr_dev(td1, "class", "operational svelte-88ml1e");
+    			toggle_class(td1, "yes", /*row*/ ctx[1].operational);
+    			add_location(td1, file$i, 20, 8, 399);
+    			attr_dev(td2, "class", "protocol svelte-88ml1e");
+    			add_location(td2, file$i, 21, 8, 496);
+    			attr_dev(td3, "class", "lane svelte-88ml1e");
+    			add_location(td3, file$i, 22, 8, 545);
+    			attr_dev(td4, "class", "device_key svelte-88ml1e");
+    			attr_dev(td4, "title", td4_title_value = /*row*/ ctx[1].remotePubkeyHex);
+    			add_location(td4, file$i, 23, 8, 586);
+    			add_location(tr, file$i, 17, 6, 294);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, tr, anchor);
+    			append_dev(tr, td0);
+    			append_dev(td0, t0);
+    			append_dev(tr, t1);
+    			append_dev(tr, td1);
+    			append_dev(td1, t2);
+    			append_dev(tr, t3);
+    			append_dev(tr, td2);
+    			append_dev(td2, t4);
+    			append_dev(tr, t5);
+    			append_dev(tr, td3);
+    			append_dev(td3, t6);
+    			append_dev(tr, t7);
+    			append_dev(tr, td4);
+    			if (if_block) if_block.m(td4, null);
+    			append_dev(tr, t8);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*data*/ 1 && t0_value !== (t0_value = /*row*/ ctx[1].address + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*data*/ 1 && t2_value !== (t2_value = (/*row*/ ctx[1].operational ? "YES" : "✖") + "")) set_data_dev(t2, t2_value);
+
+    			if (dirty & /*data*/ 1) {
+    				toggle_class(td1, "yes", /*row*/ ctx[1].operational);
+    			}
+
+    			if (dirty & /*data*/ 1 && t4_value !== (t4_value = /*row*/ ctx[1].protocol + "")) set_data_dev(t4, t4_value);
+    			if (dirty & /*data*/ 1 && t6_value !== (t6_value = /*row*/ ctx[1].lane + "")) set_data_dev(t6, t6_value);
+
+    			if (/*row*/ ctx[1].remotePubkeyHex) {
+    				if (if_block) {
+    					if_block.p(ctx, dirty);
+    				} else {
+    					if_block = create_if_block$8(ctx);
+    					if_block.c();
+    					if_block.m(td4, null);
+    				}
+    			} else if (if_block) {
+    				if_block.d(1);
+    				if_block = null;
+    			}
+
+    			if (dirty & /*data*/ 1 && td4_title_value !== (td4_title_value = /*row*/ ctx[1].remotePubkeyHex)) {
+    				attr_dev(td4, "title", td4_title_value);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(tr);
+    			if (if_block) if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block$4.name,
+    		type: "each",
+    		source: "(17:4) {#each data as row}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$p(ctx) {
+    	let table;
+    	let thead;
+    	let tr;
+    	let th0;
+    	let t1;
+    	let th1;
+    	let t3;
+    	let th2;
+    	let t5;
+    	let th3;
+    	let t7;
+    	let th4;
+    	let t9;
+    	let tbody;
+    	let each_value = /*data*/ ctx[0];
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$4(get_each_context$4(ctx, each_value, i));
+    	}
+
+    	let each_1_else = null;
+
+    	if (!each_value.length) {
+    		each_1_else = create_else_block$3(ctx);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			table = element("table");
+    			thead = element("thead");
+    			tr = element("tr");
+    			th0 = element("th");
+    			th0.textContent = "Address";
+    			t1 = space();
+    			th1 = element("th");
+    			th1.textContent = "Operational";
+    			t3 = space();
+    			th2 = element("th");
+    			th2.textContent = "Protocol";
+    			t5 = space();
+    			th3 = element("th");
+    			th3.textContent = "Lane";
+    			t7 = space();
+    			th4 = element("th");
+    			th4.textContent = "Remote device key";
+    			t9 = space();
+    			tbody = element("tbody");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			if (each_1_else) {
+    				each_1_else.c();
+    			}
+
+    			add_location(th0, file$i, 7, 6, 77);
+    			add_location(th1, file$i, 9, 6, 135);
+    			add_location(th2, file$i, 10, 6, 162);
+    			add_location(th3, file$i, 11, 6, 186);
+    			add_location(th4, file$i, 12, 6, 206);
+    			add_location(tr, file$i, 6, 4, 66);
+    			add_location(thead, file$i, 5, 2, 54);
+    			add_location(tbody, file$i, 15, 2, 256);
+    			attr_dev(table, "class", "svelte-88ml1e");
+    			add_location(table, file$i, 4, 0, 44);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, table, anchor);
+    			append_dev(table, thead);
+    			append_dev(thead, tr);
+    			append_dev(tr, th0);
+    			append_dev(tr, t1);
+    			append_dev(tr, th1);
+    			append_dev(tr, t3);
+    			append_dev(tr, th2);
+    			append_dev(tr, t5);
+    			append_dev(tr, th3);
+    			append_dev(tr, t7);
+    			append_dev(tr, th4);
+    			append_dev(table, t9);
+    			append_dev(table, tbody);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(tbody, null);
+    			}
+
+    			if (each_1_else) {
+    				each_1_else.m(tbody, null);
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*data*/ 1) {
+    				each_value = /*data*/ ctx[0];
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$4(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block$4(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(tbody, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+
+    				if (each_value.length) {
+    					if (each_1_else) {
+    						each_1_else.d(1);
+    						each_1_else = null;
+    					}
+    				} else if (!each_1_else) {
+    					each_1_else = create_else_block$3(ctx);
+    					each_1_else.c();
+    					each_1_else.m(tbody, null);
+    				}
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(table);
+    			destroy_each(each_blocks, detaching);
+    			if (each_1_else) each_1_else.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$p.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$p($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("ConnectionsTable", slots, []);
+    	let { data = [] } = $$props;
+    	const writable_props = ["data"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<ConnectionsTable> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("data" in $$props) $$invalidate(0, data = $$props.data);
+    	};
+
+    	$$self.$capture_state = () => ({ data });
+
+    	$$self.$inject_state = $$props => {
+    		if ("data" in $$props) $$invalidate(0, data = $$props.data);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [data];
+    }
+
+    class ConnectionsTable extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$p, create_fragment$p, safe_not_equal, { data: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "ConnectionsTable",
+    			options,
+    			id: create_fragment$p.name
+    		});
+    	}
+
+    	get data() {
+    		throw new Error("<ConnectionsTable>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set data(value) {
+    		throw new Error("<ConnectionsTable>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/tables/PeerlistTable.svelte generated by Svelte v3.31.0 */
+
+    const file$j = "src/tables/PeerlistTable.svelte";
+
+    function get_each_context$5(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[1] = list[i];
+    	return child_ctx;
+    }
+
+    // (29:4) {:else}
+    function create_else_block_1(ctx) {
+    	let tr;
+    	let td;
+    	let t1;
+
+    	const block = {
+    		c: function create() {
+    			tr = element("tr");
+    			td = element("td");
+    			td.textContent = "No peers";
+    			t1 = space();
+    			attr_dev(td, "class", "table-empty-text");
+    			attr_dev(td, "colspan", "100");
+    			add_location(td, file$j, 30, 8, 714);
+    			add_location(tr, file$j, 29, 6, 701);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, tr, anchor);
+    			append_dev(tr, td);
+    			append_dev(tr, t1);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(tr);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block_1.name,
+    		type: "else",
+    		source: "(29:4) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (24:10) {:else}
+    function create_else_block$4(ctx) {
+    	let span;
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			t = text(" unknown");
+    			attr_dev(span, "class", "svelte-1xamzjs");
+    			add_location(span, file$j, 24, 12, 619);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    			insert_dev(target, t, anchor);
+    		},
+    		p: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    			if (detaching) detach_dev(t);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block$4.name,
+    		type: "else",
+    		source: "(24:10) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (22:10) {#if row.peerState}
+    function create_if_block$9(ctx) {
+    	let span;
+
+    	let t0_value = (/*row*/ ctx[1].versionCompareSymbol
+    	? /*row*/ ctx[1].versionCompareSymbol
+    	: "") + "";
+
+    	let t0;
+    	let t1;
+    	let t2_value = /*row*/ ctx[1].peerState.dmtVersion + "";
+    	let t2;
+
+    	const block = {
+    		c: function create() {
+    			span = element("span");
+    			t0 = text(t0_value);
+    			t1 = space();
+    			t2 = text(t2_value);
+    			attr_dev(span, "class", "svelte-1xamzjs");
+    			add_location(span, file$j, 22, 12, 490);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, span, anchor);
+    			append_dev(span, t0);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, t2, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*data*/ 1 && t0_value !== (t0_value = (/*row*/ ctx[1].versionCompareSymbol
+    			? /*row*/ ctx[1].versionCompareSymbol
+    			: "") + "")) set_data_dev(t0, t0_value);
+
+    			if (dirty & /*data*/ 1 && t2_value !== (t2_value = /*row*/ ctx[1].peerState.dmtVersion + "")) set_data_dev(t2, t2_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(span);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(t2);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$9.name,
+    		type: "if",
+    		source: "(22:10) {#if row.peerState}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (15:4) {#each data as row}
+    function create_each_block$5(ctx) {
+    	let tr;
+    	let td0;
+    	let t0_value = /*row*/ ctx[1].deviceTag + "";
+    	let t0;
+    	let t1;
+    	let td1;
+    	let t2_value = /*row*/ ctx[1].address + "";
+    	let t2;
+    	let t3;
+    	let td2;
+    	let t4_value = (/*row*/ ctx[1].operational ? "YES" : "✖") + "";
+    	let t4;
+    	let t5;
+    	let td3;
+    	let t6;
+
+    	function select_block_type(ctx, dirty) {
+    		if (/*row*/ ctx[1].peerState) return create_if_block$9;
+    		return create_else_block$4;
+    	}
+
+    	let current_block_type = select_block_type(ctx);
+    	let if_block = current_block_type(ctx);
+
+    	const block = {
+    		c: function create() {
+    			tr = element("tr");
+    			td0 = element("td");
+    			t0 = text(t0_value);
+    			t1 = space();
+    			td1 = element("td");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			td2 = element("td");
+    			t4 = text(t4_value);
+    			t5 = space();
+    			td3 = element("td");
+    			if_block.c();
+    			t6 = space();
+    			attr_dev(td0, "class", "device_tag svelte-1xamzjs");
+    			add_location(td0, file$j, 16, 8, 242);
+    			add_location(td1, file$j, 17, 8, 294);
+    			attr_dev(td2, "class", "operational svelte-1xamzjs");
+    			toggle_class(td2, "yes", /*row*/ ctx[1].operational);
+    			add_location(td2, file$j, 18, 8, 325);
+    			attr_dev(td3, "class", "dmt_version svelte-1xamzjs");
+    			add_location(td3, file$j, 20, 8, 423);
+    			add_location(tr, file$j, 15, 6, 229);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, tr, anchor);
+    			append_dev(tr, td0);
+    			append_dev(td0, t0);
+    			append_dev(tr, t1);
+    			append_dev(tr, td1);
+    			append_dev(td1, t2);
+    			append_dev(tr, t3);
+    			append_dev(tr, td2);
+    			append_dev(td2, t4);
+    			append_dev(tr, t5);
+    			append_dev(tr, td3);
+    			if_block.m(td3, null);
+    			append_dev(tr, t6);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*data*/ 1 && t0_value !== (t0_value = /*row*/ ctx[1].deviceTag + "")) set_data_dev(t0, t0_value);
+    			if (dirty & /*data*/ 1 && t2_value !== (t2_value = /*row*/ ctx[1].address + "")) set_data_dev(t2, t2_value);
+    			if (dirty & /*data*/ 1 && t4_value !== (t4_value = (/*row*/ ctx[1].operational ? "YES" : "✖") + "")) set_data_dev(t4, t4_value);
+
+    			if (dirty & /*data*/ 1) {
+    				toggle_class(td2, "yes", /*row*/ ctx[1].operational);
+    			}
+
+    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
+    				if_block.p(ctx, dirty);
+    			} else {
+    				if_block.d(1);
+    				if_block = current_block_type(ctx);
+
+    				if (if_block) {
+    					if_block.c();
+    					if_block.m(td3, null);
+    				}
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(tr);
+    			if_block.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block$5.name,
+    		type: "each",
+    		source: "(15:4) {#each data as row}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$q(ctx) {
+    	let table;
+    	let thead;
+    	let tr;
+    	let th0;
+    	let t1;
+    	let th1;
+    	let t3;
+    	let th2;
+    	let t5;
+    	let th3;
+    	let t7;
+    	let tbody;
+    	let each_value = /*data*/ ctx[0];
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$5(get_each_context$5(ctx, each_value, i));
+    	}
+
+    	let each_1_else = null;
+
+    	if (!each_value.length) {
+    		each_1_else = create_else_block_1(ctx);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			table = element("table");
+    			thead = element("thead");
+    			tr = element("tr");
+    			th0 = element("th");
+    			th0.textContent = "Peer";
+    			t1 = space();
+    			th1 = element("th");
+    			th1.textContent = "Address";
+    			t3 = space();
+    			th2 = element("th");
+    			th2.textContent = "Operational";
+    			t5 = space();
+    			th3 = element("th");
+    			th3.textContent = "DMT version";
+    			t7 = space();
+    			tbody = element("tbody");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			if (each_1_else) {
+    				each_1_else.c();
+    			}
+
+    			add_location(th0, file$j, 7, 6, 77);
+    			add_location(th1, file$j, 8, 6, 97);
+    			add_location(th2, file$j, 9, 6, 120);
+    			add_location(th3, file$j, 10, 6, 147);
+    			add_location(tr, file$j, 6, 4, 66);
+    			add_location(thead, file$j, 5, 2, 54);
+    			add_location(tbody, file$j, 13, 2, 191);
+    			attr_dev(table, "class", "svelte-1xamzjs");
+    			add_location(table, file$j, 4, 0, 44);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, table, anchor);
+    			append_dev(table, thead);
+    			append_dev(thead, tr);
+    			append_dev(tr, th0);
+    			append_dev(tr, t1);
+    			append_dev(tr, th1);
+    			append_dev(tr, t3);
+    			append_dev(tr, th2);
+    			append_dev(tr, t5);
+    			append_dev(tr, th3);
+    			append_dev(table, t7);
+    			append_dev(table, tbody);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(tbody, null);
+    			}
+
+    			if (each_1_else) {
+    				each_1_else.m(tbody, null);
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*data*/ 1) {
+    				each_value = /*data*/ ctx[0];
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$5(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block$5(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(tbody, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+
+    				if (each_value.length) {
+    					if (each_1_else) {
+    						each_1_else.d(1);
+    						each_1_else = null;
+    					}
+    				} else if (!each_1_else) {
+    					each_1_else = create_else_block_1(ctx);
+    					each_1_else.c();
+    					each_1_else.m(tbody, null);
+    				}
+    			}
+    		},
+    		i: noop,
+    		o: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(table);
+    			destroy_each(each_blocks, detaching);
+    			if (each_1_else) each_1_else.d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$q.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$q($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("PeerlistTable", slots, []);
+    	let { data = [] } = $$props;
+    	const writable_props = ["data"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<PeerlistTable> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("data" in $$props) $$invalidate(0, data = $$props.data);
+    	};
+
+    	$$self.$capture_state = () => ({ data });
+
+    	$$self.$inject_state = $$props => {
+    		if ("data" in $$props) $$invalidate(0, data = $$props.data);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [data];
+    }
+
+    class PeerlistTable extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$q, create_fragment$q, safe_not_equal, { data: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "PeerlistTable",
+    			options,
+    			id: create_fragment$q.name
+    		});
+    	}
+
+    	get data() {
+    		throw new Error("<PeerlistTable>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set data(value) {
+    		throw new Error("<PeerlistTable>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    const subscriber_queue = [];
+    /**
+     * Creates a `Readable` store that allows reading by subscription.
+     * @param value initial value
+     * @param {StartStopNotifier}start start and stop notifications for subscriptions
+     */
+    function readable(value, start) {
+        return {
+            subscribe: writable(value, start).subscribe
+        };
+    }
+    /**
+     * Create a `Writable` store that allows both updating and reading by subscription.
+     * @param {*=}value initial value
+     * @param {StartStopNotifier=}start start and stop notifications for subscriptions
+     */
+    function writable(value, start = noop) {
+        let stop;
+        const subscribers = [];
+        function set(new_value) {
+            if (safe_not_equal(value, new_value)) {
+                value = new_value;
+                if (stop) { // store is ready
+                    const run_queue = !subscriber_queue.length;
+                    for (let i = 0; i < subscribers.length; i += 1) {
+                        const s = subscribers[i];
+                        s[1]();
+                        subscriber_queue.push(s, value);
+                    }
+                    if (run_queue) {
+                        for (let i = 0; i < subscriber_queue.length; i += 2) {
+                            subscriber_queue[i][0](subscriber_queue[i + 1]);
+                        }
+                        subscriber_queue.length = 0;
+                    }
+                }
+            }
+        }
+        function update(fn) {
+            set(fn(value));
+        }
+        function subscribe(run, invalidate = noop) {
+            const subscriber = [run, invalidate];
+            subscribers.push(subscriber);
+            if (subscribers.length === 1) {
+                stop = start(set) || noop;
+            }
+            run(value);
+            return () => {
+                const index = subscribers.indexOf(subscriber);
+                if (index !== -1) {
+                    subscribers.splice(index, 1);
+                }
+                if (subscribers.length === 0) {
+                    stop();
+                    stop = null;
+                }
+            };
+        }
+        return { set, update, subscribe };
+    }
+
+    /**
+     * A writable store of the URL hash
+     * @returns {import('svelte/store').Writable<string>}
+     */
+    function hashStore() {
+      const hash = readable(window.location.hash, set => {
+        const update = () => set(window.location.hash);
+        window.addEventListener('hashchange', update);
+        return () => window.removeEventListener('hashchange', update);
+      });
+
+      return {
+        subscribe: hash.subscribe,
+        set: v => (window.location.hash = v),
+        update: fn => set(fn(window.location.hash))
+      };
+    }
+
+    const hash$1 = hashStore();
+
+    /* src/views/Dashboard.svelte generated by Svelte v3.31.0 */
+    const file$k = "src/views/Dashboard.svelte";
+
+    function create_fragment$r(ctx) {
+    	let navbar;
+    	let t0;
+    	let div4;
+    	let section0;
+    	let h10;
+    	let t2;
+    	let nearbydevicestable;
+    	let t3;
+    	let section1;
+    	let h11;
+    	let t5;
+    	let h2;
+    	let t7;
+    	let peerlisttable;
+    	let t8;
+    	let section2;
+    	let h12;
+    	let t10;
+    	let div1;
+    	let div0;
+    	let connectionstable0;
+    	let t11;
+    	let section3;
+    	let h13;
+    	let t13;
+    	let div3;
+    	let div2;
+    	let connectionstable1;
+    	let t14;
+    	let devicelogdialog;
+    	let t15;
+    	let rawjsondialog;
+    	let current;
+
+    	navbar = new Navbar({
+    			props: { deviceData: /*state*/ ctx[0].device },
+    			$$inline: true
+    		});
+
+    	nearbydevicestable = new NearbyDevicesTable({
+    			props: { data: /*state*/ ctx[0].nearbyDevices },
+    			$$inline: true
+    		});
+
+    	peerlisttable = new PeerlistTable({
+    			props: { data: /*state*/ ctx[0].peerlist },
+    			$$inline: true
+    		});
+
+    	connectionstable0 = new ConnectionsTable({
+    			props: { data: /*state*/ ctx[0].connectionsOut },
+    			$$inline: true
+    		});
+
+    	connectionstable1 = new ConnectionsTable({
+    			props: { data: /*state*/ ctx[0].connectionsIn },
+    			$$inline: true
+    		});
+
+    	devicelogdialog = new DeviceLogDialog({
+    			props: {
+    				show: /*$hash*/ ctx[1] === "#log",
+    				data: /*state*/ ctx[0].log || []
+    			},
+    			$$inline: true
+    		});
+
+    	devicelogdialog.$on("close", /*close_handler*/ ctx[2]);
+
+    	rawjsondialog = new RawJSONDialog({
+    			props: {
+    				show: /*$hash*/ ctx[1] === "#json",
+    				data: /*state*/ ctx[0]
+    			},
+    			$$inline: true
+    		});
+
+    	rawjsondialog.$on("close", /*close_handler_1*/ ctx[3]);
+
+    	const block = {
+    		c: function create() {
+    			create_component(navbar.$$.fragment);
+    			t0 = space();
+    			div4 = element("div");
+    			section0 = element("section");
+    			h10 = element("h1");
+    			h10.textContent = "Nearby devices";
+    			t2 = space();
+    			create_component(nearbydevicestable.$$.fragment);
+    			t3 = space();
+    			section1 = element("section");
+    			h11 = element("h1");
+    			h11.textContent = "Peerlist";
+    			t5 = space();
+    			h2 = element("h2");
+    			h2.textContent = "[ following · permanent outgoing ws connections · using dmt/fiber protocol · port 7780 ]";
+    			t7 = space();
+    			create_component(peerlisttable.$$.fragment);
+    			t8 = space();
+    			section2 = element("section");
+    			h12 = element("h1");
+    			h12.textContent = "Outgoing Connections";
+    			t10 = space();
+    			div1 = element("div");
+    			div0 = element("div");
+    			create_component(connectionstable0.$$.fragment);
+    			t11 = space();
+    			section3 = element("section");
+    			h13 = element("h1");
+    			h13.textContent = "Incoming Connections";
+    			t13 = space();
+    			div3 = element("div");
+    			div2 = element("div");
+    			create_component(connectionstable1.$$.fragment);
+    			t14 = space();
+    			create_component(devicelogdialog.$$.fragment);
+    			t15 = space();
+    			create_component(rawjsondialog.$$.fragment);
+    			add_location(h10, file$k, 19, 4, 534);
+    			attr_dev(section0, "class", "svelte-1ebxwgt");
+    			add_location(section0, file$k, 18, 2, 520);
+    			add_location(h11, file$k, 24, 4, 642);
+    			attr_dev(h2, "class", "svelte-1ebxwgt");
+    			add_location(h2, file$k, 25, 4, 664);
+    			attr_dev(section1, "class", "svelte-1ebxwgt");
+    			add_location(section1, file$k, 23, 2, 628);
+    			add_location(h12, file$k, 30, 4, 836);
+    			attr_dev(div0, "class", "connections-grid__left svelte-1ebxwgt");
+    			add_location(div0, file$k, 32, 6, 907);
+    			attr_dev(div1, "class", "connections-grid svelte-1ebxwgt");
+    			add_location(div1, file$k, 31, 4, 870);
+    			attr_dev(section2, "class", "svelte-1ebxwgt");
+    			add_location(section2, file$k, 29, 2, 822);
+    			add_location(h13, file$k, 39, 4, 1055);
+    			attr_dev(div2, "class", "connections-grid__left svelte-1ebxwgt");
+    			add_location(div2, file$k, 41, 6, 1126);
+    			attr_dev(div3, "class", "connections-grid svelte-1ebxwgt");
+    			add_location(div3, file$k, 40, 4, 1089);
+    			attr_dev(section3, "class", "svelte-1ebxwgt");
+    			add_location(section3, file$k, 38, 2, 1041);
+    			attr_dev(div4, "class", "view-container svelte-1ebxwgt");
+    			add_location(div4, file$k, 17, 0, 489);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(navbar, target, anchor);
+    			insert_dev(target, t0, anchor);
+    			insert_dev(target, div4, anchor);
+    			append_dev(div4, section0);
+    			append_dev(section0, h10);
+    			append_dev(section0, t2);
+    			mount_component(nearbydevicestable, section0, null);
+    			append_dev(div4, t3);
+    			append_dev(div4, section1);
+    			append_dev(section1, h11);
+    			append_dev(section1, t5);
+    			append_dev(section1, h2);
+    			append_dev(section1, t7);
+    			mount_component(peerlisttable, section1, null);
+    			append_dev(div4, t8);
+    			append_dev(div4, section2);
+    			append_dev(section2, h12);
+    			append_dev(section2, t10);
+    			append_dev(section2, div1);
+    			append_dev(div1, div0);
+    			mount_component(connectionstable0, div0, null);
+    			append_dev(div4, t11);
+    			append_dev(div4, section3);
+    			append_dev(section3, h13);
+    			append_dev(section3, t13);
+    			append_dev(section3, div3);
+    			append_dev(div3, div2);
+    			mount_component(connectionstable1, div2, null);
+    			insert_dev(target, t14, anchor);
+    			mount_component(devicelogdialog, target, anchor);
+    			insert_dev(target, t15, anchor);
+    			mount_component(rawjsondialog, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			const navbar_changes = {};
+    			if (dirty & /*state*/ 1) navbar_changes.deviceData = /*state*/ ctx[0].device;
+    			navbar.$set(navbar_changes);
+    			const nearbydevicestable_changes = {};
+    			if (dirty & /*state*/ 1) nearbydevicestable_changes.data = /*state*/ ctx[0].nearbyDevices;
+    			nearbydevicestable.$set(nearbydevicestable_changes);
+    			const peerlisttable_changes = {};
+    			if (dirty & /*state*/ 1) peerlisttable_changes.data = /*state*/ ctx[0].peerlist;
+    			peerlisttable.$set(peerlisttable_changes);
+    			const connectionstable0_changes = {};
+    			if (dirty & /*state*/ 1) connectionstable0_changes.data = /*state*/ ctx[0].connectionsOut;
+    			connectionstable0.$set(connectionstable0_changes);
+    			const connectionstable1_changes = {};
+    			if (dirty & /*state*/ 1) connectionstable1_changes.data = /*state*/ ctx[0].connectionsIn;
+    			connectionstable1.$set(connectionstable1_changes);
+    			const devicelogdialog_changes = {};
+    			if (dirty & /*$hash*/ 2) devicelogdialog_changes.show = /*$hash*/ ctx[1] === "#log";
+    			if (dirty & /*state*/ 1) devicelogdialog_changes.data = /*state*/ ctx[0].log || [];
+    			devicelogdialog.$set(devicelogdialog_changes);
+    			const rawjsondialog_changes = {};
+    			if (dirty & /*$hash*/ 2) rawjsondialog_changes.show = /*$hash*/ ctx[1] === "#json";
+    			if (dirty & /*state*/ 1) rawjsondialog_changes.data = /*state*/ ctx[0];
+    			rawjsondialog.$set(rawjsondialog_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(navbar.$$.fragment, local);
+    			transition_in(nearbydevicestable.$$.fragment, local);
+    			transition_in(peerlisttable.$$.fragment, local);
+    			transition_in(connectionstable0.$$.fragment, local);
+    			transition_in(connectionstable1.$$.fragment, local);
+    			transition_in(devicelogdialog.$$.fragment, local);
+    			transition_in(rawjsondialog.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(navbar.$$.fragment, local);
+    			transition_out(nearbydevicestable.$$.fragment, local);
+    			transition_out(peerlisttable.$$.fragment, local);
+    			transition_out(connectionstable0.$$.fragment, local);
+    			transition_out(connectionstable1.$$.fragment, local);
+    			transition_out(devicelogdialog.$$.fragment, local);
+    			transition_out(rawjsondialog.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(navbar, detaching);
+    			if (detaching) detach_dev(t0);
+    			if (detaching) detach_dev(div4);
+    			destroy_component(nearbydevicestable);
+    			destroy_component(peerlisttable);
+    			destroy_component(connectionstable0);
+    			destroy_component(connectionstable1);
+    			if (detaching) detach_dev(t14);
+    			destroy_component(devicelogdialog, detaching);
+    			if (detaching) detach_dev(t15);
+    			destroy_component(rawjsondialog, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$r.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$r($$self, $$props, $$invalidate) {
+    	let $hash;
+    	validate_store(hash$1, "hash");
+    	component_subscribe($$self, hash$1, $$value => $$invalidate(1, $hash = $$value));
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("Dashboard", slots, []);
+    	let { state } = $$props;
+    	const writable_props = ["state"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<Dashboard> was created with unknown prop '${key}'`);
+    	});
+
+    	const close_handler = () => set_store_value(hash$1, $hash = "", $hash);
+    	const close_handler_1 = () => set_store_value(hash$1, $hash = "", $hash);
+
+    	$$self.$$set = $$props => {
+    		if ("state" in $$props) $$invalidate(0, state = $$props.state);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		Navbar,
+    		DeviceLogDialog,
+    		RawJsonDialog: RawJSONDialog,
+    		NearbyDevicesTable,
+    		ConnectionsTable,
+    		PeerlistTable,
+    		hash: hash$1,
+    		state,
+    		$hash
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("state" in $$props) $$invalidate(0, state = $$props.state);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [state, $hash, close_handler, close_handler_1];
+    }
+
+    class Dashboard extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$r, create_fragment$r, safe_not_equal, { state: 0 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Dashboard",
+    			options,
+    			id: create_fragment$r.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*state*/ ctx[0] === undefined && !("state" in props)) {
+    			console.warn("<Dashboard> was created without expected prop 'state'");
+    		}
+    	}
+
+    	get state() {
+    		throw new Error("<Dashboard>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set state(value) {
+    		throw new Error("<Dashboard>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src/App.svelte generated by Svelte v3.31.0 */
+    const file$l = "src/App.svelte";
+
+    // (20:2) {:else}
+    function create_else_block$5(ctx) {
+    	let dashboard;
+    	let current;
+
+    	dashboard = new Dashboard({
+    			props: { state: /*$state*/ ctx[2] },
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			create_component(dashboard.$$.fragment);
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(dashboard, target, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			const dashboard_changes = {};
+    			if (dirty & /*$state*/ 4) dashboard_changes.state = /*$state*/ ctx[2];
+    			dashboard.$set(dashboard_changes);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(dashboard.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(dashboard.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(dashboard, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_else_block$5.name,
+    		type: "else",
+    		source: "(20:2) {:else}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (18:2) {#if !$connected}
+    function create_if_block$a(ctx) {
+    	let loading;
+    	let current;
+    	loading = new Loading({ $$inline: true });
+
+    	const block = {
+    		c: function create() {
+    			create_component(loading.$$.fragment);
+    		},
+    		m: function mount(target, anchor) {
+    			mount_component(loading, target, anchor);
+    			current = true;
+    		},
+    		p: noop,
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(loading.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(loading.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			destroy_component(loading, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block$a.name,
+    		type: "if",
+    		source: "(18:2) {#if !$connected}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$s(ctx) {
+    	let main;
+    	let current_block_type_index;
+    	let if_block;
+    	let current;
+    	const if_block_creators = [create_if_block$a, create_else_block$5];
+    	const if_blocks = [];
+
+    	function select_block_type(ctx, dirty) {
+    		if (!/*$connected*/ ctx[3]) return 0;
+    		return 1;
+    	}
+
+    	current_block_type_index = select_block_type(ctx);
+    	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+
+    	const block = {
+    		c: function create() {
+    			main = element("main");
+    			if_block.c();
+    			attr_dev(main, "class", "svelte-m6ykvc");
+    			add_location(main, file$l, 16, 0, 343);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, main, anchor);
+    			if_blocks[current_block_type_index].m(main, null);
+    			current = true;
+    		},
+    		p: function update(ctx, [dirty]) {
+    			let previous_block_index = current_block_type_index;
+    			current_block_type_index = select_block_type(ctx);
+
+    			if (current_block_type_index === previous_block_index) {
+    				if_blocks[current_block_type_index].p(ctx, dirty);
+    			} else {
+    				group_outros();
+
+    				transition_out(if_blocks[previous_block_index], 1, 1, () => {
+    					if_blocks[previous_block_index] = null;
+    				});
+
+    				check_outros();
+    				if_block = if_blocks[current_block_type_index];
+
+    				if (!if_block) {
+    					if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+    					if_block.c();
+    				} else {
+    					if_block.p(ctx, dirty);
+    				}
+
+    				transition_in(if_block, 1);
+    				if_block.m(main, null);
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(main);
+    			if_blocks[current_block_type_index].d();
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$s.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$s($$self, $$props, $$invalidate) {
+    	let $state,
+    		$$unsubscribe_state = noop,
+    		$$subscribe_state = () => ($$unsubscribe_state(), $$unsubscribe_state = subscribe(state, $$value => $$invalidate(2, $state = $$value)), state);
+
+    	let $connected,
+    		$$unsubscribe_connected = noop,
+    		$$subscribe_connected = () => ($$unsubscribe_connected(), $$unsubscribe_connected = subscribe(connected, $$value => $$invalidate(3, $connected = $$value)), connected);
+
+    	$$self.$$.on_destroy.push(() => $$unsubscribe_state());
+    	$$self.$$.on_destroy.push(() => $$unsubscribe_connected());
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots("App", slots, []);
+    	let { connected } = $$props;
+    	validate_store(connected, "connected");
+    	$$subscribe_connected();
+    	let { state } = $$props;
+    	validate_store(state, "state");
+    	$$subscribe_state();
+
+    	state.subscribe(({ device }) => {
+    		if (device && device.deviceName) {
+    			document.title = `${device.deviceName} — DMT Insight`;
+    		}
+    	});
+
+    	const writable_props = ["connected", "state"];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn(`<App> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ("connected" in $$props) $$subscribe_connected($$invalidate(0, connected = $$props.connected));
+    		if ("state" in $$props) $$subscribe_state($$invalidate(1, state = $$props.state));
+    	};
+
+    	$$self.$capture_state = () => ({
+    		Loading,
+    		Dashboard,
+    		connected,
+    		state,
+    		device,
+    		$state,
+    		$connected
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ("connected" in $$props) $$subscribe_connected($$invalidate(0, connected = $$props.connected));
+    		if ("state" in $$props) $$subscribe_state($$invalidate(1, state = $$props.state));
+    		if ("device" in $$props) device = $$props.device;
+    	};
+
+    	let device;
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	$$self.$$.update = () => {
+    		if ($$self.$$.dirty & /*$state*/ 4) {
+    			 device = $state.device;
+    		}
+    	};
+
+    	return [connected, state, $state, $connected];
+    }
+
+    class App extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$s, create_fragment$s, safe_not_equal, { connected: 0, state: 1 });
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "App",
+    			options,
+    			id: create_fragment$s.name
+    		});
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+
+    		if (/*connected*/ ctx[0] === undefined && !("connected" in props)) {
+    			console.warn("<App> was created without expected prop 'connected'");
+    		}
+
+    		if (/*state*/ ctx[1] === undefined && !("state" in props)) {
+    			console.warn("<App> was created without expected prop 'state'");
+    		}
+    	}
+
+    	get connected() {
+    		throw new Error("<App>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set connected(value) {
+    		throw new Error("<App>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get state() {
+    		throw new Error("<App>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set state(value) {
+    		throw new Error("<App>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /*!
      * https://github.com/Starcounter-Jack/JSON-Patch
      * (c) 2017 Joachim Wester
      * MIT license
      */
-var er,tr=(er=function(e,t){return(er=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)t.hasOwnProperty(n)&&(e[n]=t[n])})(e,t)},function(e,t){function n(){this.constructor=e}er(e,t),e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)}),nr=Object.prototype.hasOwnProperty;function rr(e,t){return nr.call(e,t)}function or(e){if(Array.isArray(e)){for(var t=new Array(e.length),n=0;n<t.length;n++)t[n]=""+n;return t}if(Object.keys)return Object.keys(e);t=[];for(var r in e)rr(e,r)&&t.push(r);return t}function sr(e){switch(typeof e){case"object":return JSON.parse(JSON.stringify(e));case"undefined":return null;default:return e}}function ir(e){for(var t,n=0,r=e.length;n<r;){if(!((t=e.charCodeAt(n))>=48&&t<=57))return!1;n++}return!0}function ar(e){return-1===e.indexOf("/")&&-1===e.indexOf("~")?e:e.replace(/~/g,"~0").replace(/\//g,"~1")}function cr(e){return e.replace(/~1/g,"/").replace(/~0/g,"~")}function lr(e){if(void 0===e)return!0;if(e)if(Array.isArray(e)){for(var t=0,n=e.length;t<n;t++)if(lr(e[t]))return!0}else if("object"==typeof e){var r=or(e),o=r.length;for(t=0;t<o;t++)if(lr(e[r[t]]))return!0}return!1}function ur(e,t){var n=[e];for(var r in t){var o="object"==typeof t[r]?JSON.stringify(t[r],null,2):t[r];void 0!==o&&n.push(r+": "+o)}return n.join("\n")}var fr=function(e){function t(t,n,r,o,s){var i=this.constructor,a=e.call(this,ur(t,{name:n,index:r,operation:o,tree:s}))||this;return a.name=n,a.index=r,a.operation=o,a.tree=s,Object.setPrototypeOf(a,i.prototype),a.message=ur(t,{name:n,index:r,operation:o,tree:s}),a}return tr(t,e),t}(Error),hr=fr,dr=sr,pr={add:function(e,t,n){return e[t]=this.value,{newDocument:n}},remove:function(e,t,n){var r=e[t];return delete e[t],{newDocument:n,removed:r}},replace:function(e,t,n){var r=e[t];return e[t]=this.value,{newDocument:n,removed:r}},move:function(e,t,n){var r=gr(n,this.path);r&&(r=sr(r));var o=yr(n,{op:"remove",path:this.from}).removed;return yr(n,{op:"add",path:this.path,value:o}),{newDocument:n,removed:r}},copy:function(e,t,n){var r=gr(n,this.from);return yr(n,{op:"add",path:this.path,value:sr(r)}),{newDocument:n}},test:function(e,t,n){return{newDocument:n,test:xr(e[t],this.value)}},_get:function(e,t,n){return this.value=e[t],{newDocument:n}}},vr={add:function(e,t,n){return ir(t)?e.splice(t,0,this.value):e[t]=this.value,{newDocument:n,index:t}},remove:function(e,t,n){return{newDocument:n,removed:e.splice(t,1)[0]}},replace:function(e,t,n){var r=e[t];return e[t]=this.value,{newDocument:n,removed:r}},move:pr.move,copy:pr.copy,test:pr.test,_get:pr._get};function gr(e,t){if(""==t)return e;var n={op:"_get",path:t};return yr(e,n),n.value}function yr(e,t,n,r,o,s){if(void 0===n&&(n=!1),void 0===r&&(r=!0),void 0===o&&(o=!0),void 0===s&&(s=0),n&&("function"==typeof n?n(t,0,e,t.path):br(t,0)),""===t.path){var i={newDocument:e};if("add"===t.op)return i.newDocument=t.value,i;if("replace"===t.op)return i.newDocument=t.value,i.removed=e,i;if("move"===t.op||"copy"===t.op)return i.newDocument=gr(e,t.from),"move"===t.op&&(i.removed=e),i;if("test"===t.op){if(i.test=xr(e,t.value),!1===i.test)throw new hr("Test operation failed","TEST_OPERATION_FAILED",s,t,e);return i.newDocument=e,i}if("remove"===t.op)return i.removed=e,i.newDocument=null,i;if("_get"===t.op)return t.value=e,i;if(n)throw new hr("Operation `op` property is not one of operations defined in RFC-6902","OPERATION_OP_INVALID",s,t,e);return i}r||(e=sr(e));var a=(t.path||"").split("/"),c=e,l=1,u=a.length,f=void 0,h=void 0,d=void 0;for(d="function"==typeof n?n:br;;){if(h=a[l],o&&"__proto__"==h)throw new TypeError("JSON-Patch: modifying `__proto__` prop is banned for security reasons, if this was on purpose, please set `banPrototypeModifications` flag false and pass it to this function. More info in fast-json-patch README");if(n&&void 0===f&&(void 0===c[h]?f=a.slice(0,l).join("/"):l==u-1&&(f=t.path),void 0!==f&&d(t,0,e,f)),l++,Array.isArray(c)){if("-"===h)h=c.length;else{if(n&&!ir(h))throw new hr("Expected an unsigned base-10 integer value, making the new referenced value the array element with the zero-based index","OPERATION_PATH_ILLEGAL_ARRAY_INDEX",s,t,e);ir(h)&&(h=~~h)}if(l>=u){if(n&&"add"===t.op&&h>c.length)throw new hr("The specified index MUST NOT be greater than the number of elements in the array","OPERATION_VALUE_OUT_OF_BOUNDS",s,t,e);if(!1===(i=vr[t.op].call(t,c,h,e)).test)throw new hr("Test operation failed","TEST_OPERATION_FAILED",s,t,e);return i}}else if(h&&-1!=h.indexOf("~")&&(h=cr(h)),l>=u){if(!1===(i=pr[t.op].call(t,c,h,e)).test)throw new hr("Test operation failed","TEST_OPERATION_FAILED",s,t,e);return i}c=c[h]}}function mr(e,t,n,r,o){if(void 0===r&&(r=!0),void 0===o&&(o=!0),n&&!Array.isArray(t))throw new hr("Patch sequence must be an array","SEQUENCE_NOT_AN_ARRAY");r||(e=sr(e));for(var s=new Array(t.length),i=0,a=t.length;i<a;i++)s[i]=yr(e,t[i],n,!0,o,i),e=s[i].newDocument;return s.newDocument=e,s}function br(e,t,n,r){if("object"!=typeof e||null===e||Array.isArray(e))throw new hr("Operation is not an object","OPERATION_NOT_AN_OBJECT",t,e,n);if(!pr[e.op])throw new hr("Operation `op` property is not one of operations defined in RFC-6902","OPERATION_OP_INVALID",t,e,n);if("string"!=typeof e.path)throw new hr("Operation `path` property is not a string","OPERATION_PATH_INVALID",t,e,n);if(0!==e.path.indexOf("/")&&e.path.length>0)throw new hr('Operation `path` property must start with "/"',"OPERATION_PATH_INVALID",t,e,n);if(("move"===e.op||"copy"===e.op)&&"string"!=typeof e.from)throw new hr("Operation `from` property is not present (applicable in `move` and `copy` operations)","OPERATION_FROM_REQUIRED",t,e,n);if(("add"===e.op||"replace"===e.op||"test"===e.op)&&void 0===e.value)throw new hr("Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)","OPERATION_VALUE_REQUIRED",t,e,n);if(("add"===e.op||"replace"===e.op||"test"===e.op)&&lr(e.value))throw new hr("Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)","OPERATION_VALUE_CANNOT_CONTAIN_UNDEFINED",t,e,n);if(n)if("add"==e.op){var o=e.path.split("/").length,s=r.split("/").length;if(o!==s+1&&o!==s)throw new hr("Cannot perform an `add` operation at the desired path","OPERATION_PATH_CANNOT_ADD",t,e,n)}else if("replace"===e.op||"remove"===e.op||"_get"===e.op){if(e.path!==r)throw new hr("Cannot perform the operation at a path that does not exist","OPERATION_PATH_UNRESOLVABLE",t,e,n)}else if("move"===e.op||"copy"===e.op){var i=wr([{op:"_get",path:e.from,value:void 0}],n);if(i&&"OPERATION_PATH_UNRESOLVABLE"===i.name)throw new hr("Cannot perform the operation from a path that does not exist","OPERATION_FROM_UNRESOLVABLE",t,e,n)}}function wr(e,t,n){try{if(!Array.isArray(e))throw new hr("Patch sequence must be an array","SEQUENCE_NOT_AN_ARRAY");if(t)mr(sr(t),sr(e),n||!0);else{n=n||br;for(var r=0;r<e.length;r++)n(e[r],r,t,void 0)}}catch(e){if(e instanceof hr)return e;throw e}}function xr(e,t){if(e===t)return!0;if(e&&t&&"object"==typeof e&&"object"==typeof t){var n,r,o,s=Array.isArray(e),i=Array.isArray(t);if(s&&i){if((r=e.length)!=t.length)return!1;for(n=r;0!=n--;)if(!xr(e[n],t[n]))return!1;return!0}if(s!=i)return!1;var a=Object.keys(e);if((r=a.length)!==Object.keys(t).length)return!1;for(n=r;0!=n--;)if(!t.hasOwnProperty(a[n]))return!1;for(n=r;0!=n--;)if(!xr(e[o=a[n]],t[o]))return!1;return!0}return e!=e&&t!=t}var $r=Object.freeze({__proto__:null,JsonPatchError:hr,deepClone:dr,getValueByPointer:gr,applyOperation:yr,applyPatch:mr,applyReducer:function(e,t,n){var r=yr(e,t);if(!1===r.test)throw new hr("Test operation failed","TEST_OPERATION_FAILED",n,t,e);return r.newDocument},validator:br,validate:wr,_areEquals:xr}),_r=new WeakMap,kr=function(e){this.observers=new Map,this.obj=e},Er=function(e,t){this.callback=e,this.observer=t};
-/*!
+    var __extends =  (function () {
+        var extendStatics = function (d, b) {
+            extendStatics = Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            return extendStatics(d, b);
+        };
+        return function (d, b) {
+            extendStatics(d, b);
+            function __() { this.constructor = d; }
+            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+        };
+    })();
+    var _hasOwnProperty = Object.prototype.hasOwnProperty;
+    function hasOwnProperty(obj, key) {
+        return _hasOwnProperty.call(obj, key);
+    }
+    function _objectKeys(obj) {
+        if (Array.isArray(obj)) {
+            var keys = new Array(obj.length);
+            for (var k = 0; k < keys.length; k++) {
+                keys[k] = "" + k;
+            }
+            return keys;
+        }
+        if (Object.keys) {
+            return Object.keys(obj);
+        }
+        var keys = [];
+        for (var i in obj) {
+            if (hasOwnProperty(obj, i)) {
+                keys.push(i);
+            }
+        }
+        return keys;
+    }
+    /**
+    * Deeply clone the object.
+    * https://jsperf.com/deep-copy-vs-json-stringify-json-parse/25 (recursiveDeepCopy)
+    * @param  {any} obj value to clone
+    * @return {any} cloned obj
+    */
+    function _deepClone(obj) {
+        switch (typeof obj) {
+            case "object":
+                return JSON.parse(JSON.stringify(obj)); //Faster than ES5 clone - http://jsperf.com/deep-cloning-of-objects/5
+            case "undefined":
+                return null; //this is how JSON.stringify behaves for array items
+            default:
+                return obj; //no need to clone primitives
+        }
+    }
+    //3x faster than cached /^\d+$/.test(str)
+    function isInteger(str) {
+        var i = 0;
+        var len = str.length;
+        var charCode;
+        while (i < len) {
+            charCode = str.charCodeAt(i);
+            if (charCode >= 48 && charCode <= 57) {
+                i++;
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+    /**
+    * Escapes a json pointer path
+    * @param path The raw pointer
+    * @return the Escaped path
+    */
+    function escapePathComponent(path) {
+        if (path.indexOf('/') === -1 && path.indexOf('~') === -1)
+            return path;
+        return path.replace(/~/g, '~0').replace(/\//g, '~1');
+    }
+    /**
+     * Unescapes a json pointer path
+     * @param path The escaped pointer
+     * @return The unescaped path
+     */
+    function unescapePathComponent(path) {
+        return path.replace(/~1/g, '/').replace(/~0/g, '~');
+    }
+    /**
+    * Recursively checks whether an object has any undefined values inside.
+    */
+    function hasUndefined(obj) {
+        if (obj === undefined) {
+            return true;
+        }
+        if (obj) {
+            if (Array.isArray(obj)) {
+                for (var i = 0, len = obj.length; i < len; i++) {
+                    if (hasUndefined(obj[i])) {
+                        return true;
+                    }
+                }
+            }
+            else if (typeof obj === "object") {
+                var objKeys = _objectKeys(obj);
+                var objKeysLength = objKeys.length;
+                for (var i = 0; i < objKeysLength; i++) {
+                    if (hasUndefined(obj[objKeys[i]])) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    function patchErrorMessageFormatter(message, args) {
+        var messageParts = [message];
+        for (var key in args) {
+            var value = typeof args[key] === 'object' ? JSON.stringify(args[key], null, 2) : args[key]; // pretty print
+            if (typeof value !== 'undefined') {
+                messageParts.push(key + ": " + value);
+            }
+        }
+        return messageParts.join('\n');
+    }
+    var PatchError = /** @class */ (function (_super) {
+        __extends(PatchError, _super);
+        function PatchError(message, name, index, operation, tree) {
+            var _newTarget = this.constructor;
+            var _this = _super.call(this, patchErrorMessageFormatter(message, { name: name, index: index, operation: operation, tree: tree })) || this;
+            _this.name = name;
+            _this.index = index;
+            _this.operation = operation;
+            _this.tree = tree;
+            Object.setPrototypeOf(_this, _newTarget.prototype); // restore prototype chain, see https://stackoverflow.com/a/48342359
+            _this.message = patchErrorMessageFormatter(message, { name: name, index: index, operation: operation, tree: tree });
+            return _this;
+        }
+        return PatchError;
+    }(Error));
+
+    var JsonPatchError = PatchError;
+    var deepClone = _deepClone;
+    /* We use a Javascript hash to store each
+     function. Each hash entry (property) uses
+     the operation identifiers specified in rfc6902.
+     In this way, we can map each patch operation
+     to its dedicated function in efficient way.
+     */
+    /* The operations applicable to an object */
+    var objOps = {
+        add: function (obj, key, document) {
+            obj[key] = this.value;
+            return { newDocument: document };
+        },
+        remove: function (obj, key, document) {
+            var removed = obj[key];
+            delete obj[key];
+            return { newDocument: document, removed: removed };
+        },
+        replace: function (obj, key, document) {
+            var removed = obj[key];
+            obj[key] = this.value;
+            return { newDocument: document, removed: removed };
+        },
+        move: function (obj, key, document) {
+            /* in case move target overwrites an existing value,
+            return the removed value, this can be taxing performance-wise,
+            and is potentially unneeded */
+            var removed = getValueByPointer(document, this.path);
+            if (removed) {
+                removed = _deepClone(removed);
+            }
+            var originalValue = applyOperation(document, { op: "remove", path: this.from }).removed;
+            applyOperation(document, { op: "add", path: this.path, value: originalValue });
+            return { newDocument: document, removed: removed };
+        },
+        copy: function (obj, key, document) {
+            var valueToCopy = getValueByPointer(document, this.from);
+            // enforce copy by value so further operations don't affect source (see issue #177)
+            applyOperation(document, { op: "add", path: this.path, value: _deepClone(valueToCopy) });
+            return { newDocument: document };
+        },
+        test: function (obj, key, document) {
+            return { newDocument: document, test: _areEquals(obj[key], this.value) };
+        },
+        _get: function (obj, key, document) {
+            this.value = obj[key];
+            return { newDocument: document };
+        }
+    };
+    /* The operations applicable to an array. Many are the same as for the object */
+    var arrOps = {
+        add: function (arr, i, document) {
+            if (isInteger(i)) {
+                arr.splice(i, 0, this.value);
+            }
+            else { // array props
+                arr[i] = this.value;
+            }
+            // this may be needed when using '-' in an array
+            return { newDocument: document, index: i };
+        },
+        remove: function (arr, i, document) {
+            var removedList = arr.splice(i, 1);
+            return { newDocument: document, removed: removedList[0] };
+        },
+        replace: function (arr, i, document) {
+            var removed = arr[i];
+            arr[i] = this.value;
+            return { newDocument: document, removed: removed };
+        },
+        move: objOps.move,
+        copy: objOps.copy,
+        test: objOps.test,
+        _get: objOps._get
+    };
+    /**
+     * Retrieves a value from a JSON document by a JSON pointer.
+     * Returns the value.
+     *
+     * @param document The document to get the value from
+     * @param pointer an escaped JSON pointer
+     * @return The retrieved value
+     */
+    function getValueByPointer(document, pointer) {
+        if (pointer == '') {
+            return document;
+        }
+        var getOriginalDestination = { op: "_get", path: pointer };
+        applyOperation(document, getOriginalDestination);
+        return getOriginalDestination.value;
+    }
+    /**
+     * Apply a single JSON Patch Operation on a JSON document.
+     * Returns the {newDocument, result} of the operation.
+     * It modifies the `document` and `operation` objects - it gets the values by reference.
+     * If you would like to avoid touching your values, clone them:
+     * `jsonpatch.applyOperation(document, jsonpatch._deepClone(operation))`.
+     *
+     * @param document The document to patch
+     * @param operation The operation to apply
+     * @param validateOperation `false` is without validation, `true` to use default jsonpatch's validation, or you can pass a `validateOperation` callback to be used for validation.
+     * @param mutateDocument Whether to mutate the original document or clone it before applying
+     * @param banPrototypeModifications Whether to ban modifications to `__proto__`, defaults to `true`.
+     * @return `{newDocument, result}` after the operation
+     */
+    function applyOperation(document, operation, validateOperation, mutateDocument, banPrototypeModifications, index) {
+        if (validateOperation === void 0) { validateOperation = false; }
+        if (mutateDocument === void 0) { mutateDocument = true; }
+        if (banPrototypeModifications === void 0) { banPrototypeModifications = true; }
+        if (index === void 0) { index = 0; }
+        if (validateOperation) {
+            if (typeof validateOperation == 'function') {
+                validateOperation(operation, 0, document, operation.path);
+            }
+            else {
+                validator(operation, 0);
+            }
+        }
+        /* ROOT OPERATIONS */
+        if (operation.path === "") {
+            var returnValue = { newDocument: document };
+            if (operation.op === 'add') {
+                returnValue.newDocument = operation.value;
+                return returnValue;
+            }
+            else if (operation.op === 'replace') {
+                returnValue.newDocument = operation.value;
+                returnValue.removed = document; //document we removed
+                return returnValue;
+            }
+            else if (operation.op === 'move' || operation.op === 'copy') { // it's a move or copy to root
+                returnValue.newDocument = getValueByPointer(document, operation.from); // get the value by json-pointer in `from` field
+                if (operation.op === 'move') { // report removed item
+                    returnValue.removed = document;
+                }
+                return returnValue;
+            }
+            else if (operation.op === 'test') {
+                returnValue.test = _areEquals(document, operation.value);
+                if (returnValue.test === false) {
+                    throw new JsonPatchError("Test operation failed", 'TEST_OPERATION_FAILED', index, operation, document);
+                }
+                returnValue.newDocument = document;
+                return returnValue;
+            }
+            else if (operation.op === 'remove') { // a remove on root
+                returnValue.removed = document;
+                returnValue.newDocument = null;
+                return returnValue;
+            }
+            else if (operation.op === '_get') {
+                operation.value = document;
+                return returnValue;
+            }
+            else { /* bad operation */
+                if (validateOperation) {
+                    throw new JsonPatchError('Operation `op` property is not one of operations defined in RFC-6902', 'OPERATION_OP_INVALID', index, operation, document);
+                }
+                else {
+                    return returnValue;
+                }
+            }
+        } /* END ROOT OPERATIONS */
+        else {
+            if (!mutateDocument) {
+                document = _deepClone(document);
+            }
+            var path = operation.path || "";
+            var keys = path.split('/');
+            var obj = document;
+            var t = 1; //skip empty element - http://jsperf.com/to-shift-or-not-to-shift
+            var len = keys.length;
+            var existingPathFragment = undefined;
+            var key = void 0;
+            var validateFunction = void 0;
+            if (typeof validateOperation == 'function') {
+                validateFunction = validateOperation;
+            }
+            else {
+                validateFunction = validator;
+            }
+            while (true) {
+                key = keys[t];
+                if (banPrototypeModifications && key == '__proto__') {
+                    throw new TypeError('JSON-Patch: modifying `__proto__` prop is banned for security reasons, if this was on purpose, please set `banPrototypeModifications` flag false and pass it to this function. More info in fast-json-patch README');
+                }
+                if (validateOperation) {
+                    if (existingPathFragment === undefined) {
+                        if (obj[key] === undefined) {
+                            existingPathFragment = keys.slice(0, t).join('/');
+                        }
+                        else if (t == len - 1) {
+                            existingPathFragment = operation.path;
+                        }
+                        if (existingPathFragment !== undefined) {
+                            validateFunction(operation, 0, document, existingPathFragment);
+                        }
+                    }
+                }
+                t++;
+                if (Array.isArray(obj)) {
+                    if (key === '-') {
+                        key = obj.length;
+                    }
+                    else {
+                        if (validateOperation && !isInteger(key)) {
+                            throw new JsonPatchError("Expected an unsigned base-10 integer value, making the new referenced value the array element with the zero-based index", "OPERATION_PATH_ILLEGAL_ARRAY_INDEX", index, operation, document);
+                        } // only parse key when it's an integer for `arr.prop` to work
+                        else if (isInteger(key)) {
+                            key = ~~key;
+                        }
+                    }
+                    if (t >= len) {
+                        if (validateOperation && operation.op === "add" && key > obj.length) {
+                            throw new JsonPatchError("The specified index MUST NOT be greater than the number of elements in the array", "OPERATION_VALUE_OUT_OF_BOUNDS", index, operation, document);
+                        }
+                        var returnValue = arrOps[operation.op].call(operation, obj, key, document); // Apply patch
+                        if (returnValue.test === false) {
+                            throw new JsonPatchError("Test operation failed", 'TEST_OPERATION_FAILED', index, operation, document);
+                        }
+                        return returnValue;
+                    }
+                }
+                else {
+                    if (key && key.indexOf('~') != -1) {
+                        key = unescapePathComponent(key);
+                    }
+                    if (t >= len) {
+                        var returnValue = objOps[operation.op].call(operation, obj, key, document); // Apply patch
+                        if (returnValue.test === false) {
+                            throw new JsonPatchError("Test operation failed", 'TEST_OPERATION_FAILED', index, operation, document);
+                        }
+                        return returnValue;
+                    }
+                }
+                obj = obj[key];
+            }
+        }
+    }
+    /**
+     * Apply a full JSON Patch array on a JSON document.
+     * Returns the {newDocument, result} of the patch.
+     * It modifies the `document` object and `patch` - it gets the values by reference.
+     * If you would like to avoid touching your values, clone them:
+     * `jsonpatch.applyPatch(document, jsonpatch._deepClone(patch))`.
+     *
+     * @param document The document to patch
+     * @param patch The patch to apply
+     * @param validateOperation `false` is without validation, `true` to use default jsonpatch's validation, or you can pass a `validateOperation` callback to be used for validation.
+     * @param mutateDocument Whether to mutate the original document or clone it before applying
+     * @param banPrototypeModifications Whether to ban modifications to `__proto__`, defaults to `true`.
+     * @return An array of `{newDocument, result}` after the patch
+     */
+    function applyPatch(document, patch, validateOperation, mutateDocument, banPrototypeModifications) {
+        if (mutateDocument === void 0) { mutateDocument = true; }
+        if (banPrototypeModifications === void 0) { banPrototypeModifications = true; }
+        if (validateOperation) {
+            if (!Array.isArray(patch)) {
+                throw new JsonPatchError('Patch sequence must be an array', 'SEQUENCE_NOT_AN_ARRAY');
+            }
+        }
+        if (!mutateDocument) {
+            document = _deepClone(document);
+        }
+        var results = new Array(patch.length);
+        for (var i = 0, length_1 = patch.length; i < length_1; i++) {
+            // we don't need to pass mutateDocument argument because if it was true, we already deep cloned the object, we'll just pass `true`
+            results[i] = applyOperation(document, patch[i], validateOperation, true, banPrototypeModifications, i);
+            document = results[i].newDocument; // in case root was replaced
+        }
+        results.newDocument = document;
+        return results;
+    }
+    /**
+     * Apply a single JSON Patch Operation on a JSON document.
+     * Returns the updated document.
+     * Suitable as a reducer.
+     *
+     * @param document The document to patch
+     * @param operation The operation to apply
+     * @return The updated document
+     */
+    function applyReducer(document, operation, index) {
+        var operationResult = applyOperation(document, operation);
+        if (operationResult.test === false) { // failed test
+            throw new JsonPatchError("Test operation failed", 'TEST_OPERATION_FAILED', index, operation, document);
+        }
+        return operationResult.newDocument;
+    }
+    /**
+     * Validates a single operation. Called from `jsonpatch.validate`. Throws `JsonPatchError` in case of an error.
+     * @param {object} operation - operation object (patch)
+     * @param {number} index - index of operation in the sequence
+     * @param {object} [document] - object where the operation is supposed to be applied
+     * @param {string} [existingPathFragment] - comes along with `document`
+     */
+    function validator(operation, index, document, existingPathFragment) {
+        if (typeof operation !== 'object' || operation === null || Array.isArray(operation)) {
+            throw new JsonPatchError('Operation is not an object', 'OPERATION_NOT_AN_OBJECT', index, operation, document);
+        }
+        else if (!objOps[operation.op]) {
+            throw new JsonPatchError('Operation `op` property is not one of operations defined in RFC-6902', 'OPERATION_OP_INVALID', index, operation, document);
+        }
+        else if (typeof operation.path !== 'string') {
+            throw new JsonPatchError('Operation `path` property is not a string', 'OPERATION_PATH_INVALID', index, operation, document);
+        }
+        else if (operation.path.indexOf('/') !== 0 && operation.path.length > 0) {
+            // paths that aren't empty string should start with "/"
+            throw new JsonPatchError('Operation `path` property must start with "/"', 'OPERATION_PATH_INVALID', index, operation, document);
+        }
+        else if ((operation.op === 'move' || operation.op === 'copy') && typeof operation.from !== 'string') {
+            throw new JsonPatchError('Operation `from` property is not present (applicable in `move` and `copy` operations)', 'OPERATION_FROM_REQUIRED', index, operation, document);
+        }
+        else if ((operation.op === 'add' || operation.op === 'replace' || operation.op === 'test') && operation.value === undefined) {
+            throw new JsonPatchError('Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)', 'OPERATION_VALUE_REQUIRED', index, operation, document);
+        }
+        else if ((operation.op === 'add' || operation.op === 'replace' || operation.op === 'test') && hasUndefined(operation.value)) {
+            throw new JsonPatchError('Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)', 'OPERATION_VALUE_CANNOT_CONTAIN_UNDEFINED', index, operation, document);
+        }
+        else if (document) {
+            if (operation.op == "add") {
+                var pathLen = operation.path.split("/").length;
+                var existingPathLen = existingPathFragment.split("/").length;
+                if (pathLen !== existingPathLen + 1 && pathLen !== existingPathLen) {
+                    throw new JsonPatchError('Cannot perform an `add` operation at the desired path', 'OPERATION_PATH_CANNOT_ADD', index, operation, document);
+                }
+            }
+            else if (operation.op === 'replace' || operation.op === 'remove' || operation.op === '_get') {
+                if (operation.path !== existingPathFragment) {
+                    throw new JsonPatchError('Cannot perform the operation at a path that does not exist', 'OPERATION_PATH_UNRESOLVABLE', index, operation, document);
+                }
+            }
+            else if (operation.op === 'move' || operation.op === 'copy') {
+                var existingValue = { op: "_get", path: operation.from, value: undefined };
+                var error = validate([existingValue], document);
+                if (error && error.name === 'OPERATION_PATH_UNRESOLVABLE') {
+                    throw new JsonPatchError('Cannot perform the operation from a path that does not exist', 'OPERATION_FROM_UNRESOLVABLE', index, operation, document);
+                }
+            }
+        }
+    }
+    /**
+     * Validates a sequence of operations. If `document` parameter is provided, the sequence is additionally validated against the object document.
+     * If error is encountered, returns a JsonPatchError object
+     * @param sequence
+     * @param document
+     * @returns {JsonPatchError|undefined}
+     */
+    function validate(sequence, document, externalValidator) {
+        try {
+            if (!Array.isArray(sequence)) {
+                throw new JsonPatchError('Patch sequence must be an array', 'SEQUENCE_NOT_AN_ARRAY');
+            }
+            if (document) {
+                //clone document and sequence so that we can safely try applying operations
+                applyPatch(_deepClone(document), _deepClone(sequence), externalValidator || true);
+            }
+            else {
+                externalValidator = externalValidator || validator;
+                for (var i = 0; i < sequence.length; i++) {
+                    externalValidator(sequence[i], i, document, undefined);
+                }
+            }
+        }
+        catch (e) {
+            if (e instanceof JsonPatchError) {
+                return e;
+            }
+            else {
+                throw e;
+            }
+        }
+    }
+    // based on https://github.com/epoberezkin/fast-deep-equal
+    // MIT License
+    // Copyright (c) 2017 Evgeny Poberezkin
+    // Permission is hereby granted, free of charge, to any person obtaining a copy
+    // of this software and associated documentation files (the "Software"), to deal
+    // in the Software without restriction, including without limitation the rights
+    // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    // copies of the Software, and to permit persons to whom the Software is
+    // furnished to do so, subject to the following conditions:
+    // The above copyright notice and this permission notice shall be included in all
+    // copies or substantial portions of the Software.
+    // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    // SOFTWARE.
+    function _areEquals(a, b) {
+        if (a === b)
+            return true;
+        if (a && b && typeof a == 'object' && typeof b == 'object') {
+            var arrA = Array.isArray(a), arrB = Array.isArray(b), i, length, key;
+            if (arrA && arrB) {
+                length = a.length;
+                if (length != b.length)
+                    return false;
+                for (i = length; i-- !== 0;)
+                    if (!_areEquals(a[i], b[i]))
+                        return false;
+                return true;
+            }
+            if (arrA != arrB)
+                return false;
+            var keys = Object.keys(a);
+            length = keys.length;
+            if (length !== Object.keys(b).length)
+                return false;
+            for (i = length; i-- !== 0;)
+                if (!b.hasOwnProperty(keys[i]))
+                    return false;
+            for (i = length; i-- !== 0;) {
+                key = keys[i];
+                if (!_areEquals(a[key], b[key]))
+                    return false;
+            }
+            return true;
+        }
+        return a !== a && b !== b;
+    }
+
+    var core = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        JsonPatchError: JsonPatchError,
+        deepClone: deepClone,
+        getValueByPointer: getValueByPointer,
+        applyOperation: applyOperation,
+        applyPatch: applyPatch,
+        applyReducer: applyReducer,
+        validator: validator,
+        validate: validate,
+        _areEquals: _areEquals
+    });
+
+    /*!
      * https://github.com/Starcounter-Jack/JSON-Patch
      * (c) 2017 Joachim Wester
      * MIT license
-     */function Ar(e,t){void 0===t&&(t=!1);var n=_r.get(e.object);Pr(n.value,e.object,e.patches,"",t),e.patches.length&&mr(n.value,e.patches);var r=e.patches;return r.length>0&&(e.patches=[],e.callback&&e.callback(r)),r}function Pr(e,t,n,r,o){if(t!==e){"function"==typeof t.toJSON&&(t=t.toJSON());for(var s=or(t),i=or(e),a=!1,c=i.length-1;c>=0;c--){var l=e[f=i[c]];if(!rr(t,f)||void 0===t[f]&&void 0!==l&&!1===Array.isArray(t))Array.isArray(e)===Array.isArray(t)?(o&&n.push({op:"test",path:r+"/"+ar(f),value:sr(l)}),n.push({op:"remove",path:r+"/"+ar(f)}),a=!0):(o&&n.push({op:"test",path:r,value:e}),n.push({op:"replace",path:r,value:t}));else{var u=t[f];"object"==typeof l&&null!=l&&"object"==typeof u&&null!=u?Pr(l,u,n,r+"/"+ar(f),o):l!==u&&(o&&n.push({op:"test",path:r+"/"+ar(f),value:sr(l)}),n.push({op:"replace",path:r+"/"+ar(f),value:sr(u)}))}}if(a||s.length!=i.length)for(c=0;c<s.length;c++){var f;rr(e,f=s[c])||void 0===t[f]||n.push({op:"add",path:r+"/"+ar(f),value:sr(t[f])})}}}var Sr=Object.freeze({__proto__:null,unobserve:function(e,t){t.unobserve()},observe:function(e,t){var n,r=function(e){return _r.get(e)}(e);if(r){var o=function(e,t){return e.observers.get(t)}(r,t);n=o&&o.observer}else r=new kr(e),_r.set(e,r);if(n)return n;if(n={},r.value=sr(e),t){n.callback=t,n.next=null;var s=function(){Ar(n)},i=function(){clearTimeout(n.next),n.next=setTimeout(s)};"undefined"!=typeof window&&(window.addEventListener("mouseup",i),window.addEventListener("keyup",i),window.addEventListener("mousedown",i),window.addEventListener("keydown",i),window.addEventListener("change",i))}return n.patches=[],n.object=e,n.unobserve=function(){Ar(n),clearTimeout(n.next),function(e,t){e.observers.delete(t.callback)}(r,n),"undefined"!=typeof window&&(window.removeEventListener("mouseup",i),window.removeEventListener("keyup",i),window.removeEventListener("mousedown",i),window.removeEventListener("keydown",i),window.removeEventListener("change",i))},r.observers.set(t,new Er(t,n)),n},generate:Ar,compare:function(e,t,n){void 0===n&&(n=!1);var r=[];return Pr(e,t,r,"",n),r}}),Or=Object.assign({},$r,Sr,{JsonPatchError:fr,deepClone:sr,escapePathComponent:ar,unescapePathComponent:cr});function Tr(){}class Cr{constructor(e,t,n){this.prev=e,this.next=t,this.fn=n||Tr}run(e){this.fn(e),this.next&&this.next.run(e)}}class Rr{constructor(e){this.head=new Cr,this.tail=new Cr(this.head),this.head.next=this.tail,this.linkConstructor=e,this.reg={}}insert(e){const t=new Cr(this.tail.prev,this.tail,e);return t.next.prev=t,t.prev.next=t,t}remove(e){e.prev.next=e.next,e.next.prev=e.prev}}let Nr=0;const jr=/[\s,]+/g;class Ir{constructor(){this.__events_list={}}on(e,t){e.split(jr).forEach((e=>{const n=this.__events_list[e]||(this.__events_list[e]=new Rr),r=t._eev||(t._eev=++Nr);n.reg[r]||(n.reg[r]=n.insert(t))}))}off(e,t){t&&e.split(jr).forEach((e=>{const n=this.__events_list[e];if(!n)return;const r=n.reg[t._eev];n.reg[t._eev]=void 0,n&&r&&n.remove(r)}))}removeListener(...e){this.off(...e)}emit(e,t){const n=this.__events_list[e];n&&n.head.run(t)}}class Mr extends Ir{constructor(e){super(),this.state=e,this.subscriptions=[]}get(){return this.state}subscribe(e){return this.subscriptions.push(e),e(this.state),()=>{this.subscriptions=this.subscriptions.filter((t=>t!==e))}}announceStateChange(){this.subscriptions.forEach((e=>e(this.state)))}}class Lr extends Mr{set(e){this.state=e,this.announceStateChange()}}function Dr(e){console.log(`${(new Date).toLocaleString()} → ${e}`)}function Ur(e){return Array.from(new Uint8Array(e)).map((e=>e.toString(16).padStart(2,"0"))).join("")}function Kr(e,t=8){const n=new Array(t).fill(0);for(let t=0;t<n.length;t++){const r=255&e;n[t]=r,e=(e-r)/256}return n}var Br="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:{};function qr(e){return e&&e.__esModule&&Object.prototype.hasOwnProperty.call(e,"default")?e.default:e}function Fr(e,t,n){return e(n={path:t,exports:{},require:function(e,t){return Jr(null==t&&n.path)}},n.exports),n.exports}function Hr(e){if(e.__esModule)return e;var t=Object.defineProperty({},"__esModule",{value:!0});return Object.keys(e).forEach((function(n){var r=Object.getOwnPropertyDescriptor(e,n);Object.defineProperty(t,n,r.get?r:{enumerable:!0,get:function(){return e[n]}})})),t}function Jr(){throw new Error("Dynamic requires are not currently supported by @rollup/plugin-commonjs")}var zr=Hr(Object.freeze({__proto__:null,default:{}})),Vr=Fr((function(e){!function(e){var t=function(e){var t,n=new Float64Array(16);if(e)for(t=0;t<e.length;t++)n[t]=e[t];return n},n=function(){throw new Error("no PRNG")},r=new Uint8Array(16),o=new Uint8Array(32);o[0]=9;var s=t(),i=t([1]),a=t([56129,1]),c=t([30883,4953,19914,30187,55467,16705,2637,112,59544,30585,16505,36039,65139,11119,27886,20995]),l=t([61785,9906,39828,60374,45398,33411,5274,224,53552,61171,33010,6542,64743,22239,55772,9222]),u=t([54554,36645,11616,51542,42930,38181,51040,26924,56412,64982,57905,49316,21502,52590,14035,8553]),f=t([26200,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214,26214]),h=t([41136,18958,6951,50414,58488,44335,6150,12099,55207,15867,153,11085,57099,20417,9344,11139]);function d(e,t,n,r){e[t]=n>>24&255,e[t+1]=n>>16&255,e[t+2]=n>>8&255,e[t+3]=255&n,e[t+4]=r>>24&255,e[t+5]=r>>16&255,e[t+6]=r>>8&255,e[t+7]=255&r}function p(e,t,n,r,o){var s,i=0;for(s=0;s<o;s++)i|=e[t+s]^n[r+s];return(1&i-1>>>8)-1}function v(e,t,n,r){return p(e,t,n,r,16)}function g(e,t,n,r){return p(e,t,n,r,32)}function y(e,t,n,r){!function(e,t,n,r){for(var o,s=255&r[0]|(255&r[1])<<8|(255&r[2])<<16|(255&r[3])<<24,i=255&n[0]|(255&n[1])<<8|(255&n[2])<<16|(255&n[3])<<24,a=255&n[4]|(255&n[5])<<8|(255&n[6])<<16|(255&n[7])<<24,c=255&n[8]|(255&n[9])<<8|(255&n[10])<<16|(255&n[11])<<24,l=255&n[12]|(255&n[13])<<8|(255&n[14])<<16|(255&n[15])<<24,u=255&r[4]|(255&r[5])<<8|(255&r[6])<<16|(255&r[7])<<24,f=255&t[0]|(255&t[1])<<8|(255&t[2])<<16|(255&t[3])<<24,h=255&t[4]|(255&t[5])<<8|(255&t[6])<<16|(255&t[7])<<24,d=255&t[8]|(255&t[9])<<8|(255&t[10])<<16|(255&t[11])<<24,p=255&t[12]|(255&t[13])<<8|(255&t[14])<<16|(255&t[15])<<24,v=255&r[8]|(255&r[9])<<8|(255&r[10])<<16|(255&r[11])<<24,g=255&n[16]|(255&n[17])<<8|(255&n[18])<<16|(255&n[19])<<24,y=255&n[20]|(255&n[21])<<8|(255&n[22])<<16|(255&n[23])<<24,m=255&n[24]|(255&n[25])<<8|(255&n[26])<<16|(255&n[27])<<24,b=255&n[28]|(255&n[29])<<8|(255&n[30])<<16|(255&n[31])<<24,w=255&r[12]|(255&r[13])<<8|(255&r[14])<<16|(255&r[15])<<24,x=s,$=i,_=a,k=c,E=l,A=u,P=f,S=h,O=d,T=p,C=v,R=g,N=y,j=m,I=b,M=w,L=0;L<20;L+=2)x^=(o=(N^=(o=(O^=(o=(E^=(o=x+N|0)<<7|o>>>25)+x|0)<<9|o>>>23)+E|0)<<13|o>>>19)+O|0)<<18|o>>>14,A^=(o=($^=(o=(j^=(o=(T^=(o=A+$|0)<<7|o>>>25)+A|0)<<9|o>>>23)+T|0)<<13|o>>>19)+j|0)<<18|o>>>14,C^=(o=(P^=(o=(_^=(o=(I^=(o=C+P|0)<<7|o>>>25)+C|0)<<9|o>>>23)+I|0)<<13|o>>>19)+_|0)<<18|o>>>14,M^=(o=(R^=(o=(S^=(o=(k^=(o=M+R|0)<<7|o>>>25)+M|0)<<9|o>>>23)+k|0)<<13|o>>>19)+S|0)<<18|o>>>14,x^=(o=(k^=(o=(_^=(o=($^=(o=x+k|0)<<7|o>>>25)+x|0)<<9|o>>>23)+$|0)<<13|o>>>19)+_|0)<<18|o>>>14,A^=(o=(E^=(o=(S^=(o=(P^=(o=A+E|0)<<7|o>>>25)+A|0)<<9|o>>>23)+P|0)<<13|o>>>19)+S|0)<<18|o>>>14,C^=(o=(T^=(o=(O^=(o=(R^=(o=C+T|0)<<7|o>>>25)+C|0)<<9|o>>>23)+R|0)<<13|o>>>19)+O|0)<<18|o>>>14,M^=(o=(I^=(o=(j^=(o=(N^=(o=M+I|0)<<7|o>>>25)+M|0)<<9|o>>>23)+N|0)<<13|o>>>19)+j|0)<<18|o>>>14;x=x+s|0,$=$+i|0,_=_+a|0,k=k+c|0,E=E+l|0,A=A+u|0,P=P+f|0,S=S+h|0,O=O+d|0,T=T+p|0,C=C+v|0,R=R+g|0,N=N+y|0,j=j+m|0,I=I+b|0,M=M+w|0,e[0]=x>>>0&255,e[1]=x>>>8&255,e[2]=x>>>16&255,e[3]=x>>>24&255,e[4]=$>>>0&255,e[5]=$>>>8&255,e[6]=$>>>16&255,e[7]=$>>>24&255,e[8]=_>>>0&255,e[9]=_>>>8&255,e[10]=_>>>16&255,e[11]=_>>>24&255,e[12]=k>>>0&255,e[13]=k>>>8&255,e[14]=k>>>16&255,e[15]=k>>>24&255,e[16]=E>>>0&255,e[17]=E>>>8&255,e[18]=E>>>16&255,e[19]=E>>>24&255,e[20]=A>>>0&255,e[21]=A>>>8&255,e[22]=A>>>16&255,e[23]=A>>>24&255,e[24]=P>>>0&255,e[25]=P>>>8&255,e[26]=P>>>16&255,e[27]=P>>>24&255,e[28]=S>>>0&255,e[29]=S>>>8&255,e[30]=S>>>16&255,e[31]=S>>>24&255,e[32]=O>>>0&255,e[33]=O>>>8&255,e[34]=O>>>16&255,e[35]=O>>>24&255,e[36]=T>>>0&255,e[37]=T>>>8&255,e[38]=T>>>16&255,e[39]=T>>>24&255,e[40]=C>>>0&255,e[41]=C>>>8&255,e[42]=C>>>16&255,e[43]=C>>>24&255,e[44]=R>>>0&255,e[45]=R>>>8&255,e[46]=R>>>16&255,e[47]=R>>>24&255,e[48]=N>>>0&255,e[49]=N>>>8&255,e[50]=N>>>16&255,e[51]=N>>>24&255,e[52]=j>>>0&255,e[53]=j>>>8&255,e[54]=j>>>16&255,e[55]=j>>>24&255,e[56]=I>>>0&255,e[57]=I>>>8&255,e[58]=I>>>16&255,e[59]=I>>>24&255,e[60]=M>>>0&255,e[61]=M>>>8&255,e[62]=M>>>16&255,e[63]=M>>>24&255}(e,t,n,r)}function m(e,t,n,r){!function(e,t,n,r){for(var o,s=255&r[0]|(255&r[1])<<8|(255&r[2])<<16|(255&r[3])<<24,i=255&n[0]|(255&n[1])<<8|(255&n[2])<<16|(255&n[3])<<24,a=255&n[4]|(255&n[5])<<8|(255&n[6])<<16|(255&n[7])<<24,c=255&n[8]|(255&n[9])<<8|(255&n[10])<<16|(255&n[11])<<24,l=255&n[12]|(255&n[13])<<8|(255&n[14])<<16|(255&n[15])<<24,u=255&r[4]|(255&r[5])<<8|(255&r[6])<<16|(255&r[7])<<24,f=255&t[0]|(255&t[1])<<8|(255&t[2])<<16|(255&t[3])<<24,h=255&t[4]|(255&t[5])<<8|(255&t[6])<<16|(255&t[7])<<24,d=255&t[8]|(255&t[9])<<8|(255&t[10])<<16|(255&t[11])<<24,p=255&t[12]|(255&t[13])<<8|(255&t[14])<<16|(255&t[15])<<24,v=255&r[8]|(255&r[9])<<8|(255&r[10])<<16|(255&r[11])<<24,g=255&n[16]|(255&n[17])<<8|(255&n[18])<<16|(255&n[19])<<24,y=255&n[20]|(255&n[21])<<8|(255&n[22])<<16|(255&n[23])<<24,m=255&n[24]|(255&n[25])<<8|(255&n[26])<<16|(255&n[27])<<24,b=255&n[28]|(255&n[29])<<8|(255&n[30])<<16|(255&n[31])<<24,w=255&r[12]|(255&r[13])<<8|(255&r[14])<<16|(255&r[15])<<24,x=0;x<20;x+=2)s^=(o=(y^=(o=(d^=(o=(l^=(o=s+y|0)<<7|o>>>25)+s|0)<<9|o>>>23)+l|0)<<13|o>>>19)+d|0)<<18|o>>>14,u^=(o=(i^=(o=(m^=(o=(p^=(o=u+i|0)<<7|o>>>25)+u|0)<<9|o>>>23)+p|0)<<13|o>>>19)+m|0)<<18|o>>>14,v^=(o=(f^=(o=(a^=(o=(b^=(o=v+f|0)<<7|o>>>25)+v|0)<<9|o>>>23)+b|0)<<13|o>>>19)+a|0)<<18|o>>>14,w^=(o=(g^=(o=(h^=(o=(c^=(o=w+g|0)<<7|o>>>25)+w|0)<<9|o>>>23)+c|0)<<13|o>>>19)+h|0)<<18|o>>>14,s^=(o=(c^=(o=(a^=(o=(i^=(o=s+c|0)<<7|o>>>25)+s|0)<<9|o>>>23)+i|0)<<13|o>>>19)+a|0)<<18|o>>>14,u^=(o=(l^=(o=(h^=(o=(f^=(o=u+l|0)<<7|o>>>25)+u|0)<<9|o>>>23)+f|0)<<13|o>>>19)+h|0)<<18|o>>>14,v^=(o=(p^=(o=(d^=(o=(g^=(o=v+p|0)<<7|o>>>25)+v|0)<<9|o>>>23)+g|0)<<13|o>>>19)+d|0)<<18|o>>>14,w^=(o=(b^=(o=(m^=(o=(y^=(o=w+b|0)<<7|o>>>25)+w|0)<<9|o>>>23)+y|0)<<13|o>>>19)+m|0)<<18|o>>>14;e[0]=s>>>0&255,e[1]=s>>>8&255,e[2]=s>>>16&255,e[3]=s>>>24&255,e[4]=u>>>0&255,e[5]=u>>>8&255,e[6]=u>>>16&255,e[7]=u>>>24&255,e[8]=v>>>0&255,e[9]=v>>>8&255,e[10]=v>>>16&255,e[11]=v>>>24&255,e[12]=w>>>0&255,e[13]=w>>>8&255,e[14]=w>>>16&255,e[15]=w>>>24&255,e[16]=f>>>0&255,e[17]=f>>>8&255,e[18]=f>>>16&255,e[19]=f>>>24&255,e[20]=h>>>0&255,e[21]=h>>>8&255,e[22]=h>>>16&255,e[23]=h>>>24&255,e[24]=d>>>0&255,e[25]=d>>>8&255,e[26]=d>>>16&255,e[27]=d>>>24&255,e[28]=p>>>0&255,e[29]=p>>>8&255,e[30]=p>>>16&255,e[31]=p>>>24&255}(e,t,n,r)}var b=new Uint8Array([101,120,112,97,110,100,32,51,50,45,98,121,116,101,32,107]);function w(e,t,n,r,o,s,i){var a,c,l=new Uint8Array(16),u=new Uint8Array(64);for(c=0;c<16;c++)l[c]=0;for(c=0;c<8;c++)l[c]=s[c];for(;o>=64;){for(y(u,l,i,b),c=0;c<64;c++)e[t+c]=n[r+c]^u[c];for(a=1,c=8;c<16;c++)a=a+(255&l[c])|0,l[c]=255&a,a>>>=8;o-=64,t+=64,r+=64}if(o>0)for(y(u,l,i,b),c=0;c<o;c++)e[t+c]=n[r+c]^u[c];return 0}function x(e,t,n,r,o){var s,i,a=new Uint8Array(16),c=new Uint8Array(64);for(i=0;i<16;i++)a[i]=0;for(i=0;i<8;i++)a[i]=r[i];for(;n>=64;){for(y(c,a,o,b),i=0;i<64;i++)e[t+i]=c[i];for(s=1,i=8;i<16;i++)s=s+(255&a[i])|0,a[i]=255&s,s>>>=8;n-=64,t+=64}if(n>0)for(y(c,a,o,b),i=0;i<n;i++)e[t+i]=c[i];return 0}function $(e,t,n,r,o){var s=new Uint8Array(32);m(s,r,o,b);for(var i=new Uint8Array(8),a=0;a<8;a++)i[a]=r[a+16];return x(e,t,n,i,s)}function _(e,t,n,r,o,s,i){var a=new Uint8Array(32);m(a,s,i,b);for(var c=new Uint8Array(8),l=0;l<8;l++)c[l]=s[l+16];return w(e,t,n,r,o,c,a)}var k=function(e){var t,n,r,o,s,i,a,c;this.buffer=new Uint8Array(16),this.r=new Uint16Array(10),this.h=new Uint16Array(10),this.pad=new Uint16Array(8),this.leftover=0,this.fin=0,t=255&e[0]|(255&e[1])<<8,this.r[0]=8191&t,n=255&e[2]|(255&e[3])<<8,this.r[1]=8191&(t>>>13|n<<3),r=255&e[4]|(255&e[5])<<8,this.r[2]=7939&(n>>>10|r<<6),o=255&e[6]|(255&e[7])<<8,this.r[3]=8191&(r>>>7|o<<9),s=255&e[8]|(255&e[9])<<8,this.r[4]=255&(o>>>4|s<<12),this.r[5]=s>>>1&8190,i=255&e[10]|(255&e[11])<<8,this.r[6]=8191&(s>>>14|i<<2),a=255&e[12]|(255&e[13])<<8,this.r[7]=8065&(i>>>11|a<<5),c=255&e[14]|(255&e[15])<<8,this.r[8]=8191&(a>>>8|c<<8),this.r[9]=c>>>5&127,this.pad[0]=255&e[16]|(255&e[17])<<8,this.pad[1]=255&e[18]|(255&e[19])<<8,this.pad[2]=255&e[20]|(255&e[21])<<8,this.pad[3]=255&e[22]|(255&e[23])<<8,this.pad[4]=255&e[24]|(255&e[25])<<8,this.pad[5]=255&e[26]|(255&e[27])<<8,this.pad[6]=255&e[28]|(255&e[29])<<8,this.pad[7]=255&e[30]|(255&e[31])<<8};function E(e,t,n,r,o,s){var i=new k(s);return i.update(n,r,o),i.finish(e,t),0}function A(e,t,n,r,o,s){var i=new Uint8Array(16);return E(i,0,n,r,o,s),v(e,t,i,0)}function P(e,t,n,r,o){var s;if(n<32)return-1;for(_(e,0,t,0,n,r,o),E(e,16,e,32,n-32,e),s=0;s<16;s++)e[s]=0;return 0}function S(e,t,n,r,o){var s,i=new Uint8Array(32);if(n<32)return-1;if($(i,0,32,r,o),0!==A(t,16,t,32,n-32,i))return-1;for(_(e,0,t,0,n,r,o),s=0;s<32;s++)e[s]=0;return 0}function O(e,t){var n;for(n=0;n<16;n++)e[n]=0|t[n]}function T(e){var t,n,r=1;for(t=0;t<16;t++)n=e[t]+r+65535,r=Math.floor(n/65536),e[t]=n-65536*r;e[0]+=r-1+37*(r-1)}function C(e,t,n){for(var r,o=~(n-1),s=0;s<16;s++)r=o&(e[s]^t[s]),e[s]^=r,t[s]^=r}function R(e,n){var r,o,s,i=t(),a=t();for(r=0;r<16;r++)a[r]=n[r];for(T(a),T(a),T(a),o=0;o<2;o++){for(i[0]=a[0]-65517,r=1;r<15;r++)i[r]=a[r]-65535-(i[r-1]>>16&1),i[r-1]&=65535;i[15]=a[15]-32767-(i[14]>>16&1),s=i[15]>>16&1,i[14]&=65535,C(a,i,1-s)}for(r=0;r<16;r++)e[2*r]=255&a[r],e[2*r+1]=a[r]>>8}function N(e,t){var n=new Uint8Array(32),r=new Uint8Array(32);return R(n,e),R(r,t),g(n,0,r,0)}function j(e){var t=new Uint8Array(32);return R(t,e),1&t[0]}function I(e,t){var n;for(n=0;n<16;n++)e[n]=t[2*n]+(t[2*n+1]<<8);e[15]&=32767}function M(e,t,n){for(var r=0;r<16;r++)e[r]=t[r]+n[r]}function L(e,t,n){for(var r=0;r<16;r++)e[r]=t[r]-n[r]}function D(e,t,n){var r,o,s=0,i=0,a=0,c=0,l=0,u=0,f=0,h=0,d=0,p=0,v=0,g=0,y=0,m=0,b=0,w=0,x=0,$=0,_=0,k=0,E=0,A=0,P=0,S=0,O=0,T=0,C=0,R=0,N=0,j=0,I=0,M=n[0],L=n[1],D=n[2],U=n[3],K=n[4],B=n[5],q=n[6],F=n[7],H=n[8],J=n[9],z=n[10],V=n[11],W=n[12],Y=n[13],G=n[14],Z=n[15];s+=(r=t[0])*M,i+=r*L,a+=r*D,c+=r*U,l+=r*K,u+=r*B,f+=r*q,h+=r*F,d+=r*H,p+=r*J,v+=r*z,g+=r*V,y+=r*W,m+=r*Y,b+=r*G,w+=r*Z,i+=(r=t[1])*M,a+=r*L,c+=r*D,l+=r*U,u+=r*K,f+=r*B,h+=r*q,d+=r*F,p+=r*H,v+=r*J,g+=r*z,y+=r*V,m+=r*W,b+=r*Y,w+=r*G,x+=r*Z,a+=(r=t[2])*M,c+=r*L,l+=r*D,u+=r*U,f+=r*K,h+=r*B,d+=r*q,p+=r*F,v+=r*H,g+=r*J,y+=r*z,m+=r*V,b+=r*W,w+=r*Y,x+=r*G,$+=r*Z,c+=(r=t[3])*M,l+=r*L,u+=r*D,f+=r*U,h+=r*K,d+=r*B,p+=r*q,v+=r*F,g+=r*H,y+=r*J,m+=r*z,b+=r*V,w+=r*W,x+=r*Y,$+=r*G,_+=r*Z,l+=(r=t[4])*M,u+=r*L,f+=r*D,h+=r*U,d+=r*K,p+=r*B,v+=r*q,g+=r*F,y+=r*H,m+=r*J,b+=r*z,w+=r*V,x+=r*W,$+=r*Y,_+=r*G,k+=r*Z,u+=(r=t[5])*M,f+=r*L,h+=r*D,d+=r*U,p+=r*K,v+=r*B,g+=r*q,y+=r*F,m+=r*H,b+=r*J,w+=r*z,x+=r*V,$+=r*W,_+=r*Y,k+=r*G,E+=r*Z,f+=(r=t[6])*M,h+=r*L,d+=r*D,p+=r*U,v+=r*K,g+=r*B,y+=r*q,m+=r*F,b+=r*H,w+=r*J,x+=r*z,$+=r*V,_+=r*W,k+=r*Y,E+=r*G,A+=r*Z,h+=(r=t[7])*M,d+=r*L,p+=r*D,v+=r*U,g+=r*K,y+=r*B,m+=r*q,b+=r*F,w+=r*H,x+=r*J,$+=r*z,_+=r*V,k+=r*W,E+=r*Y,A+=r*G,P+=r*Z,d+=(r=t[8])*M,p+=r*L,v+=r*D,g+=r*U,y+=r*K,m+=r*B,b+=r*q,w+=r*F,x+=r*H,$+=r*J,_+=r*z,k+=r*V,E+=r*W,A+=r*Y,P+=r*G,S+=r*Z,p+=(r=t[9])*M,v+=r*L,g+=r*D,y+=r*U,m+=r*K,b+=r*B,w+=r*q,x+=r*F,$+=r*H,_+=r*J,k+=r*z,E+=r*V,A+=r*W,P+=r*Y,S+=r*G,O+=r*Z,v+=(r=t[10])*M,g+=r*L,y+=r*D,m+=r*U,b+=r*K,w+=r*B,x+=r*q,$+=r*F,_+=r*H,k+=r*J,E+=r*z,A+=r*V,P+=r*W,S+=r*Y,O+=r*G,T+=r*Z,g+=(r=t[11])*M,y+=r*L,m+=r*D,b+=r*U,w+=r*K,x+=r*B,$+=r*q,_+=r*F,k+=r*H,E+=r*J,A+=r*z,P+=r*V,S+=r*W,O+=r*Y,T+=r*G,C+=r*Z,y+=(r=t[12])*M,m+=r*L,b+=r*D,w+=r*U,x+=r*K,$+=r*B,_+=r*q,k+=r*F,E+=r*H,A+=r*J,P+=r*z,S+=r*V,O+=r*W,T+=r*Y,C+=r*G,R+=r*Z,m+=(r=t[13])*M,b+=r*L,w+=r*D,x+=r*U,$+=r*K,_+=r*B,k+=r*q,E+=r*F,A+=r*H,P+=r*J,S+=r*z,O+=r*V,T+=r*W,C+=r*Y,R+=r*G,N+=r*Z,b+=(r=t[14])*M,w+=r*L,x+=r*D,$+=r*U,_+=r*K,k+=r*B,E+=r*q,A+=r*F,P+=r*H,S+=r*J,O+=r*z,T+=r*V,C+=r*W,R+=r*Y,N+=r*G,j+=r*Z,w+=(r=t[15])*M,i+=38*($+=r*D),a+=38*(_+=r*U),c+=38*(k+=r*K),l+=38*(E+=r*B),u+=38*(A+=r*q),f+=38*(P+=r*F),h+=38*(S+=r*H),d+=38*(O+=r*J),p+=38*(T+=r*z),v+=38*(C+=r*V),g+=38*(R+=r*W),y+=38*(N+=r*Y),m+=38*(j+=r*G),b+=38*(I+=r*Z),s=(r=(s+=38*(x+=r*L))+(o=1)+65535)-65536*(o=Math.floor(r/65536)),i=(r=i+o+65535)-65536*(o=Math.floor(r/65536)),a=(r=a+o+65535)-65536*(o=Math.floor(r/65536)),c=(r=c+o+65535)-65536*(o=Math.floor(r/65536)),l=(r=l+o+65535)-65536*(o=Math.floor(r/65536)),u=(r=u+o+65535)-65536*(o=Math.floor(r/65536)),f=(r=f+o+65535)-65536*(o=Math.floor(r/65536)),h=(r=h+o+65535)-65536*(o=Math.floor(r/65536)),d=(r=d+o+65535)-65536*(o=Math.floor(r/65536)),p=(r=p+o+65535)-65536*(o=Math.floor(r/65536)),v=(r=v+o+65535)-65536*(o=Math.floor(r/65536)),g=(r=g+o+65535)-65536*(o=Math.floor(r/65536)),y=(r=y+o+65535)-65536*(o=Math.floor(r/65536)),m=(r=m+o+65535)-65536*(o=Math.floor(r/65536)),b=(r=b+o+65535)-65536*(o=Math.floor(r/65536)),w=(r=w+o+65535)-65536*(o=Math.floor(r/65536)),s=(r=(s+=o-1+37*(o-1))+(o=1)+65535)-65536*(o=Math.floor(r/65536)),i=(r=i+o+65535)-65536*(o=Math.floor(r/65536)),a=(r=a+o+65535)-65536*(o=Math.floor(r/65536)),c=(r=c+o+65535)-65536*(o=Math.floor(r/65536)),l=(r=l+o+65535)-65536*(o=Math.floor(r/65536)),u=(r=u+o+65535)-65536*(o=Math.floor(r/65536)),f=(r=f+o+65535)-65536*(o=Math.floor(r/65536)),h=(r=h+o+65535)-65536*(o=Math.floor(r/65536)),d=(r=d+o+65535)-65536*(o=Math.floor(r/65536)),p=(r=p+o+65535)-65536*(o=Math.floor(r/65536)),v=(r=v+o+65535)-65536*(o=Math.floor(r/65536)),g=(r=g+o+65535)-65536*(o=Math.floor(r/65536)),y=(r=y+o+65535)-65536*(o=Math.floor(r/65536)),m=(r=m+o+65535)-65536*(o=Math.floor(r/65536)),b=(r=b+o+65535)-65536*(o=Math.floor(r/65536)),w=(r=w+o+65535)-65536*(o=Math.floor(r/65536)),s+=o-1+37*(o-1),e[0]=s,e[1]=i,e[2]=a,e[3]=c,e[4]=l,e[5]=u,e[6]=f,e[7]=h,e[8]=d,e[9]=p,e[10]=v,e[11]=g,e[12]=y,e[13]=m,e[14]=b,e[15]=w}function U(e,t){D(e,t,t)}function K(e,n){var r,o=t();for(r=0;r<16;r++)o[r]=n[r];for(r=253;r>=0;r--)U(o,o),2!==r&&4!==r&&D(o,o,n);for(r=0;r<16;r++)e[r]=o[r]}function B(e,n){var r,o=t();for(r=0;r<16;r++)o[r]=n[r];for(r=250;r>=0;r--)U(o,o),1!==r&&D(o,o,n);for(r=0;r<16;r++)e[r]=o[r]}function q(e,n,r){var o,s,i=new Uint8Array(32),c=new Float64Array(80),l=t(),u=t(),f=t(),h=t(),d=t(),p=t();for(s=0;s<31;s++)i[s]=n[s];for(i[31]=127&n[31]|64,i[0]&=248,I(c,r),s=0;s<16;s++)u[s]=c[s],h[s]=l[s]=f[s]=0;for(l[0]=h[0]=1,s=254;s>=0;--s)C(l,u,o=i[s>>>3]>>>(7&s)&1),C(f,h,o),M(d,l,f),L(l,l,f),M(f,u,h),L(u,u,h),U(h,d),U(p,l),D(l,f,l),D(f,u,d),M(d,l,f),L(l,l,f),U(u,l),L(f,h,p),D(l,f,a),M(l,l,h),D(f,f,l),D(l,h,p),D(h,u,c),U(u,d),C(l,u,o),C(f,h,o);for(s=0;s<16;s++)c[s+16]=l[s],c[s+32]=f[s],c[s+48]=u[s],c[s+64]=h[s];var v=c.subarray(32),g=c.subarray(16);return K(v,v),D(g,g,v),R(e,g),0}function F(e,t){return q(e,t,o)}function H(e,t){return n(t,32),F(e,t)}function J(e,t,n){var o=new Uint8Array(32);return q(o,n,t),m(e,r,o,b)}k.prototype.blocks=function(e,t,n){for(var r,o,s,i,a,c,l,u,f,h,d,p,v,g,y,m,b,w,x,$=this.fin?0:2048,_=this.h[0],k=this.h[1],E=this.h[2],A=this.h[3],P=this.h[4],S=this.h[5],O=this.h[6],T=this.h[7],C=this.h[8],R=this.h[9],N=this.r[0],j=this.r[1],I=this.r[2],M=this.r[3],L=this.r[4],D=this.r[5],U=this.r[6],K=this.r[7],B=this.r[8],q=this.r[9];n>=16;)h=f=0,h+=(_+=8191&(r=255&e[t+0]|(255&e[t+1])<<8))*N,h+=(k+=8191&(r>>>13|(o=255&e[t+2]|(255&e[t+3])<<8)<<3))*(5*q),h+=(E+=8191&(o>>>10|(s=255&e[t+4]|(255&e[t+5])<<8)<<6))*(5*B),h+=(A+=8191&(s>>>7|(i=255&e[t+6]|(255&e[t+7])<<8)<<9))*(5*K),f=(h+=(P+=8191&(i>>>4|(a=255&e[t+8]|(255&e[t+9])<<8)<<12))*(5*U))>>>13,h&=8191,h+=(S+=a>>>1&8191)*(5*D),h+=(O+=8191&(a>>>14|(c=255&e[t+10]|(255&e[t+11])<<8)<<2))*(5*L),h+=(T+=8191&(c>>>11|(l=255&e[t+12]|(255&e[t+13])<<8)<<5))*(5*M),h+=(C+=8191&(l>>>8|(u=255&e[t+14]|(255&e[t+15])<<8)<<8))*(5*I),d=f+=(h+=(R+=u>>>5|$)*(5*j))>>>13,d+=_*j,d+=k*N,d+=E*(5*q),d+=A*(5*B),f=(d+=P*(5*K))>>>13,d&=8191,d+=S*(5*U),d+=O*(5*D),d+=T*(5*L),d+=C*(5*M),f+=(d+=R*(5*I))>>>13,d&=8191,p=f,p+=_*I,p+=k*j,p+=E*N,p+=A*(5*q),f=(p+=P*(5*B))>>>13,p&=8191,p+=S*(5*K),p+=O*(5*U),p+=T*(5*D),p+=C*(5*L),v=f+=(p+=R*(5*M))>>>13,v+=_*M,v+=k*I,v+=E*j,v+=A*N,f=(v+=P*(5*q))>>>13,v&=8191,v+=S*(5*B),v+=O*(5*K),v+=T*(5*U),v+=C*(5*D),g=f+=(v+=R*(5*L))>>>13,g+=_*L,g+=k*M,g+=E*I,g+=A*j,f=(g+=P*N)>>>13,g&=8191,g+=S*(5*q),g+=O*(5*B),g+=T*(5*K),g+=C*(5*U),y=f+=(g+=R*(5*D))>>>13,y+=_*D,y+=k*L,y+=E*M,y+=A*I,f=(y+=P*j)>>>13,y&=8191,y+=S*N,y+=O*(5*q),y+=T*(5*B),y+=C*(5*K),m=f+=(y+=R*(5*U))>>>13,m+=_*U,m+=k*D,m+=E*L,m+=A*M,f=(m+=P*I)>>>13,m&=8191,m+=S*j,m+=O*N,m+=T*(5*q),m+=C*(5*B),b=f+=(m+=R*(5*K))>>>13,b+=_*K,b+=k*U,b+=E*D,b+=A*L,f=(b+=P*M)>>>13,b&=8191,b+=S*I,b+=O*j,b+=T*N,b+=C*(5*q),w=f+=(b+=R*(5*B))>>>13,w+=_*B,w+=k*K,w+=E*U,w+=A*D,f=(w+=P*L)>>>13,w&=8191,w+=S*M,w+=O*I,w+=T*j,w+=C*N,x=f+=(w+=R*(5*q))>>>13,x+=_*q,x+=k*B,x+=E*K,x+=A*U,f=(x+=P*D)>>>13,x&=8191,x+=S*L,x+=O*M,x+=T*I,x+=C*j,_=h=8191&(f=(f=((f+=(x+=R*N)>>>13)<<2)+f|0)+(h&=8191)|0),k=d+=f>>>=13,E=p&=8191,A=v&=8191,P=g&=8191,S=y&=8191,O=m&=8191,T=b&=8191,C=w&=8191,R=x&=8191,t+=16,n-=16;this.h[0]=_,this.h[1]=k,this.h[2]=E,this.h[3]=A,this.h[4]=P,this.h[5]=S,this.h[6]=O,this.h[7]=T,this.h[8]=C,this.h[9]=R},k.prototype.finish=function(e,t){var n,r,o,s,i=new Uint16Array(10);if(this.leftover){for(s=this.leftover,this.buffer[s++]=1;s<16;s++)this.buffer[s]=0;this.fin=1,this.blocks(this.buffer,0,16)}for(n=this.h[1]>>>13,this.h[1]&=8191,s=2;s<10;s++)this.h[s]+=n,n=this.h[s]>>>13,this.h[s]&=8191;for(this.h[0]+=5*n,n=this.h[0]>>>13,this.h[0]&=8191,this.h[1]+=n,n=this.h[1]>>>13,this.h[1]&=8191,this.h[2]+=n,i[0]=this.h[0]+5,n=i[0]>>>13,i[0]&=8191,s=1;s<10;s++)i[s]=this.h[s]+n,n=i[s]>>>13,i[s]&=8191;for(i[9]-=8192,r=(1^n)-1,s=0;s<10;s++)i[s]&=r;for(r=~r,s=0;s<10;s++)this.h[s]=this.h[s]&r|i[s];for(this.h[0]=65535&(this.h[0]|this.h[1]<<13),this.h[1]=65535&(this.h[1]>>>3|this.h[2]<<10),this.h[2]=65535&(this.h[2]>>>6|this.h[3]<<7),this.h[3]=65535&(this.h[3]>>>9|this.h[4]<<4),this.h[4]=65535&(this.h[4]>>>12|this.h[5]<<1|this.h[6]<<14),this.h[5]=65535&(this.h[6]>>>2|this.h[7]<<11),this.h[6]=65535&(this.h[7]>>>5|this.h[8]<<8),this.h[7]=65535&(this.h[8]>>>8|this.h[9]<<5),o=this.h[0]+this.pad[0],this.h[0]=65535&o,s=1;s<8;s++)o=(this.h[s]+this.pad[s]|0)+(o>>>16)|0,this.h[s]=65535&o;e[t+0]=this.h[0]>>>0&255,e[t+1]=this.h[0]>>>8&255,e[t+2]=this.h[1]>>>0&255,e[t+3]=this.h[1]>>>8&255,e[t+4]=this.h[2]>>>0&255,e[t+5]=this.h[2]>>>8&255,e[t+6]=this.h[3]>>>0&255,e[t+7]=this.h[3]>>>8&255,e[t+8]=this.h[4]>>>0&255,e[t+9]=this.h[4]>>>8&255,e[t+10]=this.h[5]>>>0&255,e[t+11]=this.h[5]>>>8&255,e[t+12]=this.h[6]>>>0&255,e[t+13]=this.h[6]>>>8&255,e[t+14]=this.h[7]>>>0&255,e[t+15]=this.h[7]>>>8&255},k.prototype.update=function(e,t,n){var r,o;if(this.leftover){for((o=16-this.leftover)>n&&(o=n),r=0;r<o;r++)this.buffer[this.leftover+r]=e[t+r];if(n-=o,t+=o,this.leftover+=o,this.leftover<16)return;this.blocks(this.buffer,0,16),this.leftover=0}if(n>=16&&(o=n-n%16,this.blocks(e,t,o),t+=o,n-=o),n){for(r=0;r<n;r++)this.buffer[this.leftover+r]=e[t+r];this.leftover+=n}};var z=P,V=S;var W=[1116352408,3609767458,1899447441,602891725,3049323471,3964484399,3921009573,2173295548,961987163,4081628472,1508970993,3053834265,2453635748,2937671579,2870763221,3664609560,3624381080,2734883394,310598401,1164996542,607225278,1323610764,1426881987,3590304994,1925078388,4068182383,2162078206,991336113,2614888103,633803317,3248222580,3479774868,3835390401,2666613458,4022224774,944711139,264347078,2341262773,604807628,2007800933,770255983,1495990901,1249150122,1856431235,1555081692,3175218132,1996064986,2198950837,2554220882,3999719339,2821834349,766784016,2952996808,2566594879,3210313671,3203337956,3336571891,1034457026,3584528711,2466948901,113926993,3758326383,338241895,168717936,666307205,1188179964,773529912,1546045734,1294757372,1522805485,1396182291,2643833823,1695183700,2343527390,1986661051,1014477480,2177026350,1206759142,2456956037,344077627,2730485921,1290863460,2820302411,3158454273,3259730800,3505952657,3345764771,106217008,3516065817,3606008344,3600352804,1432725776,4094571909,1467031594,275423344,851169720,430227734,3100823752,506948616,1363258195,659060556,3750685593,883997877,3785050280,958139571,3318307427,1322822218,3812723403,1537002063,2003034995,1747873779,3602036899,1955562222,1575990012,2024104815,1125592928,2227730452,2716904306,2361852424,442776044,2428436474,593698344,2756734187,3733110249,3204031479,2999351573,3329325298,3815920427,3391569614,3928383900,3515267271,566280711,3940187606,3454069534,4118630271,4000239992,116418474,1914138554,174292421,2731055270,289380356,3203993006,460393269,320620315,685471733,587496836,852142971,1086792851,1017036298,365543100,1126000580,2618297676,1288033470,3409855158,1501505948,4234509866,1607167915,987167468,1816402316,1246189591];function Y(e,t,n,r){for(var o,s,i,a,c,l,u,f,h,d,p,v,g,y,m,b,w,x,$,_,k,E,A,P,S,O,T=new Int32Array(16),C=new Int32Array(16),R=e[0],N=e[1],j=e[2],I=e[3],M=e[4],L=e[5],D=e[6],U=e[7],K=t[0],B=t[1],q=t[2],F=t[3],H=t[4],J=t[5],z=t[6],V=t[7],Y=0;r>=128;){for($=0;$<16;$++)_=8*$+Y,T[$]=n[_+0]<<24|n[_+1]<<16|n[_+2]<<8|n[_+3],C[$]=n[_+4]<<24|n[_+5]<<16|n[_+6]<<8|n[_+7];for($=0;$<80;$++)if(o=R,s=N,i=j,a=I,c=M,l=L,u=D,U,h=K,d=B,p=q,v=F,g=H,y=J,m=z,V,A=65535&(E=V),P=E>>>16,S=65535&(k=U),O=k>>>16,A+=65535&(E=(H>>>14|M<<18)^(H>>>18|M<<14)^(M>>>9|H<<23)),P+=E>>>16,S+=65535&(k=(M>>>14|H<<18)^(M>>>18|H<<14)^(H>>>9|M<<23)),O+=k>>>16,A+=65535&(E=H&J^~H&z),P+=E>>>16,S+=65535&(k=M&L^~M&D),O+=k>>>16,A+=65535&(E=W[2*$+1]),P+=E>>>16,S+=65535&(k=W[2*$]),O+=k>>>16,k=T[$%16],P+=(E=C[$%16])>>>16,S+=65535&k,O+=k>>>16,S+=(P+=(A+=65535&E)>>>16)>>>16,A=65535&(E=x=65535&A|P<<16),P=E>>>16,S=65535&(k=w=65535&S|(O+=S>>>16)<<16),O=k>>>16,A+=65535&(E=(K>>>28|R<<4)^(R>>>2|K<<30)^(R>>>7|K<<25)),P+=E>>>16,S+=65535&(k=(R>>>28|K<<4)^(K>>>2|R<<30)^(K>>>7|R<<25)),O+=k>>>16,P+=(E=K&B^K&q^B&q)>>>16,S+=65535&(k=R&N^R&j^N&j),O+=k>>>16,f=65535&(S+=(P+=(A+=65535&E)>>>16)>>>16)|(O+=S>>>16)<<16,b=65535&A|P<<16,A=65535&(E=v),P=E>>>16,S=65535&(k=a),O=k>>>16,P+=(E=x)>>>16,S+=65535&(k=w),O+=k>>>16,N=o,j=s,I=i,M=a=65535&(S+=(P+=(A+=65535&E)>>>16)>>>16)|(O+=S>>>16)<<16,L=c,D=l,U=u,R=f,B=h,q=d,F=p,H=v=65535&A|P<<16,J=g,z=y,V=m,K=b,$%16==15)for(_=0;_<16;_++)k=T[_],A=65535&(E=C[_]),P=E>>>16,S=65535&k,O=k>>>16,k=T[(_+9)%16],A+=65535&(E=C[(_+9)%16]),P+=E>>>16,S+=65535&k,O+=k>>>16,w=T[(_+1)%16],A+=65535&(E=((x=C[(_+1)%16])>>>1|w<<31)^(x>>>8|w<<24)^(x>>>7|w<<25)),P+=E>>>16,S+=65535&(k=(w>>>1|x<<31)^(w>>>8|x<<24)^w>>>7),O+=k>>>16,w=T[(_+14)%16],P+=(E=((x=C[(_+14)%16])>>>19|w<<13)^(w>>>29|x<<3)^(x>>>6|w<<26))>>>16,S+=65535&(k=(w>>>19|x<<13)^(x>>>29|w<<3)^w>>>6),O+=k>>>16,O+=(S+=(P+=(A+=65535&E)>>>16)>>>16)>>>16,T[_]=65535&S|O<<16,C[_]=65535&A|P<<16;A=65535&(E=K),P=E>>>16,S=65535&(k=R),O=k>>>16,k=e[0],P+=(E=t[0])>>>16,S+=65535&k,O+=k>>>16,O+=(S+=(P+=(A+=65535&E)>>>16)>>>16)>>>16,e[0]=R=65535&S|O<<16,t[0]=K=65535&A|P<<16,A=65535&(E=B),P=E>>>16,S=65535&(k=N),O=k>>>16,k=e[1],P+=(E=t[1])>>>16,S+=65535&k,O+=k>>>16,O+=(S+=(P+=(A+=65535&E)>>>16)>>>16)>>>16,e[1]=N=65535&S|O<<16,t[1]=B=65535&A|P<<16,A=65535&(E=q),P=E>>>16,S=65535&(k=j),O=k>>>16,k=e[2],P+=(E=t[2])>>>16,S+=65535&k,O+=k>>>16,O+=(S+=(P+=(A+=65535&E)>>>16)>>>16)>>>16,e[2]=j=65535&S|O<<16,t[2]=q=65535&A|P<<16,A=65535&(E=F),P=E>>>16,S=65535&(k=I),O=k>>>16,k=e[3],P+=(E=t[3])>>>16,S+=65535&k,O+=k>>>16,O+=(S+=(P+=(A+=65535&E)>>>16)>>>16)>>>16,e[3]=I=65535&S|O<<16,t[3]=F=65535&A|P<<16,A=65535&(E=H),P=E>>>16,S=65535&(k=M),O=k>>>16,k=e[4],P+=(E=t[4])>>>16,S+=65535&k,O+=k>>>16,O+=(S+=(P+=(A+=65535&E)>>>16)>>>16)>>>16,e[4]=M=65535&S|O<<16,t[4]=H=65535&A|P<<16,A=65535&(E=J),P=E>>>16,S=65535&(k=L),O=k>>>16,k=e[5],P+=(E=t[5])>>>16,S+=65535&k,O+=k>>>16,O+=(S+=(P+=(A+=65535&E)>>>16)>>>16)>>>16,e[5]=L=65535&S|O<<16,t[5]=J=65535&A|P<<16,A=65535&(E=z),P=E>>>16,S=65535&(k=D),O=k>>>16,k=e[6],P+=(E=t[6])>>>16,S+=65535&k,O+=k>>>16,O+=(S+=(P+=(A+=65535&E)>>>16)>>>16)>>>16,e[6]=D=65535&S|O<<16,t[6]=z=65535&A|P<<16,A=65535&(E=V),P=E>>>16,S=65535&(k=U),O=k>>>16,k=e[7],P+=(E=t[7])>>>16,S+=65535&k,O+=k>>>16,O+=(S+=(P+=(A+=65535&E)>>>16)>>>16)>>>16,e[7]=U=65535&S|O<<16,t[7]=V=65535&A|P<<16,Y+=128,r-=128}return r}function G(e,t,n){var r,o=new Int32Array(8),s=new Int32Array(8),i=new Uint8Array(256),a=n;for(o[0]=1779033703,o[1]=3144134277,o[2]=1013904242,o[3]=2773480762,o[4]=1359893119,o[5]=2600822924,o[6]=528734635,o[7]=1541459225,s[0]=4089235720,s[1]=2227873595,s[2]=4271175723,s[3]=1595750129,s[4]=2917565137,s[5]=725511199,s[6]=4215389547,s[7]=327033209,Y(o,s,t,n),n%=128,r=0;r<n;r++)i[r]=t[a-n+r];for(i[n]=128,i[(n=256-128*(n<112?1:0))-9]=0,d(i,n-8,a/536870912|0,a<<3),Y(o,s,i,n),r=0;r<8;r++)d(e,8*r,o[r],s[r]);return 0}function Z(e,n){var r=t(),o=t(),s=t(),i=t(),a=t(),c=t(),u=t(),f=t(),h=t();L(r,e[1],e[0]),L(h,n[1],n[0]),D(r,r,h),M(o,e[0],e[1]),M(h,n[0],n[1]),D(o,o,h),D(s,e[3],n[3]),D(s,s,l),D(i,e[2],n[2]),M(i,i,i),L(a,o,r),L(c,i,s),M(u,i,s),M(f,o,r),D(e[0],a,c),D(e[1],f,u),D(e[2],u,c),D(e[3],a,f)}function Q(e,t,n){var r;for(r=0;r<4;r++)C(e[r],t[r],n)}function X(e,n){var r=t(),o=t(),s=t();K(s,n[2]),D(r,n[0],s),D(o,n[1],s),R(e,o),e[31]^=j(r)<<7}function ee(e,t,n){var r,o;for(O(e[0],s),O(e[1],i),O(e[2],i),O(e[3],s),o=255;o>=0;--o)Q(e,t,r=n[o/8|0]>>(7&o)&1),Z(t,e),Z(e,e),Q(e,t,r)}function te(e,n){var r=[t(),t(),t(),t()];O(r[0],u),O(r[1],f),O(r[2],i),D(r[3],u,f),ee(e,r,n)}function ne(e,r,o){var s,i=new Uint8Array(64),a=[t(),t(),t(),t()];for(o||n(r,32),G(i,r,32),i[0]&=248,i[31]&=127,i[31]|=64,te(a,i),X(e,a),s=0;s<32;s++)r[s+32]=e[s];return 0}var re=new Float64Array([237,211,245,92,26,99,18,88,214,156,247,162,222,249,222,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16]);function oe(e,t){var n,r,o,s;for(r=63;r>=32;--r){for(n=0,o=r-32,s=r-12;o<s;++o)t[o]+=n-16*t[r]*re[o-(r-32)],n=Math.floor((t[o]+128)/256),t[o]-=256*n;t[o]+=n,t[r]=0}for(n=0,o=0;o<32;o++)t[o]+=n-(t[31]>>4)*re[o],n=t[o]>>8,t[o]&=255;for(o=0;o<32;o++)t[o]-=n*re[o];for(r=0;r<32;r++)t[r+1]+=t[r]>>8,e[r]=255&t[r]}function se(e){var t,n=new Float64Array(64);for(t=0;t<64;t++)n[t]=e[t];for(t=0;t<64;t++)e[t]=0;oe(e,n)}function ie(e,n,r,o){var s,i,a=new Uint8Array(64),c=new Uint8Array(64),l=new Uint8Array(64),u=new Float64Array(64),f=[t(),t(),t(),t()];G(a,o,32),a[0]&=248,a[31]&=127,a[31]|=64;var h=r+64;for(s=0;s<r;s++)e[64+s]=n[s];for(s=0;s<32;s++)e[32+s]=a[32+s];for(G(l,e.subarray(32),r+32),se(l),te(f,l),X(e,f),s=32;s<64;s++)e[s]=o[s];for(G(c,e,r+64),se(c),s=0;s<64;s++)u[s]=0;for(s=0;s<32;s++)u[s]=l[s];for(s=0;s<32;s++)for(i=0;i<32;i++)u[s+i]+=c[s]*a[i];return oe(e.subarray(32),u),h}function ae(e,n,r,o){var a,l=new Uint8Array(32),u=new Uint8Array(64),f=[t(),t(),t(),t()],d=[t(),t(),t(),t()];if(r<64)return-1;if(function(e,n){var r=t(),o=t(),a=t(),l=t(),u=t(),f=t(),d=t();return O(e[2],i),I(e[1],n),U(a,e[1]),D(l,a,c),L(a,a,e[2]),M(l,e[2],l),U(u,l),U(f,u),D(d,f,u),D(r,d,a),D(r,r,l),B(r,r),D(r,r,a),D(r,r,l),D(r,r,l),D(e[0],r,l),U(o,e[0]),D(o,o,l),N(o,a)&&D(e[0],e[0],h),U(o,e[0]),D(o,o,l),N(o,a)?-1:(j(e[0])===n[31]>>7&&L(e[0],s,e[0]),D(e[3],e[0],e[1]),0)}(d,o))return-1;for(a=0;a<r;a++)e[a]=n[a];for(a=0;a<32;a++)e[a+32]=o[a];if(G(u,e,r),se(u),ee(f,d,u),te(d,n.subarray(32)),Z(f,d),X(l,f),r-=64,g(n,0,l,0)){for(a=0;a<r;a++)e[a]=0;return-1}for(a=0;a<r;a++)e[a]=n[a+64];return r}var ce=16,le=64,ue=32,fe=64;function he(e,t){if(32!==e.length)throw new Error("bad key size");if(24!==t.length)throw new Error("bad nonce size")}function de(){for(var e=0;e<arguments.length;e++)if(!(arguments[e]instanceof Uint8Array))throw new TypeError("unexpected type, use Uint8Array")}function pe(e){for(var t=0;t<e.length;t++)e[t]=0}e.lowlevel={crypto_core_hsalsa20:m,crypto_stream_xor:_,crypto_stream:$,crypto_stream_salsa20_xor:w,crypto_stream_salsa20:x,crypto_onetimeauth:E,crypto_onetimeauth_verify:A,crypto_verify_16:v,crypto_verify_32:g,crypto_secretbox:P,crypto_secretbox_open:S,crypto_scalarmult:q,crypto_scalarmult_base:F,crypto_box_beforenm:J,crypto_box_afternm:z,crypto_box:function(e,t,n,r,o,s){var i=new Uint8Array(32);return J(i,o,s),z(e,t,n,r,i)},crypto_box_open:function(e,t,n,r,o,s){var i=new Uint8Array(32);return J(i,o,s),V(e,t,n,r,i)},crypto_box_keypair:H,crypto_hash:G,crypto_sign:ie,crypto_sign_keypair:ne,crypto_sign_open:ae,crypto_secretbox_KEYBYTES:32,crypto_secretbox_NONCEBYTES:24,crypto_secretbox_ZEROBYTES:32,crypto_secretbox_BOXZEROBYTES:ce,crypto_scalarmult_BYTES:32,crypto_scalarmult_SCALARBYTES:32,crypto_box_PUBLICKEYBYTES:32,crypto_box_SECRETKEYBYTES:32,crypto_box_BEFORENMBYTES:32,crypto_box_NONCEBYTES:24,crypto_box_ZEROBYTES:32,crypto_box_BOXZEROBYTES:16,crypto_sign_BYTES:le,crypto_sign_PUBLICKEYBYTES:ue,crypto_sign_SECRETKEYBYTES:fe,crypto_sign_SEEDBYTES:32,crypto_hash_BYTES:64,gf:t,D:c,L:re,pack25519:R,unpack25519:I,M:D,A:M,S:U,Z:L,pow2523:B,add:Z,set25519:O,modL:oe,scalarmult:ee,scalarbase:te},e.randomBytes=function(e){var t=new Uint8Array(e);return n(t,e),t},e.secretbox=function(e,t,n){de(e,t,n),he(n,t);for(var r=new Uint8Array(32+e.length),o=new Uint8Array(r.length),s=0;s<e.length;s++)r[s+32]=e[s];return P(o,r,r.length,t,n),o.subarray(ce)},e.secretbox.open=function(e,t,n){de(e,t,n),he(n,t);for(var r=new Uint8Array(ce+e.length),o=new Uint8Array(r.length),s=0;s<e.length;s++)r[s+ce]=e[s];return r.length<32||0!==S(o,r,r.length,t,n)?null:o.subarray(32)},e.secretbox.keyLength=32,e.secretbox.nonceLength=24,e.secretbox.overheadLength=ce,e.scalarMult=function(e,t){if(de(e,t),32!==e.length)throw new Error("bad n size");if(32!==t.length)throw new Error("bad p size");var n=new Uint8Array(32);return q(n,e,t),n},e.scalarMult.base=function(e){if(de(e),32!==e.length)throw new Error("bad n size");var t=new Uint8Array(32);return F(t,e),t},e.scalarMult.scalarLength=32,e.scalarMult.groupElementLength=32,e.box=function(t,n,r,o){var s=e.box.before(r,o);return e.secretbox(t,n,s)},e.box.before=function(e,t){de(e,t),function(e,t){if(32!==e.length)throw new Error("bad public key size");if(32!==t.length)throw new Error("bad secret key size")}(e,t);var n=new Uint8Array(32);return J(n,e,t),n},e.box.after=e.secretbox,e.box.open=function(t,n,r,o){var s=e.box.before(r,o);return e.secretbox.open(t,n,s)},e.box.open.after=e.secretbox.open,e.box.keyPair=function(){var e=new Uint8Array(32),t=new Uint8Array(32);return H(e,t),{publicKey:e,secretKey:t}},e.box.keyPair.fromSecretKey=function(e){if(de(e),32!==e.length)throw new Error("bad secret key size");var t=new Uint8Array(32);return F(t,e),{publicKey:t,secretKey:new Uint8Array(e)}},e.box.publicKeyLength=32,e.box.secretKeyLength=32,e.box.sharedKeyLength=32,e.box.nonceLength=24,e.box.overheadLength=e.secretbox.overheadLength,e.sign=function(e,t){if(de(e,t),t.length!==fe)throw new Error("bad secret key size");var n=new Uint8Array(le+e.length);return ie(n,e,e.length,t),n},e.sign.open=function(e,t){if(de(e,t),t.length!==ue)throw new Error("bad public key size");var n=new Uint8Array(e.length),r=ae(n,e,e.length,t);if(r<0)return null;for(var o=new Uint8Array(r),s=0;s<o.length;s++)o[s]=n[s];return o},e.sign.detached=function(t,n){for(var r=e.sign(t,n),o=new Uint8Array(le),s=0;s<o.length;s++)o[s]=r[s];return o},e.sign.detached.verify=function(e,t,n){if(de(e,t,n),t.length!==le)throw new Error("bad signature size");if(n.length!==ue)throw new Error("bad public key size");var r,o=new Uint8Array(le+e.length),s=new Uint8Array(le+e.length);for(r=0;r<le;r++)o[r]=t[r];for(r=0;r<e.length;r++)o[r+le]=e[r];return ae(s,o,o.length,n)>=0},e.sign.keyPair=function(){var e=new Uint8Array(ue),t=new Uint8Array(fe);return ne(e,t),{publicKey:e,secretKey:t}},e.sign.keyPair.fromSecretKey=function(e){if(de(e),e.length!==fe)throw new Error("bad secret key size");for(var t=new Uint8Array(ue),n=0;n<t.length;n++)t[n]=e[32+n];return{publicKey:t,secretKey:new Uint8Array(e)}},e.sign.keyPair.fromSeed=function(e){if(de(e),32!==e.length)throw new Error("bad seed size");for(var t=new Uint8Array(ue),n=new Uint8Array(fe),r=0;r<32;r++)n[r]=e[r];return ne(t,n,!0),{publicKey:t,secretKey:n}},e.sign.publicKeyLength=ue,e.sign.secretKeyLength=fe,e.sign.seedLength=32,e.sign.signatureLength=le,e.hash=function(e){de(e);var t=new Uint8Array(64);return G(t,e,e.length),t},e.hash.hashLength=64,e.verify=function(e,t){return de(e,t),0!==e.length&&0!==t.length&&(e.length===t.length&&0===p(e,0,t,0,e.length))},e.setPRNG=function(e){n=e},function(){var t="undefined"!=typeof self?self.crypto||self.msCrypto:null;if(t&&t.getRandomValues){e.setPRNG((function(e,n){var r,o=new Uint8Array(n);for(r=0;r<n;r+=65536)t.getRandomValues(o.subarray(r,r+Math.min(n-r,65536)));for(r=0;r<n;r++)e[r]=o[r];pe(o)}))}else(t=zr)&&t.randomBytes&&e.setPRNG((function(e,n){var r,o=t.randomBytes(n);for(r=0;r<n;r++)e[r]=o[r];pe(o)}))}()}(e.exports?e.exports:self.nacl=self.nacl||{})})),Wr=Fr((function(e){var t,n;t=Br,n=function(){var e={};function t(e){if(!/^(?:[A-Za-z0-9+\/]{2}[A-Za-z0-9+\/]{2})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/.test(e))throw new TypeError("invalid encoding")}return e.decodeUTF8=function(e){if("string"!=typeof e)throw new TypeError("expected string");var t,n=unescape(encodeURIComponent(e)),r=new Uint8Array(n.length);for(t=0;t<n.length;t++)r[t]=n.charCodeAt(t);return r},e.encodeUTF8=function(e){var t,n=[];for(t=0;t<e.length;t++)n.push(String.fromCharCode(e[t]));return decodeURIComponent(escape(n.join("")))},"undefined"==typeof atob?void 0!==Buffer.from?(e.encodeBase64=function(e){return Buffer.from(e).toString("base64")},e.decodeBase64=function(e){return t(e),new Uint8Array(Array.prototype.slice.call(Buffer.from(e,"base64"),0))}):(e.encodeBase64=function(e){return new Buffer(e).toString("base64")},e.decodeBase64=function(e){return t(e),new Uint8Array(Array.prototype.slice.call(new Buffer(e,"base64"),0))}):(e.encodeBase64=function(e){var t,n=[],r=e.length;for(t=0;t<r;t++)n.push(String.fromCharCode(e[t]));return btoa(n.join(""))},e.decodeBase64=function(e){t(e);var n,r=atob(e),o=new Uint8Array(r.length);for(n=0;n<r.length;n++)o[n]=r.charCodeAt(n);return o}),e},e.exports?e.exports=n():(t.nacl||(t.nacl={}),t.nacl.util=n())}));function Yr({data:e,connector:t}){var n;null!=(n=e)&&n.constructor==Object&&(e=JSON.stringify(e));const r=new Uint8Array(Kr(2*t.sentCount,24));if(t.closed())console.log(`⚠️ Warning: "${e}" was not sent because connector is not ready`);else if(t.sentCount>1){let n=0;"string"==typeof e&&(n=1);const o=function(e,t){const n=new Uint8Array(e.length+1),r=new Uint8Array(1);return r[0]=t,n.set(r),n.set(e,r.length),n}(1==n?Vr.util.decodeUTF8(e):e,n),s=Vr.secretbox(o,r,t.sharedSecret);t.verbose&&(console.log(),console.log(`Connector → Sending encrypted message #${t.sentCount} @ ${t.address}:`),console.log(e)),t.connection.websocket.send(s)}else t.verbose&&(console.log(),console.log(`Connector → Sending message #${t.sentCount} @ ${t.address}:`),console.log(e)),t.connection.websocket.send(e)}function Gr({jsonData:e,encryptedData:t,rawMessage:n,wasEncrypted:r,connector:o}){o.lastMessageAt=Date.now();const s=new Uint8Array(Kr(2*o.receivedCount+1,24));if(o.verbose&&!r&&(console.log(),console.log(`Connector → Received message #${o.receivedCount} @ ${o.address}:`)),e)e.jsonrpc?!function(e){return Object.keys(e).includes("result")||Object.keys(e).includes("error")}(e)?o.emit("json_rpc",n):(o.verbose&&!r&&(console.log("Received plain-text rpc result"),console.log(e)),o.rpcClient.jsonrpcMsgReceive(n)):o.emit("receive",{jsonData:e,rawMessage:n});else if(t){"extra"==o.verbose&&(console.log("Received bytes:"),console.log(t),console.log(`Decrypting with shared secret ${o.sharedSecret}...`));const e=Vr.secretbox.open(t,s,o.sharedSecret),n=e[0],r=e.subarray(1);if(1==n){const e=Vr.util.encodeUTF8(r);try{const t=JSON.parse(e);if(t.jsonrpc)o.verbose&&(console.log("Received and decrypted rpc result:"),console.log(t)),Gr({jsonData:t,rawMessage:e,wasEncrypted:!0,connector:o});else if(t.tag){const n=t;"file_not_found"==n.tag||"binary_start"==n.tag?o.emit(n.tag,{...n,tag:void 0}):"binary_end"==n.tag?o.emit(n.tag,{sessionId:n.sessionId}):o.emit("receive",{jsonData:t,rawMessage:e})}else t.state?o.emit("receive_state",t.state):t.diff?o.emit("receive_diff",t.diff):t.signal?o.emit(t.signal,t.data):o.emit("receive",{jsonData:t,rawMessage:e})}catch(e){throw console.log("Couldn't parse json message although the flag was for string ..."),e}}else{const e=r,t=Buffer.from(e.buffer,e.byteOffset,64).toString(),n=Buffer.from(e.buffer,e.byteOffset+64);o.emit("binary_data",{sessionId:t,data:n})}}}Vr.util=Wr,Vr.util=Wr;class Zr extends Ir{constructor(e){super(),this.connector=e}send(...e){this.connector.send(...e)}}var Qr=-32700,Xr=-32600,eo=-32601,to=-32602,no=-32603;class ro{constructor({transports:e}){if(!e)throw new Error("TRANSPORT_REQUIRED");this.transportsToRegister=e,this.methods={}}setMethodPrefix(e){this.methodPrefix=e}expose(e){this.methods=e}registerTransport(e){e.onData(this._processRequest.bind(this,e))}async _processRequest(e,t){const n=JSON.parse(t);let r;return r=Array.isArray(n)?await Promise.all(n.map((t=>this._callMethod(t,e)))):await this._callMethod(n,e),JSON.stringify(r)}async _callMethod(e,t){if(!e.hasOwnProperty("method"))return;const{method:n,params:r=[],id:o}=e;let s=n;if(s.includes("::")){const[e,t]=s.split("::");if(s=t,this.methodPrefix&&e!=this.methodPrefix)return}let i={};if(!this.methods[s]||"function"!=typeof this.methods[s]||"constructor"===s||s.startsWith("_")||this.methods[s]===Object.prototype[s])i={jsonrpc:"2.0",id:o,error:{code:eo,message:`Method [${s}] not found on remote target object`}};else{this.currentTransport=t;try{const e=await this.methods[s].apply(this.methods,r);if(!o)return;i={jsonrpc:"2.0",result:void 0===e?null:e,id:o}}catch(e){console.log(`Exposed RPC method ${n} internal error:`),console.log(e),console.log("Sending this error as a result to calling client ..."),i={jsonrpc:"2.0",error:{code:no,message:`Method [${n}] internal error: ${e.stack}`},id:o}}}return i}run(){for(const e of this.transportsToRegister)this.registerTransport(e);this.transportsToRegister=[]}}class oo extends Error{constructor(e={}){if(super(),!e.code)throw new Error("Code required");if(!e.message)throw new Error("Message required");this.code=e.code,this.message=e.message}}class so extends oo{}var io={Base:oo,MethodNotFound:class extends oo{constructor(e){super({code:eo,message:e||"Method not found"})}},InvalidRequest:class extends oo{constructor(){super({code:Xr,message:"Invalid request"})}},InvalidParams:class extends oo{constructor(){super({code:to,message:"Invalid params"})}},RemoteInternalError:class extends oo{constructor(e){super({code:no,message:`Error originating at remote endpoint: ${e}`||"Remote Internal error"})}},ServerError:so,ParseError:class extends oo{constructor(){super({code:Qr,message:"Parse error"})}},RequestTimeout:class extends so{constructor(e,t){super({code:-32001,message:`Request exceeded maximum execution time (${t}ms): ${e}`})}}};class ao{constructor({transport:e,requestTimeout:t=2e4}){if(!e)throw new Error("TRANSPORT_REQUIRED");this.transport=e,this.requestTimeout=t,this.pendingRequest={},this.initialized=!1}setMethodPrefix(e){this.methodPrefix=e}async callMethod(e,t){this._init();const n=this.methodPrefix?`${this.methodPrefix}::${e}`:e,r=this._makeRequestObject({method:n,params:t});return this._sendRequest({object:r,id:r.id})}notify(e,t){this._init();const n=this._makeRequestObject({method:e,params:t,mode:"notify"});return this.transport.sendData(JSON.stringify(n)),!0}async runBatch(e){const t=this._generateId();let n=!0;const r=[];for(const[o,s,i]of e){const e=this._makeRequestObject({method:o,params:s,mode:i,batchId:t});e.id&&(n=!1),r.push(e)}return n?this.transport.sendData(JSON.stringify(r)):this._sendRequest({object:r,id:t})}_init(){this.initialized||(this.transport.onData(this._processResponse.bind(this)),this.initialized=!0)}_sendRequest({object:e,id:t}){const n=JSON.stringify(e);return new Promise(((r,o)=>{this.pendingRequest[t]={resolve:r,reject:o,sentObject:e},setTimeout((()=>{this.pendingRequest[t]&&(delete this.pendingRequest[t],o(new io.RequestTimeout(n,this.requestTimeout)))}),this.requestTimeout);try{this.transport.sendData(n)}catch(e){delete this.pendingRequest[t],o(e)}}))}_processResponse(e){const t=JSON.parse(e);Array.isArray(t)?this._processBatchResponse(t):this._processSingleCallResponse(t)}_processSingleCallResponse(e){const t=e.hasOwnProperty("result")||!1,n=e.hasOwnProperty("error");if(!t&&!n)return;const r=this.pendingRequest[e.id];if(delete this.pendingRequest[e.id],r)if(t)r.resolve(e.result);else if(n){const t=this._makeErrorObject(e.error);r.reject(t)}}_processBatchResponse(e){let t;const n={},r=[];for(const o of e)o.id?(t||(t=o.id.split("|")[0]),n[o.id]=o):o.error&&r.push(o.error);if(!this.pendingRequest[t])return;const{sentObject:o,resolve:s}=this.pendingRequest[t];delete this.pendingRequest[t];const i=[];let a=0;for(const e of o){if(!e.id){i.push(null);continue}const t=n[e.id];if(t){t.hasOwnProperty("result")||!1?i.push({success:!0,result:t.result}):i.push({success:!1,result:this._makeErrorObject(t.error)})}else i.push({success:!1,error:this._makeErrorObject(r[a])}),a++}s(i)}_makeRequestObject({method:e,params:t,mode:n,batchId:r}){const o={jsonrpc:"2.0",method:e};return t&&t.length&&(o.params=t),"notify"!==n&&(o.id=r?`${r}|${this._generateId()}`:this._generateId()),o}_makeErrorObject(e){return(0,{[eo]:()=>new io.MethodNotFound(e.message),[no]:()=>new io.RemoteInternalError(e.message)}[e.code])()}_generateId(){let e=10,t="";for(;0<e--;)t+="bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz"[64*Math.random()|0];return t}}function co(e){return new Proxy(e,{get:(e,t)=>(...n)=>e.call(null,t,n),apply:(e,t,n)=>e.apply(null,n)})}class lo{constructor(e){this.channel=e}onData(e){this.channel.on("json_rpc",(async t=>{const n=await e(t);n&&this.channel.send(n)}))}}var uo=Object.freeze({__proto__:null,MoleServer:ro,MoleClient:ao,MoleClientProxified:class extends ao{constructor(...e){return super(...e),function(e){const t=co(e.callMethod.bind(e)),n=co(e.notify.bind(e));return new Proxy(e,{get:(r,o)=>"notify"===o?n:"callMethod"===o?t:"then"!==o?"setMethodPrefix"===o?(...t)=>e.setMethodPrefix(t):(...e)=>r.callMethod.call(r,o,e):void 0})}(this)}},ClientTransport:class{constructor(e){this.channel=e}onData(e){this.channel.on("json_rpc",e)}sendData(e){this.channel.send(e)}},ServerTransport:lo});class fo extends Error{constructor(e,t){super(e),this.name=this.constructor.name,this.errorCode=t}errorCode(){return this.errorCode}}const{MoleClient:ho,ClientTransport:po}=uo;class vo{constructor(e,t,n){this.moleChannel=new Zr(e),this.methodPrefix=t,this.connectorOrServersideChannel=e,this.client=new ho({requestTimeout:n,transport:new po(this.moleChannel)})}jsonrpcMsgReceive(e){this.moleChannel.emit("json_rpc",e)}call(e,t){return this.connectorOrServersideChannel.closed()?new Promise(((t,n)=>{n(new fo(`Method call [${this.methodPrefix}::${e}] on closed channel or connector ignored. Please add a check for closed channel in your code.`,"CLOSED_CHANNEL"))})):this.client.callMethod(`${this.methodPrefix}::${e}`,t)}}class go{constructor(e,t){this.connectorOrServersideChannel=e,this.remoteObjects={},this.requestTimeout=t||5e3}remoteObject(e){return this.remoteObjects[e]||(this.remoteObjects[e]=new vo(this.connectorOrServersideChannel,e,this.requestTimeout)),this.remoteObjects[e]}jsonrpcMsgReceive(e){for(const t of Object.values(this.remoteObjects))t.jsonrpcMsgReceive(e)}}class yo{constructor({serversideChannel:e,serverMethods:t,methodPrefix:n}){const r=[new lo(e)];this.server=new ro({transports:r}),this.server.expose(t),this.server.setMethodPrefix(n),this.server.run()}}function mo(){const e=Vr.box.keyPair(),t=Ur(e.publicKey),n=Ur(e.secretKey);return{privateKey:e.secretKey,publicKey:e.publicKey,privateKeyHex:n,publicKeyHex:t}}Vr.util=Wr,Vr.util=Wr;class bo extends Ir{constructor({address:e,protocol:t,lane:n,keypair:r=mo(),rpcRequestTimeout:o,verbose:s=!1,tag:i}={}){super(),this.protocol=t,this.lane=n;const{privateKey:a,publicKey:c}=r;this.clientPrivateKey=a,this.clientPublicKey=c,this.clientPublicKeyHex=Ur(c),this.rpcClient=new go(this,o),this.address=e,this.verbose=s,this.tag=i,this.sentCount=0,this.receivedCount=0,this.successfulConnectsCount=0}send(e){Yr({data:e,connector:this}),this.sentCount+=1}signal(e,t){this.send({signal:e,data:t})}wireReceive({jsonData:e,encryptedData:t,rawMessage:n}){Gr({jsonData:e,encryptedData:t,rawMessage:n,connector:this}),this.receivedCount+=1}isReady(){return this.ready}closed(){return!this.connected}decommission(){this.decommissioned=!0}connectStatus(e){if(e){this.sentCount=0,this.receivedCount=0,this.connected=!0,this.successfulConnectsCount+=1;const e=this.successfulConnectsCount;this.diffieHellman({clientPrivateKey:this.clientPrivateKey,clientPublicKey:this.clientPublicKey,lane:this.lane}).then((({sharedSecret:e,sharedSecretHex:t})=>{this.ready=!0,this.connectedAt=Date.now(),this.emit("ready",{sharedSecret:e,sharedSecretHex:t}),console.log(`✓ Ready: DMT Protocol Connector [ ${this.address} (${this.tag}) · ${this.protocol}/${this.lane} ]`)})).catch((t=>{e==this.successfulConnectsCount&&(console.log(t),console.log("dropping connection and retrying again"),this.connection.terminate())}))}else{let e;this.connected&&(e=!0),null==this.connected&&console.log(`Connector ${this.address} (${this.tag}) was not able to connect at first try, setting READY to false`),this.connected=!1,this.ready=!1,delete this.connectedAt,e&&this.emit("disconnect")}}remoteObject(e){return{call:(t,n=[])=>{return this.rpcClient.remoteObject(e).call(t,void 0===(r=n)||null==r?[]:Array.isArray(r)?r:[r]);var r}}}attachObject(e,t){new yo({serversideChannel:this,serverMethods:t,methodPrefix:e})}diffieHellman({clientPrivateKey:e,clientPublicKey:t,lane:n}){return new Promise(((t,r)=>{this.remoteObject("Auth").call("exchangePubkeys",{pubkey:this.clientPublicKeyHex}).then((o=>{const s=Vr.box.before(function(e){const t=e.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g);return new Uint8Array(t.map((e=>parseInt(e,16))))}(o),e),i=Ur(s);this.sharedSecret=s,this._remotePubkeyHex=o,t({sharedSecret:s,sharedSecretHex:i}),this.verbose&&(console.log("Established shared secret through diffie-hellman exchange:"),console.log(i)),this.remoteObject("Auth").call("finalizeHandshake",{lane:n}).then((()=>{})).catch(r)})).catch(r)}))}clientPubkey(){return this.clientPublicKeyHex}remotePubkeyHex(){return this._remotePubkeyHex}remoteAddress(){return this.address}}const wo="undefined"!=typeof window;function xo({endpoint:e,address:t,port:n,protocol:r,lane:o,keypair:s,remotePubkey:i,rpcRequestTimeout:a,verbose:c,tag:l},{WebSocket:u,log:f}){if(wo&&e&&e.startsWith("/")){const t=window.location.protocol.includes("s")?"wss":"ws";e=`${t}://${window.location.host}${e}`}e||(wo?(e=`ws://${t||window.location.hostname}`,n?e=`${e}:${n}`:window.location.port&&(e=`${e}:${window.location.port}`)):e=`ws://${t}:${n}`);const h=new bo({address:e,protocol:r,lane:o,rpcRequestTimeout:a,keypair:s,verbose:c,tag:l});if(h.connection)return h;h.connection={terminate(){this.websocket._removeAllCallbacks(),this.websocket.close(),h.connectStatus(!1)},endpoint:e,checkTicker:0},setTimeout((()=>$o({connector:h,endpoint:e,protocol:r},{WebSocket:u,log:f})),10);const d=()=>{h.decommissioned||(!function({connector:e,endpoint:t,protocol:n},{WebSocket:r,log:o}){const s=e.connection;if(ko(s)||e.decommissioned)return ko(s)?o(`Connection ${e.connection.endpoint} became idle, closing websocket ${s.websocket.rand}`):o(`Connection ${e.connection.endpoint} decommisioned, closing websocket ${s.websocket.rand}, will not retry again `),void s.terminate();_o(s)?s.websocket.send("ping"):(null==e.connected&&(o("Setting connector status to FALSE because connector.connected is undefined"),e.connectStatus(!1)),$o({connector:e,endpoint:t,protocol:n},{WebSocket:r,log:o}));s.checkTicker+=1}({connector:h,endpoint:e,protocol:r},{WebSocket:u,log:f}),setTimeout(d,1500))};return setTimeout(d,1500),h}function $o({connector:e,endpoint:t,protocol:n},{WebSocket:r,log:o}){const s=e.connection;if(s.currentlyTryingWS&&0==s.currentlyTryingWS.readyState){if(3!=s.currentlyTryingWS._waitForConnectCounter)return void(s.currentlyTryingWS._waitForConnectCounter+=1);s.currentlyTryingWS._removeAllCallbacks(),s.currentlyTryingWS.close()}const i=new r(t,n);s.currentlyTryingWS=i,s.currentlyTryingWS._waitForConnectCounter=0,i.rand=Math.random(),wo&&(i.binaryType="arraybuffer"),wo||i.on("error",(e=>{}));const a=t=>{s.currentlyTryingWS=null,s.checkTicker=0,function({ws:e,connector:t,openCallback:n},{log:r}){const o=t.connection,s=n=>{r(`websocket ${e.rand} conn ${t.connection.endpoint} error`),r(n)},i=e=>{t.connectStatus(!1)},a=e=>{o.checkTicker=0;const n=wo?e.data:e;if("pong"==n)return;let r;try{r=JSON.parse(n)}catch(e){}if(r)t.wireReceive({jsonData:r,rawMessage:n});else{const e=wo?new Uint8Array(n):n;t.wireReceive({encryptedData:e})}};e._removeAllCallbacks=()=>{e.removeEventListener("error",s),e.removeEventListener("close",i),e.removeEventListener("message",a),e.removeEventListener("open",n)},wo?(e.addEventListener("error",s),e.addEventListener("close",i),e.addEventListener("message",a)):(e.on("error",s),e.on("close",i),e.on("message",a))}({ws:i,connector:e,openCallback:a},{log:o}),s.websocket=i,e.connectStatus(!0)};i._removeAllCallbacks=()=>{i.removeEventListener("open",a)},wo?i.addEventListener("open",a):i.on("open",a)}function _o(e){return e.websocket&&1==e.websocket.readyState}function ko(e){return _o(e)&&e.checkTicker>5}const{applyPatch:Eo}=Or;class Ao extends Lr{constructor({endpoint:e,address:t,port:n,protocol:r,lane:o,keypair:s=mo(),logStore:i,rpcRequestTimeout:a,verbose:c}={}){super({}),this.endpoint=e,this.protocol=r,this.lane=o,this.logStore=i,this.verbose=c,this.rpcRequestTimeout=a,this.connected=new Lr,this.connect(e,t,n,s)}signal(e,t){this.connector.connected?(console.log(`Sending signal '${e}' over connector ${this.connector.address}`),this.connector.signal(e,t)):console.log("Warning: trying to send signal over disconnected connector, this should be prevented by GUI (to disable any backend state-change when disconnected)")}remoteObject(e){return this.connector.remoteObject(e)}connect(e,t,n,r){this.connector=xo({endpoint:e,address:t,port:n,protocol:this.protocol,lane:this.lane,keypair:r,rpcRequestTimeout:this.rpcRequestTimeout,verbose:this.verbose},{WebSocket:WebSocket,log:Dr}),this.connector.on("ready",(({sharedSecret:e,sharedSecretHex:t})=>{this.connected.set(!0),this.emit("ready")})),setTimeout((()=>{null==this.connected.get()&&this.connected.set(!1)}),300),this.connector.on("disconnect",(()=>{this.connected.set(!1)})),this.connector.on("receive_state",(e=>{this.wireStateReceived=!0,this.verbose&&(console.log(`New store ${t} / ${this.protocol} / ${this.lane} state:`),console.log(e)),this.set(e)})),this.connector.on("receive_diff",(e=>{this.wireStateReceived&&(Eo(this.state,e),this.announceStateChange())}))}}var Po=Fr((function(e,t){function n(e){return e.replace(/~1/g,"/").replace(/~0/g,"~")}function r(e){return e.replace(/~/g,"~0").replace(/\//g,"~1")}Object.defineProperty(t,"__esModule",{value:!0}),t.Pointer=void 0;var o=function(){function e(e){void 0===e&&(e=[""]),this.tokens=e}return e.fromJSON=function(t){var r=t.split("/").map(n);if(""!==r[0])throw new Error("Invalid JSON Pointer: "+t);return new e(r)},e.prototype.toString=function(){return this.tokens.map(r).join("/")},e.prototype.evaluate=function(e){for(var t=null,n="",r=e,o=1,s=this.tokens.length;o<s;o++)r=((t=r)||{})[n=this.tokens[o]];return{parent:t,key:n,value:r}},e.prototype.get=function(e){return this.evaluate(e).value},e.prototype.set=function(e,t){for(var n=e,r=1,o=this.tokens.length-1,s=this.tokens[r];r<o;r++)n=(n||{})[s];n&&(n[this.tokens[this.tokens.length-1]]=t)},e.prototype.push=function(e){this.tokens.push(e)},e.prototype.add=function(t){return new e(this.tokens.concat(String(t)))},e}();t.Pointer=o})),So=Fr((function(e,t){Object.defineProperty(t,"__esModule",{value:!0}),t.clone=t.objectType=t.hasOwnProperty=void 0,t.hasOwnProperty=Object.prototype.hasOwnProperty,t.objectType=function(e){return void 0===e?"undefined":null===e?"null":Array.isArray(e)?"array":typeof e},t.clone=function e(n){if(null==(r=n)||"object"!=typeof r)return n;var r;if(n.constructor==Array){for(var o=n.length,s=new Array(o),i=0;i<o;i++)s[i]=e(n[i]);return s}var a={};for(var c in n)t.hasOwnProperty.call(n,c)&&(a[c]=e(n[c]));return a}})),Oo=Fr((function(e,t){function n(e,t){var n={};for(var r in e)So.hasOwnProperty.call(e,r)&&void 0!==e[r]&&(n[r]=1);for(var o in t)So.hasOwnProperty.call(t,o)&&void 0!==t[o]&&delete n[o];return Object.keys(n)}function r(e){for(var t=e.length,n={},r=0;r<t;r++){var o=e[r];for(var s in o)So.hasOwnProperty.call(o,s)&&void 0!==o[s]&&(n[s]=(n[s]||0)+1)}for(var s in n)n[s]<t&&delete n[s];return Object.keys(n)}function o(e,t){return{operations:e.operations.concat(t),cost:e.cost+1}}function s(e,t,n,r){void 0===r&&(r=a);var s={"0,0":{operations:[],cost:0}};var i=isNaN(e.length)||e.length<=0?0:e.length,c=isNaN(t.length)||t.length<=0?0:t.length;return function n(i,a){var c=i+","+a,l=s[c];if(void 0===l){if(i>0&&a>0&&!r(e[i-1],t[a-1],new Po.Pointer).length)l=n(i-1,a-1);else{var u=[];if(i>0){var f=n(i-1,a),h={op:"remove",index:i-1};u.push(o(f,h))}if(a>0){var d=n(i,a-1),p={op:"add",index:i-1,value:t[a-1]};u.push(o(d,p))}if(i>0&&a>0){var v=n(i-1,a-1),g={op:"replace",index:i-1,original:e[i-1],value:t[a-1]};u.push(o(v,g))}l=u.sort((function(e,t){return e.cost-t.cost}))[0]}s[c]=l}return l}(i,c).operations.reduce((function(e,t){var o=e[0],s=e[1];if(function(e){return"add"===e.op}(t)){var a=t.index+1+s,c=a<i+s?String(a):"-",l={op:t.op,path:n.add(c).toString(),value:t.value};return[o.concat(l),s+1]}if(function(e){return"remove"===e.op}(t)){l={op:t.op,path:n.add(String(t.index+s)).toString()};return[o.concat(l),s-1]}var u=n.add(String(t.index+s)),f=r(t.original,t.value,u);return[o.concat.apply(o,f),s]}),[[],0])[0]}function i(e,t,o,s){void 0===s&&(s=a);var i=[];return n(e,t).forEach((function(e){i.push({op:"remove",path:o.add(e).toString()})})),n(t,e).forEach((function(e){i.push({op:"add",path:o.add(e).toString(),value:t[e]})})),r([e,t]).forEach((function(n){i.push.apply(i,s(e[n],t[n],o.add(n)))})),i}function a(e,t,n,r){if(void 0===r&&(r=a),e===t)return[];var o=So.objectType(e),c=So.objectType(t);return"array"==o&&"array"==c?s(e,t,n,r):"object"==o&&"object"==c?i(e,t,n,r):[{op:"replace",path:n.toString(),value:t}]}Object.defineProperty(t,"__esModule",{value:!0}),t.diffAny=t.diffObjects=t.diffArrays=t.intersection=t.subtract=t.isDestructive=void 0,t.isDestructive=function(e){var t=e.op;return"remove"===t||"replace"===t||"copy"===t||"move"===t},t.subtract=n,t.intersection=r,t.diffArrays=s,t.diffObjects=i,t.diffAny=a})),To=Fr((function(e,t){var n=Br&&Br.__extends||function(){var e=function(t,n){return(e=Object.setPrototypeOf||{__proto__:[]}instanceof Array&&function(e,t){e.__proto__=t}||function(e,t){for(var n in t)Object.prototype.hasOwnProperty.call(t,n)&&(e[n]=t[n])})(t,n)};return function(t,n){function r(){this.constructor=t}e(t,n),t.prototype=null===n?Object.create(n):(r.prototype=n.prototype,new r)}}();Object.defineProperty(t,"__esModule",{value:!0}),t.apply=t.InvalidOperationError=t.test=t.copy=t.move=t.replace=t.remove=t.add=t.TestError=t.MissingError=void 0;var r=function(e){function t(t){var n=e.call(this,"Value required at path: "+t)||this;return n.path=t,n.name="MissingError",n}return n(t,e),t}(Error);t.MissingError=r;var o=function(e){function t(t,n){var r=e.call(this,"Test failed: "+t+" != "+n)||this;return r.actual=t,r.expected=n,r.name="TestError",r}return n(t,e),t}(Error);function s(e,t,n){if(Array.isArray(e))if("-"==t)e.push(n);else{var r=parseInt(t,10);e.splice(r,0,n)}else e[t]=n}function i(e,t){if(Array.isArray(e)){var n=parseInt(t,10);e.splice(n,1)}else delete e[t]}function a(e,t){var n=Po.Pointer.fromJSON(t.path).evaluate(e);return void 0===n.parent?new r(t.path):(s(n.parent,n.key,So.clone(t.value)),null)}function c(e,t){var n=Po.Pointer.fromJSON(t.path).evaluate(e);return void 0===n.value?new r(t.path):(i(n.parent,n.key),null)}function l(e,t){var n=Po.Pointer.fromJSON(t.path).evaluate(e);if(null===n.parent)return new r(t.path);if(Array.isArray(n.parent)){if(parseInt(n.key,10)>=n.parent.length)return new r(t.path)}else if(void 0===n.value)return new r(t.path);return n.parent[n.key]=t.value,null}function u(e,t){var n=Po.Pointer.fromJSON(t.from).evaluate(e);if(void 0===n.value)return new r(t.from);var o=Po.Pointer.fromJSON(t.path).evaluate(e);return void 0===o.parent?new r(t.path):(i(n.parent,n.key),s(o.parent,o.key,n.value),null)}function f(e,t){var n=Po.Pointer.fromJSON(t.from).evaluate(e);if(void 0===n.value)return new r(t.from);var o=Po.Pointer.fromJSON(t.path).evaluate(e);return void 0===o.parent?new r(t.path):(s(o.parent,o.key,So.clone(n.value)),null)}function h(e,t){var n=Po.Pointer.fromJSON(t.path).evaluate(e);return Oo.diffAny(n.value,t.value,new Po.Pointer).length?new o(n.value,t.value):null}t.TestError=o,t.add=a,t.remove=c,t.replace=l,t.move=u,t.copy=f,t.test=h;var d=function(e){function t(t){var n=e.call(this,"Invalid operation: "+t.op)||this;return n.operation=t,n.name="InvalidOperationError",n}return n(t,e),t}(Error);t.InvalidOperationError=d,t.apply=function(e,t){switch(t.op){case"add":return a(e,t);case"remove":return c(e,t);case"replace":return l(e,t);case"move":return u(e,t);case"copy":return f(e,t);case"test":return h(e,t)}return new d(t)}}));qr(Fr((function(e,t){function n(e,t){var n=Po.Pointer.fromJSON(t).evaluate(e);if(void 0!==n)return{op:"test",path:t,value:n.value}}Object.defineProperty(t,"__esModule",{value:!0}),t.createTests=t.createPatch=t.applyPatch=void 0,t.applyPatch=function(e,t){return t.map((function(t){return To.apply(e,t)}))},t.createPatch=function(e,t,n){var r=new Po.Pointer;return(n?function(e){return function t(n,r,o){var s=e(n,r,o);return Array.isArray(s)?s:Oo.diffAny(n,r,o,t)}}(n):Oo.diffAny)(e,t,r)},t.createTests=function(e,t){var r=new Array;return t.filter(Oo.isDestructive).forEach((function(t){var o=n(e,t.path);if(o&&r.push(o),"from"in t){var s=n(e,t.from);s&&r.push(s)}})),r}}))).createPatch;const{connected:Co,state:Ro}=new function(e){const t=new Ao(e),{connected:n,action:r,remoteObject:o,connector:s}=t;return{state:t,connected:n,api:o.bind(t)}}({port:7780,protocol:"dmt",lane:"gui"});return new class extends be{constructor(e){super(),me(this,e,Xn,Qn,i,{connected:0,state:1})}}({target:document.body,props:{connected:Co,state:Ro}})}();
+     */
+    var beforeDict = new WeakMap();
+    var Mirror = /** @class */ (function () {
+        function Mirror(obj) {
+            this.observers = new Map();
+            this.obj = obj;
+        }
+        return Mirror;
+    }());
+    var ObserverInfo = /** @class */ (function () {
+        function ObserverInfo(callback, observer) {
+            this.callback = callback;
+            this.observer = observer;
+        }
+        return ObserverInfo;
+    }());
+    function getMirror(obj) {
+        return beforeDict.get(obj);
+    }
+    function getObserverFromMirror(mirror, callback) {
+        return mirror.observers.get(callback);
+    }
+    function removeObserverFromMirror(mirror, observer) {
+        mirror.observers.delete(observer.callback);
+    }
+    /**
+     * Detach an observer from an object
+     */
+    function unobserve(root, observer) {
+        observer.unobserve();
+    }
+    /**
+     * Observes changes made to an object, which can then be retrieved using generate
+     */
+    function observe(obj, callback) {
+        var patches = [];
+        var observer;
+        var mirror = getMirror(obj);
+        if (!mirror) {
+            mirror = new Mirror(obj);
+            beforeDict.set(obj, mirror);
+        }
+        else {
+            var observerInfo = getObserverFromMirror(mirror, callback);
+            observer = observerInfo && observerInfo.observer;
+        }
+        if (observer) {
+            return observer;
+        }
+        observer = {};
+        mirror.value = _deepClone(obj);
+        if (callback) {
+            observer.callback = callback;
+            observer.next = null;
+            var dirtyCheck = function () {
+                generate(observer);
+            };
+            var fastCheck = function () {
+                clearTimeout(observer.next);
+                observer.next = setTimeout(dirtyCheck);
+            };
+            if (typeof window !== 'undefined') { //not Node
+                window.addEventListener('mouseup', fastCheck);
+                window.addEventListener('keyup', fastCheck);
+                window.addEventListener('mousedown', fastCheck);
+                window.addEventListener('keydown', fastCheck);
+                window.addEventListener('change', fastCheck);
+            }
+        }
+        observer.patches = patches;
+        observer.object = obj;
+        observer.unobserve = function () {
+            generate(observer);
+            clearTimeout(observer.next);
+            removeObserverFromMirror(mirror, observer);
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('mouseup', fastCheck);
+                window.removeEventListener('keyup', fastCheck);
+                window.removeEventListener('mousedown', fastCheck);
+                window.removeEventListener('keydown', fastCheck);
+                window.removeEventListener('change', fastCheck);
+            }
+        };
+        mirror.observers.set(callback, new ObserverInfo(callback, observer));
+        return observer;
+    }
+    /**
+     * Generate an array of patches from an observer
+     */
+    function generate(observer, invertible) {
+        if (invertible === void 0) { invertible = false; }
+        var mirror = beforeDict.get(observer.object);
+        _generate(mirror.value, observer.object, observer.patches, "", invertible);
+        if (observer.patches.length) {
+            applyPatch(mirror.value, observer.patches);
+        }
+        var temp = observer.patches;
+        if (temp.length > 0) {
+            observer.patches = [];
+            if (observer.callback) {
+                observer.callback(temp);
+            }
+        }
+        return temp;
+    }
+    // Dirty check if obj is different from mirror, generate patches and update mirror
+    function _generate(mirror, obj, patches, path, invertible) {
+        if (obj === mirror) {
+            return;
+        }
+        if (typeof obj.toJSON === "function") {
+            obj = obj.toJSON();
+        }
+        var newKeys = _objectKeys(obj);
+        var oldKeys = _objectKeys(mirror);
+        var deleted = false;
+        //if ever "move" operation is implemented here, make sure this test runs OK: "should not generate the same patch twice (move)"
+        for (var t = oldKeys.length - 1; t >= 0; t--) {
+            var key = oldKeys[t];
+            var oldVal = mirror[key];
+            if (hasOwnProperty(obj, key) && !(obj[key] === undefined && oldVal !== undefined && Array.isArray(obj) === false)) {
+                var newVal = obj[key];
+                if (typeof oldVal == "object" && oldVal != null && typeof newVal == "object" && newVal != null) {
+                    _generate(oldVal, newVal, patches, path + "/" + escapePathComponent(key), invertible);
+                }
+                else {
+                    if (oldVal !== newVal) {
+                        if (invertible) {
+                            patches.push({ op: "test", path: path + "/" + escapePathComponent(key), value: _deepClone(oldVal) });
+                        }
+                        patches.push({ op: "replace", path: path + "/" + escapePathComponent(key), value: _deepClone(newVal) });
+                    }
+                }
+            }
+            else if (Array.isArray(mirror) === Array.isArray(obj)) {
+                if (invertible) {
+                    patches.push({ op: "test", path: path + "/" + escapePathComponent(key), value: _deepClone(oldVal) });
+                }
+                patches.push({ op: "remove", path: path + "/" + escapePathComponent(key) });
+                deleted = true; // property has been deleted
+            }
+            else {
+                if (invertible) {
+                    patches.push({ op: "test", path: path, value: mirror });
+                }
+                patches.push({ op: "replace", path: path, value: obj });
+            }
+        }
+        if (!deleted && newKeys.length == oldKeys.length) {
+            return;
+        }
+        for (var t = 0; t < newKeys.length; t++) {
+            var key = newKeys[t];
+            if (!hasOwnProperty(mirror, key) && obj[key] !== undefined) {
+                patches.push({ op: "add", path: path + "/" + escapePathComponent(key), value: _deepClone(obj[key]) });
+            }
+        }
+    }
+    /**
+     * Create an array of patches from the differences in two objects
+     */
+    function compare(tree1, tree2, invertible) {
+        if (invertible === void 0) { invertible = false; }
+        var patches = [];
+        _generate(tree1, tree2, patches, '', invertible);
+        return patches;
+    }
+
+    var duplex = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        unobserve: unobserve,
+        observe: observe,
+        generate: generate,
+        compare: compare
+    });
+
+    var fastJsonPatch = Object.assign({}, core, duplex, {
+        JsonPatchError: PatchError,
+        deepClone: _deepClone,
+        escapePathComponent,
+        unescapePathComponent
+    });
+
+    function noop$1() {}
+
+    class RunnableLink {
+      constructor(prev, next, fn) {
+        this.prev = prev;
+        this.next = next;
+        this.fn = fn || noop$1;
+      }
+
+      run(data) {
+        this.fn(data);
+        this.next && this.next.run(data);
+      }
+    }
+
+    class LinkedList {
+      constructor(linkConstructor) {
+        this.head = new RunnableLink();
+        this.tail = new RunnableLink(this.head);
+        this.head.next = this.tail;
+        this.linkConstructor = linkConstructor;
+        this.reg = {};
+      }
+
+      insert(data) {
+        const link = new RunnableLink(this.tail.prev, this.tail, data);
+        link.next.prev = link;
+        link.prev.next = link;
+        return link;
+      }
+
+      remove(link) {
+        link.prev.next = link.next;
+        link.next.prev = link.prev;
+      }
+    }
+
+    let id = 0;
+    const splitter = /[\s,]+/g;
+
+    class Eev {
+      constructor() {
+        this.__events_list = {};
+      }
+
+      on(names, fn) {
+        names.split(splitter).forEach(name => {
+          const list = this.__events_list[name] || (this.__events_list[name] = new LinkedList());
+          const eev = fn._eev || (fn._eev = ++id);
+
+          list.reg[eev] || (list.reg[eev] = list.insert(fn));
+        });
+      }
+
+      off(names, fn) {
+        fn &&
+          names.split(splitter).forEach(name => {
+            const list = this.__events_list[name];
+
+            if (!list) {
+              return;
+            }
+
+            const link = list.reg[fn._eev];
+
+            list.reg[fn._eev] = undefined;
+
+            list && link && list.remove(link);
+          });
+      }
+
+      removeListener(...args) {
+        this.off(...args);
+      }
+
+      emit(name, data) {
+        const evt = this.__events_list[name];
+        evt && evt.head.run(data);
+      }
+    }
+
+    // 💡 we use Emitter inside ConnectedStore to emit 'ready' event
+    // 💡 and inside MultiConnectedStore to also emit a few events
+
+    class ReadableStore extends Eev {
+      constructor(initialState) {
+        super();
+
+        this.state = initialState;
+
+        this.subscriptions = [];
+      }
+
+      get() {
+        return this.state;
+      }
+
+      subscribe(handler) {
+        this.subscriptions.push(handler);
+
+        handler(this.state);
+
+        return () => {
+          this.subscriptions = this.subscriptions.filter(sub => sub !== handler);
+        };
+      }
+
+      announceStateChange() {
+        this.subscriptions.forEach(handler => handler(this.state));
+      }
+    }
+
+    class WritableStore extends ReadableStore {
+      set(state) {
+        this.state = state;
+        this.announceStateChange();
+      }
+    }
+
+    function log(msg) {
+      console.log(`${new Date().toLocaleString()} → ${msg}`);
+    }
+
+    function listify(obj) {
+      if (typeof obj == 'undefined' || obj == null) {
+        return [];
+      }
+      return Array.isArray(obj) ? obj : [obj];
+    }
+
+    function bufferToHex(buffer) {
+      return Array.from(new Uint8Array(buffer))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
+
+    function hexToBuffer(hex) {
+      const tokens = hex.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g);
+      return new Uint8Array(tokens.map((token) => parseInt(token, 16)));
+    }
+
+    function integerToByteArray(long, arrayLen = 8) {
+      const byteArray = new Array(arrayLen).fill(0);
+
+      for (let index = 0; index < byteArray.length; index++) {
+        const byte = long & 0xff;
+        byteArray[index] = byte;
+        long = (long - byte) / 256;
+      }
+
+      return byteArray;
+    }
+
+    var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+    function getDefaultExportFromCjs$1 (x) {
+    	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+    }
+
+    function createCommonjsModule$1(fn, basedir, module) {
+    	return module = {
+    		path: basedir,
+    		exports: {},
+    		require: function (path, base) {
+    			return commonjsRequire$1(path, (base === undefined || base === null) ? module.path : base);
+    		}
+    	}, fn(module, module.exports), module.exports;
+    }
+
+    function getAugmentedNamespace(n) {
+    	if (n.__esModule) return n;
+    	var a = Object.defineProperty({}, '__esModule', {value: true});
+    	Object.keys(n).forEach(function (k) {
+    		var d = Object.getOwnPropertyDescriptor(n, k);
+    		Object.defineProperty(a, k, d.get ? d : {
+    			enumerable: true,
+    			get: function () {
+    				return n[k];
+    			}
+    		});
+    	});
+    	return a;
+    }
+
+    function commonjsRequire$1 () {
+    	throw new Error('Dynamic requires are not currently supported by @rollup/plugin-commonjs');
+    }
+
+    var _nodeResolve_empty = {};
+
+    var _nodeResolve_empty$1 = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        'default': _nodeResolve_empty
+    });
+
+    var require$$0 = /*@__PURE__*/getAugmentedNamespace(_nodeResolve_empty$1);
+
+    var naclFast = createCommonjsModule$1(function (module) {
+    (function(nacl) {
+
+    // Ported in 2014 by Dmitry Chestnykh and Devi Mandiri.
+    // Public domain.
+    //
+    // Implementation derived from TweetNaCl version 20140427.
+    // See for details: http://tweetnacl.cr.yp.to/
+
+    var gf = function(init) {
+      var i, r = new Float64Array(16);
+      if (init) for (i = 0; i < init.length; i++) r[i] = init[i];
+      return r;
+    };
+
+    //  Pluggable, initialized in high-level API below.
+    var randombytes = function(/* x, n */) { throw new Error('no PRNG'); };
+
+    var _0 = new Uint8Array(16);
+    var _9 = new Uint8Array(32); _9[0] = 9;
+
+    var gf0 = gf(),
+        gf1 = gf([1]),
+        _121665 = gf([0xdb41, 1]),
+        D = gf([0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203]),
+        D2 = gf([0xf159, 0x26b2, 0x9b94, 0xebd6, 0xb156, 0x8283, 0x149a, 0x00e0, 0xd130, 0xeef3, 0x80f2, 0x198e, 0xfce7, 0x56df, 0xd9dc, 0x2406]),
+        X = gf([0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e, 0x36d3, 0x2169]),
+        Y = gf([0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666]),
+        I = gf([0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83]);
+
+    function ts64(x, i, h, l) {
+      x[i]   = (h >> 24) & 0xff;
+      x[i+1] = (h >> 16) & 0xff;
+      x[i+2] = (h >>  8) & 0xff;
+      x[i+3] = h & 0xff;
+      x[i+4] = (l >> 24)  & 0xff;
+      x[i+5] = (l >> 16)  & 0xff;
+      x[i+6] = (l >>  8)  & 0xff;
+      x[i+7] = l & 0xff;
+    }
+
+    function vn(x, xi, y, yi, n) {
+      var i,d = 0;
+      for (i = 0; i < n; i++) d |= x[xi+i]^y[yi+i];
+      return (1 & ((d - 1) >>> 8)) - 1;
+    }
+
+    function crypto_verify_16(x, xi, y, yi) {
+      return vn(x,xi,y,yi,16);
+    }
+
+    function crypto_verify_32(x, xi, y, yi) {
+      return vn(x,xi,y,yi,32);
+    }
+
+    function core_salsa20(o, p, k, c) {
+      var j0  = c[ 0] & 0xff | (c[ 1] & 0xff)<<8 | (c[ 2] & 0xff)<<16 | (c[ 3] & 0xff)<<24,
+          j1  = k[ 0] & 0xff | (k[ 1] & 0xff)<<8 | (k[ 2] & 0xff)<<16 | (k[ 3] & 0xff)<<24,
+          j2  = k[ 4] & 0xff | (k[ 5] & 0xff)<<8 | (k[ 6] & 0xff)<<16 | (k[ 7] & 0xff)<<24,
+          j3  = k[ 8] & 0xff | (k[ 9] & 0xff)<<8 | (k[10] & 0xff)<<16 | (k[11] & 0xff)<<24,
+          j4  = k[12] & 0xff | (k[13] & 0xff)<<8 | (k[14] & 0xff)<<16 | (k[15] & 0xff)<<24,
+          j5  = c[ 4] & 0xff | (c[ 5] & 0xff)<<8 | (c[ 6] & 0xff)<<16 | (c[ 7] & 0xff)<<24,
+          j6  = p[ 0] & 0xff | (p[ 1] & 0xff)<<8 | (p[ 2] & 0xff)<<16 | (p[ 3] & 0xff)<<24,
+          j7  = p[ 4] & 0xff | (p[ 5] & 0xff)<<8 | (p[ 6] & 0xff)<<16 | (p[ 7] & 0xff)<<24,
+          j8  = p[ 8] & 0xff | (p[ 9] & 0xff)<<8 | (p[10] & 0xff)<<16 | (p[11] & 0xff)<<24,
+          j9  = p[12] & 0xff | (p[13] & 0xff)<<8 | (p[14] & 0xff)<<16 | (p[15] & 0xff)<<24,
+          j10 = c[ 8] & 0xff | (c[ 9] & 0xff)<<8 | (c[10] & 0xff)<<16 | (c[11] & 0xff)<<24,
+          j11 = k[16] & 0xff | (k[17] & 0xff)<<8 | (k[18] & 0xff)<<16 | (k[19] & 0xff)<<24,
+          j12 = k[20] & 0xff | (k[21] & 0xff)<<8 | (k[22] & 0xff)<<16 | (k[23] & 0xff)<<24,
+          j13 = k[24] & 0xff | (k[25] & 0xff)<<8 | (k[26] & 0xff)<<16 | (k[27] & 0xff)<<24,
+          j14 = k[28] & 0xff | (k[29] & 0xff)<<8 | (k[30] & 0xff)<<16 | (k[31] & 0xff)<<24,
+          j15 = c[12] & 0xff | (c[13] & 0xff)<<8 | (c[14] & 0xff)<<16 | (c[15] & 0xff)<<24;
+
+      var x0 = j0, x1 = j1, x2 = j2, x3 = j3, x4 = j4, x5 = j5, x6 = j6, x7 = j7,
+          x8 = j8, x9 = j9, x10 = j10, x11 = j11, x12 = j12, x13 = j13, x14 = j14,
+          x15 = j15, u;
+
+      for (var i = 0; i < 20; i += 2) {
+        u = x0 + x12 | 0;
+        x4 ^= u<<7 | u>>>(32-7);
+        u = x4 + x0 | 0;
+        x8 ^= u<<9 | u>>>(32-9);
+        u = x8 + x4 | 0;
+        x12 ^= u<<13 | u>>>(32-13);
+        u = x12 + x8 | 0;
+        x0 ^= u<<18 | u>>>(32-18);
+
+        u = x5 + x1 | 0;
+        x9 ^= u<<7 | u>>>(32-7);
+        u = x9 + x5 | 0;
+        x13 ^= u<<9 | u>>>(32-9);
+        u = x13 + x9 | 0;
+        x1 ^= u<<13 | u>>>(32-13);
+        u = x1 + x13 | 0;
+        x5 ^= u<<18 | u>>>(32-18);
+
+        u = x10 + x6 | 0;
+        x14 ^= u<<7 | u>>>(32-7);
+        u = x14 + x10 | 0;
+        x2 ^= u<<9 | u>>>(32-9);
+        u = x2 + x14 | 0;
+        x6 ^= u<<13 | u>>>(32-13);
+        u = x6 + x2 | 0;
+        x10 ^= u<<18 | u>>>(32-18);
+
+        u = x15 + x11 | 0;
+        x3 ^= u<<7 | u>>>(32-7);
+        u = x3 + x15 | 0;
+        x7 ^= u<<9 | u>>>(32-9);
+        u = x7 + x3 | 0;
+        x11 ^= u<<13 | u>>>(32-13);
+        u = x11 + x7 | 0;
+        x15 ^= u<<18 | u>>>(32-18);
+
+        u = x0 + x3 | 0;
+        x1 ^= u<<7 | u>>>(32-7);
+        u = x1 + x0 | 0;
+        x2 ^= u<<9 | u>>>(32-9);
+        u = x2 + x1 | 0;
+        x3 ^= u<<13 | u>>>(32-13);
+        u = x3 + x2 | 0;
+        x0 ^= u<<18 | u>>>(32-18);
+
+        u = x5 + x4 | 0;
+        x6 ^= u<<7 | u>>>(32-7);
+        u = x6 + x5 | 0;
+        x7 ^= u<<9 | u>>>(32-9);
+        u = x7 + x6 | 0;
+        x4 ^= u<<13 | u>>>(32-13);
+        u = x4 + x7 | 0;
+        x5 ^= u<<18 | u>>>(32-18);
+
+        u = x10 + x9 | 0;
+        x11 ^= u<<7 | u>>>(32-7);
+        u = x11 + x10 | 0;
+        x8 ^= u<<9 | u>>>(32-9);
+        u = x8 + x11 | 0;
+        x9 ^= u<<13 | u>>>(32-13);
+        u = x9 + x8 | 0;
+        x10 ^= u<<18 | u>>>(32-18);
+
+        u = x15 + x14 | 0;
+        x12 ^= u<<7 | u>>>(32-7);
+        u = x12 + x15 | 0;
+        x13 ^= u<<9 | u>>>(32-9);
+        u = x13 + x12 | 0;
+        x14 ^= u<<13 | u>>>(32-13);
+        u = x14 + x13 | 0;
+        x15 ^= u<<18 | u>>>(32-18);
+      }
+       x0 =  x0 +  j0 | 0;
+       x1 =  x1 +  j1 | 0;
+       x2 =  x2 +  j2 | 0;
+       x3 =  x3 +  j3 | 0;
+       x4 =  x4 +  j4 | 0;
+       x5 =  x5 +  j5 | 0;
+       x6 =  x6 +  j6 | 0;
+       x7 =  x7 +  j7 | 0;
+       x8 =  x8 +  j8 | 0;
+       x9 =  x9 +  j9 | 0;
+      x10 = x10 + j10 | 0;
+      x11 = x11 + j11 | 0;
+      x12 = x12 + j12 | 0;
+      x13 = x13 + j13 | 0;
+      x14 = x14 + j14 | 0;
+      x15 = x15 + j15 | 0;
+
+      o[ 0] = x0 >>>  0 & 0xff;
+      o[ 1] = x0 >>>  8 & 0xff;
+      o[ 2] = x0 >>> 16 & 0xff;
+      o[ 3] = x0 >>> 24 & 0xff;
+
+      o[ 4] = x1 >>>  0 & 0xff;
+      o[ 5] = x1 >>>  8 & 0xff;
+      o[ 6] = x1 >>> 16 & 0xff;
+      o[ 7] = x1 >>> 24 & 0xff;
+
+      o[ 8] = x2 >>>  0 & 0xff;
+      o[ 9] = x2 >>>  8 & 0xff;
+      o[10] = x2 >>> 16 & 0xff;
+      o[11] = x2 >>> 24 & 0xff;
+
+      o[12] = x3 >>>  0 & 0xff;
+      o[13] = x3 >>>  8 & 0xff;
+      o[14] = x3 >>> 16 & 0xff;
+      o[15] = x3 >>> 24 & 0xff;
+
+      o[16] = x4 >>>  0 & 0xff;
+      o[17] = x4 >>>  8 & 0xff;
+      o[18] = x4 >>> 16 & 0xff;
+      o[19] = x4 >>> 24 & 0xff;
+
+      o[20] = x5 >>>  0 & 0xff;
+      o[21] = x5 >>>  8 & 0xff;
+      o[22] = x5 >>> 16 & 0xff;
+      o[23] = x5 >>> 24 & 0xff;
+
+      o[24] = x6 >>>  0 & 0xff;
+      o[25] = x6 >>>  8 & 0xff;
+      o[26] = x6 >>> 16 & 0xff;
+      o[27] = x6 >>> 24 & 0xff;
+
+      o[28] = x7 >>>  0 & 0xff;
+      o[29] = x7 >>>  8 & 0xff;
+      o[30] = x7 >>> 16 & 0xff;
+      o[31] = x7 >>> 24 & 0xff;
+
+      o[32] = x8 >>>  0 & 0xff;
+      o[33] = x8 >>>  8 & 0xff;
+      o[34] = x8 >>> 16 & 0xff;
+      o[35] = x8 >>> 24 & 0xff;
+
+      o[36] = x9 >>>  0 & 0xff;
+      o[37] = x9 >>>  8 & 0xff;
+      o[38] = x9 >>> 16 & 0xff;
+      o[39] = x9 >>> 24 & 0xff;
+
+      o[40] = x10 >>>  0 & 0xff;
+      o[41] = x10 >>>  8 & 0xff;
+      o[42] = x10 >>> 16 & 0xff;
+      o[43] = x10 >>> 24 & 0xff;
+
+      o[44] = x11 >>>  0 & 0xff;
+      o[45] = x11 >>>  8 & 0xff;
+      o[46] = x11 >>> 16 & 0xff;
+      o[47] = x11 >>> 24 & 0xff;
+
+      o[48] = x12 >>>  0 & 0xff;
+      o[49] = x12 >>>  8 & 0xff;
+      o[50] = x12 >>> 16 & 0xff;
+      o[51] = x12 >>> 24 & 0xff;
+
+      o[52] = x13 >>>  0 & 0xff;
+      o[53] = x13 >>>  8 & 0xff;
+      o[54] = x13 >>> 16 & 0xff;
+      o[55] = x13 >>> 24 & 0xff;
+
+      o[56] = x14 >>>  0 & 0xff;
+      o[57] = x14 >>>  8 & 0xff;
+      o[58] = x14 >>> 16 & 0xff;
+      o[59] = x14 >>> 24 & 0xff;
+
+      o[60] = x15 >>>  0 & 0xff;
+      o[61] = x15 >>>  8 & 0xff;
+      o[62] = x15 >>> 16 & 0xff;
+      o[63] = x15 >>> 24 & 0xff;
+    }
+
+    function core_hsalsa20(o,p,k,c) {
+      var j0  = c[ 0] & 0xff | (c[ 1] & 0xff)<<8 | (c[ 2] & 0xff)<<16 | (c[ 3] & 0xff)<<24,
+          j1  = k[ 0] & 0xff | (k[ 1] & 0xff)<<8 | (k[ 2] & 0xff)<<16 | (k[ 3] & 0xff)<<24,
+          j2  = k[ 4] & 0xff | (k[ 5] & 0xff)<<8 | (k[ 6] & 0xff)<<16 | (k[ 7] & 0xff)<<24,
+          j3  = k[ 8] & 0xff | (k[ 9] & 0xff)<<8 | (k[10] & 0xff)<<16 | (k[11] & 0xff)<<24,
+          j4  = k[12] & 0xff | (k[13] & 0xff)<<8 | (k[14] & 0xff)<<16 | (k[15] & 0xff)<<24,
+          j5  = c[ 4] & 0xff | (c[ 5] & 0xff)<<8 | (c[ 6] & 0xff)<<16 | (c[ 7] & 0xff)<<24,
+          j6  = p[ 0] & 0xff | (p[ 1] & 0xff)<<8 | (p[ 2] & 0xff)<<16 | (p[ 3] & 0xff)<<24,
+          j7  = p[ 4] & 0xff | (p[ 5] & 0xff)<<8 | (p[ 6] & 0xff)<<16 | (p[ 7] & 0xff)<<24,
+          j8  = p[ 8] & 0xff | (p[ 9] & 0xff)<<8 | (p[10] & 0xff)<<16 | (p[11] & 0xff)<<24,
+          j9  = p[12] & 0xff | (p[13] & 0xff)<<8 | (p[14] & 0xff)<<16 | (p[15] & 0xff)<<24,
+          j10 = c[ 8] & 0xff | (c[ 9] & 0xff)<<8 | (c[10] & 0xff)<<16 | (c[11] & 0xff)<<24,
+          j11 = k[16] & 0xff | (k[17] & 0xff)<<8 | (k[18] & 0xff)<<16 | (k[19] & 0xff)<<24,
+          j12 = k[20] & 0xff | (k[21] & 0xff)<<8 | (k[22] & 0xff)<<16 | (k[23] & 0xff)<<24,
+          j13 = k[24] & 0xff | (k[25] & 0xff)<<8 | (k[26] & 0xff)<<16 | (k[27] & 0xff)<<24,
+          j14 = k[28] & 0xff | (k[29] & 0xff)<<8 | (k[30] & 0xff)<<16 | (k[31] & 0xff)<<24,
+          j15 = c[12] & 0xff | (c[13] & 0xff)<<8 | (c[14] & 0xff)<<16 | (c[15] & 0xff)<<24;
+
+      var x0 = j0, x1 = j1, x2 = j2, x3 = j3, x4 = j4, x5 = j5, x6 = j6, x7 = j7,
+          x8 = j8, x9 = j9, x10 = j10, x11 = j11, x12 = j12, x13 = j13, x14 = j14,
+          x15 = j15, u;
+
+      for (var i = 0; i < 20; i += 2) {
+        u = x0 + x12 | 0;
+        x4 ^= u<<7 | u>>>(32-7);
+        u = x4 + x0 | 0;
+        x8 ^= u<<9 | u>>>(32-9);
+        u = x8 + x4 | 0;
+        x12 ^= u<<13 | u>>>(32-13);
+        u = x12 + x8 | 0;
+        x0 ^= u<<18 | u>>>(32-18);
+
+        u = x5 + x1 | 0;
+        x9 ^= u<<7 | u>>>(32-7);
+        u = x9 + x5 | 0;
+        x13 ^= u<<9 | u>>>(32-9);
+        u = x13 + x9 | 0;
+        x1 ^= u<<13 | u>>>(32-13);
+        u = x1 + x13 | 0;
+        x5 ^= u<<18 | u>>>(32-18);
+
+        u = x10 + x6 | 0;
+        x14 ^= u<<7 | u>>>(32-7);
+        u = x14 + x10 | 0;
+        x2 ^= u<<9 | u>>>(32-9);
+        u = x2 + x14 | 0;
+        x6 ^= u<<13 | u>>>(32-13);
+        u = x6 + x2 | 0;
+        x10 ^= u<<18 | u>>>(32-18);
+
+        u = x15 + x11 | 0;
+        x3 ^= u<<7 | u>>>(32-7);
+        u = x3 + x15 | 0;
+        x7 ^= u<<9 | u>>>(32-9);
+        u = x7 + x3 | 0;
+        x11 ^= u<<13 | u>>>(32-13);
+        u = x11 + x7 | 0;
+        x15 ^= u<<18 | u>>>(32-18);
+
+        u = x0 + x3 | 0;
+        x1 ^= u<<7 | u>>>(32-7);
+        u = x1 + x0 | 0;
+        x2 ^= u<<9 | u>>>(32-9);
+        u = x2 + x1 | 0;
+        x3 ^= u<<13 | u>>>(32-13);
+        u = x3 + x2 | 0;
+        x0 ^= u<<18 | u>>>(32-18);
+
+        u = x5 + x4 | 0;
+        x6 ^= u<<7 | u>>>(32-7);
+        u = x6 + x5 | 0;
+        x7 ^= u<<9 | u>>>(32-9);
+        u = x7 + x6 | 0;
+        x4 ^= u<<13 | u>>>(32-13);
+        u = x4 + x7 | 0;
+        x5 ^= u<<18 | u>>>(32-18);
+
+        u = x10 + x9 | 0;
+        x11 ^= u<<7 | u>>>(32-7);
+        u = x11 + x10 | 0;
+        x8 ^= u<<9 | u>>>(32-9);
+        u = x8 + x11 | 0;
+        x9 ^= u<<13 | u>>>(32-13);
+        u = x9 + x8 | 0;
+        x10 ^= u<<18 | u>>>(32-18);
+
+        u = x15 + x14 | 0;
+        x12 ^= u<<7 | u>>>(32-7);
+        u = x12 + x15 | 0;
+        x13 ^= u<<9 | u>>>(32-9);
+        u = x13 + x12 | 0;
+        x14 ^= u<<13 | u>>>(32-13);
+        u = x14 + x13 | 0;
+        x15 ^= u<<18 | u>>>(32-18);
+      }
+
+      o[ 0] = x0 >>>  0 & 0xff;
+      o[ 1] = x0 >>>  8 & 0xff;
+      o[ 2] = x0 >>> 16 & 0xff;
+      o[ 3] = x0 >>> 24 & 0xff;
+
+      o[ 4] = x5 >>>  0 & 0xff;
+      o[ 5] = x5 >>>  8 & 0xff;
+      o[ 6] = x5 >>> 16 & 0xff;
+      o[ 7] = x5 >>> 24 & 0xff;
+
+      o[ 8] = x10 >>>  0 & 0xff;
+      o[ 9] = x10 >>>  8 & 0xff;
+      o[10] = x10 >>> 16 & 0xff;
+      o[11] = x10 >>> 24 & 0xff;
+
+      o[12] = x15 >>>  0 & 0xff;
+      o[13] = x15 >>>  8 & 0xff;
+      o[14] = x15 >>> 16 & 0xff;
+      o[15] = x15 >>> 24 & 0xff;
+
+      o[16] = x6 >>>  0 & 0xff;
+      o[17] = x6 >>>  8 & 0xff;
+      o[18] = x6 >>> 16 & 0xff;
+      o[19] = x6 >>> 24 & 0xff;
+
+      o[20] = x7 >>>  0 & 0xff;
+      o[21] = x7 >>>  8 & 0xff;
+      o[22] = x7 >>> 16 & 0xff;
+      o[23] = x7 >>> 24 & 0xff;
+
+      o[24] = x8 >>>  0 & 0xff;
+      o[25] = x8 >>>  8 & 0xff;
+      o[26] = x8 >>> 16 & 0xff;
+      o[27] = x8 >>> 24 & 0xff;
+
+      o[28] = x9 >>>  0 & 0xff;
+      o[29] = x9 >>>  8 & 0xff;
+      o[30] = x9 >>> 16 & 0xff;
+      o[31] = x9 >>> 24 & 0xff;
+    }
+
+    function crypto_core_salsa20(out,inp,k,c) {
+      core_salsa20(out,inp,k,c);
+    }
+
+    function crypto_core_hsalsa20(out,inp,k,c) {
+      core_hsalsa20(out,inp,k,c);
+    }
+
+    var sigma = new Uint8Array([101, 120, 112, 97, 110, 100, 32, 51, 50, 45, 98, 121, 116, 101, 32, 107]);
+                // "expand 32-byte k"
+
+    function crypto_stream_salsa20_xor(c,cpos,m,mpos,b,n,k) {
+      var z = new Uint8Array(16), x = new Uint8Array(64);
+      var u, i;
+      for (i = 0; i < 16; i++) z[i] = 0;
+      for (i = 0; i < 8; i++) z[i] = n[i];
+      while (b >= 64) {
+        crypto_core_salsa20(x,z,k,sigma);
+        for (i = 0; i < 64; i++) c[cpos+i] = m[mpos+i] ^ x[i];
+        u = 1;
+        for (i = 8; i < 16; i++) {
+          u = u + (z[i] & 0xff) | 0;
+          z[i] = u & 0xff;
+          u >>>= 8;
+        }
+        b -= 64;
+        cpos += 64;
+        mpos += 64;
+      }
+      if (b > 0) {
+        crypto_core_salsa20(x,z,k,sigma);
+        for (i = 0; i < b; i++) c[cpos+i] = m[mpos+i] ^ x[i];
+      }
+      return 0;
+    }
+
+    function crypto_stream_salsa20(c,cpos,b,n,k) {
+      var z = new Uint8Array(16), x = new Uint8Array(64);
+      var u, i;
+      for (i = 0; i < 16; i++) z[i] = 0;
+      for (i = 0; i < 8; i++) z[i] = n[i];
+      while (b >= 64) {
+        crypto_core_salsa20(x,z,k,sigma);
+        for (i = 0; i < 64; i++) c[cpos+i] = x[i];
+        u = 1;
+        for (i = 8; i < 16; i++) {
+          u = u + (z[i] & 0xff) | 0;
+          z[i] = u & 0xff;
+          u >>>= 8;
+        }
+        b -= 64;
+        cpos += 64;
+      }
+      if (b > 0) {
+        crypto_core_salsa20(x,z,k,sigma);
+        for (i = 0; i < b; i++) c[cpos+i] = x[i];
+      }
+      return 0;
+    }
+
+    function crypto_stream(c,cpos,d,n,k) {
+      var s = new Uint8Array(32);
+      crypto_core_hsalsa20(s,n,k,sigma);
+      var sn = new Uint8Array(8);
+      for (var i = 0; i < 8; i++) sn[i] = n[i+16];
+      return crypto_stream_salsa20(c,cpos,d,sn,s);
+    }
+
+    function crypto_stream_xor(c,cpos,m,mpos,d,n,k) {
+      var s = new Uint8Array(32);
+      crypto_core_hsalsa20(s,n,k,sigma);
+      var sn = new Uint8Array(8);
+      for (var i = 0; i < 8; i++) sn[i] = n[i+16];
+      return crypto_stream_salsa20_xor(c,cpos,m,mpos,d,sn,s);
+    }
+
+    /*
+    * Port of Andrew Moon's Poly1305-donna-16. Public domain.
+    * https://github.com/floodyberry/poly1305-donna
+    */
+
+    var poly1305 = function(key) {
+      this.buffer = new Uint8Array(16);
+      this.r = new Uint16Array(10);
+      this.h = new Uint16Array(10);
+      this.pad = new Uint16Array(8);
+      this.leftover = 0;
+      this.fin = 0;
+
+      var t0, t1, t2, t3, t4, t5, t6, t7;
+
+      t0 = key[ 0] & 0xff | (key[ 1] & 0xff) << 8; this.r[0] = ( t0                     ) & 0x1fff;
+      t1 = key[ 2] & 0xff | (key[ 3] & 0xff) << 8; this.r[1] = ((t0 >>> 13) | (t1 <<  3)) & 0x1fff;
+      t2 = key[ 4] & 0xff | (key[ 5] & 0xff) << 8; this.r[2] = ((t1 >>> 10) | (t2 <<  6)) & 0x1f03;
+      t3 = key[ 6] & 0xff | (key[ 7] & 0xff) << 8; this.r[3] = ((t2 >>>  7) | (t3 <<  9)) & 0x1fff;
+      t4 = key[ 8] & 0xff | (key[ 9] & 0xff) << 8; this.r[4] = ((t3 >>>  4) | (t4 << 12)) & 0x00ff;
+      this.r[5] = ((t4 >>>  1)) & 0x1ffe;
+      t5 = key[10] & 0xff | (key[11] & 0xff) << 8; this.r[6] = ((t4 >>> 14) | (t5 <<  2)) & 0x1fff;
+      t6 = key[12] & 0xff | (key[13] & 0xff) << 8; this.r[7] = ((t5 >>> 11) | (t6 <<  5)) & 0x1f81;
+      t7 = key[14] & 0xff | (key[15] & 0xff) << 8; this.r[8] = ((t6 >>>  8) | (t7 <<  8)) & 0x1fff;
+      this.r[9] = ((t7 >>>  5)) & 0x007f;
+
+      this.pad[0] = key[16] & 0xff | (key[17] & 0xff) << 8;
+      this.pad[1] = key[18] & 0xff | (key[19] & 0xff) << 8;
+      this.pad[2] = key[20] & 0xff | (key[21] & 0xff) << 8;
+      this.pad[3] = key[22] & 0xff | (key[23] & 0xff) << 8;
+      this.pad[4] = key[24] & 0xff | (key[25] & 0xff) << 8;
+      this.pad[5] = key[26] & 0xff | (key[27] & 0xff) << 8;
+      this.pad[6] = key[28] & 0xff | (key[29] & 0xff) << 8;
+      this.pad[7] = key[30] & 0xff | (key[31] & 0xff) << 8;
+    };
+
+    poly1305.prototype.blocks = function(m, mpos, bytes) {
+      var hibit = this.fin ? 0 : (1 << 11);
+      var t0, t1, t2, t3, t4, t5, t6, t7, c;
+      var d0, d1, d2, d3, d4, d5, d6, d7, d8, d9;
+
+      var h0 = this.h[0],
+          h1 = this.h[1],
+          h2 = this.h[2],
+          h3 = this.h[3],
+          h4 = this.h[4],
+          h5 = this.h[5],
+          h6 = this.h[6],
+          h7 = this.h[7],
+          h8 = this.h[8],
+          h9 = this.h[9];
+
+      var r0 = this.r[0],
+          r1 = this.r[1],
+          r2 = this.r[2],
+          r3 = this.r[3],
+          r4 = this.r[4],
+          r5 = this.r[5],
+          r6 = this.r[6],
+          r7 = this.r[7],
+          r8 = this.r[8],
+          r9 = this.r[9];
+
+      while (bytes >= 16) {
+        t0 = m[mpos+ 0] & 0xff | (m[mpos+ 1] & 0xff) << 8; h0 += ( t0                     ) & 0x1fff;
+        t1 = m[mpos+ 2] & 0xff | (m[mpos+ 3] & 0xff) << 8; h1 += ((t0 >>> 13) | (t1 <<  3)) & 0x1fff;
+        t2 = m[mpos+ 4] & 0xff | (m[mpos+ 5] & 0xff) << 8; h2 += ((t1 >>> 10) | (t2 <<  6)) & 0x1fff;
+        t3 = m[mpos+ 6] & 0xff | (m[mpos+ 7] & 0xff) << 8; h3 += ((t2 >>>  7) | (t3 <<  9)) & 0x1fff;
+        t4 = m[mpos+ 8] & 0xff | (m[mpos+ 9] & 0xff) << 8; h4 += ((t3 >>>  4) | (t4 << 12)) & 0x1fff;
+        h5 += ((t4 >>>  1)) & 0x1fff;
+        t5 = m[mpos+10] & 0xff | (m[mpos+11] & 0xff) << 8; h6 += ((t4 >>> 14) | (t5 <<  2)) & 0x1fff;
+        t6 = m[mpos+12] & 0xff | (m[mpos+13] & 0xff) << 8; h7 += ((t5 >>> 11) | (t6 <<  5)) & 0x1fff;
+        t7 = m[mpos+14] & 0xff | (m[mpos+15] & 0xff) << 8; h8 += ((t6 >>>  8) | (t7 <<  8)) & 0x1fff;
+        h9 += ((t7 >>> 5)) | hibit;
+
+        c = 0;
+
+        d0 = c;
+        d0 += h0 * r0;
+        d0 += h1 * (5 * r9);
+        d0 += h2 * (5 * r8);
+        d0 += h3 * (5 * r7);
+        d0 += h4 * (5 * r6);
+        c = (d0 >>> 13); d0 &= 0x1fff;
+        d0 += h5 * (5 * r5);
+        d0 += h6 * (5 * r4);
+        d0 += h7 * (5 * r3);
+        d0 += h8 * (5 * r2);
+        d0 += h9 * (5 * r1);
+        c += (d0 >>> 13); d0 &= 0x1fff;
+
+        d1 = c;
+        d1 += h0 * r1;
+        d1 += h1 * r0;
+        d1 += h2 * (5 * r9);
+        d1 += h3 * (5 * r8);
+        d1 += h4 * (5 * r7);
+        c = (d1 >>> 13); d1 &= 0x1fff;
+        d1 += h5 * (5 * r6);
+        d1 += h6 * (5 * r5);
+        d1 += h7 * (5 * r4);
+        d1 += h8 * (5 * r3);
+        d1 += h9 * (5 * r2);
+        c += (d1 >>> 13); d1 &= 0x1fff;
+
+        d2 = c;
+        d2 += h0 * r2;
+        d2 += h1 * r1;
+        d2 += h2 * r0;
+        d2 += h3 * (5 * r9);
+        d2 += h4 * (5 * r8);
+        c = (d2 >>> 13); d2 &= 0x1fff;
+        d2 += h5 * (5 * r7);
+        d2 += h6 * (5 * r6);
+        d2 += h7 * (5 * r5);
+        d2 += h8 * (5 * r4);
+        d2 += h9 * (5 * r3);
+        c += (d2 >>> 13); d2 &= 0x1fff;
+
+        d3 = c;
+        d3 += h0 * r3;
+        d3 += h1 * r2;
+        d3 += h2 * r1;
+        d3 += h3 * r0;
+        d3 += h4 * (5 * r9);
+        c = (d3 >>> 13); d3 &= 0x1fff;
+        d3 += h5 * (5 * r8);
+        d3 += h6 * (5 * r7);
+        d3 += h7 * (5 * r6);
+        d3 += h8 * (5 * r5);
+        d3 += h9 * (5 * r4);
+        c += (d3 >>> 13); d3 &= 0x1fff;
+
+        d4 = c;
+        d4 += h0 * r4;
+        d4 += h1 * r3;
+        d4 += h2 * r2;
+        d4 += h3 * r1;
+        d4 += h4 * r0;
+        c = (d4 >>> 13); d4 &= 0x1fff;
+        d4 += h5 * (5 * r9);
+        d4 += h6 * (5 * r8);
+        d4 += h7 * (5 * r7);
+        d4 += h8 * (5 * r6);
+        d4 += h9 * (5 * r5);
+        c += (d4 >>> 13); d4 &= 0x1fff;
+
+        d5 = c;
+        d5 += h0 * r5;
+        d5 += h1 * r4;
+        d5 += h2 * r3;
+        d5 += h3 * r2;
+        d5 += h4 * r1;
+        c = (d5 >>> 13); d5 &= 0x1fff;
+        d5 += h5 * r0;
+        d5 += h6 * (5 * r9);
+        d5 += h7 * (5 * r8);
+        d5 += h8 * (5 * r7);
+        d5 += h9 * (5 * r6);
+        c += (d5 >>> 13); d5 &= 0x1fff;
+
+        d6 = c;
+        d6 += h0 * r6;
+        d6 += h1 * r5;
+        d6 += h2 * r4;
+        d6 += h3 * r3;
+        d6 += h4 * r2;
+        c = (d6 >>> 13); d6 &= 0x1fff;
+        d6 += h5 * r1;
+        d6 += h6 * r0;
+        d6 += h7 * (5 * r9);
+        d6 += h8 * (5 * r8);
+        d6 += h9 * (5 * r7);
+        c += (d6 >>> 13); d6 &= 0x1fff;
+
+        d7 = c;
+        d7 += h0 * r7;
+        d7 += h1 * r6;
+        d7 += h2 * r5;
+        d7 += h3 * r4;
+        d7 += h4 * r3;
+        c = (d7 >>> 13); d7 &= 0x1fff;
+        d7 += h5 * r2;
+        d7 += h6 * r1;
+        d7 += h7 * r0;
+        d7 += h8 * (5 * r9);
+        d7 += h9 * (5 * r8);
+        c += (d7 >>> 13); d7 &= 0x1fff;
+
+        d8 = c;
+        d8 += h0 * r8;
+        d8 += h1 * r7;
+        d8 += h2 * r6;
+        d8 += h3 * r5;
+        d8 += h4 * r4;
+        c = (d8 >>> 13); d8 &= 0x1fff;
+        d8 += h5 * r3;
+        d8 += h6 * r2;
+        d8 += h7 * r1;
+        d8 += h8 * r0;
+        d8 += h9 * (5 * r9);
+        c += (d8 >>> 13); d8 &= 0x1fff;
+
+        d9 = c;
+        d9 += h0 * r9;
+        d9 += h1 * r8;
+        d9 += h2 * r7;
+        d9 += h3 * r6;
+        d9 += h4 * r5;
+        c = (d9 >>> 13); d9 &= 0x1fff;
+        d9 += h5 * r4;
+        d9 += h6 * r3;
+        d9 += h7 * r2;
+        d9 += h8 * r1;
+        d9 += h9 * r0;
+        c += (d9 >>> 13); d9 &= 0x1fff;
+
+        c = (((c << 2) + c)) | 0;
+        c = (c + d0) | 0;
+        d0 = c & 0x1fff;
+        c = (c >>> 13);
+        d1 += c;
+
+        h0 = d0;
+        h1 = d1;
+        h2 = d2;
+        h3 = d3;
+        h4 = d4;
+        h5 = d5;
+        h6 = d6;
+        h7 = d7;
+        h8 = d8;
+        h9 = d9;
+
+        mpos += 16;
+        bytes -= 16;
+      }
+      this.h[0] = h0;
+      this.h[1] = h1;
+      this.h[2] = h2;
+      this.h[3] = h3;
+      this.h[4] = h4;
+      this.h[5] = h5;
+      this.h[6] = h6;
+      this.h[7] = h7;
+      this.h[8] = h8;
+      this.h[9] = h9;
+    };
+
+    poly1305.prototype.finish = function(mac, macpos) {
+      var g = new Uint16Array(10);
+      var c, mask, f, i;
+
+      if (this.leftover) {
+        i = this.leftover;
+        this.buffer[i++] = 1;
+        for (; i < 16; i++) this.buffer[i] = 0;
+        this.fin = 1;
+        this.blocks(this.buffer, 0, 16);
+      }
+
+      c = this.h[1] >>> 13;
+      this.h[1] &= 0x1fff;
+      for (i = 2; i < 10; i++) {
+        this.h[i] += c;
+        c = this.h[i] >>> 13;
+        this.h[i] &= 0x1fff;
+      }
+      this.h[0] += (c * 5);
+      c = this.h[0] >>> 13;
+      this.h[0] &= 0x1fff;
+      this.h[1] += c;
+      c = this.h[1] >>> 13;
+      this.h[1] &= 0x1fff;
+      this.h[2] += c;
+
+      g[0] = this.h[0] + 5;
+      c = g[0] >>> 13;
+      g[0] &= 0x1fff;
+      for (i = 1; i < 10; i++) {
+        g[i] = this.h[i] + c;
+        c = g[i] >>> 13;
+        g[i] &= 0x1fff;
+      }
+      g[9] -= (1 << 13);
+
+      mask = (c ^ 1) - 1;
+      for (i = 0; i < 10; i++) g[i] &= mask;
+      mask = ~mask;
+      for (i = 0; i < 10; i++) this.h[i] = (this.h[i] & mask) | g[i];
+
+      this.h[0] = ((this.h[0]       ) | (this.h[1] << 13)                    ) & 0xffff;
+      this.h[1] = ((this.h[1] >>>  3) | (this.h[2] << 10)                    ) & 0xffff;
+      this.h[2] = ((this.h[2] >>>  6) | (this.h[3] <<  7)                    ) & 0xffff;
+      this.h[3] = ((this.h[3] >>>  9) | (this.h[4] <<  4)                    ) & 0xffff;
+      this.h[4] = ((this.h[4] >>> 12) | (this.h[5] <<  1) | (this.h[6] << 14)) & 0xffff;
+      this.h[5] = ((this.h[6] >>>  2) | (this.h[7] << 11)                    ) & 0xffff;
+      this.h[6] = ((this.h[7] >>>  5) | (this.h[8] <<  8)                    ) & 0xffff;
+      this.h[7] = ((this.h[8] >>>  8) | (this.h[9] <<  5)                    ) & 0xffff;
+
+      f = this.h[0] + this.pad[0];
+      this.h[0] = f & 0xffff;
+      for (i = 1; i < 8; i++) {
+        f = (((this.h[i] + this.pad[i]) | 0) + (f >>> 16)) | 0;
+        this.h[i] = f & 0xffff;
+      }
+
+      mac[macpos+ 0] = (this.h[0] >>> 0) & 0xff;
+      mac[macpos+ 1] = (this.h[0] >>> 8) & 0xff;
+      mac[macpos+ 2] = (this.h[1] >>> 0) & 0xff;
+      mac[macpos+ 3] = (this.h[1] >>> 8) & 0xff;
+      mac[macpos+ 4] = (this.h[2] >>> 0) & 0xff;
+      mac[macpos+ 5] = (this.h[2] >>> 8) & 0xff;
+      mac[macpos+ 6] = (this.h[3] >>> 0) & 0xff;
+      mac[macpos+ 7] = (this.h[3] >>> 8) & 0xff;
+      mac[macpos+ 8] = (this.h[4] >>> 0) & 0xff;
+      mac[macpos+ 9] = (this.h[4] >>> 8) & 0xff;
+      mac[macpos+10] = (this.h[5] >>> 0) & 0xff;
+      mac[macpos+11] = (this.h[5] >>> 8) & 0xff;
+      mac[macpos+12] = (this.h[6] >>> 0) & 0xff;
+      mac[macpos+13] = (this.h[6] >>> 8) & 0xff;
+      mac[macpos+14] = (this.h[7] >>> 0) & 0xff;
+      mac[macpos+15] = (this.h[7] >>> 8) & 0xff;
+    };
+
+    poly1305.prototype.update = function(m, mpos, bytes) {
+      var i, want;
+
+      if (this.leftover) {
+        want = (16 - this.leftover);
+        if (want > bytes)
+          want = bytes;
+        for (i = 0; i < want; i++)
+          this.buffer[this.leftover + i] = m[mpos+i];
+        bytes -= want;
+        mpos += want;
+        this.leftover += want;
+        if (this.leftover < 16)
+          return;
+        this.blocks(this.buffer, 0, 16);
+        this.leftover = 0;
+      }
+
+      if (bytes >= 16) {
+        want = bytes - (bytes % 16);
+        this.blocks(m, mpos, want);
+        mpos += want;
+        bytes -= want;
+      }
+
+      if (bytes) {
+        for (i = 0; i < bytes; i++)
+          this.buffer[this.leftover + i] = m[mpos+i];
+        this.leftover += bytes;
+      }
+    };
+
+    function crypto_onetimeauth(out, outpos, m, mpos, n, k) {
+      var s = new poly1305(k);
+      s.update(m, mpos, n);
+      s.finish(out, outpos);
+      return 0;
+    }
+
+    function crypto_onetimeauth_verify(h, hpos, m, mpos, n, k) {
+      var x = new Uint8Array(16);
+      crypto_onetimeauth(x,0,m,mpos,n,k);
+      return crypto_verify_16(h,hpos,x,0);
+    }
+
+    function crypto_secretbox(c,m,d,n,k) {
+      var i;
+      if (d < 32) return -1;
+      crypto_stream_xor(c,0,m,0,d,n,k);
+      crypto_onetimeauth(c, 16, c, 32, d - 32, c);
+      for (i = 0; i < 16; i++) c[i] = 0;
+      return 0;
+    }
+
+    function crypto_secretbox_open(m,c,d,n,k) {
+      var i;
+      var x = new Uint8Array(32);
+      if (d < 32) return -1;
+      crypto_stream(x,0,32,n,k);
+      if (crypto_onetimeauth_verify(c, 16,c, 32,d - 32,x) !== 0) return -1;
+      crypto_stream_xor(m,0,c,0,d,n,k);
+      for (i = 0; i < 32; i++) m[i] = 0;
+      return 0;
+    }
+
+    function set25519(r, a) {
+      var i;
+      for (i = 0; i < 16; i++) r[i] = a[i]|0;
+    }
+
+    function car25519(o) {
+      var i, v, c = 1;
+      for (i = 0; i < 16; i++) {
+        v = o[i] + c + 65535;
+        c = Math.floor(v / 65536);
+        o[i] = v - c * 65536;
+      }
+      o[0] += c-1 + 37 * (c-1);
+    }
+
+    function sel25519(p, q, b) {
+      var t, c = ~(b-1);
+      for (var i = 0; i < 16; i++) {
+        t = c & (p[i] ^ q[i]);
+        p[i] ^= t;
+        q[i] ^= t;
+      }
+    }
+
+    function pack25519(o, n) {
+      var i, j, b;
+      var m = gf(), t = gf();
+      for (i = 0; i < 16; i++) t[i] = n[i];
+      car25519(t);
+      car25519(t);
+      car25519(t);
+      for (j = 0; j < 2; j++) {
+        m[0] = t[0] - 0xffed;
+        for (i = 1; i < 15; i++) {
+          m[i] = t[i] - 0xffff - ((m[i-1]>>16) & 1);
+          m[i-1] &= 0xffff;
+        }
+        m[15] = t[15] - 0x7fff - ((m[14]>>16) & 1);
+        b = (m[15]>>16) & 1;
+        m[14] &= 0xffff;
+        sel25519(t, m, 1-b);
+      }
+      for (i = 0; i < 16; i++) {
+        o[2*i] = t[i] & 0xff;
+        o[2*i+1] = t[i]>>8;
+      }
+    }
+
+    function neq25519(a, b) {
+      var c = new Uint8Array(32), d = new Uint8Array(32);
+      pack25519(c, a);
+      pack25519(d, b);
+      return crypto_verify_32(c, 0, d, 0);
+    }
+
+    function par25519(a) {
+      var d = new Uint8Array(32);
+      pack25519(d, a);
+      return d[0] & 1;
+    }
+
+    function unpack25519(o, n) {
+      var i;
+      for (i = 0; i < 16; i++) o[i] = n[2*i] + (n[2*i+1] << 8);
+      o[15] &= 0x7fff;
+    }
+
+    function A(o, a, b) {
+      for (var i = 0; i < 16; i++) o[i] = a[i] + b[i];
+    }
+
+    function Z(o, a, b) {
+      for (var i = 0; i < 16; i++) o[i] = a[i] - b[i];
+    }
+
+    function M(o, a, b) {
+      var v, c,
+         t0 = 0,  t1 = 0,  t2 = 0,  t3 = 0,  t4 = 0,  t5 = 0,  t6 = 0,  t7 = 0,
+         t8 = 0,  t9 = 0, t10 = 0, t11 = 0, t12 = 0, t13 = 0, t14 = 0, t15 = 0,
+        t16 = 0, t17 = 0, t18 = 0, t19 = 0, t20 = 0, t21 = 0, t22 = 0, t23 = 0,
+        t24 = 0, t25 = 0, t26 = 0, t27 = 0, t28 = 0, t29 = 0, t30 = 0,
+        b0 = b[0],
+        b1 = b[1],
+        b2 = b[2],
+        b3 = b[3],
+        b4 = b[4],
+        b5 = b[5],
+        b6 = b[6],
+        b7 = b[7],
+        b8 = b[8],
+        b9 = b[9],
+        b10 = b[10],
+        b11 = b[11],
+        b12 = b[12],
+        b13 = b[13],
+        b14 = b[14],
+        b15 = b[15];
+
+      v = a[0];
+      t0 += v * b0;
+      t1 += v * b1;
+      t2 += v * b2;
+      t3 += v * b3;
+      t4 += v * b4;
+      t5 += v * b5;
+      t6 += v * b6;
+      t7 += v * b7;
+      t8 += v * b8;
+      t9 += v * b9;
+      t10 += v * b10;
+      t11 += v * b11;
+      t12 += v * b12;
+      t13 += v * b13;
+      t14 += v * b14;
+      t15 += v * b15;
+      v = a[1];
+      t1 += v * b0;
+      t2 += v * b1;
+      t3 += v * b2;
+      t4 += v * b3;
+      t5 += v * b4;
+      t6 += v * b5;
+      t7 += v * b6;
+      t8 += v * b7;
+      t9 += v * b8;
+      t10 += v * b9;
+      t11 += v * b10;
+      t12 += v * b11;
+      t13 += v * b12;
+      t14 += v * b13;
+      t15 += v * b14;
+      t16 += v * b15;
+      v = a[2];
+      t2 += v * b0;
+      t3 += v * b1;
+      t4 += v * b2;
+      t5 += v * b3;
+      t6 += v * b4;
+      t7 += v * b5;
+      t8 += v * b6;
+      t9 += v * b7;
+      t10 += v * b8;
+      t11 += v * b9;
+      t12 += v * b10;
+      t13 += v * b11;
+      t14 += v * b12;
+      t15 += v * b13;
+      t16 += v * b14;
+      t17 += v * b15;
+      v = a[3];
+      t3 += v * b0;
+      t4 += v * b1;
+      t5 += v * b2;
+      t6 += v * b3;
+      t7 += v * b4;
+      t8 += v * b5;
+      t9 += v * b6;
+      t10 += v * b7;
+      t11 += v * b8;
+      t12 += v * b9;
+      t13 += v * b10;
+      t14 += v * b11;
+      t15 += v * b12;
+      t16 += v * b13;
+      t17 += v * b14;
+      t18 += v * b15;
+      v = a[4];
+      t4 += v * b0;
+      t5 += v * b1;
+      t6 += v * b2;
+      t7 += v * b3;
+      t8 += v * b4;
+      t9 += v * b5;
+      t10 += v * b6;
+      t11 += v * b7;
+      t12 += v * b8;
+      t13 += v * b9;
+      t14 += v * b10;
+      t15 += v * b11;
+      t16 += v * b12;
+      t17 += v * b13;
+      t18 += v * b14;
+      t19 += v * b15;
+      v = a[5];
+      t5 += v * b0;
+      t6 += v * b1;
+      t7 += v * b2;
+      t8 += v * b3;
+      t9 += v * b4;
+      t10 += v * b5;
+      t11 += v * b6;
+      t12 += v * b7;
+      t13 += v * b8;
+      t14 += v * b9;
+      t15 += v * b10;
+      t16 += v * b11;
+      t17 += v * b12;
+      t18 += v * b13;
+      t19 += v * b14;
+      t20 += v * b15;
+      v = a[6];
+      t6 += v * b0;
+      t7 += v * b1;
+      t8 += v * b2;
+      t9 += v * b3;
+      t10 += v * b4;
+      t11 += v * b5;
+      t12 += v * b6;
+      t13 += v * b7;
+      t14 += v * b8;
+      t15 += v * b9;
+      t16 += v * b10;
+      t17 += v * b11;
+      t18 += v * b12;
+      t19 += v * b13;
+      t20 += v * b14;
+      t21 += v * b15;
+      v = a[7];
+      t7 += v * b0;
+      t8 += v * b1;
+      t9 += v * b2;
+      t10 += v * b3;
+      t11 += v * b4;
+      t12 += v * b5;
+      t13 += v * b6;
+      t14 += v * b7;
+      t15 += v * b8;
+      t16 += v * b9;
+      t17 += v * b10;
+      t18 += v * b11;
+      t19 += v * b12;
+      t20 += v * b13;
+      t21 += v * b14;
+      t22 += v * b15;
+      v = a[8];
+      t8 += v * b0;
+      t9 += v * b1;
+      t10 += v * b2;
+      t11 += v * b3;
+      t12 += v * b4;
+      t13 += v * b5;
+      t14 += v * b6;
+      t15 += v * b7;
+      t16 += v * b8;
+      t17 += v * b9;
+      t18 += v * b10;
+      t19 += v * b11;
+      t20 += v * b12;
+      t21 += v * b13;
+      t22 += v * b14;
+      t23 += v * b15;
+      v = a[9];
+      t9 += v * b0;
+      t10 += v * b1;
+      t11 += v * b2;
+      t12 += v * b3;
+      t13 += v * b4;
+      t14 += v * b5;
+      t15 += v * b6;
+      t16 += v * b7;
+      t17 += v * b8;
+      t18 += v * b9;
+      t19 += v * b10;
+      t20 += v * b11;
+      t21 += v * b12;
+      t22 += v * b13;
+      t23 += v * b14;
+      t24 += v * b15;
+      v = a[10];
+      t10 += v * b0;
+      t11 += v * b1;
+      t12 += v * b2;
+      t13 += v * b3;
+      t14 += v * b4;
+      t15 += v * b5;
+      t16 += v * b6;
+      t17 += v * b7;
+      t18 += v * b8;
+      t19 += v * b9;
+      t20 += v * b10;
+      t21 += v * b11;
+      t22 += v * b12;
+      t23 += v * b13;
+      t24 += v * b14;
+      t25 += v * b15;
+      v = a[11];
+      t11 += v * b0;
+      t12 += v * b1;
+      t13 += v * b2;
+      t14 += v * b3;
+      t15 += v * b4;
+      t16 += v * b5;
+      t17 += v * b6;
+      t18 += v * b7;
+      t19 += v * b8;
+      t20 += v * b9;
+      t21 += v * b10;
+      t22 += v * b11;
+      t23 += v * b12;
+      t24 += v * b13;
+      t25 += v * b14;
+      t26 += v * b15;
+      v = a[12];
+      t12 += v * b0;
+      t13 += v * b1;
+      t14 += v * b2;
+      t15 += v * b3;
+      t16 += v * b4;
+      t17 += v * b5;
+      t18 += v * b6;
+      t19 += v * b7;
+      t20 += v * b8;
+      t21 += v * b9;
+      t22 += v * b10;
+      t23 += v * b11;
+      t24 += v * b12;
+      t25 += v * b13;
+      t26 += v * b14;
+      t27 += v * b15;
+      v = a[13];
+      t13 += v * b0;
+      t14 += v * b1;
+      t15 += v * b2;
+      t16 += v * b3;
+      t17 += v * b4;
+      t18 += v * b5;
+      t19 += v * b6;
+      t20 += v * b7;
+      t21 += v * b8;
+      t22 += v * b9;
+      t23 += v * b10;
+      t24 += v * b11;
+      t25 += v * b12;
+      t26 += v * b13;
+      t27 += v * b14;
+      t28 += v * b15;
+      v = a[14];
+      t14 += v * b0;
+      t15 += v * b1;
+      t16 += v * b2;
+      t17 += v * b3;
+      t18 += v * b4;
+      t19 += v * b5;
+      t20 += v * b6;
+      t21 += v * b7;
+      t22 += v * b8;
+      t23 += v * b9;
+      t24 += v * b10;
+      t25 += v * b11;
+      t26 += v * b12;
+      t27 += v * b13;
+      t28 += v * b14;
+      t29 += v * b15;
+      v = a[15];
+      t15 += v * b0;
+      t16 += v * b1;
+      t17 += v * b2;
+      t18 += v * b3;
+      t19 += v * b4;
+      t20 += v * b5;
+      t21 += v * b6;
+      t22 += v * b7;
+      t23 += v * b8;
+      t24 += v * b9;
+      t25 += v * b10;
+      t26 += v * b11;
+      t27 += v * b12;
+      t28 += v * b13;
+      t29 += v * b14;
+      t30 += v * b15;
+
+      t0  += 38 * t16;
+      t1  += 38 * t17;
+      t2  += 38 * t18;
+      t3  += 38 * t19;
+      t4  += 38 * t20;
+      t5  += 38 * t21;
+      t6  += 38 * t22;
+      t7  += 38 * t23;
+      t8  += 38 * t24;
+      t9  += 38 * t25;
+      t10 += 38 * t26;
+      t11 += 38 * t27;
+      t12 += 38 * t28;
+      t13 += 38 * t29;
+      t14 += 38 * t30;
+      // t15 left as is
+
+      // first car
+      c = 1;
+      v =  t0 + c + 65535; c = Math.floor(v / 65536);  t0 = v - c * 65536;
+      v =  t1 + c + 65535; c = Math.floor(v / 65536);  t1 = v - c * 65536;
+      v =  t2 + c + 65535; c = Math.floor(v / 65536);  t2 = v - c * 65536;
+      v =  t3 + c + 65535; c = Math.floor(v / 65536);  t3 = v - c * 65536;
+      v =  t4 + c + 65535; c = Math.floor(v / 65536);  t4 = v - c * 65536;
+      v =  t5 + c + 65535; c = Math.floor(v / 65536);  t5 = v - c * 65536;
+      v =  t6 + c + 65535; c = Math.floor(v / 65536);  t6 = v - c * 65536;
+      v =  t7 + c + 65535; c = Math.floor(v / 65536);  t7 = v - c * 65536;
+      v =  t8 + c + 65535; c = Math.floor(v / 65536);  t8 = v - c * 65536;
+      v =  t9 + c + 65535; c = Math.floor(v / 65536);  t9 = v - c * 65536;
+      v = t10 + c + 65535; c = Math.floor(v / 65536); t10 = v - c * 65536;
+      v = t11 + c + 65535; c = Math.floor(v / 65536); t11 = v - c * 65536;
+      v = t12 + c + 65535; c = Math.floor(v / 65536); t12 = v - c * 65536;
+      v = t13 + c + 65535; c = Math.floor(v / 65536); t13 = v - c * 65536;
+      v = t14 + c + 65535; c = Math.floor(v / 65536); t14 = v - c * 65536;
+      v = t15 + c + 65535; c = Math.floor(v / 65536); t15 = v - c * 65536;
+      t0 += c-1 + 37 * (c-1);
+
+      // second car
+      c = 1;
+      v =  t0 + c + 65535; c = Math.floor(v / 65536);  t0 = v - c * 65536;
+      v =  t1 + c + 65535; c = Math.floor(v / 65536);  t1 = v - c * 65536;
+      v =  t2 + c + 65535; c = Math.floor(v / 65536);  t2 = v - c * 65536;
+      v =  t3 + c + 65535; c = Math.floor(v / 65536);  t3 = v - c * 65536;
+      v =  t4 + c + 65535; c = Math.floor(v / 65536);  t4 = v - c * 65536;
+      v =  t5 + c + 65535; c = Math.floor(v / 65536);  t5 = v - c * 65536;
+      v =  t6 + c + 65535; c = Math.floor(v / 65536);  t6 = v - c * 65536;
+      v =  t7 + c + 65535; c = Math.floor(v / 65536);  t7 = v - c * 65536;
+      v =  t8 + c + 65535; c = Math.floor(v / 65536);  t8 = v - c * 65536;
+      v =  t9 + c + 65535; c = Math.floor(v / 65536);  t9 = v - c * 65536;
+      v = t10 + c + 65535; c = Math.floor(v / 65536); t10 = v - c * 65536;
+      v = t11 + c + 65535; c = Math.floor(v / 65536); t11 = v - c * 65536;
+      v = t12 + c + 65535; c = Math.floor(v / 65536); t12 = v - c * 65536;
+      v = t13 + c + 65535; c = Math.floor(v / 65536); t13 = v - c * 65536;
+      v = t14 + c + 65535; c = Math.floor(v / 65536); t14 = v - c * 65536;
+      v = t15 + c + 65535; c = Math.floor(v / 65536); t15 = v - c * 65536;
+      t0 += c-1 + 37 * (c-1);
+
+      o[ 0] = t0;
+      o[ 1] = t1;
+      o[ 2] = t2;
+      o[ 3] = t3;
+      o[ 4] = t4;
+      o[ 5] = t5;
+      o[ 6] = t6;
+      o[ 7] = t7;
+      o[ 8] = t8;
+      o[ 9] = t9;
+      o[10] = t10;
+      o[11] = t11;
+      o[12] = t12;
+      o[13] = t13;
+      o[14] = t14;
+      o[15] = t15;
+    }
+
+    function S(o, a) {
+      M(o, a, a);
+    }
+
+    function inv25519(o, i) {
+      var c = gf();
+      var a;
+      for (a = 0; a < 16; a++) c[a] = i[a];
+      for (a = 253; a >= 0; a--) {
+        S(c, c);
+        if(a !== 2 && a !== 4) M(c, c, i);
+      }
+      for (a = 0; a < 16; a++) o[a] = c[a];
+    }
+
+    function pow2523(o, i) {
+      var c = gf();
+      var a;
+      for (a = 0; a < 16; a++) c[a] = i[a];
+      for (a = 250; a >= 0; a--) {
+          S(c, c);
+          if(a !== 1) M(c, c, i);
+      }
+      for (a = 0; a < 16; a++) o[a] = c[a];
+    }
+
+    function crypto_scalarmult(q, n, p) {
+      var z = new Uint8Array(32);
+      var x = new Float64Array(80), r, i;
+      var a = gf(), b = gf(), c = gf(),
+          d = gf(), e = gf(), f = gf();
+      for (i = 0; i < 31; i++) z[i] = n[i];
+      z[31]=(n[31]&127)|64;
+      z[0]&=248;
+      unpack25519(x,p);
+      for (i = 0; i < 16; i++) {
+        b[i]=x[i];
+        d[i]=a[i]=c[i]=0;
+      }
+      a[0]=d[0]=1;
+      for (i=254; i>=0; --i) {
+        r=(z[i>>>3]>>>(i&7))&1;
+        sel25519(a,b,r);
+        sel25519(c,d,r);
+        A(e,a,c);
+        Z(a,a,c);
+        A(c,b,d);
+        Z(b,b,d);
+        S(d,e);
+        S(f,a);
+        M(a,c,a);
+        M(c,b,e);
+        A(e,a,c);
+        Z(a,a,c);
+        S(b,a);
+        Z(c,d,f);
+        M(a,c,_121665);
+        A(a,a,d);
+        M(c,c,a);
+        M(a,d,f);
+        M(d,b,x);
+        S(b,e);
+        sel25519(a,b,r);
+        sel25519(c,d,r);
+      }
+      for (i = 0; i < 16; i++) {
+        x[i+16]=a[i];
+        x[i+32]=c[i];
+        x[i+48]=b[i];
+        x[i+64]=d[i];
+      }
+      var x32 = x.subarray(32);
+      var x16 = x.subarray(16);
+      inv25519(x32,x32);
+      M(x16,x16,x32);
+      pack25519(q,x16);
+      return 0;
+    }
+
+    function crypto_scalarmult_base(q, n) {
+      return crypto_scalarmult(q, n, _9);
+    }
+
+    function crypto_box_keypair(y, x) {
+      randombytes(x, 32);
+      return crypto_scalarmult_base(y, x);
+    }
+
+    function crypto_box_beforenm(k, y, x) {
+      var s = new Uint8Array(32);
+      crypto_scalarmult(s, x, y);
+      return crypto_core_hsalsa20(k, _0, s, sigma);
+    }
+
+    var crypto_box_afternm = crypto_secretbox;
+    var crypto_box_open_afternm = crypto_secretbox_open;
+
+    function crypto_box(c, m, d, n, y, x) {
+      var k = new Uint8Array(32);
+      crypto_box_beforenm(k, y, x);
+      return crypto_box_afternm(c, m, d, n, k);
+    }
+
+    function crypto_box_open(m, c, d, n, y, x) {
+      var k = new Uint8Array(32);
+      crypto_box_beforenm(k, y, x);
+      return crypto_box_open_afternm(m, c, d, n, k);
+    }
+
+    var K = [
+      0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
+      0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
+      0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
+      0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
+      0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe,
+      0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
+      0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1,
+      0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
+      0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3,
+      0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
+      0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483,
+      0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
+      0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210,
+      0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
+      0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725,
+      0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
+      0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926,
+      0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
+      0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8,
+      0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
+      0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001,
+      0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
+      0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910,
+      0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
+      0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53,
+      0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
+      0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb,
+      0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
+      0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60,
+      0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
+      0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9,
+      0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
+      0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207,
+      0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
+      0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6,
+      0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
+      0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493,
+      0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
+      0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
+      0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
+    ];
+
+    function crypto_hashblocks_hl(hh, hl, m, n) {
+      var wh = new Int32Array(16), wl = new Int32Array(16),
+          bh0, bh1, bh2, bh3, bh4, bh5, bh6, bh7,
+          bl0, bl1, bl2, bl3, bl4, bl5, bl6, bl7,
+          th, tl, i, j, h, l, a, b, c, d;
+
+      var ah0 = hh[0],
+          ah1 = hh[1],
+          ah2 = hh[2],
+          ah3 = hh[3],
+          ah4 = hh[4],
+          ah5 = hh[5],
+          ah6 = hh[6],
+          ah7 = hh[7],
+
+          al0 = hl[0],
+          al1 = hl[1],
+          al2 = hl[2],
+          al3 = hl[3],
+          al4 = hl[4],
+          al5 = hl[5],
+          al6 = hl[6],
+          al7 = hl[7];
+
+      var pos = 0;
+      while (n >= 128) {
+        for (i = 0; i < 16; i++) {
+          j = 8 * i + pos;
+          wh[i] = (m[j+0] << 24) | (m[j+1] << 16) | (m[j+2] << 8) | m[j+3];
+          wl[i] = (m[j+4] << 24) | (m[j+5] << 16) | (m[j+6] << 8) | m[j+7];
+        }
+        for (i = 0; i < 80; i++) {
+          bh0 = ah0;
+          bh1 = ah1;
+          bh2 = ah2;
+          bh3 = ah3;
+          bh4 = ah4;
+          bh5 = ah5;
+          bh6 = ah6;
+          bh7 = ah7;
+
+          bl0 = al0;
+          bl1 = al1;
+          bl2 = al2;
+          bl3 = al3;
+          bl4 = al4;
+          bl5 = al5;
+          bl6 = al6;
+          bl7 = al7;
+
+          // add
+          h = ah7;
+          l = al7;
+
+          a = l & 0xffff; b = l >>> 16;
+          c = h & 0xffff; d = h >>> 16;
+
+          // Sigma1
+          h = ((ah4 >>> 14) | (al4 << (32-14))) ^ ((ah4 >>> 18) | (al4 << (32-18))) ^ ((al4 >>> (41-32)) | (ah4 << (32-(41-32))));
+          l = ((al4 >>> 14) | (ah4 << (32-14))) ^ ((al4 >>> 18) | (ah4 << (32-18))) ^ ((ah4 >>> (41-32)) | (al4 << (32-(41-32))));
+
+          a += l & 0xffff; b += l >>> 16;
+          c += h & 0xffff; d += h >>> 16;
+
+          // Ch
+          h = (ah4 & ah5) ^ (~ah4 & ah6);
+          l = (al4 & al5) ^ (~al4 & al6);
+
+          a += l & 0xffff; b += l >>> 16;
+          c += h & 0xffff; d += h >>> 16;
+
+          // K
+          h = K[i*2];
+          l = K[i*2+1];
+
+          a += l & 0xffff; b += l >>> 16;
+          c += h & 0xffff; d += h >>> 16;
+
+          // w
+          h = wh[i%16];
+          l = wl[i%16];
+
+          a += l & 0xffff; b += l >>> 16;
+          c += h & 0xffff; d += h >>> 16;
+
+          b += a >>> 16;
+          c += b >>> 16;
+          d += c >>> 16;
+
+          th = c & 0xffff | d << 16;
+          tl = a & 0xffff | b << 16;
+
+          // add
+          h = th;
+          l = tl;
+
+          a = l & 0xffff; b = l >>> 16;
+          c = h & 0xffff; d = h >>> 16;
+
+          // Sigma0
+          h = ((ah0 >>> 28) | (al0 << (32-28))) ^ ((al0 >>> (34-32)) | (ah0 << (32-(34-32)))) ^ ((al0 >>> (39-32)) | (ah0 << (32-(39-32))));
+          l = ((al0 >>> 28) | (ah0 << (32-28))) ^ ((ah0 >>> (34-32)) | (al0 << (32-(34-32)))) ^ ((ah0 >>> (39-32)) | (al0 << (32-(39-32))));
+
+          a += l & 0xffff; b += l >>> 16;
+          c += h & 0xffff; d += h >>> 16;
+
+          // Maj
+          h = (ah0 & ah1) ^ (ah0 & ah2) ^ (ah1 & ah2);
+          l = (al0 & al1) ^ (al0 & al2) ^ (al1 & al2);
+
+          a += l & 0xffff; b += l >>> 16;
+          c += h & 0xffff; d += h >>> 16;
+
+          b += a >>> 16;
+          c += b >>> 16;
+          d += c >>> 16;
+
+          bh7 = (c & 0xffff) | (d << 16);
+          bl7 = (a & 0xffff) | (b << 16);
+
+          // add
+          h = bh3;
+          l = bl3;
+
+          a = l & 0xffff; b = l >>> 16;
+          c = h & 0xffff; d = h >>> 16;
+
+          h = th;
+          l = tl;
+
+          a += l & 0xffff; b += l >>> 16;
+          c += h & 0xffff; d += h >>> 16;
+
+          b += a >>> 16;
+          c += b >>> 16;
+          d += c >>> 16;
+
+          bh3 = (c & 0xffff) | (d << 16);
+          bl3 = (a & 0xffff) | (b << 16);
+
+          ah1 = bh0;
+          ah2 = bh1;
+          ah3 = bh2;
+          ah4 = bh3;
+          ah5 = bh4;
+          ah6 = bh5;
+          ah7 = bh6;
+          ah0 = bh7;
+
+          al1 = bl0;
+          al2 = bl1;
+          al3 = bl2;
+          al4 = bl3;
+          al5 = bl4;
+          al6 = bl5;
+          al7 = bl6;
+          al0 = bl7;
+
+          if (i%16 === 15) {
+            for (j = 0; j < 16; j++) {
+              // add
+              h = wh[j];
+              l = wl[j];
+
+              a = l & 0xffff; b = l >>> 16;
+              c = h & 0xffff; d = h >>> 16;
+
+              h = wh[(j+9)%16];
+              l = wl[(j+9)%16];
+
+              a += l & 0xffff; b += l >>> 16;
+              c += h & 0xffff; d += h >>> 16;
+
+              // sigma0
+              th = wh[(j+1)%16];
+              tl = wl[(j+1)%16];
+              h = ((th >>> 1) | (tl << (32-1))) ^ ((th >>> 8) | (tl << (32-8))) ^ (th >>> 7);
+              l = ((tl >>> 1) | (th << (32-1))) ^ ((tl >>> 8) | (th << (32-8))) ^ ((tl >>> 7) | (th << (32-7)));
+
+              a += l & 0xffff; b += l >>> 16;
+              c += h & 0xffff; d += h >>> 16;
+
+              // sigma1
+              th = wh[(j+14)%16];
+              tl = wl[(j+14)%16];
+              h = ((th >>> 19) | (tl << (32-19))) ^ ((tl >>> (61-32)) | (th << (32-(61-32)))) ^ (th >>> 6);
+              l = ((tl >>> 19) | (th << (32-19))) ^ ((th >>> (61-32)) | (tl << (32-(61-32)))) ^ ((tl >>> 6) | (th << (32-6)));
+
+              a += l & 0xffff; b += l >>> 16;
+              c += h & 0xffff; d += h >>> 16;
+
+              b += a >>> 16;
+              c += b >>> 16;
+              d += c >>> 16;
+
+              wh[j] = (c & 0xffff) | (d << 16);
+              wl[j] = (a & 0xffff) | (b << 16);
+            }
+          }
+        }
+
+        // add
+        h = ah0;
+        l = al0;
+
+        a = l & 0xffff; b = l >>> 16;
+        c = h & 0xffff; d = h >>> 16;
+
+        h = hh[0];
+        l = hl[0];
+
+        a += l & 0xffff; b += l >>> 16;
+        c += h & 0xffff; d += h >>> 16;
+
+        b += a >>> 16;
+        c += b >>> 16;
+        d += c >>> 16;
+
+        hh[0] = ah0 = (c & 0xffff) | (d << 16);
+        hl[0] = al0 = (a & 0xffff) | (b << 16);
+
+        h = ah1;
+        l = al1;
+
+        a = l & 0xffff; b = l >>> 16;
+        c = h & 0xffff; d = h >>> 16;
+
+        h = hh[1];
+        l = hl[1];
+
+        a += l & 0xffff; b += l >>> 16;
+        c += h & 0xffff; d += h >>> 16;
+
+        b += a >>> 16;
+        c += b >>> 16;
+        d += c >>> 16;
+
+        hh[1] = ah1 = (c & 0xffff) | (d << 16);
+        hl[1] = al1 = (a & 0xffff) | (b << 16);
+
+        h = ah2;
+        l = al2;
+
+        a = l & 0xffff; b = l >>> 16;
+        c = h & 0xffff; d = h >>> 16;
+
+        h = hh[2];
+        l = hl[2];
+
+        a += l & 0xffff; b += l >>> 16;
+        c += h & 0xffff; d += h >>> 16;
+
+        b += a >>> 16;
+        c += b >>> 16;
+        d += c >>> 16;
+
+        hh[2] = ah2 = (c & 0xffff) | (d << 16);
+        hl[2] = al2 = (a & 0xffff) | (b << 16);
+
+        h = ah3;
+        l = al3;
+
+        a = l & 0xffff; b = l >>> 16;
+        c = h & 0xffff; d = h >>> 16;
+
+        h = hh[3];
+        l = hl[3];
+
+        a += l & 0xffff; b += l >>> 16;
+        c += h & 0xffff; d += h >>> 16;
+
+        b += a >>> 16;
+        c += b >>> 16;
+        d += c >>> 16;
+
+        hh[3] = ah3 = (c & 0xffff) | (d << 16);
+        hl[3] = al3 = (a & 0xffff) | (b << 16);
+
+        h = ah4;
+        l = al4;
+
+        a = l & 0xffff; b = l >>> 16;
+        c = h & 0xffff; d = h >>> 16;
+
+        h = hh[4];
+        l = hl[4];
+
+        a += l & 0xffff; b += l >>> 16;
+        c += h & 0xffff; d += h >>> 16;
+
+        b += a >>> 16;
+        c += b >>> 16;
+        d += c >>> 16;
+
+        hh[4] = ah4 = (c & 0xffff) | (d << 16);
+        hl[4] = al4 = (a & 0xffff) | (b << 16);
+
+        h = ah5;
+        l = al5;
+
+        a = l & 0xffff; b = l >>> 16;
+        c = h & 0xffff; d = h >>> 16;
+
+        h = hh[5];
+        l = hl[5];
+
+        a += l & 0xffff; b += l >>> 16;
+        c += h & 0xffff; d += h >>> 16;
+
+        b += a >>> 16;
+        c += b >>> 16;
+        d += c >>> 16;
+
+        hh[5] = ah5 = (c & 0xffff) | (d << 16);
+        hl[5] = al5 = (a & 0xffff) | (b << 16);
+
+        h = ah6;
+        l = al6;
+
+        a = l & 0xffff; b = l >>> 16;
+        c = h & 0xffff; d = h >>> 16;
+
+        h = hh[6];
+        l = hl[6];
+
+        a += l & 0xffff; b += l >>> 16;
+        c += h & 0xffff; d += h >>> 16;
+
+        b += a >>> 16;
+        c += b >>> 16;
+        d += c >>> 16;
+
+        hh[6] = ah6 = (c & 0xffff) | (d << 16);
+        hl[6] = al6 = (a & 0xffff) | (b << 16);
+
+        h = ah7;
+        l = al7;
+
+        a = l & 0xffff; b = l >>> 16;
+        c = h & 0xffff; d = h >>> 16;
+
+        h = hh[7];
+        l = hl[7];
+
+        a += l & 0xffff; b += l >>> 16;
+        c += h & 0xffff; d += h >>> 16;
+
+        b += a >>> 16;
+        c += b >>> 16;
+        d += c >>> 16;
+
+        hh[7] = ah7 = (c & 0xffff) | (d << 16);
+        hl[7] = al7 = (a & 0xffff) | (b << 16);
+
+        pos += 128;
+        n -= 128;
+      }
+
+      return n;
+    }
+
+    function crypto_hash(out, m, n) {
+      var hh = new Int32Array(8),
+          hl = new Int32Array(8),
+          x = new Uint8Array(256),
+          i, b = n;
+
+      hh[0] = 0x6a09e667;
+      hh[1] = 0xbb67ae85;
+      hh[2] = 0x3c6ef372;
+      hh[3] = 0xa54ff53a;
+      hh[4] = 0x510e527f;
+      hh[5] = 0x9b05688c;
+      hh[6] = 0x1f83d9ab;
+      hh[7] = 0x5be0cd19;
+
+      hl[0] = 0xf3bcc908;
+      hl[1] = 0x84caa73b;
+      hl[2] = 0xfe94f82b;
+      hl[3] = 0x5f1d36f1;
+      hl[4] = 0xade682d1;
+      hl[5] = 0x2b3e6c1f;
+      hl[6] = 0xfb41bd6b;
+      hl[7] = 0x137e2179;
+
+      crypto_hashblocks_hl(hh, hl, m, n);
+      n %= 128;
+
+      for (i = 0; i < n; i++) x[i] = m[b-n+i];
+      x[n] = 128;
+
+      n = 256-128*(n<112?1:0);
+      x[n-9] = 0;
+      ts64(x, n-8,  (b / 0x20000000) | 0, b << 3);
+      crypto_hashblocks_hl(hh, hl, x, n);
+
+      for (i = 0; i < 8; i++) ts64(out, 8*i, hh[i], hl[i]);
+
+      return 0;
+    }
+
+    function add(p, q) {
+      var a = gf(), b = gf(), c = gf(),
+          d = gf(), e = gf(), f = gf(),
+          g = gf(), h = gf(), t = gf();
+
+      Z(a, p[1], p[0]);
+      Z(t, q[1], q[0]);
+      M(a, a, t);
+      A(b, p[0], p[1]);
+      A(t, q[0], q[1]);
+      M(b, b, t);
+      M(c, p[3], q[3]);
+      M(c, c, D2);
+      M(d, p[2], q[2]);
+      A(d, d, d);
+      Z(e, b, a);
+      Z(f, d, c);
+      A(g, d, c);
+      A(h, b, a);
+
+      M(p[0], e, f);
+      M(p[1], h, g);
+      M(p[2], g, f);
+      M(p[3], e, h);
+    }
+
+    function cswap(p, q, b) {
+      var i;
+      for (i = 0; i < 4; i++) {
+        sel25519(p[i], q[i], b);
+      }
+    }
+
+    function pack(r, p) {
+      var tx = gf(), ty = gf(), zi = gf();
+      inv25519(zi, p[2]);
+      M(tx, p[0], zi);
+      M(ty, p[1], zi);
+      pack25519(r, ty);
+      r[31] ^= par25519(tx) << 7;
+    }
+
+    function scalarmult(p, q, s) {
+      var b, i;
+      set25519(p[0], gf0);
+      set25519(p[1], gf1);
+      set25519(p[2], gf1);
+      set25519(p[3], gf0);
+      for (i = 255; i >= 0; --i) {
+        b = (s[(i/8)|0] >> (i&7)) & 1;
+        cswap(p, q, b);
+        add(q, p);
+        add(p, p);
+        cswap(p, q, b);
+      }
+    }
+
+    function scalarbase(p, s) {
+      var q = [gf(), gf(), gf(), gf()];
+      set25519(q[0], X);
+      set25519(q[1], Y);
+      set25519(q[2], gf1);
+      M(q[3], X, Y);
+      scalarmult(p, q, s);
+    }
+
+    function crypto_sign_keypair(pk, sk, seeded) {
+      var d = new Uint8Array(64);
+      var p = [gf(), gf(), gf(), gf()];
+      var i;
+
+      if (!seeded) randombytes(sk, 32);
+      crypto_hash(d, sk, 32);
+      d[0] &= 248;
+      d[31] &= 127;
+      d[31] |= 64;
+
+      scalarbase(p, d);
+      pack(pk, p);
+
+      for (i = 0; i < 32; i++) sk[i+32] = pk[i];
+      return 0;
+    }
+
+    var L = new Float64Array([0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10]);
+
+    function modL(r, x) {
+      var carry, i, j, k;
+      for (i = 63; i >= 32; --i) {
+        carry = 0;
+        for (j = i - 32, k = i - 12; j < k; ++j) {
+          x[j] += carry - 16 * x[i] * L[j - (i - 32)];
+          carry = Math.floor((x[j] + 128) / 256);
+          x[j] -= carry * 256;
+        }
+        x[j] += carry;
+        x[i] = 0;
+      }
+      carry = 0;
+      for (j = 0; j < 32; j++) {
+        x[j] += carry - (x[31] >> 4) * L[j];
+        carry = x[j] >> 8;
+        x[j] &= 255;
+      }
+      for (j = 0; j < 32; j++) x[j] -= carry * L[j];
+      for (i = 0; i < 32; i++) {
+        x[i+1] += x[i] >> 8;
+        r[i] = x[i] & 255;
+      }
+    }
+
+    function reduce(r) {
+      var x = new Float64Array(64), i;
+      for (i = 0; i < 64; i++) x[i] = r[i];
+      for (i = 0; i < 64; i++) r[i] = 0;
+      modL(r, x);
+    }
+
+    // Note: difference from C - smlen returned, not passed as argument.
+    function crypto_sign(sm, m, n, sk) {
+      var d = new Uint8Array(64), h = new Uint8Array(64), r = new Uint8Array(64);
+      var i, j, x = new Float64Array(64);
+      var p = [gf(), gf(), gf(), gf()];
+
+      crypto_hash(d, sk, 32);
+      d[0] &= 248;
+      d[31] &= 127;
+      d[31] |= 64;
+
+      var smlen = n + 64;
+      for (i = 0; i < n; i++) sm[64 + i] = m[i];
+      for (i = 0; i < 32; i++) sm[32 + i] = d[32 + i];
+
+      crypto_hash(r, sm.subarray(32), n+32);
+      reduce(r);
+      scalarbase(p, r);
+      pack(sm, p);
+
+      for (i = 32; i < 64; i++) sm[i] = sk[i];
+      crypto_hash(h, sm, n + 64);
+      reduce(h);
+
+      for (i = 0; i < 64; i++) x[i] = 0;
+      for (i = 0; i < 32; i++) x[i] = r[i];
+      for (i = 0; i < 32; i++) {
+        for (j = 0; j < 32; j++) {
+          x[i+j] += h[i] * d[j];
+        }
+      }
+
+      modL(sm.subarray(32), x);
+      return smlen;
+    }
+
+    function unpackneg(r, p) {
+      var t = gf(), chk = gf(), num = gf(),
+          den = gf(), den2 = gf(), den4 = gf(),
+          den6 = gf();
+
+      set25519(r[2], gf1);
+      unpack25519(r[1], p);
+      S(num, r[1]);
+      M(den, num, D);
+      Z(num, num, r[2]);
+      A(den, r[2], den);
+
+      S(den2, den);
+      S(den4, den2);
+      M(den6, den4, den2);
+      M(t, den6, num);
+      M(t, t, den);
+
+      pow2523(t, t);
+      M(t, t, num);
+      M(t, t, den);
+      M(t, t, den);
+      M(r[0], t, den);
+
+      S(chk, r[0]);
+      M(chk, chk, den);
+      if (neq25519(chk, num)) M(r[0], r[0], I);
+
+      S(chk, r[0]);
+      M(chk, chk, den);
+      if (neq25519(chk, num)) return -1;
+
+      if (par25519(r[0]) === (p[31]>>7)) Z(r[0], gf0, r[0]);
+
+      M(r[3], r[0], r[1]);
+      return 0;
+    }
+
+    function crypto_sign_open(m, sm, n, pk) {
+      var i;
+      var t = new Uint8Array(32), h = new Uint8Array(64);
+      var p = [gf(), gf(), gf(), gf()],
+          q = [gf(), gf(), gf(), gf()];
+
+      if (n < 64) return -1;
+
+      if (unpackneg(q, pk)) return -1;
+
+      for (i = 0; i < n; i++) m[i] = sm[i];
+      for (i = 0; i < 32; i++) m[i+32] = pk[i];
+      crypto_hash(h, m, n);
+      reduce(h);
+      scalarmult(p, q, h);
+
+      scalarbase(q, sm.subarray(32));
+      add(p, q);
+      pack(t, p);
+
+      n -= 64;
+      if (crypto_verify_32(sm, 0, t, 0)) {
+        for (i = 0; i < n; i++) m[i] = 0;
+        return -1;
+      }
+
+      for (i = 0; i < n; i++) m[i] = sm[i + 64];
+      return n;
+    }
+
+    var crypto_secretbox_KEYBYTES = 32,
+        crypto_secretbox_NONCEBYTES = 24,
+        crypto_secretbox_ZEROBYTES = 32,
+        crypto_secretbox_BOXZEROBYTES = 16,
+        crypto_scalarmult_BYTES = 32,
+        crypto_scalarmult_SCALARBYTES = 32,
+        crypto_box_PUBLICKEYBYTES = 32,
+        crypto_box_SECRETKEYBYTES = 32,
+        crypto_box_BEFORENMBYTES = 32,
+        crypto_box_NONCEBYTES = crypto_secretbox_NONCEBYTES,
+        crypto_box_ZEROBYTES = crypto_secretbox_ZEROBYTES,
+        crypto_box_BOXZEROBYTES = crypto_secretbox_BOXZEROBYTES,
+        crypto_sign_BYTES = 64,
+        crypto_sign_PUBLICKEYBYTES = 32,
+        crypto_sign_SECRETKEYBYTES = 64,
+        crypto_sign_SEEDBYTES = 32,
+        crypto_hash_BYTES = 64;
+
+    nacl.lowlevel = {
+      crypto_core_hsalsa20: crypto_core_hsalsa20,
+      crypto_stream_xor: crypto_stream_xor,
+      crypto_stream: crypto_stream,
+      crypto_stream_salsa20_xor: crypto_stream_salsa20_xor,
+      crypto_stream_salsa20: crypto_stream_salsa20,
+      crypto_onetimeauth: crypto_onetimeauth,
+      crypto_onetimeauth_verify: crypto_onetimeauth_verify,
+      crypto_verify_16: crypto_verify_16,
+      crypto_verify_32: crypto_verify_32,
+      crypto_secretbox: crypto_secretbox,
+      crypto_secretbox_open: crypto_secretbox_open,
+      crypto_scalarmult: crypto_scalarmult,
+      crypto_scalarmult_base: crypto_scalarmult_base,
+      crypto_box_beforenm: crypto_box_beforenm,
+      crypto_box_afternm: crypto_box_afternm,
+      crypto_box: crypto_box,
+      crypto_box_open: crypto_box_open,
+      crypto_box_keypair: crypto_box_keypair,
+      crypto_hash: crypto_hash,
+      crypto_sign: crypto_sign,
+      crypto_sign_keypair: crypto_sign_keypair,
+      crypto_sign_open: crypto_sign_open,
+
+      crypto_secretbox_KEYBYTES: crypto_secretbox_KEYBYTES,
+      crypto_secretbox_NONCEBYTES: crypto_secretbox_NONCEBYTES,
+      crypto_secretbox_ZEROBYTES: crypto_secretbox_ZEROBYTES,
+      crypto_secretbox_BOXZEROBYTES: crypto_secretbox_BOXZEROBYTES,
+      crypto_scalarmult_BYTES: crypto_scalarmult_BYTES,
+      crypto_scalarmult_SCALARBYTES: crypto_scalarmult_SCALARBYTES,
+      crypto_box_PUBLICKEYBYTES: crypto_box_PUBLICKEYBYTES,
+      crypto_box_SECRETKEYBYTES: crypto_box_SECRETKEYBYTES,
+      crypto_box_BEFORENMBYTES: crypto_box_BEFORENMBYTES,
+      crypto_box_NONCEBYTES: crypto_box_NONCEBYTES,
+      crypto_box_ZEROBYTES: crypto_box_ZEROBYTES,
+      crypto_box_BOXZEROBYTES: crypto_box_BOXZEROBYTES,
+      crypto_sign_BYTES: crypto_sign_BYTES,
+      crypto_sign_PUBLICKEYBYTES: crypto_sign_PUBLICKEYBYTES,
+      crypto_sign_SECRETKEYBYTES: crypto_sign_SECRETKEYBYTES,
+      crypto_sign_SEEDBYTES: crypto_sign_SEEDBYTES,
+      crypto_hash_BYTES: crypto_hash_BYTES,
+
+      gf: gf,
+      D: D,
+      L: L,
+      pack25519: pack25519,
+      unpack25519: unpack25519,
+      M: M,
+      A: A,
+      S: S,
+      Z: Z,
+      pow2523: pow2523,
+      add: add,
+      set25519: set25519,
+      modL: modL,
+      scalarmult: scalarmult,
+      scalarbase: scalarbase,
+    };
+
+    /* High-level API */
+
+    function checkLengths(k, n) {
+      if (k.length !== crypto_secretbox_KEYBYTES) throw new Error('bad key size');
+      if (n.length !== crypto_secretbox_NONCEBYTES) throw new Error('bad nonce size');
+    }
+
+    function checkBoxLengths(pk, sk) {
+      if (pk.length !== crypto_box_PUBLICKEYBYTES) throw new Error('bad public key size');
+      if (sk.length !== crypto_box_SECRETKEYBYTES) throw new Error('bad secret key size');
+    }
+
+    function checkArrayTypes() {
+      for (var i = 0; i < arguments.length; i++) {
+        if (!(arguments[i] instanceof Uint8Array))
+          throw new TypeError('unexpected type, use Uint8Array');
+      }
+    }
+
+    function cleanup(arr) {
+      for (var i = 0; i < arr.length; i++) arr[i] = 0;
+    }
+
+    nacl.randomBytes = function(n) {
+      var b = new Uint8Array(n);
+      randombytes(b, n);
+      return b;
+    };
+
+    nacl.secretbox = function(msg, nonce, key) {
+      checkArrayTypes(msg, nonce, key);
+      checkLengths(key, nonce);
+      var m = new Uint8Array(crypto_secretbox_ZEROBYTES + msg.length);
+      var c = new Uint8Array(m.length);
+      for (var i = 0; i < msg.length; i++) m[i+crypto_secretbox_ZEROBYTES] = msg[i];
+      crypto_secretbox(c, m, m.length, nonce, key);
+      return c.subarray(crypto_secretbox_BOXZEROBYTES);
+    };
+
+    nacl.secretbox.open = function(box, nonce, key) {
+      checkArrayTypes(box, nonce, key);
+      checkLengths(key, nonce);
+      var c = new Uint8Array(crypto_secretbox_BOXZEROBYTES + box.length);
+      var m = new Uint8Array(c.length);
+      for (var i = 0; i < box.length; i++) c[i+crypto_secretbox_BOXZEROBYTES] = box[i];
+      if (c.length < 32) return null;
+      if (crypto_secretbox_open(m, c, c.length, nonce, key) !== 0) return null;
+      return m.subarray(crypto_secretbox_ZEROBYTES);
+    };
+
+    nacl.secretbox.keyLength = crypto_secretbox_KEYBYTES;
+    nacl.secretbox.nonceLength = crypto_secretbox_NONCEBYTES;
+    nacl.secretbox.overheadLength = crypto_secretbox_BOXZEROBYTES;
+
+    nacl.scalarMult = function(n, p) {
+      checkArrayTypes(n, p);
+      if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
+      if (p.length !== crypto_scalarmult_BYTES) throw new Error('bad p size');
+      var q = new Uint8Array(crypto_scalarmult_BYTES);
+      crypto_scalarmult(q, n, p);
+      return q;
+    };
+
+    nacl.scalarMult.base = function(n) {
+      checkArrayTypes(n);
+      if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
+      var q = new Uint8Array(crypto_scalarmult_BYTES);
+      crypto_scalarmult_base(q, n);
+      return q;
+    };
+
+    nacl.scalarMult.scalarLength = crypto_scalarmult_SCALARBYTES;
+    nacl.scalarMult.groupElementLength = crypto_scalarmult_BYTES;
+
+    nacl.box = function(msg, nonce, publicKey, secretKey) {
+      var k = nacl.box.before(publicKey, secretKey);
+      return nacl.secretbox(msg, nonce, k);
+    };
+
+    nacl.box.before = function(publicKey, secretKey) {
+      checkArrayTypes(publicKey, secretKey);
+      checkBoxLengths(publicKey, secretKey);
+      var k = new Uint8Array(crypto_box_BEFORENMBYTES);
+      crypto_box_beforenm(k, publicKey, secretKey);
+      return k;
+    };
+
+    nacl.box.after = nacl.secretbox;
+
+    nacl.box.open = function(msg, nonce, publicKey, secretKey) {
+      var k = nacl.box.before(publicKey, secretKey);
+      return nacl.secretbox.open(msg, nonce, k);
+    };
+
+    nacl.box.open.after = nacl.secretbox.open;
+
+    nacl.box.keyPair = function() {
+      var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
+      var sk = new Uint8Array(crypto_box_SECRETKEYBYTES);
+      crypto_box_keypair(pk, sk);
+      return {publicKey: pk, secretKey: sk};
+    };
+
+    nacl.box.keyPair.fromSecretKey = function(secretKey) {
+      checkArrayTypes(secretKey);
+      if (secretKey.length !== crypto_box_SECRETKEYBYTES)
+        throw new Error('bad secret key size');
+      var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
+      crypto_scalarmult_base(pk, secretKey);
+      return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
+    };
+
+    nacl.box.publicKeyLength = crypto_box_PUBLICKEYBYTES;
+    nacl.box.secretKeyLength = crypto_box_SECRETKEYBYTES;
+    nacl.box.sharedKeyLength = crypto_box_BEFORENMBYTES;
+    nacl.box.nonceLength = crypto_box_NONCEBYTES;
+    nacl.box.overheadLength = nacl.secretbox.overheadLength;
+
+    nacl.sign = function(msg, secretKey) {
+      checkArrayTypes(msg, secretKey);
+      if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
+        throw new Error('bad secret key size');
+      var signedMsg = new Uint8Array(crypto_sign_BYTES+msg.length);
+      crypto_sign(signedMsg, msg, msg.length, secretKey);
+      return signedMsg;
+    };
+
+    nacl.sign.open = function(signedMsg, publicKey) {
+      checkArrayTypes(signedMsg, publicKey);
+      if (publicKey.length !== crypto_sign_PUBLICKEYBYTES)
+        throw new Error('bad public key size');
+      var tmp = new Uint8Array(signedMsg.length);
+      var mlen = crypto_sign_open(tmp, signedMsg, signedMsg.length, publicKey);
+      if (mlen < 0) return null;
+      var m = new Uint8Array(mlen);
+      for (var i = 0; i < m.length; i++) m[i] = tmp[i];
+      return m;
+    };
+
+    nacl.sign.detached = function(msg, secretKey) {
+      var signedMsg = nacl.sign(msg, secretKey);
+      var sig = new Uint8Array(crypto_sign_BYTES);
+      for (var i = 0; i < sig.length; i++) sig[i] = signedMsg[i];
+      return sig;
+    };
+
+    nacl.sign.detached.verify = function(msg, sig, publicKey) {
+      checkArrayTypes(msg, sig, publicKey);
+      if (sig.length !== crypto_sign_BYTES)
+        throw new Error('bad signature size');
+      if (publicKey.length !== crypto_sign_PUBLICKEYBYTES)
+        throw new Error('bad public key size');
+      var sm = new Uint8Array(crypto_sign_BYTES + msg.length);
+      var m = new Uint8Array(crypto_sign_BYTES + msg.length);
+      var i;
+      for (i = 0; i < crypto_sign_BYTES; i++) sm[i] = sig[i];
+      for (i = 0; i < msg.length; i++) sm[i+crypto_sign_BYTES] = msg[i];
+      return (crypto_sign_open(m, sm, sm.length, publicKey) >= 0);
+    };
+
+    nacl.sign.keyPair = function() {
+      var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+      var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
+      crypto_sign_keypair(pk, sk);
+      return {publicKey: pk, secretKey: sk};
+    };
+
+    nacl.sign.keyPair.fromSecretKey = function(secretKey) {
+      checkArrayTypes(secretKey);
+      if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
+        throw new Error('bad secret key size');
+      var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+      for (var i = 0; i < pk.length; i++) pk[i] = secretKey[32+i];
+      return {publicKey: pk, secretKey: new Uint8Array(secretKey)};
+    };
+
+    nacl.sign.keyPair.fromSeed = function(seed) {
+      checkArrayTypes(seed);
+      if (seed.length !== crypto_sign_SEEDBYTES)
+        throw new Error('bad seed size');
+      var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+      var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
+      for (var i = 0; i < 32; i++) sk[i] = seed[i];
+      crypto_sign_keypair(pk, sk, true);
+      return {publicKey: pk, secretKey: sk};
+    };
+
+    nacl.sign.publicKeyLength = crypto_sign_PUBLICKEYBYTES;
+    nacl.sign.secretKeyLength = crypto_sign_SECRETKEYBYTES;
+    nacl.sign.seedLength = crypto_sign_SEEDBYTES;
+    nacl.sign.signatureLength = crypto_sign_BYTES;
+
+    nacl.hash = function(msg) {
+      checkArrayTypes(msg);
+      var h = new Uint8Array(crypto_hash_BYTES);
+      crypto_hash(h, msg, msg.length);
+      return h;
+    };
+
+    nacl.hash.hashLength = crypto_hash_BYTES;
+
+    nacl.verify = function(x, y) {
+      checkArrayTypes(x, y);
+      // Zero length arguments are considered not equal.
+      if (x.length === 0 || y.length === 0) return false;
+      if (x.length !== y.length) return false;
+      return (vn(x, 0, y, 0, x.length) === 0) ? true : false;
+    };
+
+    nacl.setPRNG = function(fn) {
+      randombytes = fn;
+    };
+
+    (function() {
+      // Initialize PRNG if environment provides CSPRNG.
+      // If not, methods calling randombytes will throw.
+      var crypto = typeof self !== 'undefined' ? (self.crypto || self.msCrypto) : null;
+      if (crypto && crypto.getRandomValues) {
+        // Browsers.
+        var QUOTA = 65536;
+        nacl.setPRNG(function(x, n) {
+          var i, v = new Uint8Array(n);
+          for (i = 0; i < n; i += QUOTA) {
+            crypto.getRandomValues(v.subarray(i, i + Math.min(n - i, QUOTA)));
+          }
+          for (i = 0; i < n; i++) x[i] = v[i];
+          cleanup(v);
+        });
+      } else if (typeof commonjsRequire$1 !== 'undefined') {
+        // Node.js.
+        crypto = require$$0;
+        if (crypto && crypto.randomBytes) {
+          nacl.setPRNG(function(x, n) {
+            var i, v = crypto.randomBytes(n);
+            for (i = 0; i < n; i++) x[i] = v[i];
+            cleanup(v);
+          });
+        }
+      }
+    })();
+
+    })( module.exports ? module.exports : (self.nacl = self.nacl || {}));
+    });
+
+    var naclUtil = createCommonjsModule$1(function (module) {
+    // Written in 2014-2016 by Dmitry Chestnykh and Devi Mandiri.
+    // Public domain.
+    (function(root, f) {
+      if ( module.exports) module.exports = f();
+      else if (root.nacl) root.nacl.util = f();
+      else {
+        root.nacl = {};
+        root.nacl.util = f();
+      }
+    }(commonjsGlobal$1, function() {
+
+      var util = {};
+
+      function validateBase64(s) {
+        if (!(/^(?:[A-Za-z0-9+\/]{2}[A-Za-z0-9+\/]{2})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/.test(s))) {
+          throw new TypeError('invalid encoding');
+        }
+      }
+
+      util.decodeUTF8 = function(s) {
+        if (typeof s !== 'string') throw new TypeError('expected string');
+        var i, d = unescape(encodeURIComponent(s)), b = new Uint8Array(d.length);
+        for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+        return b;
+      };
+
+      util.encodeUTF8 = function(arr) {
+        var i, s = [];
+        for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
+        return decodeURIComponent(escape(s.join('')));
+      };
+
+      if (typeof atob === 'undefined') {
+        // Node.js
+
+        if (typeof Buffer.from !== 'undefined') {
+           // Node v6 and later
+          util.encodeBase64 = function (arr) { // v6 and later
+              return Buffer.from(arr).toString('base64');
+          };
+
+          util.decodeBase64 = function (s) {
+            validateBase64(s);
+            return new Uint8Array(Array.prototype.slice.call(Buffer.from(s, 'base64'), 0));
+          };
+
+        } else {
+          // Node earlier than v6
+          util.encodeBase64 = function (arr) { // v6 and later
+            return (new Buffer(arr)).toString('base64');
+          };
+
+          util.decodeBase64 = function(s) {
+            validateBase64(s);
+            return new Uint8Array(Array.prototype.slice.call(new Buffer(s, 'base64'), 0));
+          };
+        }
+
+      } else {
+        // Browsers
+
+        util.encodeBase64 = function(arr) {
+          var i, s = [], len = arr.length;
+          for (i = 0; i < len; i++) s.push(String.fromCharCode(arr[i]));
+          return btoa(s.join(''));
+        };
+
+        util.decodeBase64 = function(s) {
+          validateBase64(s);
+          var i, d = atob(s), b = new Uint8Array(d.length);
+          for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+          return b;
+        };
+
+      }
+
+      return util;
+
+    }));
+    });
+
+    function isObject(obj) {
+      return obj !== undefined && obj !== null && obj.constructor == Object;
+    }
+
+    function addHeader(_msg, flag) {
+      const msg = new Uint8Array(_msg.length + 1);
+
+      const header = new Uint8Array(1);
+      header[0] = flag;
+
+      msg.set(header);
+      msg.set(_msg, header.length);
+
+      return msg;
+    }
+
+    naclFast.util = naclUtil;
+
+    function send({ data, connector }) {
+      if (isObject(data)) {
+        data = JSON.stringify(data);
+      }
+
+      const nonce = new Uint8Array(integerToByteArray(2 * connector.sentCount, 24));
+
+      if (!connector.closed()) {
+        if (connector.sentCount > 1) {
+          let flag = 0;
+
+          if (typeof data == 'string') {
+            flag = 1;
+          }
+
+          const _encodedMessage = flag == 1 ? naclFast.util.decodeUTF8(data) : data;
+          const encodedMessage = addHeader(_encodedMessage, flag);
+
+          const encryptedMessage = naclFast.secretbox(encodedMessage, nonce, connector.sharedSecret);
+
+          if (connector.verbose) {
+            console.log();
+            console.log(`Connector → Sending encrypted message #${connector.sentCount} @ ${connector.address}:`);
+            console.log(data);
+          }
+
+          connector.connection.websocket.send(encryptedMessage);
+        } else {
+          if (connector.verbose) {
+            console.log();
+            console.log(`Connector → Sending message #${connector.sentCount} @ ${connector.address}:`);
+            console.log(data);
+          }
+
+          connector.connection.websocket.send(data);
+        }
+      } else {
+        console.log(`⚠️ Warning: "${data}" was not sent because connector is not ready`);
+      }
+    }
+
+    naclFast.util = naclUtil;
+
+    function isRpcCallResult(jsonData) {
+      return Object.keys(jsonData).includes('result') || Object.keys(jsonData).includes('error');
+    }
+
+    function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connector }) {
+      connector.lastMessageAt = Date.now();
+
+      const nonce = new Uint8Array(integerToByteArray(2 * connector.receivedCount + 1, 24));
+
+      if (connector.verbose && !wasEncrypted) {
+        console.log();
+        console.log(`Connector → Received message #${connector.receivedCount} @ ${connector.address}:`);
+      }
+
+      // 💡 unencrypted jsonData !
+      if (jsonData) {
+        if (jsonData.jsonrpc) {
+          if (isRpcCallResult(jsonData)) {
+            if (connector.verbose && !wasEncrypted) {
+              console.log('Received plain-text rpc result');
+              console.log(jsonData);
+            }
+
+            connector.rpcClient.jsonrpcMsgReceive(rawMessage);
+          } else {
+            connector.emit('json_rpc', rawMessage);
+          }
+        } else {
+          connector.emit('receive', { jsonData, rawMessage });
+        }
+      } else if (encryptedData) {
+        // 💡 encryptedJson data!!
+        if (connector.verbose == 'extra') {
+          console.log('Received bytes:');
+          console.log(encryptedData);
+          console.log(`Decrypting with shared secret ${connector.sharedSecret}...`);
+        }
+
+        const _decryptedMessage = naclFast.secretbox.open(encryptedData, nonce, connector.sharedSecret);
+
+        const flag = _decryptedMessage[0];
+        const decryptedMessage = _decryptedMessage.subarray(1);
+
+        if (flag == 1) {
+          const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
+
+          try {
+            const jsonData = JSON.parse(decodedMessage);
+
+            // 💡 rpc
+            if (jsonData.jsonrpc) {
+              if (connector.verbose) {
+                console.log('Received and decrypted rpc result:');
+                console.log(jsonData);
+              }
+
+              wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
+            } else if (jsonData.tag) {
+              // 💡 tag
+              const msg = jsonData;
+
+              if (msg.tag == 'file_not_found') {
+                connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
+              } else if (msg.tag == 'binary_start') {
+                connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
+              } else if (msg.tag == 'binary_end') {
+                connector.emit(msg.tag, { sessionId: msg.sessionId });
+              } else {
+                connector.emit('receive', { jsonData, rawMessage: decodedMessage });
+              }
+            } else if (jsonData.state) {
+              // 💡 Initial state sending ... part of Connectome protocol
+              connector.emit('receive_state', jsonData.state);
+            } else if (jsonData.diff) {
+              // 💡 Subsequent JSON patch diffs (rfc6902)* ... part of Connectome protocol
+              connector.emit('receive_diff', jsonData.diff);
+            } else if (jsonData.signal) {
+              connector.emit(jsonData.signal, jsonData.data);
+            } else {
+              connector.emit('receive', { jsonData, rawMessage: decodedMessage });
+            }
+          } catch (e) {
+            console.log("Couldn't parse json message although the flag was for string ...");
+            throw e;
+          }
+        } else {
+          const binaryData = decryptedMessage;
+
+          const sessionId = Buffer.from(binaryData.buffer, binaryData.byteOffset, 64).toString();
+          const binaryPayload = Buffer.from(binaryData.buffer, binaryData.byteOffset + 64);
+
+          connector.emit('binary_data', { sessionId, data: binaryPayload });
+        }
+      }
+    }
+
+    class Channel extends Eev {
+      constructor(connector) {
+        super();
+
+        this.connector = connector;
+      }
+
+      send(...args) {
+        this.connector.send(...args);
+      }
+    }
+
+    var errorCodes = {
+      PARSE_ERROR: -32700,
+      INVALID_REQUEST: -32600,
+      METHOD_NOT_FOUND: -32601,
+      INVALID_PARAMS: -32602,
+      REMOTE_INTERNAL_ERROR: -32603
+    };
+
+    class MoleServer {
+      constructor({ transports }) {
+        if (!transports) throw new Error('TRANSPORT_REQUIRED');
+
+        this.transportsToRegister = transports;
+        this.methods = {};
+      }
+
+      setMethodPrefix(methodPrefix) {
+        this.methodPrefix = methodPrefix;
+      }
+
+      expose(methods) {
+        this.methods = methods;
+      }
+
+      registerTransport(transport) {
+        transport.onData(this._processRequest.bind(this, transport));
+      }
+
+      async _processRequest(transport, data) {
+        const requestData = JSON.parse(data);
+        let responseData;
+
+        if (Array.isArray(requestData)) {
+          responseData = await Promise.all(requestData.map(request => this._callMethod(request, transport)));
+        } else {
+          responseData = await this._callMethod(requestData, transport);
+        }
+
+        return JSON.stringify(responseData);
+      }
+
+      async _callMethod(request, transport) {
+        const isRequest = request.hasOwnProperty('method');
+        if (!isRequest) return;
+
+        const { method, params = [], id } = request;
+
+        let methodName = method;
+
+        if (methodName.includes('::')) {
+          const [prefix, name] = methodName.split('::');
+          methodName = name;
+          if (this.methodPrefix && prefix != this.methodPrefix) {
+            return;
+          }
+        }
+
+        const methodNotFound =
+          !this.methods[methodName] ||
+          typeof this.methods[methodName] !== 'function' ||
+          methodName === 'constructor' ||
+          methodName.startsWith('_') ||
+          this.methods[methodName] === Object.prototype[methodName];
+
+        let response = {};
+
+        if (methodNotFound) {
+          response = {
+            jsonrpc: '2.0',
+            id,
+            error: {
+              code: errorCodes.METHOD_NOT_FOUND,
+              message: `Method [${methodName}] not found on remote target object`
+            }
+          };
+        } else {
+          this.currentTransport = transport;
+
+          try {
+            const result = await this.methods[methodName].apply(this.methods, params);
+
+            if (!id) return;
+
+            response = {
+              jsonrpc: '2.0',
+              result: typeof result === 'undefined' ? null : result,
+              id
+            };
+          } catch (e) {
+            console.log(`Exposed RPC method ${method} internal error:`);
+            console.log(e);
+            console.log('Sending this error as a result to calling client ...');
+            response = {
+              jsonrpc: '2.0',
+              error: {
+                code: errorCodes.REMOTE_INTERNAL_ERROR,
+                message: `Method [${method}] internal error: ${e.stack}`
+              },
+              id
+            };
+          }
+        }
+
+        return response;
+      }
+
+      run() {
+        for (const transport of this.transportsToRegister) {
+          this.registerTransport(transport);
+        }
+
+        this.transportsToRegister = [];
+      }
+    }
+
+    class Base extends Error {
+      constructor(data = {}) {
+        super();
+
+        if (!data.code) throw new Error('Code required');
+        if (!data.message) throw new Error('Message required');
+
+        this.code = data.code;
+        this.message = data.message;
+      }
+    }
+
+    class MethodNotFound extends Base {
+      constructor(message) {
+        super({
+          code: errorCodes.METHOD_NOT_FOUND,
+          message: message || 'Method not found'
+        });
+      }
+    }
+
+    class InvalidParams extends Base {
+      constructor() {
+        super({
+          code: errorCodes.INVALID_PARAMS,
+          message: 'Invalid params'
+        });
+      }
+    }
+
+    class RemoteInternalError extends Base {
+      constructor(message) {
+        super({
+          code: errorCodes.REMOTE_INTERNAL_ERROR,
+          message: `Error originating at remote endpoint: ${message}` || 'Remote Internal error'
+        });
+      }
+    }
+
+    class ParseError extends Base {
+      constructor() {
+        super({
+          code: errorCodes.PARSE_ERROR,
+          message: 'Parse error'
+        });
+      }
+    }
+
+    class InvalidRequest extends Base {
+      constructor() {
+        super({
+          code: errorCodes.INVALID_REQUEST,
+          message: 'Invalid request'
+        });
+      }
+    }
+
+    class ServerError extends Base {}
+
+    class RequestTimeout extends ServerError {
+      constructor(message, timeout) {
+        super({
+          code: -32001,
+          message: `Request exceeded maximum execution time (${timeout}ms): ${message}`
+        });
+      }
+    }
+
+    var X = {
+      Base,
+      MethodNotFound,
+      InvalidRequest,
+      InvalidParams,
+      RemoteInternalError,
+      ServerError,
+      ParseError,
+      RequestTimeout
+    };
+
+    class MoleClient {
+      constructor({ transport, requestTimeout = 20000 }) {
+        if (!transport) throw new Error('TRANSPORT_REQUIRED');
+        this.transport = transport;
+
+        this.requestTimeout = requestTimeout;
+
+        this.pendingRequest = {};
+        this.initialized = false;
+      }
+
+      setMethodPrefix(methodPrefix) {
+        this.methodPrefix = methodPrefix;
+      }
+
+      async callMethod(methodName, params) {
+        this._init();
+
+        const method = this.methodPrefix ? `${this.methodPrefix}::${methodName}` : methodName;
+
+        const request = this._makeRequestObject({ method, params });
+
+        return this._sendRequest({ object: request, id: request.id });
+      }
+
+      notify(method, params) {
+        this._init();
+
+        const request = this._makeRequestObject({ method, params, mode: 'notify' });
+        this.transport.sendData(JSON.stringify(request));
+        return true;
+      }
+
+      async runBatch(calls) {
+        const batchId = this._generateId();
+        let onlyNotifications = true;
+
+        const batchRequest = [];
+
+        for (const [method, params, mode] of calls) {
+          const request = this._makeRequestObject({ method, params, mode, batchId });
+
+          if (request.id) {
+            onlyNotifications = false;
+          }
+
+          batchRequest.push(request);
+        }
+
+        if (onlyNotifications) {
+          return this.transport.sendData(JSON.stringify(batchRequest));
+        }
+
+        return this._sendRequest({ object: batchRequest, id: batchId });
+      }
+
+      _init() {
+        if (this.initialized) return;
+
+        this.transport.onData(this._processResponse.bind(this));
+
+        this.initialized = true;
+      }
+
+      _sendRequest({ object, id }) {
+        const data = JSON.stringify(object);
+
+        return new Promise((resolve, reject) => {
+          this.pendingRequest[id] = { resolve, reject, sentObject: object };
+
+          setTimeout(() => {
+            if (this.pendingRequest[id]) {
+              delete this.pendingRequest[id];
+
+              reject(new X.RequestTimeout(data, this.requestTimeout));
+            }
+          }, this.requestTimeout);
+
+          try {
+            this.transport.sendData(data);
+          } catch (e) {
+            delete this.pendingRequest[id];
+            reject(e);
+          }
+        });
+      }
+
+      _processResponse(data) {
+        const response = JSON.parse(data);
+
+        if (Array.isArray(response)) {
+          this._processBatchResponse(response);
+        } else {
+          this._processSingleCallResponse(response);
+        }
+      }
+
+      _processSingleCallResponse(response) {
+        const isSuccessfulResponse = response.hasOwnProperty('result') || false;
+        const isErrorResponse = response.hasOwnProperty('error');
+
+        if (!isSuccessfulResponse && !isErrorResponse) return;
+
+        const resolvers = this.pendingRequest[response.id];
+        delete this.pendingRequest[response.id];
+
+        if (!resolvers) return;
+
+        if (isSuccessfulResponse) {
+          resolvers.resolve(response.result);
+        } else if (isErrorResponse) {
+          const errorObject = this._makeErrorObject(response.error);
+          resolvers.reject(errorObject);
+        }
+      }
+
+      _processBatchResponse(responses) {
+        let batchId;
+        const responseById = {};
+        const errorsWithoutId = [];
+
+        for (const response of responses) {
+          if (response.id) {
+            if (!batchId) {
+              batchId = response.id.split('|')[0];
+            }
+
+            responseById[response.id] = response;
+          } else if (response.error) {
+            errorsWithoutId.push(response.error);
+          }
+        }
+
+        if (!this.pendingRequest[batchId]) return;
+
+        const { sentObject, resolve } = this.pendingRequest[batchId];
+        delete this.pendingRequest[batchId];
+
+        const batchResults = [];
+        let errorIdx = 0;
+        for (const request of sentObject) {
+          if (!request.id) {
+            batchResults.push(null);
+            continue;
+          }
+
+          const response = responseById[request.id];
+
+          if (response) {
+            const isSuccessfulResponse = response.hasOwnProperty('result') || false;
+
+            if (isSuccessfulResponse) {
+              batchResults.push({
+                success: true,
+                result: response.result
+              });
+            } else {
+              batchResults.push({
+                success: false,
+                result: this._makeErrorObject(response.error)
+              });
+            }
+          } else {
+            batchResults.push({
+              success: false,
+              error: this._makeErrorObject(errorsWithoutId[errorIdx])
+            });
+            errorIdx++;
+          }
+        }
+
+        resolve(batchResults);
+      }
+
+      _makeRequestObject({ method, params, mode, batchId }) {
+        const request = {
+          jsonrpc: '2.0',
+          method
+        };
+
+        if (params && params.length) {
+          request.params = params;
+        }
+
+        if (mode !== 'notify') {
+          request.id = batchId ? `${batchId}|${this._generateId()}` : this._generateId();
+        }
+
+        return request;
+      }
+
+      _makeErrorObject(errorData) {
+        const errorBuilder = {
+          [errorCodes.METHOD_NOT_FOUND]: () => {
+            return new X.MethodNotFound(errorData.message);
+          },
+          [errorCodes.REMOTE_INTERNAL_ERROR]: () => {
+            return new X.RemoteInternalError(errorData.message);
+          }
+        }[errorData.code];
+
+        return errorBuilder();
+      }
+
+      _generateId() {
+        const alphabet = 'bjectSymhasOwnProp-0123456789ABCDEFGHIJKLMNQRTUVWXYZ_dfgiklquvxz';
+        let size = 10;
+        let id = '';
+
+        while (0 < size--) {
+          id += alphabet[(Math.random() * 64) | 0];
+        }
+
+        return id;
+      }
+    }
+
+    function proxify(moleClient) {
+      const callMethodProxy = proxifyOwnMethod(moleClient.callMethod.bind(moleClient));
+      const notifyProxy = proxifyOwnMethod(moleClient.notify.bind(moleClient));
+
+      return new Proxy(moleClient, {
+        get(target, methodName) {
+          if (methodName === 'notify') {
+            return notifyProxy;
+          }
+
+          if (methodName === 'callMethod') {
+            return callMethodProxy;
+          }
+
+          if (methodName === 'then') {
+            return;
+          }
+
+          if (methodName === 'setMethodPrefix') {
+            return (...params) => moleClient.setMethodPrefix(params);
+          }
+
+          return (...params) => target.callMethod.call(target, methodName, params);
+        }
+      });
+    }
+
+    function proxifyOwnMethod(ownMethod) {
+      return new Proxy(ownMethod, {
+        get(target, methodName) {
+          return (...params) => target.call(null, methodName, params);
+        },
+        apply(target, _, args) {
+          return target.apply(null, args);
+        }
+      });
+    }
+
+    class MoleClientProxified extends MoleClient {
+      constructor(...args) {
+        super(...args);
+        return proxify(this);
+      }
+    }
+
+    class TransportClientChannel {
+      constructor(channel) {
+        this.channel = channel;
+      }
+
+      onData(callback) {
+        this.channel.on('json_rpc', callback);
+      }
+
+      sendData(data) {
+        this.channel.send(data);
+      }
+    }
+
+    class TransportServerChannel {
+      constructor(channel) {
+        this.channel = channel;
+      }
+
+      onData(callback) {
+        this.channel.on('json_rpc', async reqData => {
+          const resData = await callback(reqData);
+          if (!resData) return;
+
+          this.channel.send(resData);
+        });
+      }
+    }
+
+    var mole = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        MoleServer: MoleServer,
+        MoleClient: MoleClient,
+        MoleClientProxified: MoleClientProxified,
+        ClientTransport: TransportClientChannel,
+        ServerTransport: TransportServerChannel
+    });
+
+    class ConnectomeError extends Error {
+      constructor(message, errorCode) {
+        super(message);
+
+        this.name = this.constructor.name;
+
+        this.errorCode = errorCode;
+      }
+
+      errorCode() {
+        return this.errorCode;
+      }
+    }
+
+    const { MoleClient: MoleClient$1, ClientTransport } = mole;
+
+    class SpecificRpcClient {
+      constructor(connectorOrServersideChannel, methodPrefix, requestTimeout) {
+        this.moleChannel = new Channel(connectorOrServersideChannel);
+        this.methodPrefix = methodPrefix;
+
+        this.connectorOrServersideChannel = connectorOrServersideChannel;
+
+        this.client = new MoleClient$1({
+          requestTimeout,
+          transport: new ClientTransport(this.moleChannel)
+        });
+      }
+
+      jsonrpcMsgReceive(stringMessage) {
+        this.moleChannel.emit('json_rpc', stringMessage);
+      }
+
+      call(methodName, params) {
+        if (this.connectorOrServersideChannel.closed()) {
+          return new Promise((success, reject) => {
+            reject(
+              new ConnectomeError(
+                `Method call [${this.methodPrefix}::${methodName}] on closed channel or connector ignored. Please add a check for closed channel in your code.`,
+                'CLOSED_CHANNEL'
+              )
+            );
+          });
+        }
+
+        return this.client.callMethod(`${this.methodPrefix}::${methodName}`, params);
+      }
+    }
+
+    const DEFAULT_REQUEST_TIMEOUT = 5000;
+
+    class RpcClient {
+      constructor(connectorOrServersideChannel, requestTimeout) {
+        this.connectorOrServersideChannel = connectorOrServersideChannel;
+        this.remoteObjects = {};
+        this.requestTimeout = requestTimeout || DEFAULT_REQUEST_TIMEOUT;
+      }
+
+      remoteObject(methodPrefix) {
+        const remoteObject = this.remoteObjects[methodPrefix];
+        if (!remoteObject) {
+          this.remoteObjects[methodPrefix] = new SpecificRpcClient(this.connectorOrServersideChannel, methodPrefix, this.requestTimeout);
+        }
+        return this.remoteObjects[methodPrefix];
+      }
+
+      jsonrpcMsgReceive(stringMessage) {
+        for (const remoteObject of Object.values(this.remoteObjects)) {
+          remoteObject.jsonrpcMsgReceive(stringMessage);
+        }
+      }
+    }
+
+    class RPCTarget {
+      constructor({ serversideChannel, serverMethods, methodPrefix }) {
+        const transports = [new TransportServerChannel(serversideChannel)];
+        this.server = new MoleServer({ transports });
+        this.server.expose(serverMethods);
+        this.server.setMethodPrefix(methodPrefix);
+        this.server.run();
+      }
+    }
+
+    naclFast.util = naclUtil;
+
+    function newKeypair() {
+      const keys = naclFast.box.keyPair();
+      const publicKeyHex = bufferToHex(keys.publicKey);
+      const privateKeyHex = bufferToHex(keys.secretKey);
+
+      return { privateKey: keys.secretKey, publicKey: keys.publicKey, privateKeyHex, publicKeyHex };
+    }
+
+    naclFast.util = naclUtil;
+
+    class Connector extends Eev {
+      constructor({
+        address,
+        protocol,
+        lane,
+        keypair = newKeypair(),
+        rpcRequestTimeout,
+        verbose = false,
+        tag
+      } = {}) {
+        super();
+
+        this.protocol = protocol;
+        this.lane = lane;
+
+        const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
+
+        this.clientPrivateKey = clientPrivateKey;
+        this.clientPublicKey = clientPublicKey;
+        this.clientPublicKeyHex = bufferToHex(clientPublicKey);
+
+        this.rpcClient = new RpcClient(this, rpcRequestTimeout);
+
+        this.address = address;
+        this.verbose = verbose;
+        this.tag = tag;
+
+        this.sentCount = 0;
+        this.receivedCount = 0;
+
+        this.successfulConnectsCount = 0;
+      }
+
+      send(data) {
+        send({ data, connector: this });
+        this.sentCount += 1;
+      }
+
+      signal(signal, data) {
+        this.send({ signal, data });
+      }
+
+      wireReceive({ jsonData, encryptedData, rawMessage }) {
+        wireReceive({ jsonData, encryptedData, rawMessage, connector: this });
+        this.receivedCount += 1;
+      }
+
+      isReady() {
+        return this.ready;
+      }
+
+      closed() {
+        return !this.connected;
+      }
+
+      decommission() {
+        this.decommissioned = true;
+      }
+
+      connectStatus(connected) {
+        if (connected) {
+          this.sentCount = 0;
+          this.receivedCount = 0;
+
+          this.connected = true;
+
+          this.successfulConnectsCount += 1;
+
+          const num = this.successfulConnectsCount;
+
+          this.diffieHellman({
+            clientPrivateKey: this.clientPrivateKey,
+            clientPublicKey: this.clientPublicKey,
+            lane: this.lane
+          })
+            .then(({ sharedSecret, sharedSecretHex }) => {
+              this.ready = true;
+              this.connectedAt = Date.now();
+
+              this.emit('ready', { sharedSecret, sharedSecretHex });
+
+              console.log(
+                `✓ Ready: DMT Protocol Connector [ ${this.address} (${this.tag}) · ${this.protocol}/${this.lane} ]`
+              );
+            })
+            .catch(e => {
+              if (num == this.successfulConnectsCount) {
+                console.log(e);
+                console.log('dropping connection and retrying again');
+                this.connection.terminate();
+              }
+            });
+        } else {
+          let justDisconnected;
+          if (this.connected) {
+            justDisconnected = true;
+          }
+
+          if (this.connected == undefined) {
+            console.log(
+              `Connector ${this.address} (${this.tag}) was not able to connect at first try, setting READY to false`
+            );
+          }
+
+          this.connected = false;
+          this.ready = false;
+          delete this.connectedAt;
+
+          if (justDisconnected) {
+            this.emit('disconnect');
+          }
+        }
+      }
+
+      remoteObject(handle) {
+        return {
+          call: (methodName, params = []) => {
+            return this.rpcClient.remoteObject(handle).call(methodName, listify(params));
+          }
+        };
+      }
+
+      attachObject(handle, obj) {
+        new RPCTarget({ serversideChannel: this, serverMethods: obj, methodPrefix: handle });
+      }
+
+      diffieHellman({ clientPrivateKey, clientPublicKey, lane }) {
+        return new Promise((success, reject) => {
+          this.remoteObject('Auth')
+            .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
+            .then(remotePubkeyHex => {
+              const sharedSecret = naclFast.box.before(hexToBuffer(remotePubkeyHex), clientPrivateKey);
+              const sharedSecretHex = bufferToHex(sharedSecret);
+              this.sharedSecret = sharedSecret;
+
+              this._remotePubkeyHex = remotePubkeyHex;
+
+              success({ sharedSecret, sharedSecretHex });
+
+              if (this.verbose) {
+                console.log('Established shared secret through diffie-hellman exchange:');
+                console.log(sharedSecretHex);
+              }
+
+              this.remoteObject('Auth')
+                .call('finalizeHandshake', { lane })
+                .then(() => {})
+                .catch(reject);
+            })
+            .catch(reject);
+        });
+      }
+
+      clientPubkey() {
+        return this.clientPublicKeyHex;
+      }
+
+      remotePubkeyHex() {
+        return this._remotePubkeyHex;
+      }
+
+      remoteAddress() {
+        return this.address;
+      }
+    }
+
+    const browser = typeof window !== 'undefined';
+
+    const wsCONNECTING = 0;
+    const wsOPEN = 1;
+
+    function establishAndMaintainConnection(
+      { endpoint, address, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose, tag },
+      { WebSocket, log }
+    ) {
+      if (browser && endpoint && endpoint.startsWith('/')) {
+        const wsProtocol = window.location.protocol.includes('s') ? 'wss' : 'ws';
+        endpoint = `${wsProtocol}://${window.location.host}${endpoint}`;
+      }
+
+      if (!endpoint) {
+        if (browser) {
+          endpoint = `ws://${address || window.location.hostname}`;
+
+          if (port) {
+            endpoint = `${endpoint}:${port}`;
+          } else if (window.location.port) {
+            endpoint = `${endpoint}:${window.location.port}`;
+          }
+        } else {
+          endpoint = `ws://${address}:${port}`;
+        }
+      }
+
+      const connector = new Connector({
+        address: endpoint,
+        protocol,
+        lane,
+        rpcRequestTimeout,
+        keypair,
+        verbose,
+        tag
+      });
+
+      if (connector.connection) {
+        return connector;
+      }
+
+      connector.connection = {
+        terminate() {
+          this.websocket._removeAllCallbacks();
+          this.websocket.close();
+          connector.connectStatus(false);
+        },
+        endpoint,
+        checkTicker: 0
+      };
+
+      setTimeout(() => tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }), 10);
+
+      const connectionCheckInterval = 1500;
+      const callback = () => {
+        if (!connector.decommissioned) {
+          checkConnection({ connector, endpoint, protocol }, { WebSocket, log });
+          setTimeout(callback, connectionCheckInterval);
+        }
+      };
+
+      setTimeout(callback, connectionCheckInterval);
+
+      return connector;
+    }
+
+    function checkConnection({ connector, endpoint, protocol }, { WebSocket, log }) {
+      const conn = connector.connection;
+
+      if (connectionIdle(conn) || connector.decommissioned) {
+        if (connectionIdle(conn)) {
+          log(
+            `Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`
+          );
+        } else {
+          log(
+            `Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `
+          );
+        }
+
+        conn.terminate();
+        return;
+      }
+
+      const connected = socketConnected(conn);
+      if (connected) {
+        conn.websocket.send('ping');
+      } else {
+        if (connector.connected == undefined) {
+          log(`Setting connector status to FALSE because connector.connected is undefined`);
+          connector.connectStatus(false);
+        }
+
+        tryReconnect({ connector, endpoint, protocol }, { WebSocket, log });
+      }
+
+      conn.checkTicker += 1;
+    }
+
+    function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
+      const conn = connector.connection;
+
+      if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
+        if (conn.currentlyTryingWS._waitForConnectCounter == 3) {
+          conn.currentlyTryingWS._removeAllCallbacks();
+          conn.currentlyTryingWS.close();
+        } else {
+          conn.currentlyTryingWS._waitForConnectCounter += 1;
+          return;
+        }
+      }
+
+      const ws = new WebSocket(endpoint, protocol);
+
+      conn.currentlyTryingWS = ws;
+      conn.currentlyTryingWS._waitForConnectCounter = 0;
+
+      ws.rand = Math.random();
+
+      if (browser) {
+        ws.binaryType = 'arraybuffer';
+      }
+
+      if (!browser) {
+        ws.on('error', error => {});
+      }
+
+      const openCallback = m => {
+        conn.currentlyTryingWS = null;
+        conn.checkTicker = 0;
+        addSocketListeners({ ws, connector, openCallback }, { log });
+        conn.websocket = ws;
+        connector.connectStatus(true);
+      };
+
+      ws._removeAllCallbacks = () => {
+        ws.removeEventListener('open', openCallback);
+      };
+
+      if (browser) {
+        ws.addEventListener('open', openCallback);
+      } else {
+        ws.on('open', openCallback);
+      }
+    }
+
+    function addSocketListeners({ ws, connector, openCallback }, { log }) {
+      const conn = connector.connection;
+
+      const errorCallback = m => {
+        log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
+        log(m);
+      };
+
+      const closeCallback = m => {
+        connector.connectStatus(false);
+      };
+
+      const messageCallback = _msg => {
+        conn.checkTicker = 0;
+
+        const msg = browser ? _msg.data : _msg;
+
+        if (msg == 'pong') {
+          return;
+        }
+
+        let jsonData;
+
+        try {
+          jsonData = JSON.parse(msg);
+        } catch (e) {}
+
+        if (jsonData) {
+          connector.wireReceive({ jsonData, rawMessage: msg });
+        } else {
+          const encryptedData = browser ? new Uint8Array(msg) : msg;
+          connector.wireReceive({ encryptedData });
+        }
+      };
+
+      ws._removeAllCallbacks = () => {
+        ws.removeEventListener('error', errorCallback);
+        ws.removeEventListener('close', closeCallback);
+        ws.removeEventListener('message', messageCallback);
+
+        ws.removeEventListener('open', openCallback);
+      };
+
+      if (browser) {
+        ws.addEventListener('error', errorCallback);
+        ws.addEventListener('close', closeCallback);
+        ws.addEventListener('message', messageCallback);
+      } else {
+        ws.on('error', errorCallback);
+        ws.on('close', closeCallback);
+        ws.on('message', messageCallback);
+      }
+    }
+
+    function socketConnected(conn) {
+      return conn.websocket && conn.websocket.readyState == wsOPEN;
+    }
+
+    function connectionIdle(conn) {
+      return socketConnected(conn) && conn.checkTicker > 5;
+    }
+
+    function establishAndMaintainConnection$1(opts) {
+      return establishAndMaintainConnection(opts, { WebSocket, log });
+    }
+
+    const { applyPatch: applyJSONPatch } = fastJsonPatch;
+
+    class ConnectedStore extends WritableStore {
+      constructor({
+        endpoint,
+        address,
+        port,
+        protocol,
+        lane,
+        keypair = newKeypair(),
+        logStore,
+        rpcRequestTimeout,
+        verbose
+      } = {}) {
+        super({});
+
+        this.endpoint = endpoint;
+        this.protocol = protocol;
+        this.lane = lane;
+
+        this.logStore = logStore;
+        this.verbose = verbose;
+
+        this.rpcRequestTimeout = rpcRequestTimeout;
+
+        this.connected = new WritableStore();
+
+        this.connect(endpoint, address, port, keypair);
+      }
+
+      signal(signal, data) {
+        if (this.connector.connected) {
+          console.log(`Sending signal '${signal}' over connector ${this.connector.address}`);
+          this.connector.signal(signal, data);
+        } else {
+          console.log(
+            'Warning: trying to send signal over disconnected connector, this should be prevented by GUI (to disable any backend state-change when disconnected)'
+          );
+        }
+      }
+
+      remoteObject(handle) {
+        return this.connector.remoteObject(handle);
+      }
+
+      connect(endpoint, address, port, keypair) {
+        this.connector = establishAndMaintainConnection$1({
+          endpoint,
+          address,
+          port,
+          protocol: this.protocol,
+          lane: this.lane,
+          keypair,
+          rpcRequestTimeout: this.rpcRequestTimeout,
+          verbose: this.verbose
+        });
+
+        this.connector.on('ready', ({ sharedSecret, sharedSecretHex }) => {
+          this.connected.set(true);
+          this.emit('ready');
+        });
+
+        // 💡 connected == undefined ==> while trying to connect
+        // 💡 connected == false => while disconnected
+        // 💡 connected == true => while connected
+        setTimeout(() => {
+          if (this.connected.get() == undefined) {
+            this.connected.set(false);
+          }
+        }, 300);
+
+        this.connector.on('disconnect', () => {
+          this.connected.set(false);
+        });
+
+        // 💡 Special incoming JSON message: { state: ... } ... parsed as part of 'Connectome State Syncing Protocol'
+        this.connector.on('receive_state', state => {
+          this.wireStateReceived = true;
+
+          if (this.verbose) {
+            console.log(`New store ${address} / ${this.protocol} / ${this.lane} state:`);
+            console.log(state);
+          }
+
+          this.set(state); // set and announce state
+        });
+
+        // 💡 Special incoming JSON message: { diff: ... } ... parsed as part of 'Connectome State Syncing Protocol'
+        this.connector.on('receive_diff', diff => {
+          if (this.wireStateReceived) {
+            applyJSONPatch(this.state, diff);
+            this.announceStateChange();
+          }
+        });
+      }
+    }
+
+    function makeConnectedStore(opts) {
+      const store = new ConnectedStore(opts);
+
+      const { connected, action: sendJSON, remoteObject, connector } = store;
+
+      // function sendText(str) {
+      //   connector.send(str);
+      // }
+
+      const api = remoteObject.bind(store);
+
+      // sendJSON, sendText
+      return { state: store, connected, api };
+    }
+
+    var pointer = createCommonjsModule$1(function (module, exports) {
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Pointer = void 0;
+    /**
+    Unescape token part of a JSON Pointer string
+
+    `token` should *not* contain any '/' characters.
+
+    > Evaluation of each reference token begins by decoding any escaped
+    > character sequence.  This is performed by first transforming any
+    > occurrence of the sequence '~1' to '/', and then transforming any
+    > occurrence of the sequence '~0' to '~'.  By performing the
+    > substitutions in this order, an implementation avoids the error of
+    > turning '~01' first into '~1' and then into '/', which would be
+    > incorrect (the string '~01' correctly becomes '~1' after
+    > transformation).
+
+    Here's my take:
+
+    ~1 is unescaped with higher priority than ~0 because it is a lower-order escape character.
+    I say "lower order" because '/' needs escaping due to the JSON Pointer serialization technique.
+    Whereas, '~' is escaped because escaping '/' uses the '~' character.
+    */
+    function unescape(token) {
+        return token.replace(/~1/g, '/').replace(/~0/g, '~');
+    }
+    /** Escape token part of a JSON Pointer string
+
+    > '~' needs to be encoded as '~0' and '/'
+    > needs to be encoded as '~1' when these characters appear in a
+    > reference token.
+
+    This is the exact inverse of `unescape()`, so the reverse replacements must take place in reverse order.
+    */
+    function escape(token) {
+        return token.replace(/~/g, '~0').replace(/\//g, '~1');
+    }
+    /**
+    JSON Pointer representation
+    */
+    var Pointer = /** @class */ (function () {
+        function Pointer(tokens) {
+            if (tokens === void 0) { tokens = ['']; }
+            this.tokens = tokens;
+        }
+        /**
+        `path` *must* be a properly escaped string.
+        */
+        Pointer.fromJSON = function (path) {
+            var tokens = path.split('/').map(unescape);
+            if (tokens[0] !== '')
+                throw new Error("Invalid JSON Pointer: " + path);
+            return new Pointer(tokens);
+        };
+        Pointer.prototype.toString = function () {
+            return this.tokens.map(escape).join('/');
+        };
+        /**
+        Returns an object with 'parent', 'key', and 'value' properties.
+        In the special case that this Pointer's path == "",
+        this object will be {parent: null, key: '', value: object}.
+        Otherwise, parent and key will have the property such that parent[key] == value.
+        */
+        Pointer.prototype.evaluate = function (object) {
+            var parent = null;
+            var key = '';
+            var value = object;
+            for (var i = 1, l = this.tokens.length; i < l; i++) {
+                parent = value;
+                key = this.tokens[i];
+                // not sure if this the best way to handle non-existant paths...
+                value = (parent || {})[key];
+            }
+            return { parent: parent, key: key, value: value };
+        };
+        Pointer.prototype.get = function (object) {
+            return this.evaluate(object).value;
+        };
+        Pointer.prototype.set = function (object, value) {
+            var cursor = object;
+            for (var i = 1, l = this.tokens.length - 1, token = this.tokens[i]; i < l; i++) {
+                // not sure if this the best way to handle non-existant paths...
+                cursor = (cursor || {})[token];
+            }
+            if (cursor) {
+                cursor[this.tokens[this.tokens.length - 1]] = value;
+            }
+        };
+        Pointer.prototype.push = function (token) {
+            // mutable
+            this.tokens.push(token);
+        };
+        /**
+        `token` should be a String. It'll be coerced to one anyway.
+      
+        immutable (shallowly)
+        */
+        Pointer.prototype.add = function (token) {
+            var tokens = this.tokens.concat(String(token));
+            return new Pointer(tokens);
+        };
+        return Pointer;
+    }());
+    exports.Pointer = Pointer;
+    });
+
+    var util = createCommonjsModule$1(function (module, exports) {
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.clone = exports.objectType = exports.hasOwnProperty = void 0;
+    exports.hasOwnProperty = Object.prototype.hasOwnProperty;
+    function objectType(object) {
+        if (object === undefined) {
+            return 'undefined';
+        }
+        if (object === null) {
+            return 'null';
+        }
+        if (Array.isArray(object)) {
+            return 'array';
+        }
+        return typeof object;
+    }
+    exports.objectType = objectType;
+    function isNonPrimitive(value) {
+        // loose-equality checking for null is faster than strict checking for each of null/undefined/true/false
+        // checking null first, then calling typeof, is faster than vice-versa
+        return value != null && typeof value == 'object';
+    }
+    /**
+    Recursively copy a value.
+
+    @param source - should be a JavaScript primitive, Array, or (plain old) Object.
+    @returns copy of source where every Array and Object have been recursively
+             reconstructed from their constituent elements
+    */
+    function clone(source) {
+        if (!isNonPrimitive(source)) {
+            // short-circuiting is faster than a single return
+            return source;
+        }
+        // x.constructor == Array is the fastest way to check if x is an Array
+        if (source.constructor == Array) {
+            // construction via imperative for-loop is faster than source.map(arrayVsObject)
+            var length_1 = source.length;
+            // setting the Array length during construction is faster than just `[]` or `new Array()`
+            var arrayTarget = new Array(length_1);
+            for (var i = 0; i < length_1; i++) {
+                arrayTarget[i] = clone(source[i]);
+            }
+            return arrayTarget;
+        }
+        // Object
+        var objectTarget = {};
+        // declaring the variable (with const) inside the loop is faster
+        for (var key in source) {
+            // hasOwnProperty costs a bit of performance, but it's semantically necessary
+            // using a global helper is MUCH faster than calling source.hasOwnProperty(key)
+            if (exports.hasOwnProperty.call(source, key)) {
+                objectTarget[key] = clone(source[key]);
+            }
+        }
+        return objectTarget;
+    }
+    exports.clone = clone;
+    });
+
+    var diff = createCommonjsModule$1(function (module, exports) {
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.diffAny = exports.diffObjects = exports.diffArrays = exports.intersection = exports.subtract = exports.isDestructive = void 0;
+     // we only need this for type inference
+
+    function isDestructive(_a) {
+        var op = _a.op;
+        return op === 'remove' || op === 'replace' || op === 'copy' || op === 'move';
+    }
+    exports.isDestructive = isDestructive;
+    /**
+    List the keys in `minuend` that are not in `subtrahend`.
+
+    A key is only considered if it is both 1) an own-property (o.hasOwnProperty(k))
+    of the object, and 2) has a value that is not undefined. This is to match JSON
+    semantics, where JSON object serialization drops keys with undefined values.
+
+    @param minuend Object of interest
+    @param subtrahend Object of comparison
+    @returns Array of keys that are in `minuend` but not in `subtrahend`.
+    */
+    function subtract(minuend, subtrahend) {
+        // initialize empty object; we only care about the keys, the values can be anything
+        var obj = {};
+        // build up obj with all the properties of minuend
+        for (var add_key in minuend) {
+            if (util.hasOwnProperty.call(minuend, add_key) && minuend[add_key] !== undefined) {
+                obj[add_key] = 1;
+            }
+        }
+        // now delete all the properties of subtrahend from obj
+        // (deleting a missing key has no effect)
+        for (var del_key in subtrahend) {
+            if (util.hasOwnProperty.call(subtrahend, del_key) && subtrahend[del_key] !== undefined) {
+                delete obj[del_key];
+            }
+        }
+        // finally, extract whatever keys remain in obj
+        return Object.keys(obj);
+    }
+    exports.subtract = subtract;
+    /**
+    List the keys that shared by all `objects`.
+
+    The semantics of what constitutes a "key" is described in {@link subtract}.
+
+    @param objects Array of objects to compare
+    @returns Array of keys that are in ("own-properties" of) every object in `objects`.
+    */
+    function intersection(objects) {
+        var length = objects.length;
+        // prepare empty counter to keep track of how many objects each key occurred in
+        var counter = {};
+        // go through each object and increment the counter for each key in that object
+        for (var i = 0; i < length; i++) {
+            var object = objects[i];
+            for (var key in object) {
+                if (util.hasOwnProperty.call(object, key) && object[key] !== undefined) {
+                    counter[key] = (counter[key] || 0) + 1;
+                }
+            }
+        }
+        // now delete all keys from the counter that were not seen in every object
+        for (var key in counter) {
+            if (counter[key] < length) {
+                delete counter[key];
+            }
+        }
+        // finally, extract whatever keys remain in the counter
+        return Object.keys(counter);
+    }
+    exports.intersection = intersection;
+    function isArrayAdd(array_operation) {
+        return array_operation.op === 'add';
+    }
+    function isArrayRemove(array_operation) {
+        return array_operation.op === 'remove';
+    }
+    function appendArrayOperation(base, operation) {
+        return {
+            // the new operation must be pushed on the end
+            operations: base.operations.concat(operation),
+            cost: base.cost + 1,
+        };
+    }
+    /**
+    Calculate the shortest sequence of operations to get from `input` to `output`,
+    using a dynamic programming implementation of the Levenshtein distance algorithm.
+
+    To get from the input ABC to the output AZ we could just delete all the input
+    and say "insert A, insert Z" and be done with it. That's what we do if the
+    input is empty. But we can be smarter.
+
+              output
+                   A   Z
+                   -   -
+              [0]  1   2
+    input A |  1  [0]  1
+          B |  2  [1]  1
+          C |  3   2  [2]
+
+    1) start at 0,0 (+0)
+    2) keep A (+0)
+    3) remove B (+1)
+    4) replace C with Z (+1)
+
+    If the `input` (source) is empty, they'll all be in the top row, resulting in an
+    array of 'add' operations.
+    If the `output` (target) is empty, everything will be in the left column,
+    resulting in an array of 'remove' operations.
+
+    @returns A list of add/remove/replace operations.
+    */
+    function diffArrays(input, output, ptr, diff) {
+        if (diff === void 0) { diff = diffAny; }
+        // set up cost matrix (very simple initialization: just a map)
+        var memo = {
+            '0,0': { operations: [], cost: 0 },
+        };
+        /**
+        Calculate the cheapest sequence of operations required to get from
+        input.slice(0, i) to output.slice(0, j).
+        There may be other valid sequences with the same cost, but none cheaper.
+      
+        @param i The row in the layout above
+        @param j The column in the layout above
+        @returns An object containing a list of operations, along with the total cost
+                 of applying them (+1 for each add/remove/replace operation)
+        */
+        function dist(i, j) {
+            // memoized
+            var memo_key = i + "," + j;
+            var memoized = memo[memo_key];
+            if (memoized === undefined) {
+                // TODO: this !diff(...).length usage could/should be lazy
+                if (i > 0 && j > 0 && !diff(input[i - 1], output[j - 1], new pointer.Pointer()).length) {
+                    // equal (no operations => no cost)
+                    memoized = dist(i - 1, j - 1);
+                }
+                else {
+                    var alternatives = [];
+                    if (i > 0) {
+                        // NOT topmost row
+                        var remove_base = dist(i - 1, j);
+                        var remove_operation = {
+                            op: 'remove',
+                            index: i - 1,
+                        };
+                        alternatives.push(appendArrayOperation(remove_base, remove_operation));
+                    }
+                    if (j > 0) {
+                        // NOT leftmost column
+                        var add_base = dist(i, j - 1);
+                        var add_operation = {
+                            op: 'add',
+                            index: i - 1,
+                            value: output[j - 1],
+                        };
+                        alternatives.push(appendArrayOperation(add_base, add_operation));
+                    }
+                    if (i > 0 && j > 0) {
+                        // TABLE MIDDLE
+                        // supposing we replaced it, compute the rest of the costs:
+                        var replace_base = dist(i - 1, j - 1);
+                        // okay, the general plan is to replace it, but we can be smarter,
+                        // recursing into the structure and replacing only part of it if
+                        // possible, but to do so we'll need the original value
+                        var replace_operation = {
+                            op: 'replace',
+                            index: i - 1,
+                            original: input[i - 1],
+                            value: output[j - 1],
+                        };
+                        alternatives.push(appendArrayOperation(replace_base, replace_operation));
+                    }
+                    // the only other case, i === 0 && j === 0, has already been memoized
+                    // the meat of the algorithm:
+                    // sort by cost to find the lowest one (might be several ties for lowest)
+                    // [4, 6, 7, 1, 2].sort((a, b) => a - b) -> [ 1, 2, 4, 6, 7 ]
+                    var best = alternatives.sort(function (a, b) { return a.cost - b.cost; })[0];
+                    memoized = best;
+                }
+                memo[memo_key] = memoized;
+            }
+            return memoized;
+        }
+        // handle weird objects masquerading as Arrays that don't have proper length
+        // properties by using 0 for everything but positive numbers
+        var input_length = (isNaN(input.length) || input.length <= 0) ? 0 : input.length;
+        var output_length = (isNaN(output.length) || output.length <= 0) ? 0 : output.length;
+        var array_operations = dist(input_length, output_length).operations;
+        var padded_operations = array_operations.reduce(function (_a, array_operation) {
+            var operations = _a[0], padding = _a[1];
+            if (isArrayAdd(array_operation)) {
+                var padded_index = array_operation.index + 1 + padding;
+                var index_token = padded_index < (input_length + padding) ? String(padded_index) : '-';
+                var operation = {
+                    op: array_operation.op,
+                    path: ptr.add(index_token).toString(),
+                    value: array_operation.value,
+                };
+                // padding++ // maybe only if array_operation.index > -1 ?
+                return [operations.concat(operation), padding + 1];
+            }
+            else if (isArrayRemove(array_operation)) {
+                var operation = {
+                    op: array_operation.op,
+                    path: ptr.add(String(array_operation.index + padding)).toString(),
+                };
+                // padding--
+                return [operations.concat(operation), padding - 1];
+            }
+            else { // replace
+                var replace_ptr = ptr.add(String(array_operation.index + padding));
+                var replace_operations = diff(array_operation.original, array_operation.value, replace_ptr);
+                return [operations.concat.apply(operations, replace_operations), padding];
+            }
+        }, [[], 0])[0];
+        return padded_operations;
+    }
+    exports.diffArrays = diffArrays;
+    function diffObjects(input, output, ptr, diff) {
+        if (diff === void 0) { diff = diffAny; }
+        // if a key is in input but not output -> remove it
+        var operations = [];
+        subtract(input, output).forEach(function (key) {
+            operations.push({ op: 'remove', path: ptr.add(key).toString() });
+        });
+        // if a key is in output but not input -> add it
+        subtract(output, input).forEach(function (key) {
+            operations.push({ op: 'add', path: ptr.add(key).toString(), value: output[key] });
+        });
+        // if a key is in both, diff it recursively
+        intersection([input, output]).forEach(function (key) {
+            operations.push.apply(operations, diff(input[key], output[key], ptr.add(key)));
+        });
+        return operations;
+    }
+    exports.diffObjects = diffObjects;
+    /**
+    `diffAny()` returns an empty array if `input` and `output` are materially equal
+    (i.e., would produce equivalent JSON); otherwise it produces an array of patches
+    that would transform `input` into `output`.
+
+    > Here, "equal" means that the value at the target location and the
+    > value conveyed by "value" are of the same JSON type, and that they
+    > are considered equal by the following rules for that type:
+    > o  strings: are considered equal if they contain the same number of
+    >    Unicode characters and their code points are byte-by-byte equal.
+    > o  numbers: are considered equal if their values are numerically
+    >    equal.
+    > o  arrays: are considered equal if they contain the same number of
+    >    values, and if each value can be considered equal to the value at
+    >    the corresponding position in the other array, using this list of
+    >    type-specific rules.
+    > o  objects: are considered equal if they contain the same number of
+    >    members, and if each member can be considered equal to a member in
+    >    the other object, by comparing their keys (as strings) and their
+    >    values (using this list of type-specific rules).
+    > o  literals (false, true, and null): are considered equal if they are
+    >    the same.
+    */
+    function diffAny(input, output, ptr, diff) {
+        if (diff === void 0) { diff = diffAny; }
+        // strict equality handles literals, numbers, and strings (a sufficient but not necessary cause)
+        if (input === output) {
+            return [];
+        }
+        var input_type = util.objectType(input);
+        var output_type = util.objectType(output);
+        if (input_type == 'array' && output_type == 'array') {
+            return diffArrays(input, output, ptr, diff);
+        }
+        if (input_type == 'object' && output_type == 'object') {
+            return diffObjects(input, output, ptr, diff);
+        }
+        // at this point we know that input and output are materially different;
+        // could be array -> object, object -> array, boolean -> undefined,
+        // number -> string, or some other combination, but nothing that can be split
+        // up into multiple patches: so `output` must replace `input` wholesale.
+        return [{ op: 'replace', path: ptr.toString(), value: output }];
+    }
+    exports.diffAny = diffAny;
+    });
+
+    var patch = createCommonjsModule$1(function (module, exports) {
+    var __extends = (commonjsGlobal$1 && commonjsGlobal$1.__extends) || (function () {
+        var extendStatics = function (d, b) {
+            extendStatics = Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+            return extendStatics(d, b);
+        };
+        return function (d, b) {
+            extendStatics(d, b);
+            function __() { this.constructor = d; }
+            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+        };
+    })();
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.apply = exports.InvalidOperationError = exports.test = exports.copy = exports.move = exports.replace = exports.remove = exports.add = exports.TestError = exports.MissingError = void 0;
+
+
+
+    var MissingError = /** @class */ (function (_super) {
+        __extends(MissingError, _super);
+        function MissingError(path) {
+            var _this = _super.call(this, "Value required at path: " + path) || this;
+            _this.path = path;
+            _this.name = 'MissingError';
+            return _this;
+        }
+        return MissingError;
+    }(Error));
+    exports.MissingError = MissingError;
+    var TestError = /** @class */ (function (_super) {
+        __extends(TestError, _super);
+        function TestError(actual, expected) {
+            var _this = _super.call(this, "Test failed: " + actual + " != " + expected) || this;
+            _this.actual = actual;
+            _this.expected = expected;
+            _this.name = 'TestError';
+            return _this;
+        }
+        return TestError;
+    }(Error));
+    exports.TestError = TestError;
+    function _add(object, key, value) {
+        if (Array.isArray(object)) {
+            // `key` must be an index
+            if (key == '-') {
+                object.push(value);
+            }
+            else {
+                var index = parseInt(key, 10);
+                object.splice(index, 0, value);
+            }
+        }
+        else {
+            object[key] = value;
+        }
+    }
+    function _remove(object, key) {
+        if (Array.isArray(object)) {
+            // '-' syntax doesn't make sense when removing
+            var index = parseInt(key, 10);
+            object.splice(index, 1);
+        }
+        else {
+            // not sure what the proper behavior is when path = ''
+            delete object[key];
+        }
+    }
+    /**
+    >  o  If the target location specifies an array index, a new value is
+    >     inserted into the array at the specified index.
+    >  o  If the target location specifies an object member that does not
+    >     already exist, a new member is added to the object.
+    >  o  If the target location specifies an object member that does exist,
+    >     that member's value is replaced.
+    */
+    function add(object, operation) {
+        var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
+        // it's not exactly a "MissingError" in the same way that `remove` is -- more like a MissingParent, or something
+        if (endpoint.parent === undefined) {
+            return new MissingError(operation.path);
+        }
+        _add(endpoint.parent, endpoint.key, util.clone(operation.value));
+        return null;
+    }
+    exports.add = add;
+    /**
+    > The "remove" operation removes the value at the target location.
+    > The target location MUST exist for the operation to be successful.
+    */
+    function remove(object, operation) {
+        // endpoint has parent, key, and value properties
+        var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
+        if (endpoint.value === undefined) {
+            return new MissingError(operation.path);
+        }
+        // not sure what the proper behavior is when path = ''
+        _remove(endpoint.parent, endpoint.key);
+        return null;
+    }
+    exports.remove = remove;
+    /**
+    > The "replace" operation replaces the value at the target location
+    > with a new value.  The operation object MUST contain a "value" member
+    > whose content specifies the replacement value.
+    > The target location MUST exist for the operation to be successful.
+
+    > This operation is functionally identical to a "remove" operation for
+    > a value, followed immediately by an "add" operation at the same
+    > location with the replacement value.
+
+    Even more simply, it's like the add operation with an existence check.
+    */
+    function replace(object, operation) {
+        var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
+        if (endpoint.parent === null) {
+            return new MissingError(operation.path);
+        }
+        // this existence check treats arrays as a special case
+        if (Array.isArray(endpoint.parent)) {
+            if (parseInt(endpoint.key, 10) >= endpoint.parent.length) {
+                return new MissingError(operation.path);
+            }
+        }
+        else if (endpoint.value === undefined) {
+            return new MissingError(operation.path);
+        }
+        endpoint.parent[endpoint.key] = operation.value;
+        return null;
+    }
+    exports.replace = replace;
+    /**
+    > The "move" operation removes the value at a specified location and
+    > adds it to the target location.
+    > The operation object MUST contain a "from" member, which is a string
+    > containing a JSON Pointer value that references the location in the
+    > target document to move the value from.
+    > This operation is functionally identical to a "remove" operation on
+    > the "from" location, followed immediately by an "add" operation at
+    > the target location with the value that was just removed.
+
+    > The "from" location MUST NOT be a proper prefix of the "path"
+    > location; i.e., a location cannot be moved into one of its children.
+
+    TODO: throw if the check described in the previous paragraph fails.
+    */
+    function move(object, operation) {
+        var from_endpoint = pointer.Pointer.fromJSON(operation.from).evaluate(object);
+        if (from_endpoint.value === undefined) {
+            return new MissingError(operation.from);
+        }
+        var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
+        if (endpoint.parent === undefined) {
+            return new MissingError(operation.path);
+        }
+        _remove(from_endpoint.parent, from_endpoint.key);
+        _add(endpoint.parent, endpoint.key, from_endpoint.value);
+        return null;
+    }
+    exports.move = move;
+    /**
+    > The "copy" operation copies the value at a specified location to the
+    > target location.
+    > The operation object MUST contain a "from" member, which is a string
+    > containing a JSON Pointer value that references the location in the
+    > target document to copy the value from.
+    > The "from" location MUST exist for the operation to be successful.
+
+    > This operation is functionally identical to an "add" operation at the
+    > target location using the value specified in the "from" member.
+
+    Alternatively, it's like 'move' without the 'remove'.
+    */
+    function copy(object, operation) {
+        var from_endpoint = pointer.Pointer.fromJSON(operation.from).evaluate(object);
+        if (from_endpoint.value === undefined) {
+            return new MissingError(operation.from);
+        }
+        var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
+        if (endpoint.parent === undefined) {
+            return new MissingError(operation.path);
+        }
+        _add(endpoint.parent, endpoint.key, util.clone(from_endpoint.value));
+        return null;
+    }
+    exports.copy = copy;
+    /**
+    > The "test" operation tests that a value at the target location is
+    > equal to a specified value.
+    > The operation object MUST contain a "value" member that conveys the
+    > value to be compared to the target location's value.
+    > The target location MUST be equal to the "value" value for the
+    > operation to be considered successful.
+    */
+    function test(object, operation) {
+        var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
+        // TODO: this diffAny(...).length usage could/should be lazy
+        if (diff.diffAny(endpoint.value, operation.value, new pointer.Pointer()).length) {
+            return new TestError(endpoint.value, operation.value);
+        }
+        return null;
+    }
+    exports.test = test;
+    var InvalidOperationError = /** @class */ (function (_super) {
+        __extends(InvalidOperationError, _super);
+        function InvalidOperationError(operation) {
+            var _this = _super.call(this, "Invalid operation: " + operation.op) || this;
+            _this.operation = operation;
+            _this.name = 'InvalidOperationError';
+            return _this;
+        }
+        return InvalidOperationError;
+    }(Error));
+    exports.InvalidOperationError = InvalidOperationError;
+    /**
+    Switch on `operation.op`, applying the corresponding patch function for each
+    case to `object`.
+    */
+    function apply(object, operation) {
+        // not sure why TypeScript can't infer typesafety of:
+        //   {add, remove, replace, move, copy, test}[operation.op](object, operation)
+        // (seems like a bug)
+        switch (operation.op) {
+            case 'add': return add(object, operation);
+            case 'remove': return remove(object, operation);
+            case 'replace': return replace(object, operation);
+            case 'move': return move(object, operation);
+            case 'copy': return copy(object, operation);
+            case 'test': return test(object, operation);
+        }
+        return new InvalidOperationError(operation);
+    }
+    exports.apply = apply;
+    });
+
+    var rfc6902 = createCommonjsModule$1(function (module, exports) {
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.createTests = exports.createPatch = exports.applyPatch = void 0;
+
+
+
+    /**
+    Apply a 'application/json-patch+json'-type patch to an object.
+
+    `patch` *must* be an array of operations.
+
+    > Operation objects MUST have exactly one "op" member, whose value
+    > indicates the operation to perform.  Its value MUST be one of "add",
+    > "remove", "replace", "move", "copy", or "test"; other values are
+    > errors.
+
+    This method mutates the target object in-place.
+
+    @returns list of results, one for each operation: `null` indicated success,
+             otherwise, the result will be an instance of one of the Error classes:
+             MissingError, InvalidOperationError, or TestError.
+    */
+    function applyPatch(object, patch$1) {
+        return patch$1.map(function (operation) { return patch.apply(object, operation); });
+    }
+    exports.applyPatch = applyPatch;
+    function wrapVoidableDiff(diff$1) {
+        function wrappedDiff(input, output, ptr) {
+            var custom_patch = diff$1(input, output, ptr);
+            // ensure an array is always returned
+            return Array.isArray(custom_patch) ? custom_patch : diff.diffAny(input, output, ptr, wrappedDiff);
+        }
+        return wrappedDiff;
+    }
+    /**
+    Produce a 'application/json-patch+json'-type patch to get from one object to
+    another.
+
+    This does not alter `input` or `output` unless they have a property getter with
+    side-effects (which is not a good idea anyway).
+
+    `diff` is called on each pair of comparable non-primitive nodes in the
+    `input`/`output` object trees, producing nested patches. Return `undefined`
+    to fall back to default behaviour.
+
+    Returns list of operations to perform on `input` to produce `output`.
+    */
+    function createPatch(input, output, diff$1) {
+        var ptr = new pointer.Pointer();
+        // a new Pointer gets a default path of [''] if not specified
+        return (diff$1 ? wrapVoidableDiff(diff$1) : diff.diffAny)(input, output, ptr);
+    }
+    exports.createPatch = createPatch;
+    /**
+    Create a test operation based on `input`'s current evaluation of the JSON
+    Pointer `path`; if such a pointer cannot be resolved, returns undefined.
+    */
+    function createTest(input, path) {
+        var endpoint = pointer.Pointer.fromJSON(path).evaluate(input);
+        if (endpoint !== undefined) {
+            return { op: 'test', path: path, value: endpoint.value };
+        }
+    }
+    /**
+    Produce an 'application/json-patch+json'-type list of tests, to verify that
+    existing values in an object are identical to the those captured at some
+    checkpoint (whenever this function is called).
+
+    This does not alter `input` or `output` unless they have a property getter with
+    side-effects (which is not a good idea anyway).
+
+    Returns list of test operations.
+    */
+    function createTests(input, patch) {
+        var tests = new Array();
+        patch.filter(diff.isDestructive).forEach(function (operation) {
+            var pathTest = createTest(input, operation.path);
+            if (pathTest)
+                tests.push(pathTest);
+            if ('from' in operation) {
+                var fromTest = createTest(input, operation.from);
+                if (fromTest)
+                    tests.push(fromTest);
+            }
+        });
+        return tests;
+    }
+    exports.createTests = createTests;
+    });
+
+    var rfc6902$1 = /*@__PURE__*/getDefaultExportFromCjs$1(rfc6902);
+
+    const generateJsonPatch = rfc6902$1.createPatch;
+
+    const port = 7780;
+
+    const protocol = 'dmt';
+    const lane = 'gui';
+
+    const { connected, state } = new makeConnectedStore({ port, protocol, lane });
+
+    const app = new App({
+      target: document.body,
+      props: {
+        connected,
+        state
+      }
+    });
+
+    return app;
+
+}());
 //# sourceMappingURL=bundle.js.map

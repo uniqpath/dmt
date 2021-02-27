@@ -1,106 +1,64 @@
-import colors from 'colors';
+import apns2 from 'apns2';
+
 import fs from 'fs';
 import path from 'path';
-import apn from 'apn';
 
 import dmt from 'dmt/bridge';
 const { log } = dmt;
 
 const { format } = dmt.dateFns;
 
+const { APNS, BasicNotification } = apns2;
+
 const apnConfigDir = path.join(dmt.accessTokensDir, 'apple_push');
 
 const configFile = path.join(apnConfigDir, 'config.json');
 
+let client;
 let config;
-let serverAuth;
-let apnOptions;
 
 if (fs.existsSync(configFile)) {
   config = JSON.parse(fs.readFileSync(configFile));
 
-  serverAuth = config.server_auth;
-  if (serverAuth) {
-    serverAuth.token.key = path.join(apnConfigDir, serverAuth.token.key);
-  }
+  const { server_auth } = config;
+  const { token } = server_auth;
 
-  apnOptions = {
-    token: serverAuth.token,
-    production: true
-  };
-}
-
-function createNote(msg) {
-  const note = new apn.Notification();
-
-  note.expiry = Math.floor(Date.now() / 1000) + 3600;
-  note.badge = 3;
-  note.sound = 'ping.aiff';
-  note.alert = `${format(new Date(), 'HH:mm')} ${msg}`;
-  note.payload = { messageFrom: 'Notifier333' };
-  note.topic = serverAuth.topic;
-
-  return note;
-}
-
-export { notify, notifyAll, sendAdminRaw };
-
-function notifyAll(msg) {
-  if (!config) {
-    return;
-  }
-
-  const note = createNote(msg);
-
-  const apnProvider = new apn.Provider(apnOptions);
-
-  for (const device of config.devices.filter(device => device.active != false)) {
-    apnProvider.send(note, device.token).then(result => {});
-  }
-
-  apnProvider.shutdown();
-}
-
-function sendAdminRaw(msg) {
-  return new Promise((success, reject) => {
-    const note = createNote(msg);
-    const device = config.devices.find(d => d.admin);
-    if (device) {
-      const apnProvider = new apn.Provider(apnOptions);
-      apnProvider.send(note, device.token).then(result => {
-        if (result.failed.length == 0) {
-          success(result);
-          apnProvider.shutdown();
-        } else {
-          reject(result);
-          apnProvider.shutdown();
-        }
-      });
-    } else {
-      reject(new Error('No defined admin device'));
-    }
+  client = new APNS({
+    team: token.teamId,
+    keyId: token.keyId,
+    signingKey: fs.readFileSync(path.join(apnConfigDir, token.key)),
+    defaultTopic: server_auth.topic
   });
 }
 
-function notify(msg, onFinishedCallback) {
-  if (!config) {
-    if (onFinishedCallback) {
-      onFinishedCallback();
-    }
-    return;
-  }
+async function notify(msg) {
+  if (client) {
+    const device = config.devices.find(d => d.admin);
+    if (device) {
+      const bn = new BasicNotification(device.token, msg);
 
-  sendAdminRaw(msg)
-    .then(result => {
-      if (onFinishedCallback) {
-        onFinishedCallback({ result });
+      try {
+        await client.send(bn);
+      } catch (err) {
+        log.red('⚠️  Push notification error:');
+        log.red(err.reason);
       }
-    })
-    .catch(error => {
-      log.write(colors.red('Problem sending the push message:'));
-      console.log(JSON.stringify(error, null, 2));
-      if (onFinishedCallback) {
-        onFinishedCallback({ error });
-      }
-    });
+    }
+  }
 }
+
+async function notifyAll(msg) {
+  if (client) {
+    const devices = config.devices.filter(device => device.active != false);
+    const notifications = devices.map(({ token }) => new BasicNotification(token, msg));
+
+    try {
+      await client.sendMany(notifications);
+    } catch (err) {
+      log.red('⚠️  Push notification error:');
+      log.red(err.reason);
+    }
+  }
+}
+
+export { notify, notifyAll };

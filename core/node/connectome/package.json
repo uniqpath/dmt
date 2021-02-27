@@ -1,6 +1,6 @@
 {
   "name": "connectome",
-  "version": "0.0.93",
+  "version": "0.0.94",
   "description": "Dynamic realtime connectivity and state management",
   "typings": "typings/src/client/index.d.ts",
   "scripts": {
@@ -13,8 +13,8 @@
         "import": "./dist/node/index.mjs",
         "require": "./dist/node/index.js"
       },
-      "default": "./dist/index.js",
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.js"
     },
     "./server": {
       "import": "./server/index.mjs",

@@ -143,6 +143,7 @@ function streamDmtZip({ req, res, program, files, replicateExcludedByUser, repli
       replicateUserCodeTransform &&
       ['.js', '.mjs'].includes(file.extname) &&
       !file.reldir.endsWith('/public') &&
+      !file.reldir.endsWith('/assets') &&
       !file.reldir.endsWith('/dist') &&
       !file.reldir.endsWith('/build') &&
       !file.path.includes('node_modules')
