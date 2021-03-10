@@ -1,7 +1,7 @@
-const { exec } = require('child_process');
-const { stat } = require('fs');
+import { exec } from 'child_process';
+import { stat } from 'fs';
 
-const ErrorHandler = require('./error');
+import ErrorHandler from './error';
 
 const util = {
   findIPCCommand(options) {
@@ -134,4 +134,4 @@ const util = {
   }
 };
 
-module.exports = util;
+export default util;

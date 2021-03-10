@@ -1,10 +1,16 @@
-const net = require('net');
-const eventEmitter = require('events').EventEmitter;
-const cuid = require('../cuid');
+import net from 'net';
 
-const eventsModule = require('./_events');
-const ErrorHandler = require('../error');
-const ipcRequest = require('./ipcRequest');
+import dmt from 'dmt/bridge';
+
+import EventEmitter from 'events';
+
+import cuid from '../cuid';
+
+import eventsModule from './_events';
+import ErrorHandler from '../error';
+import ipcRequest from './ipcRequest';
+
+const { log } = dmt;
 
 function ipcInterface(options) {
   this.options = options;
@@ -13,7 +19,7 @@ function ipcInterface(options) {
 
   this.errorHandler = new ErrorHandler();
 
-  eventEmitter.call(this);
+  EventEmitter.call(this);
 
   this.socket = new net.Socket();
 }
@@ -85,6 +91,8 @@ ipcInterface.prototype = Object.assign(
           request_id
         };
 
+        log.debug(`Sending ipc command to mpv: ${JSON.stringify(messageJson, null, 2)}`, { cat: 'mpv-ipc' });
+
         this.ipcRequests[request_id] = new ipcRequest(resolve, reject, Object.values(command).splice(1));
         try {
           this.socket.write(JSON.stringify(messageJson) + '\n');
@@ -95,7 +103,7 @@ ipcInterface.prototype = Object.assign(
     }
   },
   eventsModule,
-  eventEmitter.prototype
+  EventEmitter.prototype
 );
 
-module.exports = ipcInterface;
+export default ipcInterface;

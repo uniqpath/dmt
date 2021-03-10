@@ -1,5 +1,8 @@
-const net = require('net');
-const colors = require('colors');
+import net from 'net';
+import colors from 'colors';
+
+import dmt from 'dmt/bridge';
+const { log } = dmt;
 
 const events = {
   closeHandler(errorCode) {
@@ -54,6 +57,10 @@ const events = {
     }
   },
   messageHandler(message) {
+    if (message.name != 'time-pos' && message.name != 'percent-pos' && message.name != 'audio-bitrate') {
+      log.debug(colors.yellow(`Received ipc message from mpv: ${JSON.stringify(message, null, 2)}`), { cat: 'mpv-ipc' });
+    }
+
     if ('event' in message) {
       switch (message.event) {
         case 'idle':
@@ -150,4 +157,4 @@ const events = {
   }
 };
 
-module.exports = events;
+export default events;

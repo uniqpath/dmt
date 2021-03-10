@@ -16,7 +16,7 @@ Here are the presentations about [DMT ENGINE, Connectome and Zeta* suite of apps
 
 This capability is coming in Q1 or Q2 2020 but you are welcome to provide input and even co-design it!
 
-💡 Visit one of our [informal discussion meetups](https://dmt-system.com) when they are announced. This is usually a good time-investment.
+💡 Visit one of our [informal discussion meetups](https://dmt-system.com) when they are announced (mostly end of each year). This is usually a good time-investment.
 
 ![dmt_meetup](https://github.com/uniqpath/info/blob/master/assets/img/dmt_meetup.jpg?raw=true)
 

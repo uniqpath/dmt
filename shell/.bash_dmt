@@ -308,62 +308,77 @@ function dmt {
       local markerfile="$DMT_STATE/.debug-mode"
       local markerfile_display="~/.dmt/state/.debug-mode"
 
+      if [ "$1" == "off" ] || [ "$1" == "disable" ] || [ "$1" == "stop" ]; then
+        if [ -f "$markerfile" ]; then
+          rm "$markerfile"
+          printf "${MAGENTA}Debug mode disabled${NC}\n"
+        else
+          printf "${YELLOW}Debug mode was already disabled${NC}\n"
+        fi
+      fi
+
       # dmt debug edit
       if [ "$1" == "edit" ]; then
-        echo "#mpv" > $markerfile
-        echo "#mpv-ipc" >> $markerfile
-        echo "#ws" >> $markerfile
-        echo "#lanbus" >> $markerfile
-        echo "#network-detect" >> $markerfile
-        echo "#mqtt-sent" >> $markerfile
-        echo "#mqtt-received" >> $markerfile
+        if [ ! -f "$markerfile" ]; then
+          setup_default_debug_marker_file "$markerfile"
+        fi
 
-        nano $markerfile
+        nano "$markerfile"
+
+        printf "${GREEN}✓ ${YELLOW}Debug mode ⚙️  is enabled with selected additional logging:${NC}\n"
+
+        echo
+
+        show_debug_levels_from_markerfile "$markerfile"
+
+        echo
+        printf "${CYAN}Options:${NC}\n"
+        echo
+        printf "  ${CYAN}■${NC} ${GREEN}dmt debug off ${GRAY}stop debugging${NC}\n"
+        echo
 
         return
       fi
 
       if [ -z "$1" ] || [ "$1" == "on" ] || [ "$1" == "enable" ]; then
         if [ -f "$markerfile" ]; then
-          printf "${GRAY}✓ Debug mode was already enabled${NC}\n"
+          printf "${YELLOW}✓ Debug mode was already enabled${NC}\n"
         else
-          touch "$markerfile"
+          setup_default_debug_marker_file "$markerfile"
+
           printf "${GREEN}✓ ${YELLOW}Debug mode ⚙️  enabled${NC}\n"
+          #printf "${GRAY}General debug messages are now appearing in dmt log.${NC}\n"
         fi
 
-        printf "\n${MAGENTA}Debugging options:${NC}\n"
+        echo
+        printf "${CYAN}What this means?${NC}\n"
+        echo
+        printf "${MAGENTA}General debug messages are now appearing in dmt log.${NC}\n"
+        printf "\nIf you need more debugging messages please use ${GREEN}dmt debug edit${NC} and remove '#' in front of particular debug log levels:\n"
 
-        printf "\nExecute ${GREEN}dmt debug edit${NC} and remove comments to increase particular debug log level (one line, one category).\n"
-        printf "\nTo make it more permanent, add this to device.def ${GRAY}(command:${NC} ${GREEN}dev edit${NC}${GRAY})${NC}:\n"
-        printf "${MAGENTA}debug:${NC}\n"
-        printf "  ${MAGENTA}log: ${GRAY}mpv${NC}\n"
-        printf "  ${MAGENTA}log: ${GRAY}lanbus${NC}\n"
-        printf "  ${MAGENTA}log: ${GRAY}...${NC}\n"
-        printf "\n⚠️  ${GRAY}This, however, requires ${GREEN}dmt restart${GRAY} while editing the ${YELLOW}.debug-mode${GRAY} file does not.${NC}\n"
+        #printf "\n${MAGENTA}Debugging options:${NC}\n"
+
+        # printf "\nTo make it more permanent, add this to device.def ${GRAY}(command:${NC} ${GREEN}dev edit${NC}${GRAY})${NC}:\n"
+        # printf "${MAGENTA}debug:${NC}\n"
+        # printf "  ${MAGENTA}log: ${GRAY}mpv${NC}\n"
+        # printf "  ${MAGENTA}log: ${GRAY}lanbus${NC}\n"
+        # printf "  ${MAGENTA}log: ${GRAY}...${NC}\n"
+        # printf "\n⚠️  ${GRAY}This, however, requires ${GREEN}dmt restart${GRAY} while editing the ${YELLOW}.debug-mode${GRAY} file does not.${NC}\n"
 
         echo
 
-        printf "${MAGENTA}Options:${NC}\n"
-        printf "${MAGENTA}--------${NC}\n\n"
-
-        printf "${GREEN}mpv${NC} ${GRAY}enables mpv process logging into ~/.dmt/log/mpv.log (requires dmt restart ${NC}while other commands do not!${NC})${NC}\n"
-        printf "${GREEN}mpv-ipc${NC} ${GRAY}enables debug messages between ${MAGENTA}dmt-process${NC} ${GRAY}and${NC} ${CYAN}mpv${NC} ${GRAY}process${NC}\n"
-        printf "${GREEN}ws${NC} ${GRAY}enables debug messages about websocket connections (port 7780 -- metagui)${NC}\n"
-        printf "${GREEN}lanbus${NC} ${GRAY}enables debug messages about lanbus${NC}\n"
-        printf "${GREEN}network-detect${NC} ${GRAY}enables debugging of current lan network and network segments identification${NC}\n"
-        printf "${GREEN}mqtt-sent${NC} ${GRAY}enables debug messages about sent mqtt messages${NC}\n"
-        printf "${GREEN}mqtt-received${NC} ${GRAY}enables debug messages about received mqtt messages${NC}\n"
+        show_debug_levels_from_markerfile "$markerfile"
         #printf "${GREEN}beats${NC} ${GRAY}todo${NC}\n"
       fi
 
-      if [ "$1" == "off" ] || [ "$1" == "disable" ] || [ "$1" == "stop" ]; then
-        if [ -f "$markerfile" ]; then
-          rm "$markerfile"
-          printf "${CYAN}Debug mode disabled${NC}\n"
-        else
-          printf "${GRAY}Debug mode was already disabled${NC}\n"
-        fi
-      fi
+      echo
+      printf "${CYAN}Options:${NC}\n"
+      echo
+      printf "  ${CYAN}■${NC} ${GREEN}dmt debug [on] ${GRAY}start debugging${NC}\n"
+      printf "  ${CYAN}■${NC} ${GREEN}dmt debug off ${GRAY}stop debugging${NC}\n"
+      printf "  ${CYAN}■${NC} ${GREEN}dmt debug edit ${GRAY}enable or disable additional logging${NC}\n"
+      echo
+
       ;;
 
     search)
@@ -605,6 +620,49 @@ function dmt {
 #     #fi
 #   fi
 # }
+
+function setup_default_debug_marker_file {
+  local markerfile="$1"
+
+  echo "#mpv" > $markerfile
+  echo "#mpv-ipc" >> $markerfile
+  echo "#ws" >> $markerfile
+  echo "#lanbus" >> $markerfile
+  echo "#network-detect" >> $markerfile
+  echo "#mqtt-sent" >> $markerfile
+  echo "#mqtt-received" >> $markerfile
+}
+
+function debug_levels_from_markerfile_check_if_enabled {
+  local markerfile="$1"
+  local debug_level="$2"
+
+  if grep -Fxq "$2" "$markerfile"
+  then
+      printf " ${GREEN}✓ ${CYAN}"
+  else
+      printf "  ${GRAY}#${WHITE}"
+  fi
+}
+
+function show_debug_levels_from_markerfile {
+  local markerfile="$1"
+
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "mpv"
+  printf "mpv${NC} ${GRAY}enables mpv process logging into ${CYAN}~/.dmt/log/mpv.log${NC} ${NC}(⚠️  requires ${GREEN}dmt restart${NC})${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "mpv-ipc"
+  printf "mpv-ipc${NC} ${GRAY}enables debug messages between ${CYAN}dmt-proc${NC} ${GRAY}and${NC} ${CYAN}mpv${NC} ${GRAY}process in dmt log${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "ws"
+  printf "ws${NC} ${GRAY}enables debug messages about websocket connections (port 7780)${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "lanbus"
+  printf "lanbus${NC} ${GRAY}enables debug messages about lanbus${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "network-detect"
+  printf "network-detect${NC} ${GRAY}enables debugging of current lan network and network segments identification${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "mqtt-sent"
+  printf "mqtt-sent${NC} ${GRAY}enables debug messages about sent mqtt messages${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "mqtt-received"
+  printf "mqtt-received${NC} ${GRAY}enables debug messages about received mqtt messages${NC}\n"
+}
 
 function compile_gui_if_missing {
   if [ ! -f "$DMT_NODE_CORE/gui/gui-frontend-core/app/public/bundle.js" ]; then

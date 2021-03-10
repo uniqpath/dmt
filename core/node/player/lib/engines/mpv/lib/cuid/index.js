@@ -1,5 +1,5 @@
-var fingerprint = require('./lib/fingerprint.js');
-var pad = require('./lib/pad.js');
+import fingerprint from './lib/fingerprint';
+import pad from './lib/pad';
 
 var c = 0,
   blockSize = 4,
@@ -39,4 +39,4 @@ cuid.slug = function slug() {
 
 cuid.fingerprint = fingerprint;
 
-module.exports = cuid;
+export default cuid;

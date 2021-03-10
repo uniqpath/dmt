@@ -4,4 +4,4 @@ const playlist = {
   }
 };
 
-module.exports = playlist;
+export default playlist;

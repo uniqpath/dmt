@@ -44,4 +44,4 @@ const controls = {
   }
 };
 
-module.exports = controls;
+export default controls;

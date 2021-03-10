@@ -1,4 +1,4 @@
-const ErrorHandler = require('../error');
+import ErrorHandler from '../error';
 
 const ipcRequest = class {
   constructor(resolve, reject, args) {
@@ -21,4 +21,4 @@ const ipcRequest = class {
   }
 };
 
-module.exports = ipcRequest;
+export default ipcRequest;

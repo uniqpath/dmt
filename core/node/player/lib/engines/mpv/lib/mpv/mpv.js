@@ -1,17 +1,17 @@
-const eventEmitter = require('events').EventEmitter;
+import EventEmitter from 'events';
 
-const connectModule = require('./_connect');
-const commandModule = require('./_commands');
-const controlModule = require('./_controls');
-const eventModule = require('./_events');
-const informationModule = require('./_information');
-const playlistModule = require('./_playlist');
+import connectModule from './_connect';
+import commandModule from './_commands';
+import controlModule from './_controls';
+import eventModule from './_events';
+import informationModule from './_information';
+import playlistModule from './_playlist';
 
-const util = require('../util');
-const ErrorHandler = require('../error');
+import util from '../util';
+import ErrorHandler from '../error';
 
 function mpv(options, mpv_args) {
-  eventEmitter.call(this);
+  EventEmitter.call(this);
 
   this.options = util.mergeDefaultOptions(options);
 
@@ -39,7 +39,7 @@ mpv.prototype = Object.assign(
   informationModule,
   playlistModule,
   connectModule,
-  eventEmitter.prototype
+  EventEmitter.prototype
 );
 
 function load(file, mode = 'replace', options) {
@@ -51,4 +51,4 @@ function load(file, mode = 'replace', options) {
   });
 }
 
-module.exports = mpv;
+export default mpv;

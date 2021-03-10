@@ -1,5 +1,5 @@
-const IpcInterface = require('../ipcInterface/ipcInterface');
-const util = require('../util');
+import IpcInterface from '../ipcInterface/ipcInterface';
+import util from '../util';
 
 const connect = {
   connect() {
@@ -61,4 +61,4 @@ const connect = {
   }
 };
 
-module.exports = connect;
+export default connect;

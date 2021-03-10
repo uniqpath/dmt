@@ -1,7 +1,8 @@
-var pad = require('./pad.js');
+import pad from './pad';
 
-var os = require('os'),
-  padding = 2,
+import os from 'os';
+
+let padding = 2,
   pid = pad(process.pid.toString(36), padding),
   hostname = os.hostname(),
   length = hostname.length,
@@ -15,6 +16,6 @@ var os = require('os'),
     padding
   );
 
-module.exports = function fingerprint() {
+export default function fingerprint() {
   return pid + hostId;
-};
+}

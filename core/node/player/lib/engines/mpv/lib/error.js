@@ -41,4 +41,4 @@ const ErrorHandler = class {
   }
 };
 
-module.exports = ErrorHandler;
+export default ErrorHandler;

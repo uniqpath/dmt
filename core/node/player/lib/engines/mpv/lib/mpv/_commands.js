@@ -40,4 +40,4 @@ const commands = {
   }
 };
 
-module.exports = commands;
+export default commands;

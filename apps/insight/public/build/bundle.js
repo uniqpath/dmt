@@ -15387,6 +15387,38 @@ var app = (function () {
 
     const browser = typeof window !== 'undefined';
 
+    function determineEndpoint({ endpoint, address, port }) {
+      // if endpoint is specified with "/something", it is rewritten as ws[s]://origin/something
+      if (browser && endpoint && endpoint.startsWith('/')) {
+        const wsProtocol = window.location.protocol.includes('s') ? 'wss' : 'ws';
+        endpoint = `${wsProtocol}://${window.location.host}${endpoint}`;
+      }
+
+      // if no endpoint is specified then use address and port if provided, otherwise use origin (in browser)
+      // in nodejs address and port have to be provided
+      if (!endpoint) {
+        if (browser) {
+          address = address || window.location.hostname;
+          const wsProtocol = window.location.protocol.includes('s') ? 'wss' : 'ws';
+
+          endpoint = `${wsProtocol}://${address}`;
+
+          if (port) {
+            endpoint = `${endpoint}:${port}`;
+          } else if (window.location.port) {
+            endpoint = `${endpoint}:${window.location.port}`;
+          }
+        } else { // node.js ... if wss is needed, then full endpoint has to be passed in instead of address and port
+          endpoint = `ws://${address}:${port}`;
+        }
+      }
+
+      // if endpoint is provided directly and it didn't start with '/', then use this verbatim
+      return endpoint;
+    }
+
+    const browser$1 = typeof window !== 'undefined';
+
     const wsCONNECTING = 0;
     const wsOPEN = 1;
 
@@ -15394,24 +15426,7 @@ var app = (function () {
       { endpoint, address, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose, tag },
       { WebSocket, log }
     ) {
-      if (browser && endpoint && endpoint.startsWith('/')) {
-        const wsProtocol = window.location.protocol.includes('s') ? 'wss' : 'ws';
-        endpoint = `${wsProtocol}://${window.location.host}${endpoint}`;
-      }
-
-      if (!endpoint) {
-        if (browser) {
-          endpoint = `ws://${address || window.location.hostname}`;
-
-          if (port) {
-            endpoint = `${endpoint}:${port}`;
-          } else if (window.location.port) {
-            endpoint = `${endpoint}:${window.location.port}`;
-          }
-        } else {
-          endpoint = `ws://${address}:${port}`;
-        }
-      }
+      endpoint = determineEndpoint({ endpoint, address, port });
 
       const connector = new Connector({
         address: endpoint,
@@ -15505,11 +15520,11 @@ var app = (function () {
 
       ws.rand = Math.random();
 
-      if (browser) {
+      if (browser$1) {
         ws.binaryType = 'arraybuffer';
       }
 
-      if (!browser) {
+      if (!browser$1) {
         ws.on('error', error => {});
       }
 
@@ -15525,7 +15540,7 @@ var app = (function () {
         ws.removeEventListener('open', openCallback);
       };
 
-      if (browser) {
+      if (browser$1) {
         ws.addEventListener('open', openCallback);
       } else {
         ws.on('open', openCallback);
@@ -15547,7 +15562,7 @@ var app = (function () {
       const messageCallback = _msg => {
         conn.checkTicker = 0;
 
-        const msg = browser ? _msg.data : _msg;
+        const msg = browser$1 ? _msg.data : _msg;
 
         if (msg == 'pong') {
           return;
@@ -15562,7 +15577,7 @@ var app = (function () {
         if (jsonData) {
           connector.wireReceive({ jsonData, rawMessage: msg });
         } else {
-          const encryptedData = browser ? new Uint8Array(msg) : msg;
+          const encryptedData = browser$1 ? new Uint8Array(msg) : msg;
           connector.wireReceive({ encryptedData });
         }
       };
@@ -15575,7 +15590,7 @@ var app = (function () {
         ws.removeEventListener('open', openCallback);
       };
 
-      if (browser) {
+      if (browser$1) {
         ws.addEventListener('error', errorCallback);
         ws.addEventListener('close', closeCallback);
         ws.addEventListener('message', messageCallback);
@@ -15614,7 +15629,6 @@ var app = (function () {
       } = {}) {
         super({});
 
-        this.endpoint = endpoint;
         this.protocol = protocol;
         this.lane = lane;
 

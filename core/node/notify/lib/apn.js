@@ -31,26 +31,25 @@ if (fs.existsSync(configFile)) {
   });
 }
 
-async function notify(msg) {
+async function notify(msg, { users = [] } = {}) {
   if (client) {
-    const device = config.devices.find(d => d.admin);
-    if (device) {
-      const bn = new BasicNotification(device.token, msg);
+    users = users ? users.map(user => user.toLowerCase()) : [];
 
-      try {
-        await client.send(bn);
-      } catch (err) {
-        log.red('⚠️  Push notification error:');
-        log.red(err.reason);
-      }
+    let devices = users.length == 0 ? config.devices.filter(d => d.admin) : config.devices.filter(d => users.includes(d.name.toLowerCase()));
+    devices = devices.filter(device => device.active != false);
+
+    if (devices.length > 0) {
+      notifyDevices(
+        msg,
+        devices.map(({ token }) => token)
+      );
     }
   }
 }
 
-async function notifyAll(msg) {
+async function notifyDevices(msg, tokens) {
   if (client) {
-    const devices = config.devices.filter(device => device.active != false);
-    const notifications = devices.map(({ token }) => new BasicNotification(token, msg));
+    const notifications = tokens.map(token => new BasicNotification(token, msg));
 
     try {
       await client.sendMany(notifications);
@@ -58,6 +57,16 @@ async function notifyAll(msg) {
       log.red('⚠️  Push notification error:');
       log.red(err.reason);
     }
+  }
+}
+
+async function notifyAll(msg) {
+  if (client) {
+    const devices = config.devices.filter(device => device.active != false);
+    notifyDevices(
+      msg,
+      devices.map(({ token }) => token)
+    );
   }
 }
 

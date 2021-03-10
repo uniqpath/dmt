@@ -51,4 +51,4 @@ const information = {
   }
 };
 
-module.exports = information;
+export default information;
