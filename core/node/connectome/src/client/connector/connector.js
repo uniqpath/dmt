@@ -10,7 +10,7 @@ import { EventEmitter, listify, hexToBuffer, bufferToHex } from '../../utils/ind
 import RpcClient from '../rpc/client.js';
 import RPCTarget from '../rpc/RPCTarget.js';
 
-import { newKeypair } from '../../utils/crypto/index.js';
+import { newKeypair, acceptKeypair } from '../../utils/crypto/index.js';
 
 class Connector extends EventEmitter {
   constructor({ address, protocol, lane, keypair = newKeypair(), rpcRequestTimeout, verbose = false, tag } = {}) {
@@ -19,7 +19,7 @@ class Connector extends EventEmitter {
     this.protocol = protocol;
     this.lane = lane;
 
-    const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = keypair;
+    const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = acceptKeypair(keypair);
 
     this.clientPrivateKey = clientPrivateKey;
     this.clientPublicKey = clientPublicKey;
@@ -85,7 +85,9 @@ class Connector extends EventEmitter {
 
           this.emit('ready', { sharedSecret, sharedSecretHex });
 
-          console.log(`✓ Ready: DMT Protocol Connector [ ${this.address} (${this.tag}) · ${this.protocol}/${this.lane} ]`);
+          const tag = this.tag ? ` (${this.tag})` : '';
+
+          console.log(`✓ Secure channel ready [ ${this.address}${tag} · Protocol ${this.protocol} · Negotiating lane: ${this.lane} ]`);
         })
         .catch(e => {
           if (num == this.successfulConnectsCount) {
@@ -101,7 +103,8 @@ class Connector extends EventEmitter {
       }
 
       if (this.connected == undefined) {
-        console.log(`Connector ${this.address} (${this.tag}) was not able to connect at first try, setting READY to false`);
+        const tag = this.tag ? ` (${this.tag})` : '';
+        console.log(`Connector ${this.address}${tag} was not able to connect at first try, setting READY to false`);
       }
 
       this.connected = false;
@@ -147,7 +150,10 @@ class Connector extends EventEmitter {
           this.remoteObject('Auth')
             .call('finalizeHandshake', { lane })
             .then(() => {})
-            .catch(reject);
+            .catch(e => {
+              console.log(`x Lane ${this.lane} error or not available`);
+              reject(e);
+            });
         })
         .catch(reject);
     });

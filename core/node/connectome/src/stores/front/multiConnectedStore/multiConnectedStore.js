@@ -1,7 +1,7 @@
 import WritableStore from '../helperStores/writableStore.js';
 import MergeStore from '../helperStores/mergeStore.js';
 
-import { newKeypair } from '../../../utils/crypto/index.js';
+import { newKeypair, acceptKeypair } from '../../../utils/crypto/index.js';
 
 import ConnectDevice from './helpers/connectDevice.js';
 import Foreground from './helpers/foreground.js';
@@ -13,8 +13,10 @@ class MultiConnectedStore extends MergeStore {
 
     const thisDeviceStateKeys = ['time', 'environment', 'nearbyDevices', 'notifications'];
 
-    this.publicKey = keypair.publicKey;
-    this.privateKey = keypair.privateKey;
+    const { publicKey, privateKey } = acceptKeypair(keypair);
+
+    this.publicKey = publicKey;
+    this.privateKey = privateKey;
 
     this.port = port;
     this.protocol = protocol;

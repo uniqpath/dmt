@@ -77,6 +77,7 @@ function dep_rsync {
   # can be only one argument! (no need for more)
 
   local dry=""
+  local no_pre=""
 
   if [ "$1" == "--dry" ]; then
     dry="$1"

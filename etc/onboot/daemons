@@ -14,11 +14,16 @@ function manage_daemon {
   local command="$1"
   local daemon_process="$2"
 
-  local DAEMONS_PATH="$HOME/.dmt/core/node/controller/daemons"
+  local DMT_CORE="$HOME/.dmt/core"
+  local DAEMONS_PATH="${DMT_CORE}/node/controller/daemons"
   local DAEMON_MANAGER="${DAEMONS_PATH}/manager.js"
 
   if [ ! -f "$DAEMON_MANAGER" ]; then
-    echo "Missing daemons code in dmt-core, please get the code from GitHub"
+    printf "⚠️  ERROR ${RED}DAEMON_MANAGER is not present${NC} at ${DAEMON_MANAGER}${NC}\n"
+    if [ ! -d "$DMT_CORE" ]; then
+      printf "⚠️  ERROR ${RED}it seems that the entire ~/.dmt/core directory is missing${NC} (maybe failed ${CYAN}dmt next${NC} on windows because of windows permission bug? If yes, then try: ${GREEN}dmt next --force${NC} once again).${NC}\n"
+    fi
+    # echo "Missing daemons code in dmt-core, please get the code from GitHub"
     exit
   fi
 

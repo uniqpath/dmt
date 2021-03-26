@@ -1,12 +1,14 @@
 {
   "name": "connectome",
-  "version": "0.0.94",
+  "version": "0.0.98",
   "description": "Dynamic realtime connectivity and state management",
   "typings": "typings/src/client/index.d.ts",
   "scripts": {
     "build": "rollup -c && node scripts/build-artifacts",
     "prepublishOnly": "npm run build"
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "exports": {
     ".": {
       "node": {

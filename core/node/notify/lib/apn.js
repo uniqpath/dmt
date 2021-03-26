@@ -31,11 +31,17 @@ if (fs.existsSync(configFile)) {
   });
 }
 
-async function notify(msg, { users = [] } = {}) {
+async function notify(msg, { users = null } = {}) {
   if (client) {
-    users = users ? users.map(user => user.toLowerCase()) : [];
+    let devices;
 
-    let devices = users.length == 0 ? config.devices.filter(d => d.admin) : config.devices.filter(d => users.includes(d.name.toLowerCase()));
+    if (users) {
+      users = users.map(user => user.toLowerCase());
+      devices = config.devices.filter(d => users.includes(d.name.toLowerCase()));
+    } else {
+      devices = config.devices.filter(d => d.admin);
+    }
+
     devices = devices.filter(device => device.active != false);
 
     if (devices.length > 0) {

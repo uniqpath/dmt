@@ -167,6 +167,10 @@ if curl -L --fail {{protocol}}://{{host}}/dmt.zip -o dmt.zip; then
 
   move_dmt_engine . ~/.dmt
 
+  # potential open issues:
+  # unsolved fail PC-DMT 26.3.2021: Cannot move `core` to '/home/iztok/.dmt/core': Permission denied
+  # fix: dmt next --force
+
   if [ ! -f ~/.dmt/.version ]; then # should never come here!
     printf "${RED}Panic: could not install / update DMT: ~/.dmt/.version file was not copied over, exiting.${NC}\n"
     exit

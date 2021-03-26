@@ -1,7 +1,7 @@
 import path from 'path';
 
 const extensions = {
-  music: ['mp3', 'm4a', 'flac', 'ogg'],
+  music: ['mp3', 'm4a', 'flac', 'ogg', 'wav'],
   video: ['mp4', 'mkv', 'avi', 'webm'],
   photo: ['png', 'jpg', 'jpeg', 'gif', 'tiff', 'svg'],
   pdf: ['pdf'],

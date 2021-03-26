@@ -42,10 +42,11 @@ fn regex_helper(x: &str) -> String {
   if x.starts_with("@media=") {
     match x.replace("@media=", "").as_ref() {
       // warning: keep in sync with dmt-meta/.../detectMediaType.js
-      "music" => format!("(?P<match>\\.(mp3|m4a|flac|ogg))$"), // warning: m4a can also be video (?)
+      "music" => format!("(?P<match>\\.(mp3|m4a|flac|ogg|wav))$"), // warning: m4a can also be video (?)
       "video" => format!("(?P<match>\\.(mp4|mkv|avi|webm))$"),
       "photo" => format!("(?P<match>\\.(png|jpg|jpeg|gif|tiff|svg))$"),
       "pdf" => format!("(?P<match>\\.(pdf))$"),
+      "txt" => format!("(?P<match>\\.(txt))$"),
       _ => panic!("Unknown media format: {:?}", x) // if unrecognized format is passed, we match everything ...
     }
   } else {

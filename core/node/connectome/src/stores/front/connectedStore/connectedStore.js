@@ -2,7 +2,7 @@ import fastJsonPatch from 'fast-json-patch';
 
 import WritableStore from '../helperStores/writableStore.js';
 import connect from '../../../client/connect/connectBrowser.js';
-import { newKeypair } from '../../../utils/crypto/index.js';
+import { newKeypair, acceptKeypair } from '../../../utils/crypto/index.js';
 
 const { applyPatch: applyJSONPatch } = fastJsonPatch;
 
@@ -20,7 +20,7 @@ class ConnectedStore extends WritableStore {
 
     this.connected = new WritableStore();
 
-    this.connect(endpoint, address, port, keypair);
+    this.connect(endpoint, address, port, acceptKeypair(keypair));
   }
 
   signal(signal, data) {
