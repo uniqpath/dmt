@@ -5,7 +5,9 @@ export default function makeConnectedStore(opts) {
 
   const { connected, action: sendJSON, remoteObject, connector } = store;
 
+  const shape = store.shape.bind(store);
+
   const api = remoteObject.bind(store);
 
-  return { state: store, connected, api, connector };
+  return { state: store, shape, connected, api, connector };
 }

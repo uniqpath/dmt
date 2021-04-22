@@ -108,9 +108,7 @@ export default {
     return Array.isArray(obj) ? obj : [obj];
   },
 
-  compareValues(key, key2) {
-    const order = 'asc';
-
+  compareKeys(key, key2, order = 'asc') {
     function _comparison(a, b, key) {
       if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
         return 0;
@@ -126,7 +124,7 @@ export default {
         comparison = -1;
       }
 
-      return comparison;
+      return order === 'desc' ? comparison * -1 : comparison;
     }
 
     return function innerSort(a, b) {
@@ -136,7 +134,7 @@ export default {
         comparison = _comparison(a, b, key2);
       }
 
-      return order === 'desc' ? comparison * -1 : comparison;
+      return comparison;
     };
   },
 

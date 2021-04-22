@@ -1,6 +1,6 @@
 {
   "name": "connectome",
-  "version": "0.0.98",
+  "version": "0.0.104",
   "description": "Dynamic realtime connectivity and state management",
   "typings": "typings/src/client/index.d.ts",
   "scripts": {
@@ -48,7 +48,7 @@
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
     "utf-8-validate": "^5.0.3",
-    "ws": "^7.2.3"
+    "ws": "^7.4.5"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^16.0.0",

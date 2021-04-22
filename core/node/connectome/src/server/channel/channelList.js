@@ -68,6 +68,20 @@ class ChannelList extends EventEmitter {
 
     this.emit('status', { connList });
   }
+
+  [Symbol.iterator]() {
+    let counter = 0;
+    return {
+      next: () => {
+        if (counter < this.channels.length) {
+          const result = { value: this.channels[counter], done: false };
+          counter++;
+          return result;
+        }
+        return { done: true };
+      }
+    };
+  }
 }
 
 export default ChannelList;

@@ -50,7 +50,7 @@ class ParaSearch {
           enhanceResult({ result, providerAddress, providerPort, providerKey, searchOriginHost: this.searchOriginHost });
         });
 
-        providerResponse.results = providerResponse.results.sort(util.compareValues('directory', 'fileName'));
+        providerResponse.results = providerResponse.results.sort(util.compareKeys('directory', 'fileName'));
       }
     }
 

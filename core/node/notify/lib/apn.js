@@ -45,7 +45,7 @@ async function notify(msg, { users = null } = {}) {
     devices = devices.filter(device => device.active != false);
 
     if (devices.length > 0) {
-      notifyDevices(
+      await notifyDevices(
         msg,
         devices.map(({ token }) => token)
       );
@@ -69,7 +69,7 @@ async function notifyDevices(msg, tokens) {
 async function notifyAll(msg) {
   if (client) {
     const devices = config.devices.filter(device => device.active != false);
-    notifyDevices(
+    await notifyDevices(
       msg,
       devices.map(({ token }) => token)
     );

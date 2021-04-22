@@ -124,8 +124,12 @@ class GUISearchObject {
   }
 
   // todo: move to guiFrontendAcceptor
-  trackClick({ url, clickMetadata }) {
-    this.program.emit('zeta::link_click', { url, clickMetadata });
+  trackClick({ url, providerTag, clickMetadata }) {
+    this.program.emit('zeta::link_click', { url, providerTag, clickMetadata });
+  }
+
+  trackFileClick({ fileName, providerTag, clickMetadata }) {
+    this.program.emit('zeta::file_click', { fileName, providerTag, clickMetadata });
   }
 }
 

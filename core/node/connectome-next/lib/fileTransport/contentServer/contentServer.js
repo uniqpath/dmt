@@ -44,10 +44,6 @@ function contentServer({ app, connectorPool, defaultPort, emitter }) {
         return;
       }
 
-      if (emitter) {
-        emitter.emit('file_request', { providerAddress, filePath, host });
-      }
-
       if (providerAddress == 'localhost') {
         if (fs.existsSync(filePath)) {
           res.sendFile(filePath);

@@ -1,6 +1,4 @@
-function compareValues(key, key2) {
-  const order = 'asc';
-
+function compareKeys(key, key2, order = 'asc') {
   function _comparison(a, b, key) {
     if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
       return 0;
@@ -16,7 +14,7 @@ function compareValues(key, key2) {
       comparison = -1;
     }
 
-    return comparison;
+    return order === 'desc' ? comparison * -1 : comparison;
   }
 
   return function innerSort(a, b) {
@@ -26,8 +24,8 @@ function compareValues(key, key2) {
       comparison = _comparison(a, b, key2);
     }
 
-    return order === 'desc' ? comparison * -1 : comparison;
+    return comparison;
   };
 }
 
-export { compareValues };
+export { compareKeys };

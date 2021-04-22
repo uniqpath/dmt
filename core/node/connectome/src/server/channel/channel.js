@@ -7,6 +7,8 @@ import RpcClient from '../../client/rpc/client.js';
 
 import RPCTarget from '../../client/rpc/RPCTarget.js';
 
+import { MirroringStore } from '../../stores';
+
 class Channel extends EventEmitter {
   constructor(ws, { rpcRequestTimeout, verbose = false }) {
     super();
@@ -23,6 +25,36 @@ class Channel extends EventEmitter {
 
     this.sentCount = 0;
     this.receivedCount = 0;
+
+    this.shapes = {};
+  }
+
+  shape(name, state) {
+    if (!this.shapes[name]) {
+      this.shapes[name] = new MirroringStore(null);
+
+      this.shapes[name].on('diff', () => {
+        const { state } = this.shapes[name];
+        this.send({ shape: { name, state } });
+      });
+    }
+
+    if (state) {
+      this.shapes[name].set(state);
+    }
+
+    return this.shapes[name];
+  }
+
+  clearShape(...names) {
+    names.forEach(name => {
+      const { state } = this.shape(name);
+      if (state != null) {
+        this.shape(name).set(null);
+      } else {
+        this.send({ shape: { name } });
+      }
+    });
   }
 
   setLane(lane) {

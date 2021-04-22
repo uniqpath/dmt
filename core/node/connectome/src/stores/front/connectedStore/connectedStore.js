@@ -21,6 +21,8 @@ class ConnectedStore extends WritableStore {
     this.connected = new WritableStore();
 
     this.connect(endpoint, address, port, acceptKeypair(keypair));
+
+    this.shapes = {};
   }
 
   signal(signal, data) {
@@ -32,6 +34,14 @@ class ConnectedStore extends WritableStore {
         'Warning: trying to send signal over disconnected connector, this should be prevented by GUI (to disable any backend state-change when disconnected)'
       );
     }
+  }
+
+  shape(name) {
+    if (!this.shapes[name]) {
+      this.shapes[name] = new WritableStore();
+    }
+
+    return this.shapes[name];
   }
 
   remoteObject(handle) {
@@ -86,6 +96,10 @@ class ConnectedStore extends WritableStore {
         applyJSONPatch(this.state, diff);
         this.announceStateChange();
       }
+    });
+
+    this.connector.on('receive_shape', ({ name, state }) => {
+      this.shape(name).set(state);
     });
   }
 }

@@ -40,8 +40,6 @@ function loadState({ stateFilePath = dmt.programStateFile } = {}) {
   } else {
     log.yellow(`${stateFilePath} was not present, starting with a clean state.`);
   }
-
-  return {};
 }
 
 export { saveState, loadState };

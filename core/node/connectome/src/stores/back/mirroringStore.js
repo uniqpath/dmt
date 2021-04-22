@@ -9,13 +9,12 @@ class MirroringStore extends EventEmitter {
     super();
 
     this.state = initialState;
-    this.prevAnnouncedState = {};
+    this.lastAnnouncedState = clone(initialState);
   }
 
   mirror(channelList) {
     channelList.on('new_channel', channel => {
-      const { state } = this;
-      channel.send({ state });
+      channel.send({ state: this.lastAnnouncedState });
     });
 
     this.on('diff', diff => {
@@ -44,12 +43,12 @@ class MirroringStore extends EventEmitter {
 
     const { state } = this;
 
-    const diff = getDiff(this.prevAnnouncedState, state);
+    const diff = getDiff(this.lastAnnouncedState, state);
 
     if (diff) {
       this.emit('diff', diff);
 
-      this.prevAnnouncedState = clone(state);
+      this.lastAnnouncedState = clone(state);
     }
   }
 }

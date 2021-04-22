@@ -71,7 +71,7 @@ class ActorManagement {
       .map(([actorName, actor]) => {
         return { actorName, methodList: Object.keys(actor.actorMethods), restrictToLocal: actor.actorMetadata.restrictToLocal };
       })
-      .sort(util.compareValues('actorName'));
+      .sort(util.compareKeys('actorName'));
   }
 }
 

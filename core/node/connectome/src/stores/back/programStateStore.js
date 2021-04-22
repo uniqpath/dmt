@@ -16,17 +16,19 @@ class ProgramStateStore extends EventEmitter {
 
     this.kvStore = new KeyValueStore();
 
-    this.lastAnnouncedState = {};
+    const announce = false;
 
     if (loadState) {
       const persistedState = loadState();
 
       if (persistedState) {
-        this.kvStore.update(persistedState, { announce: false });
+        this.kvStore.update(persistedState, { announce });
       }
     }
 
-    this.kvStore.update(initialState, { announce: false });
+    this.kvStore.update(initialState, { announce });
+
+    this.lastAnnouncedState = this.omitAndCloneState();
 
     this.stateChangesCount = 0;
 
@@ -49,6 +51,10 @@ class ProgramStateStore extends EventEmitter {
 
   state() {
     return this.kvStore.state;
+  }
+
+  get() {
+    return this.state();
   }
 
   omitAndCloneState() {

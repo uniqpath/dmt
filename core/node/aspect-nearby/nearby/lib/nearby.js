@@ -81,7 +81,7 @@ class Nearby {
 
       nearbyDevicesNew.push({ ...this.ourMessage(), thisDevice: true, stale: false, staleDetectedAt: undefined });
 
-      const sortedDevices = nearbyDevicesNew.sort(util.compareValues('deviceName'));
+      const sortedDevices = nearbyDevicesNew.sort(util.compareKeys('deviceName'));
 
       this.program.store.replaceSlot('nearbyDevices', sortedDevices, { announce: false });
 

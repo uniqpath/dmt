@@ -36,7 +36,7 @@ function addLinkTags(entry) {
     linkTags.push('wikipedia');
   }
 
-  if (host.endsWith('youtube.com')) {
+  if (host.endsWith('youtube.com') || host.endsWith('youtu.be')) {
     linkTags.push('youtube');
   }
 
