@@ -1,12 +1,16 @@
-function debalkanize(str) {
-  return str
-    .replace(/[čć]/gi, 'c')
-    .replace(/š/gi, 's')
-    .replace(/ž/gi, 'z')
-    .replace(/đ/gi, 'd');
+import dmt from 'dmt/bridge';
+const { util } = dmt;
+
+function normalize(str) {
+  return util
+    .normalizeStr(str)
+    .trim()
+    .toLowerCase();
 }
 
 function searchPredicate(line, terms) {
+  const normalizedLine = normalize(line);
+
   const strTerms = Array.isArray(terms) ? terms.join(' ') : terms;
 
   const arrayTerms = strTerms
@@ -14,8 +18,8 @@ function searchPredicate(line, terms) {
     .replace(/[.,]/g, ' ')
     .split(/\s+/);
 
-  for (const term of arrayTerms.map(term => term.trim().toLowerCase())) {
-    if (!debalkanize(line.toLowerCase()).includes(debalkanize(term))) {
+  for (const term of arrayTerms) {
+    if (!normalizedLine.includes(normalize(term))) {
       return false;
     }
   }

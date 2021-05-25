@@ -25,6 +25,35 @@ function normalizeMac(mac) {
   return mac.toLowerCase().replace(/\b0(\d|[a-f])\b/g, '$1');
 }
 
+const LETTER_MAP = {
+  Æ: 'AE',
+  æ: 'ae',
+
+  Ø: 'O',
+  ø: 'o',
+
+  ß: 'ss',
+
+  Đ: 'D',
+  đ: 'd',
+
+  ł: 'l',
+  Ł: 'L',
+
+  Œ: 'OE',
+  œ: 'oe'
+};
+
+function normalizeStr(str) {
+  let a = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  for (const [letter, replacement] of Object.entries(LETTER_MAP)) {
+    a = a.replace(new RegExp(letter, 'g'), replacement);
+  }
+
+  return a;
+}
+
 function randHex(size) {
   const _chars = '0123456789abcdef'.split('');
 
@@ -43,6 +72,7 @@ export default {
   compare,
   random,
   hexutils,
+  normalizeStr,
   snakeCaseKeys,
   periodicRepeat,
   autoDetectEOLMarker,

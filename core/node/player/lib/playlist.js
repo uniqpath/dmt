@@ -236,7 +236,9 @@ class Playlist {
     let found = false;
 
     for (const songInfo of this.playlist) {
-      if (songInfo.id != this.currentSongId() && searchPredicate(songInfo.title, terms)) {
+      const searchBase = `${songInfo.title} ${songInfo.path}`;
+
+      if (songInfo.id != this.currentSongId() && searchPredicate(searchBase, terms)) {
         songInfo.aboutToBeCut = true;
         found = true;
       }
@@ -349,7 +351,10 @@ class Playlist {
   bumpSearch(terms) {
     const currentSongId = this.currentSongId();
     const songIDs = this.playlist
-      .filter(songInfo => songInfo.id != currentSongId && (searchPredicate(songInfo.title, terms) || searchPredicate(songInfo.path, terms)))
+      .filter(songInfo => {
+        const searchBase = `${songInfo.title} ${songInfo.path}`;
+        return songInfo.id != currentSongId && (searchPredicate(searchBase, terms) || searchPredicate(songInfo.path, terms));
+      })
       .map(songInfo => songInfo.id);
     return this.bumpSongIDs(songIDs);
   }

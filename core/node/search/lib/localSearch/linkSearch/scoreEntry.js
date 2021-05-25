@@ -22,9 +22,9 @@ function scoreUrlForEachHit(url, { terms } = {}) {
       const perc = term.length / url.length;
       score += Math.round(100 * perc) * 30;
 
-      if (host.match(new RegExp(`^${term}\\.`))) {
+      if (host.match(new RegExp(`^${term}\\.`, 'i'))) {
         score += Math.round((1 + perc) * 500);
-      } else if (host.indexOf(term) > -1) {
+      } else if (searchPredicate(host, term)) {
         score += Math.round((1 + perc) * 200);
       }
     }
@@ -36,14 +36,17 @@ function scoreUrlForEachHit(url, { terms } = {}) {
 function scoreEntry(entry, terms) {
   let score = 0;
 
-  const { title, context, hiddenContext, url, linkNote } = entry;
+  const { title, tags, context, hiddenContext, url, linkNote } = entry;
 
-  const allTogether = `${title} ${context} ${hiddenContext} ${url} ${linkNote}`;
+  const strTags = tags ? tags.join(' ') : '';
+
+  const allTogether = `${title || ''} ${strTags || ''} ${context || ''} ${hiddenContext || ''} ${url || ''} ${linkNote || ''}`;
 
   if (searchPredicate(allTogether, terms)) {
     score = 1;
 
     score += scoreUrlForEachHit(url, { terms });
+    score += scoreForEachHit(strTags, { terms, scorePerHit: 7 });
     score += scoreForEachHit(title, { terms, scorePerHit: 5 });
     score += scoreForEachHit(context, { terms, scorePerHit: 2 });
     score += scoreForEachHit(hiddenContext, { terms, scorePerHit: 1 });

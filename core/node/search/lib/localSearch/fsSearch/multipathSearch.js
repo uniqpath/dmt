@@ -1,9 +1,9 @@
 import fs from 'fs';
 
-import { settings } from 'dmt/search';
+import { settings, detectMediaType } from 'dmt/search';
 
 import dmt from 'dmt/bridge';
-const { prettyFileSize, prettyTimeAge, log, util } = dmt;
+const { prettyFileSize, prettyTimeAge, log } = dmt;
 
 import pathModule from 'path';
 
@@ -22,6 +22,7 @@ function multipathSearch({ contentPaths, terms, page, maxResults, mediaType }) {
     Promise.all(promises)
       .then(allResultsAndErrors => {
         const results = allResultsAndErrors.flat().slice(0, maxResults);
+
         success(results);
       })
       .catch(e => {
@@ -47,13 +48,21 @@ function searchOnePath({ path, terms, page, maxResults, mediaType }) {
 
             const { size: fileSize, mtime } = fs.statSync(filePath);
 
+            const fileName = pathModule.basename(filePath);
+            const directory = pathModule.dirname(filePath);
+            const mediaType = detectMediaType(fileName);
+
             const data = {
               filePath,
               filePathANSI,
               fileSize,
               fileSizePretty: prettyFileSize(fileSize),
               fileUpdatedAt: mtime,
-              fileUpdatedAtRelativePretty: prettyTimeAge(mtime)
+              fileUpdatedAtRelativePretty: prettyTimeAge(mtime),
+              fileName,
+              directory,
+              mediaType,
+              resultType: 'fs'
             };
 
             const filePathWithoutExtension = filePath.slice(0, filePath.length - pathModule.extname(filePath).length);

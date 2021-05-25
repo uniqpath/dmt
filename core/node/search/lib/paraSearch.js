@@ -49,8 +49,6 @@ class ParaSearch {
         providerResponse.results.forEach(result => {
           enhanceResult({ result, providerAddress, providerPort, providerKey, searchOriginHost: this.searchOriginHost });
         });
-
-        providerResponse.results = providerResponse.results.sort(util.compareKeys('directory', 'fileName'));
       }
     }
 

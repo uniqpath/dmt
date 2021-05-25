@@ -1,20 +1,11 @@
 import dmt from 'dmt/bridge';
 
-import path from 'path';
-
 import { fiberHandle } from 'dmt/connectome-next';
-
-import { detectMediaType } from 'dmt/search';
 
 const { log } = dmt;
 
 function enhanceFS(result, { providerAddress, providerKey, providerPort, searchOriginHost }) {
-  const { filePath } = result;
-
-  const fileName = path.basename(filePath);
-  const directory = path.dirname(filePath);
-
-  const mediaType = detectMediaType(fileName);
+  const { fileName, directory } = result;
 
   const localFiberHandle = fiberHandle.create({ fileName, directory, ip: 'localhost' });
   const fiberContentURL = `${providerAddress == 'localhost' ? searchOriginHost : providerAddress}/file/${localFiberHandle}`;
@@ -28,7 +19,7 @@ function enhanceFS(result, { providerAddress, providerKey, providerPort, searchO
     );
   }
 
-  Object.assign(result, { fileName, directory, directoryHandle, place, mediaType, fiberContentURL, playableUrl: `http://${fiberContentURL}` });
+  Object.assign(result, { directoryHandle, place, fiberContentURL, playableUrl: `http://${fiberContentURL}` });
 }
 
 export default enhanceFS;

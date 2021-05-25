@@ -7,6 +7,8 @@ import { fiberHandle } from 'dmt/connectome-next';
 
 import multipathSearch from './multipathSearch';
 
+import sortFiles from '../../sortResults/sortFiles';
+
 function contentSearch({ contentId, place, terms, mediaType, page = 1, count, maxResults }) {
   const _maxResults = count || maxResults || settings().searchLimit.maxResults;
 
@@ -46,7 +48,7 @@ function contentSearch({ contentId, place, terms, mediaType, page = 1, count, ma
             maxResults: _maxResults,
             resultCount: results.length
           },
-          results
+          results: sortFiles(results)
         });
       })
       .catch(reject);
