@@ -29,11 +29,24 @@ function cleanContext(line) {
   return line;
 }
 
+function isTags(line) {
+  return line.toLowerCase().startsWith('tags:');
+}
+
+function extractTags(line) {
+  return line
+    .toLowerCase()
+    .replace('tags:', '')
+    .split(',')
+    .map(tag => tag.trim());
+}
+
 function parseLinksTxtFile({ filePath, lines, existingLinkIndex, linksDirectory }) {
   const urls = [];
 
   let context = '';
   let note = [];
+  let tags;
 
   let isInsideNote = false;
 
@@ -41,7 +54,7 @@ function parseLinksTxtFile({ filePath, lines, existingLinkIndex, linksDirectory 
     line = trimAndRemoveComments(line);
 
     if (!emptyLine(line)) {
-      if (!isLink(line) && !tripleDashComment(line) && !isInsideNote) {
+      if (!isLink(line) && !tripleDashComment(line) && !isTags(line) && !isInsideNote) {
         context = cleanContext(line);
       }
 
@@ -57,11 +70,15 @@ function parseLinksTxtFile({ filePath, lines, existingLinkIndex, linksDirectory 
         isInsideNote = true;
       }
 
+      if (isTags(line)) {
+        tags = extractTags(line);
+      }
+
       if (isLink(line)) {
         const linkNote = note.join('\n');
 
         const hiddenContext = filePath.replace(new RegExp(`${path.extname(filePath)}$`), '').replace(new RegExp(`^${linksDirectory}`), '');
-        const result = { url: line, context, hiddenContext, existingLinkIndex, filePath, githubLineNum: index + 1 };
+        const result = { url: line, context, tags, hiddenContext, existingLinkIndex, filePath };
 
         if (linkNote) {
           result.linkNote = linkNote;

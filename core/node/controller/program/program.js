@@ -11,8 +11,6 @@ import { contentServer } from 'dmt/connectome-next';
 import initControllerActor from '../actor';
 import ActorManagement from './actorManagement/index.js';
 
-import MetaMaskStore from './metamask';
-
 import initIntervalTicker from './interval';
 import { setupTimeUpdater } from './interval/timeUpdater';
 import onProgramTick from './interval/onProgramTick';
@@ -57,8 +55,6 @@ class Program extends EventEmitter {
     setupGlobalErrorHandler();
 
     log.cyan('Program booting ...');
-
-    this.metamaskStore = new MetaMaskStore();
 
     const port = 7780;
     const protocol = 'dmt';
@@ -139,10 +135,6 @@ class Program extends EventEmitter {
     if (this.device.try('search.log') == 'true') {
       log.green(`ZetaSeek: ${msg}`);
     }
-  }
-
-  metamask() {
-    return this.metamaskStore;
   }
 
   registerActor(actor, options = {}) {
