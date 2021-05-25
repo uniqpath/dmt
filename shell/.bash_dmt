@@ -1727,7 +1727,10 @@ function dmt_copy {
 
     local cwd="`pwd`"
     cd "$DMT_PATH"
-    . ./install "$@" # calling with . preserves the newly loaded env
+    #. ./install "$@" # calling with . preserves the newly loaded env
+
+    ./install "$@"
+
     cd "$cwd"
   fi
 }

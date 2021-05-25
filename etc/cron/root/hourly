@@ -44,9 +44,12 @@ if [ -n "$user" ]; then
             echo "restarting lighttpd" >> $REPORT
             systemctl restart lighttpd
           else
+            echo "fetched certificate from server but it's still the old one" >> $REPORT
             # certificate was not yet updated on server, it is probably the same we have or also expired or expiring soon
             rm web_cert_next.pem
           fi
+        else
+          echo "failed to fetch certificate from server" >> $REPORT
         fi
       fi
     fi
