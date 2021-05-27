@@ -27,7 +27,7 @@ class RemoteProviderSearch {
     return response;
   }
 
-  search({ terms, count, page, mediaType }) {
+  search({ terms, selectedTags, count, page, mediaType }) {
     const { contentId } = this;
 
     return new Promise((success, reject) => {
@@ -45,7 +45,7 @@ class RemoteProviderSearch {
 
         this.connector
           .remoteObject('search')
-          .call('search', { query: args })
+          .call('search', { query: args, selectedTags })
           .then(response => {
             if (Array.isArray(response) && response.length == 1) {
               response = response[0];

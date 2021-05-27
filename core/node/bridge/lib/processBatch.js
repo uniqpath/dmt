@@ -16,9 +16,12 @@ function chunkArray(myArray, chunkSize, firstChunkSize) {
   return tempArray;
 }
 
-function nextBatch({ batches, asyncMap, beforeNextBatchCallback, afterAsyncResultsBatch, finishedCallback, batchDelay, justOneBatch, allResults }) {
-  if (batches.length) {
-    const currentBatch = batches[0];
+function nextBatch(options) {
+  const { batches, asyncMap, beforeNextBatchCallback, afterAsyncResultsBatch, batchDelay, justOneBatch } = options;
+
+  const currentBatch = batches.shift();
+
+  if (currentBatch) {
     if (beforeNextBatchCallback) {
       beforeNextBatchCallback(currentBatch);
     }
@@ -26,47 +29,24 @@ function nextBatch({ batches, asyncMap, beforeNextBatchCallback, afterAsyncResul
     const promises = currentBatch.map(asyncMap);
 
     Promise.all(promises).then(results => {
-      afterAsyncResultsBatch(results);
+      afterAsyncResultsBatch(results, { isLastBatch: batches.length == 0 });
 
-      allResults.push(...results);
-
-      const next = () => {
-        nextBatch({ batches: batches.slice(1), asyncMap, beforeNextBatchCallback, afterAsyncResultsBatch, allResults, finishedCallback });
-      };
-
-      if (batchDelay) {
-        setTimeout(next, batchDelay);
-      } else {
-        if (justOneBatch) {
-          if (finishedCallback) {
-            finishedCallback(allResults);
-          }
+      if (!justOneBatch) {
+        if (batchDelay) {
+          setTimeout(() => {
+            nextBatch(options);
+          }, batchDelay);
         } else {
-          next();
+          nextBatch(options);
         }
       }
     });
-  } else {
-    if (finishedCallback) {
-      finishedCallback(allResults);
-    }
   }
 }
 
-function processBatch({
-  entries,
-  batchSize = 10,
-  beforeNextBatchCallback,
-  asyncMap,
-  afterAsyncResultsBatch,
-  finishedCallback,
-  firstBatchSize,
-  batchDelay,
-  justOneBatch
-} = {}) {
-  const allResults = [];
+function processBatch({ entries, batchSize = 10, beforeNextBatchCallback, asyncMap, afterAsyncResultsBatch, firstBatchSize, batchDelay, justOneBatch } = {}) {
   const batches = chunkArray(entries, batchSize, firstBatchSize);
-  nextBatch({ batches, asyncMap, beforeNextBatchCallback, afterAsyncResultsBatch, finishedCallback, batchDelay, allResults, justOneBatch });
+  nextBatch({ batches, asyncMap, beforeNextBatchCallback, afterAsyncResultsBatch, batchDelay, justOneBatch });
 }
 
 export default processBatch;

@@ -6,10 +6,10 @@ import { parseSearchQuery, reconstructSearchQuery, serializeContentRefs } from '
 
 import initActor from './actor';
 
-import searchPredicate from './lib/utils/simpleSearchPredicate';
+import { searchPredicate, normalizeTerms } from './lib/utils/simpleSearchPredicate';
 
 function init(program) {
   initActor(program);
 }
 
-export { init, ParaSearch, detectMediaType, parseSearchQuery, reconstructSearchQuery, serializeContentRefs, searchPredicate, settings };
+export { init, ParaSearch, detectMediaType, parseSearchQuery, reconstructSearchQuery, serializeContentRefs, searchPredicate, normalizeTerms, settings };

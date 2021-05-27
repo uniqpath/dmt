@@ -1,58 +1,89 @@
 import { searchPredicate } from 'dmt/search';
 
-function scoreForEachHit(text, { terms, scorePerHit } = {}) {
-  let score = 0;
+import scoreUrl from './scorers/scoreUrl';
+import scoreUrlDomain from './scorers/scoreUrlDomain';
+import scoreBySelectedTags from './scorers/scoreBySelectedTags';
 
-  terms.forEach(term => {
-    if (searchPredicate(text, term)) {
-      score += scorePerHit;
-    }
-  });
-
-  return score;
+function scoreForAppearance(text = '', { terms, score } = {}) {
+  return score * searchPredicate(text, terms);
 }
 
-function scoreUrlForEachHit(url, { terms } = {}) {
-  let score = 0;
+function explainScore(scoreExplain, comment, score) {
+  if (!score) {
+    return scoreExplain;
+  }
 
-  const { host } = new URL(url);
-
-  terms.forEach(term => {
-    if (searchPredicate(url, term)) {
-      const perc = term.length / url.length;
-      score += Math.round(100 * perc) * 30;
-
-      if (host.match(new RegExp(`^${term}\\.`, 'i'))) {
-        score += Math.round((1 + perc) * 500);
-      } else if (searchPredicate(host, term)) {
-        score += Math.round((1 + perc) * 200);
-      }
-    }
-  });
-
-  return score;
+  return `${scoreExplain ? `${scoreExplain} + ` : ''}${comment} ${score}`;
 }
 
-function scoreEntry(entry, terms) {
+function assignScore({ entry, terms }) {
   let score = 0;
 
-  const { title, tags, context, hiddenContext, url, linkNote } = entry;
+  const { url, title, tags, context, boost } = entry;
 
   const strTags = tags ? tags.join(' ') : '';
 
-  const allTogether = `${title || ''} ${strTags || ''} ${context || ''} ${hiddenContext || ''} ${url || ''} ${linkNote || ''}`;
+  const str = `${url || ''} ${title || ''} ${context || ''} ${strTags || ''} `;
 
-  if (searchPredicate(allTogether, terms)) {
-    score = 1;
+  let scoreExplain = '';
 
-    score += scoreUrlForEachHit(url, { terms });
-    score += scoreForEachHit(strTags, { terms, scorePerHit: 7 });
-    score += scoreForEachHit(title, { terms, scorePerHit: 5 });
-    score += scoreForEachHit(context, { terms, scorePerHit: 2 });
-    score += scoreForEachHit(hiddenContext, { terms, scorePerHit: 1 });
+  if (searchPredicate(str, terms)) {
+    score = 10;
+    scoreExplain = explainScore(scoreExplain, 'base', score);
+
+    if (boost) {
+      score += boost;
+      scoreExplain = explainScore(scoreExplain, 'boost', boost);
+    }
+
+    const _urlScore = Math.max(1, scoreUrl(url, { terms }));
+    score += _urlScore;
+    scoreExplain = explainScore(scoreExplain, 'url', _urlScore);
+
+    const _domainScore = scoreUrlDomain(url);
+    score += _domainScore;
+    scoreExplain = explainScore(scoreExplain, 'domain', _domainScore);
+
+    const _titleScore = scoreForAppearance(title, { terms, score: 10 });
+    score += _titleScore;
+    scoreExplain = explainScore(scoreExplain, 'title', _titleScore);
+
+    const _tagsScore = scoreForAppearance(strTags, { terms, score: 1000 });
+    score += _tagsScore;
+    scoreExplain = explainScore(scoreExplain, 'tags', _tagsScore);
+
+    const _contextScore = scoreForAppearance(context, { terms, score: 3 });
+    score += _contextScore;
+    scoreExplain = explainScore(scoreExplain, 'context', _contextScore);
   }
 
-  return { ...entry, ...{ score } };
+  return { score, scoreExplain };
 }
 
-export default scoreEntry;
+export default function scoreEntry({ entry, terms, selectedTags }) {
+  let { score: queryScore, scoreExplain } = assignScore({ entry, terms });
+
+  let _scoreBySelectedTags;
+
+  if (queryScore) {
+    _scoreBySelectedTags = scoreBySelectedTags({ entry, selectedTags });
+    queryScore += _scoreBySelectedTags;
+    scoreExplain = explainScore(scoreExplain, 'scoreBySelectedTags', _scoreBySelectedTags);
+  }
+
+  let score = queryScore;
+  if (selectedTags.length) {
+    const allTerms = [...new Set(terms.concat(selectedTags || []))];
+    const { score: _totalScore, scoreExplain: _explainTotalScore } = assignScore({ entry, terms: allTerms });
+
+    score = _totalScore;
+    scoreExplain = _explainTotalScore;
+
+    if (score) {
+      score += _scoreBySelectedTags;
+      scoreExplain = explainScore(scoreExplain, 'scoreBySelectedTags', _scoreBySelectedTags);
+    }
+  }
+
+  return { ...entry, ...{ score, queryScore, scoreExplain } };
+}

@@ -9,6 +9,9 @@ import naclutil from 'tweetnacl-util';
 
 import util from './lib/util';
 import scan from './lib/scan';
+import sets from './lib/sets';
+import tags from './lib/tags';
+import * as quantile from './lib/quantile';
 import stopwatch from './lib/timeutils/stopwatch';
 import stopwatchAdv from './lib/timeutils/stopwatchAdv';
 import prettyMicroDuration from './lib/timeutils/prettyMicroDuration';
@@ -130,6 +133,9 @@ export default {
   log: helper.log,
   util,
   scan,
+  sets,
+  tags,
+  quantile,
   nacl,
   xstate,
   quantum,
@@ -293,6 +299,7 @@ export default {
   fsState: new FsState(helper.stateDir),
   stateDir: helper.stateDir,
   dmtPath: helper.dmtPath,
+  dmtHereEnsure: helper.dmtHereEnsure,
   dmtHerePath: helper.dmtHerePath,
   userDir: helper.userDir,
   deviceDir: helper.deviceDir,

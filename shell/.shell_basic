@@ -11,7 +11,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 . "$DIR/zeta/.zeta_update"
 . "$DIR/zeta/.zeta_start"
-. "$DIR/zeta/.zeta_scripts"
 . "$DIR/zeta/.zeta_config"
 . "$DIR/zeta/.zeta_check"
 . "$DIR/zeta/.zeta_restart"

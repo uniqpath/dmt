@@ -32,6 +32,9 @@ mids.push('meta/holidays');
 
 mids.push('meta/identity');
 
+mids.push('webindex');
+mids.push('webscan');
+
 try {
   program({ mids });
 } catch (e) {

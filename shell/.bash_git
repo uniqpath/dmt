@@ -59,6 +59,10 @@ function stable {
   fi
 }
 
+function search_git {
+  # searches in unstaged files (?)
+  git diff-index -S "$@" -u HEAD
+}
 
 #alias gx="gitx"
 alias _good="git bisect good"

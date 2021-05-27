@@ -6,7 +6,7 @@ import { parseSearchQuery, serializeContentRefs } from 'dmt/search';
 
 import { fiberHandle } from 'dmt/connectome-next';
 
-const RESULTS_LIMIT = 50;
+const RESULTS_LIMIT = 20;
 
 const { log } = dmt;
 
@@ -56,7 +56,9 @@ class GUISearchObject {
     this.channel = channel;
   }
 
-  search({ query, searchMode, searchMetadata }) {
+  search({ query, page, searchMode, selectedTags, searchMetadata }) {
+    //log.green(`Selected tags: ${selectedTags.join(', ')}`);
+
     const { searchOriginHost, isLAN } = searchMetadata;
 
     const peerlist = searchMode == 0 ? this.program.peerlist() : [];
@@ -70,25 +72,25 @@ class GUISearchObject {
       // it provides some sequrity but real backend authorization on fibers is given elsewhere
       // (default is allow all among user's devices, except for "MANAGEDDEVICES" which have allowance permissions inside zeta_search.def for that device)
 
-      const { terms, mediaType, count, page, atDevices } = parseSearchQuery({ query });
+      const { terms, mediaType, count, page: parsedPage, atDevices } = parseSearchQuery({ query });
 
       // todo: serialize these missing ! for now they will be ignored
 
       const providers = ['this']
         .concat(peerAddresses)
-        .map(provider => `@${provider} @${provider}/links`)
+        .map(provider => `@${provider}/links @${provider}`)
         .join(' ');
 
       this.program
         .actor('search')
-        .call('search', { query: `${terms.join(' ')} ${providers} @count=${RESULTS_LIMIT}`, searchOriginHost })
+        .call('search', { query: `${terms.join(' ')} ${providers} @page=${page} @count=${RESULTS_LIMIT}`, selectedTags, searchOriginHost })
         //.call('search', { query: `${providers.join(' ')} @count=10 ${query}`, searchOriginHost })
         .then(responses => {
           //console.log(JSON.stringify(responses, null, 2));
 
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           //console.log('EMITTING SEARCH');
-          this.program.emit('zeta::user_search', { query, totalHits, searchMetadata });
+          this.program.emit('zeta::user_search', { query, page, selectedTags, totalHits, searchMetadata });
           success(enhanceResponses({ responses, peerlist, isLAN }));
         })
         .catch(error => {
@@ -115,7 +117,7 @@ class GUISearchObject {
         .then(responses => {
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           //console.log('EMITTING SEARCH');
-          this.program.emit('zeta::user_search', { query: `place: ${fiberHandle.decode(place)}`, totalHits, searchMetadata });
+          this.program.emit('zeta::user_search', { query: `place: ${fiberHandle.decode(place)}`, selectedTags, totalHits, searchMetadata });
           success(enhanceResponses({ responses, peerlist, isLAN }));
         })
         .catch(error => {

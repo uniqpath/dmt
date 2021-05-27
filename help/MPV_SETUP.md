@@ -34,7 +34,17 @@ Then all you need is: `rm -rf ~/.dmt` → this removes the entire `~/.dmt` direc
 
 mpv is a command line player and `dmt-proc` can start it and control it as needed.
 
-![dmt_player](https://github.com/uniqpath/info/blob/master/assets/img/dmt-player/dmt-player-diagram-1.jpg?raw=true)
+### How to install on Single Board Computers like RaspberryPI
+
+Find **RaspberryPi** specific resources [here](https://github.com/uniqpath/info). This is actually the right way ;)
+
+Build your own smart speaker easily, then use `dmt-proc` on your laptop to control other RPi media players on your LAN!
+
+Like this:
+
+![dmt_player](https://github.com/uniqpath/info/blob/master/assets/img/dmt-player/player1.jpg?raw=true)
+
+![dmt_player](https://github.com/uniqpath/info/blob/master/assets/img/dmt-player/player2.jpg?raw=true)
 
 ### How to install mpv on macOS
 
@@ -123,11 +133,8 @@ You can also do most of this from `dmt-player` GUI: [http://localhost:7777/playe
 
 Any device running `dmt-proc` with `dmt-player` GUI can control any player on the network by connecting to it over the `nearbyDevices` list.
 
-Try `dmt nearby` or `dmt start --slot nearbyDevices` to see if you have another `dmt-proc` nearby on your local network.
+Try `dmt nearby` or `dmt state --slot nearbyDevices` to see if you have another `dmt-proc` on your local network ("nearby").
+
+![dmt_player](https://github.com/uniqpath/info/blob/master/assets/img/dmt-player/dmt-player-diagram-1.jpg?raw=true)
 
 ![dmt_player](https://github.com/uniqpath/info/blob/master/assets/img/dmt-player/dmt-player-diagram-2.jpg?raw=true)
-
-Other `mediaSources` like Apple Music and servers (search networks / reefs) from your friends are in development.
-
-![dmt_player](https://github.com/uniqpath/info/blob/master/assets/img/dmt-player/dmt-player-diagram-3.jpg?raw=true)
-

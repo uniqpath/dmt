@@ -1,4 +1,5 @@
 import colorJSON from './colorJSON';
+import fs from 'fs';
 import random from './utilities/just/array-random';
 import compare from './utilities/just/collection-compare';
 import clone from './utilities/just/collection-clone';
@@ -44,14 +45,29 @@ const LETTER_MAP = {
   œ: 'oe'
 };
 
+function replaceAll(str, a, b) {
+  return str.replace(new RegExp(a, 'g'), b);
+}
+
 function normalizeStr(str) {
   let a = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   for (const [letter, replacement] of Object.entries(LETTER_MAP)) {
-    a = a.replace(new RegExp(letter, 'g'), replacement);
+    a = replaceAll(a, letter, replacement);
   }
 
   return a;
+}
+
+function normalizeUrl(url) {
+  function removeTrailingSlashes(url) {
+    return url.replace(/\/+$/, '');
+  }
+  return removeTrailingSlashes(url);
+}
+
+function limitString(string = '', limit = 0) {
+  return string.length > limit ? `${string.substring(0, limit)}…` : string;
 }
 
 function randHex(size) {
@@ -68,11 +84,19 @@ function randHex(size) {
   return str;
 }
 
+function mkdirp(dir) {
+  fs.mkdirSync(dir, { mode: 0o755, recursive: true });
+}
+
 export default {
   compare,
   random,
+  mkdirp,
   hexutils,
+  replaceAll,
   normalizeStr,
+  normalizeUrl,
+  limitString,
   snakeCaseKeys,
   periodicRepeat,
   autoDetectEOLMarker,
@@ -169,18 +193,10 @@ export default {
   },
 
   shuffle(array) {
-    let counter = array.length;
-
-    while (counter > 0) {
-      const index = Math.floor(Math.random() * counter);
-
-      counter--;
-
-      const temp = array[counter];
-      array[counter] = array[index];
-      array[index] = temp;
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
     }
-
     return array;
   }
 };

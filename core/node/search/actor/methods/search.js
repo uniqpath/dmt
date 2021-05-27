@@ -7,7 +7,7 @@ import normalizeTerms from '../../lib/utils/normalizeTerms';
 import ParaSearch from '../../lib/paraSearch';
 
 function search({ args, method }, { program }) {
-  const { query, place, searchOriginHost } = args;
+  const { query, selectedTags, place, searchOriginHost } = args;
 
   return new Promise((success, reject) => {
     const options = parseSearchQuery({ query, actorName: 'search' });
@@ -15,6 +15,8 @@ function search({ args, method }, { program }) {
     options.terms = normalizeTerms(options.terms);
 
     options.place = place;
+
+    options.selectedTags = selectedTags;
 
     const { atDevices: contentProviders } = options;
 

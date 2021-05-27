@@ -48,7 +48,7 @@ class MidLoader {
       this.loadMid(program, midPkg)
         .then(success)
         .catch(e => {
-          const msg = `Problem loading ${colors.cyan(midPkg)} middleware — ${colors.gray(e)}`;
+          const msg = `⚠️🙀 Problem loading ${colors.cyan(midPkg)} middleware — ${colors.gray(e)}`;
           log.red(msg);
           push.notify(`${dmt.deviceGeneralIdentifier()}: ${stripAnsi(msg)}`);
 

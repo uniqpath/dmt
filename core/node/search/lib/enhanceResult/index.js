@@ -1,8 +1,6 @@
 import dmt from 'dmt/bridge';
 
 import enhanceFS from './enhanceFSResult';
-import enhanceNote from './enhanceNoteResult';
-
 const { log } = dmt;
 
 function enhanceResult({ result, providerAddress, providerPort, providerKey, searchOriginHost }) {

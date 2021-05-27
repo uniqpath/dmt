@@ -8,8 +8,6 @@ import contentSearch from './fsSearch/contentSearch';
 import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
 
 import linkSearch from './linkSearch/linkSearch';
-import noteSearch from './noteSearch/noteSearch';
-
 class LocalProviderSearch {
   constructor({ provider }) {
     this.providerHost = provider.host;
@@ -24,16 +22,14 @@ class LocalProviderSearch {
     switch (options.contentId) {
       case 'links':
         return this.timedLocalSearch({ func: linkSearch, options });
-      case 'notes':
-        return this.timedLocalSearch({ func: noteSearch, options });
       default:
         return this.timedLocalSearch({ func: contentSearch, options });
     }
   }
 
-  search({ terms, place, page, count, mediaType }) {
+  search({ terms, selectedTags, place, page, count, mediaType }) {
     const { contentId } = this;
-    const options = { terms, place, count, page, mediaType, contentId };
+    const options = { terms, selectedTags, place, count, page, mediaType, contentId };
 
     return new Promise((success, reject) => {
       if (this.localhost) {
@@ -71,7 +67,7 @@ class LocalProviderSearch {
         })
         .catch(e => {
           const response = { meta: basicMetaInfo(this), error: e.message };
-          log.yellow(`Local search error: ${colors.red(e.message)}`);
+          log.yellow(`Local search error: ${colors.red(e)}`);
           const { duration: searchTime, prettyTime: searchTimePretty } = stopwatchAdv.stop(start);
           Object.assign(response.meta, { contentId, searchTime, searchTimePretty });
 

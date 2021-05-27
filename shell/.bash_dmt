@@ -90,6 +90,7 @@ function dmt {
     "nearby"
     "protocols"
     "identity"
+    "webscan"
     "actors"
     "state"
     "reach"
@@ -435,6 +436,10 @@ function dmt {
 
     shell)
       dmt_shell_setup "$@"
+      ;;
+
+    webscan)
+      dmt_webscan "$@"
       ;;
 
     # link)
@@ -2034,4 +2039,16 @@ function dmt_compile_bin {
   fi
 
   cd "$cwd"
+}
+
+
+function dmt_webscan {
+  if [ "$1" == '-h' ] || [ "$1" == '--help' ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt webscan [device]${NC} ${GRAY}scans the web according to device's weblinks${NC}\n"
+    return
+  fi
+
+  local device="$1"
+  $DMT_NODEJS_EXEC ~/.dmt/core/node/webscan/cli/webscan.js "$device"
 }

@@ -11,7 +11,7 @@ export default function setup({ program }) {
   helperStore.mirror(channelList);
 
   program.store.subscribe(state => {
-    const { device, peerlist } = state;
-    helperStore.set({ device, peerlist });
+    const { device, peerlist, entireLinkIndexCloud, entireLinkIndexCount } = state;
+    helperStore.set({ device, peerlist, entireLinkIndexCloud, entireLinkIndexCount });
   });
 }

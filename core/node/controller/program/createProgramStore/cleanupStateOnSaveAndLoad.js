@@ -8,7 +8,9 @@ export default function cleanupStateOnSaveAndLoad(state) {
   delete state.time;
 
   delete state.gui;
-  delete state.swarm;
+
+  delete state.entireLinkIndexCloud;
+  delete state.entireLinkIndexCount;
 
   delete state.services;
   delete state.appList;

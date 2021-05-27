@@ -35,7 +35,7 @@ class AppLoader {
       this.loadApp(program, appInit)
         .then(success)
         .catch(e => {
-          const msg = `⚠️  Problem loading ${colors.cyan(appName)} app — ${colors.red(e)}`;
+          const msg = `⚠️🙀 Problem loading ${colors.cyan(appName)} app — ${colors.red(e)}`;
           log.red(msg);
           push.notify(`${dmt.deviceGeneralIdentifier()}: ${stripAnsi(msg)}`);
 

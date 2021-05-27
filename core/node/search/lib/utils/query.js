@@ -16,9 +16,7 @@ function parseSearchQuery({ query, actorName, defaultMediaType }) {
 
   let { page, count } = attributeOptions;
 
-  if (page) {
-    page = parseInt(page);
-  }
+  page = page ? parseInt(page) : 1;
 
   if (count) {
     count = parseInt(count);

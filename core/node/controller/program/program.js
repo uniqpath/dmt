@@ -131,12 +131,6 @@ class Program extends EventEmitter {
     }
   }
 
-  logSearch(msg) {
-    if (this.device.try('search.log') == 'true') {
-      log.green(`ZetaSeek: ${msg}`);
-    }
-  }
-
   registerActor(actor, options = {}) {
     this.actors.register(actor, options);
   }

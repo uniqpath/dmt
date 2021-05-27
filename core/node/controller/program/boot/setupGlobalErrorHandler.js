@@ -11,7 +11,7 @@ function terminateProgram(err, reason) {
   log.red(err.stack);
   log.red('EXITING, bye ✋');
 
-  push.notify(`${dmt.deviceGeneralIdentifier()}: ${stripAnsi(msg)} → PROCESS TERMINATED`).then(() => {
+  push.notify(`🛑😱 ${dmt.deviceGeneralIdentifier()}: ${stripAnsi(msg)} → PROCESS TERMINATED`).then(() => {
     process.exit();
   });
 }

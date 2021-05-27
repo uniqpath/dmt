@@ -8,9 +8,7 @@ function normalize(str) {
     .toLowerCase();
 }
 
-function searchPredicate(line, terms) {
-  const normalizedLine = normalize(line);
-
+function normalizeTerms(terms) {
   const strTerms = Array.isArray(terms) ? terms.join(' ') : terms;
 
   const arrayTerms = strTerms
@@ -18,13 +16,27 @@ function searchPredicate(line, terms) {
     .replace(/[.,]/g, ' ')
     .split(/\s+/);
 
-  for (const term of arrayTerms) {
-    if (!normalizedLine.includes(normalize(term))) {
-      return false;
+  return arrayTerms.map(term => normalize(term));
+}
+
+function searchPredicate(line, terms, { normalizedTerms = false } = {}) {
+  const normalizedLine = normalize(line);
+
+  const _terms = normalizedTerms ? terms : normalizeTerms(terms);
+
+  let score = 0;
+
+  for (const term of _terms) {
+    if (normalizedLine.match(new RegExp(`\\b${term}\\b`))) {
+      score += 5;
+    } else if (normalizedLine.includes(term)) {
+      score += 1;
+    } else {
+      return 0;
     }
   }
 
-  return true;
+  return score;
 }
 
-export default searchPredicate;
+export { searchPredicate, normalizeTerms };

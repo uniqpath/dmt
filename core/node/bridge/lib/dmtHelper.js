@@ -81,12 +81,19 @@ function readKeysDef({ filePath }) {
   }
 }
 
+function dmtHereEnsure(subdir) {
+  const dir = path.join(dmtHerePath, subdir);
+  util.mkdirp(dir);
+  return dir;
+}
+
 let checkedForDuplicateMacs = false;
 
 export default {
   log,
   dmtPath,
   dmtHerePath,
+  dmtHereEnsure,
   userDir: dmtUserDir,
   catalogsDir: dmtCatalogsDir,
   stateDir,

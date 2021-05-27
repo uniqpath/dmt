@@ -1,5 +1,5 @@
 import path from 'path';
-
+import util from 'util';
 import fs from 'fs';
 import fse from 'fs-extra';
 import { homedir } from 'os';
@@ -49,7 +49,7 @@ function recursive(_path, { flatten = false, filter = () => true, extname = null
         basename: path.basename(fileOrDir)
       };
 
-      if (fs.lstatSync(fileOrDir).isFile()) {
+      if (fs.existsSync(fileOrDir) && fs.lstatSync(fileOrDir).isFile()) {
         info.extname = path.extname(fileOrDir);
 
         return Object.assign(
@@ -85,7 +85,7 @@ function recursive(_path, { flatten = false, filter = () => true, extname = null
 
       return null;
     })
-    .filter(el => el != null);
+    .filter(Boolean);
 
   const filteredResults = flatten ? flattenTree(result).filter(filter) : result.filter(filter);
 
@@ -114,6 +114,20 @@ function dir(_path, { onlyFiles = false, onlyDirs = false, onlySymlinks = false 
   }
 
   return list;
+}
+
+const fileRead = util.promisify(fs.readFile);
+
+function readFiles(files) {
+  return Promise.all(
+    files.map(({ path }) => {
+      return new Promise(success => {
+        fileRead(path)
+          .then(fileBuffer => success({ filePath: path, fileBuffer }))
+          .catch(e => success({ error: e.message }));
+      });
+    })
+  );
 }
 
 function readFileLines(filePath) {
@@ -176,4 +190,4 @@ function mediaFilter({ mediaType }) {
   }
 }
 
-export default { dir, recursive, flattenTree, syncDir, readFileLines, ensureDirSync, mediaFilter, absolutizePath, commandExists, commandExistsSync };
+export default { dir, recursive, flattenTree, syncDir, readFiles, readFileLines, ensureDirSync, mediaFilter, absolutizePath, commandExists, commandExistsSync };

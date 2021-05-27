@@ -411,7 +411,7 @@ class LocalPlayer {
     this.engine
       .load(filePath)
       .then(() => this.engine.pause())
-      .catch(() => log.error(`Problem loading ${filePath}`));
+      .catch(() => log.error(`⚠️ Problem loading ${filePath}`));
   }
 
   pause() {
