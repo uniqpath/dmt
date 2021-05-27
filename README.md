@@ -159,10 +159,5 @@ Please reach out for further instructions (visit our DMT / Zeta Open Hours publi
 
 There are some more resources listed in [info](https://github.com/uniqpath/info) repository and also in already mentioned [DMT ENGINE DOCS](https://docs.uniqpath.com/dmt) with explanation of core ideas and concepts.
 
-### Some parting advice :}
-
-Even if you do nothing else around this codebase for time being, do something else for sure:
-
-Read this great (and generally very applicable) thought from brilliant mind that helped make digital computing possible. This can help change anyone's life for the better.
 
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/dmt_banner_quote.png?raw=true">

@@ -6,6 +6,8 @@ import { parseSearchQuery, serializeContentRefs } from 'dmt/search';
 
 import { fiberHandle } from 'dmt/connectome-next';
 
+const RESULTS_LIMIT = 50;
+
 const { log } = dmt;
 
 function enhanceThisMachineResponse({ response, isLAN }) {
@@ -79,10 +81,11 @@ class GUISearchObject {
 
       this.program
         .actor('search')
-        .call('search', { query: `${terms.join(' ')} ${providers} @count=20`, searchOriginHost })
+        .call('search', { query: `${terms.join(' ')} ${providers} @count=${RESULTS_LIMIT}`, searchOriginHost })
         //.call('search', { query: `${providers.join(' ')} @count=10 ${query}`, searchOriginHost })
         .then(responses => {
-          //console.log(responses);
+          //console.log(JSON.stringify(responses, null, 2));
+
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           //console.log('EMITTING SEARCH');
           this.program.emit('zeta::user_search', { query, totalHits, searchMetadata });
