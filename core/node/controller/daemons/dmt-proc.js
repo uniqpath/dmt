@@ -30,8 +30,6 @@ mids.push('meta/bash-exec');
 mids.push('meta/replicate');
 mids.push('meta/holidays');
 
-mids.push('meta/identity');
-
 mids.push('webindex');
 mids.push('webscan');
 

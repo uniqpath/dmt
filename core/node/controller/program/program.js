@@ -31,7 +31,6 @@ import loadMiddleware from './boot/loadMiddleware';
 
 import generateKeypair from './generateKeypair';
 import ipcServer from './ipcServer/ipcServer';
-import loadUserProtocols from './userProtocols/loadUserProtocols';
 
 class Program extends EventEmitter {
   constructor({ mids }) {
@@ -94,8 +93,6 @@ class Program extends EventEmitter {
     } else if (this.state().device) {
       delete this.state().device.isRPi;
     }
-
-    loadUserProtocols(this);
 
     if (mids.includes('apps')) {
       if (!this.acceptor.ok()) {
