@@ -1,7 +1,7 @@
 import colors from 'colors';
 import { ipcClient, parseArgs, Table } from 'dmt/cli';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 const args = parseArgs(process.argv.slice(2));
 

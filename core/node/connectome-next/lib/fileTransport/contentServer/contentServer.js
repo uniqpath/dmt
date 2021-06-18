@@ -4,7 +4,7 @@ import { decode } from '../fiberHandle/encodePath.js';
 
 import colors from 'colors';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log } = dmt;
 
 import checkPermission from './checkPermission';

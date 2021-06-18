@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 export default function devices() {
   //return dmt.devices().map(({ _coredata }) => _coredata);

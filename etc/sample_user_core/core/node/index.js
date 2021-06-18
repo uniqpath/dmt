@@ -1,6 +1,6 @@
 // Example imports of core DMT functionality:
 //
-// import dmt from 'dmt/bridge';
+// import dmt from 'dmt/common';
 // import notify from 'dmt/notify';
 
 // import connectome from 'dmt/connectome';

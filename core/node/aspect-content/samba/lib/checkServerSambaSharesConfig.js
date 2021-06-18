@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { push } from 'dmt/notify';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 const { log, textfileParsers, dmtContent } = dmt;
 

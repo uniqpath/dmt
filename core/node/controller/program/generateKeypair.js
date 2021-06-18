@@ -1,7 +1,7 @@
 import os from 'os';
 import fs from 'fs';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log } = dmt;
 
 import { tools } from 'dmt/crypto';

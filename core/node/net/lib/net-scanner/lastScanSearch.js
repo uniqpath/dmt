@@ -1,7 +1,7 @@
 import colors from 'colors';
 import fs from 'fs';
 import path from 'path';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 import { identify } from './deviceIdentifier';
 import currentNetworkDef from '../currentNetworkDef';

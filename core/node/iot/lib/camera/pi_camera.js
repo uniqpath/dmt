@@ -1,5 +1,5 @@
 import path from 'path';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log } = dmt;
 
 import { exec } from 'child_process';

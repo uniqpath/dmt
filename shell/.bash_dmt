@@ -91,6 +91,7 @@ function dmt {
     "protocols"
     "identity"
     "webscan"
+    "weblinks"
     "actors"
     "state"
     "reach"
@@ -442,6 +443,10 @@ function dmt {
       dmt_webscan "$@"
       ;;
 
+    weblinks)
+      dmt_weblinks "$@"
+      ;;
+
     # link)
     #   local dir="$DMT_NODE_CORE/.scripts"
     #   if [ -d "$dir" ]; then
@@ -617,7 +622,7 @@ function dmt {
 #   if [ -f "$script" ]; then
 #     # changed recently!! if symlinking logic changes, we cannot just check if one symlink is present to know
 #     # if we have to do something!!
-#     #if [ ! -L "$DMT_NODE_CORE/dmt-bridge/node_modules" ] || [ ! -d "$DMT_USER_PATH/core/node/node_modules" ]; then
+#     #if [ ! -L "$DMT_NODE_CORE/dmt-common/node_modules" ] || [ ! -d "$DMT_USER_PATH/core/node/node_modules" ]; then
 #       local cwd="`pwd`"
 #       cd "$DMT_NODE_CORE/.scripts"
 #       ./symlink_dmt_deps
@@ -2051,4 +2056,15 @@ function dmt_webscan {
 
   local device="$1"
   $DMT_NODEJS_EXEC ~/.dmt/core/node/webscan/cli/webscan.js "$device"
+}
+
+function dmt_weblinks {
+  if [ "$1" == '-h' ] || [ "$1" == '--help' ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt weblinks [device]${NC} ${GRAY}scans the weblinks directory and shows extracted links${NC}\n"
+    return
+  fi
+
+  local device="$1"
+  $DMT_NODEJS_EXEC ~/.dmt/core/node/webscan/cli/weblinks.js "$device"
 }

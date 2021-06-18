@@ -4,7 +4,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log, dmtVersion } = dmt;
 
 import streamDmtZip from './endpoints/streamDmtZip';

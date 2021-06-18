@@ -1,5 +1,5 @@
 import os from 'os';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 import handleErrorFromGui from './helpers/handleErrorFromGui';
 

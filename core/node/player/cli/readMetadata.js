@@ -1,7 +1,7 @@
 import colors from 'colors';
 import fs from 'fs';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { util, cli } = dmt;
 
 import ffprobe from '../lib/metadataReader/ffprobe';

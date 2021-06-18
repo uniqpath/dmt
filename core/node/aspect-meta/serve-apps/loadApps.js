@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log } = dmt;
 
 import { push } from 'dmt/notify';

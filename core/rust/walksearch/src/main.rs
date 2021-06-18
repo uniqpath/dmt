@@ -36,6 +36,9 @@ fn escape(x: &str) -> String {
 
   result.into_owned()
 
+  // TODO: BENCHMARK -- seems plenty fast but check if it can be done faster still
+  // TODO: also try to incorporate more powerful normalization as in dmt.util.normalizeStr(..) -- Remove accents/diacritics etc.
+  //regex::escape(x)
 }
 
 fn regex_helper(x: &str) -> String {
@@ -108,6 +111,12 @@ fn main() -> Result<()> {
     let mut args: Vec<String> = env::args().collect();
 
     args.remove(0);
+    // if args.len() == 0 {
+    //   println!("Missing any arguments!");
+    //   std::process::exit(0x0100);
+    // }
+
+    //println!("{:?}", args);
 
     let mut catalog: Option<String> = None;
 
@@ -157,7 +166,11 @@ fn main() -> Result<()> {
     terms.dedup();
 
     let regs: Vec<Regex> = terms.iter().filter(|x| !x.starts_with('-')).map(|x|
+      //if x.starts_with("author:") {
+      //  create_regex(&format!("(?P<pre_match>\t.*?\t.*?){}(?P<post_match>.*?\t)", regex_helper(&x.replace("author:", ""))))
+      //} else {
       create_regex(&regex_helper(x))
+      //}
     ).collect();
 
     let neg_regs: Vec<Regex> = terms.iter().filter(|x| x.starts_with('-')).map(|x| Regex::new(&format!("(?i){}", escape(&x[1..]))).unwrap()).collect();
@@ -194,6 +207,10 @@ fn main() -> Result<()> {
               line = entry.path().display().to_string();
             }
             // let absolute_path = Path::new(cur_dir.to_str().unwrap()).join(Regex::new("^\\./").unwrap().replace(entry.path(), ""));
+
+            //println!("LINE -- {}", line.to_str().unwrap());
+
+            // let md = metadata(&line).unwrap();
 
             let md = metadata(&line);
 

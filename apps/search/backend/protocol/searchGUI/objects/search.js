@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 import { push } from 'dmt/notify';
 
 import { parseSearchQuery, serializeContentRefs } from 'dmt/search';
@@ -56,7 +56,7 @@ class GUISearchObject {
     this.channel = channel;
   }
 
-  search({ query, page, searchMode, selectedTags, searchMetadata }) {
+  search({ query, page, searchMode, selectedTags, searchMetadata, timezone }) {
     //log.green(`Selected tags: ${selectedTags.join(', ')}`);
 
     const { searchOriginHost, isLAN } = searchMetadata;
@@ -90,7 +90,7 @@ class GUISearchObject {
 
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           //console.log('EMITTING SEARCH');
-          this.program.emit('zeta::user_search', { query, page, selectedTags, totalHits, searchMetadata });
+          this.program.emit('zeta::user_search', { query, page, selectedTags, totalHits, searchMetadata, timezone });
           success(enhanceResponses({ responses, peerlist, isLAN }));
         })
         .catch(error => {
@@ -101,32 +101,32 @@ class GUISearchObject {
     });
   }
 
-  browsePlace({ place, searchMetadata }) {
-    const { searchOriginHost, isLAN, searchMode } = searchMetadata;
+  // browsePlace({ place, searchMetadata }) {
+  //   const { searchOriginHost, isLAN, searchMode } = searchMetadata;
 
-    const peerlist = searchMode == 0 ? this.program.peerlist() : [];
+  //   const peerlist = searchMode == 0 ? this.program.peerlist() : [];
 
-    return new Promise(success => {
-      const count = 500; // remove after impolementin pagination!
-      const page = 'TODO!';
+  //   return new Promise(success => {
+  //     const count = 500; // remove after impolementin pagination!
+  //     const page = 'TODO!';
 
-      this.program
-        .actor('search')
-        .call('search', { query: `@count=${count}`, place, searchOriginHost })
-        //.call('search', { query: `${providers.join(' ')} @count=10 ${query}`, searchOriginHost })
-        .then(responses => {
-          const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
-          //console.log('EMITTING SEARCH');
-          this.program.emit('zeta::user_search', { query: `place: ${fiberHandle.decode(place)}`, selectedTags, totalHits, searchMetadata });
-          success(enhanceResponses({ responses, peerlist, isLAN }));
-        })
-        .catch(error => {
-          // never happened so far
-          log.yellow('GUISearchObject error:');
-          log.yellow(error);
-        });
-    });
-  }
+  //     this.program
+  //       .actor('search')
+  //       .call('search', { query: `@count=${count}`, place, searchOriginHost })
+  //       //.call('search', { query: `${providers.join(' ')} @count=10 ${query}`, searchOriginHost })
+  //       .then(responses => {
+  //         const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
+  //         //console.log('EMITTING SEARCH');
+  //         this.program.emit('zeta::user_search', { query: `place: ${fiberHandle.decode(place)}`, selectedTags, totalHits, searchMetadata });
+  //         success(enhanceResponses({ responses, peerlist, isLAN }));
+  //       })
+  //       .catch(error => {
+  //         // never happened so far
+  //         log.yellow('GUISearchObject error:');
+  //         log.yellow(error);
+  //       });
+  //   });
+  // }
 
   // todo: move to guiFrontendAcceptor
   trackClick({ url, providerTag, clickMetadata }) {

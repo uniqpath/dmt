@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { settings, detectMediaType } from 'dmt/search';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { prettyFileSize, prettyTimeAge, log } = dmt;
 
 import pathModule from 'path';

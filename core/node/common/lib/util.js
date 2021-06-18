@@ -26,6 +26,32 @@ function normalizeMac(mac) {
   return mac.toLowerCase().replace(/\b0(\d|[a-f])\b/g, '$1');
 }
 
+function replaceAll(str, a, b) {
+  return str.replace(new RegExp(a, 'g'), b);
+}
+
+function trim(str, ch) {
+  let start = 0;
+  let end = str.length;
+
+  while (start < end && str[start] === ch) ++start;
+
+  while (end > start && str[end - 1] === ch) --end;
+
+  return start > 0 || end < str.length ? str.substring(start, end) : str;
+}
+
+function trimAny(str, chars) {
+  let start = 0;
+  let end = str.length;
+
+  while (start < end && chars.indexOf(str[start]) >= 0) ++start;
+
+  while (end > start && chars.indexOf(str[end - 1]) >= 0) --end;
+
+  return start > 0 || end < str.length ? str.substring(start, end) : str;
+}
+
 const LETTER_MAP = {
   Æ: 'AE',
   æ: 'ae',
@@ -44,10 +70,6 @@ const LETTER_MAP = {
   Œ: 'OE',
   œ: 'oe'
 };
-
-function replaceAll(str, a, b) {
-  return str.replace(new RegExp(a, 'g'), b);
-}
 
 function normalizeStr(str) {
   let a = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -94,6 +116,8 @@ export default {
   mkdirp,
   hexutils,
   replaceAll,
+  trim,
+  trimAny,
   normalizeStr,
   normalizeUrl,
   limitString,

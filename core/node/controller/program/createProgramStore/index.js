@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { def } = dmt;
 
 import { saveState, loadState } from './statePersist';
@@ -28,6 +28,7 @@ export default function createProgramStore(program) {
       devCluster: dmt.isDevCluster(),
       dmtVersion: dmt.dmtVersion(),
       platform: dmt.platformDescription(),
+      tagline: device.tagline,
       apMode: program.apMode(),
       bootedAt: Date.now()
     },

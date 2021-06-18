@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { util } = dmt;
 
 const IGNORED_FILE_NAMES = ['links', 'misc', 'other', 'more', 'main', 'check'];

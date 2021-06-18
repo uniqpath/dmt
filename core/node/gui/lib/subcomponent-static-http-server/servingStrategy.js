@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import pathModule from 'path';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { scan } = dmt;
 
 function setFileSystemRoutes(app, { rootDir, publicDir, assetsSubdir, subServings = [] }) {

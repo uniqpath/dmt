@@ -33,6 +33,10 @@ function absolutizePath(path) {
   return path.replace(/^~/, homedir());
 }
 
+function relativizePath(path) {
+  return path.replace(new RegExp(`^${homedir()}`), '~');
+}
+
 function recursive(_path, { flatten = false, filter = () => true, extname = null, includeSymlinks = false } = {}, scanpathRecursionState = null) {
   const fullPath = absolutizePath(_path);
 
@@ -190,4 +194,17 @@ function mediaFilter({ mediaType }) {
   }
 }
 
-export default { dir, recursive, flattenTree, syncDir, readFiles, readFileLines, ensureDirSync, mediaFilter, absolutizePath, commandExists, commandExistsSync };
+export default {
+  dir,
+  recursive,
+  flattenTree,
+  syncDir,
+  readFiles,
+  readFileLines,
+  ensureDirSync,
+  mediaFilter,
+  absolutizePath,
+  relativizePath,
+  commandExists,
+  commandExistsSync
+};

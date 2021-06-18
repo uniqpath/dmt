@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 import colors from 'colors';
 const { log, def } = dmt;

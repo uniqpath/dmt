@@ -1,6 +1,6 @@
 import colors from 'colors';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log, def, loop } = dmt;
 
 import determineNetworkSegment from './determineNetworkSegment';

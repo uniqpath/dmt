@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log, util } = dmt;
 
 const pulseaudio = fs.existsSync('/etc/pulse/default.pa');

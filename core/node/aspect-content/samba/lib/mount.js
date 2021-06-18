@@ -1,5 +1,5 @@
 import fs from 'fs';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log } = dmt;
 
 import * as mountutils from './mountutils';

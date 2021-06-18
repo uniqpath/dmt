@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { def } = dmt;
 
 import { staticIP, firstPriority, atLeastOneSpecialNode, hasNetworkId } from './checks';

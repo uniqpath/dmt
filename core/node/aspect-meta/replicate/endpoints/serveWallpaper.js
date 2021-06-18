@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { def } = dmt;
 
 function serveWallpaper(req, res) {

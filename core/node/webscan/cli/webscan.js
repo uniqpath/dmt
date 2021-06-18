@@ -7,25 +7,24 @@ import writeFileAtomic from 'write-file-atomic';
 
 import { push } from 'dmt/notify';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log, util } = dmt;
+
+const { relativizePath } = dmt.scan;
+
+const device = dmt.device({ onlyBasicParsing: true });
 
 import webscanJob from '../lib/jobs/webscanJob';
 
 const args = process.argv.slice(2);
 
-if (args.length != 1) {
+if (args.length > 1) {
   console.log(colors.yellow('Usage:'));
-  console.log('cli createLinkIndex [deviceName]');
+  console.log('cli webscan [deviceName]');
   process.exit();
 }
 
-const deviceName = args[0] || dmt.device().id;
-
-function reportIssue(msg) {
-  log.red(`⚠️  Warning: ${msg}`);
-  push.notify(`${dmt.deviceGeneralIdentifier()}: ${msg}`);
-}
+const deviceName = args[0] || device.id;
 
 const linksDirectory = linkIndexPath(deviceName);
 
@@ -72,7 +71,7 @@ function displayConclusion(isLastBatch) {
   const diff = existingLinkIndex.length - linkIndex.length;
 
   if (diff > 0) {
-    console.log(colors.gray(`${colors.yellow(diff)} links were removed.`));
+    console.log(colors.gray(`${colors.magenta(diff)} links were removed.`));
   }
 }
 
@@ -91,6 +90,9 @@ function onBatchFinished({ successes, errors, isLastBatch }) {
   displayConclusion(isLastBatch);
 
   if (isLastBatch) {
+    console.log();
+    console.log(`Wrote ${colors.cyan(deviceName)} linkindex to ${colors.yellow(relativizePath(indexFile))}`);
+
     fs.rename(indexFileInProgress, indexFile, err => {
       if (err) throw err;
       process.exit();
@@ -99,5 +101,3 @@ function onBatchFinished({ successes, errors, isLastBatch }) {
 }
 
 webscanJob({ linksDirectory, onBatchFinished, existingLinkIndex });
-
-console.log(`Written to ${indexFile}`);

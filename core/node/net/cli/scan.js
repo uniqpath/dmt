@@ -1,6 +1,6 @@
 import fs from 'fs';
 import colors from 'colors';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 import netScan from '../lib/net-scanner/netScan';
 import netScanScreenOutput from '../lib/net-scanner/screenOutput';

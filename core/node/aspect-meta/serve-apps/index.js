@@ -1,7 +1,7 @@
 import colors from 'colors';
 import express from 'express';
 import path from 'path';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 import fs from 'fs';
 
 import AppLoader from './loadApps';

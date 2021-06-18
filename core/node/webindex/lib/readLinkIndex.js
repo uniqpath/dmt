@@ -4,7 +4,7 @@ import colors from 'colors';
 
 import { push } from 'dmt/notify';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log, stopwatch, tags } = dmt;
 
 const REREAD_INDEX_INTERVAL_SECONDS = 10;

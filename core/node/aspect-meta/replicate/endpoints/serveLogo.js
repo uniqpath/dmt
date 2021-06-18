@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 function serveLogo(req, res) {
   const commonAssetsPath = path.join(dmt.dmtPath, 'core/node/gui/gui-frontend-core/common_assets');

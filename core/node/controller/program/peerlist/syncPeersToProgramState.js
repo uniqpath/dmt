@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 export default function syncPeersToProgramState({ program, connectorPool, port }) {
   const slotName = 'peerlist';

@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { parseCliArgs, util } = dmt;
 
 import maxResults from './maxResults';

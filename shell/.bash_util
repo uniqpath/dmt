@@ -306,10 +306,10 @@ function dmt_parsedef {
     return
   fi
 
-  local DEF_PARSER_PATH="$DMT_NODE_CORE/bridge/cli/parseDef.js"
+  local DEF_PARSER_PATH="$DMT_NODE_CORE/common/cli/parseDef.js"
 
   if [ ! -f "$DEF_PARSER_PATH" ]; then
-    printf "${RED}Missing dmt/bridge nodejs package${NC}\n"
+    printf "${RED}Missing dmt/common nodejs package${NC}\n"
     return
   fi
 

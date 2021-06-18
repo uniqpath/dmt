@@ -1,12 +1,13 @@
 import fs from 'fs';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 const { scan } = dmt;
 
 import parseLinksTxtFile from './parseLinksTxtFile';
 import getAllTxtFiles from './getAllTxtFiles';
 import normalizeUrls from './normalizeUrls';
+import deduplicate from './deduplicate';
 
 function splitToLines(buffer) {
   return buffer
@@ -34,7 +35,7 @@ export default function ingestLinks(directory) {
           .filter(Boolean)
           .flat();
 
-        success(normalizeUrls(urls));
+        success(deduplicate(normalizeUrls(urls)));
       });
     } else {
       success([]);

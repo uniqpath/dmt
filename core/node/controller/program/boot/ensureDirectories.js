@@ -1,6 +1,6 @@
 import path from 'path';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { scan } = dmt;
 
 export default function ensureDirectories() {

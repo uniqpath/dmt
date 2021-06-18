@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "exports": {
-    "./bridge": "./node_modules_helper/bridge",
+    "./common": "./node_modules_helper/common",
     "./iot": "./node_modules_helper/iot",
     "./notify": "./node_modules_helper/notify",
     "./connectome": "./node_modules_helper/connectome",

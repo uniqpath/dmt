@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 function attachVersionInfo(device) {
   return { ...device, versionCompareSymbol: dmt.versionCompareSymbol(device.dmtVersion) };

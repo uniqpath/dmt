@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 import { getCurrentYearMonthDay } from './helpers';
 import { holidayName, holidayDataExists } from './holidays';
 

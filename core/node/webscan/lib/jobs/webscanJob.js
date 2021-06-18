@@ -1,5 +1,5 @@
 import colors from 'colors';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { util } = dmt;
 
 import scanWebLink from '../scanWebLink';

@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 import getGatewayMac from './gatewayMac';
 
 const { normalizeMac } = dmt.util;

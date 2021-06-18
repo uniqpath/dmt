@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { def, dmtContent } = dmt;
 
 import { ParaSearch } from 'dmt/search';

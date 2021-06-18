@@ -1,7 +1,7 @@
 import fs from 'fs';
 import writeFileAtomic from 'write-file-atomic';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log, util } = dmt;
 
 const { compare } = util;

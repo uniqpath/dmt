@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 import { reconstructSearchQuery } from 'dmt/search';
 
 import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';

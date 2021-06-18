@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log } = dmt;
 
 import staticServerSetup from './lib/subcomponent-static-http-server/setup';

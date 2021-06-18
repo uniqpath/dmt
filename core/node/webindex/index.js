@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 import linkIndexPath from './lib/linkIndexPath';
 import latestLinkIndexVersion from './lib/linkIndexVersion';

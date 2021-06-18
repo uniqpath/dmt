@@ -1,27 +1,38 @@
+import dmt from 'dmt/common';
+const { util } = dmt;
+
 function emptyLine(line) {
   return line == '';
 }
 
-function isLink(line) {
-  return line.startsWith('http');
-}
+function extractUrls(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
 
-function tripleDashComment(line) {
-  return line.startsWith('---');
-}
+  const matches = text.match(urlRegex);
 
-function trimAndRemoveComments(line) {
-  if (isLink(line)) {
-    return line.trim();
+  if (matches) {
+    let remains = text;
+
+    for (const match of matches) {
+      remains = remains.replace(match, '');
+    }
+
+    return [matches, remains.trim()];
   }
+
+  return [[], text.trim()];
+}
+
+function isComment(line) {
+  return line.startsWith('---') || line.startsWith('#');
+}
+
+function removeHashComments(line) {
   return line.split('#')[0].trim();
 }
 
-function cleanContext(line) {
-  if (line.endsWith(':')) {
-    return line.slice(0, -1);
-  }
-  return line;
+function cleanContext(context) {
+  return util.trimAny(context, ['|', ':', ' ']).replace(/\s+/g, ' ');
 }
 
 function isTags(line) {
@@ -57,25 +68,36 @@ function parseLinksTxtFile({ filePath, lines }) {
   let boost;
 
   lines.forEach((line, index) => {
-    line = trimAndRemoveComments(line);
+    line = line.trim();
 
-    if (!emptyLine(line)) {
-      if (!isLink(line) && !tripleDashComment(line) && !isTags(line) && !isBoost(line)) {
-        context = cleanContext(line);
-      }
+    if (!isComment(line) && !emptyLine(line)) {
+      const [_urls, _remains] = extractUrls(line);
+      const remains = removeHashComments(_remains);
 
-      if (isTags(line)) {
-        tags = extractTags(line);
-      }
+      const hasLinks = _urls.length > 0;
 
-      if (isBoost(line)) {
-        boost = extractBoost(line);
-      }
+      if (!hasLinks) {
+        if (isTags(remains)) {
+          tags = extractTags(line);
+        } else if (isBoost(remains)) {
+          boost = extractBoost(line);
+        } else {
+          context = cleanContext(remains);
+        }
+      } else {
+        if (remains) {
+          context = cleanContext(`${context} ${cleanContext(remains)}`);
+        }
 
-      if (isLink(line)) {
-        const result = { url: line, boost, context, manualTags: tags, filePath: filePath.split('/weblinks')[1] };
+        for (const url of _urls) {
+          if (url.includes(context)) {
+            context = '';
+          }
 
-        urls.push(result);
+          const result = { url, boost, context, manualTags: tags, filePath: filePath.split('/weblinks')[1] };
+
+          urls.push(result);
+        }
 
         context = '';
         boost = undefined;

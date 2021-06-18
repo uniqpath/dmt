@@ -1,5 +1,5 @@
 import fs from 'fs';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { mkdirp } = dmt.util;
 
 import getReferencedSambaShares from './getReferencedSambaShares';

@@ -2,7 +2,7 @@ import colors from 'colors';
 
 import { ConnectionsAcceptor } from 'dmt/connectome-server';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log } = dmt;
 
 class ProgramConnectionsAcceptor {

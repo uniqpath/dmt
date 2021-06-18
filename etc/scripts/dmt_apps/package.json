@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "exports": {
-    "./bridge": "./_dmt_deps/bridge",
+    "./common": "./_dmt_deps/common",
     "./notify": "./_dmt_deps/notify",
     "./search": "./_dmt_deps/search",
     "./connectome": "./_dmt_deps/connectome",

@@ -1,6 +1,6 @@
 import { settings } from 'dmt/search';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { stopwatchAdv, dmtContent } = dmt;
 
 import { fiberHandle } from 'dmt/connectome-next';

@@ -2,7 +2,7 @@ import path from 'path';
 import os from 'os';
 const { homedir } = os;
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { def, dmtContent } = dmt;
 
 let cachedReferencedSambaShares;

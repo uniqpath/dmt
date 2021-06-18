@@ -162,8 +162,6 @@ More about this option on another occasion, this was probably enough details aro
 
 You can read more about basic philosophy of device management in our [DMT ENGINE Documentation](https://docs.uniqpath.com/dmt).
 
-Here is some related descriptions about how: [PC → PS linking works](https://docs.uniqpath.com/dmt/internet-connection-monitoring/core-idea). It is just one line in `connect.def` on PC, as we actually did above when temporarily following 3rd party ZetaSeek DMT Search node.
-
 ## 4. Now try adding your own links 💡🚀
 
 ```
@@ -192,7 +190,7 @@ If you already changed your personal computer device name into something else in
 
 Try searching for some of these links now and you shall find them. No `dmt-proc` restart is needed between `dmt webscan` and searching, when between 0 and 10s pass from finishing the scan, the results should be visible.
 
-Now `rm links.txt` file because that was too simplistic and doesn't scale.
+You can now type  `rm links.txt` to remove this file, we will create weblinks hierarchy folders next.
 
 ### 💡Smart tagging 
 
@@ -222,7 +220,17 @@ Try creating **different subdirectories (nested as you like)** inside your `~/.d
 
 Run `dmt webscan` again when you have new links and observe your search results now. 
 
-You will notice that each link is tagged according to its appearance in particular `.txt` files, for example if your `physics/relativity, albert einstein/special_relativity.txt` file looked like this:
+You can also do `dmt weblinks` as a test step to see how weblinks are actually parsed from `.txt` files. 
+
+`dmt weblinks` will report something like this:
+
+```
+Wrote 50 dmt-new weblinks (without webscan metadata) to ~/.dmt-here/tmp/weblinks.json
+```
+
+You can then just `cat ~/.dmt-here/tmp/weblinks.json` to observe parsed links or you could copy this file temporarily to `~/.dmt-here/webindex/` as well to be able to search these links (without any metadata coming from real webscan).
+
+When you search for links in the gui you will notice each link tagged according to its appearance in particular `.txt` files, for example if your `physics/relativity, albert einstein/special_relativity.txt` file looked like this:
 
 ```
 https://www.britannica.com/science/special-relativity
@@ -230,23 +238,216 @@ https://www.britannica.com/science/special-relativity
 https://en.wikipedia.org/wiki/Special_relativity
 ```
 
-Then both of these links will be tagged with `[physics] [relativity] [albert einstein] [special relativity]` tags following their full path. Underscores are replaced with spaces.
+Then both of these links will be tagged with `[physics] [relativity] [albert einstein] [special relativity]` tags following their full path. Underscores are replaced with spaces. Tags are not visible in `.json` files with links because they are derived on the fly from `filePath` attribute.
 
-You can also add more tags outside of this hiearchy like this:
+You can also use a comma: for example if a file was called `cairo_language, programming language.txt`, then everything inside that file would be tagged with `[cairo language] [programming language]` in addition to any other derived tags. This also work on directories.
+
+You can also add more tags outside of this hiearchy on each entry like this:
+
+```
+tags: sometag1
+https://www.britannica.com/science/special-relativity
+
+tags: sometag1, sometag2
+https://en.wikipedia.org/wiki/Special_relativity
+```
+
+Lines has to appear above each link. These are called `manualTags` in the data structure.
+
+You can specify `context` on links as well, like this:
 
 ```
 tags: sometag1, sometag2
-https://www.britannica.com/science/special-relativity
-
-tags: sometag2, sometag3
+This is a fine resource for special relativity
 https://en.wikipedia.org/wiki/Special_relativity
 ```
 
-As seen tags can be listed separated by a comma - inside a .txt file, after `tags:` or at directory or even file level.
+or
 
-For example if a file was called `cairo_language, programming language.txt`, then everything inside that file would be tagged with `[cairo language] [programming language]` in addition to any other derived tags.
+```
+This is a fine resource for special relativity
+tags: sometag1, sometag2
+https://en.wikipedia.org/wiki/Special_relativity
+```
 
-### The end result of this is a smart tagcloud:
+`context` appears just below title in search results:
+
+<p align="center"><img src="./img/link_context_example.png" alt="dmt search engine smart tagcloud" width="500px" /></p>
+
+This is also valid context:
+
+```
+tags: sometag1, sometag2
+https://en.wikipedia.org/wiki/Special_relativity This is a fine resource for special relativity
+```
+
+or even
+
+```
+tags: sometag1, sometag2
+https://en.wikipedia.org/wiki/Special_relativity | This is a fine resource for special relativity
+```
+
+_or even_
+
+```
+tags: sometag1, sometag2
+This is a fine resource for special relativity: https://en.wikipedia.org/wiki/Special_relativity
+```
+
+These will all result in the same thing.
+
+If you have more than one link in the same line like this:
+
+```
+This is a fine resource for special relativity: https://en.wikipedia.org/wiki/Special_relativity https://www.britannica.com/science/special-relativity
+```
+
+Then everything _that is not_ links is the context **for all links**. In other words: everything before, in between or after links is concatenated and becomes a context, one more example:
+
+```
+This is a fine https://en.wikipedia.org/wiki/Special_relativity resource for https://www.britannica.com/science/special-relativity special relativity
+```
+
+will also result in this data:
+
+```json
+[{
+  "url": "https://en.wikipedia.org/wiki/Special_relativity",
+  "context": "This is a fine resource for special relativity",
+  "filePath": "/testing.txt"
+},
+{
+  "url": "https://www.britannica.com/science/special-relativity",
+  "context": "This is a fine resource for special relativity",
+  "filePath": "/testing.txt"
+}]
+```
+
+`.txt` links parser is designed in such a way that no link is ever lost and as much valid context around it is picked up.
+
+💡Weblinks are found through this regex:
+
+```js
+const urlRegex = /(https?:\/\/[^\s]+)/g;
+```
+
+Which means that `example.com` or `ws://example.com` are not considered weblinks ✖ while `http://example.com` and `https://example.com` are ✓.
+
+### Comments
+
+Blank lines have no meaning at all.  If a line starts with `#` or `---` it is entirely ignored as well. Be careful when commeting out some links because things above them (`context` or `tags:`) will apply to the next encountered link if it doesn't already have its own (`context`/`tags`).
+
+`#` comment can also appear elsewhere:
+
+```
+https://example.com # this is ignored
+```
+
+```
+#https://example.com and now the entire link is ignored
+```
+
+⚠️ Careful here:
+
+```
+this is a scam
+#https://bitconnect.lol
+https://ethereum.org
+```
+
+:)
+
+Either do this:
+
+```
+#this is a scam
+#https://bitconnect.lol
+https://ethereum.org
+```
+
+or
+
+```
+this is a scam
+#https://bitconnect.lol
+this has already changed the world
+https://ethereum.org
+```
+
+in this case `this is a scam` is ignored because `context` is always the latest **single line** above each link (doesn't have to be directly above) _or_ around the link in the same line as link(s). In such case `context` is constructed from all of these, for example:
+
+```
+this has already changed the world
+and https://ethereum.org will continue to do so
+```
+
+results in:
+
+```json
+{
+  "url": "https://ethereum.org",
+  "context": "this has already changed the worldand will continue to do so",
+  "filePath": "/testing.txt"
+}
+```
+
+`---` comments are useful for delimiting sections (this is all ignored but makes for a nicer `.txt` file):
+
+```
+--- social media
+
+...
+
+--- other
+
+...
+```
+
+They can only be used at the start of the line:
+
+```
+hey --- there
+htts://example.com
+```
+
+Will result in `context` ≡ `"hey --- there"`
+
+If context also appears as a part of the url:
+
+```
+example.com
+https://example.com
+```
+
+then it will be ignored:
+
+```json
+{
+  "url": "https://example.com",
+  "context": ""
+}
+```
+
+💡Any duplicate or overlapping info between `context` and **title** (which comes from `dmt webscan` metadata) will be automatically consolidated as well.
+
+### Duplicate links
+
+All links that have already appeared before will be ignored together with their `context`, `tags` and any other attributes (⚠️). 
+
+Command line tools will warn you of such duplicates.
+
+### 💡Exporting and saving open browser tabs
+
+There is this great Chrome (or Brave) extension called [Export Tabs](https://chrome.google.com/webstore/detail/export-tabs/odafagokkafdbbeojliiojjmimakacil?hl=en) (for sure something similar exists for Firefox and other browsers as well). When using it, make sure to select **All Windows** option when exporting tabs. Good practice is that every time open tabs in a browser get a bit too unwieldy to just export them all and save into something like `links_2021_06_18.txt` and store them inside `~/.dmt/user/devices/this/weblinks` for further treatment and evaluation later. You can already very effectively search on them though. When you feel ready, you can categorize them in other `.txt` files (in various subfolders) to make search even better. This way your unfinished research gets saved and is always at your fingertips. Many more nice GUI tools are coming a bit later to easily sort and manage these links for even better overview and less command line fiddling.
+
+### 🚧 Importing browser bookmarks
+
+Importing bookmarks from various browsers is also something that is coming pretty soon. You will be able to import and then manually remove them from browser or decide to keep adding some links to browser bookmarks and have them appear inside your DMT Search through constant one way sync instead of one-time import. This setup will not allow editing such links from DMT Search GUI though because canonical copy for this subset of your links are then still browser bookmarks.
+
+### Smart tagcloud
+
+Smart tagcloud is an innovative way to search and is automatically generated. On the homepage it just consists of all the tags:
 
 <p align="center"><img src="./img/dmt_search_smart_tagcloud.png" alt="dmt search engine smart tagcloud" width="800px" /></p>
 
@@ -254,7 +455,7 @@ Clicking any of these tags will make a corresponsing search and show a smaller t
 
 <p align="center"><img src="./img/dmt_search_smart_tagcloud2.png" alt="dmt search engine smart tagcloud" width="500px" /></p>
 
-You can further select tags that have bright cyan border (`data sync`, `frontend`, `microsoft fluid`, `stores`) to further narrow down the search quickly. `svelte` was selected initially in this case after `web development` query. How this work under the hood exactly will be documented in a coming _research paper_. We think this part is quite great and makes Search & Discovery on the links database very smooth, even <i>svelte</i> :D
+You can further select tags that have bright cyan border (`data sync`, `frontend`, `microsoft fluid`, `stores`) to further narrow down the search quickly. `svelte` was selected initially in this case after `web development` query. This is all generated on the fly and is quite useful. It makes Search & Discovery on the links database very pleasant for the end users or the database owner. It can surface interesteing _adjacent concepts and resources_ thus making (re)search very effective.
 
 ### Adding links from GUI
 

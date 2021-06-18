@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 const dmtUserDir = dmt.userDir;
 const devicesFile = path.join(dmtUserDir, 'devices/devices.json');

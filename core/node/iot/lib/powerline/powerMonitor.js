@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 import { push } from 'dmt/notify';
 
 import EventEmitter from 'events';

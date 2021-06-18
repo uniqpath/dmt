@@ -13,6 +13,6 @@ ln -s ../../core/node/connectome/src/stores connectome-stores
 
 ln -s ../../core/node/connectome-next connectome-next
 
-ln -s ../../core/node/bridge .
+ln -s ../../core/node/common .
 ln -s ../../core/node/search .
 ln -s ../../core/node/notify .

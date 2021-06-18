@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import colors from 'colors';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 import arpscanner from './arpscanner-promise';
 import { identify } from './deviceIdentifier';

@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 import { settings } from 'dmt/search';
 
 function maxResults(serviceId = 'search') {

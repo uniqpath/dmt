@@ -73,6 +73,22 @@ function mp4 {
   fi
 }
 
+function mobi {
+  if [ -n "$1" ]; then
+    for file in "$@"
+    do
+      if [ -f "$file" ]; then
+        ebook-convert "$file" "$file".mobi
+      else
+        echo "File $file doesn't exist"
+      fi
+    done
+  else
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}mobi file1.epub${NC} ${GRAY}convert to .mobi format${NC}\n"
+  fi
+}
+
 # https://trac.ffmpeg.org/wiki/Encode/H.265
 function hevc {
   if [ -n "$1" ]; then

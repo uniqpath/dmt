@@ -1,4 +1,4 @@
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 import { MirroringStore } from 'dmt/connectome-stores';
 
 import state from './state';

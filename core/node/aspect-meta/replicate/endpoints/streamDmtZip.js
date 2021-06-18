@@ -3,7 +3,7 @@ import archiver from 'archiver';
 import path from 'path';
 import fs from 'fs';
 
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { scan, log, def, stopwatch } = dmt;
 
 import { pipeline, Transform } from 'stream';

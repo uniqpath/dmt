@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log } = dmt;
 
 import MqttRail from './mqttRail';

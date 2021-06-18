@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "exports": {
-    "./bridge": "./bridge",
+    "./common": "./common",
     "./connectome": "./connectome/src/client/node",
     "./connectome-server": "./connectome/src/server",
     "./connectome-stores": "./connectome/src/stores",

@@ -1,7 +1,7 @@
 import colors from 'colors';
 import EventEmitter from 'events';
 import fs from 'fs';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log, util } = dmt;
 
 import pathModule from 'path';

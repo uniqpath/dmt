@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 
 import daemonize from './daemonize2/lib/daemonize';
 

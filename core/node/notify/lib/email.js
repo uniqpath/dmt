@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import dmt from 'dmt/bridge';
+import dmt from 'dmt/common';
 const { log } = dmt;
 
 const user = dmt.user();
