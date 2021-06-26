@@ -3,7 +3,7 @@ import initializeConnection from './initializeConnection.js';
 
 import ReadableStore from '../../stores/front/helperStores/readableStore.js';
 
-import { compareKeys } from '../../utils/sorting/sorting.js';
+import { orderBy } from '../../utils/sorting/sorting.js';
 
 import ChannelList from '../channel/channelList.js';
 
@@ -82,7 +82,7 @@ class ConnectionsAcceptor extends ReadableStore {
 
   connectionList() {
     const list = this.wsServer.enumerateConnections().reverse();
-    const order = compareKeys('protocol', 'lane');
+    const order = orderBy('protocol', 'lane');
     return list.sort(order);
   }
 }

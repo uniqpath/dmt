@@ -11,6 +11,12 @@ const { promiseTimeout } = concurrency;
 
 const readMetadataTimeoutMs = 5000;
 
+const searchEnginesList = [
+  'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+  'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+  'Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)'
+];
+
 export default function scanWebLink(linkEntry) {
   return new Promise((success, reject) => {
     const { url } = linkEntry;
@@ -22,8 +28,14 @@ export default function scanWebLink(linkEntry) {
       return;
     }
 
+    let userAgent;
+
+    if (url.includes('amazon.com')) {
+      userAgent = searchEnginesList[Math.floor(Math.random() * searchEnginesList.length)];
+    }
+
     try {
-      promiseTimeout(readMetadataTimeoutMs, unfurl(url))
+      promiseTimeout(readMetadataTimeoutMs, unfurl(url, { userAgent }))
         .then(urlmetadata => {
           if (urlmetadata) {
             console.log(colors.green(`✓ Received metadata for ${colors.white(url)}`));

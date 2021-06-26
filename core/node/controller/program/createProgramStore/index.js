@@ -31,8 +31,7 @@ export default function createProgramStore(program) {
       tagline: device.tagline,
       apMode: program.apMode(),
       bootedAt: Date.now()
-    },
-    notifications: []
+    }
   };
 
   const store = new ProgramStateStore(initState, { saveState, loadState, omitStateFn, removeStateChangeFalseTriggers });
@@ -58,6 +57,14 @@ export default function createProgramStore(program) {
     store.update({ device: { serverMode: true } }, { announce: false });
   } else {
     store.removeSlotElement({ slotName: 'device', key: 'serverMode' }, { announce: false });
+  }
+
+  if (!store.get('recentSearchQueries')) {
+    store.replaceSlot('recentSearchQueries', [], { announce: false });
+  }
+
+  if (!store.get('notifications')) {
+    store.replaceSlot('notifications', [], { announce: false });
   }
 
   return store;

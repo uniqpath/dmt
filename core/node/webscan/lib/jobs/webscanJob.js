@@ -7,13 +7,23 @@ import ingestLinksFromDirectory from '../ingest/txtFiles/ingestLinksFromDirector
 
 const { processBatch } = dmt;
 
-const INVALID_TITLES = ['Attention Required! | Cloudflare', 'Attention Required!'];
+const INVALID_TITLES = ['Attention Required!', 'Amazon.com'];
+function invalidTitle(title) {
+  return title && (INVALID_TITLES.includes(title) || title.endsWith(' | Cloudflare'));
+}
+
+function maximumID(existingLinkIndex) {
+  const ids = existingLinkIndex.map(({ id }) => id).filter(Boolean);
+  return Math.max(Math.max(...ids), 0);
+}
+
+let maxId;
 
 function wrapScanWebLink(existingLinkIndex) {
   return linkEntry => {
     const match = existingLinkIndex.find(({ url }) => url == linkEntry.url);
 
-    if (match && !INVALID_TITLES.includes(match?.urlmetadata?.title)) {
+    if (match && !invalidTitle(match?.urlmetadata?.title)) {
       console.log(colors.gray(`Found match in existing link index for url ${colors.white(linkEntry.url)}:`));
 
       return new Promise((success, reject) => {
@@ -21,11 +31,17 @@ function wrapScanWebLink(existingLinkIndex) {
       });
     }
 
+    if (match) {
+      linkEntry.id = match.id;
+    }
+
     return scanWebLink(linkEntry);
   };
 }
 
 export default function spiderJob({ linksDirectory, onBatchFinished, existingLinkIndex }) {
+  maxId = maximumID(existingLinkIndex);
+
   const asyncMap = wrapScanWebLink(existingLinkIndex);
 
   return new Promise((success, reject) => {
@@ -59,6 +75,11 @@ export default function spiderJob({ linksDirectory, onBatchFinished, existingLin
 
             const successes = results.filter(({ error }) => !error);
             const errors = results.filter(({ error }) => error);
+
+            for (const result of successes.filter(({ id }) => !id)) {
+              maxId += 1;
+              result.id = maxId;
+            }
 
             onBatchFinished({ successes, errors, isLastBatch });
           }

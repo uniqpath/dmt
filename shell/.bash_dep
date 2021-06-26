@@ -175,81 +175,87 @@ function dep_rsync {
 
   for target in ${targets} ; do
 
-    local source_dir="`pwd`"/
+    # this is for cases when there is no target actually... we just do deploy as part of pre_local, for example:
+    # pre_local: npm run build && dmt copy zeta
+    if [[ ! "$target" =~ ^pre_local ]] && [[ ! "$target" =~ ^post_local ]]; then
 
-    if [ -n "$deploy_file" ]; then
-      # overwrite: false
-      # refuse to sync if anything would be overwritten
-      local prefix="overwrite: "
-      while read -r line; do
-        if [ "${line#$prefix}" == "false" ]; then
-          comp "$source_dir" "$target"
-          if [ $? -ne 0 ]; then
-            echo
-            printf "${RED}Deploy cancelled because some files at ${YELLOW}$target ${RED}would be deleted or overwritten${NC}\n"
-            printf "${RED}and ${YELLOW}overwrite: false ${RED}option is active in ${YELLOW}$deploy_file ${RED}file.${NC}\n"
-            echo
-            printf "${GREEN}Please copy (or delete) target-only files or files with content different between source and target to source and try again.${NC}\n"
-            return 1
+      local source_dir="`pwd`"/
+
+      if [ -n "$deploy_file" ]; then
+        # overwrite: false
+        # refuse to sync if anything would be overwritten
+        local prefix="overwrite: "
+        while read -r line; do
+          if [ "${line#$prefix}" == "false" ]; then
+            comp "$source_dir" "$target"
+            if [ $? -ne 0 ]; then
+              echo
+              printf "${RED}Deploy cancelled because some files at ${YELLOW}$target ${RED}would be deleted or overwritten${NC}\n"
+              printf "${RED}and ${YELLOW}overwrite: false ${RED}option is active in ${YELLOW}$deploy_file ${RED}file.${NC}\n"
+              echo
+              printf "${GREEN}Please copy (or delete) target-only files or files with content different between source and target to source and try again.${NC}\n"
+              return 1
+            fi
           fi
-        fi
-      done < <(grep -i "^${prefix}" "$deploy_file")
-    fi
+        done < <(grep -i "^${prefix}" "$deploy_file")
+      fi
 
-    unset IFS
+      unset IFS
 
-    # split on colon, example: user@server:/home/dir
-    arr=($(echo $target | tr ":" "\n"))
-    local server=${arr[0]}
-    local remote_dir=${arr[1]}
+      # split on colon, example: user@server:/home/dir
+      arr=($(echo $target | tr ":" "\n"))
+      local server=${arr[0]}
+      local remote_dir=${arr[1]}
 
-    if [ -n "$deploy_file" ]; then
-      # PRE-DEPLOY: remote
-      local prefix="pre_remote: "
-      grep -i "^${prefix}" "$deploy_file" | while read -r line ; do
-        local cmd="${line#$prefix}"
-        remote --silent -h "$server" "$cmd"
-        #eval "ssh $server 'bash -ic \"$cmd\"' < /dev/null > /dev/null"
-      done
-    fi
+      if [ -n "$deploy_file" ]; then
+        # PRE-DEPLOY: remote
+        local prefix="pre_remote: "
+        grep -i "^${prefix}" "$deploy_file" | while read -r line ; do
+          local cmd="${line#$prefix}"
+          remote --silent -h "$server" "$cmd"
+          #eval "ssh $server 'bash -ic \"$cmd\"' < /dev/null > /dev/null"
+        done
+      fi
 
-    # DEPLOY
+      # DEPLOY
 
-    if [ -n "$deploy_file" ]; then
-      # read if different source directory from where out deploy file is, is specified
-      while read -r line ; do
-        local subdir=$(echo $line | sed 's/source: //g') # missing case insensitive
-        source_dir="${source_dir}${subdir}"
-      done < <(grep -i "^source:" "$deploy_file") # while loop written in this way makes possible to change the variable (source_dir), otherwise it is run in a subshell
-    fi
+      if [ -n "$deploy_file" ]; then
+        # read if different source directory from where out deploy file is, is specified
+        while read -r line ; do
+          local subdir=$(echo $line | sed 's/source: //g') # missing case insensitive
+          source_dir="${source_dir}${subdir}"
+        done < <(grep -i "^source:" "$deploy_file") # while loop written in this way makes possible to change the variable (source_dir), otherwise it is run in a subshell
+      fi
 
-    printf "\n${MAGENTA}Deploying ${YELLOW}$source_dir${NC} ${MAGENTA}→ ${GREEN}$target${NC}\n"
+      printf "\n${MAGENTA}Deploying ${YELLOW}$source_dir${NC} ${MAGENTA}→ ${GREEN}$target${NC}\n"
 
-    fixperm "$source_dir" # I think it doesn't work on symlinks though!
+      fixperm "$source_dir" # I think it doesn't work on symlinks though!
 
-    if [ "$dry" == "--dry" ]; then
-      printf "${CYAN}[dep] Dry run ...${NC}\n"
-    fi
+      if [ "$dry" == "--dry" ]; then
+        printf "${CYAN}[dep] Dry run ...${NC}\n"
+      fi
 
-    #printf "${MAGENTA}Syncing...${NC}\n"
-    dirsync $dry $no_delete $full_delete "$source_dir" "$target"
+      #printf "${MAGENTA}Syncing...${NC}\n"
+      dirsync $dry $no_delete $full_delete "$source_dir" "$target"
 
-    # cannot get correct $? out of rsync to know if it failed
-    # if [ $? -eq 0 ]; then
-    #   printf "${GREEN}Success!!!!${NC}\n"
-    # else
-    #   printf "${RED}FAIL${NC}\n"
-    #   return
-    # fi
+      # cannot get correct $? out of rsync to know if it failed
+      # if [ $? -eq 0 ]; then
+      #   printf "${GREEN}Success!!!!${NC}\n"
+      # else
+      #   printf "${RED}FAIL${NC}\n"
+      #   return
+      # fi
 
-    # POST-DEPLOY: remote
-    if [ -n "$deploy_file" ]; then
-      local prefix="post_remote: "
-      grep -i "^${prefix}" "$deploy_file" | while read -r line ; do
-        local cmd="${line#$prefix}"
-        remote --silent -h "$server" "$cmd"
-        #eval "ssh $server 'bash -ic \"$cmd\"' < /dev/null > /dev/null"
-      done
+      # POST-DEPLOY: remote
+      if [ -n "$deploy_file" ]; then
+        local prefix="post_remote: "
+        grep -i "^${prefix}" "$deploy_file" | while read -r line ; do
+          local cmd="${line#$prefix}"
+          remote --silent -h "$server" "$cmd"
+          #eval "ssh $server 'bash -ic \"$cmd\"' < /dev/null > /dev/null"
+        done
+      fi
+
     fi
   done
 

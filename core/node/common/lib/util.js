@@ -186,7 +186,7 @@ export default {
     return Array.isArray(obj) ? obj : [obj];
   },
 
-  compareKeys(key, key2, order = 'asc') {
+  orderBy(key, key2, order = 'asc') {
     function _comparison(a, b, key) {
       if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
         return 0;

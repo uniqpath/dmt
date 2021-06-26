@@ -2,7 +2,7 @@ import colors from 'colors';
 import { ipcClient } from 'dmt/cli';
 
 import dmt from 'dmt/common';
-const { compareKeys, normalizeMac } = dmt.util;
+const { orderBy, normalizeMac } = dmt.util;
 
 const args = process.argv.slice(2);
 

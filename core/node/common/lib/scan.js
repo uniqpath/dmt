@@ -53,38 +53,40 @@ function recursive(_path, { flatten = false, filter = () => true, extname = null
         basename: path.basename(fileOrDir)
       };
 
-      if (fs.existsSync(fileOrDir) && fs.lstatSync(fileOrDir).isFile()) {
-        info.extname = path.extname(fileOrDir);
+      if (fs.existsSync(fileOrDir)) {
+        if (fs.lstatSync(fileOrDir).isFile()) {
+          info.extname = path.extname(fileOrDir);
 
-        return Object.assign(
-          {
-            isFile: true,
-            path: fileOrDir
-          },
-          info
-        );
-      }
+          return Object.assign(
+            {
+              isFile: true,
+              path: fileOrDir
+            },
+            info
+          );
+        }
 
-      if (fs.lstatSync(fileOrDir).isDirectory()) {
-        return Object.assign(
-          {
-            isDirectory: true,
-            path: fileOrDir
-          },
-          Object.assign(info, { contents: recursive(fileOrDir, { filter, includeSymlinks }, scanpathRecursionState) })
-        );
-      }
+        if (fs.lstatSync(fileOrDir).isDirectory()) {
+          return Object.assign(
+            {
+              isDirectory: true,
+              path: fileOrDir
+            },
+            Object.assign(info, { contents: recursive(fileOrDir, { filter, includeSymlinks }, scanpathRecursionState) })
+          );
+        }
 
-      if (includeSymlinks && fs.lstatSync(fileOrDir).isSymbolicLink()) {
-        info.extname = path.extname(fileOrDir);
+        if (includeSymlinks && fs.lstatSync(fileOrDir).isSymbolicLink()) {
+          info.extname = path.extname(fileOrDir);
 
-        return Object.assign(
-          {
-            isSymlink: true,
-            path: fileOrDir
-          },
-          info
-        );
+          return Object.assign(
+            {
+              isSymlink: true,
+              path: fileOrDir
+            },
+            info
+          );
+        }
       }
 
       return null;

@@ -9,11 +9,7 @@ class TaskOnOffMonitor {
     const { program, taskDef } = this.task;
 
     if (taskDef.type == statementName) {
-      const { deviceName, idleSeconds, onlyAdmin, safetyOffMinutes } = taskDef;
-
-      const safetyOffSeconds = safetyOffMinutes ? safetyOffMinutes * 60 : undefined;
-
-      this.onOffMonitor = new OnOffMonitor({ program, deviceName, idleSeconds, safetyOffSeconds, notifyOnlyAdmin: onlyAdmin });
+      this.onOffMonitor = new OnOffMonitor(program, taskDef);
     }
   }
 

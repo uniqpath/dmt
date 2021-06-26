@@ -12,7 +12,7 @@ const lookbackWindowMin = 60;
 
 const keepNumHistoric = Math.round(lookbackWindowMin / updateFrequencyMin);
 
-const tempDirectionDiff = 2;
+const tempDirectionDiff = 1;
 const tempDirectionStickinessMin = 15;
 
 function temperatureDirection(historicReadings) {
@@ -49,18 +49,18 @@ function calcDirection() {
   let monotonicFall = true;
   let prev;
 
-  for (const weather of historicReadings) {
+  for (const reading of historicReadings) {
     if (prev) {
-      if (prev.temperature > weather.temperature) {
+      if (prev.temperature > reading.temperature) {
         monotonicRise = false;
       }
 
-      if (prev.temperature < weather.temperature) {
+      if (prev.temperature < reading.temperature) {
         monotonicFall = false;
       }
     }
 
-    prev = weather;
+    prev = reading;
   }
 
   const latestReading = historicReadings[historicReadings.length - 1];
@@ -84,8 +84,8 @@ function handleIotEvent({ program, topic, msg }) {
     const now = Date.now();
     const environment = {
       humidity: 88,
-      temperature: 8,
-      tempPrecise: 8,
+      temperature: 18,
+      tempPrecise: 18,
       tempUnit: 'C',
       timestamp: now,
       updateAt: now + updateFrequencyMin * 60 * 1000,
@@ -110,8 +110,8 @@ function handleIotEvent({ program, topic, msg }) {
     const now = Date.now();
 
     const c = program.state().device;
-    if (c && c.weather && c.weather.timestamp) {
-      if (c.weather.updateAt && now < c.weather.updateAt) {
+    if (c && c.environment && c.environment.timestamp) {
+      if (c.environment.updateAt && now < c.environment.updateAt) {
         return;
       }
     }

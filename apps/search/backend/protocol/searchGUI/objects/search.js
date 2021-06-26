@@ -90,7 +90,7 @@ class GUISearchObject {
 
           const totalHits = responses.filter(res => res.results).reduce((totalHits, res) => totalHits + res.results.length, 0);
           //console.log('EMITTING SEARCH');
-          this.program.emit('zeta::user_search', { query, page, selectedTags, totalHits, searchMetadata, timezone });
+          this.program.emit('dmtapp::search::query', { query, page, selectedTags, timezone, totalHits, searchMetadata });
           success(enhanceResponses({ responses, peerlist, isLAN }));
         })
         .catch(error => {
@@ -129,12 +129,12 @@ class GUISearchObject {
   // }
 
   // todo: move to guiFrontendAcceptor
-  trackClick({ url, providerTag, clickMetadata }) {
-    this.program.emit('zeta::link_click', { url, providerTag, clickMetadata });
+  trackClick({ url, providerTag, timezone, clickMetadata }) {
+    this.program.emit('dmtapp::link_click', { url, providerTag, timezone, clickMetadata });
   }
 
-  trackFileClick({ fileName, providerTag, clickMetadata }) {
-    this.program.emit('zeta::file_click', { fileName, providerTag, clickMetadata });
+  trackFileClick({ fileName, providerTag, timezone, clickMetadata }) {
+    this.program.emit('dmtapp::file_click', { fileName, providerTag, timezone, clickMetadata });
   }
 }
 

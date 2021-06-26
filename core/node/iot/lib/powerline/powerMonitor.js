@@ -5,13 +5,17 @@ import EventEmitter from 'events';
 import * as sensorMsg from '../sensorMessageFormats';
 
 class PowerMonitor extends EventEmitter {
-  constructor(tasmotaDeviceName, { program, idleSeconds = 120, safetyOffSeconds = null } = {}) {
+  constructor(program, { deviceName, idleSeconds = 120, safetyOffMinutes = null, triggeringCounter = 4 } = {}) {
     super();
+
+    const tasmotaDeviceName = deviceName;
+
+    const safetyOffSeconds = safetyOffMinutes ? safetyOffMinutes * 60 : undefined;
 
     this.sensorTopic = tasmotaDeviceName;
 
     this.currentThreshold = 0.07;
-    this.aboveThresholdCounterTrigger = 4;
+    this.aboveThresholdCounterTrigger = triggeringCounter;
     this.onTriggerThreshold = 2 * this.currentThreshold;
     this.idleSeconds = idleSeconds;
 
@@ -55,6 +59,7 @@ class PowerMonitor extends EventEmitter {
           if (!this.deviceOn) {
             this.onDetectedAt = Date.now();
             this.emit('start', { device: deviceHandle, time });
+
             this.safetyOffAlreadyRequested = false;
             this.safetyOffWarningSent = false;
           }

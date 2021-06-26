@@ -1,4 +1,4 @@
-function compareKeys(key, key2, order = 'asc') {
+function orderBy(key, key2, order = 'asc') {
   function _comparison(a, b, key) {
     if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
       return 0;
@@ -28,4 +28,4 @@ function compareKeys(key, key2, order = 'asc') {
   };
 }
 
-export { compareKeys };
+export { orderBy };

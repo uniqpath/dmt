@@ -244,7 +244,7 @@ export default {
         return { deviceName, address: globalIp, deviceTag: deviceName };
       })
       .filter(({ address }) => !address.error)
-      .sort(util.compareKeys('deviceTag'));
+      .sort(util.orderBy('deviceTag'));
   },
 
   keypair() {

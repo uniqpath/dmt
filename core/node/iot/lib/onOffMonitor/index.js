@@ -2,9 +2,9 @@ import { push } from 'dmt/notify';
 
 import { PowerMonitor, powerLog } from '../powerline';
 
-function notify({ msg, program, notifyOnlyAdmin }) {
+function notify({ msg, program, onlyAdmin }) {
   if (program.isHub()) {
-    if (notifyOnlyAdmin) {
+    if (onlyAdmin) {
       push.notify(msg);
     } else {
       push.notifyAll(msg);
@@ -13,19 +13,21 @@ function notify({ msg, program, notifyOnlyAdmin }) {
 }
 
 class OnOffMonitor {
-  constructor({ program, deviceName, idleSeconds, safetyOffSeconds, notifyOnlyAdmin = false }) {
+  constructor(program, taskDef) {
+    const { onlyAdmin } = taskDef;
+
     this.program = program;
-    this.pm = new PowerMonitor(deviceName, { program, idleSeconds, safetyOffSeconds });
+    this.pm = new PowerMonitor(program, taskDef);
 
     this.pm.on('start', e => {
       const msg = `${e.device} is ON …`;
-      notify({ program, notifyOnlyAdmin, msg });
+      notify({ program, onlyAdmin, msg });
       program.showNotification({ msg, ttl: 5 * 60, dontDisplaySinceTimer: true, bgColor: '#77DA9C' });
     });
 
     this.pm.on('finish', e => {
       const msg = `${e.device} DONE✓`;
-      notify({ program, notifyOnlyAdmin, msg });
+      notify({ program, onlyAdmin, msg });
       program.showNotification({ msg, ttl: 15 * 60, bgColor: '#6163D1', color: 'white' });
     });
   }

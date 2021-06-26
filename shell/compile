@@ -33,7 +33,7 @@ echo >> "$target_slim"
 cat .bash_util .bash_dmt_vars .bash_fs .bash_general .bash_process .bash_git .bash_sbc .bash_devices >> "$target_slim"
 
 # essential zeta scripts
-cat ./zeta/.zeta_update ./zeta/.zeta_start ./zeta/.zeta_scripts ./zeta/.zeta_config ./zeta/.zeta_check ./zeta/.zeta_restart ./zeta/.zeta_setup >> "$target_slim"
+cat ./zeta/.zeta_update ./zeta/.zeta_start ./zeta/.zeta_config ./zeta/.zeta_check ./zeta/.zeta_restart ./zeta/.zeta_setup >> "$target_slim"
 
 
 # 💡🚀🎸 FULL EDITION → $target

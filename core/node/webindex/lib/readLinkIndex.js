@@ -5,10 +5,12 @@ import colors from 'colors';
 import { push } from 'dmt/notify';
 
 import dmt from 'dmt/common';
-const { log, stopwatch, tags } = dmt;
+const { log, stopwatch, tags, util } = dmt;
 
 const REREAD_INDEX_INTERVAL_SECONDS = 10;
 let indexReadAt;
+
+const RECENT_WEBLINKS_NUM = 30;
 
 const { scan } = dmt;
 import addDerivedData from './derived';
@@ -91,7 +93,17 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
             }
 
             const linkIndexName = path.basename(filePath, '.json');
-            return addDerived(addLinkIndexName(index, linkIndexName));
+            const linkIndex = addDerived(addLinkIndexName(index, linkIndexName));
+
+            if (program.device.id == linkIndexName) {
+              const recentWeblinks = linkIndex
+                .filter(({ id }) => id)
+                .sort(util.orderBy('id', null, 'desc'))
+                .slice(0, RECENT_WEBLINKS_NUM);
+              program.store.replaceSlot('recentWeblinks', recentWeblinks);
+            }
+
+            return linkIndex;
           }
         })
         .filter(Boolean)
