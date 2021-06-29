@@ -16,12 +16,18 @@ class Nearby {
 
     this.broadcastInterval = 2 * dmt.globals.tickerPeriod * 1000;
 
-    this.init();
+    program.on('tick', () => {
+      if (!this.lanbus) {
+        this.lanbus = this.program.lanbus;
+
+        if (this.lanbus) {
+          this.init();
+        }
+      }
+    });
   }
 
   init() {
-    this.lanbus = this.program.lanbus;
-
     this.setupdetectStaleDevices();
 
     this.program.on('player_play_state_changed', () => {

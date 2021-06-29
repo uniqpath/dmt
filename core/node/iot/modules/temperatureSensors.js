@@ -4,7 +4,7 @@ const { def } = dmt;
 
 import * as sensorMsg from '../lib/sensorMessageFormats';
 const updateFrequencyMin = 2;
-const dataStaleMin = 10;
+const dataStaleMin = 2;
 
 const historicReadings = [];
 const historicDataStaleIfNoReadingForMin = 5 * updateFrequencyMin;
@@ -88,7 +88,7 @@ function handleIotEvent({ program, topic, msg }) {
       tempPrecise: 18,
       tempUnit: 'C',
       timestamp: now,
-      updateAt: now + updateFrequencyMin * 60 * 1000,
+      updatedAt: now + updateFrequencyMin * 60 * 1000,
       expireAt: now + dataStaleMin * 60 * 1000,
       tempDirection: { symbol: '⇡', tempDirectionUpdateAt: Date.now() }
     };
@@ -111,7 +111,7 @@ function handleIotEvent({ program, topic, msg }) {
 
     const c = program.state().device;
     if (c && c.environment && c.environment.timestamp) {
-      if (c.environment.updateAt && now < c.environment.updateAt) {
+      if (c.environment.updatedAt && now < c.environment.updatedAt) {
         return;
       }
     }
@@ -122,7 +122,7 @@ function handleIotEvent({ program, topic, msg }) {
       tempPrecise: weatherData.Temperature,
       tempUnit: weatherData.TempUnit,
       timestamp: now,
-      updateAt: now + updateFrequencyMin * 60 * 1000,
+      updatedAt: now + updateFrequencyMin * 60 * 1000,
       expireAt: now + dataStaleMin * 60 * 1000
     };
 

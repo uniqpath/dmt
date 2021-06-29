@@ -1,12 +1,17 @@
 import dmt from 'dmt/common';
 
+const { log } = dmt;
+import { push } from 'dmt/notify';
+
+let counter = -5;
+
 export default function syncPeersToProgramState({ program, connectorPool, port }) {
   const slotName = 'peerlist';
 
   program.store.replaceSlot(slotName, []);
 
   for (const peer of dmt.peerConnections()) {
-    const { deviceName, address, deviceTag } = peer;
+    const { deviceName, address, deviceTag, syncState } = peer;
 
     program.store.pushToSlotArrayElement(slotName, { deviceName, address, deviceTag }, { announce: false });
 
@@ -31,4 +36,62 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
       });
     });
   }
+
+  program.on('slowtick', () => {
+    for (const peer of dmt.peerConnections()) {
+      const { address, deviceTag, syncState } = peer;
+
+      if (syncState) {
+        connectorPool.getConnector({ address, port, deviceTag }).then(connector => {
+          if (connector.isReady()) {
+            const deviceName = program.device.id;
+            const deviceKey = dmt.keypair().publicKeyHex;
+            let state;
+
+            if (syncState == 'true') {
+              state = program.store.state();
+            } else {
+              const slots = syncState.split(',').map(s => s.trim());
+              state = {};
+              for (const slotName of slots) {
+                state[slotName] = program.store.get(slotName);
+              }
+            }
+
+            connector
+              .remoteObject('remoteState')
+              .call('set', { deviceName, deviceKey, state })
+              .catch(e => {});
+          }
+        });
+      }
+    }
+
+    const slotName = 'remoteStates';
+    const remoteStates = (program.store.get(slotName) || []).filter(entry => Date.now() - entry.updatedAt < 2 * dmt.globals.slowTickerPeriod * 1000);
+
+    program.store.replaceSlot(slotName, remoteStates, { announce: false });
+
+    if (counter == 10) {
+      counter = 0;
+    }
+
+    if (counter == 0) {
+      const judita = remoteStates.find(({ deviceName }) => deviceName == 'judita');
+      if (judita) {
+        const temp = judita.state?.environment?.tempPrecise;
+
+        if (!temp) {
+          push.notify('⚠️ No roomTemp readings available');
+        } else if (temp >= 28) {
+          const symbol = temp >= 30 ? '🔥 ' : '';
+          push.notify(`${symbol}High roomTemp ≡ ${temp}`);
+        } else {
+          push.notify(`✅ roomTemp ≡ ${temp}`);
+        }
+      }
+    }
+
+    counter += 1;
+  });
 }

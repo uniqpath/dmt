@@ -11,8 +11,11 @@ function startTicker(program) {
 function oneTick(program) {
   program.emit('tick');
 
-  if (tickCounter == 10) {
-    program.emit('slow_tick');
+  if (tickCounter == 0) {
+    program.emit('slowtick');
+  }
+
+  if (tickCounter == dmt.globals.slowTickerFactor) {
     tickCounter = 0;
   } else {
     tickCounter += 1;

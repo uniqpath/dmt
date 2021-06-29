@@ -40,8 +40,10 @@ const dmtCatalogsDir = path.join(dmtUserDir, 'catalogs');
 let deviceKeypair;
 
 const globals = {
-  tickerPeriod: 2
+  tickerPeriod: 2,
+  slowTickerFactor: 10
 };
+globals.slowTickerPeriod = globals.tickerPeriod * globals.slowTickerFactor;
 
 function readConnectDef({ filePath }) {
   try {

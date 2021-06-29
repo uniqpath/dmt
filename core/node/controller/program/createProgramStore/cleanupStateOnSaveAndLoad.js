@@ -28,6 +28,8 @@ export default function cleanupStateOnSaveAndLoad(state) {
   delete state.connectionsOut;
   delete state.connectionsIn;
 
+  delete state.remoteStates;
+
   if (state.player) {
     delete state.player.currentMedia;
 

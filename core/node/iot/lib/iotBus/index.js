@@ -4,16 +4,22 @@ const { log } = dmt;
 
 import MqttRail from './mqttRail';
 
+let ip = dmt.accessPointIP;
+
+if (dmt.device().id == 'judita') {
+  ip = '192.168.1.100';
+}
+
 class IotBus extends EventEmitter {
   init() {
-    this.mqttRail = new MqttRail({ ip: dmt.accessPointIP });
+    this.mqttRail = new MqttRail({ ip });
 
     let firstConnect = true;
 
     this.mqttRail.on('connect', () => {
       if (firstConnect) {
         firstConnect = false;
-        this.emit('first_connect', { ip: dmt.accessPointIP });
+        this.emit('first_connect', { ip });
       }
     });
 

@@ -15,7 +15,10 @@ function onTick(program) {
     apMode
   };
 
-  if (program.state().environment && program.state().environment.expireAt < now) {
+  const { environment } = program.state();
+
+  if (environment && environment.expireAt && environment.expireAt < now) {
+    log.magenta('Clearing expired enironment sensor data ...');
     program.store.clearSlot('environment', { announce: false });
   }
 

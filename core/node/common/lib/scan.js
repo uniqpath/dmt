@@ -99,7 +99,7 @@ function recursive(_path, { flatten = false, filter = () => true, extname = null
     return filteredResults.filter(entry => entry.isDirectory || (entry.isFile && entry.extname == extname));
   }
 
-  return filteredResults;
+  return filteredResults.filter(({ basename }) => basename != '.DS_Store');
 }
 
 function dir(_path, { onlyFiles = false, onlyDirs = false, onlySymlinks = false } = {}) {

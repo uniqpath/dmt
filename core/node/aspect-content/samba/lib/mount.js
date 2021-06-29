@@ -16,7 +16,7 @@ export default function mount({ mountPath, sambaServerIp, sambaShare, writable =
         { fstype: 'cifs', fsopts: `credentials=/root/.dmt/user/access_tokens/samba,iocharset=utf8,noexec${writable ? '' : ',ro'}` },
         result => {
           if (result.error) {
-            log.error(`Samba mounting error: ${result.error}`);
+            log.yellow(`⚠️  Samba mounting error: ${result.error}`);
           } else {
             log.write(`sambaShare ${sambaShare} mounted`);
           }

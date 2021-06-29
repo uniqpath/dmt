@@ -83,6 +83,17 @@ class Program extends EventEmitter {
         .call('set', { dmtVersion: dmt.dmtVersion() })
         .catch(e => {});
 
+      channel.attachObject('remoteState', {
+        set: ({ deviceName, deviceKey, state }) => {
+          const slotName = 'remoteStates';
+          const remoteStates = (program.store.get(slotName) || []).filter(entry => entry.deviceKey != deviceKey);
+
+          remoteStates.push({ deviceName, deviceKey, state, updatedAt: Date.now() });
+
+          program.store.replaceSlot(slotName, remoteStates, { announce: false });
+        }
+      });
+
       program.actors.setupChannel(channel);
     };
 

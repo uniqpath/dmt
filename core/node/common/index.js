@@ -233,15 +233,15 @@ export default {
     const connections = helper.peerConnections();
 
     return connections
-      .map(({ id }) => {
+      .map(({ id, syncState }) => {
         if (id.includes('.')) {
           const address = id;
-          return { address, deviceTag: address };
+          return { address, deviceTag: address, syncState };
         }
 
         const deviceName = id;
         const globalIp = helper.getIp({ deviceName });
-        return { deviceName, address: globalIp, deviceTag: deviceName };
+        return { deviceName, address: globalIp, deviceTag: deviceName, syncState };
       })
       .filter(({ address }) => !address.error)
       .sort(util.orderBy('deviceTag'));
