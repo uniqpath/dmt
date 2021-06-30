@@ -9,18 +9,51 @@ import AppLoader from './loadApps';
 const { scan, log } = dmt;
 
 const appsDir = path.join(dmt.dmtPath, 'apps');
+const userAppsDir = path.join(dmt.userDir, 'apps');
 
-function appList() {
-  return fs.existsSync(appsDir) ? scan.dir(appsDir, { onlyDirs: true }) : [];
+function getSubdirs(directory) {
+  return scan.dir(directory, { onlyDirs: true }).filter(dir => !['_dmt_deps'].includes(path.basename(dir)));
 }
 
+function systemAppList() {
+  return fs.existsSync(appsDir) ? getSubdirs(appsDir) : [];
+}
+
+function userAppList() {
+  return fs.existsSync(userAppsDir) ? getSubdirs(userAppsDir) : [];
+}
+
+function getAllApps() {
+  const apps = userAppList().map(appDir => {
+    return { appDir, isUserApp: true };
+  });
+
+  for (const appDir of systemAppList()) {
+    const existingUserApp = apps.find(app => path.basename(app.appDir) == path.basename(appDir));
+
+    if (existingUserApp) {
+      log.red(`Warn: user app ${colors.yellow(path.basename(appDir))} hides system app with the same name, system app is not accessible`);
+      existingUserApp.overridesSystemApp = true;
+    } else {
+      apps.push({ appDir });
+    }
+  }
+
+  return apps;
+}
+
+const allApps = getAllApps();
+
 function appFrontendList() {
-  return appList()
-    .filter(appDir => fs.existsSync(path.join(appDir, 'public')))
-    .map(appDir => {
+  return allApps
+    .filter(({ appDir }) => fs.existsSync(path.join(appDir, 'public')))
+    .map(app => {
+      const { appDir } = app;
+
       const appName = path.basename(appDir);
 
       return {
+        ...app,
         appName,
         publicDir: path.join(appDir, 'public'),
         appUrl: `/${appName}`
@@ -36,7 +69,7 @@ function expressAppSetup(app) {
 }
 
 async function init(program) {
-  program.store.update({ appList: appFrontendList() });
+  program.store.replaceSlot('appList', appFrontendList());
 
   const appLoader = new AppLoader(program);
 
@@ -45,7 +78,7 @@ async function init(program) {
   }
 
   appLoader
-    .load(appList())
+    .load(allApps)
     .then(() => {
       program.emit('apps_loaded');
     })

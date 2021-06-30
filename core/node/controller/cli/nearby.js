@@ -113,7 +113,7 @@ ipcClient({ actorName: 'controller', action })
             colors.green(uptime),
             colors.gray(username),
             apssid ? colors.gray(identifyDeviceByMac(apssid)) : colors.gray('/'),
-            colors.gray(args.full ? deviceKey : `${deviceKey.substr(0, 8)}…`)
+            colors.gray(args.full ? deviceKey : `${deviceKey?.substr(0, 8)}…`)
           ];
         })
       );

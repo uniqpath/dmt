@@ -1,4 +1,5 @@
 import ParaSearch from './lib/paraSearch';
+import addSiteTag from './lib/localSearch/linkSearch/addSiteTag.js';
 import settings from './settings';
 
 import detectMediaType from './lib/utils/detectMediaType';
@@ -14,4 +15,15 @@ function init(program) {
   initObserver(program);
 }
 
-export { init, ParaSearch, detectMediaType, parseSearchQuery, reconstructSearchQuery, serializeContentRefs, searchPredicate, normalizeTerms, settings };
+export {
+  init,
+  ParaSearch,
+  detectMediaType,
+  parseSearchQuery,
+  reconstructSearchQuery,
+  serializeContentRefs,
+  searchPredicate,
+  normalizeTerms,
+  addSiteTag,
+  settings
+};

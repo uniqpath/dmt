@@ -1,6 +1,6 @@
 import setupSearchGUIProtocol from './protocol/searchGUI/index';
 
-function init({ program }) {
+function init(program) {
   setupSearchGUIProtocol({ program });
 }
 

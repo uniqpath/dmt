@@ -1,0 +1,32 @@
+#!/bin/bash
+
+DMT_APPS="$HOME/.dmt/apps"
+DMT_USER_APPS="$HOME/.dmt/user/apps"
+
+# a) create _dmt_deps with symlinks to dmt node_modules
+# b) copy related package.json into ~/.dmt/apps
+cd "$HOME/.dmt/etc/scripts/dmt_apps"
+
+if [ -f "$DMT_APPS/package.json" ] && [ -d "$DMT_APPS/_dmt_deps" ]; then
+  if ! diff ./package.json "$DMT_APPS/package.json" > /dev/null
+  then
+    cp package.json "$DMT_APPS"
+    ./create_symlinks
+  fi
+else
+  cp package.json "$DMT_APPS"
+  ./create_symlinks
+fi
+
+# todo: make more effective, don't call create_symlinks twice?
+
+if [ -f "$DMT_USER_APPS/package.json" ] && [ -d "$DMT_USER_APPS/_dmt_deps" ]; then
+  if ! diff ./package.json "$DMT_USER_APPS/package.json" > /dev/null
+  then
+    cp package.json "$DMT_USER_APPS"
+    ./create_symlinks
+  fi
+else
+  cp package.json "$DMT_USER_APPS"
+  ./create_symlinks
+fi

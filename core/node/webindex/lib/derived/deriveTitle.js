@@ -1,7 +1,7 @@
 export default function deriveTitle(entry) {
-  const { context, urlmetadata } = entry;
+  const { context, urlmetadata, manualTitle } = entry;
 
-  let title = urlmetadata?.title?.trim() || '';
+  let title = manualTitle || urlmetadata?.title?.trim() || '';
 
   if (context.toLowerCase().startsWith(title.toLowerCase())) {
     title = context;

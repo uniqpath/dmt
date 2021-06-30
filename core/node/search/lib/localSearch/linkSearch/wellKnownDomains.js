@@ -16,7 +16,8 @@ const WELL_KNOWN_DOMAINS = {
   hackmd: '.io',
   etherscan: '.io',
   swarm: 'gateway.ethswarm.org',
-  'swarm-staging': 'gateway.staging.ethswarm.org'
+  'swarm-staging': 'gateway.staging.ethswarm.org',
+  'ICP canister': 'ic0.app'
 };
 
 let cache;

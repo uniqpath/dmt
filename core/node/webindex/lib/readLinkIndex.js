@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import colors from 'colors';
 
+import { addSiteTag } from 'dmt/search';
+
 import { push } from 'dmt/notify';
 
 import dmt from 'dmt/common';
@@ -99,7 +101,8 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
               const recentWeblinks = linkIndex
                 .filter(({ id }) => id)
                 .sort(util.orderBy('id', null, 'desc'))
-                .slice(0, RECENT_WEBLINKS_NUM);
+                .slice(0, RECENT_WEBLINKS_NUM)
+                .map(entry => addSiteTag(entry));
               program.store.replaceSlot('recentWeblinks', recentWeblinks);
             }
 
@@ -108,6 +111,10 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
         })
         .filter(Boolean)
         .flat();
+
+      if (!results.find(({ filePath }) => path.basename(filePath, '.json') == program.device.id)) {
+        program.store.replaceSlot('recentWeblinks', []);
+      }
 
       program.store.replaceSlot('entireLinkIndexCloud', createEntireLinkIndexCloud(webindexCache), { announce: false });
       program.store.replaceSlot('entireLinkIndexCount', webindexCache.length, { announce: false });

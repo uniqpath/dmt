@@ -3,7 +3,7 @@ import dmt from 'dmt/common';
 const { log } = dmt;
 import { push } from 'dmt/notify';
 
-let counter = -5;
+let counter = -1;
 
 export default function syncPeersToProgramState({ program, connectorPool, port }) {
   const slotName = 'peerlist';
@@ -82,12 +82,10 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
         const temp = judita.state?.environment?.tempPrecise;
 
         if (!temp) {
-          push.notify('⚠️ No roomTemp readings available');
+          push.notify(`⚠️ ${dmt.device().id}: No roomTemp readings available for judita`);
         } else if (temp >= 28) {
-          const symbol = temp >= 30 ? '🔥 ' : '';
+          const symbol = temp >= 29 ? '🔥 ' : '';
           push.notify(`${symbol}High roomTemp ≡ ${temp}`);
-        } else {
-          push.notify(`✅ roomTemp ≡ ${temp}`);
         }
       }
     }

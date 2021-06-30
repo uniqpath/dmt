@@ -47,6 +47,14 @@ function extractTags(line) {
     .map(tag => tag.trim());
 }
 
+function isTitle(line) {
+  return line.toLowerCase().startsWith('title:');
+}
+
+function extractTitle(line) {
+  return line.replace('title:', '').trim();
+}
+
 function isBoost(line) {
   return line.toLowerCase().startsWith('boost:');
 }
@@ -64,6 +72,7 @@ function parseLinksTxtFile({ filePath, lines }) {
   const urls = [];
 
   let context = '';
+  let title;
   let tags;
   let boost;
 
@@ -79,6 +88,8 @@ function parseLinksTxtFile({ filePath, lines }) {
       if (!hasLinks) {
         if (isTags(remains)) {
           tags = extractTags(line);
+        } else if (isTitle(remains)) {
+          title = extractTitle(line);
         } else if (isBoost(remains)) {
           boost = extractBoost(line);
         } else {
@@ -94,13 +105,14 @@ function parseLinksTxtFile({ filePath, lines }) {
             context = '';
           }
 
-          const result = { url, boost, context, manualTags: tags, filePath: filePath.split('/weblinks')[1] };
+          const result = { url, boost, manualTitle: title, context, manualTags: tags, filePath: filePath.split('/weblinks')[1] };
 
           urls.push(result);
         }
 
         context = '';
         boost = undefined;
+        title = undefined;
         tags = undefined;
       }
     }

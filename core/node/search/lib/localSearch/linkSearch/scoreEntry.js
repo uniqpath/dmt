@@ -72,7 +72,7 @@ export default function scoreEntry({ entry, terms, selectedTags }) {
   }
 
   let score = queryScore;
-  if (selectedTags.length) {
+  if (selectedTags?.length) {
     const allTerms = [...new Set(terms.concat(selectedTags || []))];
     const { score: _totalScore, scoreExplain: _explainTotalScore } = assignScore({ entry, terms: allTerms });
 

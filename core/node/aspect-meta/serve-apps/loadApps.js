@@ -16,7 +16,7 @@ class AppLoader {
   async load(appList) {
     const promises = [];
 
-    appList.forEach(appDir => {
+    appList.forEach(({ appDir }) => {
       const appInit = path.join(appDir, 'backend/index.js');
 
       if (fs.existsSync(appInit)) {
@@ -60,7 +60,7 @@ class AppLoader {
           let isPromise;
 
           try {
-            promiseOrData = app.init({ program });
+            promiseOrData = app.init(program);
             isPromise = promiseOrData instanceof Promise;
           } catch (e) {
             reject(e);
