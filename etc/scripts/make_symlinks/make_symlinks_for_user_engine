@@ -1,0 +1,10 @@
+#!/bin/bash
+
+DMT_USER_ENGINE="$HOME/.dmt/user/engine"
+
+if [ ! -d "$DMT_USER_ENGINE/_dmt_deps" ]; then
+  # todo: do this from nodejs, only replace exports inside package.json ..
+  # and log a warning that another restart is needed in this rare case!
+  #cp package.json "$DMT_APPS"
+  ./create_symlinks_user_engine
+fi

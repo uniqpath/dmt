@@ -9,7 +9,7 @@ export default function loadMiddleware(program, mids) {
 
     const midLoader = new MidLoader();
 
-    const userMid = 'meta/load-user-core';
+    const userMid = 'meta/load-user-engine';
 
     if (mids.includes(userMid)) {
       midLoader.load({ program, mids: mids.filter(mid => mid != userMid) }).then(() => {
@@ -22,7 +22,7 @@ export default function loadMiddleware(program, mids) {
     } else {
       midLoader.load({ program, mids }).then(() => {
         midLoader.setup(program).then(() => {
-          program.emit('user_core_ready');
+          program.emit('user_engine_ready');
 
           success();
         });

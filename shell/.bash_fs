@@ -480,7 +480,7 @@ function l {
       ls -lah "$match/$subdir/"
     fi
   else
-    printf "${YELLOW}No subdirectory matches the pattern and there is no file with that exact name${NC}\n"
+    printf "${YELLOW}No subdirectory matches the pattern and there is no file with this exact name${NC}\n"
   fi
 }
 

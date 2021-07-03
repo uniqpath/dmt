@@ -13,12 +13,12 @@ if [ -d _dmt_deps ]; then
 fi
 
 declare -a List=(
+  "core/node/common ."
+  "core/node/notify ."
+  "core/node/search ."
   "core/node/connectome/src/client connectome"
   "core/node/connectome/src/stores connectome-stores"
   "core/node/connectome-next connectome-next"
-  "core/node/common ."
-  "core/node/search ."
-  "core/node/notify ."
 )
 
 for entry in "${List[@]}"; do

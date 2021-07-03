@@ -14,7 +14,7 @@ log.init({ dmt, foreground, logfile });
 
 const mids = [];
 
-mids.push('meta/load-user-core');
+mids.push('meta/load-user-engine');
 mids.push('player');
 mids.push('search');
 mids.push('meta/serve-apps');

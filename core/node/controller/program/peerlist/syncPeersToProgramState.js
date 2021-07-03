@@ -76,20 +76,6 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
       counter = 0;
     }
 
-    if (counter == 0) {
-      const judita = remoteStates.find(({ deviceName }) => deviceName == 'judita');
-      if (judita) {
-        const temp = judita.state?.environment?.tempPrecise;
-
-        if (!temp) {
-          push.notify(`⚠️ ${dmt.device().id}: No roomTemp readings available for judita`);
-        } else if (temp >= 28) {
-          const symbol = temp >= 29 ? '🔥 ' : '';
-          push.notify(`${symbol}High roomTemp ≡ ${temp}`);
-        }
-      }
-    }
-
     counter += 1;
   });
 }

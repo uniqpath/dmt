@@ -46,7 +46,7 @@ function serverInit({ app, program, port, replicateUserCodeTransform, replicateE
 }
 
 function init(program) {
-  program.on('user_core_ready', ({ replicateUserCodeTransform = null, replicateExcludedByUser = null } = {}) => {
+  program.on('user_engine_ready', ({ replicateUserCodeTransform = null, replicateExcludedByUser = null } = {}) => {
     const app = express();
     const service = dmt.services('replicate');
 

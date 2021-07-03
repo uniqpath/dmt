@@ -577,8 +577,9 @@ function dmt {
       ;;
 
     restart)
-      #dmt_symlink_nodejs_deps
       compile_gui_if_missing
+
+      dmt_sync_apps_into_dmt_engine
 
       printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is restarting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" restart
@@ -1098,13 +1099,18 @@ function dmt_log {
   #   return
   # fi
 
-  local logfile="$DMT_PATH/log/dmt.log"
+  local LOGFILE="$DMT_PATH/log/dmt.log"
+
+  if [ ! -f "$LOGFILE" ]; then
+    printf "⚠️  ${RED}Missing: ${YELLOW}${LOGFILE}${NC}\n"
+    return
+  fi
 
   if [ "$1" == "full" ]; then
-    cat "$logfile"
+    cat "$LOGFILE"
   else
     # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) update device.. 4) PROBLEM: even older log messages will be shown
-    tail -f -n ${TAIL_LOG_LINES} "$logfile"
+    tail -f -n ${TAIL_LOG_LINES} "$LOGFILE"
   fi
   # elif [ "$1" == "lan" ]; then
   #   printf "${MAGENTA}Not yet implemented ...${NC}\n"
@@ -1296,7 +1302,7 @@ function dmt_next {
   local save_zip=false
   local reflect_version=false
   local force=false
-  local origin=false
+  local github=false
 
   ARGS=()
   while (( "$#" )); do
@@ -1313,8 +1319,8 @@ function dmt_next {
         force=true
         shift 1
         ;;
-      --origin)
-        origin=true
+      --github)
+        github=true
         shift 1
         ;;
       --help)
@@ -1341,7 +1347,7 @@ function dmt_next {
     esac
   done
 
-  if $origin; then
+  if $github; then
     read -r -p "Are you sure you want to reset to github: uniqpath/dmt origin? [Y/n] " response
     if [[ $response =~ ^([nN])$ ]]
     then
@@ -1350,6 +1356,16 @@ function dmt_next {
     fi
 
     setup_github_uniqpath_dmt_origin
+    return
+  fi
+
+  if [ -d "$DMT_PATH/.git" ]; then
+    local cwd2="`pwd`"
+    cd "$DMT_PATH"
+
+    dmt_next_from_github "$dry_run" "$force"
+
+    cd "$cwd2"
     return
   fi
 
@@ -1403,84 +1419,14 @@ function dmt_next {
     if $dry_run; then echo; fi
     printf "${GRAY}Could not determine ${MAGENTA}dmtSource ${GRAY}... ${NC}"
 
-    if [ -d "$DMT_PATH/.git" ]; then
+    # if [ ! -d "$DMT_PATH/.git" ]; then
+    #   if ! $dry_run; then printf "${RED}aborting.${NC}"; fi
+    #   echo
+    #   echo
+    #   printf "💡 You can use ${GREEN}dmt next --github${NC} to setup updates from ${CYAN}github: uniqpath/dmt\n"
+    #   echo
+    # fi
 
-      local cwd2="`pwd`"
-      cd "$DMT_PATH"
-
-      if $dry_run; then
-        printf "${GRAY}Would fetch from the github origin:${NC}\n"
-        #git remote show -n origin
-        git remote get-url origin
-      else
-        local gitsource=`git remote get-url origin`
-
-        if [[ "$gitsource" =~ uniqpath/dmt ]]; then
-          echo
-          printf "${GREEN}Found git origin ✓\n"
-          printf "${GRAY}Updating from ${CYAN}${gitsource} ${GRAY}...${NC}\n"
-
-          git fetch origin
-          git checkout -f main
-
-          echo
-          printf "🔨 ${MAGENTA}Hard resetting to ${CYAN}origin/main${NC} ...\n"
-
-          git reset --hard origin/main
-
-          printf "${GREEN}✓ Done fetching latest code with git.${NC}\n\n"
-
-          # duplicated in cron 5min
-          if [ -f ~/.dmt-here/tmp/.prev_version ]; then
-            prevVersion=$(cat ~/.dmt-here/tmp/.prev_version)
-            currentVersion=$(cat ~/.dmt/.version)
-
-            if [ "$prevVersion" != "$currentVersion" ]; then
-              printf "Restarting dmt-proc after dmt next because version changed from ${CYAN}${prevVersion}${NC} to ${MAGENTA}${currentVersion}${NC}\n"
-              echo
-
-              dmt restart
-
-              echo
-              printf "It is also recommended to ${YELLOW}reload the terminal${NC} → "
-              printf "try ${GREEN}dmt reload${NC} command or logout and back in.\n"
-            else
-              printf "${WHITE}Version ${MAGENTA}(${currentVersion})${NC} did not change.${NC}\n"
-
-              if $force; then
-                printf "${GRAY}Restarting ${CYAN}dmt-proc ${GRAY}because of ${WHITE}--force${NC}\n"
-                echo
-                dmt restart
-              # else
-              #   printf "${GRAY}Not restarting ${CYAN}dmt-proc${NC}\n"
-              fi
-            fi
-          else
-            dmt restart
-          fi
-
-          # yet to decide ... we do this with automatic updates on server but (for now) we don't clean everything on manual updates..
-          # git clean -f -d
-          # maybe do it in the future if it's concluded that some manual files can interfere
-
-          # printf "${CYAN}💡 Please run ${GREEN}dmt restart${NC} ${CYAN}now${NC} ...\n\n"
-
-          echo
-
-          dmt_cache_current_version
-        else
-          printf "${RED}Aborting fetch from unknown git source.${NC}"
-        fi
-      fi
-    else
-      if ! $dry_run; then printf "${RED}aborting.${NC}"; fi
-      echo
-      echo
-      printf "💡 You can use ${GREEN}dmt next --origin${NC} to setup updates from ${CYAN}github: uniqpath/dmt\n"
-      echo
-    fi
-
-    cd "$cwd2"
     return
   fi
 
@@ -1544,7 +1490,7 @@ function dmt_next {
   fi
 
   # Safeguard
-  # duplicate above for --origin option
+  # duplicate above for --github option
   #
   # we do this in adition to dev_machine check because it's safer
   # if we switch between device definitions temporarily for testing
@@ -1611,23 +1557,103 @@ function dmt_next {
 
   stop_dmt_if_running
 
-  local cwd="`pwd`"
-
-  #printf "${MAGENTA}dmtSource${NC} = ${CYAN}${dmt_source}${NC}\n"
-
   curl -L "${dmt_source}" | bash
-
-  # ~/.dmt directory will get replaced under us ...
-  # we move to it again ....
-  cd "$cwd"
 
   mkdir -p ~/.dmt/state
   touch ~/.dmt/state/gui_reload.txt
 
-  dmt start
+  # new bundle is created on ./install which is called as part of curl install script
+  . ~/.dmt/etc/.bash_aliases_bundle
+  dmt start # will call newly fetched dmt restart method (in case it was just updated)
 
   printf "${GREEN}Done.${NC}\n"
   echo
+}
+
+function after_github_fetch {
+  local cwd="`pwd`"
+  cd ~/.dmt
+
+  ./install
+  . ~/.dmt/etc/.bash_aliases_bundle
+  dmt restart # will call newly fetched dmt restart method (in case it was just updated)
+
+  cd "$cwd"
+}
+
+function dmt_next_from_github {
+  local dry_run="$1"
+  local force="$2"
+
+  if $dry_run; then
+    printf "${GRAY}Would fetch from the github origin:${NC}\n"
+    #git remote show -n origin
+    git remote get-url origin
+  else
+    local gitsource=`git remote get-url origin`
+
+    if [[ "$gitsource" =~ uniqpath/dmt ]]; then
+      echo
+      printf "${GREEN}Found git origin ✓\n"
+      printf "${GRAY}Updating from ${CYAN}${gitsource} ${GRAY}...${NC}\n"
+
+      git fetch origin main
+      git checkout -f main
+
+      echo
+      printf "🔨 ${MAGENTA}Hard resetting to ${CYAN}origin/main${NC} ...\n"
+
+      git reset --hard origin/main
+      git clean -fd
+      git clean -fd
+      git clean -fd # the only way to be sure!! :/
+      # git clean -fd # special case -> when we first remove .gitignore file (in core/connectome) and this causes more directories that need to be removed
+      # twice was not enough grr
+
+      printf "${GREEN}✓ Done fetching latest code with git.${NC}\n\n"
+
+      # duplicated in cron 5min
+      if [ -f ~/.dmt-here/tmp/.prev_version ]; then
+        local prevVersion=$(cat ~/.dmt-here/tmp/.prev_version)
+        local currentVersion=$(cat ~/.dmt/.version)
+
+        if [ "$prevVersion" != "$currentVersion" ]; then
+          printf "Restarting dmt-proc after dmt next because version changed from ${CYAN}${prevVersion}${NC} to ${MAGENTA}${currentVersion}${NC}\n"
+          echo
+
+          after_github_fetch
+
+          echo
+          printf "It is also recommended to ${YELLOW}reload the terminal${NC} → "
+          printf "try ${GREEN}dmt reload${NC} command or logout and back in.\n"
+        else
+          printf "${WHITE}Version ${MAGENTA}(${currentVersion})${NC} did not change.${NC}\n"
+
+          if $force; then
+            printf "${GRAY}Restarting ${CYAN}dmt-proc ${GRAY}because of ${WHITE}--force${NC}\n"
+            echo
+            after_github_fetch
+          # else
+          #   printf "${GRAY}Not restarting ${CYAN}dmt-proc${NC}\n"
+          fi
+        fi
+      else
+        after_github_fetch
+      fi
+
+      # yet to decide ... we do this with automatic updates on server but (for now) we don't clean everything on manual updates..
+      # git clean -f -d
+      # maybe do it in the future if it's concluded that some manual files can interfere
+
+      # printf "${CYAN}💡 Please run ${GREEN}dmt restart${NC} ${CYAN}now${NC} ...\n\n"
+
+      echo
+
+      dmt_cache_current_version
+    else
+      printf "${RED}Aborting fetch from unknown git source.${NC}"
+    fi
+  fi
 }
 
 function setup_github_uniqpath_dmt_origin {
@@ -1658,12 +1684,20 @@ function setup_github_uniqpath_dmt_origin {
 
   git init
   git remote add origin https://github.com/uniqpath/dmt.git
-  git fetch origin
+  git fetch origin main
 
   git reset --hard origin/main # we have to do this because of possible local changes.. we will automatically create master branch as a side effect (in older version of git ?)
   git checkout -b main origin/main # create our main branch and make it track origin/main
 
+  git clean -fd
+
   git branch -D master # delete accidentaly created master branch
+
+  git clean -fd
+  git clean -fd
+  git clean -fd # the only way to be sure!! :/
+  # git clean -fd # special case -> when we first remove .gitignore file (in core/connectome) and this causes more directories that need to be removed
+  # twice was not enough grr
 
   dmt_cache_current_version
 
@@ -1679,7 +1713,7 @@ function dmt_next_help {
   echo
   printf "${GRAY}Rarely used:${NC}\n"
   printf "${CYAN}dmt next --force ${GRAY}fetch even if reported versions are the same${NC}\n"
-  printf "${CYAN}dmt next --origin ${GRAY}setup fetching from github: uniqpath/dmt${NC}\n"
+  printf "${CYAN}dmt next --github ${GRAY}setup fetching from github: uniqpath/dmt${NC}\n"
 
   # echo
   # printf "${MAGENTA}Supported formats for ${CYAN}dmtSource${NC}:\n"
@@ -1713,8 +1747,13 @@ function dmt_sync_apps_into_dmt_engine {
   # set up system and user dmt apps package.json and _dmt_deps with symlinks
   # this is a prerequisite for apps to work
   local cwd="`pwd`"
-  cd "$DMT_PATH/etc/scripts/dmt_apps"
+
+  cd "$DMT_PATH/etc/scripts/make_symlinks"
   ./make_symlinks_for_apps
+
+  cd "$DMT_PATH/etc/scripts/make_symlinks"
+  ./make_symlinks_for_user_engine
+
   cd "$cwd"
 
   # sync apps into dmt engine
@@ -1823,7 +1862,7 @@ function dmt_autoupdate_on {
     setup_github_uniqpath_dmt_origin # dangerous! -- we should always ask for permission before (Are you sure you want to enable autoupdate ↑)
 
     echo
-    dmt restart
+    after_github_fetch
 
     echo
     dmt_autoupdate # print info

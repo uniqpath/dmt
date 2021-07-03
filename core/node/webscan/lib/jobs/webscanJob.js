@@ -79,6 +79,7 @@ export default function spiderJob({ linksDirectory, onBatchFinished, existingLin
             for (const result of successes.filter(({ id }) => !id)) {
               maxId += 1;
               result.id = maxId;
+              result.createdAt = Date.now();
             }
 
             onBatchFinished({ successes, errors, isLastBatch });

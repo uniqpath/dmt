@@ -53,9 +53,14 @@ if [ ~/.dmt/.git ]; then
   # the only binary dep is "git"
   # local gitsource=`git remote get-url origin`
   # if [[ "$gitsource" =~ uniqpath/dmt ]]; then
-  git fetch origin
+  git fetch origin main
   git checkout -f main
   git reset --hard origin/main
+  git clean -fd
+  git clean -fd
+  git clean -fd # the only way to be sure!! :/
+  # git clean -fd # special case -> when we first remove .gitignore file (in core/connectome) and this causes more directories that need to be removed
+  # twice was not enough grr
 
   if [ ! -f ~/.dmt/.version ]; then
     echo "Problem: ~/.dmt/.version does not exist."
@@ -64,7 +69,14 @@ if [ ~/.dmt/.git ]; then
 
   function dmt_restart {
     # need TERM=xterm for colors when called from crontab
-    TERM=xterm ~/.dmt/etc/onboot/daemons restart
+    #TERM=xterm ~/.dmt/etc/onboot/daemons restart
+    # ⚠️⚠️⚠️  some problems with this ↑ ↑ ↑
+    # this is not the same as "dmt restart" !
+    # for example when some code for creating ~/.dmt/user/apps directory with symlinks was added to bash_dmt start)
+    # this didn't get executed through auto-updates!!
+    ./install
+    . ~/.dmt/etc/.bash_aliases_bundle
+    dmt restart
   }
 
   # duplicated in "dmt next" when in .git repo
