@@ -478,7 +478,7 @@ function a {
     echo "a [term] [context_lines]"
     echo "a --[lang] [term] [context_lines]"
   else
-    clear && printf '\e[3J' # completely clear the terminal
+    #clear && printf '\e[3J' # completely clear the terminal
 
     if [ -n "$2" ] && [[ $1 == *--* ]]; then
       if [ -n "$3" ]; then

@@ -27,6 +27,7 @@ export default function createProgramStore(program) {
       devMachine: dmt.isDevMachine(),
       devCluster: dmt.isDevCluster(),
       dmtVersion: dmt.dmtVersion(),
+      nodejsVersion: process.version,
       platform: dmt.platformDescription(),
       tagline: device.tagline,
       apMode: program.apMode(),

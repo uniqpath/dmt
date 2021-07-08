@@ -97,24 +97,19 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
             const linkIndexName = path.basename(filePath, '.json');
             const linkIndex = addDerived(addLinkIndexName(index, linkIndexName));
 
-            if (program.device.id == linkIndexName) {
-              const recentWeblinks = linkIndex
-                .filter(({ id }) => id)
-                .sort(util.orderBy('id', null, 'desc'))
-                .slice(0, RECENT_WEBLINKS_NUM)
-                .map(entry => addSiteTag(entry));
-              program.store.replaceSlot('recentWeblinks', recentWeblinks);
-            }
-
             return linkIndex;
           }
         })
         .filter(Boolean)
         .flat();
 
-      if (!results.find(({ filePath }) => path.basename(filePath, '.json') == program.device.id)) {
-        program.store.replaceSlot('recentWeblinks', []);
-      }
+      const recentWeblinks = webindexCache
+        .filter(({ createdAt }) => createdAt)
+        .sort(util.orderBy('createdAt', null, 'desc'))
+        .slice(0, RECENT_WEBLINKS_NUM)
+        .map(entry => addSiteTag(entry));
+
+      program.store.replaceSlot('recentWeblinks', recentWeblinks);
 
       program.store.replaceSlot('entireLinkIndexCloud', createEntireLinkIndexCloud(webindexCache), { announce: false });
       program.store.replaceSlot('entireLinkIndexCount', webindexCache.length, { announce: false });

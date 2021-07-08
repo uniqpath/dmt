@@ -280,6 +280,10 @@ class LocalPlayer {
     return this.playlist.bump(rangePatternOrStr);
   }
 
+  async songsToBump(terms) {
+    return this.playlist.songsToBump(this.playlist.searchPlaylist(terms));
+  }
+
   async shuffle() {
     this.playlist.shuffle();
   }

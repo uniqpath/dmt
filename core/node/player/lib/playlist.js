@@ -349,18 +349,34 @@ class Playlist {
   }
 
   bumpSearch(terms) {
+    return this.bumpSongIDs(this.searchPlaylist(terms));
+  }
+
+  searchPlaylist(terms) {
     const currentSongId = this.currentSongId();
+
     const songIDs = this.playlist
+      .filter(songInfo => songInfo.id != currentSongId)
       .filter(songInfo => {
-        const searchBase = `${songInfo.title} ${songInfo.path}`;
-        return songInfo.id != currentSongId && (searchPredicate(searchBase, terms) || searchPredicate(songInfo.path, terms));
+        return terms
+          .split(',')
+          .filter(terms => terms.trim())
+          .find(terms => {
+            const searchBase = `${songInfo.title || ''} ${songInfo.path}`;
+            return searchPredicate(searchBase, terms);
+          });
       })
       .map(songInfo => songInfo.id);
-    return this.bumpSongIDs(songIDs);
+
+    return songIDs;
+  }
+
+  songsToBump(songIDs) {
+    return this.playlist.filter(songInfo => songIDs.includes(songInfo.id) && songInfo.id != this.currentSongId());
   }
 
   bumpSongIDs(songIDs) {
-    const insertSongList = this.playlist.filter(songInfo => songIDs.includes(songInfo.id) && songInfo.id != this.currentSongId());
+    const insertSongList = this.songsToBump(songIDs);
 
     const prevBumpedCount = insertSongList.filter(songInfo => songInfo.id < this.currentSongId()).length;
 

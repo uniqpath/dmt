@@ -1,8 +1,0 @@
-api-addr: :8888
-
-# debug HTTP API listen address (default ":6060")
-debug-api-addr: :6060
-# enable debug HTTP API
-debug-api-enable : true
-
-password: ""

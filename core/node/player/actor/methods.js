@@ -31,6 +31,7 @@ function getMethods() {
 
   methods.push({ name: 'similar', handler });
   methods.push({ name: 'bump', handler });
+  methods.push({ name: 'songsToBump', handler });
   methods.push({ name: 'cut', handler });
   methods.push({ name: 'paste', handler });
 

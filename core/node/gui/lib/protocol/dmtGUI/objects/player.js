@@ -36,6 +36,18 @@ class PlayerTarget extends EventEmitter {
   similar({ query }) {
     return this.action('similar', query);
   }
+
+  async playlistSearch({ query }) {
+    if (query?.trim()) {
+      return this.action('songsToBump', query);
+    }
+  }
+
+  async bump({ query }) {
+    if (query?.trim()) {
+      return this.action('bump', query);
+    }
+  }
 }
 
 export default PlayerTarget;

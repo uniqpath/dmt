@@ -23,7 +23,7 @@ if (args.help == true) {
 
 const table = new Table();
 
-const headers = ['device', 'dmtVersion', 'local ip', 'platform', 'uptime', 'user', 'apssid', 'deviceKey'];
+const headers = ['device', 'dmtVersion', 'local ip', 'platform', 'Node.js', 'uptime', 'user', 'apssid', 'deviceKey'];
 
 const action = 'nearby';
 
@@ -100,6 +100,7 @@ ipcClient({ actorName: 'controller', action })
             isStream,
             apssid,
             dmtVersion,
+            nodejsVersion,
             versionCompareSymbol,
             playing,
             mediaType
@@ -110,6 +111,7 @@ ipcClient({ actorName: 'controller', action })
             displayDmtVersion({ dmtVersion, versionCompareSymbol }),
             ipInfo({ ip, isSpecialNode, thisDevice }),
             platform ? colors.gray(platform) : '?',
+            colors.gray(nodejsVersion),
             colors.green(uptime),
             colors.gray(username),
             apssid ? colors.gray(identifyDeviceByMac(apssid)) : colors.gray('/'),

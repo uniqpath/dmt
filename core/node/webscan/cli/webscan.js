@@ -71,7 +71,13 @@ function displayConclusion(isLastBatch) {
   const diff = existingLinkIndex.length - linkIndex.length;
 
   if (diff > 0) {
-    console.log(colors.gray(`${colors.magenta(diff)} links were removed.`));
+    console.log(colors.gray(`${colors.magenta(diff)} links were removed:`));
+
+    const newUrls = linkIndex.map(({ url }) => url);
+    const missingUrls = existingLinkIndex.map(({ url }) => url).filter(url => !newUrls.includes(url));
+    for (const url of missingUrls) {
+      console.log(`❌ ${colors.magenta(url)}`);
+    }
   }
 }
 

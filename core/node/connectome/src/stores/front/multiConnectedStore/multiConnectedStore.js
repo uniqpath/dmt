@@ -45,7 +45,7 @@ class MultiConnectedStore extends MergeStore {
     if (this.activeStore()) {
       this.activeStore().signal(signal, data);
     } else {
-      console.log(`Error emitting remote signal ${signal} / ${data}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
+      console.log(`MCS: Error emitting remote signal ${signal} / ${data}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
     }
   }
 

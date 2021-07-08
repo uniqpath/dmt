@@ -33,6 +33,7 @@ function wrapScanWebLink(existingLinkIndex) {
 
     if (match) {
       linkEntry.id = match.id;
+      linkEntry.createdAt = match.createdAt;
     }
 
     return scanWebLink(linkEntry);
@@ -79,6 +80,9 @@ export default function spiderJob({ linksDirectory, onBatchFinished, existingLin
             for (const result of successes.filter(({ id }) => !id)) {
               maxId += 1;
               result.id = maxId;
+            }
+
+            for (const result of successes.filter(({ createdAt }) => !createdAt)) {
               result.createdAt = Date.now();
             }
 
