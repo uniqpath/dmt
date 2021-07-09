@@ -9,7 +9,6 @@
     "./notify": "./_dmt_deps/notify",
     "./search": "./_dmt_deps/search",
     "./connectome": "./_dmt_deps/connectome",
-    "./connectome-server": "./_dmt_deps/connectome-server",
     "./connectome-stores": "./_dmt_deps/connectome-stores",
     "./connectome-next": "./_dmt_deps/connectome-next"
   }

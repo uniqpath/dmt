@@ -1,0 +1,71 @@
+#!/bin/bash
+
+function make_symlinks {
+  local prefix="$1"
+  shift
+
+  local list=("$@")
+
+  local List2=()
+
+  for entry in "${List[@]}"; do
+    local parts=($entry)
+
+    local pointer=(${parts[1]})
+
+    # when specifying deps we allow for "." (or just blank!) which becomes base directory of target after symlink creation
+    # "core/node/common ." OR just "core/node/common"
+    # ln -s ../../core/node/common .
+    # common -> ../../core/node/common
+    # we turn dots into these names for easier handling and various checks in this function
+    if [ -z "${parts[1]}" ] || [ "${parts[1]}" == '.' ]; then
+      local arr=(${parts[0]//// }) # split on '/'
+      pointer=(${arr[${#arr[@]}-1]})
+    fi
+
+    List2+=("${parts[0]} ${pointer}")
+  done
+
+  for entry in "${List2[@]}"; do
+    local parts=($entry)
+
+    local target="${prefix}${parts[0]}"
+    local source=(${parts[1]})
+
+    # delete wrong symlinks
+    if [ -L ${source} ]; then
+      # https://stackoverflow.com/a/62589420/458177
+      # comment: As you already found out yourself, that expression returns true not only for hard links but also for soft links to the same file.
+      # https://stackoverflow.com/a/40823771/458177
+      if [ ! "$source" -ef "$target" ]; then
+        rm ${source}
+      fi
+    fi
+
+    if [ ! -L ${source} ]; then
+      ln -s ${target} ${source}
+    fi
+  done
+
+  local List3=()
+  for entry in "${List2[@]}"; do
+    local parts=($entry)
+    List3+=("./${parts[1]}")
+  done
+
+  # remove stray symlinks which are not needed anymore or were added by mistake
+  for name in $(find . -type l); do
+    local found=false
+
+    for entry in "${List3[@]}"; do
+      if [ "$entry" == "$name" ]; then
+        found=true
+        break
+      fi
+    done
+
+    if [ "$found" != true ]; then
+      rm "$name"
+    fi
+  done
+}

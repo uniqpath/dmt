@@ -486,9 +486,7 @@ function dmt {
         return
       fi
 
-      compile_gui_if_missing
-
-      dmt_sync_apps_into_dmt_engine
+      prepare_dmt_engine
 
       printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is starting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" start
@@ -517,9 +515,7 @@ function dmt {
         return
       fi
 
-      compile_gui_if_missing
-
-      dmt_sync_apps_into_dmt_engine
+      prepare_dmt_engine
 
       printf "${CYAN}🌀 DMT PROC${NC} ${WHITE}is running in terminal foreground ${NC}(this is marked with ${RED}'✝'${NC})\n"
       echo
@@ -577,9 +573,7 @@ function dmt {
       ;;
 
     restart)
-      compile_gui_if_missing
-
-      dmt_sync_apps_into_dmt_engine
+      prepare_dmt_engine
 
       printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is restarting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" restart
@@ -1744,24 +1738,31 @@ function dmt_update {
 }
 
 function dmt_sync_apps_into_dmt_engine {
-  # set up system and user dmt apps package.json and _dmt_deps with symlinks
-  # this is a prerequisite for apps to work
-  local cwd="`pwd`"
-
-  cd "$DMT_PATH/etc/scripts/make_symlinks"
-  ./make_symlinks_for_apps
-
-  cd "$DMT_PATH/etc/scripts/make_symlinks"
-  ./make_symlinks_for_user_engine
-
-  cd "$cwd"
-
   # sync apps into dmt engine
   local SYNC_APPS_SCRIPT="$DMT_THIS_DEVICE/scripts/sync_dmt_apps_into_engine"
 
   if [ -f "$SYNC_APPS_SCRIPT" ]; then
     "$SYNC_APPS_SCRIPT"
   fi
+}
+
+function prepare_dmt_engine {
+  compile_gui_if_missing
+
+  # set up system and user dmt apps package.json and _dmt_deps with symlinks
+  # this is a prerequisite for apps to work
+  local cwd="`pwd`"
+  local dir="$DMT_PATH/etc/scripts/prepare_apps_and_user_engine"
+
+  cd "$dir"
+  ./prepare_apps
+
+  cd "$dir"
+  ./prepare_user_engine
+
+  cd "$cwd"
+
+  dmt_sync_apps_into_dmt_engine
 }
 
 function dmt_copy {
@@ -1778,9 +1779,7 @@ function dmt_copy {
       printf "${RED}Prevented on dev machine${NC}\n"
     fi
   else
-    compile_gui_if_missing
-
-    dmt_sync_apps_into_dmt_engine
+    prepare_dmt_engine
 
     local cwd="`pwd`"
     cd "$DMT_PATH"
