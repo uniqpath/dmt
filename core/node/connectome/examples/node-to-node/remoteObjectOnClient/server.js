@@ -2,12 +2,12 @@ import colors from 'colors';
 
 import { printServerInfo } from '../exampleUtils.js';
 
-import { newKeypair, ConnectionsAcceptor } from '../../../index.js';
-import { bufferToHex } from '../../../lib/utils/index.js';
+import { newServerKeypair, ConnectionsAcceptor } from '../../../src/server';
+import { bufferToHex } from '../../../src/utils/index.js';
 
 import onConnect from './serverEndpoint.js';
 
-const keypair = newKeypair();
+const keypair = newServerKeypair();
 
 const { privateKeyHex, publicKeyHex } = keypair;
 

@@ -6,7 +6,7 @@ const { log } = dmt;
 export default function modifyPackageJson(userEnginePath) {
   const packageJsonPath = path.join(userEnginePath, 'package.json');
 
-  const userEngineScriptsPath = path.join(dmt.dmtPath, 'etc/scripts/prepare_apps_and_user_engine/user_engine');
+  const userEngineScriptsPath = path.join(dmt.dmtPath, 'etc/scripts/prepare_apps_and_user_engine/dmt_user_engine');
   const exportsPath = path.join(userEngineScriptsPath, 'exports.json');
 
   if (fs.existsSync(exportsPath)) {

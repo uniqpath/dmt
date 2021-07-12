@@ -2,7 +2,7 @@ import colors from 'colors';
 
 import { printClientInfo } from '../exampleUtils.js';
 
-import { connect, newKeypair } from '../../../index.js';
+import { connect, newClientKeypair } from '../../../src/client/node.js';
 
 const address = 'localhost';
 
@@ -11,7 +11,7 @@ const protocol = 'test';
 const lane = 'fiber';
 const verbose = false;
 
-const keypair = newKeypair();
+const keypair = newClientKeypair();
 const { privateKeyHex, publicKeyHex } = keypair;
 
 printClientInfo({ privateKeyHex, publicKeyHex });

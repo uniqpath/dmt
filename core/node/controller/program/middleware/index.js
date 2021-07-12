@@ -116,10 +116,7 @@ class MidLoader {
             success();
           }
         })
-        .catch(e => {
-          reject(e);
-          return;
-        });
+        .catch(reject);
     });
   }
 

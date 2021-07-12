@@ -487,6 +487,9 @@ function dmt {
       fi
 
       prepare_dmt_engine
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
 
       printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is starting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" start
@@ -516,6 +519,9 @@ function dmt {
       fi
 
       prepare_dmt_engine
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
 
       printf "${CYAN}🌀 DMT PROC${NC} ${WHITE}is running in terminal foreground ${NC}(this is marked with ${RED}'✝'${NC})\n"
       echo
@@ -574,6 +580,9 @@ function dmt {
 
     restart)
       prepare_dmt_engine
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
 
       printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is restarting...${NC}\n\n"
       "${DMT_PATH}/etc/onboot/daemons" restart
@@ -1737,21 +1746,30 @@ function dmt_update {
   dmt_copy --restart "$@"
 }
 
-function dmt_sync_apps_into_dmt_engine {
-  # sync apps into dmt engine
-  local SYNC_APPS_SCRIPT="$DMT_THIS_DEVICE/scripts/sync_dmt_apps_into_engine"
-
-  if [ -f "$SYNC_APPS_SCRIPT" ]; then
-    "$SYNC_APPS_SCRIPT"
-  fi
-}
-
 function prepare_dmt_engine {
+  local cwd="`pwd`"
+
+  local user_dir="$DMT_PATH/user"
+
+  if [ ! -d "$user_dir" ]; then
+    cd "$DMT_PATH"
+    ./install
+  fi
+
+  if [ ! -d "$user_dir" ]; then
+    # this should never happen but just in case we put it here!
+    printf "⚠️  ${YELLOW}~/.dmt/user ${RED}directory is missing, did you run ${GREEN}cd ~/.dmt && ./install ${NC}?${NC}\n"
+    cd "$cwd"
+    # cannot use exit here because script is sourced!
+    # https://stackoverflow.com/questions/55649285/exit-causes-root-logout-if-script-user-executes-the-script-outside-of-the-script
+    # it will logout the user :/
+    return 1
+  fi
+
   compile_gui_if_missing
 
   # set up system and user dmt apps package.json and _dmt_deps with symlinks
   # this is a prerequisite for apps to work
-  local cwd="`pwd`"
   local dir="$DMT_PATH/etc/scripts/prepare_apps_and_user_engine"
 
   cd "$dir"
@@ -1762,7 +1780,17 @@ function prepare_dmt_engine {
 
   cd "$cwd"
 
-  dmt_sync_apps_into_dmt_engine
+  local CUSTOM_PREPARE_ENGINE_SCRIPT="$DMT_THIS_DEVICE/scripts/prepare_engine"
+
+  if [ -f "$CUSTOM_PREPARE_ENGINE_SCRIPT" ]; then
+    "$CUSTOM_PREPARE_ENGINE_SCRIPT"
+  fi
+
+  # todo: remove this in Q1 2022 -- legacy
+  local SYNC_APPS_SCRIPT="$DMT_THIS_DEVICE/scripts/sync_dmt_apps_into_engine"
+  if [ -f "$SYNC_APPS_SCRIPT" ]; then
+    "$SYNC_APPS_SCRIPT"
+  fi
 }
 
 function dmt_copy {
@@ -1780,6 +1808,9 @@ function dmt_copy {
     fi
   else
     prepare_dmt_engine
+    if [[ $? -eq 1 ]]; then
+      return
+    fi
 
     local cwd="`pwd`"
     cd "$DMT_PATH"

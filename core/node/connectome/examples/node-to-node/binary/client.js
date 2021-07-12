@@ -9,7 +9,6 @@ const address = 'localhost';
 const port = 3500;
 const protocol = 'test';
 const lane = 'fiber';
-
 const verbose = false;
 
 const keypair = newClientKeypair();
@@ -17,13 +16,9 @@ const { privateKeyHex, publicKeyHex } = keypair;
 
 printClientInfo({ privateKeyHex, publicKeyHex });
 
-const connector = connect({ address, port, protocol, lane, keypair, remotePubkey: undefined, verbose });
+let receivedCount = 0;
 
-connector.attachObject('ErrorObject', {
-  makeError: () => {
-    throw new Error('And just like that, AN ERROR IS THROWN');
-  }
-});
+const connector = connect({ address, port, protocol, lane, keypair, remotePubkey: undefined, verbose });
 
 connector.on('ready', ({ sharedSecretHex }) => {
   console.log(`${colors.gray('Channel connected')} ${colors.green('✓')}`);
@@ -32,4 +27,16 @@ connector.on('ready', ({ sharedSecretHex }) => {
 
 connector.on('disconnect', () => {
   console.log(`${colors.gray('Channel disconnected')} ${colors.red('✖')}`);
+});
+
+connector.on('receive_binary', data => {
+  console.log(data);
+  receivedCount += 1;
+  if (receivedCount == 3) {
+    console.log(`${colors.gray('Received 3/3 messages, now sending ours ...')}`);
+    const msg = new Uint8Array([3, 4, 5, 6, 7]);
+    connector.send(msg);
+    connector.send(msg);
+    connector.send(msg);
+  }
 });

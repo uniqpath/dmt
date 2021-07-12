@@ -6,7 +6,7 @@
   "type": "module",
   "exports": {
     "./common": "./common",
-    "./connectome": "./connectome/src/client/node",
+    "./connectome": "./connectome/src/client",
     "./connectome-server": "./connectome/src/server",
     "./connectome-stores": "./connectome/src/stores",
     "./connectome-next": "./connectome-next",

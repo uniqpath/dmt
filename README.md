@@ -1,42 +1,37 @@
 <img src="https://github.com/uniqpath/info/blob/master/assets/img/uniqpath_dmt_engine_banner.png?raw=true">
 
+## GET DMT
+
+```
+git clone https://github.com/uniqpath/dmt.git ~/.dmt
+cd ~/.dmt
+./install
+source ~/.dmt/shell/.loader
+```
+
+`./install` will enable `dmt` command by adding one line to `~/.bash_profile`.
+
 ## Background
 
-**DMT ENGINE** Does Many Things. [Developer portal](https://dmt-system.com) is in development :)👷
+**DMT ENGINE** Does Many Things well, especially Partially Connected Networks. 
+
+[Developer portal](https://dmt-system.com) is in development👷
 
 ## About
 
-It is most likely that you'll benefit from using this code if you heard about it from someone you trust or already know.
-
-Parts of inner workings are not yet solidified or perfectly documented.
-
-DMT ENGINE / DMT SYSTEM are still evolving but already serving their purpose very well in specific use cases.
-
-Read some linked resources accessible through this repo and try stuff, then decide if you want to continue using.
-
-⚠️ This project may be addictive but in a novel way, <i>not bait and hook, then extract</i>. DMT is just different.
+DMT ENGINE / DMT SYSTEM are still evolving but already serving their purpose very well in many use cases.
 
 🐠 And welcome onboard, onwards!
 
-## Useful things you can already do easily
+## Useful things you can already experiment with
 
-Run your own search node or two: [instructions here](./help/TRY_DMT_SEARCH.md).
+1. Run your own search node or two: [instructions here](./help/TRY_DMT_SEARCH.md).
 
-You will need a tiny bit of <i>do-it-yourself mentality</i>.
-
-A little bit of DIY goes a long way. Since you are on GitHub you probably know this.
+2. Play with novel [CRDT constructs](https://github.com/dmtsys/crdt_yjs).
 
 <img src="./help/img/dmt_search_engine.png" alt="dmt search engine" />
 
 Andrew Leonard beautifully puts it like this: <i>“Computers, like psychedelic drugs, are tools for mind expansion, for revelation and for personal discovery. And to anyone who has experienced a drug-induced epiphany, there may indeed be a cosmic hyperlink there: fire up your laptop, connect wirelessly to the Internet, and search for your dreams: the power and the glory of the computing universe that exists now… does pulsate with a destabilizing, revelatory psychic power.”</i>
-
-This was written 'a long time ago' but is eternal and still very true and inspiring.
-
-Search is never a done thing, it goes deep and is a fundamental human concept.
-
-Some periods see radical evolution of particular concepts. We are in one such period right now.
-
-Many things are getting reinvented and improved. Search is a meta-concept because in addition to being evolved it can track other fast evolving areas to help make sense of everything in times when really useful information is actually scarce.
 
 ## Requirements
 
@@ -57,17 +52,6 @@ n
 ```
 
 to manage `node.js` versions.
-
-## GET DMT
-
-```
-git clone https://github.com/uniqpath/dmt.git ~/.dmt
-cd ~/.dmt
-./install
-source ~/.dmt/shell/.loader
-```
-
-`./install` will enable `dmt` command by adding one line to `~/.bash_profile`.
 
 ## Help
 

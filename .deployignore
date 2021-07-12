@@ -6,7 +6,6 @@ deploy
 /shell/.bash_staging
 
 /archive
-/core/node/playground
 .trash
 
 target/debug

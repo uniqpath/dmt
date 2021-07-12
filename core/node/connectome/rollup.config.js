@@ -24,7 +24,7 @@ export default [
     onwarn
   },
   {
-    input: 'src/client/node.js',
+    input: 'src/client/index.js',
     external: builtinModules,
     plugins: [nodeResolve({ preferBuiltins: true }), commonjs()],
     output: [

@@ -61,19 +61,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
           }
 
           wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
-        } else if (jsonData.tag) {
-          // 💡 tag
-          const msg = jsonData;
-
-          if (msg.tag == 'file_not_found') {
-            connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
-          } else if (msg.tag == 'binary_start') {
-            connector.emit(msg.tag, { ...msg, ...{ tag: undefined } });
-          } else if (msg.tag == 'binary_end') {
-            connector.emit(msg.tag, { sessionId: msg.sessionId });
-          } else {
-            connector.emit('receive', { jsonData, rawMessage: decodedMessage });
-          }
+          //   // 💡 tag
         } else if (jsonData.state) {
           // 💡 Initial state sending ... part of Connectome protocol
           connector.emit('receive_state', jsonData.state);
@@ -92,12 +80,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         throw e;
       }
     } else {
-      const binaryData = decryptedMessage;
-
-      const sessionId = Buffer.from(binaryData.buffer, binaryData.byteOffset, 64).toString();
-      const binaryPayload = Buffer.from(binaryData.buffer, binaryData.byteOffset + 64);
-
-      connector.emit('binary_data', { sessionId, data: binaryPayload });
+      connector.emit('receive_binary', decryptedMessage);
     }
   }
 }

@@ -10,8 +10,6 @@ import dmt from 'dmt/common';
 const { log, stopwatch, tags, util } = dmt;
 
 const REREAD_INDEX_INTERVAL_SECONDS = 10;
-let indexReadAt;
-
 const RECENT_WEBLINKS_NUM = 30;
 
 const { scan } = dmt;
@@ -75,7 +73,7 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
     });
 
     scan.readFiles(files).then(results => {
-      webindexCache = results
+      const _webindex = results
         .map(({ filePath, fileBuffer, error }) => {
           if (error) {
             console.log(`Problem reading index file: ${filePath}`);
@@ -91,7 +89,7 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
 
               push.notify(`⚠️ ${dmt.deviceGeneralIdentifier()}: Error parsing linkIndex: ${e}`);
 
-              return;
+              return { parsingError: true };
             }
 
             const linkIndexName = path.basename(filePath, '.json');
@@ -103,26 +101,28 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
         .filter(Boolean)
         .flat();
 
-      const recentWeblinks = webindexCache
-        .filter(({ createdAt }) => createdAt)
-        .sort(util.orderBy('createdAt', null, 'desc'))
-        .slice(0, RECENT_WEBLINKS_NUM)
-        .map(entry => addSiteTag(entry));
+      if (!_webindex.find(({ parsingError }) => parsingError)) {
+        webindexCache = _webindex;
 
-      program.store.replaceSlot('recentWeblinks', recentWeblinks);
+        const recentWeblinks = webindexCache
+          .filter(({ createdAt }) => createdAt)
+          .sort(util.orderBy('createdAt', null, 'desc'))
+          .slice(0, RECENT_WEBLINKS_NUM)
+          .map(entry => addSiteTag(entry));
 
-      program.store.replaceSlot('entireLinkIndexCloud', createEntireLinkIndexCloud(webindexCache), { announce: false });
-      program.store.replaceSlot('entireLinkIndexCount', webindexCache.length, { announce: false });
+        program.store.replaceSlot('recentWeblinks', recentWeblinks);
 
-      if (benchmark && files.length) {
-        log.green(
-          `Finished reading ${colors.magenta('~/.dmt-here/webindex/')}${colors.magenta(
-            files.map(({ basename }) => basename).join(', ')
-          )} webindices in ${colors.yellow(stopwatch.stop(start))} · links count: ${colors.yellow(webindexCache.length)}`
-        );
+        program.store.replaceSlot('entireLinkIndexCloud', createEntireLinkIndexCloud(webindexCache), { announce: false });
+        program.store.replaceSlot('entireLinkIndexCount', webindexCache.length, { announce: false });
+
+        if (benchmark && files.length) {
+          log.green(
+            `Finished reading ${colors.magenta('~/.dmt-here/webindex/')}${colors.magenta(
+              files.map(({ basename }) => basename).join(', ')
+            )} webindices in ${colors.yellow(stopwatch.stop(start))} · links count: ${colors.yellow(webindexCache.length)}`
+          );
+        }
       }
-
-      indexReadAt = Date.now();
 
       success(webindexCache);
     });
