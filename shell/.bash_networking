@@ -169,6 +169,7 @@ function net {
 
   case "$1" in
     scan )
+      shift
       net_scan "$@"
       ;;
 

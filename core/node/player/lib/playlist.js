@@ -375,6 +375,13 @@ class Playlist {
     return this.playlist.filter(songInfo => songIDs.includes(songInfo.id) && songInfo.id != this.currentSongId());
   }
 
+  clearJustBumped() {
+    if (this.playlist.find(({ justBumped }) => justBumped)) {
+      this.playlist.forEach(songInfo => delete songInfo.justBumped);
+      this.broadcastPlaylistState();
+    }
+  }
+
   bumpSongIDs(songIDs) {
     const insertSongList = this.songsToBump(songIDs);
 
@@ -383,6 +390,16 @@ class Playlist {
     this.playlist = this.playlist.filter(songInfo => !songIDs.includes(songInfo.id) || songInfo.id == this.currentSongId());
 
     this.currentIndex -= prevBumpedCount;
+
+    insertSongList.forEach(songInfo => {
+      songInfo.justBumped = true;
+    });
+
+    clearTimeout(this.justBumpedHighlightTimer);
+    this.clearJustBumped();
+    this.justBumpedHighlightTimer = setTimeout(() => {
+      this.clearJustBumped();
+    }, 1000);
 
     this.playlist.splice(this.currentIndex + 1, 0, ...util.shuffle(insertSongList));
 

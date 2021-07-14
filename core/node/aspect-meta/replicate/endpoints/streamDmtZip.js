@@ -41,9 +41,7 @@ function replicateAllowed(entry) {
     entry.relpath != 'tagversion' &&
     entry.relpath != 'core/node/.gitignore' &&
     entry.relpath != 'core/node/connectome/.gitignore' &&
-    entry.relpath != 'core/node/connectome/dist' &&
-    entry.relpath != 'core/node/connectome/server' &&
-    entry.relpath != 'core/node/connectome/stores' &&
+    entry.relpath != 'core/lib/dmt-frontend-components/.gitignore' &&
     entry.relpath != 'shell/.bash_staging' &&
     entry.relpath != 'etc/.bash_aliases_bundle' &&
     entry.relpath != 'etc/.bash_aliases_slim' &&
@@ -145,6 +143,9 @@ function streamDmtZip({ req, res, program, files, replicateExcludedByUser, repli
       !file.reldir.endsWith('/public') &&
       !file.reldir.endsWith('/assets') &&
       !file.reldir.endsWith('/dist') &&
+      !file.reldir.includes('/dist/') &&
+      !file.reldir.endsWith('/connectome/server') &&
+      !file.reldir.endsWith('/connectome/stores') &&
       !file.reldir.endsWith('/build') &&
       !file.path.includes('node_modules')
     ) {

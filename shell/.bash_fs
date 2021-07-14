@@ -261,6 +261,10 @@ function p {
     fi
 
     if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine/playground "$1"
     fi
 
@@ -329,6 +333,10 @@ function p {
     # p -> /var/projects
     # p (second time) -> /var/www
     AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node/controller "$1"
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine "$1"
+    fi
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine/playground "$1"

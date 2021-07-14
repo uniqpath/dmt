@@ -26,7 +26,7 @@ function dmt {
       printf "${CYAN}Digital Mastery Techniques${NC}\n"
       printf " ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version") ${CYAN}—${NC}\n"
       echo
-    printf "💡 Keep up with developments and ${CYAN}update with ${GREEN}dmt next${NC} ${NC}at least once every ${CYAN}1-3 months${NC}\n"
+      printf "💡 Keep up with progress and update using ${GREEN}dmt next${NC} ${NC}at least once every few months${NC}\n"
     fi
     #printf "${CYAN}Freedom to imagine${NC}\n"
     # printf " ${GRAY}It is reommended to update${NC}\n"
@@ -549,19 +549,14 @@ function dmt {
     #   ;;
 
     stop)
+      check_if_dmt_proc_can_be_stopped
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
+
       local dmt_proc_pid=''
       local dmt_fg_bg=''
       get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
-
-      if [[ $dmt_fg_bg == 'fg' ]]; then
-        printf "⚠️  ${RED}Cannot stop ${CYAN}dmt-proc${NC} !\n"
-        printf "   ${WHITE}Reason${NC} → it is running in ${WHITE}${UNDERLINE}another terminal${RESET}${NC} (it was started with ${WHITE}${UNDERLINE}dmt run${RESET}${NC} command).${NC}\n"
-        echo
-        printf "💡 Please switch to that terminal and press ${UNDERLINE}ctrl+c${RESET} to stop the process.${NC}\n"
-        printf "   Or you can use ${GREEN}sudo kill -9 ${dmt_proc_pid}${NC} to kill the process from this terminal.\n"
-        echo
-        return
-      fi
 
       if [ -n "$dmt_proc_pid" ]; then
         printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is stopping...${NC}\n\n"
@@ -579,6 +574,11 @@ function dmt {
       ;;
 
     restart)
+      check_if_dmt_proc_can_be_stopped
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
+
       prepare_dmt_engine
       if [[ $? -eq 1 ]]; then
         return
@@ -634,6 +634,22 @@ function dmt {
 #     #fi
 #   fi
 # }
+
+function check_if_dmt_proc_can_be_stopped {
+  local dmt_proc_pid=''
+  local dmt_fg_bg=''
+  get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+  if [[ $dmt_fg_bg == 'fg' ]]; then
+    printf "⚠️  ${RED}Cannot stop ${CYAN}dmt-proc${NC} !\n"
+    printf "   ${WHITE}Reason${NC} → it is running in ${WHITE}${UNDERLINE}another terminal${RESET}${NC} (it was started with ${WHITE}${UNDERLINE}dmt run${RESET}${NC} command).${NC}\n"
+    echo
+    printf "💡 Please switch to that terminal and press ${UNDERLINE}ctrl+c${RESET} to stop the process.${NC}\n"
+    printf "   Or you can use ${GREEN}sudo kill -9 ${dmt_proc_pid}${NC} to kill the process from this terminal.\n"
+    echo
+    return 1
+  fi
+}
 
 function setup_default_debug_marker_file {
   local markerfile="$1"
@@ -733,9 +749,17 @@ function report_dmt_running {
   if [ -n "$dmt_proc_pid" ]; then
     local fg_bg_msg=""
     if [ "$fg_bg" == 'fg' ]; then
-      fg_bg_msg="${MAGENTA}in foreground${NC} "
+      fg_bg_msg="${YELLOW}in foreground${NC} "
+    else
+      fg_bg_msg="${MAGENTA}in background${NC} "
     fi
     printf "${CYAN}dmt-proc${NC} ${GREEN}is already running ${fg_bg_msg}with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
+    if [ "$fg_bg" == 'fg' ]; then
+      printf "Suggestion: ${GRAY}find the terminal window with active ${CYAN}dmt-proc${GRAY}${NC}\n"
+    else
+      echo
+      printf "💡 ${GREEN}dmt stop ${GRAY}stops the background process${NC}\n"
+    fi
     return 0
   fi
 
