@@ -10,5 +10,4 @@ export { default as ListItem } from './components/ListItem.svelte';
 export { default as SearchableList } from './components/SearchableList.svelte';
 export { default as Slider } from './components/Slider.svelte';
 export { default as Meetup } from './components/Meetup.svelte';
-
-export { default as util } from './util';
+export { default as GuiErrors } from './components/GuiErrors.svelte';

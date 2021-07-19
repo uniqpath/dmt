@@ -3,7 +3,7 @@
 
   import weblocaltime from 'weblocaltime';
 
-  import { applyCss } from '../helpers';
+  import { applyCss } from 'dmt-frontend-helpers';
 
   export let backend, padding, bg;
   export let clickStat = () => {};

@@ -11,8 +11,9 @@ class SwitchDevice extends Emitter {
 
   switchState({ deviceKey, deviceName }) {
     this.mcs.setMerge({ activeDeviceKey: deviceKey });
-    const { state } = this.mcs.stores[deviceKey];
+    const { state, connected } = this.mcs.stores[deviceKey];
     this.foreground.set(state, { optimisticDeviceName: deviceName });
+    this.mcs.connected.set(connected.get());
   }
 
   switch({ address, deviceKey, deviceName }) {
@@ -24,7 +25,8 @@ class SwitchDevice extends Emitter {
 
       this.connectDevice.connectOtherDevice({ address, deviceKey });
     } else {
-      const { nearbyDevices } = this.mcs.localDeviceStore.get();
+      const localDeviceState = this.mcs.localDeviceStore.get();
+      const { nearbyDevices } = localDeviceState;
 
       const matchingDevice = nearbyDevices.find(device => device.deviceKey == deviceKey && !device.thisDevice);
 
@@ -33,9 +35,7 @@ class SwitchDevice extends Emitter {
         this.switch({ address, deviceKey, deviceName });
       } else {
         this.emit('connect_to_device_key_failed');
-
-        const thisDevice = nearbyDevices.find(device => device.thisDevice);
-        this.switchState(thisDevice);
+        this.switchState(localDeviceState.device);
       }
     }
   }

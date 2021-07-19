@@ -4645,9 +4645,9 @@ class ConnectedStore extends WritableStore {
 
     this.connected = new WritableStore();
 
-    this.connect(endpoint, address, port, acceptKeypair(keypair));
-
     this.shapes = {};
+
+    this.connect(endpoint, address, port, acceptKeypair(keypair));
   }
 
   signal(signal, data) {
@@ -4792,12 +4792,7 @@ class ConnectDevice {
   }
 
   getDeviceKey(state) {
-    const { device } = state;
-
-    if (device && device.deviceKey) {
-      const { deviceKey } = device;
-      return deviceKey;
-    }
+    return state?.device?.deviceKey;
   }
 
   connectThisDevice({ address }) {
@@ -4813,13 +4808,13 @@ class ConnectDevice {
       if (deviceKey) {
         if (!this.thisDeviceAlreadySetup) {
           this.mcs.set({ activeDeviceKey: deviceKey });
-          this.setConnectedStore({ deviceKey, store: thisStore });
+          this.initNewStore({ deviceKey, store: thisStore });
         }
 
         const needToConnectAnotherDevice = this.connectToDeviceKey && this.connectToDeviceKey != deviceKey;
 
         if (this.mcs.activeDeviceKey() == deviceKey && !needToConnectAnotherDevice) {
-          const optimisticDeviceName = state.device.deviceName;
+          const optimisticDeviceName = state.device?.deviceName; // added ?. recently
           this.foreground.set(state, { optimisticDeviceName });
         }
 
@@ -4842,7 +4837,7 @@ class ConnectDevice {
   connectOtherDevice({ address, deviceKey }) {
     const newStore = this.createStore({ address });
 
-    this.setConnectedStore({ deviceKey, store: newStore });
+    this.initNewStore({ deviceKey, store: newStore });
 
     newStore.subscribe(state => {
       if (this.mcs.activeDeviceKey() == deviceKey) {
@@ -4852,10 +4847,14 @@ class ConnectDevice {
     });
   }
 
+  initNewStore({ deviceKey, store }) {
+    this.mcs.stores[deviceKey] = store; // add this store to our list of multi-connected stores
+
+    this.setConnectedStore({ deviceKey, store });
+  }
+
   // transfer connected state from currently active connected store into the "connected" store on MultiConnectedStore
   setConnectedStore({ deviceKey, store }) {
-    this.mcs.stores[deviceKey] = store;
-
     store.connected.subscribe(connected => {
       if (this.mcs.activeDeviceKey() == deviceKey) {
         this.mcs.connected.set(connected);
@@ -4918,8 +4917,9 @@ class SwitchDevice extends Eev {
 
   switchState({ deviceKey, deviceName }) {
     this.mcs.setMerge({ activeDeviceKey: deviceKey });
-    const { state } = this.mcs.stores[deviceKey];
+    const { state, connected } = this.mcs.stores[deviceKey];
     this.foreground.set(state, { optimisticDeviceName: deviceName });
+    this.mcs.connected.set(connected.get()); // added recently .. connectDevice#100 was not enough, scenario: select some device X in nearby list, then kill dmt proc on device Y and select device Y before it disappears from nearby list.. it didn't show as disconnected!! this line fixes
   }
 
   switch({ address, deviceKey, deviceName }) {
@@ -4931,7 +4931,8 @@ class SwitchDevice extends Eev {
 
       this.connectDevice.connectOtherDevice({ address, deviceKey });
     } else {
-      const { nearbyDevices } = this.mcs.localDeviceStore.get();
+      const localDeviceState = this.mcs.localDeviceStore.get();
+      const { nearbyDevices } = localDeviceState;
 
       const matchingDevice = nearbyDevices.find(
         device => device.deviceKey == deviceKey && !device.thisDevice
@@ -4942,10 +4943,11 @@ class SwitchDevice extends Eev {
         this.switch({ address, deviceKey, deviceName });
       } else {
         this.emit('connect_to_device_key_failed');
+        this.switchState(localDeviceState.device); // assumes device in state!
 
-        // ???? --- >>>>>>
-        const thisDevice = nearbyDevices.find(device => device.thisDevice);
-        this.switchState(thisDevice);
+        // // ???? --- >>>>>> (had this mark! :)
+        //const thisDevice = nearbyDevices.find(device => device.thisDevice);
+        //this.switchState(thisDevice);
       }
     }
   }
@@ -5009,37 +5011,6 @@ class MultiConnectedStore extends MergeStore {
   signalLocalDevice(signal, data) {
     this.localDeviceStore.signal(signal, data);
   }
-
-  // NOT SUPPORTED !
-  // difficult or impossible to implement!
-  // mainly because all frontend shapes are not known at load time
-  // channel can set any shape at any time and we'd have to establish synced shape on multi-connected store dynamically
-  // maybe possible but not worth it at the moment -- maybe in the future!
-  // we'd have to set up this 1) on shape() function call on MCS
-  // and on each device switch
-  //
-  // // default is null, not {} !
-  // shape(name) {
-  //   if (!this.multiShapes[name]) {
-  //     this.multiShapes[name] = new WritableStore();
-  //   }
-
-  //   if (this.activeStore()) {
-  //     this.multiShapes[name].set(this.activeStore().shape(name).get());
-  //     //return this.activeStore().shape(name);
-  //   }
-  //   // else {
-  //   //   console.log(`MCS: Error getting shape ${name}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
-  //   // }
-
-  //   return this.multiShapes[name];
-
-  //   // if (this.activeStore()) {
-  //   //   return this.activeStore().shape(name);
-  //   // }
-
-  //   // console.log(`MCS: Error getting shape ${name}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
-  // }
 
   remoteObject(objectName) {
     if (this.activeStore()) {

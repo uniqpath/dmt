@@ -42,6 +42,7 @@ function replicateAllowed(entry) {
     entry.relpath != 'core/node/.gitignore' &&
     entry.relpath != 'core/node/connectome/.gitignore' &&
     entry.relpath != 'core/lib/dmt-frontend-components/.gitignore' &&
+    entry.relpath != 'core/lib/dmt-frontend-helpers/.gitignore' &&
     entry.relpath != 'shell/.bash_staging' &&
     entry.relpath != 'etc/.bash_aliases_bundle' &&
     entry.relpath != 'etc/.bash_aliases_slim' &&

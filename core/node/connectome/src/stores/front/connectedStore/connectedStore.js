@@ -20,9 +20,9 @@ class ConnectedStore extends WritableStore {
 
     this.connected = new WritableStore();
 
-    this.connect(endpoint, address, port, acceptKeypair(keypair));
-
     this.shapes = {};
+
+    this.connect(endpoint, address, port, acceptKeypair(keypair));
   }
 
   signal(signal, data) {
