@@ -77,6 +77,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         }
       } catch (e) {
         console.log("Couldn't parse json message although the flag was for string ...");
+        console.log(decodedMessage);
         throw e;
       }
     } else {

@@ -1,6 +1,6 @@
 import SpecificRpcClient from './specificClient.js';
 
-const DEFAULT_REQUEST_TIMEOUT = 5000;
+const DEFAULT_REQUEST_TIMEOUT = 55000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {

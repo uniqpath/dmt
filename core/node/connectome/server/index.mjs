@@ -7255,7 +7255,7 @@ class SpecificRpcClient {
   }
 }
 
-const DEFAULT_REQUEST_TIMEOUT = 55000;
+const DEFAULT_REQUEST_TIMEOUT = 5000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {

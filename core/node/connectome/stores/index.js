@@ -3588,6 +3588,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         }
       } catch (e) {
         console.log("Couldn't parse json message although the flag was for string ...");
+        console.log(decodedMessage);
         throw e;
       }
     } else {
@@ -4155,7 +4156,7 @@ class SpecificRpcClient {
   }
 }
 
-const DEFAULT_REQUEST_TIMEOUT = 55000;
+const DEFAULT_REQUEST_TIMEOUT = 5000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {
@@ -4645,9 +4646,9 @@ class ConnectedStore extends WritableStore {
 
     this.connected = new WritableStore();
 
-    this.connect(endpoint, address, port, acceptKeypair(keypair));
-
     this.shapes = {};
+
+    this.connect(endpoint, address, port, acceptKeypair(keypair));
   }
 
   signal(signal, data) {
@@ -4792,14 +4793,16 @@ class ConnectDevice {
   }
 
   getDeviceKey(state) {
-    const { device } = state;
-
-    if (device && device.deviceKey) {
-      const { deviceKey } = device;
-      return deviceKey;
-    }
+    return state?.device?.deviceKey;
   }
 
+  // todo: what happens if this device key changes?
+  // and also other deviceKeys
+  // this is rare and deviceKeys are unique identifiers for devices but still
+  // at least for this device we have to handle deviceKey changes!
+  // for other devices maybe it will work naturally as well
+  // only that we'll keep more connected stores than neccessary who will retry connections
+  // for devices that are no longer coming back under that deviceKey.. this resolves (clears) after GUI reloads
   connectThisDevice({ address }) {
     const thisStore = this.createStore({ address });
 
@@ -4813,13 +4816,14 @@ class ConnectDevice {
       if (deviceKey) {
         if (!this.thisDeviceAlreadySetup) {
           this.mcs.set({ activeDeviceKey: deviceKey });
-          this.setConnectedStore({ deviceKey, store: thisStore });
+          this.initNewStore({ deviceKey, store: thisStore });
         }
 
         const needToConnectAnotherDevice = this.connectToDeviceKey && this.connectToDeviceKey != deviceKey;
 
-        if (this.mcs.activeDeviceKey() == deviceKey && !needToConnectAnotherDevice) {
-          const optimisticDeviceName = state.device.deviceName;
+        if (!needToConnectAnotherDevice && this.mcs.activeDeviceKey() == deviceKey) {
+          // state.device?.deviceName ==> ?. is not strictly neccessary because we always assume device.deviceName in every state
+          const optimisticDeviceName = state.device?.deviceName;
           this.foreground.set(state, { optimisticDeviceName });
         }
 
@@ -4842,7 +4846,7 @@ class ConnectDevice {
   connectOtherDevice({ address, deviceKey }) {
     const newStore = this.createStore({ address });
 
-    this.setConnectedStore({ deviceKey, store: newStore });
+    this.initNewStore({ deviceKey, store: newStore });
 
     newStore.subscribe(state => {
       if (this.mcs.activeDeviceKey() == deviceKey) {
@@ -4852,10 +4856,14 @@ class ConnectDevice {
     });
   }
 
+  initNewStore({ deviceKey, store }) {
+    this.mcs.stores[deviceKey] = store; // add this store to our list of multi-connected stores
+
+    this.setConnectedStore({ deviceKey, store });
+  }
+
   // transfer connected state from currently active connected store into the "connected" store on MultiConnectedStore
   setConnectedStore({ deviceKey, store }) {
-    this.mcs.stores[deviceKey] = store;
-
     store.connected.subscribe(connected => {
       if (this.mcs.activeDeviceKey() == deviceKey) {
         this.mcs.connected.set(connected);
@@ -4918,8 +4926,9 @@ class SwitchDevice extends Eev {
 
   switchState({ deviceKey, deviceName }) {
     this.mcs.setMerge({ activeDeviceKey: deviceKey });
-    const { state } = this.mcs.stores[deviceKey];
+    const { state, connected } = this.mcs.stores[deviceKey];
     this.foreground.set(state, { optimisticDeviceName: deviceName });
+    this.mcs.connected.set(connected.get()); // added recently .. connectDevice#100 was not enough, scenario: select some device X in nearby list, then kill dmt proc on device Y and select device Y before it disappears from nearby list.. it didn't show as disconnected!! this line fixes
   }
 
   switch({ address, deviceKey, deviceName }) {
@@ -4931,7 +4940,8 @@ class SwitchDevice extends Eev {
 
       this.connectDevice.connectOtherDevice({ address, deviceKey });
     } else {
-      const { nearbyDevices } = this.mcs.localDeviceStore.get();
+      const localDeviceState = this.mcs.localDeviceStore.get();
+      const { nearbyDevices } = localDeviceState;
 
       const matchingDevice = nearbyDevices.find(
         device => device.deviceKey == deviceKey && !device.thisDevice
@@ -4942,10 +4952,11 @@ class SwitchDevice extends Eev {
         this.switch({ address, deviceKey, deviceName });
       } else {
         this.emit('connect_to_device_key_failed');
+        this.switchState(localDeviceState.device); // assumes device in state!
 
-        // ???? --- >>>>>>
-        const thisDevice = nearbyDevices.find(device => device.thisDevice);
-        this.switchState(thisDevice);
+        // // ???? --- >>>>>> (had this mark! :)
+        //const thisDevice = nearbyDevices.find(device => device.thisDevice);
+        //this.switchState(thisDevice);
       }
     }
   }
@@ -4988,12 +4999,16 @@ class MultiConnectedStore extends MergeStore {
     const foreground = new Foreground({ mcs: this, thisDeviceStateKeys });
     const connectDevice = new ConnectDevice({ mcs: this, foreground, connectToDeviceKey });
 
+    this.connectDevice = connectDevice; // used only for preconnect method
+
     this.switchDevice = new SwitchDevice({ mcs: this, connectDevice, foreground });
     this.switchDevice.on('connect_to_device_key_failed', () => {
       this.emit('connect_to_device_key_failed');
     });
 
     this.localDeviceStore = connectDevice.connectThisDevice({ address });
+
+    this.locallyConnected = this.localDeviceStore.connected;
   }
 
   signal(signal, data) {
@@ -5049,6 +5064,11 @@ class MultiConnectedStore extends MergeStore {
     console.log(
       `Error obtaining remote object ${objectName}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`
     );
+  }
+
+  // only for other devices
+  preconnect({ address, deviceKey }) {
+    this.connectDevice.connectOtherDevice({ address, deviceKey });
   }
 
   switch({ address, deviceKey, deviceName }) {

@@ -6696,6 +6696,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         }
       } catch (e) {
         console.log("Couldn't parse json message although the flag was for string ...");
+        console.log(decodedMessage);
         throw e;
       }
     } else {
@@ -7263,7 +7264,7 @@ class SpecificRpcClient {
   }
 }
 
-const DEFAULT_REQUEST_TIMEOUT = 55000;
+const DEFAULT_REQUEST_TIMEOUT = 5000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {
