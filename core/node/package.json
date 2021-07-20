@@ -57,7 +57,7 @@
     "nodemailer": "^6.4.6",
     "pi-camera-connect": "^0.2.0",
     "quantum-generator": "^1.9.3",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "retrace": "^1.0.0",
     "rfc6902": "^4.0.1",
     "strip-ansi": "^6.0.0",
