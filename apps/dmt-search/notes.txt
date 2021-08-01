@@ -1,0 +1,9 @@
+  // CANNOT DO THAT! Issues on iPhone
+  // type fast, then delete and type again etc.
+  // binding of searchQuery will get broken
+  // culprit is changing query parameters quickly on each store update ... :/
+  searchQuery.subscribe(() => {
+    //console.log($searchQuery);
+    //updateUrlQuery();
+  })
+

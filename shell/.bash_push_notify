@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# we load .bash_dmt_vars so we can import push_notify helper anywhere easily without the entire bundled version
+
+# relative to current file
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# however we need to check for this:
+# otherwise we'll get
+# ~/.dmt/etc/.bash_aliases_bundle: line 4942: /Users/david/.dmt/etc/.bash_dmt_vars: No such file or directory
+# because bundled version doesn't need (and cannot) load this dep separately
+if [ -f "$DIR/.bash_dmt_vars" ]; then
+  . "$DIR/.bash_dmt_vars"
+fi
+
+# function o {
+#   dmt "o" "$@"
+# }
+
+# can also do:
+# [some long process_with_text_result] | push_notify --> not anymore! check code in lib/apn.js and maybe put it back
+# in background: se "space|push_notify"
+function push_notify {
+  local push_notifier="$DMT_NODE_CORE/notify/cli/push_notify.js"
+
+  if [ -f "$push_notifier" ]; then
+    # if stdin is passed to nodejs script (happens automatically),
+    # it is considered as a message, given argument is ignored
+    $DMT_NODEJS_EXEC "$push_notifier" "$@"
+  else
+    printf "${RED}Cannot push message${NC}\n"
+  fi
+}
+
+function push_notify_high_priority {
+  push_notify highPriority "$@"
+}
+
+function push_notify_bg {
+  local _highPriority=""
+
+  if [ "$1" == 'highPriority' ]; then
+    _highPriority="highPriority"
+    shift
+  fi
+
+  local msg="$@"
+
+  local INCLUDE="if [ -f ~/.dmt/shell/.bash_push_notify ]; then . ~/.dmt/shell/.bash_push_notify; fi; "
+
+  screen -S dmt_push_notify -dm bash -c "${INCLUDE} push_notify ${_highPriority} \"${msg}\""
+}
+
+function push_notify_high_priority_bg {
+  push_notify_bg highPriority "$@"
+}
+
+function push_notify_apn {
+  local push_notifier="$DMT_NODE_CORE/notify/cli/apn_notify.js"
+
+  if [ -f "$push_notifier" ]; then
+    # if stdin is passed to nodejs script (happens automatically),
+    # it is considered as a message, given argument is ignored
+    $DMT_NODEJS_EXEC "$push_notifier" "$@"
+  else
+    printf "${RED}Cannot push message${NC}\n"
+  fi
+}
+

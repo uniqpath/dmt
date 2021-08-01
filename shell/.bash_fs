@@ -1,0 +1,1357 @@
+#!/bin/bash
+
+function walksearch {
+  local walksearch=''
+  dmt_platform_bin_command walksearch
+  if [ -z "$walksearch" ]; then
+    return
+  fi
+  "$walksearch" "$@"
+}
+
+function walkdir {
+  local walkdir=''
+  dmt_platform_bin_command walkdir
+  if [ -z "$walkdir" ]; then
+    return
+  fi
+
+  "$walkdir" "$@"
+}
+
+function f {
+  local walksearch=''
+  dmt_platform_bin_command walksearch
+  if [ -z "$walksearch" ]; then
+    printf "${YELLOW}Using bash find instead ...${NC}\n"
+    # not completelly sure why I used uniq filter here....
+    local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+    find . -name '.git' -prune -o -print -name 'node_modules' -prune -o -print -name 'Godeps' -prune -o -print -name 'elm-stuff' -prune -o -print -name 'bower_components' -prune -o -print | uniq | grep -i -- "$pattern"
+    return
+  fi
+
+  "$walksearch" "$@" | grep -v ".git$" | grep -v ".git/" | grep -v ".node_modules$" | grep -v "node_modules/" | grep -v "Godeps$" | grep -v "Godeps/" | grep -v ".elm-stuff$" | grep -v ".elm-stuff/" | grep -v ".bower_components$" | grep -v ".bower_components/"
+
+  # not completelly sure why I used uniq filter here....
+  #local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+  #find . -name '.git' -prune -o -print -name 'node_modules' -prune -o -print -name 'Godeps' -prune -o -print -name 'elm-stuff' -prune -o -print -name 'bower_components' -prune -o -print | uniq | grep -i -- "$pattern"
+}
+
+# finds just files in current directory
+function ff {
+  local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+  find . -maxdepth 1 -type f | grep -i -- "$pattern"
+  #find . -type f -maxdepth 1 | grep -i -- "$1"
+}
+
+# finds just directories in current directory
+function ffd {
+  local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+  find . -maxdepth 1 -type d | grep -i -- "$pattern"
+  #find . -type f -maxdepth 1 | grep -i -- "$1"
+}
+
+function ffm {
+  if [ -z "$1" ]; then
+    printf "${GREEN}Move files to destination directory${NC}\n"
+    echo "Usage: ffm [filter] [dir]"
+  else
+    if [ -z "$2" ]; then
+      printf "${MAGENTA}-- Dry run -- Files that would be moved:${NC}\n"
+      ff "$1"
+      printf "\n${YELLOW}Usage reminder: ffm [filter] [dir]${NC}\n"
+    else
+      if [ -d "$2" ]; then
+        printf "${GREEN}Moved to${NC} ${YELLOW}$2${NC}:\n"
+        ff "$1"
+        local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+        find . -maxdepth 1 -type f -print0 | grep -z -i -- "$pattern" | xargs -0 -I{} mv '{}' "$2"
+      else
+        printf "${RED}Target directory doesn't exist${NC}\n"
+      fi
+    fi
+  fi
+}
+
+function ffc {
+  if [ -z "$1" ]; then
+    printf "${GREEN}Copy files to destination directory${NC}\n"
+    echo "Usage: ffc [filter] [dir]"
+  else
+    if [ -z "$2" ]; then
+      printf "${MAGENTA}-- Dry run -- Files that would be copied:${NC}\n"
+      ff "$1"
+      printf "\n${YELLOW}Usage reminder: ffc [filter] [dir]${NC}\n"
+    else
+      if [ -d "$2" ]; then
+        printf "${GREEN}Copied to${NC} ${YELLOW}$2${NC}:\n"
+        ff "$1"
+        local pattern=$(echo "$1" | sed 's/\[/\\[/g' | sed 's/\]/\\]/g') # grep really doesn't like unescaped [ or ]
+        find . -maxdepth 1 -type f -print0 | grep -z -i -- "$pattern" | xargs -0 -I{} cp '{}' "$2"
+      else
+        printf "${RED}Target directory doesn't exist${NC}\n"
+      fi
+    fi
+  fi
+}
+
+function fa {
+  find . -name '.git' -prune -o -print | uniq | grep -i -- "$1"
+}
+
+# ~~~~~~~~~~~~
+# Jump around!
+# p proj -> cd ~/Projects/project
+# works best (fastest) if your projects are lower-case and you refer to them as such
+# if not, then for best performance (no lag) you have to call "p Proj" (if ~/Projects/Project exists)
+function awesome_cd {
+  local base=$1
+  local pattern=$2
+  local arg=$3
+  local origin
+  if [ "$4" != 'subdir' ]; then
+    local origin="`pwd`"
+  fi
+
+  if [ ! -d "$base" ]; then
+    return 1
+  fi
+
+  cd "$base"
+
+  if [ -z "$pattern" ]; then
+    return
+  fi
+
+  # optimization, todo!
+  # if [ -d "$pattern" ]; then
+  #   cd "$pattern"
+  #   return
+  # fi
+  # ==> above is not good enough because:
+  # suppose there is a directory called AAA, you type "c aaa", then just "cd aaa" will cause command line to show $/aaa instead of real name- $/AAA
+  #cd $(find . -maxdepth 1 -type d -iname "$1" | head -1) # this works correctly but has other problems -- find reports some unrelated error if for example some directory is not valied anymore (unmounted etc).. also "c dir/" (with slash) caused problems
+
+  local subdir
+
+  if [[ "$pattern" =~ \/ ]] ; then
+    arr=(${pattern//\// })
+    pattern=${arr[0]}
+    subdir=${arr[1]}
+  else
+    unset subdir
+  fi
+
+  local IFS=$'\n' # default is " " and then array is not correctly constructed when there is spaces in filenames
+  local dirlist=($(find . -maxdepth 1 -type d ! -path . -or -type l | sed "s/^\.\///" | grep -i ${pattern}))
+  # will return symlinks that are files (not dirs) as well, that's why we have additional check [ -d "$d" ] below
+
+  local match
+  if [ -n "$pattern" ]; then
+    local min_size=1000
+    if [ "$arg" == "fuzzy" ]; then
+      shopt -s nocasematch # case insensitive regex
+      for d in ${dirlist[@]} ; do
+        if [[ "$d" =~ $pattern ]] && [ -d "$d" ]; then
+          local size=${#d}
+          if [[ $size -lt $min_size ]]; then
+            match="$d"
+            min_size=$size
+          fi
+        fi
+      done
+      shopt -u nocasematch
+    else
+      # first try only directories that start exactly with our input
+      for d in ${dirlist[@]} ; do
+        # https://stackoverflow.com/a/4763159/458177
+        # The easiest way to delete something from the start of a variable is to use ${var#pattern}.
+        # $ FILENAME=.bashrc;    echo "${FILENAME#.}"
+        # bashrc
+        #
+        # we remove leading dot from directories so that for example "c dmt" or "c dm" moves to ~/.dmt even in the presence of ~/DMTMountedMedia
+        # otherwise it wouldn't because DMTMountedMedia technically starts with "dm" and ".dmt" doesn't
+        if [[ "${d#.}" == $pattern* ]] && [ -d "$d" ]; then
+          local size=${#d}
+          if [[ $size -lt $min_size ]]; then
+            match="$d"
+            min_size=$size
+          fi
+        fi
+      done
+    fi
+    if [ -z "$match" ]; then
+      #local proj=`echo $pattern | tr '[:upper:]' '[:lower:]'`
+      local min_size=1000
+      # search case-insensitive now
+      shopt -s nocasematch # case insensitive regex
+      for d in ${dirlist[@]} ; do
+        if [[ "${d#.}" == $pattern* ]] && [ -d "$d" ]; then
+          local size=${#d}
+          if [[ $size -lt $min_size ]]; then
+            match="$d"
+            min_size=$size
+          fi
+        fi
+      done
+      shopt -u nocasematch
+    fi
+  fi
+
+  if [ -n "$match" ]; then
+    cd "$match"
+    if [ -n "$subdir" ]; then
+      awesome_cd . "$subdir" "$arg" 'subdir'
+      if [ $? -gt 0 ]; then
+        cd "$origin"
+        return 1
+      fi
+    fi
+  elif [ "$arg" != "fuzzy" ]; then
+    awesome_cd . "$pattern" 'fuzzy'
+    if [ $? -gt 0 ]; then
+      cd "$origin"
+      return 1
+    elif [ -n "$subdir" ]; then
+      awesome_cd . "$subdir"
+      if [ $? -gt 0 ]; then
+        cd "$origin"
+        return 1
+      fi
+    fi
+  else
+    if [ -z "$AWESOME_SILENCE" ]; then
+      printf "${RED}Directory not found${NC}\n"
+    fi
+    cd "$origin"
+    return 1
+  fi
+}
+
+function p {
+  #if dmt_macos; then
+
+    AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system "$1"
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system/packages "$1"
+    fi
+
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/node "$1"
+    # fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Projects/rust "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Projects "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd /var/projects "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine/playground "$1"
+    fi
+
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system/playground "$1"
+    # fi
+
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/node/dcrypt "$1"
+    # fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/.dmt/core/rust "$1"
+    fi
+
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/ethereum "$1"
+    # fi
+
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/music "$1"
+    # fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd $GOPATH/src "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Documents/Arduino "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Documents/Arduino/libraries "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Install "$1"
+    fi
+
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/node/archive "$1"
+    # fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Library/Application\ Support/Sublime\ Text/Packages "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Library/Application\ Support/Sublime\ Text\ 3/Packages "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Projects/archive "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      awesome_cd ~/Misc "$1"
+    fi
+
+  # else
+  #   # nice side effect:
+  #   # p -> /var/projects
+  #   # p (second time) -> /var/www
+  #   AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node/controller "$1"
+
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine "$1"
+  #   fi
+
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine/playground "$1"
+  #   fi
+
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd /var/projects "$1"
+  #   fi
+
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node "$1"
+  #   fi
+
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd ~/.dmt/core/rust "$1"
+  #   fi
+
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd /var/www "$1"
+
+  #     if [ $? -gt 0 ]; then
+  #       awesome_cd ~/Install "$1"
+  #     elif [ -d "current" ]; then
+  #       cd current
+  #     fi
+  #   fi
+  #fi
+}
+
+# TREE:
+# red
+#   blue
+# green
+#
+# c r → cd red
+# c re/bl → cd red/blue
+# c → cd to first directory
+function c {
+  # c → cd to first directory
+  if [ -z "$1" ]; then
+    cd "`find . -maxdepth 1 -type d ! -path '*/\.*' ! -path . | sed "s/^\.\///" | sort | sed "1q;d"`"
+  else
+    # absolute paths
+    if [[ "$1" =~ ^\/ ]]; then
+      cd "$1"
+      return
+    fi
+    awesome_cd . "$1"
+  fi
+}
+
+function h {
+  str="$1"
+  str="$(tr '[:lower:]' '[:upper:]' <<< ${str:0:1})${str:1}" # upcase first letter for performance, most subdirs of interest here have first letter upcased and comparison will be faster
+
+  local cwd=`pwd`
+
+  AWESOME_SILENCE=true awesome_cd ~/ "$str"
+
+  if [ $? -gt 0 ]; then
+    if dmt_macos; then
+      if [ -d ~/Misc ]; then
+        AWESOME_SILENCE=true awesome_cd ~/Misc "$str"
+        if [ $? -gt 0 ]; then
+          if [ "$cwd" == "`pwd`" ]; then
+            printf "${RED}Directory not found${NC}\n"
+          fi
+        fi
+      fi
+    else
+
+      AWESOME_SILENCE=true awesome_cd ~/Storage "$1"
+
+      # todo: move this to user space
+      if [ $? -gt 0 ]; then
+        AWESOME_SILENCE=true awesome_cd ~/Media/SolarBackup "$1"
+      fi
+
+      # todo: move this to user space
+      if [ $? -gt 0 ]; then
+        AWESOME_SILENCE=true awesome_cd ~/DMTMountedMedia/labstore "$1"
+      fi
+
+      # todo: move this to user space
+      if [ $? -gt 0 ]; then
+        AWESOME_SILENCE=true awesome_cd ~/DMTMountedMedia/solar "$1"
+      fi
+
+      if [ $? -gt 0 ]; then
+        AWESOME_SILENCE=true awesome_cd ~/System "$1"
+      fi
+
+      if [ $? -gt 0 ]; then
+        AWESOME_SILENCE=true awesome_cd ~/Media "$1"
+      fi
+
+      if [ $? -gt 0 ]; then
+        AWESOME_SILENCE=true awesome_cd ~/Helper "$1"
+      fi
+
+      if [ $? -gt 0 ]; then
+        printf "${RED}Directory not found${NC}\n"
+      fi
+    fi
+  fi
+}
+
+function l {
+  local pattern=$1
+
+  if [ -f "$pattern" ]; then
+    printf "File ${YELLOW}${pattern}:${NC}\n"
+    ls -lah "$pattern"
+    return
+  fi
+
+  # search for extensions
+  # l .sol
+  if [[ "$1" =~ ^\. ]]; then
+    printf "Files with ${YELLOW}${pattern}${NC} extension:\n"
+    echo
+    ls -la *"$1"
+    # ls -1
+    return
+  fi
+
+  # absolute paths
+  if [[ "$1" =~ ^\/ ]]; then
+    ls -la "$1"
+    return
+  fi
+
+  if [ -z "$pattern" ]; then
+    ls -lah
+    return
+  fi
+
+  # split on slash
+  if [[ "$pattern" =~ \/ ]]; then
+    arr=($(echo $pattern | tr "/" "\n"))
+    pattern=${arr[0]}
+    local subdir=${arr[1]}
+  fi
+
+  local return_match=''
+  dir_match return_match "$pattern"
+  local match=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$return_match")
+
+  if [ -n "$match" ] && [ -n "$subdir" ]; then
+    local dir="`pwd`"
+    cd "$match"
+    local subdir
+    return_match=''
+    dir_match return_match "$subdir"
+    subdir=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$return_match")
+
+    cd "$dir"
+    if [ -z "$subdir" ]; then
+      printf "${RED}${match}${arr[1]} not found${NC}\n"
+      return
+    fi
+  fi
+
+  if [ -n "$match" ]; then
+    if [ -z "$subdir" ]; then
+      printf "Subdirectory ${YELLOW}${match}:${NC}\n"
+      echo
+      ls -lah "$match/" # end slash is for symlinks... without it, it doesn't show contents
+    else
+      printf "Subdirectory ${YELLOW}${match}/${subdir}:${NC}\n"
+      echo
+      ls -lah "$match/$subdir/"
+    fi
+  else
+    printf "${YELLOW}No subdirectory matches the pattern and there is no file with this exact name${NC}\n"
+  fi
+}
+
+# there is also simpler get_matching_folder
+
+#WARNING: replace single quotes back after calling this function:
+# return_match=''
+# dir_match return_match "$pattern"
+# THIS LINE IS IMPORTANT --->  local match=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$return_match")
+function dir_match {
+  local pattern=$2
+  local match
+
+  if [ -n "$pattern" ]; then
+    local IFS=$'\n' # default is " " and then array is not correctly constructed when there is spaces in filenames
+    local dirlist=($(find . -maxdepth 1 -type d ! -path . -or -type l | sed "s/^\.\///" | grep -i ${pattern}))
+    # will return symlinks that are files (not dirs) as well, that's why we have additional check [ -d "$d" ] below
+    local min_size=1000
+    # first try only directories that start exactly with our input
+    for d in ${dirlist[@]} ; do
+      if [[ $d == $pattern* ]] && [ -d "$d" ]; then
+        local size=${#d}
+        if [[ $size -lt $min_size ]]; then
+          match=$d
+          min_size=$size
+        fi
+      fi
+    done
+    if [ -z "$match" ]; then
+      local proj=`echo $pattern | tr '[:upper:]' '[:lower:]'`
+      local min_size=1000
+      # search all directories case-insensitive now
+      for d in ${dirlist[@]} ; do
+        local dir=`echo "$d" | tr '[:upper:]' '[:lower:]'`
+        if [[ $dir == $proj* ]] && [ -d "$d" ]; then
+          local size=${#d}
+          if [[ $size -lt $min_size ]]; then
+            match=$d
+            min_size=$size
+          fi
+        fi
+        # if exact match stop the loop to gain some performance
+        if [[ $dir == $proj/ ]]; then
+          match=$dir
+          break
+        fi
+      done
+    fi
+    if [ -z "$match" ]; then
+      for d in ${dirlist[@]} ; do
+        shopt -s nocasematch # case insensitive
+        if [[ $d =~ $pattern ]] && [ -d "$d" ]; then
+          local size=${#d}
+          if [[ $size -lt $min_size ]]; then
+            match=$d
+            min_size=$size
+          fi
+        fi
+        shopt -u nocasematch # revert
+      done
+    fi
+  fi
+
+  match=$(sed "s/'/111SINGLE___QUOTE111/g" <<< "$match")
+  eval "$1='$match'"
+}
+
+# expand hidden filenames for run_on_file (globally, actually)
+shopt -s dotglob
+
+# run_on_file prog elixir '*.ex' 'dummy' "$@"
+# doesn't work with hidden files currently, they are not passed in bash
+# TO TEST SEE ABOVE
+function run_on_file {
+
+  if [ -z "$1" ]; then # safety
+    return
+  fi
+
+  local pattern="$1"
+  shift
+  local executable="$1"
+  shift
+  local files="$1"
+  shift
+  local flag="$1"
+  shift
+  local args="$@"
+
+  local matching_file=''
+  get_matching_file matching_file "$pattern" "$files"
+  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+  if [ ! -f "$matching_file" ]; then
+    return
+  fi
+
+  local match="$matching_file" # we were careful not to send $match to the function, because the same name is used locally there
+
+  if [ -n "$match" ]; then
+
+    if [ "$flag" == "local" ]; then
+
+      if [ "$flag" != "silent" ] && [ "$matching_file" != "$pattern" ]; then
+        printf "${YELLOW}$executable ./$match $args${NC}\n"
+      fi
+
+      if [ -z "$args" ]; then
+        command $executable "./$match"
+      else
+        command $executable "./$match" "$args"
+      fi
+
+    else
+
+      if [ "$flag" != "silent" ] && [ "$matching_file" != "$pattern" ]; then
+        printf "${YELLOW}$executable $match $args${NC}\n"
+      fi
+
+      if [ -z "$args" ]; then
+        command $executable "${match}"
+      else
+        command $executable "$match" "$args"
+      fi
+    fi
+
+  else
+
+    if [ "$flag" == "force" ]; then # run the executable on pattern even if actual file was not found by pattern
+      if [ -z "$args" ]; then
+        command $executable "$pattern"
+      else
+        command $executable "$pattern" "$args"
+      fi
+    else
+      printf "${RED}File not recognized${NC}\n"
+    fi
+
+  fi
+}
+
+#WARNING: replace single quotes back after calling this function:
+# local matching_folder=''
+# get_matching_folder matching_folder ~/Install/npm "$1"
+# THIS LINE IS IMPORTANT --->  matching_folder=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_folder")
+function get_matching_folder() {
+  local dir="$2"
+  local pattern="$3"
+
+  if [ ! -d "$dir" ]; then
+    printf "${RED}$dir is not a directory${NC}\n"
+    return
+  fi
+
+  # exact match
+  for d in `ls -1 "$dir"` ; do
+    if [[ $d == "$pattern" ]]; then
+      d=$(sed "s/'/111SINGLE___QUOTE111/g" <<< "$d")
+      eval "$1='${d}'"
+      return
+    fi
+  done
+
+  # begins with
+  for d in `ls -1 "$dir"` ; do
+    if [[ $d == "$pattern"* ]]; then
+      d=$(sed "s/'/111SINGLE___QUOTE111/g" <<< "$d")
+      eval "$1='${d}'"
+      return
+    fi
+  done
+}
+
+#WARNING: replace single quotes back after calling this function:
+# local matching_file=''
+# get_matching_file matching_file "$pattern" "$files"
+# THIS LINE IS IMPORTANT --->  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+function get_matching_file {
+
+  local pattern="$2"
+  local files="$3"
+
+  if [ -z "$files" ]; then
+    #command $executable
+    files="*"
+  fi
+
+  # r compare.go
+  # this called "get_matching_file matching_file "$pattern" "*.js"" (see function r)
+  # and then it matched in following lines although it shoudln't because "*.js" was not taken into account
+  #
+  # OPTIONS:
+  # - leave is at is (is it fast enough?)
+  # - improve by checking if file with exact $pattern exists but also check for extenstion
+  #
+  if [ -f "$pattern" ] && [ "$files" == "*" ]; then
+    pattern=$(sed "s/'/111SINGLE___QUOTE111/g" <<< "$pattern")
+    eval "$1='${pattern}'"
+    return
+  fi
+
+  local cwd="`pwd`"
+
+  local subdir=''
+
+  if [[ "$pattern" =~ \/ ]] ; then
+    local arr=($(echo $pattern | tr "/" "\n"))
+    subdir=${arr[0]}
+    pattern=${arr[1]}
+    AWESOME_SILENCE=true awesome_cd . "$subdir"
+    if [ "$cwd" == "`pwd`" ]; then
+      printf "${RED}There is no matches for ${subdir} folder pattern${NC}\n"
+      return 1
+    elif [ -z "$pattern" ]; then
+      printf "${RED}You have to specify the file pattern${NC}\n"
+      cd "$cwd"
+      return 1
+    fi
+    subdir=${PWD##*/} # where we actually landed
+  fi
+
+  local min_size=1000
+  local match
+  local file
+  # local extensions_arr=(${extensions/;/ })
+
+  # local IFS=$'\n' # default is " " and then array is not correctly constructed when there is spaces in filenames
+
+  # start with case sensitive
+  #for extension in "${extensions_arr[@]}"
+  for file in $files
+  do
+    #local files=($(find * -maxdepth 0 -type f))
+    if [ -f "$file" ] && [[ $file == "$pattern"* ]]; then
+      local size=${#file}
+      if [[ $size -lt $min_size ]]; then
+        match=$file
+        min_size=$size
+      fi
+    fi
+  done
+
+  # case insensitive
+  if [ -z "$match" ]; then
+    shopt -s nocasematch # case insensitive regex
+
+    for file in $files
+    do
+      if [ -f "$file" ] && [[ $file == "$pattern"* ]]; then
+        local size=${#file}
+        if [[ $size -lt $min_size ]]; then
+          match=$file
+          min_size=$size
+        fi
+      fi
+    done
+
+    shopt -u nocasematch
+  fi
+
+  # anywhere case sensitive
+  if [ -z "$match" ]; then
+    for file in $files
+    do
+      if [ -f "$file" ] && [[ $file == *"$pattern"* ]]; then
+        local size=${#file}
+        if [[ $size -lt $min_size ]]; then
+          match=$file
+          min_size=$size
+        fi
+      fi
+    done
+  fi
+
+  # anywhere case insensitive
+  if [ -z "$match" ]; then
+    shopt -s nocasematch # case insensitive regex
+
+    for file in $files
+    do
+      if [ -f "$file" ] && [[ $file == *"$pattern"* ]]; then
+        local size=${#file}
+        if [[ $size -lt $min_size ]]; then
+          match=$file
+          min_size=$size
+        fi
+      fi
+    done
+
+    shopt -u nocasematch
+  fi
+
+  if [ "$cwd" != "`pwd`" ]; then
+    cd "$cwd"
+  fi
+
+  if [ -n "$match" ]; then
+    if [ "$flag" == "mux" ]; then
+      match=${match:2:${#match}-6}
+    fi
+
+    if [ -n "$subdir" ]; then
+      match="$subdir/$match"
+    fi
+
+    if  [ "$match" == "$subdir/" ]; then
+      printf "${RED}Folder $subdir has no matching file${NC}\n"
+      return 1
+    fi
+
+    # single quotes don't make it through the return from the function
+    match=$(sed "s/'/111SINGLE___QUOTE111/g" <<< "$match")
+    eval "$1='${match}'"
+  else
+    return 1
+  fi
+}
+
+function r {
+  if [ -z "$1" ]; then
+    if [ -f "index.js" ]; then
+      r index.js
+    elif [ -f "Cargo.toml" ]; then
+      cargo run
+    else
+      printf "${RED}No index.js to run: need file pattern${NC}\n"
+    fi
+  else
+    local executable=''
+
+    local pattern=$1
+    shift
+
+    # javascript
+    local matching_file=''
+    get_matching_file matching_file "$pattern" "*.js"
+    matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+    if [ -n "$matching_file" ]; then
+      if [ -f "./truffle.js" ]; then
+        executable="truffle exec"
+      else
+        executable="$DMT_NODEJS_EXEC"
+      fi
+    fi
+
+    # elixir
+    if [ -z "$matching_file" ]; then
+      matching_file=''
+      get_matching_file matching_file "$pattern" "*.ex"
+      matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+      if [ -n "$matching_file" ]; then
+        executable=elixir
+      fi
+    fi
+
+    # ruby
+    if [ -z "$matching_file" ]; then
+      matching_file=''
+      get_matching_file matching_file "$pattern" "*.rb"
+      matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+      if [ -n "$matching_file" ]; then
+        executable=ruby
+      fi
+    fi
+
+    # go
+    if [ -z "$matching_file" ]; then
+      matching_file=''
+      get_matching_file matching_file "$pattern" "*.go"
+      matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+      if [ -n "$matching_file" ]; then
+        executable="go run"
+      fi
+    fi
+
+    # python
+    if [ -z "$matching_file" ]; then
+      matching_file=''
+      get_matching_file matching_file "$pattern" "*.py"
+      matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+      if [ -n "$matching_file" ]; then
+        executable=python3
+      fi
+    fi
+
+    if [ -n "$executable" ]; then
+      local args="$@"
+      printf "[ ${GRAY}$executable $matching_file ${args}${NC}]\n" # if using $@ directly here, only the first argument is printed :/
+      echo
+      command $executable "$matching_file" "$@"
+    elif [ -d "cli" ]; then
+      cli "$pattern" "$@"
+    else
+      printf "${RED}No match${NC}\n"
+    fi
+  fi
+}
+
+# runs scripts from util, utils or utilities
+# u sc => node utils/scan.js
+function ru {
+
+  if [ -z "$1" ]; then
+    return
+  fi
+
+  local pattern="$1"
+  shift
+
+  local matching_file=''
+  get_matching_file matching_file "util/$pattern" "*.js"
+  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+  if [ ! -f "$matching_file" ]; then
+    return
+  fi
+
+  printf "${YELLOW}node ${matching_file}${NC}\n"
+
+  node "$matching_file" "$@"
+}
+
+function bn {
+  run_on_file "$1" babel-node '*.js' force
+}
+
+function edit {
+  # if [ -z "$1" ] && [ -f ".gitignore" ]; then
+  #   nano .gitignore
+  if [ -z "$1" ]; then
+    exit
+  elif [ -n "$1" ]; then
+    run_on_file "$1" nano '*' force
+  fi
+}
+
+function moc {
+  run_on_file "tests/$1" mocha '*.js'
+}
+
+function ct {
+  run_on_file "$1" cat '*'
+}
+
+function tt {
+  tree -Ia 'test|node_modules|.git|Godeps|elm-stuff|deps|log|_build|vendor|bower_components|tmp|deploy|distroot|Deps'
+}
+
+# t -> tree
+# t fil -> t file.txt
+# t sc -> t script.js => with sytax highlighting
+# t fil lala -> t file.txt | grep lala -i
+function t {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}t [file] ${GRAY}shows file with syntax highlighting${NC}\n"
+    printf "${GREEN}t [file] [term] ${GRAY}searches for lines with [term]${NC}\n"
+  else
+
+    local matching_file=''
+    get_matching_file matching_file "$1"
+    matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+    if [ ! -f "$matching_file" ]; then
+      printf "${RED}File not found${NC}\n"
+      return
+    fi
+
+    if [ "$matching_file" != "$1" ]; then
+      printf "${YELLOW}${matching_file}${NC}\n"
+    fi
+
+    if [[ "$matching_file" == *".def" ]]; then
+      dmt_parsedef "$matching_file"
+    elif [[ "$matching_file" == *".json" ]]; then
+      if [ "$2" == "hidden" ]; then
+        cat "$matching_file"
+      else
+        if [ -n "$2" ]; then
+          printf "${BLUE}${2}:${NC}\n"
+        fi
+        cat "$matching_file" | grep -v "^\s*//" | jq ".$2" # $2 can be empty.. if it's not, then it graps the specific key, more info: https://stedolan.github.io/jq/tutorial/
+        # Python JSON validator
+        # cat file.json | python -m json.tool
+        if [ $? -ne 0 ]; then # parse error..
+          cat "$matching_file"
+          printf "${RED}"
+          cat "$matching_file" | grep -v "^\s*//" | jq ".$2"
+          printf "${NC}"
+        fi
+      fi
+    elif [ -n "$2" ]; then
+      run_on_file "$matching_file" cat '*' force | grep "$2" --color -in
+    elif [[ "$(head -1 "$matching_file")" =~ \#\!\/bin\/(bash|sh) ]]; then
+      run_on_file "$matching_file" "highlight -O xterm256 -s darkbone --syntax bash" '*' 'silent'
+    else
+      if [[ "$matching_file" == "Makefile" ]] || [[ "$matching_file" == *".js" ]] || [[ "$matching_file" == *".rb" ]] || [[ "$matching_file" == *".py" ]] ||
+         [[ "$matching_file" == *".go" ]] || [[ "$matching_file" == *".html" ]] || [[ "$matching_file" == *".css" ]]; then  # this will not be true on incomplete file names
+        run_on_file "$matching_file" "highlight -O xterm256 -s darkbone" '*' 'silent'
+      else
+        run_on_file "$matching_file" cat '*'
+      fi
+    fi
+  fi
+}
+
+function oi {
+  if [ -f "index.html" ]; then
+    open "index.html"
+  else
+    printf "${RED}No index.html${NC}\n"
+  fi
+}
+
+# open
+function op {
+  if [ -z "$1" ] || [ "$1" == "." ]; then
+    open .
+  elif [ "$1" == "xcode" ] && [ -d "ios" ]; then
+    find ios -type d -depth 1 | grep xcodeproj | xargs open
+  elif [[ "$1" =~ ^[0-9]+$ ]]; then
+    open "http://localhost:${1}"
+  else
+    run_on_file "$1" "open" '*'
+  fi
+}
+
+function i {
+  if [ "$1" == '-h' ] || [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}i [package] [package] ... ${GRAY}install packages${NC}\n"
+    printf "${GREEN}i --check [package] ${GRAY}check if installed${NC}\n"
+    printf "${GREEN}i --search [package] ${GRAY}check for available versions of similarly named packages${NC}\n"
+    printf "${GREEN}i --info [package] ${GRAY}detailed info of exact match (faster)${NC}\n"
+    printf "${GREEN}i --cmd [package] ${GRAY}which package does the command belong to${NC}\n"
+  else
+    if [[ "$1" == *--* ]]; then
+
+      if [ -z "$2" ]; then
+        printf "${RED}missing the rest of the command${NC}\n"
+        return
+      fi
+
+      case "$1" in
+        --check)
+          shift
+          ii "$@"
+          ;;
+
+        --search)
+          shift
+
+          printf "\n${YELLOW}Available packages:${NC}\n"
+          aptitude search "$1" -F "%c %p %d %V"
+
+          # apt-cache search *search term*
+          ;;
+
+        --info)
+          shift
+
+          printf "\n${YELLOW}Exact match info:${NC}\n"
+          apt-cache show "$1"
+
+          ;;
+
+        --cmd)
+          shift
+
+          local cmd="$@"
+
+          which "$cmd" > /dev/null 2>&1
+
+          if [ $? -eq 0 ]; then
+            dpkg -S `which ${cmd}`
+          else
+            printf "${RED}command${NC} ${YELLOW}${cmd}${NC} ${RED}not found${NC}\n"
+          fi
+          ;;
+
+        *)
+          printf "${RED}unknown flag ${1}${NC}\n"
+          ;;
+
+      esac
+
+    else
+      sudo apt-get install -y "$@"
+    fi
+  fi
+}
+
+function ii {
+  printf "${MAGENTA}Installed versions:${NC}\n"
+  #dpkg-query -s "$@" | grep "Version"
+  dpkg-query -l "$@" | grep "ii"
+}
+
+alias ll='ls -l'
+alias la='ls -A'
+alias pu='pushd'
+alias po='popd'
+
+alias to='touch'
+alias wg='wget'
+
+#alias .='l' bad idea
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias ......="cd ../../../../.."
+alias cd..='cd ..'
+
+function cop {
+  if ! dmt_macos; then
+    printf "${MAGENTA}Warning: not copied to clipboard because in remote shell${NC}\n"
+  fi
+
+  local path
+
+  if [ -z "$1" ]; then
+    path=$(pwd)
+  else
+    if [ -f "$1" ]; then
+      if dmt_macos; then
+        path=$(greadlink -f "$1")
+      else
+        path=$(readlink -f "$1")
+      fi
+    else
+      local matching_file=''
+      get_matching_file matching_file "$1"
+      matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+      if [ ! -f "$matching_file" ]; then
+        return
+      fi
+
+      if dmt_macos; then
+        local path=$(greadlink -f "$matching_file")
+      else
+        path=$(readlink -f "$matching_file")
+      fi
+    fi
+  fi
+
+  if [ -e "${path}" ]; then
+    path=$(sed "s/ /\\\ /g" <<< "$path")
+    path=$(sed "s/\!/\\\\!/g" <<< "$path")
+    path=$(sed "s/\&/\\\\&/g" <<< "$path")
+    path=$(sed "s/(/\\\(/g" <<< "$path")
+    path=$(sed "s/)/\\\)/g" <<< "$path")
+    path=$(sed "s/'/\\\'/g" <<< "$path")
+    path=$(sed "s/\"/\\\\\"/g" <<< "$path")
+    path=$(echo $path | tr -d '\n')
+
+    if dmt_macos; then
+      printf "Clipboard: ${YELLOW}${path}${NC}\n"
+      echo "$path" | tr -d '\n' | pbcopy
+    else
+      echo "$path"
+    fi
+  else
+    printf "${RED}No such file${NC}\n"
+  fi
+}
+
+function cli_helper() {
+  local MAGENTA='\033[0;35m'
+  local NC='\033[0m' # No Color
+  local text=$(echo "$1" | sed "s/cli\///g" | sed "s/.js//g")
+  printf "${MAGENTA}${text}${NC} >>> "
+  $DMT_NODEJS_EXEC "$1" -h
+  echo
+}
+
+function cli {
+  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+    if [ -d "cli" ]; then
+      if [ -z "$1" ]; then
+        find cli -type f | sort | sed "s/cli\///g" | sed 's/.js//g'
+        echo
+        printf "${YELLOW}Tip:${NC} use ${CYAN}cli -h${NC} for more info\n"
+        return
+      elif [ -d "cli" ] && [ -n "$1" ]; then
+        #hardcore ;P --
+        find cli/*.js -type f | sort | xargs -I@ bash -c "$(declare -f cli_helper) ; cli_helper @ "
+        return
+      fi
+    elif [ -d "lib" ]; then
+      printf "${YELLOW}lib:${NC}\n"
+      find lib -type f | sort | sed "s/lib\///g" | sed 's/.js//g'
+      return
+    fi
+  fi
+
+  local dirname=$(pwd | xargs basename)
+
+  # first option for "cli" to be active: existence of ./cli directory
+  if [ -d "cli" ]; then
+    local cmd="$1"
+    cd cli
+    local matching_file=''
+    get_matching_file matching_file "$cmd" "*.js"
+    matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+    cd ..
+
+    if [ -n "$matching_file" ]; then
+      shift
+      local fileName=$(echo $matching_file | sed 's/.js//g')
+      >&2 printf "cli/${MAGENTA}${fileName}${NC} \n" # output to stderr so that piping the output to file doesn't contain this header
+      $DMT_NODEJS_EXEC "cli/$matching_file" "$@"
+      found=true
+    else
+      printf "${RED}Unknown cli command${NC}\n"
+    fi
+  elif [ -d "lib" ]; then # second option: existence of .lib directory (very similar to above)
+    local cmd="$1"
+    cd lib
+    local matching_file=''
+    get_matching_file matching_file "$cmd" "*.js"
+    matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+    cd ..
+
+    if [ -n "$matching_file" ]; then
+      shift
+      >&2 $DMT_NODEJS_EXEC "lib/$matching_file" "$@"
+      found=true
+    else
+      printf "${RED}Unknown cli command${NC}\n"
+    fi
+  elif [ "$dirname" == "packages" ]; then
+    printf "${GREEN}We are inside packages.${MAGENTA} TODO - should report something about each package (subdirectory) ... at least report basic description of a package.. should probably not be in bash, but delegate this to superlib (which has to get extended functionality)${NC}\n"
+  else
+    printf "${RED}Not in the right kind of directory for ${MAGENTA}cli${RED} to work ${NC}\n"
+  fi
+}
+
+function tape {
+  declare -a opts=(
+    "status"
+    "rewind"
+    "look"
+    "eject"
+    "eom"
+    "goto"
+    "fwd"
+    "prev"
+    "backup"
+    "copy"
+    "copy_rewind"
+    "restore"
+  )
+
+  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    echo "${opts[@]}"
+    return
+  fi
+
+  local matching_opt=''
+  dmt_opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    printf "${YELLOW}Use ${GREEN}-h ${YELLOW}to see valid options${NC}\n\n"
+    return
+  fi
+
+  shift
+
+  case "$matching_opt" in
+    status)
+      sudo mt -f /dev/nst0 status
+      ;;
+
+    rewind)
+      time sudo mt -f /dev/st0 rewind
+      ;;
+
+    eject)
+      time sudo mt -f /dev/st0 offline
+      ;;
+
+    look)
+      sudo tar -b 2048 -tf /dev/nst0
+      ;;
+
+    eom)
+      time sudo mt -f /dev/nst0 eom
+      ;;
+
+    goto)
+      if [ -z "$1" ]; then
+        printf "${RED}Must specify which archive number to seek to${NC}\n"
+      else
+        time sudo mt -f /dev/nst0 asf "$1"
+        sudo mt -f /dev/nst0 status
+      fi
+      ;;
+
+    fwd)
+      local steps="1"
+      if [ -n "$1" ]; then
+        steps="$1"
+      fi
+
+      time sudo mt -f /dev/nst0 fsf "$steps"
+      sudo mt -f /dev/nst0 status
+      ;;
+
+    prev)
+      local steps="1"
+      if [ -n "$1" ]; then
+        steps="$1"
+      fi
+
+      time sudo mt -f /dev/nst0 bsfm "$steps"
+      sudo mt -f /dev/nst0 status
+      ;;
+
+    backup)
+      local script="$DMT_SCRIPTS/tape_backup"
+      if [ -f "$script" ]; then
+        sudo "$script" "$@"
+      else
+        printf "${RED}missing ${script}${NC}\n"
+      fi
+      ;;
+
+    copy)
+      local dir="$1"
+      time sudo tar -b 2048 -cf /dev/nst0 "$dir" --verbose --verbose
+      ;;
+
+    copy_rewind)
+      local dir="$1"
+      time sudo tar -b 2048 -cf /dev/st0 "$dir" --verbose --verbose
+      ;;
+
+    restore)
+      local dir="$1" # optional! if we call tar -xf without the directory which we want to extract, we will extract the entire archive
+      time sudo tar -b 2048 -xvf /dev/nst0 "$dir" #--verbose --verbose
+      #tar -b 2048 -xf /dev/nst0 "$dir"
+      ;;
+  esac
+}

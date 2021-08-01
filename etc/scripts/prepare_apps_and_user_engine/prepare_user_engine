@@ -1,0 +1,23 @@
+#!/bin/bash
+
+DMT_USER_ENGINE="$HOME/.dmt/user/engine"
+
+./create_symlinks_user_engine
+
+if [ ! -f "$DMT_USER_ENGINE/package.json" ]; then
+  # we replace package.json exports field with contents of user_engine/exports.json
+  # from within load-user-engine middleware
+  cp ./dmt_user_engine/package.json "$DMT_USER_ENGINE"
+fi
+
+USER_ENGINE_ENTRY="$DMT_USER_ENGINE/index.js"
+
+# ⚠️ TODO: remove this soon
+# fix old incompatible version -- 8 lines -- and
+# if [ -f "$USER_ENGINE_ENTRY" ] && [ $(cat "$USER_ENGINE_ENTRY" | wc -l) == 8 ]; then
+#   rm "$USER_ENGINE_ENTRY"
+# fi
+
+if [ ! -f "$USER_ENGINE_ENTRY" ]; then
+  cp ./dmt_user_engine/index.js "$USER_ENGINE_ENTRY"
+fi

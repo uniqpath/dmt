@@ -1,0 +1,9 @@
+{
+  "name": "gextend",
+  "version": "0.1.6",
+  "main": "./src/extend.js",
+  "ignore": [],
+  "dependencies": {
+    "requirejs": "~2.1.4"
+  }
+}

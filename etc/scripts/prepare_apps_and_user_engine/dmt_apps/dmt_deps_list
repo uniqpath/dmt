@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# DMT SYSTEM APPS and DMT USER APPS deps
+# ⚠️ keep this file in sync with :
+# - dmt_apps/package.json
+# dmt_user_engine:
+#  - dmt_deps_list
+#  - exports.json
+
+declare -a List=(
+  "core/node/common"
+  "core/node/notify"
+  "core/node/search"
+  "core/node/connectome/src/client connectome"
+  "core/node/connectome/src/stores-node connectome-stores"
+  "core/node/connectome-next connectome-next"
+)

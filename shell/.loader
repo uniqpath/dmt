@@ -1,0 +1,51 @@
+#!/bin/bash
+
+if [ -n "$ZSH_VERSION" ]; then
+
+  # we source these functions from zsh
+  # but we can run bash script (~/.dmt/bin/dmt) that loads these... and that's what we do for zsh
+  export PATH="$HOME/.dmt/bin:$PATH"
+
+  # we don't have any other command except "dmt" in zsh... so no other possible global or user functions or aliases ...
+
+elif [ -n "$BASH_VERSION" ]; then
+
+  # relative to current file
+  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+  . "$DIR/.shell_basic"
+
+  if [ -f "$DMT_USER_DEF_FILE" ]; then
+    __user_shell=''
+
+    dmt_def_reader __user_shell "$DMT_USER_DEF_FILE" "shell"
+
+    if [ -f "$DIR/.shell_advanced" ] && [[ "$__user_shell" =~ ^full ]]; then
+      . "$DIR/.shell_advanced"
+
+      if [ -f "$DIR/.bash_custom" ] && [ "$__user_shell" != "full_without_prompt" ]; then
+        . "$DIR/.bash_custom"
+      fi
+    fi
+  fi
+
+  if [ -f "$DIR/.bash_staging" ]; then
+    . "$DIR/.bash_staging"
+  fi
+
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # ~~~~~~~~~~~~~~~~~~~~~~~ KEEP THESE AS LAST LINES ~~~~~~~~~~~~~~~~~~~~~~~
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  if [ -f "$DMT_USER_PATH/shell/.bash_user" ]; then
+    . "$DMT_USER_PATH/shell/.bash_user"
+  fi
+
+  if [ -f "$DMT_USER_PATH/devices/this/shell/.bash_device" ]; then
+    . "$DMT_USER_PATH/devices/this/shell/.bash_device"
+  fi
+
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+fi
+

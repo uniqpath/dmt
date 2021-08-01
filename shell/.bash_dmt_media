@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# m = MEDIA
+# music (default), video (@media=video)
+function dmt_media {
+  declare -a opts=(
+    "info"
+
+    "search"
+
+    "play"
+    "pause"
+    "stop"
+    "next"
+
+    "volume"
+    "status"
+    "list"
+
+    "add"
+    "insert"
+    "insplay" # insert-play
+
+    "bump" # "set next"
+    "similar"
+    "cut"
+    "paste"
+
+    "forward"
+    "backward"
+    "goto"
+
+    "shuffle"
+    "limit"
+    "repeat"
+  )
+
+  local matching_opt=''
+
+  if [ "$1" == 'help' ] || [ "$1" == '-h' ] || [ "$1" == '--help' ]; then
+    matching_opt="info"
+  else
+    dmt_opts_matcher matching_opt "$1" "${opts[@]}"
+    if [ $? -ne 0 ]; then # error
+      if [ -z "$1" ]; then
+        matching_opt="info"
+      else
+        return
+      fi
+    fi
+  fi
+
+  shift
+
+  local playerCmd="$DMT_NODE_CORE/player/cli/media.js"
+
+  $DMT_NODEJS_EXEC "$playerCmd" "${matching_opt}" "$@"
+}
+
+function dmt_save_alsa {
+  alsactl --file ~/.config/asound.state store
+}
+
+function dmt_restore_alsa {
+  alsactl --file ~/.config/asound.state restore
+}
+
+function dmt_soundtest {
+  if dmt_is_rpi; then
+    printf "${GREEN}Soundtest ${MAGENTA}0.${NC}\n"
+    aplay "$DMT_PATH/etc/sounds/soundtest/music.wav"
+  fi
+
+  which mpv > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then
+    printf "${MAGENTA}mpv is missing, please install it....${NC}\n"
+    printf "${GRAY}debian linux / raspberrypi${NC} → ${GREEN}sudo apt-get install mpv${NC}\n"
+    printf "${GRAY}macos${NC} → ${GREEN}brew install mpv${NC}\n"
+    printf "${GRAY}windows${NC} → ${YELLOW}?${NC}\n"
+    return
+  fi
+
+  #printf "${GREEN}Soundtest ${MAGENTA}1.${NC}\n"
+  #mpv --no-video "$DMT_PATH/etc/sounds/soundtest/music.mp3"
+
+  printf "${GREEN}Soundtest ${MAGENTA}1.${NC}\n"
+  $DMT_NODEJS_EXEC "$DMT_NODE_CORE/controller/lib/player/localMusicPlayer.js"
+}
+
+
+function dmt_videotest {
+  # if dmt_is_rpi; then
+  #   printf "${GREEN}Soundtest ${MAGENTA}0.${NC}\n"
+  #   aplay "$DMT_PATH/etc/sounds/soundtest/music.wav"
+  # fi
+
+  which mpv > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then
+    printf "${MAGENTA}mpv is missing, please install it....${NC}\n"
+    printf "${GRAY}debian linux / raspberrypi${NC} → ${GREEN}sudo apt-get install mpv${NC}\n"
+    printf "${GRAY}macos${NC} → ${GREEN}brew install mpv${NC}\n"
+    printf "${GRAY}windows${NC} → ${YELLOW}?${NC}\n"
+    return
+  fi
+
+  #printf "${GREEN}Videotest ${MAGENTA}1.${NC}\n"
+  #mpv "$DMT_PATH/etc/videos/videotest/video.mp4"
+
+  printf "${GREEN}Videotest ${MAGENTA}1.${NC}\n"
+  $DMT_NODEJS_EXEC "$DMT_NODE_CORE/controller/lib/player/localVideoPlayer.js"
+}

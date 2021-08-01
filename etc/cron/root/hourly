@@ -1,0 +1,58 @@
+#!/bin/bash
+
+user="$1"
+
+if [ -n "$user" ]; then
+
+  CERT_DIR="/home/${user}/.dmt-here/https/zetaseek.com"
+
+  if [ -d "$CERT_DIR" ]; then
+
+    cd "$CERT_DIR"
+
+    if [ -f web.pem ]; then
+      REPORT=cert_auto_update_report.txt
+
+      echo $(date) > $REPORT
+
+      # if certificate is not expiring soon, don't do anything, just write log
+      if openssl x509 -checkend 604800 -noout -in web.pem # 604800s == 7 days
+      then
+        echo "Certificate is good at least for another week, it expires at:" >> $REPORT
+        echo $(openssl x509 -enddate -noout -in web.pem | sed 's/notAfter=//') >> $REPORT
+      else # if certificate is expiring soon, re-fetch it
+        echo "Certificate has expired or will do so within 7 days!" >> $REPORT
+        echo "(or is invalid/not found)" >> $REPORT
+
+        curl https://dmt-system.com/cert/zs.pem -o web_cert_next.pem
+
+        if [ -f web_cert_next.pem ]; then
+          # and check if it was actually updated
+          if openssl x509 -checkend 604800 -noout -in web_cert_next.pem # 604800s == 7 days
+          then
+            echo "" >> $REPORT
+            echo "fetched new certificate" >> $REPORT
+
+            # we got a new certificate, replace the old one
+            mv web.pem web_old.pem
+            mv web_cert_next.pem web.pem
+
+            chown $user:$user web.pem
+
+            # restart lighttpd
+            # ⚠️  reload does not work when certificates update - it freezes lighttpd :(
+            echo "restarting lighttpd" >> $REPORT
+            systemctl restart lighttpd
+          else
+            echo "fetched certificate from server but it's still the old one" >> $REPORT
+            # certificate was not yet updated on server, it is probably the same we have or also expired or expiring soon
+            rm web_cert_next.pem
+          fi
+        else
+          echo "failed to fetch certificate from server" >> $REPORT
+        fi
+      fi
+    fi
+
+  fi
+fi

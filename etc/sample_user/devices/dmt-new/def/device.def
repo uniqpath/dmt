@@ -1,0 +1,12 @@
+device: dmt-new
+
+  #main: true
+
+  service: player
+    contentRef: music
+
+    defaultVolume:
+      mpv: 70
+
+  service: gui
+    #theme: dmt_mountains

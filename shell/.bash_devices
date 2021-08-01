@@ -1,0 +1,326 @@
+#!/bin/bash
+
+#######################################
+### DEVICE DISCOVERY AND NETWORKING ###
+#######################################
+
+function get_remote_device_ip_and_name_and_user_and_network {
+  local userAndDevice="$8"
+
+  # check for user, ex: pi@host
+  if [[ "$userAndDevice" =~ \@ ]]; then
+    local arr=(${userAndDevice/\@/ }) # split on @
+    local deviceName="${arr[@]:1}" # take everything except first el
+    local argUser=${arr[0]} # normal element access echo ${arr[1]}
+  else
+    local deviceName="$userAndDevice"
+  fi
+
+  # we passed in the bare ip addres:
+  # for example: q pi@192.168.0.80
+  if [[ "$deviceName" =~ [0-9]\.[[:digit:]] ]]; then # ip
+    local _ip="$deviceName"
+
+    if [ -n "$argUser" ]; then
+      local _user="$argUser"
+    fi
+
+  # we passed in the domain (do the same thing as above... separated for the future cases)
+  # eg: dmt update user@user.zetaseek.com
+  elif [[ "$deviceName" =~ \. ]]; then # ip
+    local _ip="$deviceName"
+
+    if [ -n "$argUser" ]; then
+      local _user="$argUser"
+    fi
+
+  else # for example: q dpanel, q root@dpanel etc.
+
+    local resolverPath
+    getDMTDeviceResolverPath resolverPath
+
+    local result=$($DMT_NODEJS_EXEC "$resolverPath" "$deviceName")
+    local _dmt_device=true
+
+    # ip
+    local line=$(echo "$result" | grep "ip:")
+    local arr=(${line/\:/ })
+    local _ip=${arr[1]}
+
+    # globalIp
+    line=$(echo "$result" | grep "globalIp:")
+    arr=(${line/\:/ })
+    local _global_ip=${arr[1]}
+
+    # globalSSHPort
+    line=$(echo "$result" | grep "globalSSHPort:")
+    arr=(${line/\:/ })
+    local _global_ssh_port=${arr[1]}
+
+    if [ -z "$_global_ssh_port" ]; then
+      _global_ssh_port="22"
+    fi
+
+    # name
+    line=$(echo "$result" | grep "name:")
+    arr=(${line/\:/ })
+    local _name=${arr[@]:1}
+
+    # user
+    line=$(echo "$result" | grep "user:")
+    arr=(${line/\:/ })
+    local _user=${arr[1]}
+
+    # override if we passed the user with device name to this function
+    if [ -n "$argUser" ]; then
+      _user="$argUser"
+    fi
+
+    # network
+    line=$(echo "$result" | grep "network:")
+    arr=(${line/\:/ })
+    local _network=${arr[1]}
+
+    if [ -z "$_ip" ]; then
+
+      if [ -n "$result" ]; then
+        printf "${GRAY}All def files have to parse without error for device resolver to work${NC}\n"
+        printf "${RED}Device resolver returned error:${NC}\n"
+        printf "${GRAY}$result${NC}\n"
+        return
+      fi
+
+      _dmt_device=false
+      printf "${CYAN}Trying most recent network scan information ...${NC}\n"
+      local lastScanResolverPath
+      getLastScanSearchScriptPath lastScanResolverPath
+
+      result=$($DMT_NODEJS_EXEC "$lastScanResolverPath" "$deviceName")
+
+      # ip
+      line=$(echo "$result" | grep "ip:")
+      arr=(${line/\:/ })
+      _ip=${arr[1]}
+
+      # name
+      line=$(echo "$result" | grep "name:")
+      arr=(${line/\:/ })
+      _name=${arr[@]:1}
+
+      if [ -n "$_name" ]; then
+        printf "${GRAY}Detected ${CYAN}${_name}${GRAY} at ${NC}${_ip}${NC}\n"
+      fi
+    else
+      printf "${CYAN}Resolved static ip for ${MAGENTA}${deviceName} ${CYAN}from device.def${NC}\n"
+    fi
+
+  fi
+
+  if [ -n "$_ip" ]; then
+    eval "$1='$_ip'"
+    eval "$2='$_global_ip'"
+    eval "$3='$_global_ssh_port'"
+    eval "$4='$_name'"
+    eval "$5='$_user'"
+    eval "$6='$_network'"
+    eval "$7='$_dmt_device'"
+  fi
+}
+
+function getip {
+  if [ -z "$1" ]; then
+    if dmt_macos; then
+      ifconfig en0 | grep broadcast
+    else
+      ip addr show eth0 | grep scope | grep -P 'inet \d+.\d+\.\d+\.\d+'
+      ip addr show wlan0 | grep scope | grep -P 'inet \d+.\d+\.\d+\.\d+'
+    fi
+  else
+    if [ -n "$2" ]; then
+      printf "${RED}Only accepts exactly one search term, not more!${NC}\n"
+      return
+    fi
+
+    local ip
+    local globalIp
+    local globalSSHPort
+    local name
+    local user
+    local network
+    local is_dmt_device
+    get_remote_device_ip_and_name_and_user_and_network ip globalIp globalSSHPort name user network is_dmt_device "$1"
+    if [ -n "$ip" ]; then
+      echo
+      if $is_dmt_device; then
+        printf "${GREEN}Device name: ${MAGENTA}$name${NC} 💡${NC}\n"
+      else
+        printf "${GREEN}Device name: ${YELLOW}$name${NC} ${GRAY}(from devices.json & lastScan.json)${NC}\n"
+      fi
+
+      printf "${GREEN}IP:${NC} ${ip}\n"
+
+      if [ -n "$globalIp" ]; then
+        printf "${GREEN}Global IP:${NC} ${globalIp}\n"
+      fi
+
+      printf "${GRAY}Reading mac address ...${NC}\n"
+      local normalized_mac=''
+      get_mac normalized_mac "$ip"
+      if [ -n "$normalized_mac" ]; then
+        printf "${GREEN}MAC:${NC} ${normalized_mac}\n"
+      fi
+
+      echo
+      pi "$ip"
+
+      if ! $is_dmt_device; then
+        echo
+        printf "${GRAY}All possible matches:${NC}\n"
+        net_scan --last "$1"
+      fi
+    else
+      printf "${RED}Cannot find ip for ${CYAN}${1}${NC}\n"
+    fi
+  fi
+}
+
+function q {
+  if [ -z "$1" ]; then
+    exit
+    return
+  fi
+
+  if [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}q [host]${NC} ${GRAY}logins to the host device specified in matching device.def or via devices.json & lastScan.json${NC}\n"
+    printf "${GREEN}q${NC} ${GRAY}exit current session${NC}\n"
+  fi
+
+  # --- ap start ---
+
+  local AP_IP="192.168.0.20"
+  local ap_with_user
+
+  if [ "$1" == "ap" ]; then
+    ap_with_user="root@${AP_IP}"
+  fi
+
+  if [[ "$1" =~ @ap ]]; then
+    ap_with_user=$(echo "$1" | sed "s/@ap/@${AP_IP}/g" )
+  fi
+
+  if [ -n "$ap_with_user" ]; then
+    printf "${GREEN}Connecting to ${CYAN}${ap_with_user} ${GREEN}...${NC}\n"
+    ssh "$ap_with_user"
+    return
+  fi
+
+  # --- ap end ---
+
+  if [ "$1" == "reset" ]; then
+    if [ -z "$2" ]; then
+      printf "${YELLOW}Usage:${NC}\n"
+      printf "${GREEN}dmt reset [host/ip]${NC} ${GRAY}resets ssh security warning for this host/ip${NC}\n"
+      return
+    fi
+
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R "$2"
+    return
+  fi
+
+  local host_with_user=''
+  local ssh_port=''
+  local compress=''
+  get_full_host host_with_user ssh_port compress "$1"
+  if [ -n "$host_with_user" ]; then
+    if [ -z "$ssh_port" ]; then
+      ssh "$host_with_user"
+    else
+      ssh "$host_with_user" -p "$ssh_port"
+    fi
+  else
+    printf "${RED}No matching host found${NC}\n"
+  fi
+
+  # only digits
+  # for easy using of ssh tunnels to elsewhere
+  # if [[ $1 =~ ^[0-9]+$ ]]; then
+  #   ssh localhost -p "$1"
+  #   return
+  # fi
+
+  #ssh "$host" #| grep -v "Warning: Permanently added" | grep -v "The programs included with the Debian" | grep -v "the exact distribution terms for each program are described" | grep -v "individual files in /usr/share/doc" | grep -v "Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY" | grep -v "permitted by applicable law"
+}
+
+function get_full_host() {
+  local ip
+  local globalIp
+  local __globalSSHPort
+  local name
+  local user
+  local network
+  local is_dmt_device
+
+  # IMPORTANT METHOD :::
+  get_remote_device_ip_and_name_and_user_and_network ip globalIp __globalSSHPort name user network is_dmt_device "$4"
+
+  if [ -n "$ip" ]; then
+    if [ -z "$user" ]; then
+      user='root'
+    fi
+
+    # local normalized_mac=''
+    # get_mac normalized_mac "$ip"
+    # printf "${GREEN}MAC:${NC} ${normalized_mac}\n"
+
+    local defaultSSHPort="22"
+
+    if [ -z "$globalIp" ]; then
+      local __host="${user}@${ip}"
+      eval "$1='$__host'"
+      eval "$2='$defaultSSHPort'"
+    elif [ "$ip" == "$globalIp" ]; then
+      if [ -n "$__globalSSHPort" ]; then
+        local __host="${user}@${globalIp}"
+        eval "$1='$__host'"
+        eval "$2='$__globalSSHPort'"
+      else
+        local __host="${user}@${globalIp}"
+        eval "$1='$__host'"
+        eval "$2='$defaultSSHPort'"
+      fi
+      eval "$3='--compress'"
+    # else
+    #   local current_network_id=''
+    #   get_current_network current_network_id
+    #   if [ -n "$current_network_id" ] && [ -n "$network" ] && [ "$current_network_id" == "$network" ]; then
+    #     #printf "Network id: ${MAGENTA}${current_network_id}${NC}\n"
+    #     #printf "${MAGENTA}globalIp was also found but using local ip since we are on the same network as target host${NC}\n"
+    #     local __host="${user}@${ip}"
+    #     eval "$1='$__host'"
+    #     eval "$2='$defaultSSHPort'"
+    #   else
+    #     if [ -n "$__globalSSHPort" ]; then
+    #       local __host="${user}@${globalIp}"
+    #       eval "$1='$__host'"
+    #       eval "$2='$__globalSSHPort'"
+    #     else
+    #       local __host="${user}@${globalIp}"
+    #       eval "$1='$__host'"
+    #       eval "$2='$defaultSSHPort'"
+    #     fi
+    #     eval "$3='--compress"
+    #   fi
+    fi
+  fi
+}
+
+function getDMTDeviceResolverPath {
+  local _deviceResolverPath="${DMT_NODE_CORE}/controller/cli/deviceResolve.js"
+  eval "$1='$_deviceResolverPath'"
+}
+
+function getLastScanSearchScriptPath {
+  local _lastScanSearchPath="${DMT_NODE_CORE}/net/lib/net-scanner/lastScanSearch.js"
+  eval "$1='$_lastScanSearchPath'"
+}

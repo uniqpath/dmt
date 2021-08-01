@@ -1,0 +1,42 @@
+#!/bin/bash
+
+function dmt_is_linux {
+  if [[ $OSTYPE == linux* ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+if ! dmt_is_linux; then
+  echo "Not linux, aborting ..."
+fi
+
+if [ "$EUID" -ne 0 ]
+  then echo "Must be root"
+  exit
+fi
+
+user="$1"
+
+if [ -z "$user" ]; then
+  echo "Usage:"
+  echo "$0 [dmt_user]"
+  exit
+fi
+
+path="/home/${user}/.dmt/etc/cron/root"
+
+if [ ! -d "$path" ]; then
+  echo "Missing directory: ${path}"
+  exit
+fi
+
+(crontab -l ; echo "*/5 * * * * ${path}/5min ${user}") | sort - | uniq - | crontab -
+(crontab -l ; echo "*/15 * * * * ${path}/15min ${user}") | sort - | uniq - | crontab -
+(crontab -l ; echo "* * * * * ${path}/1min ${user}") | sort - | uniq - | crontab -
+(crontab -l ; echo "0 * * * * ${path}/hourly ${user}") | sort - | uniq - | crontab -
+(crontab -l ; echo "0 0 * * * ${path}/daily ${user}") | sort - | uniq - | crontab -
+
+echo
+echo "ok"

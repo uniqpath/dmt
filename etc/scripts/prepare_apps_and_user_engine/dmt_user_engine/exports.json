@@ -1,0 +1,8 @@
+{
+  "./common": "./_dmt_deps/common",
+  "./notify": "./_dmt_deps/notify",
+  "./iot": "./_dmt_deps/iot",
+  "./connectome": "./_dmt_deps/connectome",
+  "./connectome-server": "./_dmt_deps/connectome-server",
+  "./connectome-stores": "./_dmt_deps/connectome-stores"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "dmt",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "exports": {
+    "./common": "./_dmt_deps/common",
+    "./notify": "./_dmt_deps/notify",
+    "./search": "./_dmt_deps/search",
+    "./connectome": "./_dmt_deps/connectome",
+    "./connectome-stores": "./_dmt_deps/connectome-stores",
+    "./connectome-next": "./_dmt_deps/connectome-next"
+  }
+}
