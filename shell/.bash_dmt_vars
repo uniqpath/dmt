@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# ⚠️ keep this independent -- no use of anything defined in any other dmt shell file
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+#LOGNAME_HOME="$HOME"
+LOGNAME_HOME="$DIR/../.."
+
+DMT_PATH="$LOGNAME_HOME/.dmt"
+DMT_HERE_PATH="$LOGNAME_HOME/.dmt-here"
+
+DMT_USER_PATH="$LOGNAME_HOME/.dmt/user"
+DMT_USER_DEF_FILE="$LOGNAME_HOME/.dmt/user/def/user.def"
+DMT_THIS_DEVICE="$LOGNAME_HOME/.dmt/user/devices/this"
+
+DMT_DEVICE_FILE="$DMT_THIS_DEVICE/def/device.def"
+
+DMT_STATE="$DMT_PATH/state"
+
+DMT_CORE="$LOGNAME_HOME/.dmt/core"
+DMT_NODE_CORE="$DMT_CORE/node"
+DMT_RUST_CORE="$DMT_CORE/rust"
+
+LOCAL_DMT_SOURCE_MAC="62:38:e0:cc:f7:80"
+LOCAL_DMT_SOURCE_ENDPOINT="192.168.0.10:1111"
+
+DMT_RUNTIMES=(node rust)
+
+# for runtime in "${DMT_RUNTIMES[@]}"
+# do
+#   if [ ! -f "$DMT_CORE/${runtime}" ]; then
+#     mkdir -p "$DMT_CORE/${runtime}"
+#   fi
+# done
+
+# if [ ! -f "$DMT_CORE/static" ]; then
+#   mkdir -p "$DMT_CORE/static"
+# fi
+
+DMT_SCRIPTS="$DMT_PATH/etc/scripts"
+
+DMT_PLATFORM=""
+if [[ $OSTYPE == darwin* ]]; then
+  DMT_PLATFORM="darwin"
+elif [ "$OSTYPE" == "linux-gnu" ]; then
+  DMT_PLATFORM="linux-x64"
+elif [ "$OSTYPE" == "linux-gnueabihf" ]; then
+  DMT_PLATFORM="linux-arm"
+fi
+
+DMT_PLATFORM_BIN="${DMT_PATH}/bin/${DMT_PLATFORM}"
+DMT_USER_PLATFORM_BIN="${DMT_USER_PATH}/bin/${DMT_PLATFORM}"
+#DMT_DEVICE_PLATFORM_BIN="${DMT_THIS_DEVICE}/bin/${DMT_PLATFORM}"
+DMT_HERE_PLATFORM_BIN="${DMT_HERE_PATH}/bin/${DMT_PLATFORM}"
+DMT_AP_DEFAULT_HOST="root@192.168.0.20"
+
+# there are some other places that should be updated if nodejs flags change! find and replace ...
+DMT_NODEJS_EXEC="node --unhandled-rejections=strict"
+DMT_MIN_NODEJS_VERSION="16.13.0"

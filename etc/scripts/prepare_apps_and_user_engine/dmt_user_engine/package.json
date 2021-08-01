@@ -1,0 +1,13 @@
+{
+  "name": "dmt",
+  "version": "1.0.0",
+  "description": "DMT USER ENGINE",
+  "main": "index.js",
+  "type": "module",
+  "exports": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "uniqpath",
+  "license": "ISC"
+}

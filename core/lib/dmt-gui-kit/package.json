@@ -1,0 +1,44 @@
+{
+  "name": "dmt-gui-kit",
+  "version": "0.0.1",
+  "devDependencies": {
+    "@playwright/test": "^1.28.1",
+    "@sveltejs/adapter-auto": "^1.0.0",
+    "@sveltejs/kit": "^1.0.0",
+    "@sveltejs/package": "^1.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.28.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-svelte3": "^4.0.0",
+    "prettier": "^2.8.0",
+    "prettier-plugin-svelte": "^2.8.1",
+    "svelte-check": "^2.10.3",
+    "tslib": "^2.4.1",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.3",
+    "vitest": "^0.26.2",
+    "svelte": "^3.54.0"
+  },
+  "dependencies": {
+    "esm-env": "^1.0.0"
+  },
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    "./colors.css": "./colors.css",
+    "./components/GuiErrors.svelte": "./components/GuiErrors.svelte",
+    "./components/Loading.svelte": "./components/Loading.svelte",
+    "./components/LogView.svelte": "./components/LogView.svelte",
+    "./components/Logo.svelte": "./components/Logo.svelte",
+    "./components/SnackBar.svelte": "./components/SnackBar.svelte",
+    "./environment": "./environment.js",
+    "./icons/XIcon.svelte": "./icons/XIcon.svelte",
+    ".": "./index.js",
+    "./store/logStore": "./store/logStore.js",
+    "./store/snack": "./store/snack.js",
+    "./utils/copyToClipboard": "./utils/copyToClipboard.js",
+    "./utils": "./utils/index.js"
+  },
+  "svelte": "./index.js"
+}

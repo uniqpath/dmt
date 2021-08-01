@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function dmt_is_linux {
+  if [[ $OSTYPE == linux* ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+if [ "$EUID" == 0 ]
+  then printf "${RED}Must not be root${NC}\n"
+  exit
+fi
+
+if ! dmt_is_linux; then
+  echo "Not linux, aborting ..."
+fi
+
+(crontab -l ; echo "@reboot bash -ic ~/.dmt/etc/onboot/onboot") | sort - | uniq - | crontab -
+
+(crontab -l ; echo "*/5 * * * * bash -ic ~/.dmt/etc/cron/5min") | sort - | uniq - | crontab -
+(crontab -l ; echo "*/15 * * * * bash -ic ~/.dmt/etc/cron/15min") | sort - | uniq - | crontab -
+(crontab -l ; echo "* * * * * bash -ic ~/.dmt/etc/cron/1min") | sort - | uniq - | crontab -
+(crontab -l ; echo "0 * * * * bash -ic ~/.dmt/etc/cron/hourly") | sort - | uniq - | crontab -
+(crontab -l ; echo "0 0 * * * bash -ic ~/.dmt/etc/cron/daily") | sort - | uniq - | crontab -
+
+echo
+echo "ok"

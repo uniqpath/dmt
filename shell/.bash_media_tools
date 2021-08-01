@@ -1,0 +1,133 @@
+#!/bin/bash
+
+###############
+# media tools #
+###############
+
+function mp3_convert_helper {
+  local flacFile="$1"
+  local mp3File=$(echo "$flacFile" | sed "s/\.flac/\.mp3/")
+
+  printf "${GREEN}CONVERTING${NC} ${GRAY}$flacFile${NC} → ${YELLOW}$mp3File${NC}\n"
+
+  if [ ! -f "$mp3File" ]; then
+    ffmpeg -i "$flacFile" -acodec libmp3lame -aq 2 "$mp3File"
+  else
+    printf "⚠️  ${RED}Skipping convertsion${NC} of ${YELLOW}${flacFile}${NC} because ${YELLOW}${mp3File}${NC} already exists ...${NC}\n"
+  fi
+}
+
+
+function convert_to_mp3 {
+  # maybe useful: find *.m4a -type f | xargs -I@ bash -c "$(declare -f mp3_helper) ; mp3_helper \"@\" "
+
+  if [ -z "$2" ]; then
+
+    local fileName="$1"
+
+    if [ -n "$fileName" ]; then
+      if [ -f "$fileName" ] && [[ "$fileName" =~ \.flac ]]; then
+        mp3_convert_helper "$fileName"
+      else
+        printf "Error: ${RED}Passed in an argument which is not an existing flac file ...${NC}\n"
+        echo "Either don't pass any arguments to convert all .flac files in this directory to .mp3 or pass one existing flac file"
+      fi
+      return
+    else
+      printf "${GREEN}Converting all .flac to .mp3 in this directory (original .flac files are not deleted) ...${NC}\n"
+      for flacFile in *.flac; do
+
+        mp3_convert_helper "$flacFile"
+
+        echo
+      done
+    fi
+
+  else
+
+    for fileName in "$@"
+    do
+      convert_to_mp3 "$fileName"
+    done
+
+  fi
+}
+
+function mp4 {
+  if [ -n "$1" ]; then
+    for file in "$@"
+    do
+      if [ -f "$file" ]; then
+        # http://www.bugcodemaster.com/article/convert-videos-mp4-format-using-ffmpeg
+        #ffmpeg -i "$file" "$file".mp4 -preset veryfast -loglevel quiet
+        #ffmpeg -i "$file" -vcodec libx264 -crf 28 -preset veryfast "$file".mp4
+
+        printf "${RED}Warning: lower-quality is set to achieve smaller files${NC}\n"
+        # 23 !!!
+        ffmpeg -i "$file" -vcodec libx264 -crf 23 -preset veryfast "$file".mp4
+
+        #ffmpeg -i "$file" -vcodec libaom-av1 -strict -2 -crf 23 -preset veryfast "$file".mp4
+
+
+        #ffmpeg -i "$file" -vcodec libx264 -crf 28 "$file".mp4
+
+        # -loglevel quiet ==> to silence these warnings ....
+        # https://bbs.archlinux.org/viewtopic.php?id=205920
+        #-thread_queue_size 1024
+        # -thread_queue_size 1024 supposedly fixes https://www.reddit.com/r/ffmpeg/comments/3m5bkj/past_duration_too_large_messing_with_alsa/
+      else
+        echo "File $file doesn't exist"
+      fi
+    done
+  else
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}mp4 file1 file2 file3 ...${NC} ${GRAY}convert different video formats to mp4${NC}\n"
+  fi
+}
+
+function mobi {
+  if [ -n "$1" ]; then
+    for file in "$@"
+    do
+      if [ -f "$file" ]; then
+        ebook-convert "$file" "$file".mobi
+      else
+        echo "File $file doesn't exist"
+      fi
+    done
+  else
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}mobi file1.epub${NC} ${GRAY}convert to .mobi format${NC}\n"
+  fi
+}
+
+# https://trac.ffmpeg.org/wiki/Encode/H.265
+function hevc {
+  if [ -n "$1" ]; then
+    for file in "$@"
+    do
+      if [ -f "$file" ]; then
+        # http://www.bugcodemaster.com/article/convert-videos-mp4-format-using-ffmpeg
+        #ffmpeg -i "$file" "$file".mp4 -preset veryfast -loglevel quiet
+        #ffmpeg -i "$file" -vcodec libx264 -crf 28 -preset veryfast "$file".mp4
+
+        printf "${MAGENTA}WARNING: HEVC libx265 - incompatible with most browsers ${NC}\n"
+
+        printf "${RED}Warning: lower-quality is set to achieve smaller files${NC}\n"
+        # DEFAULT is 28
+        # The default is 28, and it should visually correspond to libx264 video at CRF 23, but result in about half the file size.
+        ffmpeg -i "$file" -vcodec libx265 -crf 26 "$file".mp4
+
+        # -loglevel quiet ==> to silence these warnings ....
+        # https://bbs.archlinux.org/viewtopic.php?id=205920
+        #-thread_queue_size 1024
+        # -thread_queue_size 1024 supposedly fixes https://www.reddit.com/r/ffmpeg/comments/3m5bkj/past_duration_too_large_messing_with_alsa/
+      else
+        echo "File $file doesn't exist"
+      fi
+    done
+  else
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}mp4 file1 file2 file3 ...${NC} ${GRAY}convert different video formats to mp4${NC}\n"
+  fi
+}

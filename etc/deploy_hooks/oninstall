@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DMT_NODE_CORE="$HOME/.dmt/core/node"
+
+if [ -d "$DMT_NODE_CORE" ]; then
+  DMT_NODEJS_EXEC="node --unhandled-rejections=strict"
+
+  $DMT_NODEJS_EXEC "${DMT_NODE_CORE}/gui/cli/gui.js" reload
+fi

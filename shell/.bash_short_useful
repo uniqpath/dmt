@@ -1,0 +1,123 @@
+#!/bin/bash
+
+function mpvc {
+  local script="$DMT_SCRIPTS/mpv_control"
+  if [ -f "$script" ]; then
+    "$script" "$@"
+  else
+    printf "${RED}missing ${script}${NC}\n"
+  fi
+}
+
+function save_alsa {
+  dmt_save_alsa
+}
+
+function restore_alsa {
+  dmt_restore_alsa
+}
+
+function video_test {
+  local test_file="/root/Video/Neutron_Stars_Colliding_1080p.mp4"
+
+  if [ ! -f "$test_file" ]; then
+    test_file="${DMT_PATH}/etc/videotest/video.mp4"
+  fi
+
+  if [ -n "$1" ]; then
+    test_file="$1"
+  fi
+
+  if [ -f "$test_file" ]; then
+    printf "${GREEN}Playing video test file ${GRAY}${test_file} ${GREEN}...${NC}\n"
+    mpv --really-quiet --no-audio-display -ao=pulse --fullscreen --no-keepaspect "$test_file"
+  else
+    printf "${RED}Missing video test file(s)${NC}\n"
+  fi
+}
+
+# function video_test2 {
+#   video_test "/root/Video/Neutron_Stars_Colliding_1080p.mp4"
+# }
+
+# function video_test3 {
+#   video_test "/root/Video/Flight of the Starlings.mkv"
+# }
+
+function jazz {
+  # see recent playlist here (if needed) ;) https://www.radio.net/s/smoothjazzfl
+  mpvc play ~/.dmt/user/refs/internet_radio_stations/Jazz/smooth-jazz-florida.pls
+}
+
+function rock {
+  mpvc play ~/.dmt/user/refs/internet_radio_stations/ClassicRock/classic-rock-florida.pls
+}
+
+function state {
+  dmt_state "$@"
+}
+
+function gui {
+  dmt_gui "$@"
+}
+
+function d {
+  dmt "$@"
+}
+
+function u {
+  if [ -n "$2" ]; then
+    dmt update --parallel "$@"
+  else
+    dmt update "$@"
+  fi
+}
+
+function us {
+  dmt update "$@"
+}
+
+function un {
+  dmt nearby update --parallel "$@"
+}
+
+# perhaps more intuitive than un
+function nu {
+  un "$@"
+}
+
+function nuc {
+  dmt nearby copy --parallel "$@"
+}
+
+function uc {
+  if [ -n "$2" ]; then
+    dmt copy --parallel "$@"
+  else
+    dmt copy "$@"
+  fi
+}
+
+function s {
+  dmt_search "$@"
+}
+
+function m {
+  dmt_media "$@"
+}
+
+function v {
+  dmt_media "$@" @media=video
+}
+
+function k() {
+  mkdir -p "$@" && cd "$_";
+}
+
+function rel {
+  reload_shell
+}
+
+function def {
+  dmt_parsedef "$@"
+}

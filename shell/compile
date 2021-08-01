@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# IMPORTANT: dmt shell loads dynamically via loader and ~/.shell_basic and ~/.shell_advanced
+# Compiled files are needed sometimes when executing on remote machines or when we need to include one file with all functions from some script
+
+source .bash_util
+
+target="../etc/.bash_aliases_bundle"
+target_slim="../etc/.bash_aliases_slim"
+
+VERSION=$(cat ../.version)
+
+# 💡DMT ALIASES -- SLIM PART → $target_slim
+
+cat > "$target_slim" <<EOF
+#!/bin/bash
+
+#                 _
+#             .__(.)< (💡DMT ALIASES v${VERSION})
+#              \___)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~ WARNING: CHANGES TO THIS FILE WILL BE LOST (FILE IS COMPILED) ~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+EOF
+
+echo >> "$target_slim"
+
+# essential dmt scripts
+cat .bash_util .bash_dmt_vars .bash_fs .bash_general .bash_process .bash_git .bash_sbc .bash_devices >> "$target_slim"
+
+# essential zeta scripts
+cat ./zeta/.zeta_update ./zeta/.zeta_start ./zeta/.zeta_config ./zeta/.zeta_check ./zeta/.zeta_restart ./zeta/.zeta_setup >> "$target_slim"
+
+
+# 💡🚀🎸 FULL EDITION → $target
+
+cat "$target_slim" > "$target"
+
+cat >> "$target" <<EOF
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~ 💡🚀🎸 FULL EDITION ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+EOF
+
+cat .bash_short_useful .bash_push_notify .bash_networking .bash_electronics .bash_dmt_search .bash_dmt_media .bash_media_tools .bash_dep .bash_sbc .bash_dmt >> "$target"
+
+printf "${CYAN}💡 DMT SHELL ${GREEN}on ${CYAN}$(hostname) ${GREEN}constructed and ready 🚀🎸${NC}\n"
+
+if [ -f .bash_staging ]; then
+  #printf "${GRAY} -- included .bash_staging${NC}\n"
+  cat .bash_staging >> "$target"
+fi
+
+cat >> "$target" <<EOF
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~ KEEP THESE AS LAST LINES ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+if [ -f "\$LOGNAME_HOME/.dmt/user/shell/.bash_user" ]; then
+  . "\$LOGNAME_HOME/.dmt/user/shell/.bash_user"
+fi
+
+if [ -f "\$LOGNAME_HOME/.dmt/user/devices/this/shell/.bash_device" ]; then
+  . "\$LOGNAME_HOME/.dmt/user/devices/this/shell/.bash_device"
+fi
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+EOF

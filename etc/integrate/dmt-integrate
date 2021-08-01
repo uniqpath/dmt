@@ -1,0 +1,233 @@
+#!/bin/bash
+
+APP_ROOT_DIR="`pwd`"
+
+INTEGRATE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+if [ "$1" == "--init" ]; then
+    node $INTEGRATE/setup.js "$APP_ROOT_DIR"
+    exit
+fi
+
+source ~/.dmt/etc/.bash_aliases_bundle # dirsync, colors, dmt_def_reader
+
+if [ "$1" == "--sync" ]; then
+  SYNC_ONLY=true
+fi
+
+if [ "$1" == "--reset" ]; then
+  RESET=true
+fi
+
+if [ "$SYNC_ONLY" != true ]; then
+  printf "     —— ${CYAN}DMT INTEGRATE${NC} ——\n"
+  printf "${GRAY}Integrate apps into DMT ENGINE${NC}\n"
+  echo
+fi
+
+if [ ! -d "$APP_ROOT_DIR/dmt-install" ]; then
+  printf "⚠️  ${RED}Please run inside installable dmt app directory${NC}\n"
+  exit
+fi
+
+# fully custom install inside dmt-install script, only run that script, nothing else
+if [ -f "./dmt-install/dmt-install" ]; then
+  printf "${GREEN}Detected ${MAGENTA}dmt-install${NC} script, executing this instead of predefined installer ...${NC}\n"
+  printf "${GRAY}${NC}\n"
+  ./dmt-install/dmt-install "$@"
+  exit
+fi
+
+SETTINGS="$APP_ROOT_DIR/dmt-install/settings.def"
+
+if [ ! -f "$SETTINGS" ]; then
+  echo "$(basename $APP_ROOT_DIR)"
+  printf "⚠️  ${RED}Missing ${YELLOW}$(basename $APP_ROOT_DIR)/dmt-install/settings.def ${RED}file${NC}\n"
+  exit
+fi
+
+# variables
+
+APP_BASE=''
+dmt_def_reader APP_BASE "$SETTINGS" "base"
+
+BUILD=''
+dmt_def_reader BUILD "$SETTINGS" "build"
+
+TARGET=''
+dmt_def_reader TARGET "$SETTINGS" "target"
+
+# APP_BASE="$(node -pe 'JSON.parse(process.argv[1]).base' "$(cat $SETTINGS)")"
+# BUILD="$(node -pe 'JSON.parse(process.argv[1]).build' "$(cat $SETTINGS)")"
+# TARGET="$(node -pe 'JSON.parse(process.argv[1]).target' "$(cat $SETTINGS)")"
+
+HOOK="dmt"
+
+if [ -z "$APP_BASE" ]; then
+  printf "${RED}base not set${NC}\n"
+  exit
+fi
+
+# dmt user apps dir
+DMT_APPS_TARGET="$HOME/.dmt/user/apps"
+
+if [ "$TARGET" == "device" ]; then
+  DMT_APPS_TARGET="$HOME/.dmt-here/apps"
+fi
+
+if [ "$TARGET" == "system" ]; then
+  DMT_APPS_TARGET="$HOME/.dmt/apps"
+fi
+
+mkdir -p "$DMT_APPS_TARGET"
+
+# sync
+if [ "$SYNC_ONLY" != true ]; then
+
+  if [ -f "${APP_ROOT_DIR}/dmt-install/before-install" ]; then
+    printf "Detected ${YELLOW}before-install${NC} script, executing ...\n"
+    cd $APP_ROOT_DIR
+    ./dmt-install/before-install
+    cd -
+  fi
+
+fi
+
+if [ "$RESET" == true ]; then
+  if [ -d "$DMT_APPS_TARGET/$APP_BASE" ]; then
+    echo
+    printf "${MAGENTA}Removing the entire target directory ${YELLOW}$DMT_APPS_TARGET/$APP_BASE ${MAGENTA}before installing again (because of ${YELLOW}--reset ${MAGENTA}option)${NC}\n"
+    echo
+    rm -rf "$DMT_APPS_TARGET/$APP_BASE"
+  fi
+fi
+
+# sync frontend
+
+if [ -n "$BUILD" ]; then
+
+  if [ "$SYNC_ONLY" != true ]; then
+    printf "${GREEN}Changing app_base in svelte configuration:${NC}\n"
+    # setBase
+    node $INTEGRATE/editBase.js "$APP_ROOT_DIR" $APP_BASE
+
+    # build
+    pnpm build
+
+    # after build
+
+    if [ $? -ne 0 ]; then # error
+      # resetBase
+      node $INTEGRATE/resetBase.js "$APP_ROOT_DIR" $APP_BASE
+
+      echo
+      printf "${RED}Build error${NC}\n"
+      exit
+    fi
+
+    # resetBase
+    node $INTEGRATE/resetBase.js "$APP_ROOT_DIR" $APP_BASE
+  fi
+  
+  SOURCE_PUBLIC="${APP_ROOT_DIR}/${BUILD}"
+
+  if [ "$BUILD" == "." ]; then
+    SOURCE_PUBLIC="${APP_ROOT_DIR}"
+  fi
+
+  if [ ! -d "$SOURCE_PUBLIC" ]; then
+    printf "${RED}Warning: ${YELLOW}${SOURCE_PUBLIC} ${RED}is missing, not syncing it.${NC}\n"
+    # this can happen if we use "dmt integrate --sync" before app has been built for the first time or build directory was removed
+  else
+    mkdir -p "$DMT_APPS_TARGET/$APP_BASE"; cd $_
+
+    # if there is no handler.js we sync into app target root
+    # in case there is handler.js this sync is still useful because it deletes previous code and random dirs
+
+    RELATIVE_TARGET="."
+
+    if [ -f "$SOURCE_PUBLIC/handler.js" ]; then
+      FILE="build_target.save"
+
+      # this enables hot module reloads
+      RELATIVE_TARGET=$(echo $RANDOM)
+
+      if [ -f "$FILE" ]; then
+        OLD_TARGET=$(cat "$FILE")
+
+        if [ -d "$OLD_TARGET" ]; then
+          printf "${GRAY}Renaming previous build target: ${YELLOW}${OLD_TARGET}${NC}\n"
+
+          # unlikely ...
+          if [ -d "$RELATIVE_TARGET" ]; then
+            rm -rf "$RELATIVE_TARGET"
+          fi
+          mv "$OLD_TARGET" "$RELATIVE_TARGET"
+          #rm -rf "$OLD_TARGET"
+        fi
+      fi
+
+      echo "$RELATIVE_TARGET" > "$FILE"
+
+# ⚠️ keep indentation like this or resulting index.js file will also have indents in it
+echo "export async function init(program) {
+  const { handler } = await import('./$RELATIVE_TARGET/handler.js');
+  return { handler };
+}">index.js
+    fi
+
+    dirsync --exclude dmt --exclude dmt-install --exclude node_modules "$SOURCE_PUBLIC" "$RELATIVE_TARGET"
+
+    # sometimes (rarely) build is "." and in these cases we need to exclude dmt and dmt-install
+    # ⚠️ if from some point on node_modules are not produced anymore
+    # this won't get deleted because we ignore them... so they are not always deleted and resynced over
+    # with said downside of staying there if "pnpm install" is later removed from dmt-customize
+    # at this point it's best to remove the entire app from target directory and reinstall afresh
+    # (--reset option does that)
+  fi
+fi
+
+# sync hook
+
+ORIGIN_HOOK="${APP_ROOT_DIR}/${HOOK}"
+INSTALLED_HOOK="$DMT_APPS_TARGET/${APP_BASE}/dmt"
+
+if [ -d $ORIGIN_HOOK ]; then
+  mkdir -p "$INSTALLED_HOOK"; cd $_
+  dirsync "$ORIGIN_HOOK" .
+elif [ -d "$INSTALLED_HOOK" ]; then # hook was deleted
+  rm -rf "$INSTALLED_HOOK"
+fi
+
+if [ "$SYNC_ONLY" != true ]; then
+
+  cd "$DMT_APPS_TARGET/$APP_BASE"
+
+  if [ -f "${APP_ROOT_DIR}/dmt-install/package.json" ]; then
+    printf "Detected ${YELLOW}package.json${NC} copying ...\n"
+    cp "${APP_ROOT_DIR}/dmt-install/package.json" package.json
+    if [ ! -L _dmt_deps ]; then
+      ln -s ../_dmt_deps .
+    fi
+  fi
+
+  if [ -f "package.json" ]; then
+    pnpm install
+  fi
+
+  if [ -f "./index.js" ] || [ -f "./dmt/index.js" ]; then
+    # dmt restart
+    curl "http://127.0.0.1:7777/__dmt__reload?app=$DMT_APPS_TARGET/$APP_BASE"
+    echo ""
+  fi
+
+  if [ -f "${APP_ROOT_DIR}/dmt-install/after-install" ]; then
+    printf "Detected ${YELLOW}after-install${NC} script, executing ...\n"
+    cd $APP_ROOT_DIR
+    ./dmt-install/after-install
+    cd -
+  fi
+
+fi
+
+cd "$APP_ROOT_DIR"
