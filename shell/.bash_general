@@ -1,0 +1,521 @@
+#!/bin/bash
+
+function message {
+  if [ -z "$1" ]; then
+    echo "Usage: message msg [title]"
+  else
+    local title=""
+    if [ -n "$2" ]; then
+      title="$2"
+    fi
+    osascript -e "display notification \"$1\" with title \"$title\""
+  fi
+}
+
+function convert_to_seconds {
+  local time_input="$5"
+  local _seconds=0
+  local _val=0
+  local _desc=""
+  local _denom=""
+
+  # default is minutes!
+  if [[ "$time_input" =~ [0-9]+$ ]] ; then
+    #_seconds=$time_input
+    _seconds=$time_input
+    _val=$time_input
+    _desc="${_seconds}s"
+    _denom="s"
+  else
+    local number=${time_input:0:${#time_input}-1}
+    if [[ "$time_input" =~ s$ ]] ; then
+      _seconds=$number
+      _val=$number
+      _desc="${_seconds}s"
+      _denom="s"
+    elif [[ "$time_input" =~ m$ ]] ; then
+      _seconds=$(( $number*60 ))
+      _val=$number
+      _desc="${number}m"
+      _denom="m"
+    elif [[ "$time_input" =~ h$ ]] ; then
+      _seconds=$(( $number*3600 ))
+      _val=$number
+      _desc="${number}h"
+      _denom="h"
+    elif [[ "$time_input" =~ d$ ]] ; then
+      _seconds=$(( $number*3600*24 ))
+      _val=$number
+      _desc="${number}d"
+      _denom="d"
+    fi
+  fi
+
+  eval "$1='$_seconds'"
+  eval "$2='$_val'"
+  eval "$3='$_desc'"
+  eval "$4='$_denom'"
+}
+
+function timer {
+  if [ -z "$1" ]; then
+    echo "Usage: timer [1|1s|5min|2h|3d] [message]"
+  else
+
+    local seconds=0
+    local val=0
+    local desc=""
+    local denom=""
+
+    convert_to_seconds seconds val desc denom "$1"
+
+    if [ -n "$desc" ]; then
+      printf "${YELLOW}Waiting for ${desc} ...${NC}\n"
+
+      case $denom in
+        "s" )
+          sleep $seconds
+          # for (( i=$val; i>0; i-- ))
+          # do
+          #   printf "${GRAY}$(date +"%H:%M") ${MAGENTA}$i ${denom} to go ...${NC}\n"
+          #   sleep 1
+          # done
+          printf "${GREEN}Time's up!${NC}\n"
+          ;;
+        "m" )
+          for (( i=$val; i>0; i-- ))
+          do
+            printf "${GRAY}$(date +"%H:%M") ${MAGENTA}$i ${denom} to go ...${NC}\n"
+            sleep 60
+          done
+          printf "${GREEN}Time's up!${NC}\n"
+          ;;
+        "h" )
+          for (( i=$val; i>0; i-- ))
+          do
+            printf "${GRAY}$(date +"%H:%M") ${MAGENTA}$i ${denom} to go ...${NC}\n"
+            sleep 3600
+          done
+          printf "${GREEN}Time's up!${NC}\n"
+          ;;
+        "d" )
+          for (( i=$val; i>0; i-- ))
+          do
+            printf "${GRAY}$(date +"%H:%M") ${MAGENTA}$i ${denom} to go ...${NC}\n"
+            sleep 86400
+          done
+          printf "${GREEN}Time's up!${NC}\n"
+          ;;
+      esac
+
+      # if dmt_macos; then
+      #   shift
+      #   local msg="$@"
+      #   if [ -n "$msg" ]; then
+      #     message "$msg" "${desc} is up"
+      #   else
+      #     message "${desc} is up" "Time's up"
+      #   fi
+      # fi
+    else
+      printf "${RED}Error in argument${NC}\n"
+    fi
+  fi
+}
+
+function sleepmin {
+  if [ -z "$1" ]; then
+    echo "Usage:"
+    echo "sleepmin [min]"
+  else
+    sleep $(( $1*60 ))
+  fi
+}
+
+# Usage:
+# "al [any function name]" to see the source for the function directly in terminal without having to open source files
+function al {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}al [function]${NC} ${GRAY}show bash function source${NC}\n"
+    return
+  fi
+
+  which highlight > /dev/null 2>&1
+
+  if [ $? -eq 0 ]; then
+    type "$1" | highlight -O xterm256 -s darkbone --syntax bash
+  else
+    type "$1"
+  fi
+}
+
+# sum column of numbers...
+# 1 lala
+# 234 aaavdfv
+# 54 sdfdsf
+function total {
+  cat $1 | awk '{s+=$1} END {printf "Sum: %.0f\n", s}'
+}
+
+#brew install highlight
+#alias pcat="pygmentize -f terminal256 -O style=monokai -g"
+function hcat {
+  highlight -O xterm256 -s darkbone "$@"
+}
+
+# utility function
+function current_usage {
+  local output=$(du -sh | awk '{ print $1 }')
+  printf "${YELLOW}${output}${NC}\n"
+}
+
+function freespace {
+  printf "Free:\t ${GREEN}`df -h . | tail -1 | awk '{ print $4 }'`${NC}\n"
+}
+
+function space {
+  local dir="`pwd`"
+  if [ -n "$1" ]; then
+    if [ -d "$1" ]; then
+      dir="$1"
+    else
+      printf "${RED}No such directory${NC}\n"
+      return
+    fi
+  fi
+
+  if [ ! "$dir" == $HOME ] && [ ! "$dir" == '/' ]; then
+    if [ "$dir" == "`pwd`" ]; then
+      printf "Current: "
+      current_usage
+    else
+      printf "${dir}: "
+      local cwd="`pwd`"
+      cd "$dir"
+      current_usage
+      cd "$cwd"
+    fi
+  fi
+  freespace
+}
+
+# utility function
+function usage_for {
+  printf "${1} "
+  if [ -d "${1}" ]; then
+    cd "$1"
+    current_usage
+  else
+    printf "${RED}No such directory${NC}\n"
+  fi
+}
+
+function usage {
+  if dmt_macos; then
+    find . -maxdepth 1 -type d -print0 | xargs -0 -I{} du -sh {} | gsort -hr # probably need: "brew install coreutils" for gsort
+  else
+    find . -maxdepth 1 -type d -print0 | xargs -0 -I{} du -sh {} | sort -hr
+  fi
+}
+
+function count {
+
+  local dir=""
+  if [ -z "$1" ]; then
+    dir="."
+  else
+    if [ -d "$1" ]; then
+      dir="$1"
+      printf "${YELLOW}${dir}:${NC}\n"
+    else
+      printf "${RED}No such directory${NC}\n"
+      return
+    fi
+  fi
+
+  printf "${CYAN}Directories: "
+  find "$dir" -maxdepth 1 ! -path . ! -path "*/.git" -type d | wc -l | xargs
+  printf "${GREEN}Files:       "
+  find "$dir" -maxdepth 1 ! -path "*/.DS_Store" ! -path "*/.git" -type f | wc -l | xargs
+  printf "${NC}"
+}
+
+function countr {
+
+  count "$@"
+
+  local dir=""
+  if [ -z "$1" ]; then
+    dir="."
+  else
+    if [ -d "$1" ]; then
+      dir="$1"
+      printf "${YELLOW}${dir}:${NC}\n"
+    else
+      printf "${RED}No such directory${NC}\n"
+      return
+    fi
+  fi
+
+  echo
+  printf "${CYAN}Directories (Recursive): "
+  find "$dir/" ! -path . ! -path "*/.git/*" -type d | wc -l | xargs # "/" is needed if we use "count ~/path/to/symlinked_directory", it's changed to: "count ~/path/to/symlinked_directory/"
+  printf "${GREEN}Files: (Recursive):      "
+  # If you have issues here: for example mismatch in number of files in two directories where one is a copy of another,
+  # it's almost certainly symlinks issue, find out like this:
+  # Directory A) find . -type f > ~/Desktop/a.txt
+  # Directory B) find . -type f > ~/Desktop/b.txt
+  # Compare: diff ~/Desktop/a.txt ~/Desktop/b.txt
+  find "$dir/" ! -path "*/.DS_Store" ! -path "*/.git/*" -type f | wc -l | xargs
+  printf "${NC}"
+}
+
+function flash_usage {
+  local sectors="$1"
+  printf "${YELLOW}Usage:${NC}\n"
+  printf "${GREEN}flash image.img 2${NC} ${GRAY}flash image.img to /dev/rdisk2${NC}\n"
+  printf "${GREEN}flash read 2${NC} ${GRAY}read full image from /dev/rdisk2 to ./image.img${NC}\n"
+  printf "${GREEN}flash read 2 16gb${NC} ${GRAY}read sectors 0..${sectors} from /dev/rdisk2 to ./image.img${NC}\n"
+  #printf "${GREEN}flash read 2 default${NC} ${GRAY}read sectors 0..${sectors} from /dev/rdisk2 to ./image.img${NC}\n"
+  printf "${GREEN}flash read 2 [nSectors]${NC} ${GRAY}read sectors 0..nSectors from /dev/rdisk2 to ./image.img${NC}\n"
+}
+
+function flash {
+  local file_pattern="$1"
+  local disk_n="$2"
+
+  #local defaultSectors="20000768" # 9.5GB, divisible by 4096 for optimal sector alignment
+  local sectors16gb="31116288" # 16GB
+
+
+  if [ "$1" == "-h" ] || [ -z "$1" ]; then
+    printf "${YELLOW}diskutil list:${NC}\n\n"
+    diskutil list
+    flash_usage "$sectors16gb"
+    return
+  fi
+
+  if [ -z "$file_pattern" ]; then
+    printf "${YELLOW}diskutil list:${NC}\n\n"
+    diskutil list
+    printf "${YELLOW}Usage:${NC}\n"
+    echo "flash file.img diskN"
+    return
+  fi
+
+  if [ "$1" == "read" ]; then
+    if [ -z "$disk_n" ]; then
+      printf "${YELLOW}diskutil list:${NC}\n\n"
+      diskutil list
+
+      printf "${MAGENTA}You have to specify the disk number from where to create the image${NC}\n"
+      echo
+
+      flash_usage "$sectors16gb"
+    else
+      local image="image.img"
+
+      if [ -f "$image" ]; then
+        printf "${RED}image.img already exists${NC}\n"
+        return
+      fi
+
+      if [ -z "$3" ]; then
+        printf "${GREEN}Copying full image to ${YELLOW}${image}${NC}\n"
+        time sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=64k
+      else
+        local sectors
+
+        if [ "$3" == "16gb" ] || [ "$3" == "16GB" ]; then
+          printf "${GREEN}Reading first 16gb from sd card ... ${NC}\n"
+          sectors="$sectors16gb"
+        else
+          sectors="$3"
+        fi
+
+        printf "${GREEN}Copying sectors${NC} 0..${sectors} to ${YELLOW}${image}${NC}\n"
+
+        # Usually the number of sectors will be a multiple of some power of 2, and you can increase the copying speed
+        # by increasing the block size and decreasing the count, keeping the product constant.
+        if ! (( $sectors % 64 )) ; then
+          printf "${MAGENTA}Optimal speed: number of sectors divisible by 64 - reading 128 sectors (64K) at a time${NC}\n"
+          # for default 20000000 sectors it takes around 150s to copy data from sd card
+          # 1 sector = 512b
+          # 64K seems to be quite optimal, no difference with 1M, but faster than 32K or less
+          time sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=64k count="$((sectors/128))"
+        elif ! (( $sectors % 32 )) ; then
+          printf "${MAGENTA}Almost optimal speed: number of sectors divisible by 32 - reading 64 sectors (32K) at a time${NC}\n"
+          time sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=32k count="$((sectors/64))"
+        else
+          time sudo dd if="/dev/rdisk${disk_n}" of="${image}" bs=512 count="${sectors}"
+        fi
+      fi
+
+      if [ -f "image.img" ]; then
+        sudo chown $(whoami) image.img
+        if dmt_macos; then
+          sudo chgrp staff image.img
+        fi
+      fi
+    fi
+
+    return
+  fi
+
+  matching_file=''
+  get_matching_file matching_file "$file_pattern"
+  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+  if [ ! -f "$matching_file" ]; then
+    printf "${RED}No such file: ${file_pattern}${NC}\n"
+  else
+    if [ -z "$disk_n" ]; then
+      printf "${YELLOW}diskutil list:${NC}\n\n"
+      diskutil list
+
+      printf "${MAGENTA}You have to specify the disk number where to flash ${GREEN}${matching_file}${NC}\n"
+      echo
+
+      flash_usage "$sectors"
+    else
+      printf "Flashing ${YELLOW}${matching_file}${NC} to ${RED}rdisk${disk_n}${NC}...\n"
+      read -r -p "Sure????? (you will be asked for sudo password) [Y/n] " response
+      if [[ ! $response =~ ^([nN])$ ]]
+      then
+        printf "${YELLOW}Flashing after password...${NC} Press Ctrl+T to see progress\n"
+        diskutil unmountDisk "/dev/disk${disk_n}"
+        time sudo dd if="$matching_file" of="/dev/rdisk${disk_n}" bs=64m # changed from: 1m
+        diskutil eject "/dev/disk${disk_n}"
+        printf "${GREEN}done.${NC} ${YELLOW}You can take the SD card out now. ${MAGENTA}(Unmount first)${NC}\n"
+      fi
+    fi
+  fi
+}
+
+# https://gist.github.com/davidhq/9883d43146d1fb2c2c00
+
+# function source_code {
+#   local matching_files=$(find . -name "*.${2}" -not -path "*/.git/*" -not -path "*/node_modules/*" -not -path "*/Godeps/*" -not -path "*/elm-stuff/*" -not -path "*/deps/*" -not -path "*/_build/*" -not -path "*/target/*" -not -path "*/dist/*" -not -path "*/bower_components/*" -not -path "*/tmp/*")
+#   eval "$1='${matching_files}'"
+# }
+
+# npm install -g cloc
+function cloc {
+  command cloc . --exclude-dir=.git,log,node_modules,Godeps,elm-stuff,deps,_build,target,dist,vendor,bower_components,tmp,deploy,distroot,Deps --exclude-lang=XML
+}
+
+function loc {
+  if [ -z "$1" ] || [ "$1" == "all" ]; then
+    loc js "$2"
+    loc ts "$2"
+    loc ls "$2"
+    loc svelte "$2"
+    loc coffee "$2"
+    loc c "$2"
+    loc cpp "$2"
+    loc cs "$2"
+    loc cc "$2"
+    loc java "$2"
+    loc scala "$2"
+    loc jsx "$2"
+    loc sh "$2"
+    loc sol "$2"
+    loc ex "$2"
+    loc exs "$2"
+    loc erl "$2"
+    loc go "$2"
+    loc rs "$2"
+    loc hs "$2"
+    loc elm "$2"
+    loc rb "$2"
+    loc py "$2"
+    loc html "$2"
+    loc md "$2"
+    loc css "$2"
+    #loc xml "$2"
+    loc json "$2"
+  else
+    IFS=$'\n'
+
+    local files=$(find . -name "*.${1}" -not -path "*/.git/*" -not -path "*/log/*" -not -path "*/node_modules/*" -not -path "*/assets/*" -not -path "*/Godeps/*" -not -path "*/elm-stuff/*" -not -path "*/deps/*" -not -path "*/_build/*" -not -path "*/target/*" -not -path "*/dist/*" -not -path "*/vendor/*" -not -path "*/bower_components/*" -not -path "*/tmp/*" -not -path "*/deploy/*" -not -path "*/distroot/*" -not -path "*/Deps/*")
+    # local files=''
+    # source_code files "$1"
+
+    if [ -n "$files" ]; then
+      printf "${GREEN}${1}${NC}\n"
+      if [ "$2" == "total" ]; then
+        local total=$(wc -l $files | grep "total")
+        if [ -n "$total" ]; then
+          echo $total
+        else
+          wc -l $files
+        fi
+      else
+        wc -l $files
+      fi
+      echo
+    fi
+
+    unset IFS
+  fi
+}
+
+function md {
+  if [ -f "$1" ] || [ -d "$1" ]; then
+    mv "$1" ~/Desktop
+    if [ $? -eq 0 ]; then
+      printf "${YELLOW}Moved ${1} to ~/Desktop\n"
+    fi
+  else
+    printf "${RED}No such file or directory${NC}\n"
+  fi
+}
+
+function a {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    echo "a [term] [context_lines]"
+    echo "a --[lang] [term] [context_lines]"
+  else
+    #clear && printf '\e[3J' # completely clear the terminal
+
+    if [ -n "$2" ] && [[ $1 == *--* ]]; then
+      if [ -n "$3" ]; then
+        command ack "$1" -i -Q -C "$3" -- "$2"
+      else
+        command ack "$1" -i -Q -- "$2"
+      fi
+    else
+      # -k flag to say "Only search the files that ack recognizes the types for"
+      if [ -n "$2" ]; then
+        command ack -i -k -Q -C "$2" -- "$1"
+      else
+        command ack -i -k -Q -- "$@"
+      fi
+      #command ack -i -k -Q -- $@
+      # there were problems with -- $Q with: ack "Refresh to" -C 3
+      # look below
+    fi
+  fi
+}
+
+function compare {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}compare dir1 dir2${NC}\n"
+    printf "${GREEN}compare --size-only dir1 dir2${NC}\n"
+  else
+    local sizeonly=""
+    if [ "$1" == "--size-only" ]; then
+      sizeonly="--size-only"
+      printf "${YELLOW}Sizeonly...${NC}\n"
+      shift
+    fi
+
+    local params="-n -rli --delete $sizeonly"
+    # -n = dry run
+    #-rlptgoD
+    rsync $params --exclude="._*" "$1"/ "$2"/
+  fi
+}

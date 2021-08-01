@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# DMT USER ENGINE deps
+# ⚠️ keep this file in sync with dmt_user_engine/package.json !
+
+declare -a List=(
+  "core/node/common"
+  "core/node/notify"
+  "core/node/iot"
+  "core/node/connectome/src/client connectome"
+  "core/node/connectome/src/server connectome-server"
+  "core/node/connectome/src/stores connectome-stores"
+)

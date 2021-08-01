@@ -1,0 +1,2341 @@
+#!/bin/bash
+
+CLI_DIR="$DMT_NODE_CORE/controller/cli/"
+
+DMT_CLI="$CLI_DIR/dmt.js"
+
+TAIL_LOG_LINES=300
+
+DMT_AUTO_UPDATE_LOG="$DMT_PATH/log/.auto_update_log"
+
+function dmt {
+  # local o
+
+  # if [ "$1" == "o" ]; then
+  #   o=true
+  #   shift
+  # fi
+
+  if [ -z "$1" ] || [ "$1" == "help" ]; then
+    echo
+    #if [[ $o ]]; then
+      #printf "${CYAN}Freedom to Imagine${NC}"
+      #printf "${CYAN}— ${MAGENTA}∞oOo∞ ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version")${NC}\n"
+    #else
+    printf "${MAGENTA}        ∞ DMT ∞${NC}\n"
+    printf "${CYAN}Digital Mastery Techniques${NC}\n"
+    printf " ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version") ${CYAN}—${NC}\n"
+    echo
+    printf "💡 Keep up with progress and update using ${GREEN}dmt next${NC} a few times per year${NC}\n"
+    #fi
+    #printf "${CYAN}Freedom to imagine${NC}\n"
+    # printf " ${GRAY}It is reommended to update${NC}\n"
+
+    # show auto-update status !
+    if [ -f $DMT_AUTO_UPDATE_LOG ] && [ -d ~/.dmt/.git ]; then
+      local file_age=''
+      dmt_get_file_age file_age $DMT_AUTO_UPDATE_LOG
+
+      #local file_age=$(( `date +%s` - `stat -L --format %Y $DMT_AUTO_UPDATE_LOG` ))
+      #local file_age=$(date +%s -r $DMT_AUTO_UPDATE_LOG)
+      #date +%s -r ~/.dmt/log
+
+      if [ $file_age -le $((5*60+5)) ]; then # 5 minutes plus 5s
+        printf " ↳ Not actually needed on this machine: ${MAGENTA}auto-update${NC} is set up (see ${GREEN}dmt autoupdate ${NC}for more information)${NC}\n"
+        #printf "${GREEN}✓ This is less than 5min ago ${CYAN}→${CYAN} cron setup seems to be working correctly${NC}\n"
+      fi
+    fi
+
+    echo
+  fi
+
+  # dmt [command] @hosts [terms]
+  local command=''
+
+  if [[ "$1" != @* ]]; then
+    command="$1"
+    shift
+  fi
+
+  # extract host from @ symbol but replace @all with the name of current network !
+  local hosts=""
+
+  local args
+  IFS=' ' read -r -a args <<< "$@"
+
+  for arg in "${args[@]}"
+  do
+    if [ "$arg" == "@all" ]; then
+      local network_id=''
+      get_current_network network_id
+      if [ -n "$network_id" ]; then
+        hosts="${hosts} @@$network_id"
+        shift
+      fi
+    elif [[ "$arg" == @* ]] && [[ ! "$arg" =~ = ]]; then # @attr=val should not be treated as hostnames
+      hosts="${hosts} ${arg}"
+      shift
+    fi
+  done
+
+  hosts=$(echo "$hosts" | xargs) # remove trailing whitespace
+
+  declare -a opts=(
+    "help"
+    "info"
+    "gui"
+    "status"
+    "version"
+    "device"
+    "nearby"
+    "protocols"
+    "identity"
+    "webscan"
+    "weblinks"
+    "actors"
+    "reach"
+    "connections"
+    "services"
+    "next"
+    "core"
+    "update"
+    "copy"
+    "debug"
+    "log"
+    "abclog"
+    "install"
+    "start"
+    "run"
+    "profile"
+    "restart"
+    "restart2"
+    "stop"
+    "state"
+    "snapshot"
+    "link"
+    "unlink"
+    "relink"
+    "deactivate"
+    "autoupdate"
+    "shell"
+    "bin"
+    "media"
+    "search"
+    "reload"
+  )
+
+  if dev_machine; then
+    declare -a opts_admin=(
+      "cd"
+    )
+
+    opts=("${opts[@]}" "${opts_admin[@]}")
+  fi
+
+  if [ "$command" == '-h' ] || [ "$command" == '--help' ]; then
+    command="help"
+  fi
+
+  local matching_opt=''
+  dmt_opts_matcher matching_opt "$command" "${opts[@]}"
+
+  if [ -z "$matching_opt" ] && [ -n "$command" ]; then
+    printf "💡 Try ${GREEN}dmt help${NC} to see the available options.\n"
+    echo
+    return
+  fi
+
+  # show process info
+
+  local dmt_proc_pid=''
+  local dmt_fg_bg=''
+  get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+  local proc_manager=$(ps -ef | grep "dmt-proc" | grep "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
+  if [ -z "$hosts" ]; then # if we're targeting remote hosts, information about our own local process is irrelevant
+    if [ "$matching_opt" != "next" ] && [ "$matching_opt" != "start" ] && [ "$matching_opt" != "run" ] && [ "$matching_opt" != "debug" ] && [ "$matching_opt" != "device" ]; then
+      if [ -n "$dmt_proc_pid" ]; then
+        local comment='';
+        if [ "$dmt_fg_bg" == "fg" ]; then
+          comment=" ${GRAY}in another terminal (it is not 'daemonized')${NC}"
+        fi
+
+        printf "${GREEN}${CYAN}🌀 DMT PROC${GREEN} is running 👌${comment} · ${YELLOW}Process ID (PID) ${dmt_proc_pid}${NC}\n"
+
+        # TIP 💡 friendly help
+        if [ -z "$matching_opt" ]; then
+          echo
+          # has a duplicate!
+          printf "${YELLOW}💡 TIPS:${NC}\n\n"
+          if [ "$dmt_fg_bg" == "fg" ]; then
+            #printf "You can also use ${GREEN}sudo kill -9 ${dmt_proc_pid}${NC} to kill the process now.\n"
+
+            printf "  ${CYAN}■${NC} ${GREEN}sudo kill -9 ${dmt_proc_pid} ${GRAY}stop the process ${GRAY}(you can also switch to the other terminal and press ${UNDERLINE}ctrl+c${RESET}${GRAY})${NC}\n"
+          else
+            printf "  ${CYAN}■${NC} ${GREEN}dmt stop ${GRAY}stop the process ${dmt_proc_pid}${NC}\n"
+            printf "  ${CYAN}■${NC} ${GREEN}dmt restart ${GRAY}restart the process ${dmt_proc_pid}${NC}\n"
+          fi
+
+          printf "  ${CYAN}■${NC} ${GREEN}dmt log ${GRAY}shows realtime log, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
+        fi
+      elif [ "$matching_opt" != "stop" ] && [ "$matching_opt" != "restart" ]; then
+        printf "${RED}✖ ${MAGENTA}🌀 DMT PROC${NC} ${WHITE}is not running.${NC}\n"
+        if [ -n "$proc_manager" ]; then
+          printf ".... ${YELLOW}looks like dmt process manager is currently (re)starting ${WHITE}dmt-proc${NC} ....\n"
+        fi
+
+        # TIP 💡 friendly help
+        if [ -z "$matching_opt" ]; then
+          echo
+          # has a duplicate!
+          # printf "💡 ${WHITE}Two options for starting:\n\n"
+          printf "  ${CYAN}■${NC} ${GREEN}dmt start ${MAGENTA}— recommended — ${GRAY}starts the daemonized process (in background, not inside a terminal)${NC}\n"
+          printf "  ${CYAN}■${NC} ${GREEN}dmt run ${GRAY}runs ${CYAN}dmt-proc${GRAY} in terminal foreground (stop it with ${UNDERLINE}ctrl+c${RESET}${GRAY})${NC}\n"
+        fi
+      fi
+      echo
+    fi
+  fi
+
+  # exit if no argument was given
+  if [ -z "$matching_opt" ]; then
+    if [ -z "$hosts" ]; then
+      printf "Use ${GREEN}dmt help${NC} for more options.\n"
+      echo
+
+    #   if [ -z "$1" ] && [ -n "$proc" ] ; then
+    #     echo
+    #     printf "${CYAN}This device info:${NC}\n\n"
+    #     if [ ! -f "$DMT_DEVICE_FILE" ]; then
+    #       printf "${RED}Reminder ● ${GRAY}you still need to configure this device ● ${CYAN}please run → \n\n${GREEN}  dmt device select${NC}\n\n"
+    #       return
+    #     fi
+    #   fi
+    fi
+
+    return
+
+    # if [ -z "$1" ]; then
+    #   matching_opt="help"
+    # else
+    #   return
+    # fi
+  fi
+
+  case "$matching_opt" in
+    help)
+      dmt_help
+
+      if [ -n "$hosts" ]; then
+        dmt_help_explain_rpc
+      else
+        dmt_help_explain_rpc
+
+        printf "${GRAY}_____________________________________________________________________________${NC}\n"
+        echo
+
+        if [ -z "$dmt_proc_pid" ]; then
+          printf "${RED}✖${NC} ${MAGENTA}🌀 DMT PROC${NC} ${WHITE}is not running${NC}"
+          printf " ${CYAN}→ Please use ${GREEN}dmt start${NC} 💡🚀🎸\n"
+          echo
+        else
+          printf "${GREEN}✓${NC} ${CYAN}🌀 DMT PROC${NC} ${GRAY}is ${WHITE}currently running${GRAY} on this device …${NC}\n"
+          echo
+        fi
+      fi
+      ;;
+
+    info)
+      if [ -n "$hosts" ]; then
+        $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" info "$@"
+      else
+        if [ -n "$dmt_proc_pid" ]; then
+          $DMT_NODEJS_EXEC "$DMT_CLI" info "$@"
+        fi
+      fi
+      ;;
+
+    nearby)
+      if [ -n "$dmt_proc_pid" ]; then
+        dmt_nearby "$@"
+      else
+        printf "⚠️  ${CYAN}dmt nearby ${RED}command requires ${MAGENTA}dmt-proc ${RED}to be running - not showing nearby devices.${NC}\n"
+        echo
+        dmt_nearby_help
+      fi
+      ;;
+
+    state)
+      if [ -n "$dmt_proc_pid" ]; then
+        $DMT_NODEJS_EXEC "$CLI_DIR/state.js" "$@"
+      fi
+      ;;
+
+    snapshot)
+      dmt_snapshot "$@"
+      ;;
+
+    connections)
+      if [ -n "$dmt_proc_pid" ]; then
+        $DMT_NODEJS_EXEC "$CLI_DIR/connections.js" "$@"
+      fi
+      ;;
+
+    protocols)
+      if [ -n "$dmt_proc_pid" ]; then
+        $DMT_NODEJS_EXEC "$CLI_DIR/protocols.js" "$@"
+      fi
+      ;;
+
+    actors)
+      if [ -n "$dmt_proc_pid" ]; then
+        $DMT_NODEJS_EXEC "$CLI_DIR/actors.js" "$@"
+      fi
+      ;;
+
+    reach)
+      if [ -n "$dmt_proc_pid" ]; then
+        $DMT_NODEJS_EXEC "$CLI_DIR/reach.js" "$@"
+      fi
+      ;;
+
+    reload)
+      reload_shell
+      ;;
+
+    gui)
+      if [ -n "$hosts" ]; then
+        dmt_gui "$hosts" "$@"
+      else
+        # if [ -n "$dmt_proc_pid" ]; then
+        #   node "$DMT_CLI" gui_test "$@"
+        # fi
+        dmt_gui "$@"
+      fi
+      ;;
+
+    debug)
+      local markerfile="$DMT_STATE/.debug-mode"
+      local markerfile_display="~/.dmt/state/.debug-mode"
+
+      if [ "$1" == "off" ] || [ "$1" == "disable" ] || [ "$1" == "stop" ]; then
+        if [ -f "$markerfile" ]; then
+          rm "$markerfile"
+          printf "${MAGENTA}Debug mode disabled${NC}\n"
+        else
+          printf "${YELLOW}Debug mode was already disabled${NC}\n"
+        fi
+      fi
+
+      # dmt debug edit
+      if [ "$1" == "edit" ]; then
+        if [ ! -f "$markerfile" ]; then
+          setup_default_debug_marker_file "$markerfile"
+        fi
+
+        nano "$markerfile"
+
+        printf "${GREEN}✓ ${YELLOW}Debug mode ⚙️  is enabled with selected additional logging:${NC}\n"
+
+        echo
+
+        show_debug_levels_from_markerfile "$markerfile"
+
+        echo
+        printf "${CYAN}Options:${NC}\n"
+        echo
+        printf "  ${CYAN}■${NC} ${GREEN}dmt debug off ${GRAY}stop debugging${NC}\n"
+        echo
+
+        return
+      fi
+
+      if [ -z "$1" ] || [ "$1" == "on" ] || [ "$1" == "enable" ]; then
+        if [ -f "$markerfile" ]; then
+          printf "${YELLOW}✓ Debug mode was already enabled${NC}\n"
+        else
+          setup_default_debug_marker_file "$markerfile"
+
+          printf "${GREEN}✓ ${YELLOW}Debug mode ⚙️  enabled${NC}\n"
+          #printf "${GRAY}General debug messages are now appearing in dmt log.${NC}\n"
+        fi
+
+        echo
+        printf "${CYAN}What this means?${NC}\n"
+        echo
+        printf "${MAGENTA}General debug messages are now appearing in dmt log.${NC}\n"
+        printf "\nIf you need more debugging messages please use ${GREEN}dmt debug edit${NC} and remove '#' in front of particular debug log levels:\n"
+
+        #printf "\n${MAGENTA}Debugging options:${NC}\n"
+
+        # printf "\nTo make it more permanent, add this to device.def ${GRAY}(command:${NC} ${GREEN}dev edit${NC}${GRAY})${NC}:\n"
+        # printf "${MAGENTA}debug:${NC}\n"
+        # printf "  ${MAGENTA}log: ${GRAY}mpv${NC}\n"
+        # printf "  ${MAGENTA}log: ${GRAY}lanbus${NC}\n"
+        # printf "  ${MAGENTA}log: ${GRAY}...${NC}\n"
+        # printf "\n⚠️  ${GRAY}This, however, requires ${GREEN}dmt restart${GRAY} while editing the ${YELLOW}.debug-mode${GRAY} file does not.${NC}\n"
+
+        echo
+
+        show_debug_levels_from_markerfile "$markerfile"
+        #printf "${GREEN}beats${NC} ${GRAY}todo${NC}\n"
+      fi
+
+      echo
+      printf "${CYAN}Options:${NC}\n"
+      echo
+      printf "  ${CYAN}■${NC} ${GREEN}dmt debug [on] ${GRAY}start debugging${NC}\n"
+      printf "  ${CYAN}■${NC} ${GREEN}dmt debug off ${GRAY}stop debugging${NC}\n"
+      printf "  ${CYAN}■${NC} ${GREEN}dmt debug edit ${GRAY}enable or disable additional logging${NC}\n"
+      echo
+
+      ;;
+
+    search)
+      if [ -n "$hosts" ]; then
+        dmt_search "${hosts}" "$@"
+      else
+        dmt_search "$@"
+      fi
+      ;;
+
+    media)
+      if [ -n "$hosts" ]; then
+        dmt_media "${hosts}" "$@"
+      else
+        dmt_media "$@"
+      fi
+      ;;
+
+    services)
+      if [ -n "$hosts" ]; then
+        $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" services "$@"
+      else
+        $DMT_NODEJS_EXEC "$DMT_CLI" services "$@"
+      fi
+      ;;
+
+    version)
+      dmt_version
+      ;;
+
+    device)
+      dmt_device "$@"
+      ;;
+
+    next)
+      dmt_next "$@"
+      ;;
+
+    update) # updates the whole folder and restarts the service
+      dmt_update "$@"
+      ;;
+
+    copy) # updates the whole folder, doesn't restart the service
+      dmt_copy "$@"
+      ;;
+
+    deactivate)
+      dmt_deactivate
+      ;;
+
+    autoupdate)
+      dmt_autoupdate "$@"
+      ;;
+
+    shell)
+      dmt_shell_setup "$@"
+      ;;
+
+    webscan)
+      dmt_webscan "$@"
+      ;;
+
+    weblinks)
+      dmt_weblinks "$@"
+      ;;
+
+    # link)
+    #   local dir="$DMT_NODE_CORE/.scripts"
+    #   if [ -d "$dir" ]; then
+    #     local cwd="`pwd`"
+    #     cd "$dir"
+    #     ./symlink_dmt_deps
+    #     # printf "${GREEN}Linked.${NC}\n"
+    #     cd "$cwd"
+    #   fi
+    #   ;;
+
+    # unlink)
+    #   local dir="$DMT_NODE_CORE/.scripts"
+    #   if [ -d "$dir" ]; then
+    #     local cwd="`pwd`"
+    #     cd "$dir"
+    #     ./symlink_dmt_deps "remove"
+    #     # printf "${MAGENTA}Unlinked.${NC}\n"
+    #     cd "$cwd"
+    #   fi
+    #   ;;
+
+    # checklink)
+    #   local cwd="`pwd`"
+    #   cd "$DMT_NODE_CORE/.scripts"
+    #   ./symlink_dmt_deps "check"
+    #   cd "$cwd"
+    #   ;;
+
+    # relink) #rarely used, usually "dmt link" is enough for this purpose as well... use "dmt relink" only if suddenly symlinks should point somewewhere else... if just some new symlinks have to be added, there is no need to unlink first, the symlinking script (dmt link) will add what's missing
+    #   dmt unlink
+    #   dmt link
+    #   ;;
+
+    start)
+      if report_dmt_running "$dmt_proc_pid" "$dmt_fg_bg"; then
+        return
+      fi
+
+      prepare_dmt_engine
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
+
+      printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is starting...${NC}\n\n"
+      "${DMT_PATH}/etc/onboot/daemons" start
+
+      # see if process is actually running
+      local dmt_proc_pid=''
+      local dmt_fg_bg=''
+      get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+      if [ -n "$dmt_proc_pid" ]; then
+        printf "\n${CYAN}✓ dmt-proc${NC} ${GRAY}should now be running, use ${GREEN}dmt log ${GRAY}to see recent log entries.${NC}\n"
+        echo
+          # has a duplicate!
+          printf "${YELLOW}💡 TIPS:${NC}\n\n"
+          printf "  ${CYAN}■${NC} ${GREEN}dmt stop ${GRAY}stop the process ${dmt_proc_pid}${NC}\n"
+          printf "  ${CYAN}■${NC} ${GREEN}dmt restart ${GRAY}restart the process ${dmt_proc_pid}${NC}\n"
+          printf "  ${CYAN}■${NC} ${GREEN}dmt log ${GRAY}shows realtime log, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
+          echo
+      else
+        printf "\n${RED}Problem starting ${CYAN}dmt-proc${RED}, please use ${GREEN}dmt logfg ${RED}to determine the reason${NC}\n"
+      fi
+      ;;
+
+    run) # START FOREGROUND
+      if report_dmt_running "$dmt_proc_pid" "$dmt_fg_bg"; then
+        return
+      fi
+
+      prepare_dmt_engine
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
+
+      printf "${CYAN}🌀 DMT PROC${NC} ${WHITE}is running in terminal foreground ${NC}(this is marked with ${RED}'✝'${NC})\n"
+      echo
+      printf "⚠️  Process will be ${CYAN}✝erminated${NC} if you ${UNDERLINE}close the terminal tab${RESET}${NC} or ${UNDERLINE}exit the remote terminal ssh session${RESET}.${NC}\n"
+      echo
+      printf "💡 Stop it manually when needed by pressing ${UNDERLINE}ctrl+c${RESET}${NC}\n"
+      echo
+      printf "💡 To keep the process active ('daemonized') in the background please use ${GREEN}dmt start${NC}.\n"
+      printf "   You can see the equivalent realtime log output of the daemonized process with ${GREEN}dmt log${NC}.\n"
+      echo
+
+      $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+      ;;
+
+    profile)
+      if report_dmt_running "$dmt_proc_pid" "$dmt_fg_bg"; then
+        return
+      fi
+
+      # dmt_symlink_nodejs_deps
+      # compile_gui_if_missing
+
+      printf "${MAGENTA}dmt-proc${NC} ${WHITE}in ${GREEN}profiling mode ${WHITE}is starting in ${CYAN}foreground${NC} ...\n\n"
+      $DMT_NODEJS_EXEC --trace-warnings --prof "${DMT_NODE_CORE}/controller/processes/dmt-proc.js"  --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+
+      echo
+      printf "${GRAY}Now please open ${CYAN}https://nodejs.org/es/docs/guides/simple-profiling/ ${GRAY}for further instructions...${NC}\n"
+      ;;
+
+    stop)
+      check_if_dmt_proc_can_be_stopped
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
+
+      local dmt_proc_pid=''
+      local dmt_fg_bg=''
+      get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+      if [ -n "$dmt_proc_pid" ]; then
+        printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is stopping...${NC}\n\n"
+        "${DMT_PATH}/etc/onboot/daemons" stop
+
+        echo
+        # has a duplicate!
+        printf "💡 ${YELLOW}TIPS:\n\n"
+        printf "  ${CYAN}■${NC} ${GREEN}dmt start ${MAGENTA}· recommended · ${GRAY}starts the daemonized process (in background, not in a terminal)${NC}\n"
+        printf "  ${CYAN}■${NC} ${GREEN}dmt run ${GRAY}runs ${CYAN}dmt-proc${GRAY} in terminal foreground (stop it with ${UNDERLINE}ctrl+c${RESET}${GRAY})\n"
+        echo
+      else
+        printf "${RED}✖ ${MAGENTA}🌀 DMT PROC${NC} ${WHITE}is not running${NC}\n"
+      fi
+      ;;
+
+    restart)
+      check_if_dmt_proc_can_be_stopped
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
+
+      prepare_dmt_engine
+      if [[ $? -eq 1 ]]; then
+        return
+      fi
+
+      printf "${CYAN}🌀 DMT PROC${NC} ${MAGENTA}is restarting...${NC}\n\n"
+      "${DMT_PATH}/etc/onboot/daemons" restart
+      if [ $? -eq 0 ]; then
+        local dmt_proc_pid=''
+        local dmt_fg_bg=''
+        get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+        if [ -n "$dmt_proc_pid" ]; then
+          printf "\n${GREEN}✓${NC} ${CYAN}dmt-proc${NC} ${GRAY}restarted, use ${GREEN}dmt log ${GRAY}to see recent log entries if needed.${NC}\n"
+        else
+          printf "\n${RED}Problem restarting ${CYAN}dmt-proc${RED}, please use ${GREEN}dmt log ${RED}to determine the reason${NC}\n"
+        fi
+      fi
+      ;;
+
+    log) # show log in foreground and keep it updated
+      dmt_log "$@"
+      ;;
+
+    abclog) # show abc log in foreground and keep it updated
+      dmt_log abc "$@"
+      ;;
+
+    # undocumented:
+
+    flash)
+      dmt_flash "$@"
+      ;;
+
+    bin)
+      dmt_bin "$@"
+      ;;
+
+    cd)
+      dmt_cd
+      ;;
+
+  esac
+}
+
+# function dmt_symlink_nodejs_deps {
+#   local script="$DMT_NODE_CORE/.scripts/symlink_dmt_deps"
+
+#   if [ -f "$script" ]; then
+#     # changed recently!! if symlinking logic changes, we cannot just check if one symlink is present to know
+#     # if we have to do something!!
+#     #if [ ! -L "$DMT_NODE_CORE/dmt-common/node_modules" ] || [ ! -d "$DMT_USER_PATH/core/node/node_modules" ]; then
+#       local cwd="`pwd`"
+#       cd "$DMT_NODE_CORE/.scripts"
+#       ./symlink_dmt_deps
+#       cd "$cwd"
+#     #fi
+#   fi
+# }
+
+function check_if_dmt_proc_can_be_stopped {
+  local dmt_proc_pid=''
+  local dmt_fg_bg=''
+  get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+  if [[ $dmt_fg_bg == 'fg' ]]; then
+    printf "⚠️  ${RED}Cannot stop ${CYAN}dmt-proc${NC} !\n"
+    printf "   ${WHITE}Reason${NC} → it is running in ${WHITE}${UNDERLINE}another terminal${RESET}${NC} (it was started with ${WHITE}${UNDERLINE}dmt run${RESET}${NC} command).${NC}\n"
+    echo
+    printf "💡 Please switch to that terminal and press ${UNDERLINE}ctrl+c${RESET} to stop the process.${NC}\n"
+    printf "   Or you can use ${GREEN}sudo kill -9 ${dmt_proc_pid}${NC} to kill the process from this terminal.\n"
+    echo
+    return 1
+  fi
+}
+
+function setup_default_debug_marker_file {
+  local markerfile="$1"
+
+  echo "#mpv" > $markerfile
+  echo "#mpv-ipc" >> $markerfile
+  echo "#ws" >> $markerfile
+  echo "#lanbus" >> $markerfile
+  echo "#network-detect" >> $markerfile
+  echo "#mqtt-sent" >> $markerfile
+  echo "#mqtt-received" >> $markerfile
+}
+
+function debug_levels_from_markerfile_check_if_enabled {
+  local markerfile="$1"
+  local debug_level="$2"
+
+  if grep -Fxq "$2" "$markerfile"
+  then
+      printf " ${GREEN}✓ ${CYAN}"
+  else
+      printf "  ${GRAY}#${WHITE}"
+  fi
+}
+
+function show_debug_levels_from_markerfile {
+  local markerfile="$1"
+
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "mpv"
+  printf "mpv${NC} ${GRAY}enables mpv process logging into ${CYAN}~/.dmt/log/mpv.log${NC} ${NC}(⚠️  requires ${GREEN}dmt restart${NC})${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "mpv-ipc"
+  printf "mpv-ipc${NC} ${GRAY}enables debug messages between ${CYAN}dmt-proc${NC} ${GRAY}and${NC} ${CYAN}mpv${NC} ${GRAY}process in dmt log${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "ws"
+  printf "ws${NC} ${GRAY}enables debug messages about websocket connections (port 7780)${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "lanbus"
+  printf "lanbus${NC} ${GRAY}enables debug messages about lanbus${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "network-detect"
+  printf "network-detect${NC} ${GRAY}enables debugging of current lan network and network segments identification${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "mqtt-sent"
+  printf "mqtt-sent${NC} ${GRAY}enables debug messages about sent mqtt messages${NC}\n"
+  debug_levels_from_markerfile_check_if_enabled "$markerfile" "mqtt-received"
+  printf "mqtt-received${NC} ${GRAY}enables debug messages about received mqtt messages${NC}\n"
+}
+
+function compile_gui_if_missing {
+  if [ ! -f "$DMT_NODE_CORE/gui/gui-frontend-core/app/public/bundle.js" ]; then
+    dmt_gui build
+  fi
+}
+
+# Reload the environment
+function reload_shell {
+  # if [ -f "$DMT_PATH/shell/compile" ]; then
+  #   compile
+  # fi
+  # if [ -f ~/.bash_aliases ]; then
+  #   . ~/.bash_aliases
+  # fi
+
+  if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+  fi
+  if [ -f ~/.bash_profile ]; then
+    . ~/.bash_profile
+  fi
+  if [ -f ~/.profile ]; then
+    . ~/.profile
+  fi
+
+  printf "${GREEN}✓ Shell reloaded${NC}\n"
+}
+
+function get_dmt_proc_pid {
+  # space in " dmt-proc" is required
+  local proc=$(ps -ef | grep " dmt-proc" | grep -v "nano dmt-proc" | grep -v "eslint" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local procFG=$(ps -ef | grep "controller/processes/dmt-proc.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
+  if [ -n "$proc" ]; then
+    #ps -ef | grep " dmt-proc" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
+    eval "$1='$proc'"
+    eval "$2='bg'"
+    return
+  fi
+
+  # dmt process running in foreground
+  if [ -n "$procFG" ]; then
+    #ps -ef | grep "controller/processes/dmt-proc.js" | grep -v "command -v openssl >/dev/null" | grep -v grep
+    eval "$1='$procFG'"
+    eval "$2='fg'"
+  fi
+}
+
+function report_dmt_running {
+  local dmt_proc_pid="$1"
+  local fg_bg="$2"
+
+  if [ -n "$dmt_proc_pid" ]; then
+    local fg_bg_msg=""
+    if [ "$fg_bg" == 'fg' ]; then
+      fg_bg_msg="${YELLOW}in foreground${NC} "
+    else
+      fg_bg_msg="${MAGENTA}in background${NC} "
+    fi
+    printf "${CYAN}dmt-proc${NC} ${GREEN}is already running ${fg_bg_msg}with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
+    if [ "$fg_bg" == 'fg' ]; then
+      printf "Suggestion: ${GRAY}find the terminal window with active ${CYAN}dmt-proc${GRAY}${NC}\n"
+    else
+      echo
+      printf "💡 ${GREEN}dmt stop ${GRAY}stops the background process${NC}\n"
+    fi
+    return 0
+  fi
+
+  return 1
+}
+
+# warning: duplicated in ~/.dmt/etc/onboot/daemons
+# function save_dmt_state {
+#   local dmt_cli="${DMT_NODE_CORE}/controller/cli/dmt.js"
+#   if [ -f "$dmt_cli" ]; then
+#     node "$dmt_cli" save_state
+#   fi
+# }
+
+function dmt_device {
+  declare -a opts=(
+    "cd"
+    "select"
+    "def"
+    "edit"
+  )
+
+  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+    local device_name=''
+    get_current_device device_name
+
+    if [ -n "$device_name" ]; then
+      printf "${CYAN}Device name: 💡 ${MAGENTA}${device_name}${NC}\n\n"
+    else
+      printf "${GRAY}This device is ${RED}unnamed 🤔${GRAY}, please name it by running ${GREEN}dmt device select${GRAY} (or shorter: ${GREEN}dev sel${GRAY}).${NC}\n\n"
+      return
+    fi
+
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}cd [device]${NC} ${GRAY}move to directory with device definition (${GREEN}dev cd ${GRAY}moves to this device's def)${NC}\n"
+    printf "${GREEN}select${NC} ${GRAY}select configuration for this device from existing configurations or create a new configuration and assign it to this device${NC}\n"
+    printf "${GREEN}def${NC} ${GRAY}shows parsed device.def definition in json format${NC}\n"
+    printf "${GREEN}edit${NC} ${GRAY}edit current device's device.def${NC}\n"
+    return
+  fi
+
+  local matching_opt=''
+  dmt_opts_matcher matching_opt "$1" "${opts[@]}"
+
+  shift
+
+  case "$matching_opt" in
+    cd)
+      device_helper cd "$@"
+      ;;
+
+    edit)
+      device_helper edit
+      ;;
+
+    select)
+      local script="$DMT_SCRIPTS/setup_device"
+      if [ -f "$script" ]; then
+        "$script" "$@"
+      fi
+      ;;
+
+    def)
+      printf "${YELLOW}Showing device definition in json format (parsed from .def):${NC}\n"
+      local cli="$DMT_NODE_CORE/controller/cli/device.js"
+      if [ -n "$hosts" ]; then
+        $DMT_NODEJS_EXEC "$cli" "${hosts}" "$@"
+      else
+        $DMT_NODEJS_EXEC "$cli" "$@"
+      fi
+      ;;
+  esac
+}
+
+function dev {
+  dmt_device "$@"
+}
+
+function device {
+  dmt_device "$@"
+}
+
+function device_helper {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}cd${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}edit${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}list${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}ping${NC} ${GRAY}${NC}\n"
+  else
+    declare -a opts=(
+      "cd"
+      "edit"
+      "list"
+      "ping"
+    )
+
+    local matching_opt=''
+    dmt_opts_matcher matching_opt "$1" "${opts[@]}"
+    if [ $? -ne 0 ]; then # error
+      printf "Use ${GREEN}dmt help${NC} for more options.\n"
+      return
+    fi
+
+    shift
+
+    case "$matching_opt" in
+      cd)
+        local device="$1"
+
+        if [ -z "$device" ]; then
+          device="this"
+        fi
+
+        # if [ -z "$1" ]; then
+        #   AWESOME_SILENCE=true awesome_cd ~/.dmt/user/devices
+        #   if [ $? -eq 0 ] && [ -d "this/def" ]; then
+        #     cd "this/def"
+        #   fi
+        # else
+
+        AWESOME_SILENCE=true awesome_cd ~/.dmt/user/devices "$device"
+
+        if [ $? -eq 0 ]; then
+          if [ -d "def" ]; then
+            cd "def"
+          else
+            printf "${GRAY}Moved to ${CYAN}${device}${GRAY} device directory but ${YELLOW}def ${GRAY}subdirectory is not present, please create it ...${NC}\n"
+          fi
+        else
+          printf "${RED}not found${NC}\n"
+        fi
+
+        ;;
+
+      edit)
+        local dir="${DMT_USER_PATH}/devices/this"
+        if [ -d "$dir" ]; then
+          local file="${dir}/def/device.def"
+          if [ -f "$file" ]; then
+            nano "$file"
+          else
+            echo $file
+            printf "${RED}device.def file not found${NC}\n"
+          fi
+        else
+          printf "${RED}Device is unknown${GRAY}, please select the definition file by using ${GREEN}dev select${GRAY}, then try again.${NC}\n"
+        fi
+        ;;
+
+      list)
+        for_all_devices "list"
+        ;;
+
+      ping)
+        for_all_devices
+        ;;
+    esac
+  fi
+}
+
+function dmt_state {
+
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt state${NC} ${GRAY}show program state${NC}\n"
+    printf "${GREEN}dmt state [store]${NC} ${GRAY}show a specific store state (device, player etc.)${NC}\n"
+    printf "${GREEN}dmt state [store].[key]${NC} ${GRAY}ex.: player.playlist, device.deviceKey${NC}\n"
+    printf "${GREEN}dmt state purge${NC} ${GRAY}delete program state${NC}\n"
+    return
+  fi
+
+  local DMT_STATE_FILE="$DMT_PATH/state/program.json"
+
+  if [ -f "$DMT_STATE_FILE" ]; then
+    if [ "$1" == "purge" ]; then
+      if [ -f "$DMT_STATE_FILE" ]; then
+        #dmt stop
+        rm "$DMT_STATE_FILE"
+        printf "${GREEN}purged dmt state${NC}\n"
+        #dmt start
+      fi
+    else
+      if [ -n "$1" ]; then
+        cat "${DMT_STATE_FILE}" | jq ".$1"
+      else
+        cat "${DMT_STATE_FILE}" #| jq
+      fi
+    fi
+  else
+    printf "${YELLOW}dmt state not found on storage media${NC}\n"
+  fi
+}
+
+function gui_send_action_to_frontend {
+  local cliGUI="$DMT_PATH/core/node/gui/cli/gui.js"
+  local action="$1"
+  local payload
+  if [ -n "$2" ]; then
+    #action="${action}:${2}"
+    payload="$2"
+  fi
+  $DMT_NODEJS_EXEC "${cliGUI}" "$action" "$payload"
+}
+
+function dmt_gui {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt gui test${NC} ${GRAY}display a test notification on the gui${NC}\n"
+    #printf "${GREEN}dmt gui @deviceName test${NC} ${GRAY}display a test notification on remote gui${NC}\n"
+    #printf "${GREEN}dmt gui load [view]${NC} ${GRAY}loads the specified gui view (home, player, debug etc.)${NC}\n"
+    printf "${GREEN}■ ${CYAN}dmt gui ${GREEN}reload${NC} ${GRAY}reload current url (/[view]) in chromium${NC}\n"
+    printf "${GREEN}■ ${CYAN}dmt gui ${GREEN}reload ${CYAN}[view]${NC} ${GRAY}open-reload a particular dmt frontend /[view]${NC}\n"
+    printf "${GREEN}■ ${CYAN}dmt gui ${GREEN}force_reload${NC} ${GRAY}reload /home view using a more effective method, this only works for local frontend and will not reload connected frontends${NC}\n"
+    #printf "${GREEN}dmt gui reload [view]${NC} ${GRAY}reloads to the specified gui view (home, player, debug etc.)${NC}\n"
+    printf "${GREEN}■ ${CYAN}dmt gui ${GREEN}switch ${CYAN}[ip]${NC} ${GRAY}switches gui to specified IP (todo: use deviceName instead of ip)${NC}\n"
+    # printf "${GREEN}dmt_gui debug${NC} ${GRAY}shows debugging info for current gui issues troubleshooting${NC}\n"
+    return
+  else
+    declare -a opts=(
+      "reload"
+      "test"
+      "force_reload"
+      "switch"
+      "cd"
+      "build"
+      "run"
+    )
+
+    local matching_opt=''
+    dmt_opts_matcher matching_opt "$1" "${opts[@]}"
+    if [ $? -ne 0 ]; then # error
+      printf "Use ${GREEN}dmt gui${NC} for more options.\n"
+      #matching_opt="aaa" # default
+    fi
+
+    shift
+
+    local FRONTEND_APP=~/Projects/dmt-system/packages/dmt-frontend
+
+    case "$matching_opt" in
+      # reloads all connected guis
+      # better than hard-reload if it works
+      reload)
+        local view="$1"
+        gui_send_action_to_frontend "reload" "$view"
+        ;;
+
+      # reloads only local gui, even if connector is disconnected
+      # sometimes a bad update can cause a stuck gui, we can unstuck it with this
+      # instead of rebooting the device
+      force_reload)
+        # todo: maybe check if we are on rpi and that this script will work
+        "$DMT_PATH/etc/scripts/rpi_reload_chromium"
+        if [ ! $? -ne 0 ]; then # error
+          printf "${GREEN}✓ Reloaded dmt frontend in local chromium instance, other connected frontends were not reloaded.${NC}\n"
+        fi
+        ;;
+
+      switch)
+        local ip="$1"
+        gui_send_action_to_frontend "switch" "$ip"
+        ;;
+
+      cd)
+        cd "$FRONTEND_APP"
+        ;;
+
+      run)
+        if [ -d "$FRONTEND_APP" ]; then
+          cd "$FRONTEND_APP"
+          npm run dev -- --port 5555
+        else
+          printf "${GRAY}dmt-frontend source is not present on this machine${NC}\n"
+        fi
+        ;;
+
+      test)
+        if [ -n "$hosts" ]; then
+          $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" gui_test "$@"
+        else
+          $DMT_NODEJS_EXEC "$DMT_CLI" gui_test "$@"
+        fi
+        ;;
+
+      build)
+        local FRONTEND_BUILD="$FRONTEND_APP/dist"
+
+        if [ -d "$FRONTEND_APP" ]; then
+          cd "$FRONTEND_APP"
+          npm run build
+
+          if [ $? -ne 0 ]; then # error
+            echo
+            printf "⚠️  ${MAGENTA}Build produced errors${NC}\n"
+            dmt_desktop_notification "🤦 dmt-frontend build was not successful" "Build failed"
+            return
+          elif [ -d "$FRONTEND_BUILD" ]; then
+            local TARGET=~/.dmt/apps/dmt-frontend
+
+            if [ -d "$TARGET" ]; then
+              echo
+
+              mkdir -p "$TARGET"
+              dirsync "$FRONTEND_BUILD" "$TARGET"
+
+              printf "${GREEN}✓ Produced new ${CYAN}DMT FRONTEND${NC} ${GREEN}into ${TARGET}${NC}\n"
+            else
+              printf "${RED}${TARGET} directory is missing${NC}\n"
+            fi
+          else
+            printf "${RED}${FRONTEND_BUILD} directory is missing${NC}\n"
+          fi
+        else
+          printf "${GRAY}dmt-frontend source is not present on this machine${NC}\n"
+        fi
+        ;;
+    esac
+  fi
+}
+
+function legacy_gui {
+  local dir="$DMT_PATH/core/node/gui/gui-frontend-core"
+  local backendDir="$DMT_PATH/core/node/gui/gui-backend"
+
+  # extract host from @ symbol but replace @all with the name of current network !
+  local hosts=""
+
+  local args
+  IFS=' ' read -r -a args <<< "$@"
+
+  for arg in "${args[@]}"
+  do
+    if [ "$arg" == "@all" ]; then
+      local network_id=''
+      get_current_network network_id
+      if [ -n "$network_id" ]; then
+        hosts="${hosts} @@$network_id"
+        shift
+      fi
+    elif [[ "$arg" == @* ]] && [[ ! "$arg" =~ = ]]; then # @attr=val should not be treated as hostnames
+      hosts="${hosts} ${arg}"
+      shift
+    fi
+  done
+
+  hosts=$(echo "$hosts" | xargs) # remove trailing whitespace
+
+  local option="$1"
+
+  if [ -z "$option" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt gui test${NC} ${GRAY}display a test notification on the gui${NC}\n"
+    printf "${GREEN}dmt gui @deviceName test${NC} ${GRAY}display a test notification on remote gui${NC}\n"
+    #printf "${GREEN}dmt gui cd [view]${NC} ${GRAY}${NC}\n"
+    # printf "${GREEN}dmt_gui run${NC} ${GRAY}${NC}\n"
+    # printf "${GREEN}dmt_gui build${NC} ${GRAY}build all GUIs${NC}\n"
+    # printf "${GREEN}dmt_gui build [gui]${NC} ${GRAY}${NC}\n"
+    printf "${GREEN}dmt gui load [view]${NC} ${GRAY}loads the specified gui view (home, player, debug etc.)${NC}\n"
+    printf "${GREEN}dmt gui reload${NC} ${GRAY}send request to frontend via websocket requesting reload of current url${NC}\n"
+    printf "${GREEN}dmt gui reload [view]${NC} ${GRAY}reloads to the specified gui view (home, player, debug etc.)${NC}\n"
+    printf "${GREEN}dmt gui switch [ip]${NC} ${GRAY}switches gui to specified IP (todo: use deviceName instead of ip)${NC}\n"
+    # printf "${GREEN}dmt_gui debug${NC} ${GRAY}shows debugging info for current gui issues troubleshooting${NC}\n"
+    return
+  fi
+
+  shift
+
+  case "$option" in
+    test)
+      if [ -n "$hosts" ]; then
+        $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" gui_test "$@"
+      else
+        $DMT_NODEJS_EXEC "$DMT_CLI" gui_test "$@"
+      fi
+      ;;
+
+    cd)
+      awesome_cd "$dir" "$1"
+      if [ $? -eq 0 ] && [ -d "src" ]; then
+        cd "src"
+      fi
+      ;;
+
+    load)
+      local view="$1"
+      gui_send_action_to_frontend "load" "$view"
+      ;;
+
+    run)
+      #dmt_symlink_nodejs_deps # does not have an influence - this builds dmt apps, not dmt core.. will fix later
+      local cwd="`pwd`"
+      cd "$dir/app"
+      npm run dev
+      cd "$cwd"
+      ;;
+
+    build)
+      #dmt_symlink_nodejs_deps # does not have an influence - this builds dmt apps, not dmt core.. will fix later
+      local cwd="`pwd`"
+      cd "$dir/app"
+      npm run build
+      cd "$cwd"
+      ;;
+
+    *)
+      awesome_cd "$dir" "$option"
+      ;;
+  esac
+}
+
+function dmt_log {
+  #local foreground=false
+
+  # if [ "$1" == "-h" ]; then
+  #   printf "${YELLOW}Usage:${NC}\n"
+  #   printf "${GREEN}dmt log${NC} ${GRAY}get last 10 log lines on this machine${NC}\n"
+  #   printf "${GREEN}dmt @host log${NC} ${GRAY}get last 10 log lines for remote machine${NC}\n"
+  #   printf "${GREEN}dmt logfg${NC} ${GRAY}local log in foreground (updates are visible as they come)${NC}\n"
+  #   return
+  # fi
+
+  local LOGFILE="$DMT_PATH/log/dmt.log"
+
+  if [ "$1" == "abc" ]; then
+    shift
+    LOGFILE="$DMT_PATH/log/abc.log"
+  fi
+
+  if [ ! -f "$LOGFILE" ]; then
+    printf "⚠️  ${RED}Missing: ${YELLOW}${LOGFILE}${NC}\n"
+    return
+  fi
+
+  if [ "$1" == "full" ]; then
+    cat "$LOGFILE"
+  else
+    # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) update device.. 4) PROBLEM: even older log messages will be shown
+    tail -f -n ${TAIL_LOG_LINES} "$LOGFILE"
+  fi
+  # elif [ "$1" == "lan" ]; then
+  #   printf "${MAGENTA}Not yet implemented ...${NC}\n"
+  #   printf "${CYAN}Expect it in the next minor release of ${MAGENTA}dmt-system${NC}.${NC}\n"
+  # else
+  #   if [ -n "$hosts" ]; then
+  #     $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" log "$@"
+  #   else
+  #     $DMT_NODEJS_EXEC "$DMT_CLI" log "$@"
+  #   fi
+  # fi
+}
+
+function dmt_help {
+  printf "  ${CYAN}■${NC} ${GREEN}dmt help ${GRAY}shows this help screen${NC}\n"
+  #printf "${GREEN}dmt docs ${MAGENTA}shows documentation in a browser${NC}\n"
+  #printf "  ${CYAN}■${NC} ${GREEN}${UNDERLINE}dmt version${RESET} ${GRAY}· shows dmt version — v$(cat "$DMT_PATH/.version")${NC}\n"
+  #printf "  ${CYAN}■${NC} ${GREEN}${UNDERLINE}dmt device${RESET} ${GRAY} · device configuration and information${NC}\n"
+
+  echo
+  # printf "${YELLOW}Deactivation:${NC}\n"
+  # echo
+  # printf "  ${CYAN}■${NC} ${GREEN}dmt deactivate ${GRAY} · deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY} · )${NC}\n"
+  # echo
+  printf "${CYAN}💡 DMT PROC${NC} ${WHITE}management:${NC}\n"
+  # printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
+  echo
+  printf "  ${CYAN}■${NC} ${GREEN}dmt start ${GRAY}starts the daemonized process ${CYAN}(dmt-proc)${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt stop ${GRAY}stops the process${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt restart ${GRAY}restarts the process${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${GREEN}dmt run ${GRAY}runs dmt-proc visible in terminal foreground (mostly used for debugging)${NC}\n"
+  echo
+  # printf "  ${CYAN}■${NC} ${CYAN}dmt log ${GRAY}shows a few recent log entries (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt log ${GRAY}shows last ${TAIL_LOG_LINES} log entries and monitors for further entries, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt log full ${GRAY}shows the entire log (can be long)${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt abclog ${GRAY}shows recent abc-proc log entries and monitors for more, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
+  #printf "  ${CYAN}■${NC} ${GREEN}dmt loglan ${GRAY}starts listening to network log message broadcasts${NC}\n"
+
+  echo
+  printf "👯 ${YELLOW}Code replication:${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${GREEN}dmt next ${GRAY}gets the latest ${CYAN}dmt-proc${NC} ${GRAY}version from your source${NC}\n"
+  #printf "  ${GREEN}■${NC} ${GREEN}dmt next --dry ${GRAY}show what would ${WHITE}dmt next${GRAY} command do${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${GREEN}dmt update [deviceName | ip_address] ${GRAY}clones ~/.dmt directory to another machine via SSH and restarts the process after update${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt copy [deviceName | ip_address] ${GRAY}same as above but without process restart (only in-browser GUI is reloaded) ${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt [copy|update] --compress [deviceName | ip_address] ${GRAY}use over slow links or in general when updating remote servers${NC}\n"
+  echo
+  printf "  If you want to do the reverse with the same effect,\n  you can fetch from machine with no dmt-proc currently installed:\n"
+  echo
+  printf "  ${CYAN}■${NC} ${CYAN}curl ${GRAY}[IP]${CYAN}:1111 | bash ${NC}\n"
+  echo
+  printf "  This replicates ${UNDERLINE}~/.dmt-proc${RESET} ${NC}from the remote machine where ${CYAN}dmt-proc${NC} is running to your machine.${NC}\n"
+
+  echo
+  # printf "⚠️  ≡ ${YELLOW}Not yet implemented${NC}\n"
+  # echo
+  printf "${MAGENTA}DMT Connectome${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${CYAN}dmt nearby ${GRAY}shows nearby devices ${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt connections ${GRAY}shows dmt-proc ${UNDERLINE}incoming${RESET} ${GRAY}and ${UNDERLINE}outgoing connections${RESET}${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt protocols${NC} ${GRAY}show registered realtime communication protocols${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt identities${NC} ${GRAY}manage cryptographic user identities${NC}\n"
+  echo
+
+  printf "${MAGENTA}GUI and State${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${CYAN}dmt gui ${GRAY}various methods related to ${UNDERLINE}dmt-gui${RESET}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt state ${GRAY}shows dmt-proc ${UNDERLINE}in-memory program state${RESET} ${GRAY}(part of this is saved to ${UNDERLINE}program.json${RESET} ${GRAY}file)${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt actors ${GRAY}shows dmt-proc registered actor objects than can be called over connectome or cli${NC}\n"
+  echo
+
+  printf "${MAGENTA}Search and Multimedia${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${CYAN}dmt search ${GRAY}various methods for cli search\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt media ${GRAY}various methods for cli media player manipulation\n"
+  #printf "  ${CYAN}■${NC} ${CYAN}dmt reach${NC} ${GRAY}[todo]${NC}\n"
+}
+
+function dmt_help_explain_rpc {
+  echo
+  return
+
+  echo
+  printf "${GRAY}_____________________________________________________________________________${NC}\n"
+  echo
+  printf "How to refer to other ${CYAN}dmt-proc${NC} instances on local network? ${YELLOW}Use ${MAGENTA}the @ symbol${NC} →${NC}\n"
+  echo
+  printf "  ${MAGENTA}■${NC} ${GREEN}dmt ${MAGENTA}@deviceName${GREEN} [log|services|etc.] ${GRAY}gets information about a device on local network${NC}\n"
+  printf "  ${MAGENTA}■${NC} ${GREEN}dmt ${MAGENTA}@ip_address${GREEN} [log|services|etc.] ${GRAY}same as above but directly with ip address instead of deviceName from device.def${NC}\n"
+  printf "  while ${GREEN}dmt [log|services|etc.] ${GRAY}gets information about current device as usual${NC}\n"
+  # printf "${GREEN}dmt @@remoteIpOrHost info ${GRAY}gets information about remote device on the other side of router WAN port${NC}\n"
+  echo
+  printf "  All methods in ${CYAN}cyan${NC} work in this way where an optional ${MAGENTA}@${NC} symbol\n"
+  printf "  can be used to refer to other device on local area network.\n"
+  echo
+}
+
+function dmt_version {
+  printf "${MAGENTA}v$(cat "$DMT_PATH/.version")${NC}\n\n"
+  local NUM=$(cat $HOME/.dmt/etc/.bash_aliases_bundle | grep function | wc -l | xargs)
+  printf "${WHITE}${NUM} bash functions\n"
+}
+
+function get_dmt_source_from_user_def {
+  local __dmt_source=''
+
+  if [ -f "$DMT_USER_DEF_FILE" ]; then
+    dmt_def_reader __dmt_source "$DMT_USER_DEF_FILE" "dmtSource"
+  fi
+
+  eval "$1='$__dmt_source'"
+
+  # return
+
+  # local _gatewayMac=''
+  # get_gateway_mac _gatewayMac
+
+  # if [ "$_gatewayMac" == "$LOCAL_DMT_SOURCE_MAC" ]; then
+  #   eval "$1='local'"
+  # else
+  #   eval "$1='global'"
+  # fi
+}
+
+function stop_dmt_if_running {
+  local dmt_proc_pid=''
+  local dmt_fg_bg=''
+  get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+  if [ -n "$dmt_proc_pid" ]; then
+    dmt stop
+  fi
+}
+
+function dmt_nearby_help {
+  printf "💡 ${MAGENTA}Update all nearby devices:${NC}\n"
+  echo
+  printf "${CYAN}■${NC} ${GREEN}dmt nearby copy ${GRAY}· sync ~/.dmt to nearby devices${NC}\n"
+  printf "${CYAN}■${NC} ${GREEN}dmt nearby update ${GRAY}· update nearby devices (copy + restart ${UNDERLINE}dmt-proc${RESET}${GRAY})${NC}\n"
+  printf "${CYAN}■${NC} ${GREEN}dmt nearby run ${CYAN}\"command [args]\" ${GRAY}· run a bash command on nearby devices${NC}\n"
+  echo
+  printf "${GRAY}Faster parallel command versions using [screen] to run in terminal background${NC}\n"
+  printf "${CYAN}■${NC} ${GREEN}pcopy, pupdate, prun${NC}\n"
+}
+
+function dmt_nearby {
+  local action="$1"
+  shift
+
+  # printf "${RED}YOO${NC}\n"
+
+  declare -a opts=(
+    "update"
+    "pupdate" # pupdate -> background parallel update, using screen to run update in parallel
+    "copy"
+    "pcopy" # pcopy -> background parallel copy, using screen to run copy in parallel
+    "run"
+    "prun"
+  )
+
+  local matching_opt=''
+  dmt_opts_matcher matching_opt "$action" "${opts[@]}"
+
+  if [ $? -eq 0 ]; then # no error
+    $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js"
+
+    local devices=()
+    while read device
+    do
+      devices+=( "$device" )
+    done < <( $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" --simple "$@" )
+
+    #while read device
+    for device in "${devices[@]}"; do
+      echo
+
+      local deviceInfo=(${device//;/ })
+      local deviceName="${deviceInfo[0]}"
+      local ipWithUser="${deviceInfo[1]}"
+
+      # printf "Updating device ${MAGENTA}${deviceName}${NC} ...\n"
+
+      if [ "$matching_opt" == "pupdate" ]; then
+        se dmt update "$ipWithUser"
+      elif [ "$matching_opt" == "pcopy" ]; then
+        se dmt copy "$ipWithUser"
+      elif [ "$matching_opt" == "run" ] || [ "$matching_opt" == "prun" ]; then
+        if [[ -n "$@" ]]; then
+          if [ "$matching_opt" == "run" ]; then
+            printf "${MAGENTA}${deviceName}${NC} →\n"
+            remote -h $ipWithUser "$@"
+          else
+            se "remote -h $ipWithUser \"$@\""
+          fi
+        else
+          printf "${RED}missing arguments for ${GREEN}dmt nearby run${NC}\n"
+        fi
+      else
+        dmt "$matching_opt" "$ipWithUser" # dmt update | dmt copy
+      fi
+    done
+    # this was not working anymore since we added ssh .. ~/.dmt/etc/scripts/dmt_via_git .. check in ./install
+    # for some reason ... if we create array first then iterate over it, then it works in all cases !
+    # done < <($DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" --simple "$@")
+  else
+    $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" "$@"
+    echo
+    dmt_nearby_help
+    #printf "${CYAN}■${NC} ${GRAY}dmt nearby copy ${GRAY}· copy ~/.dmt to all nearby devices without restarting ${UNDERLINE}dmt-proc${RESET} ${GRAY}on each device${NC}\n"
+  fi
+}
+
+function dmt_cache_current_version {
+  mkdir -p ~/.dmt-here/tmp
+  cp ~/.dmt/.version ~/.dmt-here/tmp/.prev_version
+}
+
+function dmt_next {
+  # option 1: specify from where to fetch via an argument:
+  # dmt next [dmtSource]
+  # or from user.def ->
+  # user:
+  #  dmtSource: [dmtSource]
+
+  local dry_run=false
+  local save_zip=false
+  local reflect_version=false
+  local force=false
+  local github=false
+
+  ARGS=()
+  while (( "$#" )); do
+    case "$1" in
+      --dry)
+        dry_run=true
+        shift 1
+        ;;
+      --save-dmt-zip)
+        save_zip=true
+        shift 1
+        ;;
+      --force)
+        force=true
+        shift 1
+        ;;
+      --github)
+        github=true
+        shift 1
+        ;;
+      --help)
+        dmt_next_help
+        return
+        ;;
+      -h)
+        dmt_next_help
+        return
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        printf "${RED}Error: Unsupported flag ${YELLOW}$1${NC}\n"
+        #echo ""
+        return
+        ;;
+      *) # preserve positional arguments
+        ARGS+=($1)
+        shift
+        ;;
+    esac
+  done
+
+  if $github; then
+    read -r -p "Are you sure you want to reset to github: uniqpath/dmt origin? [Y/n] " response
+    if [[ $response =~ ^([nN])$ ]]
+    then
+      printf "${GRAY}↳ Exiting ...${NC}\n"
+      return
+    fi
+
+    setup_github_uniqpath_dmt_origin
+    return
+  fi
+
+  if [ -d "$DMT_PATH/.git" ]; then
+    local cwd2="`pwd`"
+    cd "$DMT_PATH"
+
+    dmt_next_from_github "$dry_run" "$force"
+
+    cd "$cwd2"
+    return
+  fi
+
+  # dmt next --dry
+  # dmt next --dry url.com
+  # if [ "$1" == "--dry" ]; then
+  #   dry_run=true
+  #   shift
+  # fi
+
+  # # dmt next url.com --dry
+  # if [ "$2" == "--dry" ]; then
+  #   dry_run=true
+  # fi
+
+  # 1) dmtSource from argument
+  local arg=${ARGS[0]}
+
+  # if [ "$arg" == "--help" ] || [  "$arg" == "-h" ]; then
+  #   #dmt_next_help
+  #   return
+  # else
+  #   printf "${GRAY}To read help for this command use: ${GREEN}dmt next -h${NC}\n"
+  # fi
+
+  # 2) dmtSource from user.def
+  local dmt_source="$arg"
+
+  if [ -n "$dmt_source" ]; then
+    if $dry_run; then
+      printf "${CYAN}1)${NC} ${MAGENTA}dmtSource${NC} provided as argument: ${MAGENTA}${dmt_source}${NC}\n"
+    fi
+  else
+    if $dry_run; then
+      echo
+      printf "${CYAN}1.${NC} ${MAGENTA}dmtSource ${GRAY}not provided as argument to this command ${NC}...\n"
+      printf "${CYAN}2.${NC} ${GRAY}Checking ~/.dmt/user/def/user.def for ${MAGENTA}dmtSource ${NC}...\n"
+    fi
+
+    get_dmt_source_from_user_def dmt_source
+
+    #if [ -n "$dmt_source" ] && $dry_run; then
+      #echo
+      #printf "   ${GREEN}Found it!${NC}\n"
+    #fi
+  fi
+
+  # aborting if couldn't determine dmtSource
+
+  if [ -z "$dmt_source" ]; then
+    if $dry_run; then echo; fi
+    printf "${GRAY}Could not determine ${MAGENTA}dmtSource ${GRAY}... ${NC}"
+
+    # if [ ! -d "$DMT_PATH/.git" ]; then
+    #   if ! $dry_run; then printf "${RED}aborting.${NC}"; fi
+    #   echo
+    #   echo
+    #   printf "💡 You can use ${GREEN}dmt next --github${NC} to setup updates from ${CYAN}github: uniqpath/dmt\n"
+    #   echo
+    # fi
+
+    return
+  fi
+
+  echo
+  printf "${GREEN}✓ Determined ${MAGENTA}dmtSource: ${CYAN}${dmt_source}${NC}\n"
+  echo
+
+  # dry run
+  if $dry_run; then
+    printf "${YELLOW}Conclusion: ${GREEN}dmt next${NC} ${WHITE}command would update DMT from ${CYAN}${dmt_source}${NC}\n"
+    echo
+    return
+  fi
+
+  # FETCHING ONLY ------------
+
+  if $save_zip; then
+    local dir=~/.dmt/state
+
+    if [ -d "$dir" ]; then
+      local cwd="`pwd`"
+      cd "$dir"
+
+      local fetched_file="dmt_in_progress.zip"
+
+      if [ -f $fetched_file ]; then
+        printf "${YELLOW}REMOVING FIRST${NC}\n"
+        rm $fetched_file
+      fi
+
+      printf "${GREEN}Fetching ${MAGENTA}dmt.zip${NC} from ${CYAN}${dmt_source}${NC} → ${YELLOW}${dir}${NC} ... ${NC}\n"
+
+      if curl -L --fail "${dmt_source}/dmt.zip" -o $fetched_file; then
+        mv $fetched_file dmt.zip
+        echo
+        printf "${GREEN}✓ Fetched file ${YELLOW}${dir}/dmt.zip${NC}\n"
+        printf "${GRAY}It will be served on ${dmt_source}/dmt.zip requests as long as it stays in this folder${NC}\n"
+        printf "${GRAY}instead of process self-replication via streaming archiver.${NC}\n"
+        echo
+        printf "${GRAY}Saving corresponding version number of dmt.zip contents...${NC}\n"
+        # a bit of duplication
+        local remoteVersion=$(curl "$dmt_source"/version 2>/dev/null)
+
+        if [[ "$remoteVersion" =~ "·" ]]; then # 1.1.2 · 2020-05-03
+          echo "$remoteVersion" > dmt.zip.version.txt
+        else
+          printf "⚠️  ${YELLOW}Failed to fetch remote version ...${NC}\n"
+        fi
+      else
+        echo
+        printf "${RED}Failed to fetch ${YELLOW}${dir}/dmt.zip ${RED}✖${NC}\n"
+      fi
+
+      cd "$cwd"
+    else
+      printf "${RED}${dir} directory does not exist, aborting.${NC}\n"
+    fi
+
+    # end of fetch option
+    return
+  fi
+
+  # Safeguard
+  # duplicate above for --github option
+  #
+  # we do this in adition to dev_machine check because it's safer
+  # if we switch between device definitions temporarily for testing
+  # then we're not "dev machine" anymore but it would still be a disaster to overwrite the main code
+  if [ -f ~/.dmt/.prevent_dmt_next ]; then
+    printf "${RED}Prevented operation because ~/.dmt/.prevent_dmt_next file is present, please remove it to continue${NC}\n"
+    return
+  fi
+
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  # -----------------------------------------
+  # .... Install from get-dmt.com server ....
+  # -----------------------------------------
+
+  if [[ "$dmt_source" =~ get-dmt.com$ ]]; then # get-dmt.com || alpha.get-dmt.com || ...
+
+    # a bit of duplication
+    local remoteVersion=$(curl http://${dmt_source}/version 2>/dev/null)
+
+    if [[ ! "$remoteVersion" =~ "·" ]]; then # 1.1.2 · 2020-05-03
+      printf "⚠️  ${MAGENTA}${dmt_source}${NC} ${RED}is currently inaccessible...\n"
+      echo
+      printf "${YELLOW}Please try again later.${NC}\n"
+      return
+    fi
+
+    local localVersion=$(cat ~/.dmt/.version)
+
+    if ! "$force" && [ "$localVersion" == "$remoteVersion" ]; then
+      printf "${CYAN}Your version ${MAGENTA}${localVersion}${NC} ${CYAN}is current!${NC}\n"
+      echo
+      printf "${GREEN}No need to update 😊${NC}\n"
+      return
+    fi
+
+    if $force; then
+      printf "${MAGENTA}--force flag: ${CYAN}update even if version has not officially changed but the code may still contain minor corrections${GRAY}${NC}\n"
+      echo
+    fi
+
+    printf "Current version : ${GRAY}${localVersion}${NC}\n"
+    printf "${MAGENTA}Next version${NC}    : ${MAGENTA}${remoteVersion}${NC}\n"
+
+    echo
+
+    if ! $force; then
+      printf "${YELLOW}Do you want to update?${NC} …\n"
+      read -r -p "[Y/n] " response
+      if [[ $response =~ ^([nN])$ ]]
+      then
+        printf "${GRAY}↳ Exiting ...${NC}\n"
+        echo
+        return
+      fi
+    fi
+
+  fi
+
+  # ------------
+
+  stop_dmt_if_running
+
+  curl -L "${dmt_source}" | bash
+
+  mkdir -p ~/.dmt/state
+  touch ~/.dmt/state/gui_reload.txt
+
+  # new bundle is created on ./install which is called as part of curl install script
+  . ~/.dmt/etc/.bash_aliases_bundle
+  dmt start # will call newly fetched dmt restart method (in case it was just updated)
+
+  printf "${GREEN}Done.${NC}\n"
+  echo
+}
+
+function after_github_fetch {
+  local cwd="`pwd`"
+  cd ~/.dmt
+
+  ./install
+  . ~/.dmt/etc/.bash_aliases_bundle
+  dmt restart # will call newly fetched dmt restart method (in case it was just updated)
+
+  cd "$cwd"
+}
+
+function dmt_next_from_github {
+  local dry_run="$1"
+  local force="$2"
+
+  if $dry_run; then
+    printf "${GRAY}Would fetch from the github origin:${NC}\n"
+    #git remote show -n origin
+    git remote get-url origin
+  else
+    local gitsource=`git remote get-url origin`
+
+    if [[ "$gitsource" =~ uniqpath/dmt ]]; then
+      echo
+      printf "${GREEN}Found git origin ✓\n"
+      printf "${GRAY}Updating from ${CYAN}${gitsource} ${GRAY}...${NC}\n"
+
+      git fetch origin main
+      git checkout -f main
+
+      echo
+      printf "🔨 ${MAGENTA}Hard resetting to ${CYAN}origin/main${NC} ...\n"
+
+      git reset --hard origin/main
+      git clean -fd
+      git clean -fd
+      git clean -fd # the only way to be sure!! :/
+      # git clean -fd # special case -> when we first remove .gitignore file (in core/connectome) and this causes more directories that need to be removed
+      # twice was not enough grr
+
+      printf "${GREEN}✓ Done fetching latest code with git.${NC}\n\n"
+
+      # duplicated in cron 5min
+      if [ -f ~/.dmt-here/tmp/.prev_version ]; then
+        local prevVersion=$(cat ~/.dmt-here/tmp/.prev_version)
+        local currentVersion=$(cat ~/.dmt/.version)
+
+        if [ "$prevVersion" != "$currentVersion" ]; then
+          printf "Restarting dmt-proc after dmt next because version changed from ${CYAN}${prevVersion}${NC} to ${MAGENTA}${currentVersion}${NC}\n"
+          echo
+
+          after_github_fetch
+
+          echo
+          printf "It is also recommended to ${YELLOW}reload the terminal${NC} → "
+          printf "try ${GREEN}dmt reload${NC} command or logout and back in.\n"
+        else
+          printf "${WHITE}Version ${MAGENTA}(${currentVersion})${NC} did not change.${NC}\n"
+
+          if $force; then
+            printf "${GRAY}Restarting ${CYAN}dmt-proc ${GRAY}because of ${WHITE}--force${NC}\n"
+            echo
+            after_github_fetch
+          # else
+          #   printf "${GRAY}Not restarting ${CYAN}dmt-proc${NC}\n"
+          fi
+        fi
+      else
+        after_github_fetch
+      fi
+
+      # yet to decide ... we do this with automatic updates on server but (for now) we don't clean everything on manual updates..
+      # git clean -f -d
+      # maybe do it in the future if it's concluded that some manual files can interfere
+
+      # printf "${CYAN}💡 Please run ${GREEN}dmt restart${NC} ${CYAN}now${NC} ...\n\n"
+
+      echo
+
+      dmt_cache_current_version
+    else
+      printf "${RED}Aborting fetch from unknown git source.${NC}"
+    fi
+  fi
+}
+
+function setup_github_uniqpath_dmt_origin {
+  # Safeguard
+  # duplicate
+  if [ -f ~/.dmt/.prevent_dmt_next ]; then
+    printf "${RED}Prevented operation because ~/.dmt/.prevent_dmt_next file is present, please remove it to continue${NC}\n"
+    return
+  fi
+
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  if [ ! -d ~/.dmt ]; then
+    printf "${RED}~/.dmt directory is missing${NC}\n"
+    return
+  fi
+
+  if [ -d ~/.dmt/.git ]; then
+    rm -rf ~/.dmt/.git
+  fi
+
+  local cwd="`pwd`"
+
+  cd ~/.dmt
+
+  git init
+  git remote add origin https://github.com/uniqpath/dmt.git
+  git fetch origin main
+
+  git reset --hard origin/main # we have to do this because of possible local changes.. we will automatically create master branch as a side effect (in older version of git ?)
+  git checkout -b main origin/main # create our main branch and make it track origin/main
+
+  git clean -fd
+
+  git branch -D master # delete accidentaly created master branch
+
+  git clean -fd
+  git clean -fd
+  git clean -fd # the only way to be sure!! :/
+  # git clean -fd # special case -> when we first remove .gitignore file (in core/connectome) and this causes more directories that need to be removed
+  # twice was not enough grr
+
+  dmt_cache_current_version
+
+  cd "$cwd"
+}
+
+function dmt_next_help {
+  printf "${YELLOW}Usage:${NC}\n"
+  printf "${GREEN}dmt next ${GRAY}read ${MAGENTA}dmtSource ${GRAY}from user.def, dmtSource is just an url from where to fetch the entire ${CYAN}dmt-proc ${GRAY}code${NC}\n"
+  printf "${GREEN}dmt next [dmtSource] ${GRAY}specify manually (has precedence over user.def, careful!)${NC}\n"
+
+  printf "${GREEN}dmt next --dry ${GRAY}does not do anything except showing you what would be the determined ${MAGENTA}dmtSource ${GRAY}value${NC}\n"
+  echo
+  printf "${GRAY}Rarely used:${NC}\n"
+  printf "${CYAN}dmt next --force ${GRAY}fetch even if reported versions are the same${NC}\n"
+  printf "${CYAN}dmt next --github ${GRAY}setup fetching from github: uniqpath/dmt${NC}\n"
+
+  # echo
+  # printf "${MAGENTA}Supported formats for ${CYAN}dmtSource${NC}:\n"
+
+  # printf "Regular url: ${CYAN}dmt-system.com/urlpath${NC} (attaches /getdmt to the end if urlpath is missing - example: just 'dmt-system.com' becomes 'dmt-system.com/getdmt')\n"
+  # printf "${YELLOW}this options gets the bash script from the endpoint and executes it${NC}\n"
+
+  # printf "Github url: ${CYAN}github.com/uniqpath/dmt${NC}\n"
+
+  # printf "Local network: ${CYAN}192.168.0.50${NC} (attaches :1111 port if there is no port specified - example: just '192.168.0.70' becomes '192.168.0.70:1111')\n"
+  # printf "Regular url or ip apart from 192.168.* with port specified: ${CYAN}somedomain.com:2222${NC}\n"
+
+  # OPTION A -  dmt next dmt-system.com
+  # dmt next github.com/uniqpath/dmt
+  # OPTION C - local network - dmt next 192.168.0.50
+  # OPTION C2 - local network with port included - dmt next 192.168.0.50:1111
+  # OPTION D - regular url with port included: dmt next dmt-system.com:1111
+}
+
+function dmt_update {
+  # dmt update nearby == dmt nearby update
+  if [ "$1" == "nearby" ] || [ "$1" == "near" ]; then
+    dmt nearby update
+    return
+  fi
+
+  dmt_copy --restart "$@"
+}
+
+function prepare_dmt_engine {
+  local cwd="`pwd`"
+
+  local user_dir="$DMT_PATH/user"
+
+  if [ ! -d "$user_dir" ]; then
+    cd "$DMT_PATH"
+    ./install
+  fi
+
+  if [ ! -d "$user_dir" ]; then
+    # this should never happen but just in case we put it here!
+    printf "⚠️  ${YELLOW}~/.dmt/user ${RED}directory is missing, did you run ${GREEN}cd ~/.dmt && ./install ${NC}?${NC}\n"
+    cd "$cwd"
+    # cannot use exit here because script is sourced!
+    # https://stackoverflow.com/questions/55649285/exit-causes-root-logout-if-script-user-executes-the-script-outside-of-the-script
+    # it will logout the user :/
+    return 1
+  fi
+
+  compile_gui_if_missing
+
+  # set up system and user dmt apps package.json and _dmt_deps with symlinks
+  # this is a prerequisite for apps to work
+  local dir="$DMT_PATH/etc/scripts/prepare_apps_and_user_engine"
+
+  cd "$dir"
+  ./prepare_apps
+
+  cd "$dir"
+  ./prepare_user_engine
+
+  cd "$cwd"
+
+  local CUSTOM_PREPARE_ENGINE_SCRIPT="$DMT_THIS_DEVICE/scripts/prepare_engine"
+
+  if [ -f "$CUSTOM_PREPARE_ENGINE_SCRIPT" ]; then
+    "$CUSTOM_PREPARE_ENGINE_SCRIPT"
+  fi
+
+  # todo: remove this in Q1 2022 -- legacy
+  local SYNC_APPS_SCRIPT="$DMT_THIS_DEVICE/scripts/sync_dmt_apps_into_engine"
+  if [ -f "$SYNC_APPS_SCRIPT" ]; then
+    "$SYNC_APPS_SCRIPT"
+  fi
+}
+
+function dmt_copy {
+  # dmt copy nearby == dmt nearby copy
+  if [ "$1" == "nearby" ] || [ "$1" == "near" ]; then
+    dmt nearby copy
+    return
+  fi
+
+  #dmt_symlink_nodejs_deps
+
+  if [ -z "$1" ]; then
+    if dev_machine; then
+      printf "${RED}Prevented on dev machine${NC}\n"
+    fi
+  else
+    prepare_dmt_engine
+    if [[ $? -eq 1 ]]; then
+      return
+    fi
+
+    local cwd="`pwd`"
+    cd "$DMT_PATH"
+    #. ./install "$@" # calling with . preserves the newly loaded env
+
+    ./install "$@"
+
+    cd "$cwd"
+  fi
+}
+
+function dmt_deactivate {
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  local backup_file="$LOGNAME_HOME/.bash_aliases-backup-by-dmt"
+
+  if [ -L "$LOGNAME_HOME/.bash_aliases" ] && [ "$(head -3 $LOGNAME_HOME/.bash_aliases | tail -1)" == "# DMT ALIASES" ]; then
+    rm ~/.bash_aliases
+
+    if [ -f "$backup_file" ]; then
+      mv "$backup_file" ~/.bash_aliases
+    fi
+
+    printf "${MAGENTA}dmt${NC} ${CYAN}was unlinked${NC}, only the folder ${CYAN}~/.dmt${NC} remains and is not active in any way.\n"
+    echo
+    printf "${CYAN}To reinstall${NC}\n"
+    printf "${GREEN}cd $LOGNAME_HOME/.dmt${NC}\n"
+    printf "${GREEN}./install${NC}\n"
+    echo
+    printf "${CYAN}To remove the unused directory${NC}\n"
+    printf "${GREEN}rm -rf $LOGNAME_HOME/.dmt${NC}\n"
+    echo
+    printf "${WHITE}If you want to confirm that dmt is uninstalled you have to first reload the shell.${NC}\n"
+  else
+    printf "${RED}dmt is not installed${NC}\n"
+  fi
+}
+
+function dmt_shell_setup {
+  echo "dmt shell setup -- soon: coming in v1.2.0 --"
+  # if [ -f ~/.dmt/user/def/user.def ]; then # should exist for sure -- except if user forgot to do ./install (when sample_user gets copied over) after cloning the dmt repo
+  #   sed -i 's/#shell: full/shell: full/' ~/.dmt/user/def/user.def # uncomment this line in user.def (#shell: full ==> shell: full)
+  # fi
+}
+
+function dmt_autoupdate_on {
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  if [ -d ~/.dmt ]; then
+
+    printf "${YELLOW}Enable autoupdate?${NC}\n"
+    echo
+
+    read -r -p "This will set up a git repo, any code changes to ~/.dmt will be overwritten [Y/n] " response
+    if [[ $response =~ ^([nN])$ ]]
+    then
+      printf "${GRAY}↳ Exiting ...${NC}\n"
+      echo
+      return
+    fi
+
+    which git > /dev/null 2>&1
+
+    if [ ! $? -eq 0 ]; then
+      printf "⚠️  ${RED}git command does not seem to be installed, autoupdates will not work${NC}\n"
+      return
+    fi
+
+    if [ -d ~/.dmt/.git ]; then
+      rm -rf ~/.dmt/.git
+    fi
+
+    setup_github_uniqpath_dmt_origin # dangerous! -- we should always ask for permission before (Are you sure you want to enable autoupdate ↑)
+
+    echo
+    after_github_fetch
+
+    echo
+    dmt_autoupdate # print info
+  else
+    printf "${RED}Directory ~/.dmt does not exist${NC}\n"
+  fi
+}
+
+function dmt_autoupdate_off {
+  if dev_machine; then
+    printf "${RED}Prevented on dev machine${NC}\n"
+    return
+  fi
+
+  if [ -d ~/.dmt/.git ]; then
+
+    read -r -p "Are you sure you want to disable autoupdate? This will execute rm -rf ~/.dmt/.git [Y/n] " response
+    if [[ ! $response =~ ^([nN])$ ]]
+    then
+      rm -rf ~/.dmt/.git
+
+      printf "${CYAN}Auto-updates disabled.${NC}\n"
+      echo
+      dmt_autoupdate # print info
+    fi
+
+  else
+    printf "${YELLOW}This device is not currently auto-updating because ~/.dmt/.git does not exist.${NC}\n"
+  fi
+}
+
+function dmt_autoupdate {
+
+  if [ "$1" == "on" ]; then
+    dmt_autoupdate_on
+    return
+  fi
+
+  if [ "$1" == "off" ]; then
+    dmt_autoupdate_off
+    return
+  fi
+
+  printf "— 1.) Prerequisites check — ${CYAN}is periodic (5-min) cron task set up correctly?${NC}\n"
+  echo
+
+  local basic_setup_correct=0
+
+  if [ -f $DMT_AUTO_UPDATE_LOG ]; then
+
+    local file_age=''
+    dmt_get_file_age file_age $DMT_AUTO_UPDATE_LOG
+
+    printf "⏱️  ${MAGENTA}Auto-update was last tried ${WHITE}${file_age}s ago${NC} ${MAGENTA}via cron${NC}\n"
+    #printf "${GRAY}(it is an extremely lightweight operation — git fetch)${NC}\n"
+
+    if [ $file_age -ge $((5*60+5)) ]; then # 5 minutes plus 5s
+      echo
+      printf "⚠️  ${RED}It seems that cron-job is not setup correctly because more than 5 min elapsed since last auto-update check${NC}\n"
+      basic_setup_correct=1
+    else
+      printf "${GREEN}✓ This is less than 5min ago ${CYAN}→${CYAN} cron setup seems to be working correctly${NC}\n"
+      echo
+      printf "${YELLOW}Auto-update report log for previous check:${NC}\n"
+      echo
+      printf "${GRAY}------- REPORT -------${NC}\n"
+      printf "${GRAY}( if you recently enabled auto-update please wait for${NC}\n"
+      printf "${GRAY}  one 5min cycle to see up-to-date information )${NC}\n"
+      echo
+      cat $DMT_AUTO_UPDATE_LOG
+      printf "${GRAY}----- END REPORT -----${NC}\n"
+    fi
+  else
+    basic_setup_correct=1
+    printf "${YELLOW}Auto-update seems to be disabled at cron-level${NC}\n"
+    echo "(cron task is not set up or is set up incorrectly)"
+    printf "${GRAY}It could also be very recently enabled → please wait 5min and run this command again to be sure.${NC}\n"
+  fi
+
+  echo
+  printf "— 2.) ${CYAN}Conclusion${NC}\n"
+  echo
+
+  if [[ "$basic_setup_correct" -eq 0 ]]; then
+
+    if [ -d ~/.dmt/.git ]; then
+      which git > /dev/null 2>&1
+
+      if [ $? -eq 0 ]; then
+
+        local cwd="`pwd`"
+        cd ~/.dmt
+
+        local gitsource=`git remote get-url origin`
+
+        if [[ "$gitsource" =~ uniqpath/dmt ]]; then
+          printf "${GREEN}✓✓ ${MAGENTA}Auto-update is set up correctly.${NC}\n"
+        else
+          printf "⚠️  ${YELLOW}Auto-update is working but from an incorrect source:${NC}\n"
+          printf "${RED}Source:${NC}\n"
+          git remote -v | grep origin | grep fetch
+          echo
+          printf "Should be: ${MAGENTA}origin  https://github.com/uniqpath/dmt.git${NC}\n"
+        fi
+
+        #...
+        cd "$cwd"
+
+        echo
+        printf "💡 ${CYAN}You can turn auto-update off with ${GREEN}dmt autoupdate off${NC}\n"
+        echo
+      else
+        printf "${GREEN}Basic setup seems correct with cron working but ↴${NC}\n"
+        printf "⚠️  ${RED}git command does not seem to be installed, auto-update will not work${NC}\n"
+      fi
+    else
+      printf "${GREEN}✓ Basic setup is correct with periodic checks working but ↴${NC}\n"
+      echo
+      printf "${YELLOW}— Auto-update is currently disabled because ${CYAN}~/.dmt ${YELLOW}is not a git repository.${NC}\n"
+      echo
+      printf "💡 ${CYAN}You can turn auto-update on with: ${GREEN}dmt autoupdate on${NC}\n"
+      echo
+    fi
+  else
+    printf "${RED}✖ Cron setup is likely not correct (or you have to wait up to 5 min for it to take effect).${NC}\n"
+    echo
+    printf "${WHITE}Please try to set up cron tasks with:${NC}\n"
+    printf "${GRAY}cd ~/.dmt/etc/cron${NC}\n"
+    printf "${GRAY}./setup_cron${NC}\n"
+    printf "${GRAY}(then wait for up to 5min to see the effects through ${GREEN}dmt autoupdate${GRAY})${NC}\n"
+    echo
+    printf "${YELLOW}Root (optional):${NC}\n"
+    # printf "${GRAY}sudo su${NC}\n"
+    printf "${GRAY}sudo su${NC}\n"
+    printf "${GRAY}cd $HOME/.dmt/etc/cron/root${NC}\n"
+    printf "${GRAY}./setup_root ${USER}${NC}\n"
+  fi
+
+  local CERT_UPDATE_LOG=~/.dmt-here/https/zetaseek.com/cert_auto_update_report.txt
+
+  if [ -f $CERT_UPDATE_LOG ]; then
+    local file_age=''
+    dmt_get_file_age file_age $CERT_UPDATE_LOG
+    #local file_age=$(( `date +%s` - `stat -L --format %Y $CERT_UPDATE_LOG` ))
+
+    if [ $file_age -le $((60*60+5)) ]; then # 1h plus 5s
+      printf "— 3.) ${CYAN}Extra:${NC}\n"
+      echo
+      printf "${GREEN}✓ ${MAGENTA}ZetaSeek ${GREEN}https certificate auto-update is set up correctly${NC}\n"
+    fi
+  fi
+}
+
+function dmt_cd {
+  cd "$DMT_PATH"
+}
+
+function dmt_bin {
+  declare -a opts=(
+    "compile"
+    "download"
+  )
+
+  if [ -z "$1" ] || [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    echo "${opts[@]}"
+    return
+  fi
+
+  local matching_opt=''
+  dmt_opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    printf "Use -h to see valid options\n\n"
+    #matching_opt="aaa" # default
+    return
+  fi
+
+  shift
+
+  case "$matching_opt" in
+    compile)
+      if [ -d $DMT_RUST_CORE ]; then
+        dmt_compile_bin
+      else
+        echo "rust core doesn't exists"
+      fi
+      ;;
+
+    download)
+      ;;
+  esac
+}
+
+function dmt_compile_bin {
+  local cwd="`pwd`"
+
+  # todo: ... + generalize the process somehow....
+
+  printf "${MAGENTA}$DMT_RUST_CORE/walkdir${NC}\n"
+  if [ -d "$DMT_RUST_CORE/walkdir" ]; then
+    cd "$DMT_RUST_CORE/walkdir"
+    cargo build --release --example walkdir
+    if [ "$?" -eq 0 ]; then
+      mkdir -p "${DMT_PLATFORM_BIN}"
+      # https://stackoverflow.com/questions/8139885/shellscript-action-if-two-files-are-different
+      if ! cmp target/release/examples/walkdir "${DMT_PLATFORM_BIN}/walkdir" >/dev/null 2>&1; then
+        printf "${GREEN}✓ Build successful, copying executable to ${DMT_PLATFORM_BIN}${NC}\n"
+        cp target/release/examples/walkdir "${DMT_PLATFORM_BIN}"
+      else
+        printf "${CYAN}✓ Build successful but executable in ${DMT_PLATFORM_BIN} is already the newest version${NC}\n"
+      fi
+    fi
+  fi
+
+  echo
+
+  printf "${MAGENTA}$DMT_RUST_CORE/walksearch${NC}\n"
+  if [ -d "$DMT_RUST_CORE/walksearch" ]; then
+    cd "$DMT_RUST_CORE/walksearch"
+    cargo build --release
+    if [ "$?" -eq 0 ]; then
+      mkdir -p "${DMT_PLATFORM_BIN}"
+      # https://stackoverflow.com/questions/8139885/shellscript-action-if-two-files-are-different
+      if ! cmp target/release/walksearch "${DMT_PLATFORM_BIN}/walksearch" >/dev/null 2>&1; then
+        printf "${GREEN}✓ Build successful, copying executable to ${DMT_PLATFORM_BIN}${NC}\n"
+        cp target/release/walksearch "${DMT_PLATFORM_BIN}"
+      else
+        printf "${CYAN}✓ Build successful but executable in ${DMT_PLATFORM_BIN} is already the newest version${NC}\n"
+      fi
+    fi
+  fi
+
+  cd "$cwd"
+}
+
+function dmt_webscan {
+  if [ "$1" == '-h' ] || [ "$1" == '--help' ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt webscan [device]${NC} ${GRAY}scans the web according to device's weblinks${NC}\n"
+    return
+  fi
+
+  local device="$1"
+  $DMT_NODEJS_EXEC ~/.dmt/core/node/webscan/cli/webscan.js "$device"
+}
+
+function dmt_weblinks {
+  if [ "$1" == '-h' ] || [ "$1" == '--help' ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt weblinks [device]${NC} ${GRAY}scans the weblinks directory and shows extracted links${NC}\n"
+    return
+  fi
+
+  local device="$1"
+  $DMT_NODEJS_EXEC ~/.dmt/core/node/webscan/cli/weblinks.js "$device"
+}
+
+function dmt_snapshot {
+  if [ "$1" == "--help" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt snapshot [comment]${NC} ${GRAY}create snapshot of ${CYAN}dmt-proc ${GRAY}log and state (useful for debugging)${NC}\n"
+    return
+  fi
+
+  local comment="$@"
+
+  local cwd="`pwd`"
+  local LOG_LINES=1000
+
+  local SUBDIR=$(date +"%d %b %Y %r")
+  if [ -n "$comment" ]; then
+    SUBDIR="${SUBDIR} - ${comment}"
+  fi
+
+  local DIR="$DMT_PATH/log/snapshots/${SUBDIR}"
+
+  mkdir -p "$DIR" && cd "$_"
+  dmt state --export "$DIR/in_process_state.json"
+
+  local DMT_LOG="$DMT_PATH/log/dmt.log"
+  if [ -f "$DMT_LOG" ]; then
+    #tail -n $LOG_LINES "$DMT_LOG" > dmt.log
+    cp "$DMT_LOG" .
+  fi
+
+  local ABC_LOG="$DMT_PATH/log/abc.log"
+  if [ -f "$ABC_LOG" ]; then
+    #tail -n $LOG_LINES "$ABC_LOG" > dmt.log
+    cp "$ABC_LOG" .
+  fi
+
+  local MPV_LOG="$DMT_PATH/log/mpv.log"
+  if [ -f "$MPV_LOG" ]; then
+    cp "$MPV_LOG" .
+  fi
+
+  local DMT_STATE="$DMT_PATH/state/program.json"
+  if [ -f "$DMT_STATE" ]; then
+    cp "$DMT_STATE" .
+  fi
+
+  echo
+  printf "Created ${MAGENTA}~/.dmt/log/snapshots/${SUBDIR}${NC}\n"
+
+  cd "$cwd"
+}

@@ -1,0 +1,300 @@
+#!/bin/bash
+
+# basic functions -- we need this for color definitions etc.
+. ./shell/.shell_basic
+
+if [ "$1" == "--help" ] || [  "$1" == "-h" ]; then
+  printf "${MAGENTA}∞ DMT ∞ ${CYAN}v$(cat "$DMT_PATH/.version")${NC}\n"
+  echo
+  printf "${WHITE}Install or update ${MAGENTA}.dmt${NC} scripts and shortcuts on this or any remote ${CYAN}Linux / macOS ${NC}machine (by using ssh).\n"
+  echo
+  printf "${YELLOW}Usage:${NC}\n"
+
+  printf "${GREEN}$0${GRAY} install on this device${NC}\n"
+  printf "${GREEN}$0 user@host ${GRAY}installs on user@host, shortcut ${GREEN}$0 ap ${GRAY}installs on ${DMT_AP_DEFAULT_HOST}${NC}\n"
+
+  exit
+fi
+
+# this install script is used in two scenarios:
+#
+# A) after we get the ~/.dmt directory (for example by cloning the https://github.com/uniqpath/dmt repo)
+#    it sets up basic things and doesn't do anything outside of ~/.dmt directory except add one line to
+#    ~/.bash_profile, ~/.bashrc or ~/.zshrc (as appropriate) which then enables the user to have access
+#    to "dmt" command to be able to manipulate (start, stop, restart) the "dmt-proc" (dmt process -
+#    a main component of dmt-system).
+#
+# B) if install script is called with one argument (user@host), then it will
+#    - first rsync our entire ~/.dmt directory to that device
+#    - call this same ./install script without any arguments on that device to set it up in the same way
+#      as it set up this device
+
+DMT_BASH_PATH="$HOME/.dmt/shell"
+
+function compile {
+  local cwd="`pwd`"
+  cd "$DMT_BASH_PATH"
+  ./compile
+  cd "$cwd"
+}
+
+function check_node_js_version {
+  which node > /dev/null 2>&1
+
+  if [ $? -eq 0 ]; then # node command exists
+    node_version=$(node -v | sed "s/v//")
+
+    a=( ${node_version//./ } ) # replace points, split into array
+    major=${a[0]}
+    minor=${a[1]}
+
+    b=( ${DMT_MIN_NODEJS_VERSION//./ } ) # DMT_MIN_NODEJS_VERSION comes from .bash_dmt_vars
+    min_major=${b[0]}
+    min_minor=${b[1]}
+
+    if (( ${major} < $min_major )) || ( (( ${major} == $min_major )) && (( ${minor} < $min_minor )) ); then
+      echo
+      printf "⚠️  ${RED}Your ${CYAN}node.js ${RED}version is ${YELLOW}${node_version}${RED}, please install ${CYAN}${DMT_MIN_NODEJS_VERSION} ${RED}or higher${NC}\n"
+    fi
+  else
+    echo
+    printf "⚠️  ${CYAN}node.js ${RED}is not installed${GRAY}, please install ${YELLOW}node.js v${DMT_MIN_NODEJS_VERSION} ${GRAY}or higher${NC}\n"
+  fi
+}
+
+function user_dir_sync_info {
+  local text="Syncing"
+  if [ "$1" ]; then
+    text="Synced"
+  fi
+  printf "ℹ️  ${YELLOW}— ${text} just your ${CYAN}dmt user directory ${YELLOW}since remote device is most likely set up to ${MAGENTA}auto-update ${CYAN}DMT ENGINE ${NC}...${NC}\n"
+}
+
+if [ -z "$1" ]; then # install here
+
+    COMPILED_BASH_ALIASES="$HOME/.dmt/etc/.bash_aliases_bundle"
+
+    # 1.) we concatenate all dmt shell scripts into one file -- .bash_aliases_bundle
+    #     this file is sourced from some scripts as needed but is not loaded by default in user's shell
+    compile
+
+    if [ ! -f "$COMPILED_BASH_ALIASES" ]; then
+      printf "${RED}Error: compilation was supposed to produce $COMPILED_BASH_ALIASES${NC}\n"
+      exit
+    fi
+
+    # 2.) we create some needed empty dirs
+    mkdir -p "$DMT_STATE"
+    mkdir -p "$DMT_PATH/log"
+
+    # 3.) if there is no ~/.dmt/user directory, we copy the pre-defined sample user from ~/.dmt/etc/sample_user
+    if [ ! -d "$DMT_PATH/user" ] && [ -d "$DMT_PATH/etc/sample_user" ]; then
+      cp -r "$DMT_PATH/etc/sample_user" "$DMT_PATH"
+      mv "$DMT_PATH/sample_user" "$DMT_PATH/user"
+      cwd="`pwd`"
+      cd "$DMT_PATH/user/devices"
+      ln -s "dmt-new" "this"
+      cd "$cwd"
+    fi
+
+    # 4.) ~/.dmt/shell/.inject script will add one line to the end of ~/.bash_profile, ~/.bashrc or ~/.zshrc:
+    # if [ -f ~/.dmt/shell/.loader ]; then . ~/.dmt/shell/.loader; fi # Added by dmt-system (see https://github.com/uniqpath/dmt)
+    # this line sources our .loader which then sources only the "dmt" shell command by default but can source more if
+    # an appropriate option "shell: full" is found inside ~/.dmt/user/def/user.def
+    "$DMT_PATH/shell/.inject"
+
+    # 4.) run after-install (=after-update) hooks
+
+    # This is useful mostly only in the second (B) case after we ./install is called on remote device (via "dmt update user@host")
+    # "$HOME/.dmt/etc/deploy_hooks/after-update" contains just one important line
+    # node "${DMT_NODE_CORE}/dmt-gui/gui-backend/ws_servers/index.js" localhost reload gui
+    # -- this is used to send the "reload" command to all connected guis so that they reload possible changes that arrived on update (sync)
+
+    #dmt link
+
+    # general deploy hooks -- all devices
+    # was called after_copy b efore
+    on_install_hook="$HOME/.dmt/etc/deploy_hooks/oninstall"
+    if [ -f "$on_install_hook" ]; then
+      "$on_install_hook" #> /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
+    fi
+
+    # (possibly defined) for each particular device
+    on_install_hook="$HOME/.dmt/user/devices/this/oninstall"
+    if [ -f "$on_install_hook" ]; then
+      "$on_install_hook"
+    fi
+
+    echo
+
+    printf "${YELLOW}Congrats!${NC} ${MAGENTA}∞ DMT ∞${NC} installed on ${CYAN}$(hostname).${NC}\n"
+    echo
+    printf "${GRAY}Project website — ${MAGENTA}dmt-system.com ${GRAY}/ ${CYAN}github.com/uniqpath/dmt${NC}\n"
+    echo
+    printf "💡 Type ${GREEN}${UNDERLINE}dmt${NC} ${GRAY}[enter]${NC} to see the options${YELLOW}\n"
+    printf "${GRAY}----------------------------------------${NC}\n"
+    printf "To start ${CYAN}dmt-proc${NC} enter ${GREEN}${UNDERLINE}dmt start${NC} 🚀\n\n"
+    printf "⚠️  If ${GREEN}dmt${NC} command is not working please ${MAGENTA}open new terminal${GRAY} or ${GREEN}${UNDERLINE}source ~/.dmt/shell/.loader${RESET}${NC}\n"
+
+    check_node_js_version
+    echo
+
+else # clone to and install on remote device
+
+  # we need this for dirsync, remote and get_full_host functions
+  . ./shell/.shell_advanced
+
+  flags=""
+  #excludes="--exclude apps/**/node_modules --exclude user/apps/**/node_modules"
+  excludes=""
+  compress=""
+  RESTART=false
+
+  # bash cli parser, source: https://medium.com/@Drew_Stokes/bash-argument-parsing-54f3b81a6a8f
+  ARGS=()
+  while (( "$#" )); do
+    case "$1" in
+      --shell)
+        excludes="${excludes} --exclude core --exclude bin --exclude user/wallpapers --exclude etc/sounds --exclude etc/videotest"
+        flags="${flags} --shell"
+        shift 1
+        ;;
+      --no-apps)
+        #⚠️ possible issue here? does this really exclude just './apps' or is broader? CHECK
+        excludes="${excludes} --exclude apps" # wrapping directory in single quotes won't work in this case by the time it reaches rsync command inside dirsync.. but it's ok, we don't need it
+        flags="${flags} --no-apps"
+        shift 1
+        ;;
+      # --no-user)
+      #   excludes="${excludes} --exclude user"
+      #   flags="${flags} --no-user"
+      #   shift 1
+      #   ;;
+      --restart)
+        flags="${flags} --restart"
+        RESTART=true
+        shift 1
+        ;;
+      --compress)
+        flags="${flags} --compress"
+        compress="--compress"
+        shift 1
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        echo "Error: Unsupported flag $1" >&2
+        exit 1
+        ;;
+      *) # preserve positional arguments
+        ARGS+=($1)
+        shift
+        ;;
+    esac
+  done
+
+  len=${#ARGS[@]}
+
+  if [ $len == 1 ]; then
+    host=${ARGS[0]}
+
+    if [ "$host" == "ap" ]; then
+      host="$DMT_AP_DEFAULT_HOST"
+      ssh_port=22
+    else
+      matching_host=''
+      ssh_port=''
+      _compress=''
+      get_full_host matching_host ssh_port _compress "$host"
+      if [ $? -ne 1 ]; then # no error
+        host="$matching_host"
+      fi
+      # compress regardless if passed in argument if device has globalIp defined (get_full_host will return "--compress")
+      if [[ $_compress == "--compress" ]]; then
+        compress=$_compress # yes, please compress :)
+      fi
+    fi
+
+    if [ -n "$DMT_SSH_PORT" ]; then
+      printf "${GREEN}ssh port set via environment variable ${MAGENTA}\$DMT_SSH_PORT${NC}: ${CYAN}$DMT_SSH_PORT${NC}\n"
+      ssh_port=$DMT_SSH_PORT
+    fi
+
+    if [ -z "$host" ]; then
+      printf "${RED}Host not known${NC}\n"
+    else
+
+      # check if we're accidentaly deploying to a git(hub) repo and abort in this case
+      # either we get dmt from github or not (eg. sync to that device from elsewhere), cannot have a mixture
+      ssh -p $ssh_port "$host" 'if [ -f ~/.dmt/etc/scripts/dmt_via_git ]; then ~/.dmt/etc/scripts/dmt_via_git; fi' # exit code from remote script will carry over and we can check it!
+
+      if [ $? -eq 1 ]; then # dmt_via_git script will return 1 if ~/.dmt/.git directory exists on the remote machine
+        echo
+        printf "⚠️  ${CYAN}~/.dmt${NC} on remote device ${YELLOW}is a git repository${NC}, origin is probably ${CYAN}github: uniqpath/dmt. ${GREEN}This is ok.${NC} ↴\n"
+        printf "${WHITE}↳ but refusing to override remote DMT ENGINE because this is most likely not desirable.${NC}\n"
+        echo
+        printf "${CYAN}Please ssh into remote device and issue ${GREEN}dmt autoupdate off ${CYAN}to stop it from being updated from github source.${NC}\n"
+        echo
+        user_dir_sync_info
+        # printf "${YELLOW}— Sync just your ${CYAN}dmt user directory ${YELLOW}since remote device is most likely set up to ${MAGENTA}auto-update ${CYAN}DMT ENGINE${NC}?${NC}\n"
+        # echo
+        # # sync just user directory ? -- perhaps do this without asking soon !
+        # read -r -p "Do you want to sync just your ~/.dmt/user directory to the remote DMT ENGINE? [Y/n] " response
+        # if [[ $response =~ ^([nN])$ ]]
+        # then
+        #   printf "${GRAY}↳ Exiting ...${NC}\n"
+        #   echo
+        #   return
+        # fi
+
+        echo
+        printf "${MAGENTA}Updating ${CYAN}~/.dmt/user${MAGENTA} on ${CYAN}$host:$ssh_port …${NC}\n"
+        echo
+
+        target="${host}:.dmt/user"
+        dirsync $excludes $compress --port $ssh_port ~/.dmt/user "$target"
+        # IMPORTANT
+        # ~/.dmt/.deployignore ==>
+        # ...
+        # /user/devices/this
+        # /devices/this <- this line is needed for 'this pointer' to be correctly ignored when deploying only user directory
+        # keys.def
+        # ...
+
+        echo
+        user_dir_sync_info true
+
+      else
+
+        # full sync - update remote DMT ENGINE together with its user directory
+
+        printf "${MAGENTA}Updating ${CYAN}$host:$ssh_port …${NC}\n"
+        echo
+
+        target="${host}:.dmt"
+        dirsync $excludes $compress --port $ssh_port ~/.dmt "$target"
+        echo
+        remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
+
+      fi
+
+      # restart remote dmt-proc
+
+      if $RESTART; then
+        echo
+        #restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-update ]; then ~/.dmt/user/devices/this/before-update; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-update ]; then ~/.dmt/etc/deploy_hooks/before-update; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
+        restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
+        remote -h "$host" --port "$ssh_port" "$restart_cmd"
+      fi
+
+    fi
+  else
+    for host in "${ARGS[@]}"
+    do
+      ./install $flags "$host"
+    done
+  fi
+
+fi

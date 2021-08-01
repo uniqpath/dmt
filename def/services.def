@@ -1,0 +1,19 @@
+service: gui
+  port: 7777
+  wsPort: 7780
+
+  port: 80
+    whenRootUser: true
+
+  symbol: 🌐
+
+service: player
+  symbol: 🎸
+  maxResults: 30
+
+service: search
+  maxResults: 30
+
+service: replicate
+  port: 1111
+  symbol: 💡

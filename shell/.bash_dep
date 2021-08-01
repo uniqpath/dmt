@@ -1,0 +1,575 @@
+#!/bin/bash
+
+# *************************************************************
+# Easy deploy with rsync and custom pre and post-deploy hooks *
+# *************************************************************
+
+# Command line API:
+
+# dep                 - deploys according to local .deploy file
+# dep [user@host]     - deploys according to local .deploy file except that targets are ignored and replaced with target [user@host]
+#                       if .deploy file is not present, simple rsync is used to copy the directory over
+# dep [.deploy_file]  - deploys according to custom deploy file
+# dep [.deploy_file] [user@host]  - similar to above, overwrites targets specified in deploy file
+
+# .deploy file structure, two possibilities:
+
+# 1)
+
+# Multi-deploy:
+# Example .deploy:
+# ----------------
+# project: path1
+# project: path2
+# project: path3
+
+# This will deploy each project according to its .deploy file, paths can be relative
+
+# 2)
+
+# Otherwise:
+
+# You just need .deploy file with target (ex: user@server.com:/home/dir)
+# and (optional) additional targets in subsequent lines
+# AFTER COMES AN EMPTY LINE, then (optional):
+#
+# source: which directory to deploy, default: ./
+# pre_local: cmd1 # run locally before rsync (prevent this with --no-pre)
+# post_local: cmd1 # run locally after rsync
+# pre_remote: cmd1 # run on server before rsync
+# post_remote: cmd1 # run on server after rsync
+
+# Example:
+# --------
+# sol:/var/projects/home-panel
+# pi@living-room.local:/var/projects/home-panel
+# ⚠️  [!!!! BLANK LINE !!!!]
+# source: dist
+# overwrite: false
+#
+# pre_local: npm run build
+#
+# post_local: remote -h pi@hpanel.local "kiosk_reload"
+# post_local: remote -h pi@lpanel.local "kiosk_reload"
+#
+# Explanation:
+# source: [dir]
+# deploy this subdirectory only
+# overwrite: false
+# refuse to execute sync if it would overwrite anything
+
+# .deployignore
+
+# It is recommended to have general $DMT_PATH/etc/.deployignore with contents similar to this:
+# .deploy
+# .deployignore
+# .DS_Store
+# .coolsync
+# .git
+# .gitignore
+# log
+
+# You can also have a local .deployignore file for each project to list additional files to ignore
+
+function dep_rsync {
+
+  # parse arguments: --dry, --no-pre, --no-delete, [deploy_file], [target]
+  # can be only one argument! (no need for more)
+
+  local dry=""
+  local no_pre=""
+
+  if [ "$1" == "--dry" ]; then
+    dry="$1"
+    shift
+  fi
+
+  local no_pre=""
+
+  if [ "$1" == "--no-pre" ]; then
+    no_pre="$1"
+    shift
+  fi
+
+  local no_delete=""
+
+  if [ "$1" == "--no-delete" ]; then
+    no_delete="$1"
+    shift
+  fi
+
+  local full_delete=""
+
+  # delete excluded files on target as well if present
+  if [ "$1" == "--full-delete" ]; then
+    full_delete="$1"
+    shift
+  fi
+
+  # determine the deploy file
+  local deploy_file=""
+  if [ -f "$1" ]; then
+    deploy_file="$1"
+    shift
+  elif [ -f ".deploy" ]; then
+    deploy_file=".deploy"
+  fi
+
+  # target overwrites whatever is set in .deployfile
+  local target_arg=""
+  if [ -n "$1" ]; then
+    target_arg="$1"
+  fi
+
+  # we allow deploying without deploy file if target is provided in command line, we just do rsync in this case
+  if [ -z "$target_arg" ] && [ ! -f "$deploy_file" ]; then
+    printf "${RED}Missing deploy file${NC}\n"
+    return
+  fi
+
+  if [ -n "$deploy_file" ]; then
+    # handle meta-deploy
+    local first_line=`head -n 1 ${deploy_file}`
+    local prefix="project: "
+    if [[ "$first_line" = *$prefix* ]]; then
+      local IFS=$'\n' # default is " " and then array is not correctly constructed when there is spaces in filenames
+      printf "${MAGENTA}Multi-project deploy:${NC}\n"
+      local lines=$(sed -e '/^$/,$d' ${deploy_file})
+      grep -i "^${prefix}" "$deploy_file" | while read -r line ; do
+        unset IFS
+        local cwd="`pwd`"
+        printf "\n${CYAN}■ ${line}${NC}\n"
+        cd "${line#$prefix}"
+        dep "$@"
+        cd "$cwd"
+      done
+
+      return
+    fi
+
+    # PRE-DEPLOY: local
+    if [ "$no_pre" != "--no-pre" ]; then
+      local prefix="pre_local: "
+      while read -r line; do
+        eval "${line#$prefix}"
+        if [ $? -ne 0 ]; then
+          printf "\n⚠️  ${RED}Error → ${CYAN}pre_local: ${GREEN}${line#$prefix} ${RED}failed${NC}\n"
+          echo
+          printf "${MAGENTA}✖ Deploy stopped${NC}\n"
+          dmt_desktop_notification "🤦 ${line#$prefix} was not successful" "Deploy failed"
+          return 1
+        fi
+      done < <(grep -i "^${prefix}" "$deploy_file")
+    fi
+  fi
+
+  local IFS=$'\n' # default is " " and then array is not correctly constructed when there is spaces in filenames
+
+  if [ -n "$target_arg" ]; then
+    local targets="$target_arg"
+  else
+    # read all targets - until first blank line (or eof)
+    local targets=$(sed -e '/^$/,$d' ${deploy_file})
+  fi
+
+  for target in ${targets} ; do
+
+    # this is for cases when there is no target actually... we just do deploy as part of pre_local, for example:
+    # pre_local: npm run build && dmt copy zeta
+    if [[ ! "$target" =~ ^pre_local ]] && [[ ! "$target" =~ ^post_local ]]; then
+
+      local source_dir="`pwd`"/
+
+      if [ -n "$deploy_file" ]; then
+        # overwrite: false
+        # refuse to sync if anything would be overwritten
+        local prefix="overwrite: "
+        while read -r line; do
+          if [ "${line#$prefix}" == "false" ]; then
+            comp "$source_dir" "$target"
+            if [ $? -ne 0 ]; then
+              echo
+              printf "${RED}Deploy cancelled because some files at ${YELLOW}$target ${RED}would be deleted or overwritten${NC}\n"
+              printf "${RED}and ${YELLOW}overwrite: false ${RED}option is active in ${YELLOW}$deploy_file ${RED}file.${NC}\n"
+              echo
+              printf "${GREEN}Please copy (or delete) target-only files or files with content different between source and target to source and try again.${NC}\n"
+              return 1
+            fi
+          fi
+        done < <(grep -i "^${prefix}" "$deploy_file")
+      fi
+
+      unset IFS
+
+      # split on colon, example: user@server:/home/dir
+      arr=($(echo $target | tr ":" "\n"))
+      local server=${arr[0]}
+      local remote_dir=${arr[1]}
+
+      if [ -n "$deploy_file" ]; then
+        # PRE-DEPLOY: remote
+        local prefix="pre_remote: "
+        grep -i "^${prefix}" "$deploy_file" | while read -r line ; do
+          local cmd="${line#$prefix}"
+          remote --silent -h "$server" "$cmd"
+          #eval "ssh $server 'bash -ic \"$cmd\"' < /dev/null > /dev/null"
+        done
+      fi
+
+      # DEPLOY
+
+      if [ -n "$deploy_file" ]; then
+        # read if different source directory from where out deploy file is, is specified
+        while read -r line ; do
+          local subdir=$(echo $line | sed 's/source: //g') # missing case insensitive
+          source_dir="${source_dir}${subdir}"
+        done < <(grep -i "^source:" "$deploy_file") # while loop written in this way makes possible to change the variable (source_dir), otherwise it is run in a subshell
+      fi
+
+      printf "\n${MAGENTA}Deploying ${YELLOW}$source_dir${NC} ${MAGENTA}→ ${GREEN}$target${NC}\n"
+
+      fixperm "$source_dir" # I think it doesn't work on symlinks though!
+
+      if [ "$dry" == "--dry" ]; then
+        printf "${CYAN}[dep] Dry run ...${NC}\n"
+      fi
+
+      #printf "${MAGENTA}Syncing...${NC}\n"
+      dirsync $dry $no_delete $full_delete --compress "$source_dir" "$target"
+
+      # cannot get correct $? out of rsync to know if it failed
+      # if [ $? -eq 0 ]; then
+      #   printf "${GREEN}Success!!!!${NC}\n"
+      # else
+      #   printf "${RED}FAIL${NC}\n"
+      #   return
+      # fi
+
+      # POST-DEPLOY: remote
+      if [ -n "$deploy_file" ]; then
+        local prefix="post_remote: "
+        grep -i "^${prefix}" "$deploy_file" | while read -r line ; do
+          local cmd="${line#$prefix}"
+          remote --silent -h "$server" "$cmd"
+          #eval "ssh $server 'bash -ic \"$cmd\"' < /dev/null > /dev/null"
+        done
+      fi
+
+    fi
+  done
+
+  # POST-DEPLOY: local
+  if [ -n "$deploy_file" ]; then
+    local prefix="post_local: "
+    while read -r line ; do
+      eval "${line#$prefix}"
+      if [ $? -ne 0 ]; then
+        printf "\n⚠️  ${RED}Error → ${CYAN}post_local: ${GREEN}${line#$prefix} ${RED}failed${NC}\n"
+        echo
+        printf "${MAGENTA}✖ Deploy stopped${NC}\n"
+        dmt_desktop_notification "🤦 ${line#$prefix} was not successful" "Deploy failed"
+        return
+      fi
+    done < <(grep -i "^${prefix}" "$deploy_file")
+  fi
+
+  if $failed; then
+    return
+  fi
+
+  printf "\n${GREEN}✓ deploy finished.${NC}\n"
+}
+
+function dep {
+  if [ -f ./truffle.js ]; then
+    truffle deploy --reset
+    # deploy target (manual from cli or from ./.deploy file)
+  else
+    dep_rsync "$@"
+  fi
+}
+
+# Deploy and purge cache
+
+function remote {
+  local silent=false
+
+  if [ "$1" == "--silent" ]; then
+    silent=true
+    shift
+  fi
+
+  local server=""
+  local ssh_port="22"
+
+  if [ "$1" == "--host" ] || [ "$1" == "-h" ]; then
+    server="$2"
+    shift
+    shift
+
+    if [ "$1" == "--port" ]; then
+      ssh_port="$2"
+      shift
+      shift
+    fi
+  elif [ -n "$1" ] && [ -f "./.deploy" ]; then
+    target=$(head -n 1 ./.deploy)
+
+    # split on colon, example: user@server:/home/dir
+    arr=($(echo $target | tr ":" "\n"))
+    local server="${arr[0]}"
+    local remote_dir="${arr[1]}"
+
+    printf "Targeting host ${YELLOW}$server${NC} specified in ${YELLOW}./deploy${NC} file ...\n"
+  fi
+
+  if [ -z "$server" ] || [ -z "$1" ]; then
+    printf "${MAGENTA}Runs the command on remote server (passed via -h argument or specified in .deploy file)${NC}\n\n"
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "remote -h host [command] [args] ${GRAY}(runs command on host)${NC}\n"
+    printf "remote [command] [args] ${GRAY}(.deploy file is needed to determine the host)${NC}\n"
+    printf "remote serve ${GRAY}(starts node.js server via forever/production.js script)${NC}\n"
+
+    return
+  fi
+
+  if [ "$1" == "serve" ]; then
+    if [ -f "./.deploy" ]; then
+      if [ -f "forever/production.json" ]; then
+        remote "cd \"$remote_dir\"; NODE_ENV=production forever start forever/production.json"
+        return
+      else
+        printf "${RED}Missing forever/production.json locally, presumed also on server${NC}\n"
+      fi
+    else
+      printf "${RED}.deploy file needed for this functionality${NC}\n"
+    fi
+  else
+    printf "Executing ${GREEN}$@${NC} on ${YELLOW}$server${NC}... "
+    #printf "${YELLOW}Warning: environment variables passed as part of command are evaluated locally${NC}\n"
+    local cmd="ssh $server -p ${ssh_port} 'bash -ic \"$@\"' < /dev/null"
+    if $silent; then
+      cmd="${cmd} > /dev/null"
+    else
+      echo
+      echo
+    fi
+    # https://stackoverflow.com/questions/9393038/ssh-breaks-out-of-while-loop-in-bash
+    eval "$cmd" 2>&1 | grep -v "Pseudo-terminal will not be allocated" | grep -v "Inappropriate ioctl for device" | grep -v "no job control in this shell" | grep -v "Warning: Permanently added" | grep -v "The programs included with the Debian" | grep -v "the exact distribution terms for each program are described" | grep -v "individual files in /usr/share/doc" | grep -v "Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY" | grep -v "permitted by applicable law"
+    printf "${GREEN}✓ Done.${NC}\n"
+  fi
+}
+
+# Specify permanent ignores in $DMT_PATH/etc/.deployignore and per-project in ./.deployignore
+function dirsync {
+
+  if [ -z "$1" ] || [ -z "$2" ]; then
+    printf "${YELLOW}Usage:${NC}\n\n"
+    printf "${GREEN}dirsync dir1 dir2${NC}\n"
+    printf "${GREEN}dirsync --dry dir1 dir2${NC} ${GRAY}(simulate)${NC}\n"
+    printf "${GREEN}dirsync --total${NC} ${GRAY}(ignoring every .deployignore file and copying everything)${NC}\n"
+    printf "${GREEN}dirsync --exclude dir1 --exclude dir2${NC} ${GRAY}(exclude some dirs)${NC}\n"
+    printf "${GREEN}dirsync --compress dir1 dir2${NC} ${GRAY}(compress - use over internet, but not LAN, see https://unix.stackexchange.com/questions/188737/does-compression-option-z-with-rsync-speed-up-backup)${NC}\n"
+    printf "${GREEN}dirsync --checksum dir1 dir2${NC} ${GRAY}(use when timestamps on target are different but contents is likely same... This will sync & equalize timestamps, it's slow though but still probably faster than copying files over for no reason)${NC}\n"
+    printf "${GREEN}dirsync --symlinks dir1 dir2${NC} ${GRAY}(copy symlink contents, not just symlinks)${NC}\n"
+    printf "${GREEN}dirsync --no-delete dir1 dir2${NC} ${GRAY}(don't delete files on destination)${NC}\n"
+    printf "${GREEN}dirsync --full-delete dir1 dir2${NC} ${GRAY}(delete ignored files on target as well)${NC}\n"
+    printf "${GREEN}dirsync --port [port] dir1 dir2${NC} ${GRAY}(specify if non-default ssh port)${NC}\n"
+  else
+
+    local dmt_with_user=false
+    local dry=""
+    local total=false
+    local compress=""
+    local checksum=""
+    local symlinks=""
+    local no_ignore=false
+    local no_delete=false
+    local full_delete=false
+    local ssh_port
+
+    local excludes=""
+
+    for arg in "$@"; do
+      case "$arg" in
+        "--dmt_with_user" )
+          dmt_with_user=true
+          shift
+          ;;
+        "--exclude" )
+          excludes="${excludes} --exclude ${2}"
+          shift 2
+          ;;
+        "--dry" )
+          dry="--dry-run"
+          printf "${GRAY}--dry-run: simulated run with no effects...${NC}\n"
+          shift
+          ;;
+        "--total" )
+          total=true
+          shift
+          ;;
+        "--compress" )
+          # https://unix.stackexchange.com/questions/188737/does-compression-option-z-with-rsync-speed-up-backup
+          compress="-z"
+          printf "${GRAY}--compress → ${MAGENTA}requested compressing data upon transfer ${GRAY}(used for slow/remote links) ...${NC}\n"
+          shift
+          ;;
+        "--checksum" )
+          checksum="--checksum"
+          printf "${GRAY}--checksum: Checksum...${NC}\n"
+          shift
+          ;;
+        "--symlinks" )
+          symlinks="-L"
+          printf "${GRAY}--symlinks: Copy symlink contents, not just symlinks...${NC}\n"
+          shift
+          ;;
+        "--no-ignore" )
+          no_ignore=true
+          printf "${GRAY}--no-ignore: Full rsync copy, all ignored files too...${NC}\n"
+          shift
+          ;;
+        "--no-delete" )
+          no_delete=true
+          printf "${GRAY}--no-delete: Not deleting files on destination...${NC}\n"
+          shift
+          ;;
+        "--full-delete" ) # delete excluded files on target as well if present
+          full_delete=true
+          printf "${GRAY}--full-delete: Delete ignored files on target as well...${NC}\n"
+          shift
+          ;;
+        "--port" )
+          shift
+          ssh_port="$1"
+          shift
+          ;;
+      esac
+    done
+
+    # --size-only ?
+
+    # if [ ! -d "$1" ]; then
+    #   printf "${RED}Source directory $1 doesn't exist${NC}\n"
+    #   return
+    # fi
+    # if [ ! -d "$2" ]; then
+    #   printf "${RED}Target directory $2 doesn't exist${NC}\n"
+    #   return
+    # fi
+
+    #local params="-azL $checksum $dry --progress --delete"
+    # --protect-args :: https://unix.stackexchange.com/questions/104618/how-to-rsync-over-ssh-when-directory-names-have-spaces
+    # haven't encountered a problem here yet (only in a backup script where directory name had a space in argument), not sure if the problem would apply here: todo - check
+    # just in case, we include this option because it doesn't hurt
+    local params="-a $symlinks $checksum $compress $dry --protect-args --progress"
+
+    excludes="${excludes} --exclude .DS_Store"
+
+    if ! $no_delete ; then
+      params="${params} --delete"
+    fi
+
+    if $full_delete ; then
+      params="${params} --delete-excluded"
+    fi
+
+    if dmt_macos && [[ `rsync --version | head -1` =~ "version 2" ]]; then
+      printf "${YELLOW}⚠️  You are using an old version of rsync v2 (where spaces in filenames can cause issues)${NC}\n"
+      printf "Use ${CYAN}nix${NC} or ${CYAN}homebrew${NC} to install more recent version of ${GREEN}rsync${NC} (v3+)\n"
+    #else
+    #  params="${params} --protect-args"
+    fi
+
+    # printf "From: ${GREEN}$1${NC}\n"
+    # printf "To: ${GREEN}$2${NC}\n"
+
+    #local params="-azL --progress"
+
+    #rsync $params "$1"/ "$2"/
+    # fast rsync! arcfour is the weakest encyption but you have to enable it on the server! --
+    # ssh -Q cipher localhost | paste -d , -s   --> list all the ciphers
+    # add to /etc/ssh/sshd_config:
+    # Ciphers 3des-cbc,blowfish-cbc,cast128-cbc,arcfour,arcfour128,arcfour256,aes128-cbc,aes192-cbc,aes256-cbc,rijndael-cbc@lysator.liu.se,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com
+    # more: http://mgalgs.github.io/2014/10/22/enable-arcfour-and-other-fast-ciphers-on-recent-versions-of-openssh.html
+    # restart:
+    # sudo service ssh restart
+    #rsync $params -e "ssh -T -c arcfour -o Compression=no -x" "$1"/ "$2"/
+
+    # Second best option - and when using from wireless to wireless device, MAKE SURE EITHER one (laptop or RPi) is on a cable!! This will make the biggest difference
+    # https://gist.github.com/KartikTalwar/4393116
+
+    local SOURCE="$1"
+    local TARGET="$2"
+
+    printf "${GREEN}Syncing... ${GRAY}${SOURCE} ${CYAN}→ ${GRAY}${TARGET}${NC}\n"
+
+    local e_params="ssh"
+    if [ -n "$ssh_port" ]; then
+      e_params="${e_params} -p ${ssh_port}"
+    fi
+
+    ## check this ??
+    if [ -z "$compress" ]; then
+      e_params="${e_params} -T -o Compression=no -x" # optimized for LAN !!
+    fi
+
+    local grep_ignore="Warning: Permanently added"
+
+    # echo $params
+    # return
+
+    # ****
+    # **** updating or installing .dmt framework to another device
+    # ****
+    if [ -f "./shell/.bash_general" ]; then
+      # we exclude .gitignore mainly because if not, it can hang around inside various node_modules (that have been deleted)
+      # and then we get things like:
+      # Syncing...
+      # sending incremental file list
+      # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules/optimist
+      # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules/optimist
+      # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules
+      # cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules
+      rsync $params $excludes --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$" | grep -v ".gitignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
+      return
+    fi
+
+    if $total; then
+      rsync $params $excludes -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
+      return
+    fi
+
+    if [ -f "$DMT_PATH/etc/.deployignore" ] && ! $no_ignore ; then
+      params="${params} --exclude-from $DMT_PATH/etc/.deployignore"
+    fi
+
+    if [ -f "./.deployignore" ] && ! $no_ignore; then
+      params="${params} --exclude-from ./.deployignore"
+    fi
+
+    rsync $params $excludes -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
+
+    echo
+  fi
+}
+
+function comp {
+  # warning: some duplication (see below) - this shouldn't change often, so we judge simplicity is worth it in this case
+  local matches=$(diff -rq "$1" "$2" | grep -v -e ".DS_Store" -e ".stfolder" -e ".stignore" -e ".deploy" -e ".deployignore" | grep -vF "Only in $1" | wc -l)
+
+  if [ $matches -eq 0 ]; then
+    return 0
+  else
+    printf "${MAGENTA}Files different or only present on target:${NC}\n\n"
+    # warning: duplication (see above)
+    diff -rq "$1" "$2" | grep -v -e ".DS_Store" -e ".stfolder" -e ".stignore" -e ".deploy" -e ".deployignore" | grep -vF "Only in $1" | sort
+    echo
+    printf "${MAGENTA}Files only present on source:${NC}\n\n"
+    # warning: duplication (see above)
+    diff -rq "$1" "$2" | grep -v -e ".DS_Store" -e ".stfolder" -e ".stignore" -e ".deploy" -e ".deployignore" | grep -F "Only in $1" | sort
+    return 1
+  fi
+}
+
