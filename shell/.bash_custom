@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# enable color support of ls and also add handy aliases
+# recently moved from .bash_general
+if [ -x /usr/bin/dircolors ]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+
+  function ls {
+    command ls --color=auto "$@"
+  }
+
+  function grep {
+    command grep --color=auto "$@"
+  }
+
+  function fgrep {
+    command fgrep --color=auto "$@"
+  }
+
+  function egrep {
+    command egrep --color=auto "$@"
+  }
+fi
+
+parse_git_branch() {
+  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+
+MAGENTA='\033[0;35m'
+NC='\033[0m' # No Color
+
+# doesn't work in macOS for now
+parse_screen_name() {
+  if [ "$STY" ]; then
+    printf "${MAGENTA}<$STY> ${NC}"
+  fi
+}
+
+PS1='$(parse_screen_name)${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[00;36m\]\w\[\033[00m\]\[\033[01;33m\]$(parse_git_branch)\[\033[00m\]$ '
+
+
+# MOVED TO .BASH_ALIASES because probably everyone ones this
+# converted alias ls .. etc to function ls ... because ALAISES SEEM TO BE EVIL... didn't reload when using screen etc.......
+# # enable color support of ls and also add handy aliases
+# # also present in $HOME/.bashrc for each user... we moved it here because of root
+# if [ -x /usr/bin/dircolors ]; then
+#     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+#     alias ls='ls --color=auto'
+#     alias grep='grep --color=auto'
+#     alias fgrep='fgrep --color=auto'
+#     alias egrep='egrep --color=auto'
+# fi

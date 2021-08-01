@@ -1,0 +1,318 @@
+#!/bin/bash
+
+function rpc {
+  if [ -z "$1" ]; then
+    echo "Usage:"
+    echo "rpc '{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":232367}'"
+  else
+    curl -X POST --data "$1" http://localhost:8545
+  fi
+}
+
+# function y {
+#   declare -a topics=(
+#     "diagnostics"
+#     "doorbell"
+#     "lantern"
+#     "alarm"
+#     "house"
+#   )
+
+#   local matching_topic=''
+#   dmt_opts_matcher matching_topic "$1" "${topics[@]}"
+#   if [ $? -ne 0 ]; then # error
+#     printf "${RED}Unknown mqtt topic $1${NC}\n"
+#     return
+#   fi
+
+#   shift
+#   local msg="$1"
+#   if [ -n "$msg" ]; then
+#     printf "${GREEN}Publish: ${NC}$matching_topic ■ $msg\n"
+#     pub "$matching_topic" "$msg"
+#   else
+#     printf "${RED}Missing message for ${MAGENTA}${matching_topic} ...${NC}\n"
+#   fi
+# }
+
+function get_ssid {
+  if dmt_macos; then
+    local __ssid="$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | awk '/ SSID/ {print substr($0, index($0, $2))}')"
+  else
+    local __ssid="$(iwgetid -r)"
+  fi
+  eval "$1='${__ssid}'"
+}
+
+# 70:0f:57:12:01:b7 --> 70:f:57:12:1:b7
+function normalize_mac {
+  local cmd="sed"
+  if dmt_macos; then
+    cmd="gsed"
+  fi
+  local __mac=$(echo "$2" | tr '[:upper:]' '[:lower:]' | $cmd -r -e 's/\b0([0-9]|[a-f])/\1/g')
+  eval "$1='${__mac}'"
+}
+
+# https://stackoverflow.com/questions/14600466/how-to-ping-mac-address-in-linux
+function mac_ping {
+
+  if [ -z "$1" ]; then
+    printf "${RED}Must specify mac address${NC}\n"
+    return
+  fi
+
+  local network=192.168.0.1/24
+  #if [ "$#" -ne 1 ]; then echo Usage example: $0 aa:bb:cc:dd:ee:ff; exit 2; fi;
+  nmap -sP -T4 $network >& /dev/null
+
+  if dmt_macos; then
+    local ip=$(arp -n | grep -i $1 | awk ' { print $1 }')
+  else
+    local ip=$(ip -4 n show | grep -i $1 | awk ' { print $1 }')
+  fi
+
+  ping $ip -n -q -c 2 -i 0.2 -w 1 >& /dev/null
+
+  if [ $? -eq 0 ]; then
+      echo Device is online \($ip\)
+  else
+      echo Device is offline
+      exit 1
+  fi;
+}
+
+# for debugging purposes for now!!
+function gateway_ip {
+  ip -4 route list | head -1 | cut -d' ' -f3
+}
+
+function gateway_mac {
+  local _gatewayMac=''
+  get_gateway_mac _gatewayMac
+
+  printf "${YELLOW}$_gatewayMac${NC}\n"
+}
+# ---- for debugging purposes for now!!
+
+function get_mac {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}get_mac [ip]${NC} ${GRAY}${NC}\n"
+    return
+  fi
+
+  local ip="$2"
+
+  ping -c 1 "$ip" > /dev/null
+
+  local __mac=$(ip neigh | grep "${ip} " | grep "[0-9a-f]:" | head -1 | cut -d' ' -f5) #| tr '[A-F]' '[a-f]')
+  # | grep "REACHABLE"
+
+  #printf "${GREEN}MAC: ${NC}$mac\n"
+
+  local __normalized_mac=''
+  normalize_mac __normalized_mac "$__mac"
+
+  eval "$1='$__normalized_mac'"
+}
+
+#todo: implement without using "ip" on mac.. if not possible, then document this homebrew dep....
+# gateway ip on mac: route -n get default
+#local gateway_ip=$(ip -4 route list | head -1 | cut -d' ' -f3)
+#local mac=$(ip neigh | grep "${gateway_ip} " | grep "[0-9a-f]:" | cut -d' ' -f5 | head -1) #| tr '[A-F]' '[a-f]')
+#local mac=$(ip neigh | grep "$(ip -4 route list 0/0 | head -1 | cut -d' ' -f3) " | cut -d' ' -f5 | head -1)
+# on mac: do arp -a
+#
+# https://askubuntu.com/questions/605306/how-do-i-get-the-mac-address-of-my-router
+
+function get_gateway_mac {
+  # todo: ping once ? probably useful....... but for now there were no problems
+  local gateway_ip=$(ip -4 route list | head -1 | cut -d' ' -f3)
+  if [[ "$gateway_ip" =~ [0-9]\. ]]; then # we can also get "wlan0" if working as access point
+    local _normalized_mac=''
+    get_mac _normalized_mac "$gateway_ip"
+    eval "$1='$_normalized_mac'"
+  fi
+  #printf "${GREEN}Normalized: ${NC}$normalized_mac\n"
+}
+
+function net {
+  if [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}net scan${NC} ${GRAY}todo${NC}\n"
+    printf "${GREEN}net send${NC} ${GRAY}todo${NC}\n"
+    printf "${GREEN}net receive${NC} ${GRAY}todo${NC}\n"
+    return
+  fi
+
+  # default is scan
+  if [ -z "$1" ]; then
+    net_scan "$@"
+    return
+  fi
+
+  # check for prerequisite - netcat
+  if [ "$1" == "send" ] || [ "$1" == "receive" ]; then
+    which nc > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+      if dmt_macos; then
+        printf "${RED}netcat is not installed, please install and try again${NC}\n"
+        return
+      else
+        printf "${MAGENTA}netcat is missing, installing...${NC}\n"
+        sudo apt-get -y install netcat
+      fi
+    fi
+  fi
+
+  case "$1" in
+    scan )
+      shift
+      net_scan "$@"
+      ;;
+
+    receive )
+      if dmt_macos; then
+        printf "${RED}Receive not working on macos - (todo)${NC}\n"
+        #nc -l localhost 1238 | tar xv
+      else
+        printf "${GREEN}IP:${NC}\n"
+        myip
+        printf "${GREEN}Waiting to receive in ${YELLOW}$(pwd)${GREEN} ...${NC}\n"
+        nc -q 1 -l -p 1238 | tar xv
+      fi
+      ;;
+
+    send )
+      if [ -z "$2" ]; then
+        printf "${RED}Host missing, please specify host: ${GREEN}net send [host]${NC}\n"
+        return
+      fi
+
+      local host="$2"
+
+      if [ "$host" == "ap" ]; then
+        host="192.168.0.20"
+      fi
+
+      printf "${MAGENTA}Sending to ${GREEN}${2}${MAGENTA} ...${NC}\n"
+      if dmt_macos; then
+        tar cv . | nc "$host" 1238
+      else
+        tar cv . | nc -q 1 "$host" 1238
+      fi
+      ;;
+
+    *)
+      net_scan "$@"
+      ;;
+  esac
+}
+
+function get_current_device {
+  local __device_id=''
+
+  if [ -f "$DMT_DEVICE_FILE" ]; then
+    dmt_def_reader __device_id "$DMT_DEVICE_FILE" "device"
+  fi
+
+  eval "$1='$__device_id'"
+}
+
+function get_current_network {
+  local __network_id=''
+
+  # try explicitly defined networkId inside device.def first:
+  if [ -f "$DMT_DEVICE_FILE" ]; then
+    dmt_def_reader __network_id "$DMT_DEVICE_FILE" "network"
+  fi
+
+  # otherwise detect the current network via gatewayMac address:
+  if [ -z "$__network_id" ]; then
+    local _result=''
+    network_def_reader _result __network_id "host"
+  fi
+
+  eval "$1='$__network_id'"
+}
+
+# known (but not critical) shortcomings:
+# location: home
+#   gatewayMac: 22:38:e4:cc:f7:80
+#   mpdPlayer:
+#     host: player.local
+#
+# gatewayMac has to appear above host: .....
+# otherwise parser won't be able to match it correctly since it scans from top to bottom
+function network_def_reader {
+  local entry="$3"
+
+  local _gatewayMac=''
+  get_gateway_mac _gatewayMac
+
+  if [ -z "$_gatewayMac" ]; then
+    #printf "${RED}Cannot get gateway mac address${NC}\n\n"
+    return
+  fi
+
+  local gateway_matched=false
+
+  local DMT_NETWORKS_FILE="$DMT_PATH/user/def/networks.def"
+
+  IFS=$'\n' read -d '' -r -a lines < "$DMT_NETWORKS_FILE"
+
+  local _result=''
+  local _network=''
+
+  IFS=$'\n'
+
+  for line in ${lines[@]}; do
+    unset IFS
+
+    line=$(echo "${line}" | xargs) # trim whitespace
+
+    # Handle comments
+
+    if [[ $line =~ ^\s*"#" ]]; then # comment is a whole line, ignore
+      continue
+    fi
+
+    # if not, ignore after # character
+
+    local fillInToken="%@@%" # string that is unlikely to occur
+
+    line=$(echo "$line" | sed "s/ /${fillInToken}/g")
+    local arr=(${line/\#/ }) # split on \#
+    line=$(echo ${arr[0]} | sed "s/${fillInToken}/ /g")
+
+    # ---- end comment handing
+
+    if [[ $line =~ ^network\: ]]; then
+      local arr=($(echo $line | sed "s/network:/network@/" | tr "@" "\n")) # replace ":" with "@" because ":" appears all over mac address defined in gatewayMac
+      local current_network=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+    fi
+
+    if [[ $line =~ ^gatewayMac\: ]]; then
+      local arr=($(echo $line | sed "s/gatewayMac:/gatewayMac@/" | tr "@" "\n")) # replace ":" with "@" because ":" appears all over mac address defined in gatewayMac
+      local gatewayMac=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+
+      local normalized_mac=''
+      normalize_mac normalized_mac "$gatewayMac"
+
+      if [ "$normalized_mac" == "$_gatewayMac" ]; then
+        gateway_matched=true
+        _network="$current_network"
+      fi
+    elif [[ $line =~ ^$entry\: ]] && $gateway_matched; then
+      local arr=($(echo "$line" | tr ":" "\n"))
+      _result=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+    elif [[ $line =~ ^network\: ]]; then
+      gateway_matched=false # we reset the match on next record
+    fi
+  done
+
+  eval "$1='$_result'"
+  eval "$2='$_network'"
+}

@@ -1,0 +1,10 @@
+.DS_Store
+.deploy
+.deployignore
+.git
+.gitignore
+log
+todo.txt
+priv
+node_modules/eslint*
+target

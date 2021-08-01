@@ -1,0 +1,268 @@
+#!/bin/bash
+
+function zeta_config {
+
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    echo
+
+    printf "${GREEN}pi:${NC} sudo raspi-config\n"
+    printf "${GREEN}wifi:${NC} /etc/wpa_supplicant/wpa_supplicant.conf\n"
+    printf "${GREEN}net:${NC} /etc/network/interfaces\n"
+    printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
+    printf "${GREEN}lighttpd:${NC} /etc/lighttpd/lighttpd.conf\n"
+    printf "${GREEN}haproxy:${NC} /etc/haproxy/haproxy.cfg\n"
+    printf "${GREEN}dnsmasq:${NC} /etc/dnsmasq.conf\n"
+    printf "${GREEN}hostapd:${NC} /etc/hostapd/hostapd.conf\n"
+    printf "${GREEN}alsa:${NC} /usr/share/alsa/alsa.conf\n"
+    printf "${GREEN}fstab:${NC} /etc/fstab\n"
+    # printf "${GREEN}mpd:${NC} /etc/mpd.conf || ~/.mpdconf\n"
+    printf "${GREEN}samba:${NC} /etc/samba/smb.conf\n"
+    printf "${GREEN}syncthing:${NC} ~/.config/syncthing/config.xml\n"
+    printf "${GREEN}munin:${NC} /etc/munin/munin.conf\n"
+    printf "${GREEN}munin-node:${NC} /etc/munin/munin-node.conf\n"
+    printf "${GREEN}mosquitto:${NC} /etc/mosquitto/mosquitto.conf ${GRAY}${NC}\n"
+    printf "${GREEN}mysql:${NC} /etc/mysql/mariadb.conf.d ${GRAY}${NC}\n"
+
+    return
+  fi
+
+  declare -a opts=(
+    "lighttpd"
+    "sshd"
+    "pi"
+    "wifi"
+    "net"
+    "dnsmasq"
+    "hostapd"
+    "mosquitto"
+    "ap"
+    "alsa"
+    "fstab"
+    "samba"
+    "syncthing"
+    "munin"
+    "munin-node"
+    "mysql"
+    "haproxy"
+  )
+
+  local matching_opt=''
+  dmt_opts_matcher matching_opt "$1" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    printf "${RED}Unknown package${NC}\n"
+    return
+  fi
+
+  shift
+
+  case "$matching_opt" in
+
+    pi)
+      sudo raspi-config
+      ;;
+
+    wifi)
+      wifi_setup "from_conf" "$@"
+      ;;
+
+    net)
+      local conf="/etc/network/interfaces"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no networking config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    sshd)
+      local conf="/etc/ssh/sshd_config"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no sshd config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    lighttpd)
+      local conf="/etc/lighttpd/lighttpd.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no lighttpd config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    haproxy)
+      local conf="/etc/haproxy/haproxy.cfg"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no haproxy config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    # hiawatha)
+    #   local conf="/etc/hiawatha/hiawatha.conf"
+
+    #   if [ -f "${conf}" ]; then
+    #     printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+    #     sudo nano "${conf}"
+    #   else
+    #     printf "${RED}no hiawatha config file found${NC}\n"
+    #     return
+    #   fi
+    #   ;;
+
+    dnsmasq)
+      local conf="/etc/dnsmasq.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no dnsmasq config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    hostapd)
+      printf "${YELLOW}Please use ${GREEN}conf ap${NC}\n"
+      ;;
+
+    ap)
+      local conf="/etc/hostapd/hostapd.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no hostapd config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    alsa)
+      local conf="/usr/share/alsa/alsa.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no alsa config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    fstab)
+      local conf="/etc/fstab"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no fstab config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    # mpd)
+    #   local conf="/etc/mpd.conf"
+    #   local conf2="$HOME/.mpdconf"
+
+    #   if [ -f "${conf}" ]; then
+    #     printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+    #     sudo nano "${conf}"
+    #   elif [ -f "${conf2}" ]; then
+    #     printf "${CYAN}Editing ${YELLOW}${conf2}${NC}\n"
+    #     nano "${conf2}"
+    #   else
+    #     printf "${RED}no mpd config file found${NC}\n"
+    #     return
+    #   fi
+    #   ;;
+
+    samba)
+      local conf="/etc/samba/smb.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no samba config file found${NC}\n"
+      fi
+      ;;
+
+    syncthing)
+      local conf="$HOME/.config/syncthing/config.xml"
+      local conf2="$HOME/Library/Application Support/Syncthing/config.xml"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        nano "${conf}"
+      elif [ -f "${conf2}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf2}${NC}\n"
+        nano "${conf2}"
+      else
+        printf "${RED}no syncthing config file found${NC}\n"
+      fi
+      ;;
+
+    munin)
+      local conf="/etc/munin/munin.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no munin config file found${NC}\n"
+      fi
+      ;;
+
+    munin-node)
+      local conf="/etc/munin/munin-node.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no munin-node config file found${NC}\n"
+      fi
+      ;;
+
+    mosquitto)
+      local conf="/etc/mosquitto/mosquitto.conf"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no mosquitto config file found${NC}\n"
+      fi
+      ;;
+
+    mysql)
+      local conf="/etc/mysql/mariadb.conf.d"
+
+      if [ -d "${conf}" ]; then
+        printf "${CYAN}cd ${YELLOW}${conf}${NC}\n"
+        cd "${conf}"
+      else
+        printf "${RED}no mysql/mariadb config directory found${NC}\n"
+      fi
+      ;;
+
+  esac
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "mac": "80:28:E1:CC:F7:80",
+    "name": "Router A"
+  },
+  {
+    "mac": "C4:6A:1E:BB:22:3A",
+    "name": "RaspberryPi LivingRoom"
+  }
+]

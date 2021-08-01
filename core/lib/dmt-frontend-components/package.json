@@ -1,0 +1,13 @@
+{
+  "name": "dmt-frontend-components",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "svelte": "src/index.js",
+  "devDependencies": {
+    "dmt-frontend-helpers": "file:~/.dmt/core/lib/dmt-frontend-helpers",
+    "weblocaltime": "^0.0.16"
+  }
+}

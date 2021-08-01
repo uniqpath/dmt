@@ -1,0 +1,218 @@
+#!/bin/bash
+
+# DMT {{version}}
+#
+# *** ONE-LINE INSTALL ***
+#
+# curl {{host}} | bash
+#
+# Paste this command into your bash shell on macOS or Linux (Debian, Raspbian etc.)
+#
+# More info : https://dmt-system.com
+# Basic demo: {{protocol}}://{{host}}/home
+#
+# Requirements:
+#
+# - curl (linux: sudo apt-get install curl)
+# - node.js > v14.0 (macOS / linux: curl -L https://git.io/n-install | bash)
+# - mpv.io (for multimedia play)
+#
+# RPi guide:
+# https://github.com/uniqpath/info/blob/master/assets/pdf/rpi_guide.pdf
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+function get_dmt_proc_pid {
+  local proc=$(ps -ef | grep " dmt-proc" | grep -v "nano dmt-proc" | grep -v "eslint" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local procFG=$(ps -ef | grep "controller/daemons/dmt-proc.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
+  if [ -n "$proc" ]; then
+    eval "$1='$proc'"
+    eval "$2='bg'"
+    return
+  fi
+
+  # dmt process running in foreground
+  if [ -n "$procFG" ]; then
+    eval "$1='$procFG'"
+    eval "$2='fg'"
+  fi
+}
+
+function report_dmt_running {
+  local dmt_proc_pid="$1"
+  local fg_bg="$2"
+
+  if [ -n "$dmt_proc_pid" ]; then
+    local fg_bg_msg=""
+    if [ "$fg_bg" == 'fg' ]; then
+      fg_bg_msg="${MAGENTA}in foreground${NC} "
+    fi
+    printf "${GREEN}✓ ${CYAN}dmt-proc${NC} ${GREEN}seems to be running ${fg_bg_msg}with ${YELLOW}pid ${dmt_proc_pid}${NC}\n"
+    return 0
+  fi
+
+  return 1
+}
+
+function empty_backup_dir {
+  local backup_dir="$1"
+
+  if [ -d "$backup_dir" ]; then
+    printf "${backup_dir} already existed, purging it ...${NC}\n"
+    rm -rf "$backup_dir"
+
+    if [ -d "$backup_dir" ]; then
+      printf "${RED}${backup_dir} already exists and cannot delete it! Aborting operation ...${NC}\n"
+      exit
+    fi
+  fi
+
+  mkdir "$backup_dir"
+}
+
+function move_dmt_engine {
+  local source="$1"
+  local target="$2"
+
+  local cwd="`pwd`"
+  cd "$source"
+
+  shopt -s dotglob # always include hidden files
+  for entry in *; do
+    if [ "$entry" != '.' ] && [ "$entry" != '..' ] && [ "$entry" != 'user' ] && [ "$entry" != 'state' ] && [ "$entry" != 'log' ]; then
+      mv $entry $target
+    fi
+  done
+  shopt -u dotglob
+
+  cd "$cwd"
+}
+
+if [ -f ~/.dmt/.prevent_dmt_next ]; then
+  printf "${RED}Prevented operation because ~/.dmt/.prevent_dmt_next file is present, please remove it to continue${NC}\n"
+  exit
+fi
+
+# abort if dmt-proc is currently running
+
+dmt_proc_pid=''
+dmt_fg_bg=''
+get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+if report_dmt_running "$dmt_proc_pid" "$dmt_fg_bg"; then
+  printf "${RED}Please stop it and try again${NC}\n"
+  exit
+fi
+
+cwd="`pwd`"
+
+cd $(mktemp -d)
+mkdir dmt-next && cd $_
+
+# we are now in /some_temp_directory/dmt-next
+
+echo
+printf "${WHITE}Fetching ${MAGENTA}dmt.zip ${WHITE}from ${CYAN}{{host}}${NC} ...\n\n"
+printf "${YELLOW}Please wait for up to a minute even if nothing seems to be happening ...${NC}\n"
+
+# STEP 1 → fetch dmt.zip
+if curl -L --fail {{protocol}}://{{host}}/dmt.zip -o dmt.zip; then
+
+  # STEP 2 → unzip dmt.zip into /some_temp_directory/dmt-next
+  # we now have a complete dmt directory without user, state and log subdirectories
+  unzip dmt.zip
+
+  if [ $? -ne 0 ]; then # error
+    printf "${RED}Error when unzipping dmt.zip, exiting ...${NC}\n"
+
+    cd ..
+    rm -rf dmt-next
+
+    cd "$cwd"
+    exit
+  fi
+
+  rm dmt.zip
+
+  # STEP 3 → move contents of our current ~/.dmt  directory (without user, state and log) into ~/.dmt-backup-[timestamp]
+  #          or create ~/.dmt if we don't currently have it
+
+  now=$(date +"%Y-%m-%dT%H-%M-%S")
+  backup_dir="$HOME/.dmt-backup-${now}"
+  empty_backup_dir "$backup_dir"
+
+  if [ -d ~/.dmt ]; then
+    move_dmt_engine ~/.dmt "$backup_dir"
+  else
+    mkdir ~/.dmt
+
+    if [ ! -d ~/.dmt ]; then
+      printf "${RED}Could not create ~/.dmt directory, exiting.${NC}\n"
+      exit
+    fi
+  fi
+
+  # STEP 4 → move dmt-next/* into ~/.dmt
+  # ( we are still in /some_temp_directory/dmt-next )
+
+  move_dmt_engine . ~/.dmt
+
+  # potential open issues:
+  # unsolved fail PC-DMT 26.3.2021: Cannot move `core` to '/home/iztok/.dmt/core': Permission denied
+  # fix: dmt next --force
+
+  if [ ! -f ~/.dmt/.version ]; then # should never come here!
+    printf "${RED}Panic: could not install / update DMT: ~/.dmt/.version file was not copied over, exiting.${NC}\n"
+    exit
+  fi
+
+  if [ ! -d ~/.dmt/shell ]; then # should never come here!
+    printf "${RED}Panic: could not install / update DMTL ~/.dmt/shell directory was not copied over, exiting.${NC}\n"
+
+    if [ -d "$backup_dir" ]; then
+      move_dmt_engine "$backup_dir" ~/.dmt
+      rm -rf "$backup_dir"
+    fi
+
+    exit
+  fi
+
+  # STEP 5 → cleanup
+
+  if [ -d "$backup_dir" ]; then
+    rm -rf "$backup_dir"
+  fi
+
+  # STEP 6 → directory is ready, run install
+
+  cd ~/.dmt
+
+  ./install
+
+  # STEP 7 → update dmtSource pointer
+
+  # add dmtSource pointer to user.def so that "dmt next" updates work correctly
+  user_def=~/.dmt/user/def/user.def
+  if [ -f "$user_def" ]; then
+    if [ -n "{{dmtSource}}" ]; then
+      if ! grep -Fq "dmtSource" "$user_def"; then
+        echo "  dmtSource: {{dmtSource}}" >> "$user_def"
+      fi
+    fi
+  fi
+
+else
+  printf "${RED}Failed to fetch dmt.zip, exiting ...${NC}\n"
+fi
+
+cd "$cwd"

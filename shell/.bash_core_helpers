@@ -1,0 +1,30 @@
+#!/bin/bash
+
+function o {
+  dmt "o" "$@"
+}
+
+# can also do:
+# [some long process_with_text_result] | push_notify --> not anymore! check code in lib/apn.js and maybe put it back
+# in background: se "space|push_notify"
+function push_notify {
+  local push_notifier="$DMT_NODE_CORE/notify/cli/push_notify.js"
+
+  if [ -f "$push_notifier" ]; then
+    # if stdin is passed to nodejs script (happens automatically),
+    # it is considered as a message, given argument is ignored
+    $DMT_NODEJS_EXEC "$push_notifier" "$@"
+  else
+    printf "${RED}Cannot push message${NC}\n"
+  fi
+}
+
+function net_scan {
+  local cmd="${DMT_NODE_CORE}/net/cli/scan.js"
+
+  if [ -f "$cmd" ]; then
+    $DMT_NODEJS_EXEC "$cmd" "$@"
+  else
+    printf "${RED}dmt-net package not installed, please install${NC}\n"
+  fi
+}

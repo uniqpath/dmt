@@ -1,0 +1,482 @@
+#!/bin/bash
+
+#######
+# git #
+#######
+
+# stable project - using a git worktree feature:
+# https://git-scm.com/docs/git-worktree
+# so projects under ~/Projects/stable are actually a stable checkouts of projects elsewhere
+function stable {
+  if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "stable . ${GRAY}checkout stable version of the project in ~/Projects/stable${NC}\n"
+    printf "stable [project] ${GRAY}move to stable project${NC}\n"
+  elif [ "$1" == "." ]; then
+    local project="${PWD##*/}"
+    local target="$HOME/Projects/stable/$project"
+
+    if [ -d "$target" ]; then
+
+      if [ -f ~/Projects/backups/nuke.rb ]; then
+        printf "${YELLOW}${target} already exists...${NC}\n"
+        #~/Projects/backups/nuke.rb "$target"
+        rm -rf "$target"
+      else
+        printf "${RED}${target} already exists...${NC}\n"
+        printf "Please execute: ${RED}rm -rf ${target}${NC} manually\n"
+        return
+      fi
+    fi
+
+    git worktree prune
+
+    if git rev-parse --quiet --verify stable > /dev/null; then
+      git branch -d stable
+    fi
+
+    git worktree add -b stable "$target" master
+
+    printf "${GREEN}\nNow copying some things over (copy more manually if needed):${NC}\n"
+
+    if [ -d data ]; then
+      printf "${YELLOW}data...${NC}\n"
+      cp -r data "$target/"
+      printf "${GREEN}ok${NC}\n"
+    fi
+
+    if [ -d node_modules ]; then
+      printf "${YELLOW}node_modules...${NC}\n"
+      cp -r node_modules "$target/"
+      printf "${GREEN}ok${NC}\n"
+    fi
+
+    echo
+    printf "${MAGENTA}Project stabilified in ${target}${NC}\n"
+
+  else
+    awesome_cd ~/Projects/stable "$1"
+  fi
+}
+
+function search_git {
+  # searches in unstaged files (?)
+  git diff-index -S "$@" -u HEAD
+}
+
+#alias gx="gitx"
+alias _good="git bisect good"
+alias _bad="git bisect bad"
+
+function good {
+  if [[ $@ == *--* ]]; then
+    command good "$@";
+  else
+    echo "Last week stats:"
+    echo
+    command good --email=david.krmpotic@gmail.com --days=7;
+  fi
+}
+
+
+alias gsu="git submodule update --init"
+alias gst="git stash"
+alias gsa="git stash apply"
+alias gl='git pull'
+#alias gp='git push'
+#alias gpm='git push origin master'
+#alias fpm='git push origin +master'
+alias ga='git add'
+alias gba='git branch -v -a'
+alias glf="git fetch && git reset --hard origin/master"
+alias glast="git show HEAD"
+
+function latest_tag {
+  local latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+  git checkout $latest_tag
+}
+
+function gp {
+  local branch=$(git rev-parse --abbrev-ref HEAD)
+  git push origin $branch
+}
+
+function fp {
+  local branch=$(git rev-parse --abbrev-ref HEAD)
+  git push origin +$branch
+  # if [ "$branch" == "master" ]; then
+  # else
+  #   printf "${RED}Not on master${NC}\n"
+  # fi
+}
+
+function af {
+  aa
+  fp
+  # local branch=$(git rev-parse --abbrev-ref HEAD)
+  # if [ "$branch" == "master" ]; then
+  #   aa
+  #   git push origin +master
+  # else
+  #   printf "${RED}Not on master${NC}\n"
+  # fi
+}
+
+alias afd="aa && fp && dep"
+
+function gb {
+  if [ -z "$1" ]; then
+    git branch -v
+  else
+    git diff master "origin/${1}" --name-status
+  fi
+}
+
+function gd {
+  if [ -n "$1" ]; then
+    run_on_file "$1" "git diff" '*'
+  else
+    git diff
+  fi
+}
+
+alias clean='echo -n "Really clean this directory?";
+  read yorn;
+  if test "$yorn" = "y"; then
+     rm -f \#* *~ .*~ *.bak .*.bak  *.tmp .*.tmp core a.out;
+     echo "Cleaned.";
+  else
+     echo "Not cleaned.";
+  fi'
+
+
+alias clone="git clone"
+
+function cclone {
+  local tmp
+  if dmt_macos; then
+    tmp=$(mktemp -t git)
+  else
+    tmp=$(mktemp)
+  fi
+
+  local repo_name
+
+  git clone "$@" --progress 2>&1 | tee $tmp
+  repo_name=$(awk -F\' '/Cloning into/ {print $2}' $tmp)
+  rm $tmp
+  cd "$repo_name"
+}
+
+function amend {
+  if [ -n "$1" ]; then
+    git add "$1"
+  fi
+  git commit --amend --no-edit
+}
+
+alias am=amend
+
+function depa {
+  read -r -p "Amend all and deploy. Sure? [Y/n] " response
+  if [[ ! $response =~ ^([nN])$ ]]
+  then
+    git add .
+    git commit --amend --no-edit
+    echo
+    dep
+  fi
+}
+
+alias share_git='git update-server-info & ruby -run -e httpd -- -p 5000 .git'
+
+function pick {
+  if [ -n "$1" ]; then
+    git cherry-pick "$1"
+  else
+    git cherry-pick @{-1}
+  fi
+}
+
+function changed {
+  if ! $(git rev-parse --is-inside-work-tree > /dev/null 2>&1); then
+    >&2 printf "${RED}Not a git repository${NC}\n"
+    return 1
+  fi
+
+  local branch=$(git rev-parse --abbrev-ref HEAD)
+
+  if [ "$1" == "help" ]; then
+    echo "Usage:"
+    printf "${YELLOW}changed${NC} - changes summary since the last pull\n"
+    printf "${YELLOW}changed .${NC} - changes since the last pull\n"
+    printf "${YELLOW}changed path/file${NC} - same as above, just for file\n"
+    printf "${YELLOW}changed HEAD~10..HEAD${NC} - changes between two commits\n"
+    printf "${YELLOW}changed [sha (previous!)]..HEAD${NC} - similar\n"
+  elif [ -z "$1" ]; then
+    git diff --stat $branch@{1} $branch
+  elif [ "$1" == '.' ]; then
+    git diff $branch@{1} $branch # all changes
+  elif [ "$1" == 'local' ]; then
+    git log @{push}.. # stuff that would get pushed with "git push"
+  else
+    grep -qv "\.\." <<< $1
+    if [ ! $? -eq 0 ]; then
+      git diff --pretty="format:" --name-only "$1" #| sort | uniq | awk "{print $url $0}"
+    else
+      local matching_file=''
+      get_matching_file matching_file "$1"
+      matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+      if [ ! -f "$matching_file" ]; then
+        return
+      fi
+
+      printf "${YELLOW}git diff ${branch}@{1} ${branch} ${matching_file}${NC}\n"
+
+      git diff $branch@{1} $branch "$matching_file"
+    fi
+  fi
+}
+
+# http://pastebin.com/k8WryYxM
+# ----------------------------
+
+function git_repo {
+  local root=$(git rev-parse --show-toplevel || echo ".")
+  local cwd="`pwd`"
+  cd $root
+  local origin=$(git remote -v | grep origin | grep push | sed 's/origin//g' | sed 's/git@github.com://g' | sed 's/https:\/\/github.com\///g' | sed 's/.git (push)//g' | sed 's/ (push)//g' | xargs)
+  cd $cwd
+  eval "$1=$origin"
+}
+
+# Opens Github project in browser from command line
+# og - opens current branch
+# og [branch] - opens selected branch
+# og copy - copies to clipboard
+# og commits - opens commits tab
+# by davidhq
+function og {
+  if ! $(git rev-parse --is-inside-work-tree > /dev/null 2>&1); then
+    >&2 printf "${RED}Not a git repository${NC}\n"
+    return 1
+  fi
+
+  local repo=''
+  git_repo repo
+
+  local origin="https://github.com/${repo}"
+  local branch=$(git rev-parse --abbrev-ref HEAD)
+
+  if [ "$1" == 'copy' ]; then
+    # copy to clipboard
+    printf "${YELLOW}Copied: ${NC}${origin}\n"
+    echo $origin | tr -d '\n' | pbcopy # chomp before copy
+  elif [ "$1" == 'commits' ]; then
+    # open commits tab
+    open "${origin}/commits/${branch}"
+  elif [ "$1" == 'npm' ]; then
+    # open commits tab
+    open "https://www.npmjs.com/package/$(name)"
+  elif [ -n "$1" ]; then
+    open "${origin}/tree/${1}"
+  elif [ "$branch" != "master" ]; then
+    open "${origin}/tree/${branch}"
+  else
+    open $origin
+  fi
+}
+
+alias ogc="og copy"
+
+# Usage inside a git repository:
+# gc utils/file.js
+# to get:
+# https://github.com/[user]/[repo]/blob/[branch]/utils/file.js
+# copied to clipboard and printed on the command line (you can use newest iTerm2 to being able to click on urls from terminal with CMD+click)
+function gc {
+  if ! $(git rev-parse --is-inside-work-tree > /dev/null 2>&1); then
+    >&2 printf "${RED}Not a git repository${NC}\n"
+    return 1
+  fi
+
+  local repo=''
+  git_repo repo
+
+  if [ -z "$1" ]; then
+    echo "Usage: gc folder/file.txt"
+    echo "copied github url to clipboard"
+    local repo=''
+    git_repo repo
+    local origin="https://github.com/${repo}"
+    echo $origin | tr -d '\n' | pbcopy # chomp before copy
+  else
+    local matching_file=''
+    get_matching_file matching_file "$1"
+    matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+    if [ ! -f "$matching_file" ]; then
+      return
+    fi
+
+    local repo_root=$(git rev-parse --show-toplevel || echo ".")
+    local file_path=$(readlink -f "$matching_file" | tr -d '\n')
+
+    local branch=$(git rev-parse --abbrev-ref HEAD)
+    local url_cluttered="https://github.com/${repo}/blob/${branch}/${file_path}"
+    local url=$(echo $url_cluttered  | sed "s#${repo_root}/##")
+
+    echo $url | tr -d '\n' | pbcopy
+    printf "Clipboard: ${YELLOW}$url${NC}\n"
+  fi
+}
+
+# ----------------------------
+
+function log {
+  if [ -n "$1" ]; then
+    slog "$1"
+    return
+  fi
+
+  if [ -d ".git" ]; then
+    clear
+    git log -5
+    # if [ -z "$1" ]; then
+    #   git log -3
+    # else
+    #   git log -"$1"
+    # fi
+  else
+    printf "${RED}Not a git repository${NC}\n"
+  fi
+}
+
+# open app log
+function lg {
+  if [ -f ".log" ]; then
+    `cat .log`
+  else
+    if [ -z "$1" ]; then
+      if dmt_macos; then
+        if [ -f 'log/development.log' ]; then
+          tail -n 20 -f log/development.log
+        elif [ -f 'log/error.log' ]; then
+          tail -n 20 -f log/error.log
+        else
+          puts "No log files"
+        fi
+      else
+        if [ -f 'log/production.log' ]; then
+          tail -n 20 -f log/production.log
+        elif [ -f 'log/nginx.access.log' ]; then
+          tail -n 20 -f log/nginx.access.log
+        else
+          puts "No log files"
+        fi
+      fi
+    else
+      if [ "$1" == "apache" ]; then
+        tail -n 20 -f /var/log/apache2/error_log
+      elif [ "$1" == "nginx" ]; then
+        tail -n 20 -f /var/log/nginx/error.log
+      # else # lg th mak
+      #   local parserScript=~/Projects/scripts/ssh_parse_host
+      #   if [ ! -f "$parserScript" ] && [ -f /var/projects/scripts/ssh_parse_host ]; then
+      #     parserScript="/var/projects/scripts/ssh_parse_host"
+      #   fi
+      #   local server=$("$parserScript" "$1")
+      #   ssh "$server" "if [ -d /var/www/${2}/current/log ]; then tail -n 20 -f /var/www/${2}/current/log/production.log; elif [ -f /var/www/${2}/log/nginx.access.log ]; then tail -n 20 -f /var/www/${2}/log/nginx.access.log; else tail -n 20 -f /var/www/${2}/log/production.log; fi"
+      fi
+    fi
+  fi
+}
+
+function com {
+  if [ "$1" == "-m" ]; then
+    shift
+  fi
+  git commit -m "$@"
+}
+
+function coma {
+  if [ "$1" == "-m" ]; then
+    shift
+  fi
+  git add .
+  git add . -u
+  git commit -m "$@"
+}
+
+function comv {
+  git add .
+  git commit -v
+}
+
+function add {
+  if [ -n "$1" ]; then
+    run_on_file "$1" "git add" '*'
+  else
+    git add -p
+  fi
+}
+
+function addp {
+  if [ -n "$1" ]; then
+    run_on_file "$1" "git add -p" '*'
+  else
+    git add -p
+  fi
+}
+
+alias rh='git reset HEAD'
+alias open_last_commit="git reset --soft HEAD^1"
+alias last_commit=open_last_commit
+
+#alias gp_amend="git add . && git commit --amend && fp"
+alias cdr='cd $(git rev-parse --show-toplevel || echo ".")'
+
+function gco {
+  if [ -z "$1" ]; then
+    git checkout main
+  else
+    git checkout $1
+  fi
+}
+
+function st {
+  if [ -d ".svn" ]; then
+    svn status
+  else
+    git status
+  fi
+}
+
+# function reb {
+#    git rebase -i HEAD~"$1"
+# }
+
+alias i5='git commit -m "moo" && git stash && git rebase -i HEAD~5 && git stash apply'
+alias i10='git commit -m "moo" && git stash && git rebase -i HEAD~10 && git stash apply'
+
+# http://openmonkey.com/articles/2009/07/fast-github-clone-bash-function
+function ghclone {
+  gh_url=${1:-`pbpaste`}
+  co_dir=${HOME}/Projects/source/$(echo $gh_url | sed -e 's/^git:\/\/github.com\///; s/\//-/; s/\.git$//')
+
+  if [ -d $co_dir ]; then
+    cd $co_dir && git pull origin main
+  else
+    git clone "${gh_url}" "${co_dir}" && cd "${co_dir}"
+  fi
+}
+
+function aa {
+  #read -r -p "Amend ALL to last commit? [Y/n] " response
+  #if [[ ! $response =~ ^([nN])$ ]]
+  #then
+    git add .
+    git commit --amend --no-edit
+  #fi
+}

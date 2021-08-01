@@ -1,0 +1,108 @@
+#!/bin/bash
+
+#. ~/.dmt/etc/.bash_aliases_bundle
+
+# suitable when installed from github
+
+RED='\033[0;31m'
+
+function dev_machine {
+  if [ -f ~/.dmt/user/devices/this/.dev-machine ]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+if dev_machine; then
+  printf "${RED}Prevented on dev machine${NC}\n"
+  exit
+fi
+
+AUTO_UPDATE_LOG=~/.dmt/log/.auto_update_log
+
+if [ ! -d ~/.dmt/.git ]; then
+  if [ -d ~/.dmt/log ]; then
+    echo $(date) > $AUTO_UPDATE_LOG
+    echo "" >> $AUTO_UPDATE_LOG
+    echo "Checked via 5-min cron job but ~/.dmt/.git was not present." >> $AUTO_UPDATE_LOG
+    echo "Script exited without doing anything." >> $AUTO_UPDATE_LOG
+    echo >> $AUTO_UPDATE_LOG
+    echo "Auto-update is effectively disabled." >> $AUTO_UPDATE_LOG
+  fi
+
+  exit
+fi
+
+if [ ~/.dmt/.git ]; then
+
+  if [ -d ~/.dmt/log ]; then
+    echo $(date) > $AUTO_UPDATE_LOG
+    echo "" >> $AUTO_UPDATE_LOG
+    echo "Checked via 5-min cron job and ~/.dmt/.git dir was present." >> $AUTO_UPDATE_LOG
+    echo >> $AUTO_UPDATE_LOG
+    echo "Fetching repository updates from github ..." >> $AUTO_UPDATE_LOG
+  fi
+
+  cwd="`pwd`"
+
+  cd ~/.dmt
+
+  # this is missing from the actual "dmt next" (we don't use this to prevent breakage of the updating system by some bug pushed into git)
+  # this script has to be minimal and without any deps (scripts included) !
+  # the only binary dep is "git"
+  # local gitsource=`git remote get-url origin`
+  # if [[ "$gitsource" =~ uniqpath/dmt ]]; then
+  git fetch origin main
+  git checkout -f main
+  git reset --hard origin/main
+  git clean -fd
+  git clean -fd
+  git clean -fd # the only way to be sure!! :/
+  # git clean -fd # special case -> when we first remove .gitignore file (in core/connectome) and this causes more directories that need to be removed
+  # twice was not enough grr
+
+  if [ ! -f ~/.dmt/.version ]; then
+    echo "Problem: ~/.dmt/.version does not exist."
+    exit
+  fi
+
+  function dmt_restart {
+    # need TERM=xterm for colors when called from crontab
+    #TERM=xterm ~/.dmt/etc/onboot/daemons restart
+    # ⚠️⚠️⚠️  some problems with this ↑ ↑ ↑
+    # this is not the same as "dmt restart" !
+    # for example when some code for creating ~/.dmt/user/apps directory with symlinks was added to bash_dmt start)
+    # this didn't get executed through auto-updates!!
+    ./install
+    . ~/.dmt/etc/.bash_aliases_bundle
+    dmt restart
+  }
+
+  # duplicated in "dmt next" when in .git repo
+  if [ -f ~/.dmt-here/tmp/.prev_version ]; then
+    prevVersion=$(cat ~/.dmt-here/tmp/.prev_version)
+    currentVersion=$(cat ~/.dmt/.version)
+
+    if [ "$prevVersion" != "$currentVersion" ]; then
+      MSG="Restarting dmt-proc after dmt next because version changed from ${prevVersion} to ${currentVersion}"
+      echo "$MSG"
+      if [ -d ~/.dmt/log ]; then
+        echo "$MSG" >> $AUTO_UPDATE_LOG
+      fi
+      dmt_restart
+    else
+      if [ -d ~/.dmt/log ]; then
+        echo "Version (${currentVersion}) did not change, not restarting dmt-proc" >> $AUTO_UPDATE_LOG
+      fi
+    fi
+  else
+    dmt_restart
+  fi
+
+  mkdir -p ~/.dmt-here/tmp
+  cp ~/.dmt/.version ~/.dmt-here/tmp/.prev_version # to help decide if process restart is needed after git pull
+
+  cd "$cwd" # not really needed since called from cron... but still
+
+fi

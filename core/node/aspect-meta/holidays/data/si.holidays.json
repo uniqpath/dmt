@@ -1,0 +1,37 @@
+[
+  {
+    "fromYear": 2017,
+    "data": {
+      "1.1": "novo leto",
+      "2.1": "novo leto",
+      "8.2": "Prešernov dan",
+      "27.4": "dan upora proti okupatorju",
+      "EASTER": "velikonočni ponedeljek",
+      "1.5": "praznik dela",
+      "2.5": "praznik dela",
+      "25.6": "dan državnosti",
+      "15.8": "Marijino vnebovzetje",
+      "31.10": "dan reformacije",
+      "1.11": "dan spomina na mrtve",
+      "25.12": "božič",
+      "26.12": "dan samostojnosti in enotnosti"
+    }
+  },
+  {
+    "fromYear": 2013,
+    "data": {
+      "1.1": "novo leto",
+      "8.2": "Prešernov dan",
+      "27.4": "dan upora proti okupatorju",
+      "EASTER": "velikonočni ponedeljek",
+      "1.5": "praznik dela",
+      "2.5": "praznik dela",
+      "25.6": "dan državnosti",
+      "15.8": "Marijino vnebovzetje",
+      "31.10": "dan reformacije",
+      "1.11": "dan spomina na mrtve",
+      "25.12": "božič",
+      "26.12": "dan samostojnosti in enotnosti"
+    }
+  }
+]

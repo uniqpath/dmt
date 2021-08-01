@@ -1,0 +1,334 @@
+#!/bin/bash
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+UNDERLINE='\e[4m'
+RESET='\033[0m' # No Color
+DIM='\e[2m'
+INVERT='\e[7m'
+
+function get_machine_os() {
+  local unameOut="$(uname -s)"
+  local platform
+
+  case "${unameOut}" in
+    Linux*)     platform="linux-x64";;
+    Darwin*)    platform="darwin";;
+    # CYGWIN*)    platform=Cygwin;;
+    # MINGW*)     platform=MinGw;;
+    *)          platform="UNKNOWN:${unameOut}"
+  esac
+
+  # todo -- detect windows ubuntu shell
+
+  if dmt_is_rpi; then
+    # fix: "This profile appears to be in use by another Chromium process (543)...""
+    platform="linux-arm"
+  fi
+
+  eval "$1='${platform}'"
+}
+
+function dmt_macos {
+  if [[ $OSTYPE == darwin* ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+function dmt_is_linux {
+  if [[ $OSTYPE == linux* ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+function dmt_is_rpi {
+  if [ -f /etc/issue ] && [[ $(cat /etc/issue) =~ Raspbian ]]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+function dev_machine {
+  if [ -f "$DMT_THIS_DEVICE/.dev-machine" ]; then
+    return 0 # true
+  fi
+
+  return 1 # false
+}
+
+function dmt_check_binary_exists {
+  which "$1" > /dev/null 2>&1
+  return $?
+}
+
+function dmt_ensure_nodejs_npm_warn {
+  echo
+  printf "⚠️  ${YELLOW}node.js${NC} ${RED}and${NC} ${YELLOW}npm${NC} ${RED}not installed${NC}\n"
+  echo
+  printf "💡 Please run ${GREEN}zeta_update nodejs${NC} ${GRAY}to install the latest node.js framework via${NC} ${CYAN}tj/n node version manager${NC}\n"
+  echo
+}
+
+# for usage see dmt_file_age_test function
+function dmt_get_file_age {
+  local filename="$2"
+
+  local __file_age
+
+  # https://unix.stackexchange.com/a/102698
+  if dmt_macos; then
+    __file_age=$(($(date +%s) - $(stat -t %s -f %m -- "$filename")))
+  else # linux
+    __file_age=$(( `date +%s` - `stat -L --format %Y $filename` ))
+  fi
+
+  # return file age
+  eval "$1='$__file_age'"
+}
+
+function dmt_file_age_test {
+  local filename="$1"
+  local file_age=''
+  dmt_get_file_age file_age $filename
+  echo $file_age
+}
+
+function dmt_ensure_nodejs_npm {
+  dmt_check_binary_exists npm
+
+  if [ ! $? -eq 0 ]; then
+    dmt_ensure_nodejs_npm_warn
+    return 1
+  fi
+
+  dmt_check_binary_exists node
+
+  if [ ! $? -eq 0 ]; then
+    dmt_ensure_nodejs_npm_warn
+    return 1
+  fi
+}
+
+function dmt_animate_dots {
+  local delay=0.005
+
+  if [ "$1" == 'slow' ]; then
+    delay="0.01"
+  fi
+
+  for i in {1..90}
+  do
+    printf "${GRAY}…${NC}"
+    sleep $delay
+  done
+  echo
+}
+
+# info: https://mharrison.org/post/bashfunctionoverride/
+dmt_save_function() {
+  local ORIG_FUNC=$(declare -f $1)
+  local NEWNAME_FUNC="$2${ORIG_FUNC#$1}"
+  eval "$NEWNAME_FUNC"
+}
+
+function dmt_array_contains_element {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
+
+function dmt_opts_matcher_helper {
+  local pattern="$2"
+  local ARGS=("$@")
+  local opts=("${ARGS[@]:2}")
+
+  local min_size=1000
+  local match
+
+  for entry in "${opts[@]}"
+  do
+    shopt -s nocasematch # case insensitive regex
+    if [[ "$entry" == "$pattern"* ]] && [ -n "$pattern" ]; then
+      local size=${#entry}
+      if [[ $size -lt $min_size ]]; then
+        match=$entry
+        min_size=$size
+      fi
+    fi
+    shopt -u nocasematch
+  done
+
+  if [ -n "$match" ]; then
+    eval "$1='${match}'"
+  else
+    return 1
+  fi
+}
+
+function dmt_opts_matcher {
+  local __matching_opt=''
+
+  local no_warning
+  if [ "$2" == "no_warning" ]; then
+    no_warning="true"
+
+    local pattern="$3"
+    local ARGS=("$@")
+    local opts=("${ARGS[@]:3}")
+  else
+    local pattern="$2"
+    local ARGS=("$@")
+    local opts=("${ARGS[@]:2}")
+  fi
+
+  dmt_opts_matcher_helper __matching_opt "$pattern" "${opts[@]}"
+  if [ $? -ne 0 ]; then # error
+    if [ -n "$pattern" ] && [ -z "$no_warning" ]; then
+      printf "${RED}Unknown option:${NC} ${pattern}\n\n"
+    fi
+    return 1
+  elif [ "$pattern" != "$__matching_opt" ]; then
+    printf "${MAGENTA}Matched: ${GREEN}${__matching_opt}${NC}\n\n"
+  fi
+
+  eval "$1='${__matching_opt}'"
+}
+
+# Priority for executable binary scripts:
+#
+# ~/.dmt/bin
+# ~/.dmt/user/bin
+# ~/.dmt/user/devices/this/bin
+#
+# TODO:
+# DEV_BIN=true [command] [args]
+# when true, it goes directly to core/rust/target/release example or bin... searches everything
+function dmt_platform_bin_command {
+  #printf "${MAGENTA}∞ DMT ∞ ${CYAN}v$(cat "$DMT_PATH/.version")${NC}\n"
+
+  local __result=''
+
+  local _dmt_binary="${DMT_PLATFORM_BIN}/$@"
+  local _user_binary="${DMT_USER_PLATFORM_BIN}/$@"
+
+  local _here_binary="${DMT_HERE_PLATFORM_BIN}/$@" # warning ! not in this device but in .dmt-here
+
+  if [ -f "$_dmt_binary" ]; then
+    __result="$_dmt_binary"
+  elif [ -f "$_user_binary" ]; then
+    __result="$_user_binary"
+  elif [ -f "$_here_binary" ]; then
+    __result="$_here_binary"
+  else
+    printf "${GRAY}Binary $@ not found among device, user or dmt binaries.${NC}\n"
+    return 1
+  fi
+
+  eval "$1='${__result}'"
+}
+
+# very simple parsing... scan all the lines until "parent_key" is found,
+# then search for the first occurence of "key" and return its "value"
+function dmt_def_reader {
+  local file="$2"
+  local parent_key="$3"
+  local key="$4"
+
+  local parent_key_matched=false
+
+  IFS=$'\n' read -d '' -r -a lines < "$file"
+
+  local _result=''
+
+  IFS=$'\n'
+
+  for line in ${lines[@]}; do
+    unset IFS
+
+    line=$(echo "${line}" | xargs) # trim whitespace
+
+    # Handle comments
+
+    if [[ $line =~ ^\s*"#" ]]; then # comment is a whole line, ignore
+      continue
+    fi
+
+    # if not, ignore after # character
+
+    local fillInToken="%@@%" # string that is unlikely to occur
+
+    line=$(echo "$line" | sed "s/ /${fillInToken}/g")
+    local arr=(${line/\#/ }) # split on \#
+    line=$(echo ${arr[0]} | sed "s/${fillInToken}/ /g")
+
+    # ---- end comment handing
+
+    if [[ $line =~ ^${parent_key}\: ]]; then
+      parent_key_matched=true
+
+      if [ -z "$key" ]; then
+        local arr=($(echo "$line" | tr ":" "\n"))
+        _result=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+        break
+      fi
+    elif [[ $line =~ ^${key}\: ]] && $parent_key_matched; then
+      local arr=($(echo "$line" | tr ":" "\n"))
+      _result=$(echo "${arr[@]:1}" | xargs) # trim whitespace
+      break
+    fi
+  done
+
+  eval "$1='$_result'"
+}
+
+# calls nodejs parser and outputs nicely formatted json --
+# good for testing the correctness .def files syntax
+function dmt_parsedef {
+  which node > /dev/null 2>&1
+
+  if [ ! $? -eq 0 ]; then
+    printf "${MAGENTA}nodejs not installed, please install it and try again${NC}\n"
+    return
+  fi
+
+  local DEF_PARSER_PATH="$DMT_NODE_CORE/common/cli/parseDef.js"
+
+  if [ ! -f "$DEF_PARSER_PATH" ]; then
+    printf "${RED}Missing dmt/common nodejs package${NC}\n"
+    return
+  fi
+
+  local pattern="$1"
+
+  if [ -z "$pattern" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}dmt_parsedef [file.def]${NC} ${GRAY}converts .def file to json and shows the parsed results if successful${NC}\n"
+    return
+  fi
+
+  local matching_file=''
+  get_matching_file matching_file "$pattern" "*.def"
+  matching_file=$(sed "s/111SINGLE___QUOTE111/'/g" <<< "$matching_file")
+
+  if [ ! -f "$matching_file" ]; then
+    printf "${RED}No matching file for pattern $1${NC}\n"
+    return
+  fi
+
+  $DMT_NODEJS_EXEC "$DEF_PARSER_PATH" "$matching_file"
+}

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+DEVICE_CRON="$HOME/.dmt/user/devices/this/cron/1min"
+
+if [ -f "$DEVICE_CRON" ]; then
+  "$DEVICE_CRON"
+fi

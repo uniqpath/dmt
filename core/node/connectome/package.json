@@ -1,0 +1,60 @@
+{
+  "name": "connectome",
+  "version": "0.0.107",
+  "description": "Dynamic realtime connectivity and state management",
+  "typings": "typings/src/client/index.d.ts",
+  "scripts": {
+    "build": "rollup -c && node scripts/build-artifacts",
+    "prepublishOnly": "npm run build"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "node": {
+        "import": "./dist/node/index.mjs",
+        "require": "./dist/node/index.js"
+      },
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "import": "./server/index.mjs",
+      "require": "./server/index.js"
+    },
+    "./stores": {
+      "import": "./stores/index.mjs",
+      "require": "./stores/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "server",
+    "stores",
+    "typings"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uniqpath/connectome"
+  },
+  "author": "davidhq",
+  "license": "ISC",
+  "dependencies": {
+    "bufferutil": "^4.0.2",
+    "colors": "^1.4.0",
+    "fast-json-patch": "^3.0.0-1",
+    "quantum-generator": "^1.9.1",
+    "rfc6902": "^4.0.1",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "utf-8-validate": "^5.0.3",
+    "ws": "^7.4.5"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^16.0.0",
+    "@rollup/plugin-node-resolve": "^10.0.0",
+    "builtin-modules": "^3.1.0",
+    "rollup": "^2.33.3"
+  }
+}

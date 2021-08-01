@@ -1,0 +1,103 @@
+#!/bin/bash
+
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+function manage_daemon {
+  local command="$1"
+  local daemon_process="$2"
+
+  local DMT_CORE="$HOME/.dmt/core"
+  local DAEMONS_PATH="${DMT_CORE}/node/controller/daemons"
+  local DAEMON_MANAGER="${DAEMONS_PATH}/manager.js"
+
+  if [ ! -f "$DAEMON_MANAGER" ]; then
+    printf "⚠️  ERROR ${RED}DAEMON_MANAGER is not present${NC} at ${DAEMON_MANAGER}${NC}\n"
+    if [ ! -d "$DMT_CORE" ]; then
+      printf "⚠️  ERROR ${RED}it seems that the entire ~/.dmt/core directory is missing${NC} (maybe failed ${CYAN}dmt next${NC} on windows because of windows permission bug? If yes, then try: ${GREEN}dmt next --force${NC} once again).${NC}\n"
+    fi
+    # echo "Missing daemons code in dmt-core, please get the code from GitHub"
+    exit
+  fi
+
+  local cwd=`pwd`
+  cd "$DAEMONS_PATH"
+
+  local node_path="node"
+
+  if [ -n "$NODE_PATH" ]; then
+    # see ~/.dmt/etc/onboot/linux-systemd-launch-script/dmt-proc.service, namely:
+    # ...
+    # Environment="NODE_PATH=/home/user/n/bin/node"
+    # ExecStart=/home/user/.dmt/etc/onboot/onboot
+    # ...
+    node_path="$NODE_PATH"
+  fi
+
+  "$node_path" --experimental-modules --experimental-specifier-resolution=node --unhandled-rejections=strict "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
+
+  cd "$cwd"
+}
+
+function manage_daemons {
+  local command="$1"
+  manage_daemon "$command" dmt-proc
+}
+
+# warning: duplicated in ~/.dmt/shell/.bash_dmt (for use in "shut" command)
+# function save_dmt_state {
+#   local DMT_NODE_CORE="$HOME/.dmt/core/node"
+#   local dmt_cli="${DMT_NODE_CORE}/controller/cli/dmt.js"
+#   if [ -f "$dmt_cli" ]; then
+#     node "$dmt_cli" save_state
+#   fi
+# }
+
+if [ -z "$1" ]; then
+  printf "${YELLOW}Usage:${NC}\n"
+  printf "${GREEN}daemons start${NC} ${GRAY}starts or restarts daemons if already running${NC}\n"
+  printf "${GREEN}daemons stop${NC} ${GRAY}stops deamons${NC}\n"
+  exit
+fi
+
+proc=$(ps -ef | grep "manager.js" | grep "dmt-proc" | grep -v grep | awk '{print $2}')
+
+if [ -n "$proc" ]; then
+  printf "${YELLOW}dmt-proc manager is already running... please wait for it to finish or kill it if stuck${NC}\n"
+  exit 1
+fi
+
+case "$1" in
+
+  start )
+    manage_daemons start
+    ;;
+
+  restart )
+    #save_dmt_state
+    manage_daemons restart
+    ;;
+
+  restart_and_notify_on_fail )
+    #save_dmt_state
+    manage_daemons restart_and_notify_on_fail
+    ;;
+
+  start_or_restart ) # for clarity
+    #save_dmt_state
+    manage_daemons restart
+    ;;
+
+  stop )
+    #save_dmt_state
+    manage_daemons stop
+    ;;
+
+esac
