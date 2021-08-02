@@ -35,6 +35,7 @@ and it even doesn't have to be as long as just one dmt-frontend-component is imp
   --dmt-green: #00ffbd;
   --dmt-green-yellow: #D6F3DB;
   --dmt-cool-green: #5df699;
+  --dmt-crypto-green: #00bfb6; /* only used in cryptoschool, do we need this? */
   --dmt-vibrant-green: #5fe02a;
 
   --dmt-cyan: #29b3bf;

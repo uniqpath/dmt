@@ -8,7 +8,7 @@ import Foreground from './helpers/foreground.js';
 import SwitchDevice from './helpers/switchDevice.js';
 
 class MultiConnectedStore extends MergeStore {
-  constructor({ endpoint, address, port, protocol, lane, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
+  constructor({ endpoint, host, port, protocol, keypair = newKeypair(), connectToDeviceKey, logStore, rpcRequestTimeout, verbose }) {
     super();
 
     const thisDeviceStateKeys = ['time', 'environment', 'nearbyDevices', 'notifications'];
@@ -18,15 +18,16 @@ class MultiConnectedStore extends MergeStore {
     this.publicKey = publicKey;
     this.privateKey = privateKey;
 
+    this.keypair = keypair;
+
     this.port = port;
     this.protocol = protocol;
-    this.lane = lane;
 
     this.logStore = logStore;
     this.rpcRequestTimeout = rpcRequestTimeout;
     this.verbose = verbose;
 
-    this.stores = {};
+    this.connectors = {};
 
     this.connected = new WritableStore();
 
@@ -40,42 +41,40 @@ class MultiConnectedStore extends MergeStore {
       this.emit('connect_to_device_key_failed');
     });
 
-    this.localDeviceStore = connectDevice.connectThisDevice({ address });
-
-    this.locallyConnected = this.localDeviceStore.connected;
+    this.localConnector = connectDevice.connectThisDevice({ host });
   }
 
   signal(signal, data) {
-    if (this.activeStore()) {
-      this.activeStore().signal(signal, data);
+    if (this.activeConnector()) {
+      this.activeConnector().signal(signal, data);
     } else {
       console.log(`MCS: Error emitting remote signal ${signal} / ${data}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
     }
   }
 
   signalLocalDevice(signal, data) {
-    this.localDeviceStore.signal(signal, data);
+    this.localConnector.signal(signal, data);
   }
 
   remoteObject(objectName) {
-    if (this.activeStore()) {
-      return this.activeStore().remoteObject(objectName);
+    if (this.activeConnector()) {
+      return this.activeConnector().remoteObject(objectName);
     }
 
     console.log(`Error obtaining remote object ${objectName}. Debug info: activeDeviceKey=${this.activeDeviceKey()}`);
   }
 
-  preconnect({ address, deviceKey }) {
-    this.connectDevice.connectOtherDevice({ address, deviceKey });
+  preconnect({ host, deviceKey }) {
+    this.connectDevice.connectOtherDevice({ host, deviceKey });
   }
 
-  switch({ address, deviceKey, deviceName }) {
-    this.switchDevice.switch({ address, deviceKey, deviceName });
+  switch({ host, deviceKey, deviceName }) {
+    this.switchDevice.switch({ host, deviceKey, deviceName });
   }
 
-  activeStore() {
+  activeConnector() {
     if (this.activeDeviceKey()) {
-      return this.stores[this.activeDeviceKey()];
+      return this.connectors[this.activeDeviceKey()];
     }
   }
 

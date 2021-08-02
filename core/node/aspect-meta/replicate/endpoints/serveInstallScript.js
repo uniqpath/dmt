@@ -31,11 +31,11 @@ function install({ req, res, isCurl, program, port }) {
   let host;
   let protocol = 'http';
 
-  if (program.state().device.serverMode) {
+  if (program.store('device').get().serverMode) {
     host = req.headers.host;
     protocol = req.protocol;
   } else {
-    host = program.state().device.ip ? program.state().device.ip : 'localhost';
+    host = program.store('device').get().ip ? program.store('device').get().ip : 'localhost';
     host = `${host}:${port}`;
   }
 
@@ -116,7 +116,7 @@ function install({ req, res, isCurl, program, port }) {
     const htmlTemplate = fs
       .readFileSync(path.join(__dirname, '../templates/template.html'))
       .toString()
-      .replace('{{demoPath}}', program.state().device.serverMode ? '/home' : `${protocol}://${hostname}:${program.state().device.actualGuiPort}`)
+      .replace('{{demoPath}}', program.store('device').get().serverMode ? '/home' : `${protocol}://${hostname}:${program.store('device').get().actualGuiPort}`)
       .replace('{{content}}', content);
 
     res.send(htmlTemplate);

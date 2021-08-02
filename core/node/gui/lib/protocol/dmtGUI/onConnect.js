@@ -17,16 +17,16 @@ function onConnect({ program, channel }) {
     }
 
     if (action == 'show_frontend_log') {
-      program.store.update({ device: { showFrontendLog: true } });
+      program.store('device').update({ showFrontendLog: true });
       return;
     }
 
     if (action == 'close_frontend_log') {
-      program.store.removeSlotElement({ slotName: 'device', key: 'showFrontendLog' });
+      program.store('device').removeKey('showFrontendLog');
       return;
     }
 
-    // 💡 different parts of the system (core or through included middleware / dmt app hooks)
+    // different parts of the system (core or through included middleware / dmt app hooks)
     program.emit('dmt_gui_action', { action, namespace, payload });
   });
 }

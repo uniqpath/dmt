@@ -56,7 +56,7 @@ function numElements(value) {
 }
 
 ipcClient({ actorName: 'controller', action })
-  .then(({ state, stateChangesCount }) => {
+  .then(({ state }) => {
     if (arg == '--all') {
       console.log(state);
     } else if (arg == '--export') {

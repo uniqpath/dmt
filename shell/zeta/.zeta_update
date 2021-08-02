@@ -14,7 +14,8 @@ function zeta_update {
     "bee"
     "swarm-docs"
     "lighttpd"
-    "youtube-dl"
+    # "youtube-dl"
+    "yt-dlp"
     "certbot"
     "shairport"
   )
@@ -76,14 +77,25 @@ function zeta_update {
       fi
       ;;
 
-    youtube-dl)
+    # youtube-dl)
+    #   if [ "$EUID" -ne 0 ]; then
+    #     printf "${RED}Must be root${NC}\n"
+    #     echo "wget https://yt-dl.org/downloads/latest/youtube-dl --no-check-certificate -O /usr/local/bin/youtube-dl"
+    #     echo "chmod a+rx /usr/local/bin/youtube-dl"
+    #   else
+    #     wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl
+    #     chmod a+rx /usr/local/bin/youtube-dl
+    #   fi
+    #   ;;
+
+    yt-dlp)
       if [ "$EUID" -ne 0 ]; then
         printf "${RED}Must be root${NC}\n"
-        echo "wget https://yt-dl.org/downloads/latest/youtube-dl --no-check-certificate -O /usr/local/bin/youtube-dl"
-        echo "chmod a+rx /usr/local/bin/youtube-dl"
+        echo "sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp"
+        echo "sudo chmod a+rx /usr/local/bin/yt-dlp"
       else
-        wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl
-        chmod a+rx /usr/local/bin/youtube-dl
+        sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+        sudo chmod a+rx /usr/local/bin/yt-dlp
       fi
       ;;
 

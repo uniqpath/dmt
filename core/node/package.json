@@ -16,8 +16,10 @@
     "./gui": "./gui",
     "./user": "./user",
     "./iot": "./iot",
+    "./load-app-engines": "./aspect-meta/load-app-engines",
     "./security": "./aspect-meta/security",
     "./identity": "./aspect-meta/identity",
+    "./sysinfo": "./aspect-meta/sysinfo",
     "./lanbus": "./aspect-nearby/lanbus",
     "./nearby": "./aspect-nearby/nearby",
     "./notify": "./notify",
@@ -25,6 +27,7 @@
     "./cli": "./aspect-meta/cli-framework",
     "./resolve": "./aspect-meta/resolve",
     "./bash-exec": "./aspect-meta/bash-exec",
+    "./abc-connect": "./aspect-meta/abc-connect",
     "./webindex": "./webindex",
     "./webscan": "./webscan"
   },
@@ -48,7 +51,6 @@
     "handlebars": "^4.7.6",
     "ip": "^1.1.5",
     "isbinaryfile": "^4.0.6",
-    "isomorphic-git": "^1.6.0",
     "kind-of": "^6.0.3",
     "mqtt": "^4.2.6",
     "network": "^0.5.0",
@@ -62,12 +64,14 @@
     "rfc6902": "^4.0.1",
     "strip-ansi": "^6.0.0",
     "suspawn": "^0.2.2",
+    "systeminformation": "^5.8.7",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
     "unfurl.js": "^5.2.6",
     "unzipper": "^0.10.5",
     "urlencode": "^1.1.0",
     "write-file-atomic": "^3.0.3",
+    "xpipe": "^1.0.5",
     "xstate": "^4.13.0"
   }
 }

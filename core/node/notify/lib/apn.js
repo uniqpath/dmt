@@ -55,6 +55,8 @@ async function notify(msg, { users = null } = {}) {
 
 async function notifyDevices(msg, tokens) {
   if (client) {
+    msg = `${dmt.deviceGeneralIdentifier()} → ${msg}`;
+
     const notifications = tokens.map(token => new BasicNotification(token, msg));
 
     try {

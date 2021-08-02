@@ -22,8 +22,8 @@ class DetermineNetwork {
   determineCurrentNetwork(nearbyDevices) {
     if (this.program.apMode()) {
       this.obj.def = null;
-    } else if (dmt.definedNetworkId()) {
-      this.obj.def = dmt.networkDef(dmt.definedNetworkId());
+    } else if (dmt.deviceNetworkId()) {
+      this.obj.def = dmt.networkDef(dmt.deviceNetworkId());
     } else if (nearbyDevices) {
       this.dynamicallyDetermineCurrentNetwork(nearbyDevices);
     }
@@ -41,9 +41,9 @@ class DetermineNetwork {
           if (networkId != device.networkId) {
             inconsistent = true;
             log.red(
-              `Inconsistent special node network ids: ${colors.cyan(networkId)} (${colors.magenta(savedDeviceName)}) vs ${colors.cyan(
-                device.networkId
-              )} (${colors.magenta(device.deviceName)})`
+              `Inconsistent network ids: ${colors.cyan(networkId)} (${colors.magenta(savedDeviceName)}) vs ${colors.cyan(device.networkId)} (${colors.magenta(
+                device.deviceName
+              )})`
             );
           }
         } else {

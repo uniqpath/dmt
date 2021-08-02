@@ -12,7 +12,7 @@ function handleIotEvent({ program, topic, msg }) {
         break;
 
       case 'test':
-        if (dmt.isDevCluster()) {
+        if (dmt.isDevUser()) {
           program.showNotification({ id: 'doorbell', msg: 'DOORBELL RING TEST', ttl: 10, bgColor: '#5EA0C7' });
         }
         break;

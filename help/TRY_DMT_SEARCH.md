@@ -484,7 +484,7 @@ You can also keep a special set of links in `.txt` files in your `~/.dmt/user/de
 Then:
 
 ```
-scp ~/.dmt-here/webindex/zeta.json user@yourServerIP:/home/[user]/.dmt-here/webindex
+scp -C ~/.dmt-here/webindex/zeta.json user@yourServerIP:/home/[user]/.dmt-here/webindex
 ```
 
 So you can already keep some links fully private inside `~/.dmt/user/devices/this/weblinks` and then *not uploading* the resulting  link index file to your server.

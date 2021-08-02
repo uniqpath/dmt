@@ -8,7 +8,7 @@ function updateTime(program, { announce = false } = {}) {
 
   const time = determineTimeAndDate({ latlng, lang });
 
-  program.store.update({ time }, { announce });
+  program.store('time').update(time, { announce });
 }
 
 function rolloverSecondDetect(program) {

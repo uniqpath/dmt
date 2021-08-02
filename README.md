@@ -11,27 +11,14 @@ source ~/.dmt/shell/.loader
 
 `./install` will enable `dmt` command by adding one line to `~/.bash_profile`.
 
-## Background
+## Documentation
 
-**DMT ENGINE** Does Many Things well, especially Partially Connected Networks. 
+- [Beginner's Guide](https://docs.uniqpath.com/dmt)
+- [DMT SYSTEM](https://dmt-system.com)
+- [Help directory in this repo](https://github.com/uniqpath/dmt/tree/main/help)
+- [uniqpath/info repo](https://github.com/uniqpath/info)
 
-[Developer portal](https://dmt-system.com) is in development👷
-
-## About
-
-DMT ENGINE / DMT SYSTEM are still evolving but already serving their purpose very well in many use cases.
-
-🐠 And welcome onboard, onwards!
-
-## Useful things you can already experiment with
-
-1. Run your own search node or two: [instructions here](./help/TRY_DMT_SEARCH.md).
-
-2. Play with novel [CRDT constructs](https://github.com/dmtsys/crdt_yjs).
-
-<img src="./help/img/dmt_search_engine.png" alt="dmt search engine" />
-
-Andrew Leonard beautifully puts it like this: <i>“Computers, like psychedelic drugs, are tools for mind expansion, for revelation and for personal discovery. And to anyone who has experienced a drug-induced epiphany, there may indeed be a cosmic hyperlink there: fire up your laptop, connect wirelessly to the Internet, and search for your dreams: the power and the glory of the computing universe that exists now… does pulsate with a destabilizing, revelatory psychic power.”</i>
+Look around, information is in many places, but not too many.
 
 ## Requirements
 
@@ -74,7 +61,7 @@ dmt run
 This is equivalent to:
 
 ```
-cd ~/.dmt/core/node/controller/daemons
+cd ~/.dmt/core/node/controller/processes
 node --experimental-modules --experimental-specifier-resolution=node --unhandled-rejections=strict dmt-proc.js
 ```
 

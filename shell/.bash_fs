@@ -1027,26 +1027,6 @@ function op {
   fi
 }
 
-function es {
-  local sublime_path="/usr/local/bin/subl" # warning: this symlink is not automatic after sublime install, user has to add it, pointing to: /Applications/Sublime Text.app/Contents/SharedSupport/bin/subl
-  local sublime_path2="$HOME/bin/subl"
-
-  if [ -f "${sublime_path}" ]; then
-    local editor="${sublime_path}"
-  elif [ -f "${sublime_path2}" ]; then
-    local editor="${sublime_path2}"
-  else
-    printf "${RED}No SublimeText editor installed${NC}\n"
-    return
-  fi
-
-  if [ -z "$1" ]; then
-    command "${editor}" .
-  else
-    run_on_file "$1" "${editor}" '*' force
-  fi
-}
-
 function i {
   if [ "$1" == '-h' ] || [ -z "$1" ]; then
     printf "${YELLOW}Usage:${NC}\n"

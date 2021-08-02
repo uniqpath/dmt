@@ -23,12 +23,14 @@ import ProgramConnectionsAcceptor from '../server/programConnectionsAcceptor';
 import ensureDirectories from './boot/ensureDirectories';
 import preventMultipleMainDevices from './boot/preventMultipleMainDevices';
 import getDeviceInfo from './boot/getDeviceInfo';
-import createProgramStore from './createProgramStore/index.js';
+import createProgramStore from './createProgramStore/createProgramStore.js';
 import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
 import loadMiddleware from './boot/loadMiddleware';
+import reportOSUptime from './boot/reportOSUptime';
 
 import generateKeypair from './generateKeypair';
 import ipcServer from './ipcServer/ipcServer';
+import ipcServerLegacy from './ipcServer/ipcServerLegacy';
 
 class Program extends EventEmitter {
   constructor({ mids }) {
@@ -45,20 +47,19 @@ class Program extends EventEmitter {
 
     this.network = new Network(this);
     this.server = new Server(this);
-    this.store = createProgramStore(this);
+    this._store = createProgramStore(this);
 
-    setupGlobalErrorHandler();
+    setupGlobalErrorHandler(this);
 
     log.cyan('dmt-proc booting ...');
+    reportOSUptime();
 
     const port = 7780;
     const protocol = 'dmt';
-    const lane = 'fiber';
-
-    this.fiberPool = createFiberPool({ port, protocol, lane });
+    this.fiberPool = createFiberPool({ port, protocol });
 
     this.fiberPool.subscribe(({ connectionList }) => {
-      this.store.replaceSlot('connectionsOut', connectionList);
+      this.store('connectionsOut').set(connectionList);
     });
 
     const emitter = new EventEmitter();
@@ -74,31 +75,19 @@ class Program extends EventEmitter {
     this.acceptor = new ProgramConnectionsAcceptor(this);
 
     const onConnect = ({ program, channel }) => {
-      channel
-        .remoteObject('peerState')
-        .call('set', { dmtVersion: dmt.dmtVersion() })
-        .catch(e => {});
-
-      channel.attachObject('remoteState', {
-        set: ({ deviceName, deviceKey, state }) => {
-          const slotName = 'remoteStates';
-          const remoteStates = (program.store.get(slotName) || []).filter(entry => entry.deviceKey != deviceKey);
-
-          remoteStates.push({ deviceName, deviceKey, state, updatedAt: Date.now() });
-
-          program.store.replaceSlot(slotName, remoteStates, { announce: false });
-        }
+      channel.attachObject('dmt', {
+        version: () => dmt.dmtVersion()
       });
 
       program.actors.setupChannel(channel);
     };
 
-    this.registerProtocol({ protocol, lane, onConnect });
+    this.registerProtocol({ protocol, onConnect });
 
     if (dmt.isRPi()) {
-      this.store.update({ device: { isRPi: true } }, { announce: false });
-    } else if (this.state().device) {
-      delete this.state().device.isRPi;
+      this.store('device').update({ isRPi: true }, { announce: false });
+    } else {
+      this.store('device').removeKey('isRPi', { announce: false });
     }
 
     if (mids.includes('apps')) {
@@ -149,7 +138,8 @@ class Program extends EventEmitter {
   }
 
   peerlist() {
-    const { peerlist } = this.state();
+    const peerlist = this.store('peerlist').get();
+
     if (peerlist) {
       return Object.entries(peerlist).map(([deviceName, values]) => {
         return { deviceName, ...values };
@@ -171,6 +161,8 @@ class Program extends EventEmitter {
     this.server.listen();
 
     ipcServer(this);
+    ipcServerLegacy(this);
+
     log.green('Started IPC server');
 
     log.green(`✓ ${colors.cyan('dmt-proc')} ${colors.magenta(dmt.dmtVersion())} booted`);
@@ -185,8 +177,8 @@ class Program extends EventEmitter {
       log.cyan(`${colors.magenta('DEV MACHINE: ')}: true`);
     }
 
-    if (dmt.isDevCluster()) {
-      log.cyan(`${colors.magenta('DEV CLUSTER: ')}: true`);
+    if (dmt.isDevUser()) {
+      log.cyan(`${colors.magenta('DEV USER: ')}: true`);
     }
 
     setupTimeUpdater(this);
@@ -217,7 +209,7 @@ class Program extends EventEmitter {
   }
 
   isHub() {
-    return this.state().device.ip == dmt.accessPointIP;
+    return this.store('device').get().ip == dmt.accessPointIP;
   }
 
   hasGui() {
@@ -236,15 +228,23 @@ class Program extends EventEmitter {
       addedAt: Date.now()
     };
 
-    this.store.pushToSlotArrayElement('notifications', notification);
+    this.store('notifications').pushToArray(notification);
   }
 
-  state() {
-    return this.store.state();
+  store(slotName) {
+    if (slotName) {
+      return this._store.slot(slotName);
+    }
+
+    return this._store;
   }
 
   setLanbus(lanbus) {
     this.lanbus = lanbus;
+  }
+
+  sendABC({ message, context }) {
+    this.emit('send_abc', { message, context });
   }
 
   initIot(iotBus) {

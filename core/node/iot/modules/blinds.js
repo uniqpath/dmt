@@ -1,23 +1,29 @@
 import dmt from 'dmt/common';
 import { push } from 'dmt/notify';
 
+const slotName = 'blinds';
+
 function manageTick(program) {}
 
 function setup(program) {}
 
 function handleBooted({ placeId, blindsId, blindsDirection, moduleIp }) {
   const tag = `${placeId}-${blindsId}-${blindsDirection} (${moduleIp})`;
-  push.notify(`Module ${tag} BOOTED`);
+  push.omitDeviceName().notify(`Module ${tag} BOOTED`);
 }
 
 function handleMoving(program, { placeId, blindsId, blindsDirection, blindsStatus }) {
   const id = `${placeId}-${blindsId}-${blindsDirection}`;
-  program.store.replaceSlotElement({ slotName: 'blinds', key: id, value: { blindsStatus, receivedAt: Date.now() } }, { announce: true });
+
+  const patch = {};
+  patch[id] = { blindsStatus, receivedAt: Date.now() };
+  program.store(slotName).update(patch, { announce: true });
 }
 
 function handleStopped(program, { placeId, blindsId, blindsDirection, blindsStatus }) {
   const id = `${placeId}-${blindsId}-${blindsDirection}`;
-  program.store.removeSlotElement({ slotName: 'blinds', key: id }, { announce: true });
+
+  program.store(slotName).removeKey(id, { announce: true });
 }
 
 function handleIotEvent({ program, topic, msg }) {

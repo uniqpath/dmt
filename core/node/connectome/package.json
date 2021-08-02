@@ -1,6 +1,6 @@
 {
   "name": "connectome",
-  "version": "0.0.107",
+  "version": "0.1.7",
   "description": "Dynamic realtime connectivity and state management",
   "typings": "typings/src/client/index.d.ts",
   "scripts": {
@@ -9,7 +9,6 @@
   },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
-  "type": "module",
   "exports": {
     ".": {
       "node": {
@@ -26,7 +25,9 @@
     "./stores": {
       "import": "./stores/index.mjs",
       "require": "./stores/index.js"
-    }
+    },
+    "./typings": "./typings",
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",

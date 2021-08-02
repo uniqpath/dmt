@@ -7,7 +7,7 @@ import RpcClient from '../../client/rpc/client.js';
 
 import RPCTarget from '../../client/rpc/RPCTarget.js';
 
-import { MirroringStore } from '../../stores';
+import WritableStore from '../../stores/front/helperStores/writableStore.js';
 
 class Channel extends EventEmitter {
   constructor(ws, { rpcRequestTimeout, verbose = false }) {
@@ -15,50 +15,48 @@ class Channel extends EventEmitter {
     this.ws = ws;
     this.verbose = verbose;
 
-    this.protocol = ws.protocol;
-
     this.reverseRpcClient = new RpcClient(this, rpcRequestTimeout);
-
-    ws.on('close', () => {
-      this.emit('disconnect');
-    });
 
     this.sentCount = 0;
     this.receivedCount = 0;
 
-    this.shapes = {};
-  }
+    this.stateFields = {};
+    this.stateFieldsSubscriptions = [];
 
-  shape(name, state) {
-    if (!this.shapes[name]) {
-      this.shapes[name] = new MirroringStore(null);
-
-      this.shapes[name].on('diff', () => {
-        const { state } = this.shapes[name];
-        this.send({ shape: { name, state } });
-      });
-    }
-
-    if (state) {
-      this.shapes[name].set(state);
-    }
-
-    return this.shapes[name];
-  }
-
-  clearShape(...names) {
-    names.forEach(name => {
-      const { state } = this.shape(name);
-      if (state != null) {
-        this.shape(name).set(null);
-      } else {
-        this.send({ shape: { name } });
-      }
+    ws.on('close', () => {
+      Object.values(this.stateFieldsSubscriptions).forEach(unsubscribe => unsubscribe());
+      this.emit('disconnect');
     });
   }
 
-  setLane(lane) {
-    this.lane = lane;
+  state(name, _state) {
+    if (!this.stateFields[name]) {
+      this.stateFields[name] = new WritableStore();
+
+      let first = true;
+      const unsubscribe = this.stateFields[name].subscribe(state => {
+        if (!first) {
+          this.send({ stateField: { name, state } });
+        }
+        first = false;
+      });
+
+      this.stateFieldsSubscriptions.push(unsubscribe);
+    }
+
+    if (_state) {
+      this.stateFields[name].set(_state);
+    }
+
+    return this.stateFields[name];
+  }
+
+  clearState(...names) {
+    names.forEach(name => this.state(name).set(undefined));
+  }
+
+  setProtocol(protocol) {
+    this.protocol = protocol;
   }
 
   setSharedSecret(sharedSecret) {
@@ -89,7 +87,7 @@ class Channel extends EventEmitter {
     return this._remotePubkeyHex;
   }
 
-  // 💡 message is string, binary or json (automatically stringified before sending)
+  // message is string, binary or json (automatically stringified before sending)
   send(message) {
     send({ message, channel: this });
     this.sentCount += 1;
@@ -99,13 +97,9 @@ class Channel extends EventEmitter {
     this.send({ signal, data });
   }
 
-  // 💡 we have to send a "special message" { state: {…} } to sync state to frontend ('other side')
-  // 💡 { state: {…} } agreement is part of lower level simple connectome protocol along with { diff: { … }}, { action: { … }} (in other direction) and some others
-  // 💡 we document this SOON
-  sendState(state) {
-    this.send({ state });
-  }
-
+  // we have to send a "special message" { state: {…} } to sync state to frontend ('other side')
+  // { state: {…} } agreement is part of lower level simple connectome protocol along with { diff: { … }}, { action: { … }} (in other direction) and some others
+  // we document this SOON
   messageReceived(message) {
     receive({ message, channel: this });
     this.receivedCount += 1;

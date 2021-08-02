@@ -50,11 +50,15 @@ function readDeviceDef({ filePath, onlyBasicParsing, caching = true }) {
 }
 
 function isDevMachine() {
-  return fs.existsSync(path.join(dmtUserDir, 'devices/this/.dev-machine'));
+  return fs.existsSync(`${homedir()}/.dmt/.prevent_dmt_next`);
 }
 
-function isDevCluster() {
-  return isDevMachine() || fs.existsSync(path.join(dmtUserDir, 'devices/this/.dev-cluster')) || user().dev == 'true';
+function isDevUser() {
+  return isDevMachine() || user().dev == 'true';
+}
+
+function isMainDevice() {
+  return this.device().main == 'true';
 }
 
 function device({ deviceName = 'this', onlyBasicParsing = false, caching = true } = {}) {
@@ -167,4 +171,4 @@ function debugCategory(category = null) {
   }
 }
 
-export { dmtPath, dmtUserDir, stateDir, user, userDef, device, devices, deviceDefFile, isDevMachine, isDevCluster, debugMode, debugCategory };
+export { dmtPath, dmtUserDir, stateDir, user, userDef, device, devices, deviceDefFile, isMainDevice, isDevMachine, isDevUser, debugMode, debugCategory };

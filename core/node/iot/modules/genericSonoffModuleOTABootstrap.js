@@ -8,7 +8,7 @@ function manageTick(program) {}
 function setup(program) {}
 
 function handleBooted({ moduleIp }) {
-  push.notify(`Generica Sonoff OTA-ready module at ${moduleIp} BOOTED`);
+  push.omitDeviceName().notify(`Generica Sonoff OTA-ready module at ${moduleIp} BOOTED`);
 }
 
 function handleIotEvent({ program, topic, msg }) {

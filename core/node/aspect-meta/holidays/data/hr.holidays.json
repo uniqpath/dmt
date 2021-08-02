@@ -1,0 +1,21 @@
+[
+  {
+    "fromYear": 2021,
+    "data": {
+      "1.1": "Nova godina",
+      "6.1": "Sveta tri kralja",
+      "EASTER": "Uskrs",
+      "EASTER_MONDAY": "Uskrsni ponedjeljak",
+      "1.5": "Praznik rada",
+      "30.5": "Dan državnosti",
+      "3.6": "Tijelovo",
+      "22.6": "Dan antifašističke borbe",
+      "5.8": "Dan hrvatskih branitelja",
+      "15.8": "Velika Gospa",
+      "1.11": "Dan svih svetih",
+      "18.11": "Dan sjećanja na žrtve Domovinskog rata",
+      "25.12": "Božić",
+      "26.12": "Sveti Stjepan"
+    }
+  }
+]

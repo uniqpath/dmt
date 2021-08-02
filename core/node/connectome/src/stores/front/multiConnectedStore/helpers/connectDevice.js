@@ -1,36 +1,25 @@
-import ConnectedStore from '../../connectedStore/connectedStore.js';
+import connect from '../../../../client/connect/connectBrowser.js';
 
-class ConnectDevice {
+export default class ConnectDevice {
   constructor({ mcs, foreground, connectToDeviceKey }) {
     this.mcs = mcs;
     this.foreground = foreground;
     this.connectToDeviceKey = connectToDeviceKey;
   }
 
-  createStore({ address }) {
-    const { port, protocol, lane, logStore, rpcRequestTimeout, verbose, privateKey: clientPrivateKey, publicKey: clientPublicKey } = this.mcs;
-
-    return new ConnectedStore({
-      address,
-      port,
-      protocol,
-      lane,
-      clientPrivateKey,
-      clientPublicKey,
-      logStore,
-      rpcRequestTimeout,
-      verbose
-    });
+  createConnector({ host }) {
+    const { port, protocol, logStore, rpcRequestTimeout, verbose, keypair } = this.mcs;
+    return connect({ host, port, protocol, keypair, rpcRequestTimeout, verbose });
   }
 
   getDeviceKey(state) {
     return state?.device?.deviceKey;
   }
 
-  connectThisDevice({ address }) {
-    const thisStore = this.createStore({ address });
+  connectThisDevice({ host }) {
+    const thisConnector = this.createConnector({ host });
 
-    thisStore.subscribe(state => {
+    thisConnector.state.subscribe(state => {
       if (!state.nearbyDevices) {
         state.nearbyDevices = [];
       }
@@ -40,7 +29,7 @@ class ConnectDevice {
       if (deviceKey) {
         if (!this.thisDeviceAlreadySetup) {
           this.mcs.set({ activeDeviceKey: deviceKey });
-          this.initNewStore({ deviceKey, store: thisStore });
+          this.initNewConnector({ deviceKey, connector: thisConnector });
         }
 
         const needToConnectAnotherDevice = this.connectToDeviceKey && this.connectToDeviceKey != deviceKey;
@@ -63,15 +52,15 @@ class ConnectDevice {
       }
     });
 
-    return thisStore;
+    return thisConnector;
   }
 
-  connectOtherDevice({ address, deviceKey }) {
-    const newStore = this.createStore({ address });
+  connectOtherDevice({ host, deviceKey }) {
+    const connector = this.createConnector({ host });
 
-    this.initNewStore({ deviceKey, store: newStore });
+    this.initNewConnector({ deviceKey, connector });
 
-    newStore.subscribe(state => {
+    connector.state.subscribe(state => {
       if (this.mcs.activeDeviceKey() == deviceKey) {
         const optimisticDeviceName = state.device ? state.device.deviceName : null;
         this.foreground.set(state, { optimisticDeviceName });
@@ -79,19 +68,17 @@ class ConnectDevice {
     });
   }
 
-  initNewStore({ deviceKey, store }) {
-    this.mcs.stores[deviceKey] = store;
+  initNewConnector({ deviceKey, connector }) {
+    this.mcs.connectors[deviceKey] = connector;
 
-    this.setConnectedStore({ deviceKey, store });
+    this.setConnectedStore({ deviceKey, connector });
   }
 
-  setConnectedStore({ deviceKey, store }) {
-    store.connected.subscribe(connected => {
+  setConnectedStore({ deviceKey, connector }) {
+    connector.connected.subscribe(connected => {
       if (this.mcs.activeDeviceKey() == deviceKey) {
         this.mcs.connected.set(connected);
       }
     });
   }
 }
-
-export default ConnectDevice;

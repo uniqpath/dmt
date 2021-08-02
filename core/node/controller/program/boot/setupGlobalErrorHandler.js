@@ -5,34 +5,42 @@ import { push, desktop } from 'dmt/notify';
 
 import stripAnsi from 'strip-ansi';
 
-function terminateProgram(err, reason) {
+function terminateProgram(err, reason, program) {
   const msg = `${reason}: ${err}`;
+
+  if (log.isForeground) {
+    reportStopping(program);
+  }
+
   log.red(msg);
   log.red(err.stack);
-  log.red('EXITING, bye ✋');
+  log.yellow('— PREPARING TO EXIT THE PROGRAM —');
 
-  push.notify(`🛑😱 ${dmt.deviceGeneralIdentifier()}: ${stripAnsi(msg)} → PROCESS TERMINATED`).then(() => {
-    process.exit();
-  });
+  push
+    .highPriority()
+    .notify(`🛑😱 ${stripAnsi(msg)} → PROCESS TERMINATED`)
+    .then(() => {
+      log.yellow('EXITING, bye ✋');
+      process.exit();
+    });
 }
 
-export default function setupGlobalErrorHandler() {
-  process.on('uncaughtException', (err, origin) => terminateProgram(err, origin));
+function reportStopping(program) {
+  program.sendABC({ message: 'stopping' });
+}
 
-  process.on('beforeExit', code => {
-    log.red(`Process will exit with code: ${code}`);
-    setTimeout(() => {
-      process.exit(code);
-    }, 100);
-  });
+export default function setupGlobalErrorHandler(program) {
+  process.on('uncaughtException', (err, origin) => terminateProgram(err, origin, program));
 
   process.on('SIGTERM', signal => {
     log.yellow(`Process received a ${signal} signal (usually because of normal stop/restart)`);
+    reportStopping(program);
     process.exit(0);
   });
 
   process.on('SIGINT', signal => {
     log.yellow(`Process has been interrupted: ${signal}`);
+    reportStopping(program);
     process.exit(0);
   });
 }

@@ -8,25 +8,18 @@ const wsCLOSED = 3;
 import Connector from '../connector/connector.js';
 import determineEndpoint from './determineEndpoint.js';
 
-function establishAndMaintainConnection(
-  { endpoint, address, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose, tag },
-  { WebSocket, log }
-) {
-  endpoint = determineEndpoint({ endpoint, address, port });
+function establishAndMaintainConnection({ endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, verbose, tag, dummy }, { WebSocket, log }) {
+  endpoint = determineEndpoint({ endpoint, host, port });
 
   const connector = new Connector({
-    address: endpoint,
+    endpoint,
     protocol,
-    lane,
     rpcRequestTimeout,
     keypair,
     verbose,
-    tag
+    tag,
+    dummy
   });
-
-  if (connector.connection) {
-    return connector;
-  }
 
   connector.connection = {
     terminate() {
@@ -38,12 +31,12 @@ function establishAndMaintainConnection(
     checkTicker: 0
   };
 
-  setTimeout(() => tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }), 10);
+  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log }), 10);
 
   const connectionCheckInterval = 1500;
   const callback = () => {
     if (!connector.decommissioned) {
-      checkConnection({ connector, endpoint, protocol }, { WebSocket, log });
+      checkConnection({ connector, endpoint }, { WebSocket, log });
       setTimeout(callback, connectionCheckInterval);
     }
   };
@@ -55,7 +48,7 @@ function establishAndMaintainConnection(
 
 export default establishAndMaintainConnection;
 
-function checkConnection({ connector, endpoint, protocol }, { WebSocket, log }) {
+function checkConnection({ connector, endpoint }, { WebSocket, log }) {
   const conn = connector.connection;
 
   if (connectionIdle(conn) || connector.decommissioned) {
@@ -78,13 +71,13 @@ function checkConnection({ connector, endpoint, protocol }, { WebSocket, log }) 
       connector.connectStatus(false);
     }
 
-    tryReconnect({ connector, endpoint, protocol }, { WebSocket, log });
+    tryReconnect({ connector, endpoint }, { WebSocket, log });
   }
 
   conn.checkTicker += 1;
 }
 
-function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
+function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   const conn = connector.connection;
 
   if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
@@ -97,8 +90,7 @@ function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
     }
   }
 
-  const ws = new WebSocket(endpoint, protocol);
-
+  const ws = new WebSocket(endpoint);
   conn.currentlyTryingWS = ws;
   conn.currentlyTryingWS._waitForConnectCounter = 0;
 
