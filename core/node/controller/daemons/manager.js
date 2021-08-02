@@ -43,7 +43,7 @@ const daemon = daemonize({
   main: `${proc}`,
   name: `${procName}`,
   pidfile: pidFilePath,
-  nodeFlags: ['--experimental-modules', '--experimental-specifier-resolution=node', '--unhandled-rejections=strict']
+  nodeFlags: dmt.nodeFlags
 });
 
 function restart({ notifyOnFail = false } = {}) {

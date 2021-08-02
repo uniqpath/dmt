@@ -17,6 +17,7 @@ const mids = [];
 mids.push('meta/load-user-engine');
 mids.push('player');
 mids.push('search');
+mids.push('notify');
 mids.push('meta/serve-apps');
 
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
@@ -26,8 +27,12 @@ mids.push('nearby/nearby');
 mids.push('iot');
 
 mids.push('content/samba');
+
+mids.push('meta/abc-connect');
+
 mids.push('meta/bash-exec');
 mids.push('meta/replicate');
+mids.push('meta/sysinfo');
 mids.push('meta/holidays');
 
 mids.push('webindex');

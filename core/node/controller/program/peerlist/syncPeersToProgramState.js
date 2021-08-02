@@ -3,8 +3,6 @@ import dmt from 'dmt/common';
 const { log } = dmt;
 import { push } from 'dmt/notify';
 
-let counter = -1;
-
 export default function syncPeersToProgramState({ program, connectorPool, port }) {
   const slotName = 'peerlist';
 
@@ -71,11 +69,5 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
     const remoteStates = (program.store.get(slotName) || []).filter(entry => Date.now() - entry.updatedAt < 2 * dmt.globals.slowTickerPeriod * 1000);
 
     program.store.replaceSlot(slotName, remoteStates, { announce: false });
-
-    if (counter == 10) {
-      counter = 0;
-    }
-
-    counter += 1;
   });
 }

@@ -52,6 +52,8 @@ function killall {
     return
   fi
 
+  ps -ef | grep "${1}" | grep -v "command -v openssl >/dev/null" | grep -v grep
+
   local proc=$(ps -ef | grep "${1}" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
 
   if [ -n "$proc" ]; then

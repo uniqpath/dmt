@@ -56,12 +56,13 @@ class GUISearchObject {
     this.channel = channel;
   }
 
-  search({ query, page, searchMode, selectedTags, searchMetadata, timezone }) {
+  search({ query, page, selectedTags, searchMetadata, timezone }) {
     //log.green(`Selected tags: ${selectedTags.join(', ')}`);
 
     const { searchOriginHost, isLAN } = searchMetadata;
 
-    const peerlist = searchMode == 0 ? this.program.peerlist() : [];
+    //const peerlist = searchMode == 0 ? this.program.peerlist() : [];
+    const peerlist = [];
     const peerAddresses = peerlist.length > 0 ? peerlist.map(({ address }) => address) : [];
 
     // console.log(`SEARCH TRIGGERED:`);

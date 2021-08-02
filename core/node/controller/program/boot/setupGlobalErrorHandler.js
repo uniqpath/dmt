@@ -5,34 +5,37 @@ import { push, desktop } from 'dmt/notify';
 
 import stripAnsi from 'strip-ansi';
 
-function terminateProgram(err, reason) {
+function terminateProgram(err, reason, program) {
   const msg = `${reason}: ${err}`;
   log.red(msg);
   log.red(err.stack);
-  log.red('EXITING, bye ✋');
+  log.yellow('EXITING, bye ✋');
+
+  if (log.isForeground) {
+    reportStopping(program);
+  }
 
   push.notify(`🛑😱 ${dmt.deviceGeneralIdentifier()}: ${stripAnsi(msg)} → PROCESS TERMINATED`).then(() => {
     process.exit();
   });
 }
 
-export default function setupGlobalErrorHandler() {
-  process.on('uncaughtException', (err, origin) => terminateProgram(err, origin));
+function reportStopping(program) {
+  program.sendABC('stopping');
+}
 
-  process.on('beforeExit', code => {
-    log.red(`Process will exit with code: ${code}`);
-    setTimeout(() => {
-      process.exit(code);
-    }, 100);
-  });
+export default function setupGlobalErrorHandler(program) {
+  process.on('uncaughtException', (err, origin) => terminateProgram(err, origin, program));
 
   process.on('SIGTERM', signal => {
     log.yellow(`Process received a ${signal} signal (usually because of normal stop/restart)`);
+    reportStopping(program);
     process.exit(0);
   });
 
   process.on('SIGINT', signal => {
     log.yellow(`Process has been interrupted: ${signal}`);
+    reportStopping(program);
     process.exit(0);
   });
 }

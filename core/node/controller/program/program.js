@@ -26,9 +26,12 @@ import getDeviceInfo from './boot/getDeviceInfo';
 import createProgramStore from './createProgramStore/index.js';
 import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
 import loadMiddleware from './boot/loadMiddleware';
+import searchNotify from './boot/searchNotify';
+import reportOSUptime from './boot/reportOSUptime';
 
 import generateKeypair from './generateKeypair';
 import ipcServer from './ipcServer/ipcServer';
+import ipcServerLegacy from './ipcServer/ipcServerLegacy';
 
 class Program extends EventEmitter {
   constructor({ mids }) {
@@ -47,9 +50,10 @@ class Program extends EventEmitter {
     this.server = new Server(this);
     this.store = createProgramStore(this);
 
-    setupGlobalErrorHandler();
+    setupGlobalErrorHandler(this);
 
     log.cyan('dmt-proc booting ...');
+    reportOSUptime();
 
     const port = 7780;
     const protocol = 'dmt';
@@ -166,11 +170,15 @@ class Program extends EventEmitter {
 
     initControllerActor(this);
 
+    searchNotify(this);
+
     this.acceptor.start();
 
     this.server.listen();
 
     ipcServer(this);
+    ipcServerLegacy(this);
+
     log.green('Started IPC server');
 
     log.green(`✓ ${colors.cyan('dmt-proc')} ${colors.magenta(dmt.dmtVersion())} booted`);
@@ -245,6 +253,10 @@ class Program extends EventEmitter {
 
   setLanbus(lanbus) {
     this.lanbus = lanbus;
+  }
+
+  sendABC(message) {
+    this.emit('send_abc', message);
   }
 
   initIot(iotBus) {

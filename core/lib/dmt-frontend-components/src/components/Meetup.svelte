@@ -8,6 +8,12 @@
   export let backend, padding, bg;
   export let clickStat = () => {};
 
+  export let lang = 'en';
+
+  let t_next = lang != 'si' ? "Next" : "Uvodno"; // rename to "Next"
+  let t_meetup = lang != 'si' ? "Meetup" : "srečanje";
+  let t_you_can_join = lang != 'si' ? "You can join via this website." : "Povezava bo vidna tukaj malo pred srečanjem.";
+
   // ⚠️ ISSUE
   // if connection is down, then stale state will be shown on frontend!
   // for example: event that is not there anymore
@@ -81,9 +87,9 @@
         Live
       {/if}
     {:else}
-      Next
+      {t_next}
     {/if}
-    Meetup <span class="white">—</span>
+    {t_meetup} <span class="white">—</span>
     </h2>
 
     <div id="event">
@@ -140,7 +146,7 @@
       <span class="light_magenta line">{meetupStatus}</span>
 
       {#if !aboutToStart && !meetupUrl && !startsSoon}
-        <span class="white line">You can join via this website.</span>
+        <span class="lightgray line">{t_you_can_join}</span>
       {/if}
 
     {:else if !eventProbablyEnded}
@@ -323,6 +329,10 @@
 
   span.gray {
     color: #777;
+  }
+
+  span.lightgray {
+    color: #BBB;
   }
 
   span.cyan {

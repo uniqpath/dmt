@@ -1,8 +1,17 @@
-import dmt from 'dmt/common';
-import { networkInterfaces } from 'dmt/net';
+import os from 'os';
 import colors from 'colors';
 
+import dmt from 'dmt/common';
+import { networkInterfaces } from 'dmt/net';
+
+import { push } from 'dmt/notify';
+
 const { log } = dmt;
+
+const BOOT_LIMIT_SECONDS = 40;
+const NETWORK_WAIT_SECONDS = 3 * 60;
+
+let needToSendPushMsg = os.uptime() < BOOT_LIMIT_SECONDS;
 
 function automaticPrivateIP(ip) {
   return ip.startsWith('169.254');
@@ -21,6 +30,11 @@ export default function determineIP(program) {
 
         if (interfaces && interfaces.length >= 1) {
           ip = interfaces[0].ip_address;
+        }
+
+        if (ip && needToSendPushMsg && os.uptime() < NETWORK_WAIT_SECONDS) {
+          push.notify(`📟 BOOTED`);
+          needToSendPushMsg = false;
         }
 
         if (program.state().device.ip != ip) {

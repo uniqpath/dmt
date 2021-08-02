@@ -14,8 +14,11 @@ function reportChange({ program, currentApssid, apssid, currentWifiAP, wifiAP, c
   if (ip) {
     setTimeout(() => {
       const msg = `📶 ${program.device.id}: ${currentWifiAP || ''} ${currentApssid} → ${wifiAP || ''} ${apssid}`.replace(/\s+/g, ' ');
-      push.notify(msg);
       log.gray(msg);
+
+      if (dmt.isRPi()) {
+        push.notify(msg);
+      }
     }, RETRY_DELAY);
   } else {
     countdown -= 1;

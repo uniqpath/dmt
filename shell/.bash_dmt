@@ -9,25 +9,25 @@ TAIL_LOG_LINES=300
 DMT_AUTO_UPDATE_LOG="$DMT_PATH/log/.auto_update_log"
 
 function dmt {
-  local o
+  # local o
 
-  if [ "$1" == "o" ]; then
-    o=true
-    shift
-  fi
+  # if [ "$1" == "o" ]; then
+  #   o=true
+  #   shift
+  # fi
 
   if [ -z "$1" ] || [ "$1" == "help" ]; then
     echo
-    if [[ $o ]]; then
+    #if [[ $o ]]; then
       #printf "${CYAN}Freedom to Imagine${NC}"
-      printf "${CYAN}— ${MAGENTA}∞oOo∞ ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version")${NC}\n"
-    else
-      printf "${MAGENTA}        ∞ DMT ∞${NC}\n"
-      printf "${CYAN}Digital Mastery Techniques${NC}\n"
-      printf " ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version") ${CYAN}—${NC}\n"
-      echo
-      printf "💡 Keep up with progress and update using ${GREEN}dmt next${NC} a few times per year${NC}\n"
-    fi
+      #printf "${CYAN}— ${MAGENTA}∞oOo∞ ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version")${NC}\n"
+    #else
+    printf "${MAGENTA}        ∞ DMT ∞${NC}\n"
+    printf "${CYAN}Digital Mastery Techniques${NC}\n"
+    printf " ${CYAN}— ${GRAY}v$(cat "$DMT_PATH/.version") ${CYAN}—${NC}\n"
+    echo
+    printf "💡 Keep up with progress and update using ${GREEN}dmt next${NC} a few times per year${NC}\n"
+    #fi
     #printf "${CYAN}Freedom to imagine${NC}\n"
     # printf " ${GRAY}It is reommended to update${NC}\n"
 
@@ -102,6 +102,7 @@ function dmt {
     "copy"
     "debug"
     "log"
+    "abclog"
     "install"
     "start"
     "run"
@@ -605,6 +606,10 @@ function dmt {
 
     log) # show log in foreground and keep it updated
       dmt_log "$@"
+      ;;
+
+    abclog) # show abc log in foreground and keep it updated
+      dmt_log abc "$@"
       ;;
 
     # undocumented:
@@ -1132,6 +1137,11 @@ function dmt_log {
 
   local LOGFILE="$DMT_PATH/log/dmt.log"
 
+  if [ "$1" == "abc" ]; then
+    shift
+    LOGFILE="$DMT_PATH/log/abc.log"
+  fi
+
   if [ ! -f "$LOGFILE" ]; then
     printf "⚠️  ${RED}Missing: ${YELLOW}${LOGFILE}${NC}\n"
     return
@@ -1176,8 +1186,9 @@ function dmt_help {
   printf "  ${CYAN}■${NC} ${GREEN}dmt run ${GRAY}runs dmt-proc visible in terminal foreground (mostly used for debugging)${NC}\n"
   echo
   # printf "  ${CYAN}■${NC} ${CYAN}dmt log ${GRAY}shows a few recent log entries (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
-  printf "  ${CYAN}■${NC} ${GREEN}dmt log ${GRAY}shows realtime log, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
-  printf "  ${CYAN}■${NC} ${GREEN}dmt log full ${GRAY}dumps the entire log to screen and doesn't wait for realtime output (another difference is that ${NC}dmt log ${GRAY}shows only the recent ${TAIL_LOG_LINES} entries)${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt log ${GRAY}shows last ${TAIL_LOG_LINES} log entries and monitors for further entries, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt log full ${GRAY}shows the entire log (can be long)${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt abclog ${GRAY}shows recent abc-proc log entries and monitors for more, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
   #printf "  ${CYAN}■${NC} ${GREEN}dmt loglan ${GRAY}starts listening to network log message broadcasts${NC}\n"
 
   echo
@@ -1976,7 +1987,10 @@ function dmt_autoupdate {
   local basic_setup_correct=0
 
   if [ -f $DMT_AUTO_UPDATE_LOG ]; then
-    local file_age=$(( `date +%s` - `stat -L --format %Y $DMT_AUTO_UPDATE_LOG` ))
+
+    local file_age=''
+    dmt_get_file_age file_age $DMT_AUTO_UPDATE_LOG
+
     printf "⏱️  ${MAGENTA}Auto-update was last tried ${WHITE}${file_age}s ago${NC} ${MAGENTA}via cron${NC}\n"
     #printf "${GRAY}(it is an extremely lightweight operation — git fetch)${NC}\n"
 
@@ -2048,14 +2062,14 @@ function dmt_autoupdate {
       echo
     fi
   else
-    printf "${YELLOW}✖ Cron setup is likely not correct (or you have to wait up to 5 min for it to take effect).${NC}\n"
+    printf "${RED}✖ Cron setup is likely not correct (or you have to wait up to 5 min for it to take effect).${NC}\n"
     echo
     printf "${WHITE}Please try to set up cron tasks with:${NC}\n"
     printf "${GRAY}cd ~/.dmt/etc/cron${NC}\n"
     printf "${GRAY}./setup_cron${NC}\n"
     printf "${GRAY}(then wait for up to 5min to see the effects through ${GREEN}dmt autoupdate${GRAY})${NC}\n"
     echo
-    printf "${YELLOW}Root (if you need Zeta certificate updates for lighttpd every 3 months${NC}\n"
+    printf "${YELLOW}Root (optional):${NC}\n"
     # printf "${GRAY}sudo su${NC}\n"
     printf "${GRAY}sudo su${NC}\n"
     printf "${GRAY}cd $HOME/.dmt/etc/cron/root${NC}\n"
@@ -2065,7 +2079,9 @@ function dmt_autoupdate {
   local CERT_UPDATE_LOG=~/.dmt-here/https/zetaseek.com/cert_auto_update_report.txt
 
   if [ -f $CERT_UPDATE_LOG ]; then
-    local file_age=$(( `date +%s` - `stat -L --format %Y $CERT_UPDATE_LOG` ))
+    local file_age=''
+    dmt_get_file_age file_age $CERT_UPDATE_LOG
+    #local file_age=$(( `date +%s` - `stat -L --format %Y $CERT_UPDATE_LOG` ))
 
     if [ $file_age -le $((60*60+5)) ]; then # 1h plus 5s
       printf "— 3.) ${CYAN}Extra:${NC}\n"
@@ -2203,7 +2219,19 @@ function dmt_snapshot {
 
   local DMT_LOG="$DMT_PATH/log/dmt.log"
   if [ -f "$DMT_LOG" ]; then
-    tail -n $LOG_LINES "$DMT_LOG" > dmt.log
+    #tail -n $LOG_LINES "$DMT_LOG" > dmt.log
+    cp "$DMT_LOG" .
+  fi
+
+  local ABC_LOG="$DMT_PATH/log/abc.log"
+  if [ -f "$ABC_LOG" ]; then
+    #tail -n $LOG_LINES "$ABC_LOG" > dmt.log
+    cp "$ABC_LOG" .
+  fi
+
+  local MPV_LOG="$DMT_PATH/log/mpv.log"
+  if [ -f "$MPV_LOG" ]; then
+    cp "$MPV_LOG" .
   fi
 
   local DMT_STATE="$DMT_PATH/state/program.json"
@@ -2213,4 +2241,6 @@ function dmt_snapshot {
 
   echo
   printf "Created ${MAGENTA}~/.dmt/log/snapshots/${SUBDIR}${NC}\n"
+
+  cd "$cwd"
 }

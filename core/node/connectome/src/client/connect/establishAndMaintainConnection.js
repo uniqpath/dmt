@@ -98,7 +98,6 @@ function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
   }
 
   const ws = new WebSocket(endpoint, protocol);
-
   conn.currentlyTryingWS = ws;
   conn.currentlyTryingWS._waitForConnectCounter = 0;
 

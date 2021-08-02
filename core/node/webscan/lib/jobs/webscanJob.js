@@ -9,7 +9,7 @@ const { processBatch } = dmt;
 
 const INVALID_TITLES = ['Attention Required!', 'Amazon.com'];
 function invalidTitle(title) {
-  return title && (INVALID_TITLES.includes(title) || title.endsWith(' | Cloudflare'));
+  return title && (INVALID_TITLES.includes(title) || title.endsWith(' | Cloudflare') || title.startsWith('Access denied'));
 }
 
 function maximumID(existingLinkIndex) {

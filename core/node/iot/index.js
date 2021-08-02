@@ -1,5 +1,7 @@
 import path from 'path';
 
+import { push } from 'dmt/notify';
+
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -20,7 +22,10 @@ const iotBus = new IotBus();
 
 import loadIotModules from './loadIotModules';
 
-function init(program) {
+let program;
+
+function init(_program) {
+  program = _program;
   iotBus.init();
 
   iotBus.on('message', msg => {

@@ -804,37 +804,33 @@ class LinkedList {
 }
 
 let id = 0;
-const splitter = /[\s,]+/g;
 
 class Eev {
   constructor() {
     this.__events_list = {};
   }
 
-  on(names, fn) {
-    names.split(splitter).forEach(name => {
-      const list = this.__events_list[name] || (this.__events_list[name] = new LinkedList());
-      const eev = fn._eev || (fn._eev = ++id);
+  on(name, fn) {
+    const list = this.__events_list[name] || (this.__events_list[name] = new LinkedList());
+    const eev = fn._eev || (fn._eev = ++id);
 
-      list.reg[eev] || (list.reg[eev] = list.insert(fn));
-    });
+    list.reg[eev] || (list.reg[eev] = list.insert(fn));
   }
 
-  off(names, fn) {
-    fn &&
-      names.split(splitter).forEach(name => {
-        const list = this.__events_list[name];
+  off(name, fn) {
+    if (fn) {
+      const list = this.__events_list[name];
 
-        if (!list) {
-          return;
-        }
+      if (!list) {
+        return;
+      }
 
-        const link = list.reg[fn._eev];
+      const link = list.reg[fn._eev];
 
-        list.reg[fn._eev] = undefined;
+      list.reg[fn._eev] = undefined;
 
-        list && link && list.remove(link);
-      });
+      list && link && list.remove(link);
+    }
   }
 
   removeListener(...args) {
@@ -3545,6 +3541,10 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     if (flag == 1) {
       const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
 
+      // if (connector.verbose) {
+      //   console.log(`Received message: ${decodedMessage}`);
+      // }
+
       try {
         const jsonData = JSON.parse(decodedMessage);
 
@@ -4517,11 +4517,22 @@ function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
   }
 
   const ws = new WebSocket(endpoint, protocol);
+  // added this so that it shows in frontend log in dmt-gui..
+  // "native" console errors like
+  // establishAndMaintainConnection.js:104 WebSocket connection to 'ws://192.168.0.64:7780/' failed: ...
+  // are not visible since we need to use our own log() function
+  // MEH: this didn't work on Chromium on RPi !!
+  // ws.onerror = error => {
+  //   //console.log(error);
+  //   log(`error (connecting?) websocket: ${ws.rand} to ${conn.endpoint}`);
+  // };
 
   conn.currentlyTryingWS = ws;
   conn.currentlyTryingWS._waitForConnectCounter = 0;
 
   ws.rand = Math.random();
+
+  //log(`created new websocket: ${ws.rand} to ${conn.endpoint}`);
 
   if (browser$1) {
     ws.binaryType = 'arraybuffer';

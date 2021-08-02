@@ -10,6 +10,8 @@ const bashAction = '/sbin/shutdown -h now';
 export default ({ program }) => {
   program.store.save();
 
+  program.sendABC('stopping');
+
   log.yellow(`Executing bash action: ${colors.green(bashAction)} ...`);
 
   setTimeout(() => {

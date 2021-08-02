@@ -387,7 +387,7 @@ function flash {
         diskutil unmountDisk "/dev/disk${disk_n}"
         time sudo dd if="$matching_file" of="/dev/rdisk${disk_n}" bs=64m # changed from: 1m
         diskutil eject "/dev/disk${disk_n}"
-        printf "${GREEN}done.${NC} ${YELLOW}You can take the SD card out now.${NC}\n"
+        printf "${GREEN}done.${NC} ${YELLOW}You can take the SD card out now. ${MAGENTA}(Unmount first)${NC}\n"
       fi
     fi
   fi

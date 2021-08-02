@@ -7,7 +7,7 @@ function setup(program) {}
 
 function handleBooted({ restarterId, moduleIp }) {
   const tag = `${restarterId}`;
-  push.notify(`Module ${tag} (${moduleIp}) BOOTED`);
+  push.omitDeviceName().notify(`Module ${tag} (${moduleIp}) BOOTED`);
 }
 
 const slotName = 'deviceRestarters';

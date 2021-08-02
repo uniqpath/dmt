@@ -16,13 +16,16 @@ import stopwatch from './lib/timeutils/stopwatch';
 import stopwatchAdv from './lib/timeutils/stopwatchAdv';
 import prettyMicroDuration from './lib/timeutils/prettyMicroDuration';
 import prettyTimeAge from './lib/timeutils/prettyTimeAge';
+import convertSeconds from './lib/timeutils/convertSeconds';
 import * as suntime from './lib/timeutils/suntime';
+import meetup from './lib/meetup';
 
 import prettyFileSize from './lib/prettyFileSize';
 
 import FsState from './lib/fsState';
 
 import processBatch from './lib/processBatch';
+import ipc from './lib/ipc/ipc.js';
 
 import identifyDeviceByMac from './lib/identifyDeviceByMac';
 
@@ -37,6 +40,13 @@ import * as textfileParsers from './lib/parsers/textfiles';
 import { apMode, apInfo, accessPointIP } from './lib/apTools';
 
 nacl.util = naclutil;
+
+const abcProcPath = path.join(helper.dmtPath, 'core/node/controller/daemons/abc-proc.js');
+const abcSocket = path.join(helper.dmtPath, 'state/ipc.abc-proc.sock');
+const dmtProcPath = path.join(helper.dmtPath, 'core/node/controller/daemons/dmt-proc.js');
+const dmtProcManagerPath = path.join(helper.dmtPath, 'core/node/controller/daemons/manager.js');
+const daemonsPath = path.join(helper.dmtPath, 'core/node/controller/daemons');
+const dmtSocket = path.join(helper.dmtPath, 'state/ipc.dmt-proc.sock');
 
 if (!fs.existsSync(helper.dmtPath)) {
   console.log(
@@ -81,6 +91,14 @@ function dmtVersion(versionFile = path.join(helper.dmtPath, '.version')) {
       .trim();
     return _dmtVersion;
   }
+}
+
+function abcVersion() {
+  const versionFile = path.join(helper.dmtPath, '/etc/.abc_version');
+  return fs
+    .readFileSync(versionFile)
+    .toString()
+    .trim();
 }
 
 function compareDmtVersions(_v1, _v2) {
@@ -131,7 +149,17 @@ function versionCompareSymbol(otherDmtVersion) {
   return '≡';
 }
 
+const nodeFlags = ['--experimental-modules', '--experimental-specifier-resolution=node', '--unhandled-rejections=strict'];
+
 export default {
+  abcProcPath,
+  abcSocket,
+  dmtProcPath,
+  dmtSocket,
+  dmtProcManagerPath,
+  daemonsPath,
+  nodeFlags,
+  ipc,
   log: helper.log,
   util,
   scan,
@@ -144,6 +172,7 @@ export default {
   colors,
   def,
   dmtVersion,
+  abcVersion,
   compareDmtVersions,
   versionCompareSymbol,
   parseCliArgs,
@@ -156,11 +185,14 @@ export default {
   suntime,
   prettyMicroDuration,
   prettyTimeAge,
+  convertSeconds,
   stopwatch,
   stopwatchAdv,
   apMode,
   apInfo,
   accessPointIP,
+
+  meetup,
 
   loop: util.periodicRepeat,
 

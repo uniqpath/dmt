@@ -7,7 +7,7 @@ function setup(program) {}
 
 function handleBooted({ placeId, blindsId, blindsDirection, moduleIp }) {
   const tag = `${placeId}-${blindsId}-${blindsDirection} (${moduleIp})`;
-  push.notify(`Module ${tag} BOOTED`);
+  push.omitDeviceName().notify(`Module ${tag} BOOTED`);
 }
 
 function handleMoving(program, { placeId, blindsId, blindsDirection, blindsStatus }) {

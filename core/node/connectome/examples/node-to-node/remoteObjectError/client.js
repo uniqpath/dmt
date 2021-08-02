@@ -2,7 +2,7 @@ import colors from 'colors';
 
 import { printClientInfo } from '../exampleUtils.js';
 
-import { connect, newClientKeypair } from '../../../src/client/node.js';
+import { connect, newClientKeypair } from '../../../src/client/index.js';
 
 const address = 'localhost';
 
