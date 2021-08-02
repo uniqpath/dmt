@@ -145,7 +145,9 @@ else # clone to and install on remote device
   . ./shell/.shell_advanced
 
   flags=""
-  excludes="--exclude apps/**/node_modules --exclude user/apps/**/node_modules"
+  #excludes="--exclude apps/**/node_modules --exclude user/apps/**/node_modules"
+  excludes=""
+  compress=""
   RESTART=false
 
   # bash cli parser, source: https://medium.com/@Drew_Stokes/bash-argument-parsing-54f3b81a6a8f
@@ -171,6 +173,11 @@ else # clone to and install on remote device
       --restart)
         flags="${flags} --restart"
         RESTART=true
+        shift 1
+        ;;
+      --compress)
+        flags="${flags} --compress"
+        compress="--compress"
         shift 1
         ;;
       --) # end argument parsing
@@ -199,9 +206,14 @@ else # clone to and install on remote device
     else
       matching_host=''
       ssh_port=''
-      get_full_host matching_host ssh_port "$host"
-      if [ $? -ne 1 ]; then # not error
+      _compress=''
+      get_full_host matching_host ssh_port _compress "$host"
+      if [ $? -ne 1 ]; then # no error
         host="$matching_host"
+      fi
+      # compress regardless if passed in argument if device has globalIp defined (get_full_host will return "--compress")
+      if [[ $_compress == "--compress" ]]; then
+        compress=$_compress # yes, please compress :)
       fi
     fi
 
@@ -242,7 +254,7 @@ else # clone to and install on remote device
         echo
 
         target="${host}:.dmt/user"
-        dirsync $excludes --port $ssh_port ~/.dmt/user "$target"
+        dirsync $excludes $compress --port $ssh_port ~/.dmt/user "$target"
         # IMPORTANT
         # ~/.dmt/.deployignore ==>
         # ...
@@ -262,7 +274,7 @@ else # clone to and install on remote device
         echo
 
         target="${host}:.dmt"
-        dirsync $excludes --port $ssh_port ~/.dmt "$target"
+        dirsync $excludes $compress --port $ssh_port ~/.dmt "$target"
         echo
         remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
 

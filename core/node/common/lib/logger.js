@@ -43,14 +43,16 @@ class Logger {
     return this.buffer.slice(-lines);
   }
 
-  init({ dmt, logfile, foreground }) {
+  init({ dmt, logfile, foreground, procTag }) {
     if (logfile) {
-      this.logfile = logfile;
+      this.logfilePath = path.join(dmtPath, `log/${logfile}`);
 
       if (this.isForeground == undefined) {
         this.isForeground = false;
       }
     }
+
+    this.procTag = procTag;
 
     const filePath = deviceDefFile();
 
@@ -78,20 +80,18 @@ class Logger {
   }
 
   fwrite(msg) {
-    const logfilePath = path.join(dmtPath, `log/${this.logfile}`);
-
     if (this.linesWrittenCount % (LIMIT / 10) === 0) {
-      if (fs.existsSync(logfilePath)) {
-        const currentLog = scan.readFileLines(logfilePath);
+      if (fs.existsSync(this.logfilePath)) {
+        const currentLog = scan.readFileLines(this.logfilePath);
         if (currentLog.length > LIMIT) {
-          fs.writeFileSync(logfilePath, currentLog.slice(-LIMIT).join(os.EOL));
+          fs.writeFileSync(this.logfilePath, currentLog.slice(-LIMIT).join(os.EOL));
         }
       }
 
       this.linesWrittenCount = 0;
     }
 
-    fs.writeFileSync(logfilePath, `${msg}\n`, { flag: 'a' });
+    fs.writeFileSync(this.logfilePath, `${msg}\n`, { flag: 'a' });
     this.linesWrittenCount += 1;
   }
 
@@ -130,15 +130,15 @@ class Logger {
         }
       }
 
-      let foregroundSymbol = colors.cyan('unknown fg status (before init) ');
+      let foregroundMark = colors.gray('[before init] ');
 
       if (this.isForeground == true) {
-        foregroundSymbol = colors.red('✝ ');
+        foregroundMark = colors.gray('[run] ');
       } else if (this.isForeground == false) {
-        foregroundSymbol = '';
+        foregroundMark = '';
       }
 
-      msg = `${foregroundSymbol}${infoLine}${colors.gray(diffStr)} ∞ ${msg}`;
+      msg = `${foregroundMark}${this.procTag ? `${colors.cyan(this.procTag)} ` : ''}${infoLine}${colors.gray(diffStr)} ∞ ${msg}`;
     }
 
     if (!onlyToFile) {
@@ -157,8 +157,8 @@ class Logger {
       this.buffer.shift();
     }
 
-    if (this.logfile) {
-      this.fwrite(msg.replace('✝', '[not daemonized]'));
+    if (this.logfilePath) {
+      this.fwrite(msg);
     }
   }
 

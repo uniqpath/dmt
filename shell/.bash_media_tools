@@ -17,27 +17,39 @@ function mp3_convert_helper {
   fi
 }
 
+
 function convert_to_mp3 {
   # maybe useful: find *.m4a -type f | xargs -I@ bash -c "$(declare -f mp3_helper) ; mp3_helper \"@\" "
 
-  local fileName="$@"
+  if [ -z "$2" ]; then
 
-  if [ -n "$fileName" ]; then
-    if [ -f "$fileName" ] && [[ "$fileName" =~ \.flac ]]; then
-      mp3_convert_helper "$fileName"
+    local fileName="$1"
+
+    if [ -n "$fileName" ]; then
+      if [ -f "$fileName" ] && [[ "$fileName" =~ \.flac ]]; then
+        mp3_convert_helper "$fileName"
+      else
+        printf "Error: ${RED}Passed in an argument which is not an existing flac file ...${NC}\n"
+        echo "Either don't pass any arguments to convert all .flac files in this directory to .mp3 or pass one existing flac file"
+      fi
+      return
     else
-      printf "Error: ${RED}Passed in an argument which is not an existing flac file ...${NC}\n"
-      echo "Either don't pass any arguments to convert all .flac files in this directory to .mp3 or pass one existing flac file"
+      printf "${GREEN}Converting all .flac to .mp3 in this directory (original .flac files are not deleted) ...${NC}\n"
+      for flacFile in *.flac; do
+
+        mp3_convert_helper "$flacFile"
+
+        echo
+      done
     fi
-    return
+
   else
-    printf "${GREEN}Converting all .flac to .mp3 in this directory (original .flac files are not deleted) ...${NC}\n"
-    for flacFile in *.flac; do
 
-      mp3_convert_helper "$flacFile"
-
-      echo
+    for fileName in "$@"
+    do
+      convert_to_mp3 "$fileName"
     done
+
   fi
 }
 

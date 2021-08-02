@@ -23,6 +23,7 @@ function zeta_config {
     printf "${GREEN}munin-node:${NC} /etc/munin/munin-node.conf\n"
     printf "${GREEN}mosquitto:${NC} /etc/mosquitto/mosquitto.conf ${GRAY}${NC}\n"
     printf "${GREEN}mysql:${NC} /etc/mysql/mariadb.conf.d ${GRAY}${NC}\n"
+    printf "${GREEN}nix:${NC} ~/.nixpkgs/darwin-configuration.nix ${GRAY}${NC}\n"
 
     return
   fi
@@ -45,6 +46,7 @@ function zeta_config {
     "munin-node"
     "mysql"
     "haproxy"
+    "nix"
   )
 
   local matching_opt=''
@@ -261,6 +263,26 @@ function zeta_config {
         cd "${conf}"
       else
         printf "${RED}no mysql/mariadb config directory found${NC}\n"
+      fi
+      ;;
+
+    nix) # only for macos for now
+      local conf=~/.nixpkgs/darwin-configuration.nix
+
+      if [ -f "${conf}" ]; then
+        nano "${conf}"
+        read -r -p "Install packages now? [Y/n] " response
+        if [[ $response =~ ^([nN])$ ]]
+        then
+          printf "${GRAY}↳ Exiting ...${NC}\n"
+          printf "You can run ${GREEN}darwin-rebuild switch${NC} manually to install packages\n"
+          echo
+          return
+        fi
+
+        darwin-rebuild switch
+      else
+        printf "${RED}no nixos config file found${NC}\n"
       fi
       ;;
 

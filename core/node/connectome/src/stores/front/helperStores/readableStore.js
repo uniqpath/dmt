@@ -1,9 +1,9 @@
 import Emitter from '../../../utils/emitter/index.js';
 
-// 💡 we use Emitter inside ConnectedStore to emit 'ready' event
-// 💡 and inside MultiConnectedStore to also emit a few events
+// we use Emitter inside ConnectedStore to emit 'ready' event
+// and inside MultiConnectedStore to also emit a few events
 
-class ReadableStore extends Emitter {
+export default class ReadableStore extends Emitter {
   constructor(initialState) {
     super();
 
@@ -30,5 +30,3 @@ class ReadableStore extends Emitter {
     this.subscriptions.forEach(handler => handler(this.state));
   }
 }
-
-export default ReadableStore;

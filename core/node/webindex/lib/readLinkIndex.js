@@ -87,7 +87,7 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
               log.red(msg);
               log.red(e);
 
-              push.notify(`⚠️ ${dmt.deviceGeneralIdentifier()}: Error parsing linkIndex: ${e}`);
+              push.notify(`⚠️ Error parsing linkIndex: ${e}`);
 
               return { parsingError: true };
             }
@@ -110,10 +110,10 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
           .slice(0, RECENT_WEBLINKS_NUM)
           .map(entry => addSiteTag(entry));
 
-        program.store.replaceSlot('recentWeblinks', recentWeblinks);
+        program.store('recentWeblinks').set(recentWeblinks);
 
-        program.store.replaceSlot('entireLinkIndexCloud', createEntireLinkIndexCloud(webindexCache), { announce: false });
-        program.store.replaceSlot('entireLinkIndexCount', webindexCache.length, { announce: false });
+        program.store('entireLinkIndexCloud').set(createEntireLinkIndexCloud(webindexCache), { announce: false });
+        program.store('entireLinkIndexCount').set(webindexCache.length, { announce: false });
 
         if (benchmark && files.length) {
           log.green(

@@ -3,19 +3,13 @@ import path from 'path';
 import fs from 'fs';
 import inlineValueParser from './inlineValueParser';
 
+import { json2def as fromJson } from 'dmt-defjson';
+
 const cache = {};
 const basicParsingCache = {};
 
-function parse({ file = null, str = null }) {
-  if (file && !str) {
-    return parseFile(file);
-  }
-
-  if (!file && str) {
-    return parseString(str);
-  }
-
-  throw new Error(`Please provide exactly one of the following: file OR string, current values: file:${file}, string:${str}`);
+function parse(str) {
+  return parseString(str);
 }
 
 function parseFile(filePath, { caching = true, onlyBasicParsing = false } = {}) {
@@ -190,6 +184,19 @@ function split(str, sep = ':') {
   return [a, b];
 }
 
+function throwError(line, filePathInfo, msg) {
+  throw new Error(
+    colors.white(`${colors.red('Problem parsing def file')} ${colors.cyan(filePathInfo)} → ${colors.yellow(msg)} (offending line is '${colors.gray(line)}')`)
+  );
+}
+
+function validateKey(keyName, line, { filePathInfo }) {
+  if (keyName == 'id') {
+    const msg = "illegal key name 'id' which is a reserved word";
+    throwError(line, filePathInfo, msg);
+  }
+}
+
 function parseDict(lines, options = {}) {
   let buildup = [];
 
@@ -197,6 +204,9 @@ function parseDict(lines, options = {}) {
 
   const header = lines[0];
   const [key, value] = split(header);
+
+  validateKey(key, header, options);
+
   const data = value ? { id: value } : {};
 
   let prevLine;
@@ -214,6 +224,8 @@ function parseDict(lines, options = {}) {
         const header = buildup[0];
         const [headerKey, headerValue] = split(header);
 
+        validateKey(headerKey, header, options);
+
         if (Array.isArray(data[headerKey])) {
           data[headerKey].push(parseDict(buildup, options));
         } else if (data[headerKey]) {
@@ -227,6 +239,7 @@ function parseDict(lines, options = {}) {
     } else if (prevLine) {
       const [prevKey, prevValue] = split(prevLine);
 
+      validateKey(prevKey, prevLine, options);
       if (Array.isArray(data[prevKey])) {
         data[prevKey].push(convertSimpleValueToHashInsideAnArray(parseSimpleValue(prevValue, options)));
       } else if (data[prevKey]) {
@@ -277,7 +290,7 @@ function checkSpacing(lines, { filePathInfo }) {
       }
 
       if (fail) {
-        throw new Error(`Error parsing def file: ${colors.gray(filePathInfo)} - ${colors.magenta('wrong number of lead spaces')}: ${colors.yellow(line)}`);
+        throwError(line, filePathInfo, 'wrong number of lead spaces');
       }
     }
     prevLeadSpaces = leadSpaces;
@@ -298,7 +311,7 @@ function parseTopLevelList(lines, { cwd, onlyBasicParsing, filePathInfo }) {
 
   for (const line of lines) {
     if (line != '' && line.indexOf(':') == -1) {
-      throw new Error(`${colors.red(filePathInfo)} → every line has to contain "${colors.green(':')}" and "${colors.yellow(line)}" does not`);
+      throwError(line, filePathInfo, 'every line has to contain a colon (":") and this line does not');
     }
 
     const indent = line.search(/\S|$/) / 2;
@@ -308,14 +321,16 @@ function parseTopLevelList(lines, { cwd, onlyBasicParsing, filePathInfo }) {
       if (!rootKey) {
         rootKey = mainKey;
       } else if (rootKey != mainKey) {
-        throw new Error(
-          `Root key has to be unique with one or many occurences!\nActually found key "${mainKey}" at column 0 which doesn't equal already detected unique root key "${rootKey}"`
-        );
+        const msg = `Root key has to be unique with one or more occurences.\nFound outlier root key "${colors.cyan(
+          mainKey
+        )}" which differs from previously seen root key "${colors.cyan(rootKey)}"`;
+
+        throwError(line, filePathInfo, msg);
       }
     }
 
     if (indent == 0 && (prevIndent > 0 || buildup.length > 0)) {
-      data.push(parseDict(buildup, { cwd, onlyBasicParsing }));
+      data.push(parseDict(buildup, { cwd, onlyBasicParsing, filePathInfo }));
       buildup = [line];
     } else {
       buildup.push(line);
@@ -350,5 +365,6 @@ export default {
   listify,
   values,
   id,
-  isTruthy
+  isTruthy,
+  fromJson
 };

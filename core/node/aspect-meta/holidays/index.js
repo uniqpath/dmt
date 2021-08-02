@@ -10,8 +10,8 @@ function updateCurrentHoliday(program) {
 
     const holiday = holidayName(year, month, day, { country });
 
-    if (program.state().time && program.state().time.holiday != holiday) {
-      program.store.update({ time: { holiday } });
+    if (program.store('time').get().holiday != holiday) {
+      program.store('time').update({ holiday });
     }
   }
 }

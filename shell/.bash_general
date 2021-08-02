@@ -108,15 +108,15 @@ function timer {
           ;;
       esac
 
-      if dmt_macos; then
-        shift
-        local msg="$@"
-        if [ -n "$msg" ]; then
-          message "$msg" "${desc} is up"
-        else
-          message "${desc} is up" "Time's up"
-        fi
-      fi
+      # if dmt_macos; then
+      #   shift
+      #   local msg="$@"
+      #   if [ -n "$msg" ]; then
+      #     message "$msg" "${desc} is up"
+      #   else
+      #     message "${desc} is up" "Time's up"
+      #   fi
+      # fi
     else
       printf "${RED}Error in argument${NC}\n"
     fi
@@ -387,7 +387,7 @@ function flash {
         diskutil unmountDisk "/dev/disk${disk_n}"
         time sudo dd if="$matching_file" of="/dev/rdisk${disk_n}" bs=64m # changed from: 1m
         diskutil eject "/dev/disk${disk_n}"
-        printf "${GREEN}done.${NC} ${YELLOW}You can take the SD card out now.${NC}\n"
+        printf "${GREEN}done.${NC} ${YELLOW}You can take the SD card out now. ${MAGENTA}(Unmount first)${NC}\n"
       fi
     fi
   fi

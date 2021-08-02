@@ -18,7 +18,7 @@ export default function checkServerSambaSharesConfig() {
       if (!fs.existsSync(sambaConfigFile)) {
         const msg = `⚠️ ⚠️ ⚠️  there are sambaShares defined in content.def but ${sambaConfigFile} file is missing`;
         log.red(msg);
-        push.notify(`${dmt.device().id}: ${msg}`);
+        push.notify(msg);
         return;
       }
 

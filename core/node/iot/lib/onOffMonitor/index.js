@@ -5,9 +5,9 @@ import { PowerMonitor, powerLog } from '../powerline';
 function notify({ msg, program, onlyAdmin }) {
   if (program.isHub()) {
     if (onlyAdmin) {
-      push.notify(msg);
+      push.omitDeviceName().notify(msg);
     } else {
-      push.notifyAll(msg);
+      push.omitDeviceName().notifyAll(msg);
     }
   }
 }

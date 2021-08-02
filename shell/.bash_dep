@@ -153,11 +153,10 @@ function dep_rsync {
       while read -r line; do
         eval "${line#$prefix}"
         if [ $? -ne 0 ]; then
-          printf "\n${RED}dep error: ${GRAY}pre_local: ${NC}${line#$prefix} ${RED}failed${NC}\n"
-          printf "${MAGENTA}Deploy stopped.${NC}\n"
-          if [ -f /usr/bin/osascript ]; then
-            /usr/bin/osascript -e "display notification \"${line#$prefix} was not successful\" with title \"Deploy failed\""
-          fi
+          printf "\n⚠️  ${RED}Error → ${CYAN}pre_local: ${GREEN}${line#$prefix} ${RED}failed${NC}\n"
+          echo
+          printf "${MAGENTA}✖ Deploy stopped${NC}\n"
+          dmt_desktop_notification "🤦 ${line#$prefix} was not successful" "Deploy failed"
           return 1
         fi
       done < <(grep -i "^${prefix}" "$deploy_file")
@@ -236,7 +235,7 @@ function dep_rsync {
       fi
 
       #printf "${MAGENTA}Syncing...${NC}\n"
-      dirsync $dry $no_delete $full_delete "$source_dir" "$target"
+      dirsync $dry $no_delete $full_delete --compress "$source_dir" "$target"
 
       # cannot get correct $? out of rsync to know if it failed
       # if [ $? -eq 0 ]; then
@@ -265,11 +264,10 @@ function dep_rsync {
     while read -r line ; do
       eval "${line#$prefix}"
       if [ $? -ne 0 ]; then
-        printf "\n${RED}dep error: ${GRAY}post_local: ${NC}${line#$prefix} ${RED}failed${NC}\n"
-        printf "${MAGENTA}Deploy stopped.${NC}\n"
-        if [ -f /usr/bin/osascript ]; then
-          /usr/bin/osascript -e "display notification \"${line#$prefix} was not successful\" with title \"Deploy failed\""
-        fi
+        printf "\n⚠️  ${RED}Error → ${CYAN}post_local: ${GREEN}${line#$prefix} ${RED}failed${NC}\n"
+        echo
+        printf "${MAGENTA}✖ Deploy stopped${NC}\n"
+        dmt_desktop_notification "🤦 ${line#$prefix} was not successful" "Deploy failed"
         return
       fi
     done < <(grep -i "^${prefix}" "$deploy_file")
@@ -358,7 +356,7 @@ function remote {
     fi
     # https://stackoverflow.com/questions/9393038/ssh-breaks-out-of-while-loop-in-bash
     eval "$cmd" 2>&1 | grep -v "Pseudo-terminal will not be allocated" | grep -v "Inappropriate ioctl for device" | grep -v "no job control in this shell" | grep -v "Warning: Permanently added" | grep -v "The programs included with the Debian" | grep -v "the exact distribution terms for each program are described" | grep -v "individual files in /usr/share/doc" | grep -v "Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY" | grep -v "permitted by applicable law"
-    printf "${GREEN}done.${NC}\n"
+    printf "${GREEN}✓ Done.${NC}\n"
   fi
 }
 
@@ -370,7 +368,8 @@ function dirsync {
     printf "${GREEN}dirsync dir1 dir2${NC}\n"
     printf "${GREEN}dirsync --dry dir1 dir2${NC} ${GRAY}(simulate)${NC}\n"
     printf "${GREEN}dirsync --total${NC} ${GRAY}(ignoring every .deployignore file and copying everything)${NC}\n"
-    printf "${GREEN}dirsync --compress dir1 dir2${NC} ${GRAY}(compress - use over internet, but not LAN)${NC}\n"
+    printf "${GREEN}dirsync --exclude dir1 --exclude dir2${NC} ${GRAY}(exclude some dirs)${NC}\n"
+    printf "${GREEN}dirsync --compress dir1 dir2${NC} ${GRAY}(compress - use over internet, but not LAN, see https://unix.stackexchange.com/questions/188737/does-compression-option-z-with-rsync-speed-up-backup)${NC}\n"
     printf "${GREEN}dirsync --checksum dir1 dir2${NC} ${GRAY}(use when timestamps on target are different but contents is likely same... This will sync & equalize timestamps, it's slow though but still probably faster than copying files over for no reason)${NC}\n"
     printf "${GREEN}dirsync --symlinks dir1 dir2${NC} ${GRAY}(copy symlink contents, not just symlinks)${NC}\n"
     printf "${GREEN}dirsync --no-delete dir1 dir2${NC} ${GRAY}(don't delete files on destination)${NC}\n"
@@ -411,8 +410,9 @@ function dirsync {
           shift
           ;;
         "--compress" )
+          # https://unix.stackexchange.com/questions/188737/does-compression-option-z-with-rsync-speed-up-backup
           compress="-z"
-          printf "${GRAY}--compress: Compressing contents...${NC}\n"
+          printf "${GRAY}--compress → ${MAGENTA}requested compressing data upon transfer ${GRAY}(used for slow/remote links) ...${NC}\n"
           shift
           ;;
         "--checksum" )
@@ -463,7 +463,7 @@ function dirsync {
     # --protect-args :: https://unix.stackexchange.com/questions/104618/how-to-rsync-over-ssh-when-directory-names-have-spaces
     # haven't encountered a problem here yet (only in a backup script where directory name had a space in argument), not sure if the problem would apply here: todo - check
     # just in case, we include this option because it doesn't hurt
-    local params="-a $symlinks $checksum $dry --protect-args --progress"
+    local params="-a $symlinks $checksum $compress $dry --protect-args --progress"
 
     excludes="${excludes} --exclude .DS_Store"
 
@@ -475,11 +475,11 @@ function dirsync {
       params="${params} --delete-excluded"
     fi
 
-    if dmt_macos && [ `which rsync` != "/usr/local/bin/rsync" ]; then
-      printf "${YELLOW}Warning: using old version of rsync (where spaces in filenames can cause issues).${NC}\n"
-      printf "${CYAN}Fix:${NC} brew install rsync\n"
-    else
-      params="${params} --protect-args"
+    if dmt_macos && [[ `rsync --version | head -1` =~ "version 2" ]]; then
+      printf "${YELLOW}⚠️  You are using an old version of rsync v2 (where spaces in filenames can cause issues)${NC}\n"
+      printf "Use ${CYAN}nix${NC} or ${CYAN}homebrew${NC} to install more recent version of ${GREEN}rsync${NC} (v3+)\n"
+    #else
+    #  params="${params} --protect-args"
     fi
 
     # printf "From: ${GREEN}$1${NC}\n"
@@ -509,9 +509,16 @@ function dirsync {
     if [ -n "$ssh_port" ]; then
       e_params="${e_params} -p ${ssh_port}"
     fi
-    e_params="${e_params} -T -o Compression=no -x" # optimized for LAN !!
+
+    ## check this ??
+    if [ -z "$compress" ]; then
+      e_params="${e_params} -T -o Compression=no -x" # optimized for LAN !!
+    fi
 
     local grep_ignore="Warning: Permanently added"
+
+    # echo $params
+    # return
 
     # ****
     # **** updating or installing .dmt framework to another device

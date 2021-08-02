@@ -11,7 +11,7 @@ export default function constructOurMessage({ program, msg }) {
     return msg;
   }
 
-  const playerState = program.state().player;
+  const playerState = program.store('player').get();
 
   if (playerState) {
     const playing = !playerState.paused && (playerState.isStream || (playerState.currentMedia && playerState.currentMedia.songPath));
@@ -26,13 +26,13 @@ export default function constructOurMessage({ program, msg }) {
     }
   }
 
-  Object.assign(msg, program.state().device);
+  Object.assign(msg, program.store('device').get());
 
-  msg.uptime = dmt.prettyTimeAge(program.state().device.bootedAt).replace(' ago', '');
+  msg.uptime = dmt.prettyTimeAge(program.store('device').get().bootedAt).replace(' ago', '');
 
   msg.hasGui = program.hasGui();
 
-  const logLines = program.state().log;
+  const logLines = program.store('log').get();
 
   if (logLines && logLines.find(line => line.meta.error)) {
     msg.hasErrors = true;
@@ -42,7 +42,7 @@ export default function constructOurMessage({ program, msg }) {
 
   if (isSpecialNode) {
     msg.isSpecialNode = true;
-    msg.networkId = dmt.definedNetworkId();
+    msg.networkId = dmt.deviceNetworkId();
   }
 
   return deriveDeviceData(msg);

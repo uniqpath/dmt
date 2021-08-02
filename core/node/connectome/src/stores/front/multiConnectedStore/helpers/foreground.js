@@ -1,4 +1,4 @@
-class Foreground {
+export default class Foreground {
   constructor({ mcs, thisDeviceStateKeys }) {
     this.mcs = mcs;
     this.thisDeviceStateKeys = thisDeviceStateKeys;
@@ -40,5 +40,3 @@ class Foreground {
     this.mcs.setMerge(setState);
   }
 }
-
-export default Foreground;

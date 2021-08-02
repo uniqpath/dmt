@@ -9,13 +9,16 @@ const { wifiAccessPointMAC } = platformTools;
 const RETRY_DELAY = 500;
 
 function reportChange({ program, currentApssid, apssid, currentWifiAP, wifiAP, countdown }) {
-  const { ip } = program.store.get().device;
+  const { ip } = program.store('device').get();
 
   if (ip) {
     setTimeout(() => {
       const msg = `📶 ${program.device.id}: ${currentWifiAP || ''} ${currentApssid} → ${wifiAP || ''} ${apssid}`.replace(/\s+/g, ' ');
-      push.notify(msg);
       log.gray(msg);
+
+      if (dmt.isRPi()) {
+        push.notify(msg);
+      }
     }, RETRY_DELAY);
   } else {
     countdown -= 1;
@@ -33,8 +36,8 @@ export default function determineWifiAP(program) {
     .then(({ bssid }) => {
       if (bssid != '0:0:0:0:0:0') {
         const apssid = bssid;
-        const currentWifiAP = program.store.get().device.wifiAP;
-        const currentApssid = program.store.get().device.apssid;
+        const currentWifiAP = program.store('device').get().wifiAP;
+        const currentApssid = program.store('device').get().apssid;
 
         const wifiAP = identifyDeviceByMac(apssid)?.name;
 
@@ -44,7 +47,7 @@ export default function determineWifiAP(program) {
           }, 2 * RETRY_DELAY);
         }
 
-        program.store.update({ device: { apssid, wifiAP } });
+        program.store('device').update({ apssid, wifiAP });
 
         log.debug(`Current AP MAC: ${apssid}`, { cat: 'network-detect' });
       }

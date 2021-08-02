@@ -19,6 +19,10 @@ function normalizeTerms(terms) {
   return arrayTerms.map(term => normalize(term));
 }
 
+function escapeRegex(string) {
+  return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
 function searchPredicate(line, terms, { normalizedTerms = false } = {}) {
   const normalizedLine = normalize(line);
 
@@ -27,7 +31,7 @@ function searchPredicate(line, terms, { normalizedTerms = false } = {}) {
   let score = 0;
 
   for (const term of _terms) {
-    if (normalizedLine.match(new RegExp(`\\b${term}\\b`))) {
+    if (normalizedLine.match(new RegExp(`\\b${escapeRegex(term)}\\b`))) {
       score += 5;
     } else if (normalizedLine.includes(term)) {
       score += 1;

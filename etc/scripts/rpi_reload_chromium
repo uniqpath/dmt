@@ -1,0 +1,17 @@
+#!/bin/bash
+
+RED='\033[0;31m'
+GRAY='\e[1;30m'
+NC='\033[0m' # No Color
+
+export DISPLAY=:0.0
+export XAUTHORITY=/home/pi/.Xauthority
+
+which "xdotool" > /dev/null 2>&1
+
+if [ ! $? -eq 0 ]; then # rustc command exists
+  printf "${RED}✖ xdotool command is missing\n${GRAY}[ you usually use this command on RaspberryPi only ]${NC}\n"
+  exit 1
+else
+  xdotool key ctrl+r
+fi

@@ -3,7 +3,7 @@ const { newKeypair } = require('./crypto/index.js');
 const { stores } = require('./stores/index.js');
 const { ConnectionsAcceptor } = require('./server/index.js');
 
-const store = new stores.proc.MirroringStore({});
+const store = new stores.ProtocolStore({});
 
 function onConnect({ channel, store }) {
   console.log('New example/gui connection');
@@ -20,19 +20,18 @@ function start({ port }) {
   const keypair = newKeypair();
   const acceptor = new ConnectionsAcceptor({ port, keypair });
 
-  acceptor.on('protocol_added', ({ protocol, lane }) => {
-    console.log(`💡 Connectome protocol ${colors.cyan(protocol)}/${colors.cyan(lane)} ready.`);
+  acceptor.on('protocol_added', ({ protocol }) => {
+    console.log(`💡 Connectome protocol ${colors.cyan(protocol)} ready.`);
   });
 
   const protocol = 'example';
-  const lane = 'gui';
-  const channelList = acceptor.registerProtocol({
+
+  const channels = acceptor.registerProtocol({
     protocol,
-    lane,
     onConnect: ({ channel }) => onConnect({ channel, store })
   });
 
-  store.mirror(channelList);
+  store.syncOver(channels);
 
   acceptor.start();
   console.log(colors.green(`Connectome → Running websocket connections acceptor on port ${port} ...`));
