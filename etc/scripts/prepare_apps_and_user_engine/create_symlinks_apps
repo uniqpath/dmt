@@ -10,3 +10,7 @@ make_symlinks "../../" "${List[@]}"
 # dmt user apps
 mkdir -p ~/.dmt/user/apps/_dmt_deps; cd $_
 make_symlinks "../../../" "${List[@]}"
+
+# dmt device apps
+mkdir -p ~/.dmt-here/apps/_dmt_deps; cd $_
+make_symlinks "../../../.dmt/" "${List[@]}"

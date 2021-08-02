@@ -439,7 +439,11 @@ alias cdr='cd $(git rev-parse --show-toplevel || echo ".")'
 
 function gco {
   if [ -z "$1" ]; then
-    git checkout main
+    if [[ `git branch --list master` ]]; then
+       git checkout master
+    else
+      git checkout main
+    fi
   else
     git checkout $1
   fi

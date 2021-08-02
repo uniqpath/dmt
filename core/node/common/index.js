@@ -2,6 +2,7 @@ import os from 'os';
 import fs from 'fs';
 import path from 'path';
 import colors from 'colors';
+import express from 'express';
 import xstate from 'xstate';
 import quantum from 'quantum-generator';
 import nacl from 'tweetnacl';
@@ -16,13 +17,16 @@ import stopwatch from './lib/timeutils/stopwatch';
 import stopwatchAdv from './lib/timeutils/stopwatchAdv';
 import prettyMicroDuration from './lib/timeutils/prettyMicroDuration';
 import prettyTimeAge from './lib/timeutils/prettyTimeAge';
+import convertSeconds from './lib/timeutils/convertSeconds';
 import * as suntime from './lib/timeutils/suntime';
+import meetup from './lib/meetup';
 
 import prettyFileSize from './lib/prettyFileSize';
 
 import FsState from './lib/fsState';
 
 import processBatch from './lib/processBatch';
+import ipc from './lib/ipc/ipc.js';
 
 import identifyDeviceByMac from './lib/identifyDeviceByMac';
 
@@ -37,6 +41,13 @@ import * as textfileParsers from './lib/parsers/textfiles';
 import { apMode, apInfo, accessPointIP } from './lib/apTools';
 
 nacl.util = naclutil;
+
+const abcProcPath = path.join(helper.dmtPath, 'core/node/controller/processes/abc-proc.js');
+const abcSocket = path.join(helper.dmtPath, 'state/ipc.abc-proc.sock');
+const dmtProcPath = path.join(helper.dmtPath, 'core/node/controller/processes/dmt-proc.js');
+const dmtProcManagerPath = path.join(helper.dmtPath, 'core/node/controller/processes/manager.js');
+const daemonsPath = path.join(helper.dmtPath, 'core/node/controller/processes');
+const dmtSocket = path.join(helper.dmtPath, 'state/ipc.dmt-proc.sock');
 
 if (!fs.existsSync(helper.dmtPath)) {
   console.log(
@@ -80,6 +91,25 @@ function dmtVersion(versionFile = path.join(helper.dmtPath, '.version')) {
       .toString()
       .trim();
     return _dmtVersion;
+  }
+}
+
+function abcVersion({ allowCrash = true } = {}) {
+  const versionFile = path.join(helper.dmtPath, '/etc/.abc_version');
+
+  if (!allowCrash && !fs.existsSync(versionFile)) {
+    return;
+  }
+
+  try {
+    return fs
+      .readFileSync(versionFile)
+      .toString()
+      .trim();
+  } catch (e) {
+    if (allowCrash) {
+      throw e;
+    }
   }
 }
 
@@ -131,7 +161,17 @@ function versionCompareSymbol(otherDmtVersion) {
   return '≡';
 }
 
+const nodeFlags = ['--experimental-modules', '--experimental-specifier-resolution=node', '--unhandled-rejections=strict'];
+
 export default {
+  abcProcPath,
+  abcSocket,
+  dmtProcPath,
+  dmtSocket,
+  dmtProcManagerPath,
+  daemonsPath,
+  nodeFlags,
+  ipc,
   log: helper.log,
   util,
   scan,
@@ -142,8 +182,10 @@ export default {
   xstate,
   quantum,
   colors,
+  express,
   def,
   dmtVersion,
+  abcVersion,
   compareDmtVersions,
   versionCompareSymbol,
   parseCliArgs,
@@ -156,11 +198,14 @@ export default {
   suntime,
   prettyMicroDuration,
   prettyTimeAge,
+  convertSeconds,
   stopwatch,
   stopwatchAdv,
   apMode,
   apInfo,
   accessPointIP,
+
+  meetup,
 
   loop: util.periodicRepeat,
 
@@ -195,7 +240,7 @@ export default {
     const deviceName = this.device({ onlyBasicParsing: true }).id;
     const hostname = os.hostname();
 
-    return deviceName == hostname ? deviceName : `${deviceName} (os hostname: ${hostname})`;
+    return deviceName == hostname ? deviceName : `${deviceName} (host ${hostname})`;
   },
 
   userDefaults(defPath) {
@@ -206,8 +251,8 @@ export default {
     return helper.userDeviceTypes(type);
   },
 
-  definedNetworkId() {
-    return helper.definedNetworkId();
+  deviceNetworkId() {
+    return helper.deviceNetworkId();
   },
 
   networkDef(networkId) {
@@ -236,10 +281,10 @@ export default {
     const connections = helper.peerConnections();
 
     return connections
-      .map(({ id, syncState }) => {
+      .map(({ id, deviceTag, syncState }) => {
         if (id.includes('.')) {
           const address = id;
-          return { address, deviceTag: address, syncState };
+          return { address, deviceTag: deviceTag || address, syncState };
         }
 
         const deviceName = id;
@@ -290,7 +335,8 @@ export default {
   },
 
   isDevMachine: helper.isDevMachine,
-  isDevCluster: helper.isDevCluster,
+  isDevUser: helper.isDevUser,
+  isMainDevice: helper.isMainDevice,
   debugMode: helper.debugMode,
   debugCategory: helper.debugCategory,
   determineTimeAndDate: helper.determineTimeAndDate,
@@ -321,6 +367,5 @@ export default {
   },
   globals: helper.globals,
   promiseTimeout,
-  listify: util.listify,
-  accessProperty: (obj, acc) => def.tryOnTheFly(obj, acc)
+  listify: util.listify
 };

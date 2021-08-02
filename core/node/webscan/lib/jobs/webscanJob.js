@@ -7,9 +7,16 @@ import ingestLinksFromDirectory from '../ingest/txtFiles/ingestLinksFromDirector
 
 const { processBatch } = dmt;
 
-const INVALID_TITLES = ['Attention Required!', 'Amazon.com'];
+const INVALID_TITLES = ['Attention Required!', 'Amazon.com', '403 Forbidden'];
 function invalidTitle(title) {
-  return title && (INVALID_TITLES.includes(title) || title.endsWith(' | Cloudflare'));
+  return (
+    title &&
+    (INVALID_TITLES.includes(title) ||
+      title.toLowerCase().includes('proxy error') ||
+      title.endsWith(' | Cloudflare') ||
+      title.startsWith('Access denied') ||
+      title.startsWith('Just a moment'))
+  );
 }
 
 function maximumID(existingLinkIndex) {
@@ -23,7 +30,7 @@ function wrapScanWebLink(existingLinkIndex) {
   return linkEntry => {
     const match = existingLinkIndex.find(({ url }) => url == linkEntry.url);
 
-    if (match && !invalidTitle(match?.urlmetadata?.title)) {
+    if (match && !match.webscanFailed && !invalidTitle(match?.urlmetadata?.title)) {
       console.log(colors.gray(`Found match in existing link index for url ${colors.white(linkEntry.url)}:`));
 
       return new Promise((success, reject) => {
@@ -84,6 +91,14 @@ export default function spiderJob({ linksDirectory, onBatchFinished, existingLin
 
             for (const result of successes.filter(({ createdAt }) => !createdAt)) {
               result.createdAt = Date.now();
+            }
+
+            // replace invalid titles (Cloudflare Access denied, Just a moment etc.) with url
+            for (const result of successes) {
+              if (invalidTitle(result?.urlmetadata?.title)) {
+                result.urlmetadata.title = result.url.replace(/^https?:\/\//, '');
+                result.webscanFailed = true;
+              }
             }
 
             onBatchFinished({ successes, errors, isLastBatch });

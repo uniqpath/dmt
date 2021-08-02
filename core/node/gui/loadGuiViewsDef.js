@@ -112,6 +112,6 @@ export default program => {
   }
 
   if (Object.keys(views).length > 0) {
-    program.store.replaceSlotElement({ slotName: 'gui', key: 'views', value: views }, { announce: false });
+    program.store('gui').update({ views }, { announce: false });
   }
 };

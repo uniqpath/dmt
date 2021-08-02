@@ -6,6 +6,9 @@ const { log, util } = dmt;
 
 const { compare } = util;
 
+import rfc6902 from 'rfc6902';
+const generateJsonPatch = rfc6902.createPatch;
+
 import cleanupStateOnSaveAndLoad from './cleanupStateOnSaveAndLoad';
 
 const STATE_SCHEMA_VERSION = 0.8;
@@ -18,8 +21,9 @@ function saveState({ state, lastSavedState, stateFilePath = dmt.programStateFile
   if (!lastSavedState || !compare(lastSavedState, _state)) {
     writeFileAtomic(stateFilePath, JSON.stringify(_state, null, 2), err => {
       if (err) throw err;
-      return _state;
     });
+
+    return _state;
   }
 }
 

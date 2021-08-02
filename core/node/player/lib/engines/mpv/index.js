@@ -27,10 +27,6 @@ class MpvEngine extends EventEmitter {
       opts.pulseaudio = true;
     }
 
-    if (dmt.accessProperty(program.device, 'service[player].audioOnly') == 'true') {
-      opts.audio_only = true;
-    }
-
     if (dmt.debugCategory('mpv')) {
       log.debug('⚠️  Enabling mpv logging into ~/.dmt/log/mpv.log requires mpv process restart (dmt stop, killall mpv, dmt start)');
       this.enableMpvLogging(opts);
@@ -75,7 +71,7 @@ class MpvEngine extends EventEmitter {
     delete this.playerEngineState.percentposition;
     delete this.playerEngineState.bitrate;
 
-    this.program.store.update({ player: this.playerEngineState });
+    this.program.store('player').update(this.playerEngineState);
   }
 
   initEngine(playerState) {
@@ -83,7 +79,7 @@ class MpvEngine extends EventEmitter {
 
     this.setEngineVolume(playerState.volume);
 
-    setTimeout(() => this.program.store.update({ player: this.playerEngineState }), 500);
+    setTimeout(() => this.program.store('player').update(this.playerEngineState), 500);
 
     this.mpvProcess.on('stopped', () => {
       this.clearTimeposition();
@@ -116,7 +112,7 @@ class MpvEngine extends EventEmitter {
 
         this.playerEngineState.bitrate = bitrate;
 
-        this.program.store.update({ player: this.playerEngineState }, { announce: true });
+        this.program.store('player').update(this.playerEngineState, { announce: true });
       }
     });
   }
@@ -168,7 +164,7 @@ class MpvEngine extends EventEmitter {
     }
 
     if (this.playerInitialized && !util.compare(this.playerEngineState, newState)) {
-      this.program.store.update({ player: newState });
+      this.program.store('player').update(newState);
 
       clearTimeout(this.stateChangedSmallDelayTimer);
 
@@ -305,9 +301,9 @@ class MpvEngine extends EventEmitter {
   volume(vol) {
     return new Promise((success, reject) => {
       if (vol == null) {
-        success(this.program.state().player.volume);
+        success(this.program.store('player').get().volume);
       } else {
-        this.program.store.update({ player: { volume: vol } });
+        this.program.store('player').update({ volume: vol });
         this.setEngineVolume(vol);
         success(vol);
       }
@@ -336,7 +332,7 @@ class MpvEngine extends EventEmitter {
       } else {
         this.start()
           .then(engine => {
-            program.store.removeSlotElement({ slotName: 'player', key: 'error' });
+            program.store('player').removeKey('error');
             success(engine);
           })
           .catch(e => {
@@ -344,7 +340,7 @@ class MpvEngine extends EventEmitter {
             const msg = `${colors.cyan('mpv media player')} binary not present or cannot be found at ${colors.yellow('/usr/local/bin/mpv')} or ${colors.yellow(
               '/usr/bin/mpv'
             )}`;
-            program.store.update({ player: { error: { msg: stripAnsi(msg), type: 'mpv_binary_missing', helpUrl } } });
+            program.store('player').update({ error: { msg: stripAnsi(msg), type: 'mpv_binary_missing', helpUrl } });
             log.white(`${colors.yellow('WARN:')} ${msg}`);
             log.white(`mpv install instructions: ${colors.gray(helpUrl)}`);
           });
@@ -378,7 +374,7 @@ class MpvEngine extends EventEmitter {
       this.mpvProcess
         .connect()
         .then(({ mpvVersion }) => {
-          this.program.store.update({ device: { mpvVersion } }, { announce: false });
+          this.program.store('device').update({ mpvVersion }, { announce: false });
 
           if (this.connectedToMpvProcess) {
             success(this);
@@ -386,7 +382,7 @@ class MpvEngine extends EventEmitter {
             this.mpvProcess.clearPlaylist().then(() => {
               this.connectedToMpvProcess = true;
 
-              log.green(`✓ Successfully connected to ${colors.cyan('mpv process')}`);
+              log.green(`✓ Connected to ${colors.cyan('mpv process')}`);
 
               this.connectedAt = Date.now();
 

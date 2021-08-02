@@ -1,4 +1,4 @@
-import ConnectionsAcceptor from './connectionsAcceptor';
+import Connectome from './connectome';
 import { newKeypair } from '../utils/crypto/index.js';
 
-export { ConnectionsAcceptor, newKeypair as newServerKeypair };
+export { Connectome, newKeypair as newServerKeypair };

@@ -27,13 +27,13 @@ class PowerMonitor extends EventEmitter {
       if (program && program.isHub() && this.onDetectedAt && safetyOffSeconds) {
         if (warningMin && Date.now() - this.onDetectedAt > 1000 * (safetyOffSeconds - warningMin * 60) && !this.safetyOffWarningSent) {
           const msg = `Warning: ${tasmotaDeviceName} safety OFF in ${warningMin} min.`;
-          push.notify(msg);
+          push.omitDeviceName().notify(msg);
           program.iotMsg('onoff_monitor_safety_off_warning', msg);
           this.safetyOffWarningSent = true;
         }
 
         if (Date.now() - this.onDetectedAt > safetyOffSeconds * 1000 && !this.safetyOffAlreadyRequested) {
-          push.notify(`${tasmotaDeviceName} safety OFF triggered, wait for confirmation.`);
+          push.omitDeviceName().notify(`${tasmotaDeviceName} safety OFF triggered, wait for confirmation.`);
           program.iotMsg(`cmnd/${tasmotaDeviceName}/power`, '0');
           program.iotMsg('onoff_monitor_safety_off_triggered', `Safety off triggered for ${tasmotaDeviceName}`);
           this.safetyOffAlreadyRequested = true;

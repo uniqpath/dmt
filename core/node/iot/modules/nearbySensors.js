@@ -7,7 +7,9 @@ function handleIotEvent({ program, topic, msg }) {
     const { id } = parsedMsg;
     delete parsedMsg.id;
 
-    program.store.replaceSlotElement({ slotName: 'nearbySensors', key: id, value: parsedMsg }, { announce: false });
+    const patch = {};
+    patch[id] = parsedMsg;
+    program.store('nearbySensors').update(patch, { announce: false });
   }
 }
 

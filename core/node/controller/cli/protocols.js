@@ -11,20 +11,14 @@ if (args.error) {
 function displayTable(registeredProtocols) {
   const table = new Table();
 
-  const headers = ['protocol', 'lane'];
+  const headers = ['protocol'];
 
   table.push(headers.map(h => colors.cyan(h)));
 
   table.push(Table.divider);
 
-  registeredProtocols.forEach(({ protocol, lanes }, key, arr) => {
-    lanes.forEach(lane => {
-      table.push([colors.cyan(protocol), colors.yellow(lane)]);
-    });
-
-    if (!Object.is(arr.length - 1, key)) {
-      table.push(Table.divider);
-    }
+  registeredProtocols.forEach((protocol, key, arr) => {
+    table.push([colors.green(protocol)]);
   });
 
   console.log(table.toString());

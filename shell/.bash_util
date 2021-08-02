@@ -63,11 +63,19 @@ function dmt_is_rpi {
 }
 
 function dev_machine {
-  if [ -f "$DMT_THIS_DEVICE/.dev-machine" ]; then
+  if [ -f "$DMT_PATH/.prevent_dmt_next" ]; then
     return 0 # true
   fi
 
   return 1 # false
+}
+
+function dmt_desktop_notification {
+  if [ -f /usr/bin/osascript ]; then
+    local MSG="$1"
+    local TITLE="$2"
+    /usr/bin/osascript -e "display notification \"${MSG}\" with title \"${TITLE}\""
+  fi
 }
 
 function dmt_check_binary_exists {

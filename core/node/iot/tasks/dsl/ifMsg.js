@@ -1,5 +1,5 @@
 import dmt from 'dmt/common';
-const { def } = dmt;
+const { def, log } = dmt;
 
 import { push } from 'dmt/notify';
 
@@ -28,10 +28,11 @@ class IfMsg {
       if (helpers.compareTopicAndMsg({ topicAndMsg, topic, msg, context: statementName })) {
         for (const pushMsg of def.listify(ifMsg.push)) {
           const message = pushMsg.id;
+
           if (pushMsg.onlyAdmin) {
-            push.notify(message);
+            push.omitDeviceName().notify(message);
           } else {
-            push.notifyAll(message);
+            push.omitDeviceName().notifyAll(message);
           }
         }
 

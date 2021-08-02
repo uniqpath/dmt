@@ -1,6 +1,6 @@
 import WritableStore from './writableStore';
 
-class MergeStore extends WritableStore {
+export default class MergeStore extends WritableStore {
   constructor(initialState = {}) {
     super(initialState);
   }
@@ -27,5 +27,3 @@ class MergeStore extends WritableStore {
     }
   }
 }
-
-export default MergeStore;

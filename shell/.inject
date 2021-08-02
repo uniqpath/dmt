@@ -2,7 +2,7 @@
 
 kMIN_BASH_VERSION='3.2'  # due to use of =~, we require at least 3.2
 
-kINIT_FILE_LINE_ID=" # dmt-system"
+kINIT_FILE_LINE_ID=" # Added by dmt-system (see https://github.com/uniqpath/dmt)"
 #kREGEX_CONFLICTING_LINE='^[^#]*\b~/.dmt/shell/.loader' # Regex that identifies relevant existing lines.
 kREGEX_CONFLICTING_LINE='~/.dmt/shell/.loader' # Regex that identifies relevant existing lines.
 
@@ -203,9 +203,9 @@ EOF
       initFileContents=$(grep -Ev "$kREGEX_CONFLICTING_LINE" "$initFile")
       printf '%s\n\n%s\n' "$initFileContents" "$line" > "$initFile" || die "$errMsg"
     fi
-  fi
 
-  printf '%s updated with dmt-system loading script\n' "$initFile"
+    printf '%s updated with dmt-system loading script\n' "$initFile"
+  fi
 
   return 0
 }

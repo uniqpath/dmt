@@ -2,7 +2,7 @@ import dmt from 'dmt/common';
 
 const intervalPeriod = dmt.globals.tickerPeriod * 1000;
 
-let tickCounter = 0;
+let tickCounter = -1;
 
 function startTicker(program) {
   oneTick(program);
@@ -21,7 +21,7 @@ function oneTick(program) {
 
   tickCounter += 1;
 
-  setTimeout(() => program.store.announceStateChange(), intervalPeriod / 2);
+  setTimeout(() => program.store().announceStateChange(), intervalPeriod / 2);
 
   setTimeout(() => {
     oneTick(program);

@@ -22,7 +22,7 @@ class ParaSearch {
     remoteProviders.forEach(provider => {
       const { address, port } = provider;
 
-      connectorPool.getConnector({ address, port: port || 7780 }).then(connector => {
+      connectorPool.getConnector({ host: address, port: port || 7780 }).then(connector => {
         this.searchArray.push(new RemoteProviderSearch({ provider, connector }));
       });
     });

@@ -230,7 +230,8 @@ function q {
 
   local host_with_user=''
   local ssh_port=''
-  get_full_host host_with_user ssh_port "$1"
+  local compress=''
+  get_full_host host_with_user ssh_port compress "$1"
   if [ -n "$host_with_user" ]; then
     if [ -z "$ssh_port" ]; then
       ssh "$host_with_user"
@@ -261,7 +262,7 @@ function get_full_host() {
   local is_dmt_device
 
   # IMPORTANT METHOD :::
-  get_remote_device_ip_and_name_and_user_and_network ip globalIp __globalSSHPort name user network is_dmt_device "$3"
+  get_remote_device_ip_and_name_and_user_and_network ip globalIp __globalSSHPort name user network is_dmt_device "$4"
 
   if [ -n "$ip" ]; then
     if [ -z "$user" ]; then
@@ -288,6 +289,7 @@ function get_full_host() {
         eval "$1='$__host'"
         eval "$2='$defaultSSHPort'"
       fi
+      eval "$3='--compress'"
     else
       local current_network_id=''
       get_current_network current_network_id
@@ -307,6 +309,7 @@ function get_full_host() {
           eval "$1='$__host'"
           eval "$2='$defaultSSHPort'"
         fi
+        eval "$3='--compress"
       fi
     fi
   fi

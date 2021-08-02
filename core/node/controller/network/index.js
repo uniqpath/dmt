@@ -7,6 +7,10 @@ class Network {
     this.determineNetwork = new DetermineNetwork({ program, obj: this });
   }
 
+  name() {
+    return this.try('id');
+  }
+
   latlng() {
     return this.try('latlng');
   }

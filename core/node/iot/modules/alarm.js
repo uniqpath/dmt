@@ -33,14 +33,14 @@ function handleIotEvent({ program, topic, msg }) {
       case 'enabled':
         program.showNotification({ id: 'alarm', msg: 'Alarm enabled', ttl: 60, bgColor: '#9A4EF1' });
         if (alarm.thisDeviceManagesAlarm()) {
-          push.notifyAll('Alarm enabled');
+          push.omitDeviceName().notifyAll('Alarm enabled');
         }
         break;
 
       case 'disabled':
         program.showNotification({ id: 'alarm', msg: 'Alarm disabled', ttl: 60, bgColor: '#5FF5B5' });
         if (alarm.thisDeviceManagesAlarm()) {
-          push.notifyAll('Alarm disabled');
+          push.omitDeviceName().notifyAll('Alarm disabled');
         }
         break;
 

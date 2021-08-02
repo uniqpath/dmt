@@ -83,11 +83,10 @@ Install (everything stays neatly inside the `~/.dmt` directory):
 git clone https://github.com/uniqpath/dmt.git ~/.dmt
 cd ~/.dmt
 ./install
+source ~/.bashrc
 ```
 
 (ignore the `node.js is not installed` message for now).
-
-Now enter `source ~/.bashrc` *to reload the shell* OR *logout and then ssh back* to achieve the same.
 
 ### Setup the search node
 

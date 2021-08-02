@@ -1,9 +1,9 @@
 import colors from 'colors';
-import { notify } from '../lib/apn';
+import { push } from '../index';
 
 function help() {
-  console.log(colors.green('Send message to Apple push notifications server'));
-  console.log(`${colors.yellow('Usage:')} cli push [msg]`);
+  console.log(colors.green('Send push message to mobile devices via pushover.net service'));
+  console.log(`${colors.yellow('Usage:')} cli notify [msg]`);
 }
 
 if (process.argv.length > 2 && process.argv[2] == '-h') {
@@ -11,7 +11,8 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
   process.exit();
 }
 function send(msg) {
-  notify(msg)
+  push
+    .notify(msg)
     .then(() => {
       console.log(colors.green('Push message sent'));
       process.exit();
