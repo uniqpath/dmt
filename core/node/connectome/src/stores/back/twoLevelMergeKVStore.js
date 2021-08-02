@@ -1,6 +1,6 @@
 import mergeState from './lib/merge.js';
 
-class KeyValueStore {
+export default class KeyValueStore {
   constructor() {
     this.state = {};
   }
@@ -54,5 +54,3 @@ class KeyValueStore {
     }
   }
 }
-
-export default KeyValueStore;

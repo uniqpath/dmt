@@ -93,7 +93,7 @@ function handleIotEvent({ program, topic, msg }) {
       tempDirection: { symbol: '⇡', tempDirectionUpdateAt: Date.now() }
     };
 
-    program.store.replaceSlot('environment', environment);
+    program.store('environment').set(environment);
 
     return;
   }
@@ -109,7 +109,7 @@ function handleIotEvent({ program, topic, msg }) {
   if (weatherData) {
     const now = Date.now();
 
-    const c = program.state().device;
+    const c = program.store('device').get();
     if (c && c.environment && c.environment.timestamp) {
       if (c.environment.updatedAt && now < c.environment.updatedAt) {
         return;
@@ -136,7 +136,7 @@ function handleIotEvent({ program, topic, msg }) {
       environment.tempDirection = temperatureDirection(historicReadings);
     }
 
-    program.store.replaceSlot('environment', environment);
+    program.store('environment').set(environment);
   }
 }
 

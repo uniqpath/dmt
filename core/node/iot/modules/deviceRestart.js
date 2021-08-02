@@ -7,17 +7,19 @@ function setup(program) {}
 
 function handleBooted({ restarterId, moduleIp }) {
   const tag = `${restarterId}`;
-  push.notify(`Module ${tag} (${moduleIp}) BOOTED`);
+  push.omitDeviceName().notify(`Module ${tag} (${moduleIp}) BOOTED`);
 }
 
 const slotName = 'deviceRestarters';
 
 function handleRestarting(program, { restarterId, status }) {
-  program.store.replaceSlotElement({ slotName, key: restarterId, value: { status, receivedAt: Date.now() } }, { announce: true });
+  const patch = {};
+  patch[restarterId] = { status, receivedAt: Date.now() };
+  program.store(slotName).update(patch, { announce: true });
 }
 
 function handleRestartFinished(program, { restarterId }) {
-  program.store.removeSlotElement({ slotName, key: restarterId }, { announce: true });
+  program.store(slotName).removeKey(restarterId, { announce: true });
 }
 
 function handleIotEvent({ program, topic, msg }) {

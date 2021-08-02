@@ -14,13 +14,12 @@ printServerInfo({ privateKeyHex, publicKeyHex });
 
 const port = 3500;
 const protocol = 'test';
-const lane = 'fiber';
 
 const verbose = false;
 
 const acceptor = new ConnectionsAcceptor({ port, keypair, verbose });
 
-acceptor.registerProtocol({ protocol, lane, onConnect });
+acceptor.registerProtocol({ protocol, onConnect });
 
 acceptor.on('connection', channel => {
   console.log(colors.magenta(`Initiated new connection with shared secret ${colors.gray(bufferToHex(channel.sharedSecret))}`));

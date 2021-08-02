@@ -40,16 +40,18 @@ class LanBusOverUdpBroadcast extends EventEmitter {
   }
 
   broadcastMessage(msgJson) {
-    const msg = JSON.stringify(msgJson);
+    if (this.program.store('device').get().ip) {
+      const msg = JSON.stringify(msgJson);
 
-    this.udpBus
-      .publish(msg)
-      .then(() => {
-        log.debug(`Broadcasted UDP message "${msg}"`, { cat: 'lanbus' });
-      })
-      .catch(e => {
-        log.debug(`Lanbus broadcast error: ${JSON.stringify(e, null, 2)}`);
-      });
+      this.udpBus
+        .publish(msg)
+        .then(() => {
+          log.debug(`Broadcasted UDP message "${msg}"`, { cat: 'lanbus' });
+        })
+        .catch(e => {
+          log.debug(`Lanbus broadcast error: ${JSON.stringify(e, null, 2)}`);
+        });
+    }
   }
 }
 

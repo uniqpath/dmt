@@ -1,0 +1,37 @@
+{
+  "name": "encoding-negotiator",
+  "version": "2.0.1",
+  "description": "a negotiator for the accept-encoding header",
+  "main": "index.js",
+  "scripts": {
+    "unit": "ava test/*.js",
+    "test": "npm run lint && npm run unit",
+    "lint": "standard index.js test/* benchmark/*",
+    "coveralls": "nyc npm test"
+  },
+  "keywords": [
+    "encoding",
+    "negotiator",
+    "accept-encoding",
+    "accept",
+    "http",
+    "header"
+  ],
+  "author": "Denis Fäcke",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "^3.0.0",
+    "benchmark": "^2.1.4",
+    "negotiator": "^0.6.2",
+    "nyc": "^15.0.0",
+    "standard": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=10.13.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SerayaEryn/encoding-negotiator.git"
+  },
+  "files": []
+}

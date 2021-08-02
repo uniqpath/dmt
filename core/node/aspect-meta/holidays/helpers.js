@@ -14,12 +14,6 @@ function getDataForCorrectYear(obj, year) {
   throw new Error(`Error: no data for ${year} ${JSON.stringify(obj)}`);
 }
 
-function easterMonday(y) {
-  const easterMonday = easter(y);
-  easterMonday.setDate(easterMonday.getDate() + 1);
-  return easterMonday;
-}
-
 function easter(Y) {
   const C = Math.floor(Y / 100);
   const N = Y - 19 * Math.floor(Y / 19);
@@ -36,6 +30,12 @@ function easter(Y) {
   return new Date(Y, M - 1, D);
 }
 
+function easterMonday(y) {
+  const easterMonday = easter(y);
+  easterMonday.setDate(easterMonday.getDate() + 1);
+  return easterMonday;
+}
+
 function getCurrentYearMonthDay() {
   const currentTime = new Date();
 
@@ -48,4 +48,4 @@ function getCurrentYearMonthDay() {
   return { year, month, day };
 }
 
-export { getDataForCorrectYear, easterMonday, getCurrentYearMonthDay };
+export { getDataForCorrectYear, easter, easterMonday, getCurrentYearMonthDay };

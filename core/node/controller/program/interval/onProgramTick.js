@@ -8,7 +8,7 @@ function onTick(program) {
   const now = Date.now();
   const apMode = program.apMode();
 
-  program.store.removeFromSlotArrayElement('notifications', el => !el.expireAt || el.expireAt < now, { announce: false });
+  program.store('notifications').removeFromArray(el => !el.expireAt || el.expireAt < now, { announce: false });
 
   const deviceUpdate = {
     devMachine: dmt.isDevMachine(),
@@ -16,20 +16,19 @@ function onTick(program) {
     apMode
   };
 
-  const { environment } = program.state();
+  const environment = program.store('environment').get();
 
   if (environment && environment.expireAt && environment.expireAt < now) {
     log.magenta('Clearing expired enironment sensor data ...');
-    program.store.clearSlot('environment', { announce: false });
+    program.store('environment').remove({ announce: false });
   }
-
-  const state = { device: deviceUpdate, log: log.bufferLines(log.REPORT_LINES) };
 
   determineIP(program);
 
   determineWifiAP(program);
 
-  program.store.update(state, { announce: false });
+  program.store('device').update(deviceUpdate, { announce: false });
+  program.store('log').set(log.bufferLines(log.REPORT_LINES), { announce: false });
 }
 
 export default onTick;

@@ -7,6 +7,8 @@ import colors from 'colors';
 import dmt from 'dmt/common';
 const { log } = dmt;
 
+import { push } from 'dmt/notify';
+
 import checkPermission from './checkPermission';
 
 function fileNotFound({ providerAddress, fileName, res, host }) {
@@ -46,6 +48,9 @@ function contentServer({ app, connectorPool, defaultPort, emitter }) {
 
       if (providerAddress == 'localhost') {
         if (fs.existsSync(filePath)) {
+          if (['.pdf', '.epub', '.txt'].includes(path.extname(filePath))) {
+            push.notify(`Serving ${fileName} (${filePath})`);
+          }
           res.sendFile(filePath);
         } else {
           fileNotFound({ providerAddress, fileName, res, host });

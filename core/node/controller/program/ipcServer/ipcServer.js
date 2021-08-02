@@ -1,79 +1,25 @@
+import colors from 'colors';
+
 import dmt from 'dmt/common';
-const { log, parseCliArgs } = dmt;
+const { log } = dmt;
+import fs from 'fs';
 
-import path from 'path';
-import { homedir } from 'os';
+import { push } from 'dmt/notify';
 
-import ipc from 'node-ipc';
+export default function server(program) {
+  if (fs.existsSync(dmt.dmtSocket)) {
+    fs.unlinkSync(dmt.dmtSocket);
+  }
 
-ipc.config.id = 'server';
-ipc.config.appspace = 'ipc.dmt.';
-ipc.config.socketRoot = path.join(homedir(), '.dmt/state/');
-ipc.config.retry = 1500;
-ipc.config.silent = true;
+  const ser = new dmt.ipc();
 
-function emitResponse({ response, socket }) {
-  ipc.server.emit(socket, 'ack', response);
-}
+  ser.listen({ path: dmt.dmtSocket }, e => {
+    if (e) throw e;
 
-function emitError({ error, socket }) {
-  log.red('IPC server error:');
-  log.red(error);
-  ipc.server.emit(socket, 'ack', { error: error.message });
-}
-
-function server(program) {
-  ipc.serve(() => {
-    ipc.server.on('message', (data, socket) => {
-      try {
-        const { actorName, namespace, action, payload, atDevice } = JSON.parse(data);
-
-        if (namespace == 'gui') {
-          program.emit('send_to_connected_guis', { action, payload });
-
-          ipc.server.emit(socket, 'ack', 'empty');
-        } else if (actorName) {
-          if (atDevice) {
-            const device = parseCliArgs(atDevice).atDevices[0];
-            let { address, port, hostType, host } = device;
-            if (hostType == 'dmt') {
-              const nearbyIp = dmt.getLocalIpViaNearby({ program, deviceName: host });
-              if (nearbyIp) {
-                address = nearbyIp;
-                port = null;
-              }
-            }
-
-            program.fiberPool
-              .getConnector({ address, port: port || 7780 })
-              .then(connector => {
-                if (connector.isReady()) {
-                  connector
-                    .remoteObject(actorName)
-                    .call(action, payload)
-                    .then(response => emitResponse({ response, socket }));
-                } else {
-                  emitError({ error: new Error('Connector was not ready in time, please retry the request.'), socket });
-                }
-              })
-              .catch(error => emitError({ error, socket }));
-          } else {
-            program
-              .actor(actorName)
-              .call(action, payload)
-              .then(response => emitResponse({ response, socket }))
-              .catch(error => emitError({ error, socket }));
-          }
-        } else {
-          log.red(`Cannot process IPC request: ${data}`);
-        }
-      } catch (e) {
-        log.red(e);
-      }
-    });
+    log.yellow(`DMT IPC listening on ${colors.gray(dmt.dmtSocket)}`);
   });
 
-  ipc.server.start();
+  ser.on('stopping', payload => {
+    log.write('dmt-proc is stopping ... ');
+  });
 }
-
-export default server;

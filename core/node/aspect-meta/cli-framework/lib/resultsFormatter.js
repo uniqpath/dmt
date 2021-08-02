@@ -4,7 +4,7 @@ import fs from 'fs';
 import { homedir } from 'os';
 
 export default function resultsFormatter(results) {
-  const devMachine = fs.existsSync(`${homedir()}/.dmt/user/devices/this/.dev-machine`);
+  const devMachine = fs.existsSync(`${homedir()}/.dmt/.prevent_dmt_next`);
 
   results.forEach((result, index) => {
     process.stdout.write(`${colors.green(index + 1)}. `);

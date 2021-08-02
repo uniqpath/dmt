@@ -3,7 +3,7 @@ const { log } = dmt;
 
 import { ConnectorPool } from 'dmt/connectome';
 
-export default function createFiberPool({ port, protocol, lane }) {
+export default function createFiberPool({ port, protocol }) {
   const keypair = dmt.keypair();
-  return new ConnectorPool({ protocol, lane, port, keypair, log: log.write });
+  return new ConnectorPool({ protocol, port, keypair, log: log.write });
 }

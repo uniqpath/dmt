@@ -29,8 +29,6 @@ class Server {
 
     this.app
       .listen(port, () => {
-        log.green('%s listening at http://%s:%s', description || 'Server', 'localhost', port);
-
         log.cyan('--------------------------------------------------');
         log.cyan(`💡🚀🎸 OPEN DMT IN BROWSER → ${colors.magenta(`http://localhost:${port}`)}`);
         log.cyan('--------------------------------------------------');
@@ -39,7 +37,7 @@ class Server {
           desktop.notify('💡 OPEN DMT IN BROWSER', `🚀🎸 http://localhost:${port}`);
         }
 
-        this.program.store.update({ device: { actualGuiPort: port } }, { announce: false });
+        this.program.store('device').update({ actualGuiPort: port }, { announce: false });
       })
       .on('error', () => {
         throw new Error(`Failed to listen at gui port ${port}`);

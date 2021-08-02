@@ -229,7 +229,7 @@ function res {
     printf "${GREEN}res [service] ${GRAY}= sudo systemctl restart [service]${NC}\n"
   else
     sudo systemctl restart "$@"
-    printf "${GREEN}Done.${NC}\n"
+    printf "${GREEN}✓ Done.${NC}\n"
   fi
 }
 

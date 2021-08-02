@@ -12,7 +12,7 @@ function init(program) {
   checkServerSambaSharesConfig();
 
   if (dmt.isLinux()) {
-    program.on('tick', () => {
+    program.on('slowtick', () => {
       prepareMountpoints().forEach(mountInfo => mount(mountInfo));
     });
   }

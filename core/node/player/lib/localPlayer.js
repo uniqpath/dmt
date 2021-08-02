@@ -31,9 +31,9 @@ class LocalPlayer {
     });
 
     program.on('tick', () => {
-      const { player } = program.state();
+      const player = program.store('player').get();
 
-      if (player?.timeLimit) {
+      if (player.timeLimit) {
         if (player.paused) {
           if (
             player.idleSince &&
@@ -52,9 +52,9 @@ class LocalPlayer {
             log.cyan('Pausing because time limit was reached.');
             this.pause();
             this.removeTimeLimit({ announce: false });
-            this.program.store.update({ player: { timeLimitReached: true } });
+            this.program.store('player').update({ timeLimitReached: true });
           } else {
-            this.program.store.update({ player: { timeLimit: remainingTime } }, { announce: false });
+            this.program.store('player').update({ timeLimit: remainingTime }, { announce: false });
           }
         }
       }
@@ -71,7 +71,7 @@ class LocalPlayer {
       return;
     }
 
-    const { limit } = this.program.state().player;
+    const { limit } = this.program.store('player').get();
     const limitStr = limit ? ` (limit: ${limit})` : '';
     log.yellow(`Player: finished media ${this.playlist.currentIndex + 1} of ${this.playlist.count()}${limitStr}`);
 
@@ -85,7 +85,7 @@ class LocalPlayer {
     if (limitReached) {
       log.magenta('Stopping because limit was reached');
 
-      this.program.store.update({ player: { limitReached: true } });
+      this.program.store('player').update({ limitReached: true });
 
       this.playlist.selectNextMedia();
       this.playlist.rollover();
@@ -96,7 +96,7 @@ class LocalPlayer {
     const playNext = () =>
       this.next({ fromAction: false })
         .then(() => {
-          if (!this.program.state().player.repeatCount) {
+          if (!this.program.store('player').get().repeatCount) {
             this.playlist.rollover();
           }
         })
@@ -117,9 +117,9 @@ class LocalPlayer {
       paused = true;
     }
 
-    this.program.store.update({ player: { paused, currentMedia: { songPath: currentSongPath } } });
+    this.program.store('player').update({ paused, currentMedia: { songPath: currentSongPath } });
 
-    this.program.emit('player:initialized', this.program.state().player);
+    this.program.emit('player:initialized', this.program.store('player').get());
 
     this.initialized = true;
   }
@@ -129,7 +129,7 @@ class LocalPlayer {
   }
 
   initVolume() {
-    const currentVolume = this.program.state().player && this.program.state().player.volume != null ? this.program.state().player.volume : undefined;
+    const currentVolume = this.program.store('player').get().volume;
     const defaultDeviceVolume = dmt.services('player').try('defaultVolume.mpv');
     const defaultVolume = parseInt(defaultDeviceVolume) || 75;
 
@@ -146,15 +146,15 @@ class LocalPlayer {
     const volume = currentVolume == null ? defaultVolume : currentVolume;
 
     if (volume != null) {
-      this.program.store.update({ player: { volume } });
+      this.program.store('player').update({ volume });
     } else {
-      this.program.store.removeSlotElement({ slotName: 'player', key: 'volume' });
+      this.program.store('player').removeKey('volume');
     }
   }
 
   removeLimitNotifications() {
-    this.program.store.removeSlotElement({ slotName: 'player', key: 'limitReached' }, { announce: false });
-    this.program.store.removeSlotElement({ slotName: 'player', key: 'timeLimitReached' }, { announce: false });
+    this.program.store('player').removeKey('limitReached', { announce: false });
+    this.program.store('player').removeKey('timeLimitReached', { announce: false });
   }
 
   async play({ files = [] } = {}) {
@@ -190,7 +190,7 @@ class LocalPlayer {
         return;
       }
 
-      this.program.store.removeSlotElement({ slotName: 'player', key: 'limit' }, { announce: false });
+      this.program.store('player').removeKey('limit', { announce: false });
 
       this.playlist.clear();
       this.playlist.prepareNumbering();
@@ -305,7 +305,7 @@ class LocalPlayer {
   async repeat() {
     const maxRepeat = 3;
 
-    let { repeatCount } = this.program.state().player;
+    let { repeatCount } = this.program.store('player').get();
 
     if (repeatCount == null) {
       repeatCount = 1;
@@ -317,21 +317,21 @@ class LocalPlayer {
       repeatCount = undefined;
     }
 
-    this.program.store.update({ player: { repeatCount } });
+    this.program.store('player').update({ repeatCount });
 
     return { repeatCount };
   }
 
   decrementLimit() {
-    if (this.program.state().player.repeatCount) {
+    if (this.program.store('player').get().repeatCount) {
       return false;
     }
 
-    const { limit } = this.program.state().player;
+    const { limit } = this.program.store('player').get();
     if (limit > 1) {
-      this.program.store.update({ player: { limit: limit - 1 } }, { announce: false });
+      this.program.store('player').update({ limit: limit - 1 }, { announce: false });
     } else if (limit == 1) {
-      this.program.store.removeSlotElement({ slotName: 'player', key: 'limit' }, { announce: false });
+      this.program.store('player').removeKey('limit', { announce: false });
       return true;
     }
 
@@ -371,17 +371,17 @@ class LocalPlayer {
             .catch(reject);
         };
 
-        if (!fromAction && this.program.state().player.repeatCount) {
-          let { repeatCount } = this.program.state().player;
+        if (!fromAction && this.program.store('player').get().repeatCount) {
+          let { repeatCount } = this.program.store('player').get();
           if (repeatCount == 1) {
             repeatCount = null;
           } else {
             repeatCount -= 1;
           }
-          this.program.store.update({ player: { repeatCount } });
+          this.program.store('player').update({ repeatCount });
           cont();
         } else if (this.playlist.selectNextMedia() != null) {
-          this.program.store.update({ player: { repeatCount: undefined } });
+          this.program.store('player').removeKey('repeatCount');
           if (fromAction) {
             this.decrementLimit();
           }
@@ -454,7 +454,7 @@ class LocalPlayer {
       if (num != 'reset' && num != '0' && num != 0) {
         num = parseInt(num);
 
-        limit = this.program.state().player.limit;
+        limit = this.program.store('player').get().limit;
 
         if (num) {
           limit = num;
@@ -467,7 +467,7 @@ class LocalPlayer {
 
       limit = Math.min(limit, this.playlist.count() - this.playlist.currentIndex);
 
-      this.program.store.update({ player: { limit } }, { announce: false });
+      this.program.store('player').update({ limit }, { announce: false });
       this.removeTimeLimit({ announce: false });
 
       this.playlist.broadcastPlaylistState();
@@ -483,7 +483,7 @@ class LocalPlayer {
       if (num != 'reset' && num != '0' && num != 0) {
         num = parseInt(num);
 
-        timeLimit = this.program.state().player.timeLimit;
+        timeLimit = this.program.store('player').get().timeLimit;
 
         if (num) {
           timeLimit = num;
@@ -504,14 +504,14 @@ class LocalPlayer {
       }
 
       if (!this.isStream()) {
-        this.program.store.removeSlotElement({ slotName: 'player', key: 'limit' }, { announce: false });
+        this.program.store('player').removeKey('limit', { announce: false });
       }
 
       if (timeLimit == undefined) {
         this.removeTimeLimit({ announce: false });
       } else {
         const timeLimitSetAt = Date.now();
-        this.program.store.update({ player: { timeLimit, timeLimitSetAt } });
+        this.program.store('player').update({ timeLimit, timeLimitSetAt });
       }
       this.playlist.broadcastPlaylistState();
 
@@ -520,8 +520,8 @@ class LocalPlayer {
   }
 
   removeTimeLimit({ announce = true } = {}) {
-    this.program.store.removeSlotElement({ slotName: 'player', key: 'timeLimitSetAt' }, { announce: false });
-    this.program.store.removeSlotElement({ slotName: 'player', key: 'timeLimit' }, { announce });
+    this.program.store('player').removeKey('timeLimitSetAt', { announce: false });
+    this.program.store('player').removeKey('timeLimit', { announce });
   }
 
   forward(seconds = DEFAULT_SKIP_SECONDS) {
@@ -556,7 +556,7 @@ class LocalPlayer {
   }
 
   gotoPercentPos(percentPos) {
-    if (!this.program.state().player.paused) {
+    if (!this.program.store('player').get().paused) {
       const duration = this.mediaDuration();
       if (duration) {
         const timepos = percentPos * duration;
@@ -566,15 +566,15 @@ class LocalPlayer {
   }
 
   hasLoadedMedia() {
-    return dmt.accessProperty(this.program.state(), 'player.currentMedia.songPath');
+    return this.program.store('player').get().currentMedia?.songPath;
   }
 
   mediaDuration() {
-    return dmt.accessProperty(this.program.state(), 'player.currentMedia.duration');
+    return this.program.store('player').get().currentMedia?.duration;
   }
 
   isStream() {
-    return this.program.state().player.isStream;
+    return this.program.store('player').get().isStream;
   }
 
   stop() {
@@ -621,14 +621,14 @@ class LocalPlayer {
 
   status() {
     return new Promise((success, reject) => {
-      const status = JSON.parse(JSON.stringify(this.program.state().player));
+      const status = JSON.parse(JSON.stringify(this.program.store('player').get()));
       delete status.playlist;
       success({ status });
     });
   }
 
   volume(vol) {
-    const prevVolume = this.program.state().player.volume;
+    const prevVolume = this.program.store('player').get().volume;
     let newVolume;
 
     const volumeStep = parseInt(dmt.services('player').volumeStep || 10);

@@ -201,7 +201,7 @@ export default {
     }
   },
 
-  definedNetworkId() {
+  deviceNetworkId() {
     return def.id(this.device().network);
   },
 
@@ -367,7 +367,10 @@ export default {
 
   getLocalIpViaNearby({ program, deviceName }) {
     const _deviceName = deviceName;
-    const match = program.state().nearbyDevices.find(({ deviceName, stale }) => !stale && deviceName == _deviceName);
+    const match = program
+      .store('nearbyDevices')
+      .get()
+      .find(({ deviceName, stale }) => !stale && deviceName == _deviceName);
     if (match) {
       return match.ip;
     }

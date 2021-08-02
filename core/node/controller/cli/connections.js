@@ -24,7 +24,7 @@ function displayTable(connectionList, outgoing = true) {
   if (connectionList.length > 0) {
     const table = new Table();
 
-    const headers = ['address', 'protocol', 'lane'];
+    const headers = ['address', 'protocol'];
 
     if (args.full) {
       headers.push(...['conn uptime', 'last message']);
@@ -37,9 +37,8 @@ function displayTable(connectionList, outgoing = true) {
     table.push(Table.divider);
 
     let prevProtocol;
-    let prevLane;
 
-    connectionList.forEach(({ address, protocol, lane, ready, connectedAt, lastMessageAt, remotePubkeyHex }) => {
+    connectionList.forEach(({ address, protocol, ready, connectedAt, lastMessageAt, remotePubkeyHex }) => {
       const deviceKey = args.full ? remotePubkeyHex : `${remotePubkeyHex ? remotePubkeyHex.substr(0, 8) : '?'}…`;
 
       const connectedMarker = ready ? colors.green('✓') : colors.red('✖');
@@ -49,7 +48,7 @@ function displayTable(connectionList, outgoing = true) {
       const connUptime = connectedAt ? dmt.prettyTimeAge(connectedAt, { detailed: true }).replace(' ago', '') : '';
       const lastMessageTime = lastMessageAt ? dmt.prettyTimeAge(lastMessageAt, { detailed: true }) : '';
 
-      const line = [addressLine, protocol, lane];
+      const line = [addressLine, protocol];
 
       if (args.full) {
         line.push(...[colors.gray(connUptime), colors.gray(lastMessageTime)]);
@@ -57,12 +56,11 @@ function displayTable(connectionList, outgoing = true) {
 
       line.push(colors.gray(deviceKey));
 
-      if ((prevProtocol && prevProtocol != protocol) || (prevLane && prevLane != lane)) {
+      if (prevProtocol && prevProtocol != protocol) {
         table.push(Table.divider);
       }
 
       prevProtocol = protocol;
-      prevLane = lane;
 
       table.push(line);
     });

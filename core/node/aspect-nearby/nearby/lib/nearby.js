@@ -10,9 +10,7 @@ class Nearby {
   constructor(program) {
     this.program = program;
 
-    if (!program.state().nearbyDevices) {
-      program.store.update({ nearbyDevices: [] }, { announce: false });
-    }
+    program.store('nearbyDevices').makeArray();
 
     this.broadcastInterval = 2 * dmt.globals.tickerPeriod * 1000;
 
@@ -28,7 +26,7 @@ class Nearby {
   }
 
   init() {
-    this.refreshNearbyDevicesList(true);
+    this.refreshNearbyDevicesList();
 
     this.program.on('tick', () => this.refreshNearbyDevicesList());
 
@@ -75,26 +73,21 @@ class Nearby {
     }
   }
 
-  refreshNearbyDevicesList(removeStaleImmediately = false) {
-    if (this.program.state().nearbyDevices) {
-      const { nearbyDevices } = this.program.state();
+  refreshNearbyDevicesList() {
+    const nearbyDevices = this.program.store('nearbyDevices').get();
 
-      const nearbyDevicesNew = detectStaleDevices(
-        {
-          nearbyDevices,
-          broadcastInterval: this.broadcastInterval
-        },
-        { removeStaleImmediately }
-      );
+    const nearbyDevicesNew = detectStaleDevices({
+      nearbyDevices,
+      broadcastInterval: this.broadcastInterval
+    });
 
-      nearbyDevicesNew.push({ ...this.ourMessage(), thisDevice: true, stale: false, staleDetectedAt: undefined });
+    nearbyDevicesNew.push({ ...this.ourMessage(), thisDevice: true, stale: false, staleDetectedAt: undefined });
 
-      const sortedDevices = nearbyDevicesNew.sort(util.orderBy('deviceName'));
+    const sortedDevices = nearbyDevicesNew.sort(util.orderBy('deviceName'));
 
-      this.program.store.replaceSlot('nearbyDevices', sortedDevices, { announce: false });
+    this.program.store('nearbyDevices').set(sortedDevices, { announce: false });
 
-      this.program.emit('nearby_devices', sortedDevices);
-    }
+    this.program.emit('nearby_devices', sortedDevices);
   }
 
   initNearbyHelloMessagesListener() {
@@ -111,7 +104,10 @@ class Nearby {
           return;
         }
 
-        const prevDeviceData = this.program.state().nearbyDevices.find(({ deviceKey }) => deviceKey == obj.deviceKey);
+        const prevDeviceData = this.program
+          .store('nearbyDevices')
+          .get()
+          .find(({ deviceKey }) => deviceKey == obj.deviceKey);
 
         const device = Object.assign(obj, { lastSeenAt: Date.now(), stale: false });
 

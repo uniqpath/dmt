@@ -15,7 +15,7 @@ function manage_daemon {
   local daemon_process="$2"
 
   local DMT_CORE="$HOME/.dmt/core"
-  local DAEMONS_PATH="${DMT_CORE}/node/controller/daemons"
+  local DAEMONS_PATH="${DMT_CORE}/node/controller/processes"
   local DAEMON_MANAGER="${DAEMONS_PATH}/manager.js"
 
   if [ ! -f "$DAEMON_MANAGER" ]; then
@@ -48,8 +48,20 @@ function manage_daemon {
 
 function manage_daemons {
   local command="$1"
-  manage_daemon "$command" dmt-proc
+  local proc="dmt-proc"
+  if [ -n "$2" ]; then
+    proc="$2"
+  fi
+  manage_daemon "$command" "$proc"
 }
+
+# function report_stopping {
+#   which socat > /dev/null 2>&1
+
+#   if [ $? -eq 0 ]; then
+#     printf '{"topic": "stopping"}<<<EOM\0' | socat - UNIX-CLIENT:$HOME/.dmt/state/ipc.dmt-proc.sock
+#   fi
+# }
 
 # warning: duplicated in ~/.dmt/shell/.bash_dmt (for use in "shut" command)
 # function save_dmt_state {
@@ -77,27 +89,31 @@ fi
 case "$1" in
 
   start )
-    manage_daemons start
+    manage_daemons start "$2"
     ;;
 
   restart )
     #save_dmt_state
-    manage_daemons restart
+    #report_stopping
+    manage_daemons restart "$2"
     ;;
 
   restart_and_notify_on_fail )
     #save_dmt_state
-    manage_daemons restart_and_notify_on_fail
+    #report_stopping
+    manage_daemons restart_and_notify_on_fail "$2"
     ;;
 
   start_or_restart ) # for clarity
     #save_dmt_state
-    manage_daemons restart
+    #report_stopping
+    manage_daemons restart "$2"
     ;;
 
   stop )
     #save_dmt_state
-    manage_daemons stop
+    #report_stopping
+    manage_daemons stop "$2"
     ;;
 
 esac

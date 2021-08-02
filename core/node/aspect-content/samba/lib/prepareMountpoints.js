@@ -1,4 +1,3 @@
-import fs from 'fs';
 import dmt from 'dmt/common';
 const { mkdirp } = dmt.util;
 

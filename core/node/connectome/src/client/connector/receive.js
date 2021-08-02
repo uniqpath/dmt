@@ -18,7 +18,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     console.log(`Connector → Received message #${connector.receivedCount} @ ${connector.address}:`);
   }
 
-  // 💡 unencrypted jsonData !
+  // unencrypted jsonData !
   if (jsonData) {
     if (jsonData.jsonrpc) {
       if (isRpcCallResult(jsonData)) {
@@ -35,7 +35,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
       connector.emit('receive', { jsonData, rawMessage });
     }
   } else if (encryptedData) {
-    // 💡 encryptedJson data!!
+    // encryptedJson data!!
     if (connector.verbose == 'extra') {
       console.log('Received bytes:');
       console.log(encryptedData);
@@ -53,7 +53,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
       try {
         const jsonData = JSON.parse(decodedMessage);
 
-        // 💡 rpc
+        // rpc
         if (jsonData.jsonrpc) {
           if (connector.verbose) {
             console.log('Received and decrypted rpc result:');
@@ -61,17 +61,17 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
           }
 
           wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
-          //   // 💡 tag
+          //   // tag
         } else if (jsonData.state) {
-          // 💡 Initial state sending ... part of Connectome protocol
+          // Initial state sending ... part of Connectome protocol
           connector.emit('receive_state', jsonData.state);
         } else if (jsonData.diff) {
-          // 💡 Subsequent JSON patch diffs (rfc6902)* ... part of Connectome protocol
+          // Subsequent JSON patch diffs (rfc6902)* ... part of Connectome protocol
           connector.emit('receive_diff', jsonData.diff);
         } else if (jsonData.signal) {
           connector.emit(jsonData.signal, jsonData.data);
-        } else if (jsonData.shape) {
-          connector.emit('receive_shape', jsonData.shape);
+        } else if (jsonData.stateField) {
+          connector.emit('receive_state_field', jsonData.stateField);
         } else {
           connector.emit('receive', { jsonData, rawMessage: decodedMessage });
         }

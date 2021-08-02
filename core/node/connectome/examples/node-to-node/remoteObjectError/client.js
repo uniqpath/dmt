@@ -2,13 +2,12 @@ import colors from 'colors';
 
 import { printClientInfo } from '../exampleUtils.js';
 
-import { connect, newClientKeypair } from '../../../src/client/node.js';
+import { connect, newClientKeypair } from '../../../src/client/index.js';
 
 const address = 'localhost';
 
 const port = 3500;
 const protocol = 'test';
-const lane = 'fiber';
 
 const verbose = false;
 
@@ -17,7 +16,7 @@ const { privateKeyHex, publicKeyHex } = keypair;
 
 printClientInfo({ privateKeyHex, publicKeyHex });
 
-const connector = connect({ address, port, protocol, lane, keypair, remotePubkey: undefined, verbose });
+const connector = connect({ address, port, protocol, keypair, remotePubkey: undefined, verbose });
 
 connector.on('ready', ({ sharedSecretHex }) => {
   console.log(`${colors.gray('Channel connected')} ${colors.green('✓')}`);

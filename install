@@ -146,6 +146,7 @@ else # clone to and install on remote device
 
   flags=""
   excludes="--exclude apps/**/node_modules --exclude user/apps/**/node_modules"
+  compress=""
   RESTART=false
 
   # bash cli parser, source: https://medium.com/@Drew_Stokes/bash-argument-parsing-54f3b81a6a8f
@@ -171,6 +172,11 @@ else # clone to and install on remote device
       --restart)
         flags="${flags} --restart"
         RESTART=true
+        shift 1
+        ;;
+      --compress)
+        flags="${flags} --compress"
+        compress="--compress"
         shift 1
         ;;
       --) # end argument parsing
@@ -242,7 +248,7 @@ else # clone to and install on remote device
         echo
 
         target="${host}:.dmt/user"
-        dirsync $excludes --port $ssh_port ~/.dmt/user "$target"
+        dirsync $excludes $compress --port $ssh_port ~/.dmt/user "$target"
         # IMPORTANT
         # ~/.dmt/.deployignore ==>
         # ...
@@ -262,7 +268,7 @@ else # clone to and install on remote device
         echo
 
         target="${host}:.dmt"
-        dirsync $excludes --port $ssh_port ~/.dmt "$target"
+        dirsync $excludes $compress --port $ssh_port ~/.dmt "$target"
         echo
         remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
 

@@ -79,16 +79,14 @@ function connectionsHandler({ args, program }) {
 
 function nearbyHandler({ args, program }) {
   return new Promise((success, reject) => {
-    success(program.state().nearbyDevices);
+    success(program.store('nearbyDevices').get());
   });
 }
 
 function stateHandler({ args, program }) {
   return new Promise((success, reject) => {
-    const state = program.state();
-    const { stateChangesCount } = program.store;
-
-    success({ state, stateChangesCount });
+    const state = program.store().get();
+    success({ state });
   });
 }
 

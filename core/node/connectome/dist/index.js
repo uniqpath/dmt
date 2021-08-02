@@ -40,37 +40,33 @@ class LinkedList {
 }
 
 let id = 0;
-const splitter = /[\s,]+/g;
 
 class Eev {
   constructor() {
     this.__events_list = {};
   }
 
-  on(names, fn) {
-    names.split(splitter).forEach(name => {
-      const list = this.__events_list[name] || (this.__events_list[name] = new LinkedList());
-      const eev = fn._eev || (fn._eev = ++id);
+  on(name, fn) {
+    const list = this.__events_list[name] || (this.__events_list[name] = new LinkedList());
+    const eev = fn._eev || (fn._eev = ++id);
 
-      list.reg[eev] || (list.reg[eev] = list.insert(fn));
-    });
+    list.reg[eev] || (list.reg[eev] = list.insert(fn));
   }
 
-  off(names, fn) {
-    fn &&
-      names.split(splitter).forEach(name => {
-        const list = this.__events_list[name];
+  off(name, fn) {
+    if (fn) {
+      const list = this.__events_list[name];
 
-        if (!list) {
-          return;
-        }
+      if (!list) {
+        return;
+      }
 
-        const link = list.reg[fn._eev];
+      const link = list.reg[fn._eev];
 
-        list.reg[fn._eev] = undefined;
+      list.reg[fn._eev] = undefined;
 
-        list && link && list.remove(link);
-      });
+      list && link && list.remove(link);
+    }
   }
 
   removeListener(...args) {
@@ -2739,6 +2735,10 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     if (flag == 1) {
       const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
 
+      // if (connector.verbose) {
+      //   console.log(`Received message: ${decodedMessage}`);
+      // }
+
       try {
         const jsonData = JSON.parse(decodedMessage);
 
@@ -2771,8 +2771,8 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
           connector.emit('receive_diff', jsonData.diff);
         } else if (jsonData.signal) {
           connector.emit(jsonData.signal, jsonData.data);
-        } else if (jsonData.shape) {
-          connector.emit('receive_shape', jsonData.shape);
+        } else if (jsonData.stateField) {
+          connector.emit('receive_state_field', jsonData.stateField);
         } else {
           connector.emit('receive', { jsonData, rawMessage: decodedMessage });
         }
@@ -2788,6 +2788,44 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
       // connector.emit('binary_data', { sessionId, data: binaryPayload });
       connector.emit('receive_binary', decryptedMessage);
     }
+  }
+}
+
+// 💡 we use Emitter inside ConnectedStore to emit 'ready' event
+// 💡 and inside MultiConnectedStore to also emit a few events
+
+class ReadableStore extends Eev {
+  constructor(initialState) {
+    super();
+
+    this.state = initialState;
+
+    this.subscriptions = [];
+  }
+
+  get() {
+    return this.state;
+  }
+
+  subscribe(handler) {
+    this.subscriptions.push(handler);
+
+    handler(this.state);
+
+    return () => {
+      this.subscriptions = this.subscriptions.filter(sub => sub !== handler);
+    };
+  }
+
+  announceStateChange() {
+    this.subscriptions.forEach(handler => handler(this.state));
+  }
+}
+
+class WritableStore extends ReadableStore {
+  set(state) {
+    this.state = state;
+    this.announceStateChange();
   }
 }
 
@@ -3346,7 +3384,7 @@ class SpecificRpcClient {
   }
 }
 
-const DEFAULT_REQUEST_TIMEOUT = 55000;
+const DEFAULT_REQUEST_TIMEOUT = 50000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {
@@ -3404,22 +3442,847 @@ function acceptKeypair(keypair) {
   return keypair;
 }
 
+/*!
+ * https://github.com/Starcounter-Jack/JSON-Patch
+ * (c) 2017 Joachim Wester
+ * MIT license
+ */
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var _hasOwnProperty = Object.prototype.hasOwnProperty;
+function hasOwnProperty(obj, key) {
+    return _hasOwnProperty.call(obj, key);
+}
+function _objectKeys(obj) {
+    if (Array.isArray(obj)) {
+        var keys = new Array(obj.length);
+        for (var k = 0; k < keys.length; k++) {
+            keys[k] = "" + k;
+        }
+        return keys;
+    }
+    if (Object.keys) {
+        return Object.keys(obj);
+    }
+    var keys = [];
+    for (var i in obj) {
+        if (hasOwnProperty(obj, i)) {
+            keys.push(i);
+        }
+    }
+    return keys;
+}
+/**
+* Deeply clone the object.
+* https://jsperf.com/deep-copy-vs-json-stringify-json-parse/25 (recursiveDeepCopy)
+* @param  {any} obj value to clone
+* @return {any} cloned obj
+*/
+function _deepClone(obj) {
+    switch (typeof obj) {
+        case "object":
+            return JSON.parse(JSON.stringify(obj)); //Faster than ES5 clone - http://jsperf.com/deep-cloning-of-objects/5
+        case "undefined":
+            return null; //this is how JSON.stringify behaves for array items
+        default:
+            return obj; //no need to clone primitives
+    }
+}
+//3x faster than cached /^\d+$/.test(str)
+function isInteger(str) {
+    var i = 0;
+    var len = str.length;
+    var charCode;
+    while (i < len) {
+        charCode = str.charCodeAt(i);
+        if (charCode >= 48 && charCode <= 57) {
+            i++;
+            continue;
+        }
+        return false;
+    }
+    return true;
+}
+/**
+* Escapes a json pointer path
+* @param path The raw pointer
+* @return the Escaped path
+*/
+function escapePathComponent(path) {
+    if (path.indexOf('/') === -1 && path.indexOf('~') === -1)
+        return path;
+    return path.replace(/~/g, '~0').replace(/\//g, '~1');
+}
+/**
+ * Unescapes a json pointer path
+ * @param path The escaped pointer
+ * @return The unescaped path
+ */
+function unescapePathComponent(path) {
+    return path.replace(/~1/g, '/').replace(/~0/g, '~');
+}
+/**
+* Recursively checks whether an object has any undefined values inside.
+*/
+function hasUndefined(obj) {
+    if (obj === undefined) {
+        return true;
+    }
+    if (obj) {
+        if (Array.isArray(obj)) {
+            for (var i = 0, len = obj.length; i < len; i++) {
+                if (hasUndefined(obj[i])) {
+                    return true;
+                }
+            }
+        }
+        else if (typeof obj === "object") {
+            var objKeys = _objectKeys(obj);
+            var objKeysLength = objKeys.length;
+            for (var i = 0; i < objKeysLength; i++) {
+                if (hasUndefined(obj[objKeys[i]])) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+function patchErrorMessageFormatter(message, args) {
+    var messageParts = [message];
+    for (var key in args) {
+        var value = typeof args[key] === 'object' ? JSON.stringify(args[key], null, 2) : args[key]; // pretty print
+        if (typeof value !== 'undefined') {
+            messageParts.push(key + ": " + value);
+        }
+    }
+    return messageParts.join('\n');
+}
+var PatchError = /** @class */ (function (_super) {
+    __extends(PatchError, _super);
+    function PatchError(message, name, index, operation, tree) {
+        var _newTarget = this.constructor;
+        var _this = _super.call(this, patchErrorMessageFormatter(message, { name: name, index: index, operation: operation, tree: tree })) || this;
+        _this.name = name;
+        _this.index = index;
+        _this.operation = operation;
+        _this.tree = tree;
+        Object.setPrototypeOf(_this, _newTarget.prototype); // restore prototype chain, see https://stackoverflow.com/a/48342359
+        _this.message = patchErrorMessageFormatter(message, { name: name, index: index, operation: operation, tree: tree });
+        return _this;
+    }
+    return PatchError;
+}(Error));
+
+var JsonPatchError = PatchError;
+var deepClone = _deepClone;
+/* We use a Javascript hash to store each
+ function. Each hash entry (property) uses
+ the operation identifiers specified in rfc6902.
+ In this way, we can map each patch operation
+ to its dedicated function in efficient way.
+ */
+/* The operations applicable to an object */
+var objOps = {
+    add: function (obj, key, document) {
+        obj[key] = this.value;
+        return { newDocument: document };
+    },
+    remove: function (obj, key, document) {
+        var removed = obj[key];
+        delete obj[key];
+        return { newDocument: document, removed: removed };
+    },
+    replace: function (obj, key, document) {
+        var removed = obj[key];
+        obj[key] = this.value;
+        return { newDocument: document, removed: removed };
+    },
+    move: function (obj, key, document) {
+        /* in case move target overwrites an existing value,
+        return the removed value, this can be taxing performance-wise,
+        and is potentially unneeded */
+        var removed = getValueByPointer(document, this.path);
+        if (removed) {
+            removed = _deepClone(removed);
+        }
+        var originalValue = applyOperation(document, { op: "remove", path: this.from }).removed;
+        applyOperation(document, { op: "add", path: this.path, value: originalValue });
+        return { newDocument: document, removed: removed };
+    },
+    copy: function (obj, key, document) {
+        var valueToCopy = getValueByPointer(document, this.from);
+        // enforce copy by value so further operations don't affect source (see issue #177)
+        applyOperation(document, { op: "add", path: this.path, value: _deepClone(valueToCopy) });
+        return { newDocument: document };
+    },
+    test: function (obj, key, document) {
+        return { newDocument: document, test: _areEquals(obj[key], this.value) };
+    },
+    _get: function (obj, key, document) {
+        this.value = obj[key];
+        return { newDocument: document };
+    }
+};
+/* The operations applicable to an array. Many are the same as for the object */
+var arrOps = {
+    add: function (arr, i, document) {
+        if (isInteger(i)) {
+            arr.splice(i, 0, this.value);
+        }
+        else { // array props
+            arr[i] = this.value;
+        }
+        // this may be needed when using '-' in an array
+        return { newDocument: document, index: i };
+    },
+    remove: function (arr, i, document) {
+        var removedList = arr.splice(i, 1);
+        return { newDocument: document, removed: removedList[0] };
+    },
+    replace: function (arr, i, document) {
+        var removed = arr[i];
+        arr[i] = this.value;
+        return { newDocument: document, removed: removed };
+    },
+    move: objOps.move,
+    copy: objOps.copy,
+    test: objOps.test,
+    _get: objOps._get
+};
+/**
+ * Retrieves a value from a JSON document by a JSON pointer.
+ * Returns the value.
+ *
+ * @param document The document to get the value from
+ * @param pointer an escaped JSON pointer
+ * @return The retrieved value
+ */
+function getValueByPointer(document, pointer) {
+    if (pointer == '') {
+        return document;
+    }
+    var getOriginalDestination = { op: "_get", path: pointer };
+    applyOperation(document, getOriginalDestination);
+    return getOriginalDestination.value;
+}
+/**
+ * Apply a single JSON Patch Operation on a JSON document.
+ * Returns the {newDocument, result} of the operation.
+ * It modifies the `document` and `operation` objects - it gets the values by reference.
+ * If you would like to avoid touching your values, clone them:
+ * `jsonpatch.applyOperation(document, jsonpatch._deepClone(operation))`.
+ *
+ * @param document The document to patch
+ * @param operation The operation to apply
+ * @param validateOperation `false` is without validation, `true` to use default jsonpatch's validation, or you can pass a `validateOperation` callback to be used for validation.
+ * @param mutateDocument Whether to mutate the original document or clone it before applying
+ * @param banPrototypeModifications Whether to ban modifications to `__proto__`, defaults to `true`.
+ * @return `{newDocument, result}` after the operation
+ */
+function applyOperation(document, operation, validateOperation, mutateDocument, banPrototypeModifications, index) {
+    if (validateOperation === void 0) { validateOperation = false; }
+    if (mutateDocument === void 0) { mutateDocument = true; }
+    if (banPrototypeModifications === void 0) { banPrototypeModifications = true; }
+    if (index === void 0) { index = 0; }
+    if (validateOperation) {
+        if (typeof validateOperation == 'function') {
+            validateOperation(operation, 0, document, operation.path);
+        }
+        else {
+            validator(operation, 0);
+        }
+    }
+    /* ROOT OPERATIONS */
+    if (operation.path === "") {
+        var returnValue = { newDocument: document };
+        if (operation.op === 'add') {
+            returnValue.newDocument = operation.value;
+            return returnValue;
+        }
+        else if (operation.op === 'replace') {
+            returnValue.newDocument = operation.value;
+            returnValue.removed = document; //document we removed
+            return returnValue;
+        }
+        else if (operation.op === 'move' || operation.op === 'copy') { // it's a move or copy to root
+            returnValue.newDocument = getValueByPointer(document, operation.from); // get the value by json-pointer in `from` field
+            if (operation.op === 'move') { // report removed item
+                returnValue.removed = document;
+            }
+            return returnValue;
+        }
+        else if (operation.op === 'test') {
+            returnValue.test = _areEquals(document, operation.value);
+            if (returnValue.test === false) {
+                throw new JsonPatchError("Test operation failed", 'TEST_OPERATION_FAILED', index, operation, document);
+            }
+            returnValue.newDocument = document;
+            return returnValue;
+        }
+        else if (operation.op === 'remove') { // a remove on root
+            returnValue.removed = document;
+            returnValue.newDocument = null;
+            return returnValue;
+        }
+        else if (operation.op === '_get') {
+            operation.value = document;
+            return returnValue;
+        }
+        else { /* bad operation */
+            if (validateOperation) {
+                throw new JsonPatchError('Operation `op` property is not one of operations defined in RFC-6902', 'OPERATION_OP_INVALID', index, operation, document);
+            }
+            else {
+                return returnValue;
+            }
+        }
+    } /* END ROOT OPERATIONS */
+    else {
+        if (!mutateDocument) {
+            document = _deepClone(document);
+        }
+        var path = operation.path || "";
+        var keys = path.split('/');
+        var obj = document;
+        var t = 1; //skip empty element - http://jsperf.com/to-shift-or-not-to-shift
+        var len = keys.length;
+        var existingPathFragment = undefined;
+        var key = void 0;
+        var validateFunction = void 0;
+        if (typeof validateOperation == 'function') {
+            validateFunction = validateOperation;
+        }
+        else {
+            validateFunction = validator;
+        }
+        while (true) {
+            key = keys[t];
+            if (banPrototypeModifications && key == '__proto__') {
+                throw new TypeError('JSON-Patch: modifying `__proto__` prop is banned for security reasons, if this was on purpose, please set `banPrototypeModifications` flag false and pass it to this function. More info in fast-json-patch README');
+            }
+            if (validateOperation) {
+                if (existingPathFragment === undefined) {
+                    if (obj[key] === undefined) {
+                        existingPathFragment = keys.slice(0, t).join('/');
+                    }
+                    else if (t == len - 1) {
+                        existingPathFragment = operation.path;
+                    }
+                    if (existingPathFragment !== undefined) {
+                        validateFunction(operation, 0, document, existingPathFragment);
+                    }
+                }
+            }
+            t++;
+            if (Array.isArray(obj)) {
+                if (key === '-') {
+                    key = obj.length;
+                }
+                else {
+                    if (validateOperation && !isInteger(key)) {
+                        throw new JsonPatchError("Expected an unsigned base-10 integer value, making the new referenced value the array element with the zero-based index", "OPERATION_PATH_ILLEGAL_ARRAY_INDEX", index, operation, document);
+                    } // only parse key when it's an integer for `arr.prop` to work
+                    else if (isInteger(key)) {
+                        key = ~~key;
+                    }
+                }
+                if (t >= len) {
+                    if (validateOperation && operation.op === "add" && key > obj.length) {
+                        throw new JsonPatchError("The specified index MUST NOT be greater than the number of elements in the array", "OPERATION_VALUE_OUT_OF_BOUNDS", index, operation, document);
+                    }
+                    var returnValue = arrOps[operation.op].call(operation, obj, key, document); // Apply patch
+                    if (returnValue.test === false) {
+                        throw new JsonPatchError("Test operation failed", 'TEST_OPERATION_FAILED', index, operation, document);
+                    }
+                    return returnValue;
+                }
+            }
+            else {
+                if (key && key.indexOf('~') != -1) {
+                    key = unescapePathComponent(key);
+                }
+                if (t >= len) {
+                    var returnValue = objOps[operation.op].call(operation, obj, key, document); // Apply patch
+                    if (returnValue.test === false) {
+                        throw new JsonPatchError("Test operation failed", 'TEST_OPERATION_FAILED', index, operation, document);
+                    }
+                    return returnValue;
+                }
+            }
+            obj = obj[key];
+        }
+    }
+}
+/**
+ * Apply a full JSON Patch array on a JSON document.
+ * Returns the {newDocument, result} of the patch.
+ * It modifies the `document` object and `patch` - it gets the values by reference.
+ * If you would like to avoid touching your values, clone them:
+ * `jsonpatch.applyPatch(document, jsonpatch._deepClone(patch))`.
+ *
+ * @param document The document to patch
+ * @param patch The patch to apply
+ * @param validateOperation `false` is without validation, `true` to use default jsonpatch's validation, or you can pass a `validateOperation` callback to be used for validation.
+ * @param mutateDocument Whether to mutate the original document or clone it before applying
+ * @param banPrototypeModifications Whether to ban modifications to `__proto__`, defaults to `true`.
+ * @return An array of `{newDocument, result}` after the patch
+ */
+function applyPatch(document, patch, validateOperation, mutateDocument, banPrototypeModifications) {
+    if (mutateDocument === void 0) { mutateDocument = true; }
+    if (banPrototypeModifications === void 0) { banPrototypeModifications = true; }
+    if (validateOperation) {
+        if (!Array.isArray(patch)) {
+            throw new JsonPatchError('Patch sequence must be an array', 'SEQUENCE_NOT_AN_ARRAY');
+        }
+    }
+    if (!mutateDocument) {
+        document = _deepClone(document);
+    }
+    var results = new Array(patch.length);
+    for (var i = 0, length_1 = patch.length; i < length_1; i++) {
+        // we don't need to pass mutateDocument argument because if it was true, we already deep cloned the object, we'll just pass `true`
+        results[i] = applyOperation(document, patch[i], validateOperation, true, banPrototypeModifications, i);
+        document = results[i].newDocument; // in case root was replaced
+    }
+    results.newDocument = document;
+    return results;
+}
+/**
+ * Apply a single JSON Patch Operation on a JSON document.
+ * Returns the updated document.
+ * Suitable as a reducer.
+ *
+ * @param document The document to patch
+ * @param operation The operation to apply
+ * @return The updated document
+ */
+function applyReducer(document, operation, index) {
+    var operationResult = applyOperation(document, operation);
+    if (operationResult.test === false) { // failed test
+        throw new JsonPatchError("Test operation failed", 'TEST_OPERATION_FAILED', index, operation, document);
+    }
+    return operationResult.newDocument;
+}
+/**
+ * Validates a single operation. Called from `jsonpatch.validate`. Throws `JsonPatchError` in case of an error.
+ * @param {object} operation - operation object (patch)
+ * @param {number} index - index of operation in the sequence
+ * @param {object} [document] - object where the operation is supposed to be applied
+ * @param {string} [existingPathFragment] - comes along with `document`
+ */
+function validator(operation, index, document, existingPathFragment) {
+    if (typeof operation !== 'object' || operation === null || Array.isArray(operation)) {
+        throw new JsonPatchError('Operation is not an object', 'OPERATION_NOT_AN_OBJECT', index, operation, document);
+    }
+    else if (!objOps[operation.op]) {
+        throw new JsonPatchError('Operation `op` property is not one of operations defined in RFC-6902', 'OPERATION_OP_INVALID', index, operation, document);
+    }
+    else if (typeof operation.path !== 'string') {
+        throw new JsonPatchError('Operation `path` property is not a string', 'OPERATION_PATH_INVALID', index, operation, document);
+    }
+    else if (operation.path.indexOf('/') !== 0 && operation.path.length > 0) {
+        // paths that aren't empty string should start with "/"
+        throw new JsonPatchError('Operation `path` property must start with "/"', 'OPERATION_PATH_INVALID', index, operation, document);
+    }
+    else if ((operation.op === 'move' || operation.op === 'copy') && typeof operation.from !== 'string') {
+        throw new JsonPatchError('Operation `from` property is not present (applicable in `move` and `copy` operations)', 'OPERATION_FROM_REQUIRED', index, operation, document);
+    }
+    else if ((operation.op === 'add' || operation.op === 'replace' || operation.op === 'test') && operation.value === undefined) {
+        throw new JsonPatchError('Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)', 'OPERATION_VALUE_REQUIRED', index, operation, document);
+    }
+    else if ((operation.op === 'add' || operation.op === 'replace' || operation.op === 'test') && hasUndefined(operation.value)) {
+        throw new JsonPatchError('Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)', 'OPERATION_VALUE_CANNOT_CONTAIN_UNDEFINED', index, operation, document);
+    }
+    else if (document) {
+        if (operation.op == "add") {
+            var pathLen = operation.path.split("/").length;
+            var existingPathLen = existingPathFragment.split("/").length;
+            if (pathLen !== existingPathLen + 1 && pathLen !== existingPathLen) {
+                throw new JsonPatchError('Cannot perform an `add` operation at the desired path', 'OPERATION_PATH_CANNOT_ADD', index, operation, document);
+            }
+        }
+        else if (operation.op === 'replace' || operation.op === 'remove' || operation.op === '_get') {
+            if (operation.path !== existingPathFragment) {
+                throw new JsonPatchError('Cannot perform the operation at a path that does not exist', 'OPERATION_PATH_UNRESOLVABLE', index, operation, document);
+            }
+        }
+        else if (operation.op === 'move' || operation.op === 'copy') {
+            var existingValue = { op: "_get", path: operation.from, value: undefined };
+            var error = validate([existingValue], document);
+            if (error && error.name === 'OPERATION_PATH_UNRESOLVABLE') {
+                throw new JsonPatchError('Cannot perform the operation from a path that does not exist', 'OPERATION_FROM_UNRESOLVABLE', index, operation, document);
+            }
+        }
+    }
+}
+/**
+ * Validates a sequence of operations. If `document` parameter is provided, the sequence is additionally validated against the object document.
+ * If error is encountered, returns a JsonPatchError object
+ * @param sequence
+ * @param document
+ * @returns {JsonPatchError|undefined}
+ */
+function validate(sequence, document, externalValidator) {
+    try {
+        if (!Array.isArray(sequence)) {
+            throw new JsonPatchError('Patch sequence must be an array', 'SEQUENCE_NOT_AN_ARRAY');
+        }
+        if (document) {
+            //clone document and sequence so that we can safely try applying operations
+            applyPatch(_deepClone(document), _deepClone(sequence), externalValidator || true);
+        }
+        else {
+            externalValidator = externalValidator || validator;
+            for (var i = 0; i < sequence.length; i++) {
+                externalValidator(sequence[i], i, document, undefined);
+            }
+        }
+    }
+    catch (e) {
+        if (e instanceof JsonPatchError) {
+            return e;
+        }
+        else {
+            throw e;
+        }
+    }
+}
+// based on https://github.com/epoberezkin/fast-deep-equal
+// MIT License
+// Copyright (c) 2017 Evgeny Poberezkin
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+function _areEquals(a, b) {
+    if (a === b)
+        return true;
+    if (a && b && typeof a == 'object' && typeof b == 'object') {
+        var arrA = Array.isArray(a), arrB = Array.isArray(b), i, length, key;
+        if (arrA && arrB) {
+            length = a.length;
+            if (length != b.length)
+                return false;
+            for (i = length; i-- !== 0;)
+                if (!_areEquals(a[i], b[i]))
+                    return false;
+            return true;
+        }
+        if (arrA != arrB)
+            return false;
+        var keys = Object.keys(a);
+        length = keys.length;
+        if (length !== Object.keys(b).length)
+            return false;
+        for (i = length; i-- !== 0;)
+            if (!b.hasOwnProperty(keys[i]))
+                return false;
+        for (i = length; i-- !== 0;) {
+            key = keys[i];
+            if (!_areEquals(a[key], b[key]))
+                return false;
+        }
+        return true;
+    }
+    return a !== a && b !== b;
+}
+
+var core = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  JsonPatchError: JsonPatchError,
+  deepClone: deepClone,
+  getValueByPointer: getValueByPointer,
+  applyOperation: applyOperation,
+  applyPatch: applyPatch,
+  applyReducer: applyReducer,
+  validator: validator,
+  validate: validate,
+  _areEquals: _areEquals
+});
+
+/*!
+ * https://github.com/Starcounter-Jack/JSON-Patch
+ * (c) 2017 Joachim Wester
+ * MIT license
+ */
+var beforeDict = new WeakMap();
+var Mirror = /** @class */ (function () {
+    function Mirror(obj) {
+        this.observers = new Map();
+        this.obj = obj;
+    }
+    return Mirror;
+}());
+var ObserverInfo = /** @class */ (function () {
+    function ObserverInfo(callback, observer) {
+        this.callback = callback;
+        this.observer = observer;
+    }
+    return ObserverInfo;
+}());
+function getMirror(obj) {
+    return beforeDict.get(obj);
+}
+function getObserverFromMirror(mirror, callback) {
+    return mirror.observers.get(callback);
+}
+function removeObserverFromMirror(mirror, observer) {
+    mirror.observers.delete(observer.callback);
+}
+/**
+ * Detach an observer from an object
+ */
+function unobserve(root, observer) {
+    observer.unobserve();
+}
+/**
+ * Observes changes made to an object, which can then be retrieved using generate
+ */
+function observe(obj, callback) {
+    var patches = [];
+    var observer;
+    var mirror = getMirror(obj);
+    if (!mirror) {
+        mirror = new Mirror(obj);
+        beforeDict.set(obj, mirror);
+    }
+    else {
+        var observerInfo = getObserverFromMirror(mirror, callback);
+        observer = observerInfo && observerInfo.observer;
+    }
+    if (observer) {
+        return observer;
+    }
+    observer = {};
+    mirror.value = _deepClone(obj);
+    if (callback) {
+        observer.callback = callback;
+        observer.next = null;
+        var dirtyCheck = function () {
+            generate(observer);
+        };
+        var fastCheck = function () {
+            clearTimeout(observer.next);
+            observer.next = setTimeout(dirtyCheck);
+        };
+        if (typeof window !== 'undefined') { //not Node
+            window.addEventListener('mouseup', fastCheck);
+            window.addEventListener('keyup', fastCheck);
+            window.addEventListener('mousedown', fastCheck);
+            window.addEventListener('keydown', fastCheck);
+            window.addEventListener('change', fastCheck);
+        }
+    }
+    observer.patches = patches;
+    observer.object = obj;
+    observer.unobserve = function () {
+        generate(observer);
+        clearTimeout(observer.next);
+        removeObserverFromMirror(mirror, observer);
+        if (typeof window !== 'undefined') {
+            window.removeEventListener('mouseup', fastCheck);
+            window.removeEventListener('keyup', fastCheck);
+            window.removeEventListener('mousedown', fastCheck);
+            window.removeEventListener('keydown', fastCheck);
+            window.removeEventListener('change', fastCheck);
+        }
+    };
+    mirror.observers.set(callback, new ObserverInfo(callback, observer));
+    return observer;
+}
+/**
+ * Generate an array of patches from an observer
+ */
+function generate(observer, invertible) {
+    if (invertible === void 0) { invertible = false; }
+    var mirror = beforeDict.get(observer.object);
+    _generate(mirror.value, observer.object, observer.patches, "", invertible);
+    if (observer.patches.length) {
+        applyPatch(mirror.value, observer.patches);
+    }
+    var temp = observer.patches;
+    if (temp.length > 0) {
+        observer.patches = [];
+        if (observer.callback) {
+            observer.callback(temp);
+        }
+    }
+    return temp;
+}
+// Dirty check if obj is different from mirror, generate patches and update mirror
+function _generate(mirror, obj, patches, path, invertible) {
+    if (obj === mirror) {
+        return;
+    }
+    if (typeof obj.toJSON === "function") {
+        obj = obj.toJSON();
+    }
+    var newKeys = _objectKeys(obj);
+    var oldKeys = _objectKeys(mirror);
+    var deleted = false;
+    //if ever "move" operation is implemented here, make sure this test runs OK: "should not generate the same patch twice (move)"
+    for (var t = oldKeys.length - 1; t >= 0; t--) {
+        var key = oldKeys[t];
+        var oldVal = mirror[key];
+        if (hasOwnProperty(obj, key) && !(obj[key] === undefined && oldVal !== undefined && Array.isArray(obj) === false)) {
+            var newVal = obj[key];
+            if (typeof oldVal == "object" && oldVal != null && typeof newVal == "object" && newVal != null) {
+                _generate(oldVal, newVal, patches, path + "/" + escapePathComponent(key), invertible);
+            }
+            else {
+                if (oldVal !== newVal) {
+                    if (invertible) {
+                        patches.push({ op: "test", path: path + "/" + escapePathComponent(key), value: _deepClone(oldVal) });
+                    }
+                    patches.push({ op: "replace", path: path + "/" + escapePathComponent(key), value: _deepClone(newVal) });
+                }
+            }
+        }
+        else if (Array.isArray(mirror) === Array.isArray(obj)) {
+            if (invertible) {
+                patches.push({ op: "test", path: path + "/" + escapePathComponent(key), value: _deepClone(oldVal) });
+            }
+            patches.push({ op: "remove", path: path + "/" + escapePathComponent(key) });
+            deleted = true; // property has been deleted
+        }
+        else {
+            if (invertible) {
+                patches.push({ op: "test", path: path, value: mirror });
+            }
+            patches.push({ op: "replace", path: path, value: obj });
+        }
+    }
+    if (!deleted && newKeys.length == oldKeys.length) {
+        return;
+    }
+    for (var t = 0; t < newKeys.length; t++) {
+        var key = newKeys[t];
+        if (!hasOwnProperty(mirror, key) && obj[key] !== undefined) {
+            patches.push({ op: "add", path: path + "/" + escapePathComponent(key), value: _deepClone(obj[key]) });
+        }
+    }
+}
+/**
+ * Create an array of patches from the differences in two objects
+ */
+function compare(tree1, tree2, invertible) {
+    if (invertible === void 0) { invertible = false; }
+    var patches = [];
+    _generate(tree1, tree2, patches, '', invertible);
+    return patches;
+}
+
+var duplex = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  unobserve: unobserve,
+  observe: observe,
+  generate: generate,
+  compare: compare
+});
+
+var fastJsonPatch = Object.assign({}, core, duplex, {
+    JsonPatchError: PatchError,
+    deepClone: _deepClone,
+    escapePathComponent,
+    unescapePathComponent
+});
+
+const { applyPatch: applyJSONPatch } = fastJsonPatch;
+
+class protocolState extends WritableStore {
+  constructor(connector) {
+    super({});
+
+    this.connector = connector;
+
+    // 💡 Special incoming JSON message: { state: ... } ... parsed as part of 'Connectome State Syncing Protocol'
+    this.connector.on('receive_state', state => {
+      this.wireStateReceived = true;
+
+      // if (this.verbose) {
+      //   console.log(`New store ${address} / ${this.protocol} / ${this.lane} state:`);
+      //   console.log(state);
+      // }
+
+      this.set(state); // set and announce state
+    });
+
+    // 💡 Special incoming JSON message: { diff: ... } ... parsed as part of 'Connectome State Syncing Protocol'
+    this.connector.on('receive_diff', diff => {
+      if (this.wireStateReceived) {
+        applyJSONPatch(this.state, diff);
+        this.announceStateChange();
+      }
+    });
+  }
+
+  field(name) {
+    return this.connector.connectionState.get(name);
+  }
+}
+
+class connectionState extends WritableStore {
+  constructor(connector) {
+    super({});
+
+    this.fields = {};
+
+    this.connector = connector;
+
+    // fields (we don't do diffing here, always the entire state)
+    this.connector.on('receive_state_field', ({ name, state }) => {
+      this.get(name).set(state); // set and announce per channel state
+    });
+  }
+
+  // default is null, not {} !
+  get(name) {
+    if (!this.fields[name]) {
+      this.fields[name] = new WritableStore();
+    }
+
+    return this.fields[name];
+  }
+}
+
 naclFast.util = naclUtil;
 
 class Connector extends Eev {
   constructor({
-    address,
+    endpoint,
     protocol,
-    lane,
     keypair = newKeypair(),
     rpcRequestTimeout,
     verbose = false,
-    tag
+    tag,
+    dummy
   } = {}) {
     super();
 
     this.protocol = protocol;
-    this.lane = lane;
 
     const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = acceptKeypair(keypair);
 
@@ -3429,7 +4292,7 @@ class Connector extends Eev {
 
     this.rpcClient = new RpcClient(this, rpcRequestTimeout);
 
-    this.address = address;
+    this.endpoint = endpoint;
     this.verbose = verbose;
     this.tag = tag;
 
@@ -3437,6 +4300,27 @@ class Connector extends Eev {
     this.receivedCount = 0;
 
     this.successfulConnectsCount = 0;
+
+    if (!dummy) {
+      // remove this check once legacyLib with old MCS is removed
+      // we call connect from legacyLib with dummy == true and this doesn't get invoked
+      // it messes with MCS state in some weird ways, no idea why even
+      // new MCS doesn't have these problems
+      this.state = new protocolState(this);
+      this.connectionState = new connectionState(this);
+    }
+
+    this.connected = new WritableStore();
+
+    // 💡 connected == undefined ==> while trying to connect
+    // 💡 connected == false => while disconnected
+    // 💡 connected == true => while connected
+    // for better GUI
+    setTimeout(() => {
+      if (this.connected.get() == undefined) {
+        this.connected.set(false);
+      }
+    }, 700); // formerly 300ms
   }
 
   send(data) {
@@ -3445,7 +4329,14 @@ class Connector extends Eev {
   }
 
   signal(signal, data) {
-    this.send({ signal, data });
+    if (this.connected.get()) {
+      //console.log(`Sending signal '${signal}' over connector ${this.endpoint}`);
+      this.send({ signal, data });
+    } else {
+      console.log(
+        'Warning: trying to send signal over disconnected connector, this should be prevented by GUI'
+      );
+    }
   }
 
   wireReceive({ jsonData, encryptedData, rawMessage }) {
@@ -3453,12 +4344,20 @@ class Connector extends Eev {
     this.receivedCount += 1;
   }
 
+  // state() {
+  //   return this.state;
+  // }
+
+  field(name) {
+    return this.connectionState.get(name);
+  }
+
   isReady() {
     return this.ready;
   }
 
   closed() {
-    return !this.connected;
+    return !this.transportConnected;
   }
 
   decommission() {
@@ -3470,7 +4369,7 @@ class Connector extends Eev {
       this.sentCount = 0;
       this.receivedCount = 0;
 
-      this.connected = true;
+      this.transportConnected = true;
 
       this.successfulConnectsCount += 1;
 
@@ -3479,19 +4378,22 @@ class Connector extends Eev {
       this.diffieHellman({
         clientPrivateKey: this.clientPrivateKey,
         clientPublicKey: this.clientPublicKey,
-        lane: this.lane
+        protocol: this.protocol
       })
         .then(({ sharedSecret, sharedSecretHex }) => {
           this.ready = true;
           this.connectedAt = Date.now();
 
+          // new trick so that any state has time to get populated
+          // this.connectedTimeout = setTimeout(() => {
+          //   this.connected.set(true);
+          // }, 100);
+          // WHAT ABOUT this from dmt-connect ?
+          // {#if !$connected || Object.keys($state).length <= 0}
+          //   <Loading />
+          this.connected.set(true);
+
           this.emit('ready', { sharedSecret, sharedSecretHex });
-
-          const tag = this.tag ? ` (${this.tag})` : '';
-
-          console.log(
-            `✓ Secure channel ready [ ${this.address}${tag} · Protocol ${this.protocol} · Negotiating lane: ${this.lane} ]`
-          );
         })
         .catch(e => {
           if (num == this.successfulConnectsCount) {
@@ -3501,24 +4403,27 @@ class Connector extends Eev {
           }
         });
     } else {
-      let justDisconnected;
-      if (this.connected) {
-        justDisconnected = true;
+      let isDisconnect;
+
+      if (this.transportConnected) {
+        isDisconnect = true;
       }
 
-      if (this.connected == undefined) {
+      if (this.transportConnected == undefined) {
         const tag = this.tag ? ` (${this.tag})` : '';
         console.log(
-          `Connector ${this.address}${tag} was not able to connect at first try, setting READY to false`
+          `Connector ${this.endpoint}${tag} was not able to connect at first try, setting READY to false`
         );
       }
 
-      this.connected = false;
+      this.transportConnected = false;
       this.ready = false;
       delete this.connectedAt;
 
-      if (justDisconnected) {
+      if (isDisconnect) {
         this.emit('disconnect');
+        //clearTimeout(this.connectedTimeout);
+        this.connected.set(false);
       }
     }
   }
@@ -3535,7 +4440,7 @@ class Connector extends Eev {
     new RPCTarget({ serversideChannel: this, serverMethods: obj, methodPrefix: handle });
   }
 
-  diffieHellman({ clientPrivateKey, clientPublicKey, lane }) {
+  diffieHellman({ clientPrivateKey, clientPublicKey, protocol }) {
     return new Promise((success, reject) => {
       this.remoteObject('Auth')
         .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
@@ -3546,22 +4451,30 @@ class Connector extends Eev {
 
           this._remotePubkeyHex = remotePubkeyHex;
 
-          success({ sharedSecret, sharedSecretHex });
-
           if (this.verbose) {
             console.log('Established shared secret through diffie-hellman exchange:');
             console.log(sharedSecretHex);
           }
 
           this.remoteObject('Auth')
-            .call('finalizeHandshake', { lane })
-            .then(() => {
-              //console.log(`✓ Lane ${this.lane} negotiated `);
+            .call('finalizeHandshake', { protocol })
+            .then(res => {
+              if (res && res.error) {
+                console.log(`x Protocol ${this.protocol} error:`);
+                console.log(res.error);
+              } else {
+                success({ sharedSecret, sharedSecretHex });
+
+                //console.log(`✓ Lane ${this.lane} negotiated `);
+                const tag = this.tag ? ` (${this.tag})` : '';
+                console.log(
+                  `✓ Protocol [ ${this.protocol || '"no-name"'} ] connection [ ${this.endpoint}${tag} ] ready`
+                );
+              }
             })
             .catch(e => {
-              console.log(`x Lane ${this.lane} error or not available`);
-              //console.log(`finalizeHandshake error: `);
-              //console.log(e);
+              console.log(`x Protocol ${this.protocol} finalizeHandshake error:`);
+              console.log(e);
               reject(e);
             });
         })
@@ -3578,35 +4491,35 @@ class Connector extends Eev {
   }
 
   remoteAddress() {
-    return this.address;
+    return this.endpoint;
   }
 }
 
 const browser = typeof window !== 'undefined';
 
-function determineEndpoint({ endpoint, address, port }) {
+function determineEndpoint({ endpoint, host, port }) {
   // if endpoint is specified with "/something", it is rewritten as ws[s]://origin/something
   if (browser && endpoint && endpoint.startsWith('/')) {
     const wsProtocol = window.location.protocol.includes('s') ? 'wss' : 'ws';
     endpoint = `${wsProtocol}://${window.location.host}${endpoint}`;
   }
 
-  // if no endpoint is specified then use address and port if provided, otherwise use origin (in browser)
-  // in nodejs address and port have to be provided
+  // if no endpoint is specified then use host and port if provided, otherwise use origin (in browser)
+  // in nodejs host and port have to be provided
   if (!endpoint) {
     if (browser) {
-      address = address || window.location.hostname;
+      host = host || window.location.hostname;
       const wsProtocol = window.location.protocol.includes('s') ? 'wss' : 'ws';
 
-      endpoint = `${wsProtocol}://${address}`;
+      endpoint = `${wsProtocol}://${host}`;
 
       if (port) {
         endpoint = `${endpoint}:${port}`;
       } else if (window.location.port) {
         endpoint = `${endpoint}:${window.location.port}`;
       }
-    } else { // node.js ... if wss is needed, then full endpoint has to be passed in instead of address and port
-      endpoint = `ws://${address}:${port}`;
+    } else { // node.js ... if wss is needed, then full endpoint has to be passed in instead of host and port
+      endpoint = `ws://${host || 'localhost'}:${port}`;
     }
   }
 
@@ -3619,25 +4532,27 @@ const browser$1 = typeof window !== 'undefined';
 const wsCONNECTING = 0;
 const wsOPEN = 1;
 
+//todo: remove 'dummy' argument once legacyLib with old MCS is history
 function establishAndMaintainConnection(
-  { endpoint, address, port, protocol, lane, keypair, remotePubkey, rpcRequestTimeout, verbose, tag },
+  { endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, verbose, tag, dummy },
   { WebSocket, log }
 ) {
-  endpoint = determineEndpoint({ endpoint, address, port });
+  endpoint = determineEndpoint({ endpoint, host, port });
 
   const connector = new Connector({
-    address: endpoint,
+    endpoint,
     protocol,
-    lane,
     rpcRequestTimeout,
     keypair,
     verbose,
-    tag
+    tag,
+    dummy
   });
 
-  if (connector.connection) {
-    return connector;
-  }
+  // recently removed, seemed useless since it was never true ?!?!
+  // if (connector.connection) {
+  //   return connector;
+  // }
 
   connector.connection = {
     terminate() {
@@ -3649,12 +4564,12 @@ function establishAndMaintainConnection(
     checkTicker: 0
   };
 
-  setTimeout(() => tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }), 10);
+  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log }), 10);
 
   const connectionCheckInterval = 1500;
   const callback = () => {
     if (!connector.decommissioned) {
-      checkConnection({ connector, endpoint, protocol }, { WebSocket, log });
+      checkConnection({ connector, endpoint }, { WebSocket, log });
       setTimeout(callback, connectionCheckInterval);
     }
   };
@@ -3664,7 +4579,7 @@ function establishAndMaintainConnection(
   return connector;
 }
 
-function checkConnection({ connector, endpoint, protocol }, { WebSocket, log }) {
+function checkConnection({ connector, endpoint }, { WebSocket, log }) {
   const conn = connector.connection;
 
   if (connectionIdle(conn) || connector.decommissioned) {
@@ -3691,13 +4606,13 @@ function checkConnection({ connector, endpoint, protocol }, { WebSocket, log }) 
       connector.connectStatus(false);
     }
 
-    tryReconnect({ connector, endpoint, protocol }, { WebSocket, log });
+    tryReconnect({ connector, endpoint }, { WebSocket, log });
   }
 
   conn.checkTicker += 1;
 }
 
-function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
+function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   const conn = connector.connection;
 
   if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
@@ -3710,12 +4625,23 @@ function tryReconnect({ connector, endpoint, protocol }, { WebSocket, log }) {
     }
   }
 
-  const ws = new WebSocket(endpoint, protocol);
+  const ws = new WebSocket(endpoint);
+  // added this so that it shows in frontend log in dmt-gui..
+  // "native" console errors like
+  // establishAndMaintainConnection.js:104 WebSocket connection to 'ws://192.168.0.64:7780/' failed: ...
+  // are not visible since we need to use our own log() function
+  // MEH: this didn't work on Chromium on RPi !!
+  // ws.onerror = error => {
+  //   //console.log(error);
+  //   log(`error (connecting?) websocket: ${ws.rand} to ${conn.endpoint}`);
+  // };
 
   conn.currentlyTryingWS = ws;
   conn.currentlyTryingWS._waitForConnectCounter = 0;
 
   ws.rand = Math.random();
+
+  //log(`created new websocket: ${ws.rand} to ${conn.endpoint}`);
 
   if (browser$1) {
     ws.binaryType = 'arraybuffer';
@@ -3916,37 +4842,6 @@ function orderBy(key, key2, order = 'asc') {
   };
 }
 
-// 💡 we use Emitter inside ConnectedStore to emit 'ready' event
-// 💡 and inside MultiConnectedStore to also emit a few events
-
-class ReadableStore extends Eev {
-  constructor(initialState) {
-    super();
-
-    this.state = initialState;
-
-    this.subscriptions = [];
-  }
-
-  get() {
-    return this.state;
-  }
-
-  subscribe(handler) {
-    this.subscriptions.push(handler);
-
-    handler(this.state);
-
-    return () => {
-      this.subscriptions = this.subscriptions.filter(sub => sub !== handler);
-    };
-  }
-
-  announceStateChange() {
-    this.subscriptions.forEach(handler => handler(this.state));
-  }
-}
-
 class ConnectorPool extends ReadableStore {
   constructor(options) {
     super({ connectionList: [] });
@@ -3957,29 +4852,29 @@ class ConnectorPool extends ReadableStore {
     this.isPreparingConnector = {};
   }
 
-  getConnector({ address, port, tag }) {
-    const addressWithPort = `${address}:${port}`;
+  getConnector({ host, port, tag }) {
+    const hostWithPort = `${host}:${port}`;
 
-    if (!address || !port) {
-      throw new Error(`Must provide both address and port: ${addressWithPort}`);
+    if (!host || !port) {
+      throw new Error(`Must provide both host and port: ${hostWithPort}`);
     }
 
     return new Promise((success, reject) => {
-      if (this.connectors[addressWithPort]) {
-        success(this.connectors[addressWithPort]);
+      if (this.connectors[hostWithPort]) {
+        success(this.connectors[hostWithPort]);
         return;
       }
 
-      if (this.isPreparingConnector[addressWithPort]) {
+      if (this.isPreparingConnector[hostWithPort]) {
         setTimeout(() => {
-          this.getConnector({ address, port, tag }).then(success);
+          this.getConnector({ host, port, tag }).then(success);
         }, 10);
       } else {
-        this.isPreparingConnector[addressWithPort] = true;
+        this.isPreparingConnector[hostWithPort] = true;
 
-        waitAndContinue({ ...this.options, ...{ address, port, tag } }).then(connector => {
-          this.connectors[addressWithPort] = connector;
-          this.isPreparingConnector[addressWithPort] = false;
+        waitAndContinue({ ...this.options, ...{ host, port, tag } }).then(connector => {
+          this.connectors[hostWithPort] = connector;
+          this.isPreparingConnector[hostWithPort] = false;
 
           // part of reactive outgoingConnections feature :: ConnectorPool as reactive (Readable)Store
           this.setupConnectorReactivity(connector);
@@ -4032,7 +4927,7 @@ class ConnectorPool extends ReadableStore {
       return {
         address,
         protocol: conn.protocol,
-        lane: conn.lane,
+        //lane: conn.lane,
         remotePubkeyHex: conn.remotePubkeyHex(),
         operational: conn.isReady(), // 💡 connected and agreed on shared key ... used to determine if we can already send via connector or "we wait for the next rouund"
         //💡 informative-nature only, not used for distributed system logic
@@ -4042,12 +4937,12 @@ class ConnectorPool extends ReadableStore {
       };
     });
 
-    const order = orderBy('protocol', 'lane');
+    const order = orderBy('protocol');
     return list.sort(order);
   }
 }
 
 exports.ConnectorPool = ConnectorPool;
 exports.concurrency = index;
-exports.connectBrowser = establishAndMaintainConnection$1;
+exports.connect = establishAndMaintainConnection$1;
 exports.newClientKeypair = newKeypair;

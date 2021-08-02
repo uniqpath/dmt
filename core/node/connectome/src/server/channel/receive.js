@@ -51,6 +51,10 @@ function messageReceived({ message, channel }) {
 
     if (flag == 1) {
       const decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
+      if (channel.verbose) {
+        console.log(`Message: ${decodedMessage}`);
+      }
+
       handleMessage(channel, decodedMessage);
     } else {
       channel.emit('receive_binary', decryptedMessage);

@@ -8,7 +8,9 @@ import { exec } from 'child_process';
 const bashAction = '/sbin/reboot';
 
 export default ({ program }) => {
-  program.store.save();
+  program.store().save();
+
+  program.sendABC({ message: 'stopping' });
 
   log.yellow(`Executing bash action: ${colors.green(bashAction)} ...`);
 

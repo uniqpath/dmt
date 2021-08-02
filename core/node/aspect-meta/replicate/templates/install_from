@@ -33,7 +33,7 @@ NC='\033[0m' # No Color
 
 function get_dmt_proc_pid {
   local proc=$(ps -ef | grep " dmt-proc" | grep -v "nano dmt-proc" | grep -v "eslint" | grep -v "manager.js" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
-  local procFG=$(ps -ef | grep "controller/daemons/dmt-proc.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+  local procFG=$(ps -ef | grep "controller/processes/dmt-proc.js" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
 
   if [ -n "$proc" ]; then
     eval "$1='$proc'"

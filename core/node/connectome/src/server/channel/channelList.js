@@ -1,13 +1,17 @@
 import { EventEmitter } from '../../utils/index.js';
 
+import ProtocolStore from '../../stores/back/protocolStore';
+
 class ChannelList extends EventEmitter {
-  constructor({ protocol, lane }) {
+  constructor({ protocol }) {
     super();
 
     this.protocol = protocol;
-    this.lane = lane;
 
     this.channels = [];
+
+    this.state = new ProtocolStore({}, { latent: true });
+    this.state.syncOver(this);
 
     process.nextTick(() => {
       this.reportStatus();

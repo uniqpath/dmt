@@ -1,0 +1,1 @@
+This a temporary fix for some lighttpd configs, will go away soon and it's not that bothersome shorterm, just one symlink.

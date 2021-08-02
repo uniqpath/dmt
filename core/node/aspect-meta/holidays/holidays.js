@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { easterMonday, getDataForCorrectYear } from './helpers';
+import { easter, easterMonday, getDataForCorrectYear } from './helpers';
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -26,9 +26,15 @@ function holidaysForYear(year, { country }) {
   const holidays = getDataForCorrectYear(HOLIDAYS, year);
 
   if (holidays.EASTER) {
+    const _easter = easter(year);
+    holidays[`${_easter.getDate()}.${_easter.getMonth() + 1}`] = holidays.EASTER;
+    delete holidays.EASTER;
+  }
+
+  if (holidays.EASTER_MONDAY) {
     const _easterMonday = easterMonday(year);
     holidays[`${_easterMonday.getDate()}.${_easterMonday.getMonth() + 1}`] = holidays.EASTER;
-    delete holidays.EASTER;
+    delete holidays.EASTER_MONDAY;
   }
 
   return holidays;
