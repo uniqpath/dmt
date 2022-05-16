@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { def, log } = dmt;
+import { def, log } from 'dmt/common';
 
 import { push } from 'dmt/notify';
 
@@ -21,18 +20,28 @@ class IfMsg {
     }
   }
 
-  handleIotEvent({ topic, msg }) {
+  handleMqttEvent({ topic, msg }) {
     for (const ifMsg of this.ifStatements) {
       const topicAndMsg = ifMsg.id;
 
       if (helpers.compareTopicAndMsg({ topicAndMsg, topic, msg, context: statementName })) {
-        for (const pushMsg of def.listify(ifMsg.push)) {
-          const message = pushMsg.id;
+        for (const notif of def.listify(ifMsg.notify)) {
+          const msg = notif.id;
 
-          if (pushMsg.onlyAdmin) {
-            push.omitDeviceName().notify(message);
+          if (notif.onlyAdmin) {
+            push.omitDeviceName().notify(msg);
           } else {
-            push.omitDeviceName().notifyAll(message);
+            push.omitDeviceName().notifyAll(msg);
+          }
+
+          log.cyan(notif);
+
+          if (notif.color) {
+            let group;
+            if (notif.dedup == 'true') {
+              group = `___iot/${topic}/${msg}`;
+            }
+            this.program.nearbyNotification({ msg, ttl: notif.ttl, color: `#${notif.color}`, group, omitDeviceName: true });
           }
         }
 

@@ -1,6 +1,6 @@
 import fs from 'fs';
-import dmt from 'dmt/common';
-const { textfileParsers } = dmt;
+
+import { textfileParsers } from 'dmt/common';
 const { textfileKeyValueParser } = textfileParsers;
 
 import { exec } from 'child_process';

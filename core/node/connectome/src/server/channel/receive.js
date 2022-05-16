@@ -4,16 +4,20 @@ nacl.util = naclutil;
 
 import { integerToByteArray } from '../../utils/index.js';
 
+import logger from '../../utils/logger/logger.js';
+
 function handleMessage(channel, message) {
+  const { log } = channel;
+
   let jsonData;
 
   try {
     jsonData = JSON.parse(message);
   } catch (e) {
-    console.log('Error: Message should be json !');
-    console.log(message);
-    console.log('---');
-    return;
+    logger.red(log, 'Error: Message should be json !');
+    logger.red(log, message);
+    logger.red(log, message.toString());
+    throw e;
   }
 
   if (jsonData.jsonrpc) {
@@ -30,12 +34,14 @@ function handleMessage(channel, message) {
 }
 
 function messageReceived({ message, channel }) {
+  const { log } = channel;
+
   channel.lastMessageAt = Date.now();
 
   const nonce = new Uint8Array(integerToByteArray(2 * channel.receivedCount, 24));
 
   if (channel.verbose) {
-    console.log(`Channel → Received message #${channel.receivedCount} @ ${channel.remoteAddress()}:`);
+    logger.write(log, `Channel ${channel.remoteAddress()} → Received message #${channel.receivedCount} @ ${channel.remoteAddress()} ↴`);
   }
 
   try {
@@ -49,10 +55,14 @@ function messageReceived({ message, channel }) {
     const flag = _decryptedMessage[0];
     const decryptedMessage = _decryptedMessage.subarray(1);
 
+    if (channel.verbose) {
+      logger.write(log, `decryptedMessage: ${decryptedMessage}`);
+    }
+
     if (flag == 1) {
       const decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
       if (channel.verbose) {
-        console.log(`Message: ${decodedMessage}`);
+        logger.write(log, `Message: ${decodedMessage}`);
       }
 
       handleMessage(channel, decodedMessage);

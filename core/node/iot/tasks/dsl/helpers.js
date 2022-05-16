@@ -1,7 +1,6 @@
-import colors from 'colors';
-import dmt from 'dmt/common';
+import { log, colors } from 'dmt/common';
 
-const { log } = dmt;
+import mqttClient from '../../createMqttClient';
 
 function compareTopicAndMsg({ topicAndMsg, topic, msg, context }) {
   if (topicAndMsg.indexOf('/') == -1) {
@@ -19,7 +18,7 @@ function compareTopicAndMsg({ topicAndMsg, topic, msg, context }) {
 function iotMsg({ program, topicAndMsg, context }) {
   if (topicAndMsg.indexOf('/') != -1) {
     const [topic, msg] = topicAndMsg.split('/');
-    program.iotMsg(topic, msg);
+    mqttClient.send(topic, msg);
   } else {
     log.red(
       `Wrong setup for ${colors.magenta(context)} in ${colors.cyan('iot.def')} file: ${colors.yellow(topicAndMsg)}, should be in form: ${colors.green(

@@ -1,6 +1,4 @@
-import colors from 'colors';
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors } from 'dmt/common';
 
 import { parseSearchQuery as _parseSearchQuery } from 'dmt/search';
 
@@ -116,8 +114,15 @@ function playHandler({ args, method }, { paraSearch, player }) {
       }
 
       if (terms.length == 1 && terms[0].match(new RegExp(/^\d+$/))) {
-        player.next({ songId: terms[0] });
-        success([]);
+        player
+          .next({ songId: terms[0] })
+          .then(() => {
+            success([]);
+          })
+          .catch(e => {
+            success({ error: e.message });
+          });
+
         return;
       }
     }
@@ -176,19 +181,28 @@ function insertplayHandler({ args }, { paraSearch, player }) {
 
     doSearch({ args, paraSearch, player })
       .then(({ aggregateResults, playableResults }) => {
-        player
-          .insert({ files: playableResults })
-          .then(() => {
-            if (playableResults.length == 0) {
-              success(aggregateResults);
-            } else {
-              player
-                .next({ fromAction: true })
-                .then(() => success(aggregateResults))
-                .catch(reject);
-            }
-          })
-          .catch(reject);
+        const wasEmptyPlaylist = player.playlist.count() == 0;
+
+        if (playableResults.length == 0) {
+          success(aggregateResults);
+        } else {
+          player
+            .insert({ files: playableResults })
+            .then(() => {
+              if (wasEmptyPlaylist && playableResults.length == 1) {
+                player
+                  .playCurrent()
+                  .then(() => success(aggregateResults))
+                  .catch(reject);
+              } else {
+                player
+                  .next({ fromAction: true })
+                  .then(() => success(aggregateResults))
+                  .catch(reject);
+              }
+            })
+            .catch(reject);
+        }
       })
       .catch(reject);
   });

@@ -1,7 +1,6 @@
 import { settings } from 'dmt/search';
 
-import dmt from 'dmt/common';
-const { stopwatchAdv, dmtContent } = dmt;
+import { stopwatchAdv, dmtContent, promiseTimeout } from 'dmt/common';
 
 import { fiberHandle } from 'dmt/connectome-next';
 
@@ -56,7 +55,7 @@ function contentSearch({ contentId, place, terms, mediaType, page = 1, count, ma
 
   const { maxTimeLocalBinaryExecution } = settings().searchLimit;
 
-  return dmt.promiseTimeout(maxTimeLocalBinaryExecution, searchPromise);
+  return promiseTimeout(maxTimeLocalBinaryExecution, searchPromise);
 }
 
 export default contentSearch;

@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, isRPi } from 'dmt/common';
 
 import onoff from 'onoff';
 const { Gpio } = onoff;
@@ -40,7 +39,7 @@ class LEDClass {
   }
 
   nonrpi() {
-    if (!dmt.isRPi()) {
+    if (!isRPi()) {
       log.write("Calling stub function on led.js because it's not RaspberryPi");
       return true;
     }

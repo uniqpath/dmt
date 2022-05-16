@@ -1,6 +1,6 @@
 import * as sensorMsg from '../lib/sensorMessageFormats';
 
-function handleIotEvent({ program, topic, msg }) {
+function handleMqttEvent({ program, topic, msg }) {
   const parsedMsg = sensorMsg.parse({ topic, msg });
 
   if (parsedMsg) {
@@ -13,4 +13,4 @@ function handleIotEvent({ program, topic, msg }) {
   }
 }
 
-export { handleIotEvent };
+export { handleMqttEvent };

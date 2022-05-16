@@ -2,15 +2,13 @@ import { spawn } from 'child_process';
 
 import { push } from 'dmt/notify';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, nodeFlags, dmtProcManagerPath, daemonsPath } from 'dmt/common';
 
 export default function startDMT() {
   return new Promise((success, reject) => {
-    const child = spawn(process.execPath, dmt.nodeFlags.concat([dmt.dmtProcManagerPath, 'start', 'dmt-proc.js']), {
-      cwd: dmt.daemonsPath,
+    const child = spawn(process.execPath, nodeFlags.concat([dmtProcManagerPath, 'start', 'dmt-proc.js']), {
+      cwd: daemonsPath,
       detached: true,
-      shell: true,
       stdio: 'ignore'
     });
 

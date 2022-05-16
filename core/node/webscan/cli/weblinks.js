@@ -1,15 +1,13 @@
-import dmt from 'dmt/common';
-const { dmtHereEnsure } = dmt;
+import { dmtHereEnsure, colors, scan, device as _device } from 'dmt/common';
 
-const { relativizePath } = dmt.scan;
+const { relativizePath } = scan;
 
-import colors from 'colors';
 import fs from 'fs';
 import path from 'path';
 
 import { linkIndexPath } from 'dmt/webindex';
 
-const device = dmt.device({ onlyBasicParsing: true });
+const device = _device({ onlyBasicParsing: true });
 
 import ingestLinksFromDirectory from '../lib/ingest/txtFiles/ingestLinksFromDirectory';
 

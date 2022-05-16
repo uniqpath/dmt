@@ -1,9 +1,8 @@
 import path from 'path';
-import dmt from 'dmt/common';
 
 import { fiberHandle } from 'dmt/connectome-next';
 
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 function enhanceFS(result, { providerAddress, providerKey, providerPort, searchOriginHost }) {
   const { fileName, directory } = result;

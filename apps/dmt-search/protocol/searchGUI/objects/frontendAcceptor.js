@@ -1,7 +1,5 @@
-import dmt from 'dmt/common';
+import { log } from 'dmt/common';
 import { push } from 'dmt/notify';
-
-const { log } = dmt;
 
 class GUIFrontendAcceptor {
   constructor({ program, channel }) {

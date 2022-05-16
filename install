@@ -54,7 +54,13 @@ function check_node_js_version {
 
     if (( ${major} < $min_major )) || ( (( ${major} == $min_major )) && (( ${minor} < $min_minor )) ); then
       echo
-      printf "⚠️  ${RED}Your ${CYAN}node.js ${RED}version is ${YELLOW}${node_version}${RED}, please install ${CYAN}${DMT_MIN_NODEJS_VERSION} ${RED}or higher${NC}\n"
+      printf "⚠️  ${RED}Your node.js version is ${YELLOW}${node_version}${GRAY}, please install ${CYAN}${DMT_MIN_NODEJS_VERSION} (recommended) ${GRAY}or higher.${NC}\n"
+
+      which n > /dev/null 2>&1
+
+      if [ $? -eq 0 ]; then # n command exists
+        printf "${GRAY}It seems that you are using ${CYAN}n ${GRAY}node.js version manager. ${GRAY}Use ${GREEN}n ${DMT_MIN_NODEJS_VERSION} ${GRAY}to install the recommended version.${NC}\n"
+      fi
     fi
   else
     echo
@@ -70,7 +76,255 @@ function user_dir_sync_info {
   printf "ℹ️  ${YELLOW}— ${text} just your ${CYAN}dmt user directory ${YELLOW}since remote device is most likely set up to ${MAGENTA}auto-update ${CYAN}DMT ENGINE ${NC}...${NC}\n"
 }
 
-if [ -z "$1" ]; then # install here
+#🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀
+# -----------------------------------
+#   ENTRY POINT WHEN INSTALLING TO
+# REMOTE HOSTS (we passed arguments)
+# -----------------------------------
+#🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀
+
+if [ -n "$1" ]; then
+
+  #💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡
+  # -----------------------------------
+  #    Install on remote device(s)
+  # -----------------------------------
+  #💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡
+
+  # we need this for dirsync, remote and get_full_host functions
+  . ./shell/.shell_advanced
+
+  flags=""
+  #excludes="--exclude apps/**/node_modules --exclude user/apps/**/node_modules"
+  excludes=""
+  compress=""
+
+  RESTART=false
+  PARALLEL=false
+
+  # bash cli parser, source: https://medium.com/@Drew_Stokes/bash-argument-parsing-54f3b81a6a8f
+  ARGS=()
+  while (( "$#" )); do
+    case "$1" in
+      --shell)
+        excludes="${excludes} --exclude core --exclude bin --exclude user/wallpapers --exclude etc/sounds --exclude etc/videotest"
+        flags="${flags} --shell"
+        shift 1
+        ;;
+      --no-apps)
+        #⚠️ possible issue here? does this really exclude just './apps' or is broader? CHECK
+        excludes="${excludes} --exclude apps" # wrapping directory in single quotes won't work in this case by the time it reaches rsync command inside dirsync.. but it's ok, we don't need it
+        flags="${flags} --no-apps"
+        shift 1
+        ;;
+      # --no-user)
+      #   excludes="${excludes} --exclude user"
+      #   flags="${flags} --no-user"
+      #   shift 1
+      #   ;;
+      --restart)
+        flags="${flags} --restart"
+        RESTART=true
+        shift 1
+        ;;
+      --parallel)
+        PARALLEL=true
+        # note: we don't add to flags here because we only pass this flag on when mode 2b
+        # (updating multiple hosts), when we're at 2a (single host) we reach the leaf of the tree
+        # and decide based on this flag but don't pass it on again because this would cause infinite loop
+        shift 1
+        ;;
+      --compress)
+        flags="${flags} --compress"
+        compress="--compress"
+        shift 1
+        ;;
+      --) # end argument parsing
+        shift
+        break
+        ;;
+      -*|--*=) # unsupported flags
+        echo "Error: Unsupported flag $1" >&2
+        exit 1
+        ;;
+      *) # preserve positional arguments
+        ARGS+=($1)
+        shift
+        ;;
+    esac
+  done
+
+  len=${#ARGS[@]}
+
+  #💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡
+  # ----------------------------------------------------------
+  # STEP 0 — RECURSIVE CALL WHEN INSTALING ON MULTIPLE DEVICES
+  # ----------------------------------------------------------
+  #💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡💡
+
+  if [ $len -gt 1 ]; then
+
+    for host in "${ARGS[@]}"
+    do
+      # if we're doing parallel update
+      # we have to pass this flag when calling this script
+      # with each host individually, script will then
+      # execute in background (screen) at final step
+      if $PARALLEL; then
+        flags="${flags} --parallel"
+      fi
+
+      ./install $flags "$host"
+    done
+
+  else
+
+    #✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+    # ---------------------------------------
+    # STEP 1 — INSTALL ON SINGLE REMOTE HOST
+    # ---------------------------------------
+    #✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+
+    host=${ARGS[0]}
+
+        #✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+        #       💡 STEP 1a when --parallel
+        #✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+
+            if $PARALLEL; then
+              #./install $flags "$host"
+              printf "${CYAN}🎌 Parallel ${MAGENTA}(background) ${CYAN}updating${NC} ${MAGENTA}${host}${NC}\n"
+              # - won't load the entire bash_bundle, basic shell which this install script loads is fine!
+              #   "se" command helper from dmt would make everything slow because of bundle loading, we did this before buy not anymore :)
+              # - will not pass --parallel flag here, that would make a loop
+              screen -S dmt_update -dm bash -c "./install ${flags} ${host}"
+              exit
+            else
+              printf "✨ ${CYAN}Updating ${MAGENTA}${host}${NC}\n"
+            fi
+
+        #✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+        #      💡 STEP 1b when not --parallel
+        #✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+
+            #
+            # (either it was not --parallel in the first place)
+            # (STEP 0 ->) STEP 1 -> STEP 1b
+            #
+            # OR it was and we're now running in background screen
+            # (STEP 0 ->) STEP 1 -> STEP 1a -> STEP 1b
+
+            # 💡 STEP 1b →
+            # - dirsync to remote host
+            # - call install on remote host ()
+            # - restart
+
+            if [ "$host" == "ap" ]; then
+              host="$DMT_AP_DEFAULT_HOST"
+              ssh_port=22
+            else
+              matching_host=''
+              ssh_port=''
+              _compress=''
+              get_full_host matching_host ssh_port _compress "$host"
+              if [ $? -ne 1 ]; then # no error
+                host="$matching_host"
+              fi
+              # compress regardless if passed in argument if device has globalIp defined (get_full_host will return "--compress")
+              if [[ $_compress == "--compress" ]]; then
+                compress=$_compress # yes, please compress :)
+              fi
+            fi
+
+            if [ -n "$DMT_SSH_PORT" ]; then
+              printf "${GREEN}ssh port set via environment variable ${MAGENTA}\$DMT_SSH_PORT${NC}: ${CYAN}$DMT_SSH_PORT${NC}\n"
+              ssh_port=$DMT_SSH_PORT
+            fi
+
+            if [ -z "$host" ]; then
+              printf "${RED}Host not known${NC}\n"
+            else
+
+              # check if we're accidentaly deploying to a git(hub) repo and abort in this case
+              # either we get dmt from github or not (eg. sync to that device from elsewhere), cannot have a mixture
+              ssh -p $ssh_port "$host" 'if [ -f ~/.dmt/etc/scripts/dmt_via_git ]; then ~/.dmt/etc/scripts/dmt_via_git; fi' # exit code from remote script will carry over and we can check it!
+
+              if [ $? -eq 1 ]; then # dmt_via_git script will return 1 if ~/.dmt/.git directory exists on the remote machine
+                echo
+                printf "⚠️  ${CYAN}~/.dmt${NC} on remote device ${YELLOW}is a git repository${NC}, origin is probably ${CYAN}github: uniqpath/dmt. ${GREEN}This is ok.${NC} ↴\n"
+                printf "${WHITE}↳ but refusing to override remote DMT ENGINE because this is most likely not desirable.${NC}\n"
+                echo
+                printf "${CYAN}Please ssh into remote device and issue ${GREEN}dmt autoupdate off ${CYAN}to stop it from being updated from github source.${NC}\n"
+                echo
+                user_dir_sync_info
+                # printf "${YELLOW}— Sync just your ${CYAN}dmt user directory ${YELLOW}since remote device is most likely set up to ${MAGENTA}auto-update ${CYAN}DMT ENGINE${NC}?${NC}\n"
+                # echo
+                # # sync just user directory ? -- perhaps do this without asking soon !
+                # read -r -p "Do you want to sync just your ~/.dmt/user directory to the remote DMT ENGINE? [Y/n] " response
+                # if [[ $response =~ ^([nN])$ ]]
+                # then
+                #   printf "${GRAY}↳ Exiting ...${NC}\n"
+                #   echo
+                #   return
+                # fi
+
+                echo
+                printf "${CYAN}Updating ${CYAN}~/.dmt/user${MAGENTA} on ${MAGENTA}$host:$ssh_port …${NC}\n"
+                echo
+
+                target="${host}:.dmt/user"
+                dirsync $excludes $compress --port $ssh_port ~/.dmt/user "$target"
+                # IMPORTANT
+                # ~/.dmt/.deployignore ==>
+                # ...
+                # /user/devices/this
+                # /devices/this <- this line is needed for 'this pointer' to be correctly ignored when deploying only user directory
+                # keys.def
+                # ...
+
+                echo
+                user_dir_sync_info true
+
+              else
+
+                # full sync - update remote DMT ENGINE together with its user directory
+
+                printf "${CYAN}Determined exact remote address: ${MAGENTA}$host:$ssh_port${NC}\n"
+                echo
+
+                target="${host}:.dmt"
+                dirsync $excludes $compress --port $ssh_port ~/.dmt "$target"
+                echo
+
+              fi
+
+              # restart remote dmt-proc
+
+              if $RESTART; then
+                # 🌀 EXECUTE FINAL STEP 2 on remote machine AND then restaart the remote process
+                #restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-update ]; then ~/.dmt/user/devices/this/before-update; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-update ]; then ~/.dmt/etc/deploy_hooks/before-update; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
+                INSTALL_AND_RESTART_CMD="screen -S dmt -dm bash -c \\\"cd ~/.dmt; ./install; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
+                remote -h "$host" --port "$ssh_port" "$INSTALL_AND_RESTART_CMD"
+              else
+                # 🌀 JUST EXECUTE FINAL STEP 2 on remote machine
+                remote --silent -h "$host" --port "$ssh_port" "screen -S dmt -dm bash -c \\\"cd ~/.dmt; ./install\\\""
+              fi
+              echo
+
+            fi
+  fi
+
+else
+
+    #🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀
+    # -----------------------------------
+    #
+    #            ~~ STEP 2 ~~
+    #
+    # ACTUAL INSTALL CODE - LOCAL MACHINE
+    #
+    # -----------------------------------
+    #🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀🌀
 
     COMPILED_BASH_ALIASES="$HOME/.dmt/etc/.bash_aliases_bundle"
 
@@ -138,163 +392,5 @@ if [ -z "$1" ]; then # install here
 
     check_node_js_version
     echo
-
-else # clone to and install on remote device
-
-  # we need this for dirsync, remote and get_full_host functions
-  . ./shell/.shell_advanced
-
-  flags=""
-  #excludes="--exclude apps/**/node_modules --exclude user/apps/**/node_modules"
-  excludes=""
-  compress=""
-  RESTART=false
-
-  # bash cli parser, source: https://medium.com/@Drew_Stokes/bash-argument-parsing-54f3b81a6a8f
-  ARGS=()
-  while (( "$#" )); do
-    case "$1" in
-      --shell)
-        excludes="${excludes} --exclude core --exclude bin --exclude user/wallpapers --exclude etc/sounds --exclude etc/videotest"
-        flags="${flags} --shell"
-        shift 1
-        ;;
-      --no-apps)
-        #⚠️ possible issue here? does this really exclude just './apps' or is broader? CHECK
-        excludes="${excludes} --exclude apps" # wrapping directory in single quotes won't work in this case by the time it reaches rsync command inside dirsync.. but it's ok, we don't need it
-        flags="${flags} --no-apps"
-        shift 1
-        ;;
-      # --no-user)
-      #   excludes="${excludes} --exclude user"
-      #   flags="${flags} --no-user"
-      #   shift 1
-      #   ;;
-      --restart)
-        flags="${flags} --restart"
-        RESTART=true
-        shift 1
-        ;;
-      --compress)
-        flags="${flags} --compress"
-        compress="--compress"
-        shift 1
-        ;;
-      --) # end argument parsing
-        shift
-        break
-        ;;
-      -*|--*=) # unsupported flags
-        echo "Error: Unsupported flag $1" >&2
-        exit 1
-        ;;
-      *) # preserve positional arguments
-        ARGS+=($1)
-        shift
-        ;;
-    esac
-  done
-
-  len=${#ARGS[@]}
-
-  if [ $len == 1 ]; then
-    host=${ARGS[0]}
-
-    if [ "$host" == "ap" ]; then
-      host="$DMT_AP_DEFAULT_HOST"
-      ssh_port=22
-    else
-      matching_host=''
-      ssh_port=''
-      _compress=''
-      get_full_host matching_host ssh_port _compress "$host"
-      if [ $? -ne 1 ]; then # no error
-        host="$matching_host"
-      fi
-      # compress regardless if passed in argument if device has globalIp defined (get_full_host will return "--compress")
-      if [[ $_compress == "--compress" ]]; then
-        compress=$_compress # yes, please compress :)
-      fi
-    fi
-
-    if [ -n "$DMT_SSH_PORT" ]; then
-      printf "${GREEN}ssh port set via environment variable ${MAGENTA}\$DMT_SSH_PORT${NC}: ${CYAN}$DMT_SSH_PORT${NC}\n"
-      ssh_port=$DMT_SSH_PORT
-    fi
-
-    if [ -z "$host" ]; then
-      printf "${RED}Host not known${NC}\n"
-    else
-
-      # check if we're accidentaly deploying to a git(hub) repo and abort in this case
-      # either we get dmt from github or not (eg. sync to that device from elsewhere), cannot have a mixture
-      ssh -p $ssh_port "$host" 'if [ -f ~/.dmt/etc/scripts/dmt_via_git ]; then ~/.dmt/etc/scripts/dmt_via_git; fi' # exit code from remote script will carry over and we can check it!
-
-      if [ $? -eq 1 ]; then # dmt_via_git script will return 1 if ~/.dmt/.git directory exists on the remote machine
-        echo
-        printf "⚠️  ${CYAN}~/.dmt${NC} on remote device ${YELLOW}is a git repository${NC}, origin is probably ${CYAN}github: uniqpath/dmt. ${GREEN}This is ok.${NC} ↴\n"
-        printf "${WHITE}↳ but refusing to override remote DMT ENGINE because this is most likely not desirable.${NC}\n"
-        echo
-        printf "${CYAN}Please ssh into remote device and issue ${GREEN}dmt autoupdate off ${CYAN}to stop it from being updated from github source.${NC}\n"
-        echo
-        user_dir_sync_info
-        # printf "${YELLOW}— Sync just your ${CYAN}dmt user directory ${YELLOW}since remote device is most likely set up to ${MAGENTA}auto-update ${CYAN}DMT ENGINE${NC}?${NC}\n"
-        # echo
-        # # sync just user directory ? -- perhaps do this without asking soon !
-        # read -r -p "Do you want to sync just your ~/.dmt/user directory to the remote DMT ENGINE? [Y/n] " response
-        # if [[ $response =~ ^([nN])$ ]]
-        # then
-        #   printf "${GRAY}↳ Exiting ...${NC}\n"
-        #   echo
-        #   return
-        # fi
-
-        echo
-        printf "${MAGENTA}Updating ${CYAN}~/.dmt/user${MAGENTA} on ${CYAN}$host:$ssh_port …${NC}\n"
-        echo
-
-        target="${host}:.dmt/user"
-        dirsync $excludes $compress --port $ssh_port ~/.dmt/user "$target"
-        # IMPORTANT
-        # ~/.dmt/.deployignore ==>
-        # ...
-        # /user/devices/this
-        # /devices/this <- this line is needed for 'this pointer' to be correctly ignored when deploying only user directory
-        # keys.def
-        # ...
-
-        echo
-        user_dir_sync_info true
-
-      else
-
-        # full sync - update remote DMT ENGINE together with its user directory
-
-        printf "${MAGENTA}Updating ${CYAN}$host:$ssh_port …${NC}\n"
-        echo
-
-        target="${host}:.dmt"
-        dirsync $excludes $compress --port $ssh_port ~/.dmt "$target"
-        echo
-        remote --silent -h "$host" --port "$ssh_port" "cd ~/.dmt; ./install"
-
-      fi
-
-      # restart remote dmt-proc
-
-      if $RESTART; then
-        echo
-        #restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-update ]; then ~/.dmt/user/devices/this/before-update; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-update ]; then ~/.dmt/etc/deploy_hooks/before-update; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
-        restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
-        remote -h "$host" --port "$ssh_port" "$restart_cmd"
-      fi
-
-    fi
-  else
-    for host in "${ARGS[@]}"
-    do
-      ./install $flags "$host"
-    done
-  fi
 
 fi

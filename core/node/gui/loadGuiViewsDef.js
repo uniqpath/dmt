@@ -1,9 +1,7 @@
 import path from 'path';
 import fs from 'fs';
-import dmt from 'dmt/common';
 
-import colors from 'colors';
-const { log, def } = dmt;
+import { log, def, colors, dmtPath, device as __device, parseDef } from 'dmt/common';
 
 import mapUrlpathToFilepath from './mapUrlpathToFilepath';
 
@@ -12,13 +10,13 @@ import serverOptions from './guiServerOptions';
 export default program => {
   const guiServerOptions = serverOptions();
 
-  const _global = path.join(dmt.dmtPath, 'def/gui_views.def');
-  const _user = path.join(dmt.dmtPath, 'user/def/gui_views.def');
-  const _device = path.join(dmt.dmtPath, 'user/devices/this/def/gui_views.def');
+  const _global = path.join(dmtPath, 'def/gui_views.def');
+  const _user = path.join(dmtPath, 'user/def/gui_views.def');
+  const _device = path.join(dmtPath, 'user/devices/this/def/gui_views.def');
 
   const views = {};
 
-  const device = dmt.device({ onlyBasicParsing: true, caching: false });
+  const device = __device({ onlyBasicParsing: true, caching: false });
 
   const themes = def.values(device.try('service[gui].theme')).reverse();
   const theme = themes.length > 0 ? themes[0].toLowerCase() : undefined;
@@ -29,7 +27,7 @@ export default program => {
 
   for (const defFile of [_global, _user, _device]) {
     if (fs.existsSync(defFile)) {
-      for (const view of dmt.parseDef(defFile, { caching: false }).multi) {
+      for (const view of parseDef(defFile, { caching: false }).multi) {
         const { id } = view;
         delete view.id;
         views[id] = views[id] || {};

@@ -8,7 +8,9 @@ const wsCLOSED = 3;
 import Connector from '../connector/connector.js';
 import determineEndpoint from './determineEndpoint.js';
 
-function establishAndMaintainConnection({ endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, verbose, tag, dummy }, { WebSocket, log }) {
+import logger from '../../utils/logger/logger.js';
+
+function establishAndMaintainConnection({ endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, log, verbose, tag, dummy }, { WebSocket }) {
   endpoint = determineEndpoint({ endpoint, host, port });
 
   const connector = new Connector({
@@ -18,6 +20,7 @@ function establishAndMaintainConnection({ endpoint, host, port, protocol, keypai
     keypair,
     verbose,
     tag,
+    log,
     dummy
   });
 
@@ -31,12 +34,13 @@ function establishAndMaintainConnection({ endpoint, host, port, protocol, keypai
     checkTicker: 0
   };
 
-  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log }), 10);
+  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }), 10);
 
-  const connectionCheckInterval = 1500;
+  const connectionCheckInterval = 1000;
+
   const callback = () => {
     if (!connector.decommissioned) {
-      checkConnection({ connector, endpoint }, { WebSocket, log });
+      checkConnection({ connector, endpoint }, { WebSocket, log, verbose });
       setTimeout(callback, connectionCheckInterval);
     }
   };
@@ -48,14 +52,14 @@ function establishAndMaintainConnection({ endpoint, host, port, protocol, keypai
 
 export default establishAndMaintainConnection;
 
-function checkConnection({ connector, endpoint }, { WebSocket, log }) {
+function checkConnection({ connector, endpoint }, { WebSocket, log, verbose }) {
   const conn = connector.connection;
 
-  if (connectionIdle(conn) || connector.decommissioned) {
+  if (verbose && (connectionIdle(conn) || connector.decommissioned)) {
     if (connectionIdle(conn)) {
-      log(`Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`);
+      logger.yellow(log, `Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`);
     } else {
-      log(`Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `);
+      logger.yellow(log, `Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `);
     }
 
     conn.terminate();
@@ -63,21 +67,22 @@ function checkConnection({ connector, endpoint }, { WebSocket, log }) {
   }
 
   const connected = socketConnected(conn);
+
   if (connected) {
     conn.websocket.send('ping');
   } else {
     if (connector.connected == undefined) {
-      log(`Setting connector status to FALSE because connector.connected is undefined`);
+      logger.write(log, `Setting connector status to FALSE because connector.connected is undefined`);
       connector.connectStatus(false);
     }
 
-    tryReconnect({ connector, endpoint }, { WebSocket, log });
+    tryReconnect({ connector, endpoint }, { WebSocket, log, verbose });
   }
 
   conn.checkTicker += 1;
 }
 
-function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
+function tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }) {
   const conn = connector.connection;
 
   if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
@@ -105,9 +110,13 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   }
 
   const openCallback = m => {
+    if (verbose) {
+      logger.write(log, `websocket ${endpoint} connection opened (${ws.rand})`);
+    }
+
     conn.currentlyTryingWS = null;
     conn.checkTicker = 0;
-    addSocketListeners({ ws, connector, openCallback }, { log });
+    addSocketListeners({ ws, connector, openCallback }, { log, verbose });
     conn.websocket = ws;
     connector.connectStatus(true);
   };
@@ -123,15 +132,19 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   }
 }
 
-function addSocketListeners({ ws, connector, openCallback }, { log }) {
+function addSocketListeners({ ws, connector, openCallback }, { log, verbose }) {
   const conn = connector.connection;
 
   const errorCallback = m => {
-    log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
-    log(m);
+    logger.write(log, `websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
+    logger.write(log, m);
   };
 
   const closeCallback = m => {
+    if (verbose) {
+      logger.write(log, `websocket ${connector.connection.endpoint} connection closed (${ws.rand})`);
+    }
+
     connector.connectStatus(false);
   };
 
@@ -182,5 +195,5 @@ function socketConnected(conn) {
 }
 
 function connectionIdle(conn) {
-  return socketConnected(conn) && conn.checkTicker > 5;
+  return socketConnected(conn) && conn.checkTicker > 2;
 }

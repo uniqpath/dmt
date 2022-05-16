@@ -1,4 +1,4 @@
-import colors from 'colors';
+import { colors } from 'dmt/common';
 import { push } from '../index';
 
 function help() {
@@ -10,23 +10,26 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
   help();
   process.exit();
 }
-function send(msg) {
+function send(msg, { highPriority = false } = {}) {
   push
+    .highPriority(highPriority)
     .notify(msg)
-    .then(() => {
-      console.log(colors.green('Push message sent'));
+    .then(success => {
+      if (success) {
+        console.log(colors.green('Push message sent'));
+      } else {
+        console.log(colors.red('Problem sending the push message:'));
+      }
+
       process.exit();
-    })
-    .catch(error => {
-      console.log(colors.red('Problem sending the push message:'));
-      console.log(error);
     });
 }
 
 const args = process.argv.slice(2);
 
 if (args.length) {
-  send(args.join(' '));
+  const highPriority = args[0] == 'highPriority';
+  send((highPriority ? args.slice(1) : args).join(' '), { highPriority });
 } else {
   help();
 }

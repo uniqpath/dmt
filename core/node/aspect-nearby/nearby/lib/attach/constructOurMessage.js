@@ -1,4 +1,4 @@
-import dmt from 'dmt/common';
+import { prettyTimeAge, accessPointIP, deviceNetworkId } from 'dmt/common';
 import os from 'os';
 
 import deriveDeviceData from './deriveDeviceData';
@@ -28,7 +28,7 @@ export default function constructOurMessage({ program, msg }) {
 
   Object.assign(msg, program.store('device').get());
 
-  msg.uptime = dmt.prettyTimeAge(program.store('device').get().dmtStartedAt).replace(' ago', '');
+  msg.uptime = prettyTimeAge(program.store('device').get('dmtStartedAt')).replace(' ago', '');
 
   msg.hasGui = program.hasGui();
 
@@ -38,11 +38,11 @@ export default function constructOurMessage({ program, msg }) {
     msg.hasErrors = true;
   }
 
-  const isSpecialNode = msg.ip == dmt.accessPointIP;
+  const isSpecialNode = msg.ip == accessPointIP;
 
   if (isSpecialNode) {
     msg.isSpecialNode = true;
-    msg.networkId = dmt.deviceNetworkId();
+    msg.networkId = deviceNetworkId();
   }
 
   return deriveDeviceData(msg);

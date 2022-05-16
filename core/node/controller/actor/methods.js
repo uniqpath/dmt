@@ -1,11 +1,12 @@
-import dmt from 'dmt/common';
-const { log, util } = dmt;
+import { log, services } from 'dmt/common';
 
 function getMethods() {
   const methods = [];
 
   methods.push({ name: 'info', handler: infoHandler });
   methods.push({ name: 'gui_test', handler: guiTestHandler });
+  methods.push({ name: 'gui_nearby_test', handler: guiNearbyTestHandler });
+  methods.push({ name: 'gui_dev_nearby_test', handler: guiDevNearbyTestHandler });
 
   methods.push({ name: 'services', handler: servicesHandler });
   methods.push({ name: 'log', handler: logHandler });
@@ -31,7 +32,7 @@ let testCount = 0;
 let testCountResetTimeout;
 
 function guiTestHandler({ args, program }) {
-  const ttl = 10;
+  const ttl = 20;
 
   clearTimeout(testCountResetTimeout);
   testCountResetTimeout = setTimeout(() => {
@@ -41,7 +42,39 @@ function guiTestHandler({ args, program }) {
 
   return new Promise((success, reject) => {
     const msg = args || `GUI TEST ${testCount}`;
-    program.showNotification({ msg, ttl, bgColor: '#6163D1', color: 'white' });
+    program.showNotification({ msg, ttl, color: '#6163D1' });
+    success({ msg });
+  });
+}
+
+function guiNearbyTestHandler({ args, program }) {
+  const ttl = 10;
+
+  clearTimeout(testCountResetTimeout);
+  testCountResetTimeout = setTimeout(() => {
+    testCount = 0;
+  }, ttl * 1000);
+  testCount += 1;
+
+  return new Promise((success, reject) => {
+    const msg = args || `NEARBY TEST ${testCount}`;
+    program.nearbyNotification({ msg, ttl, color: '#3D2CD3' });
+    success({ msg });
+  });
+}
+
+function guiDevNearbyTestHandler({ args, program }) {
+  const ttl = 10;
+
+  clearTimeout(testCountResetTimeout);
+  testCountResetTimeout = setTimeout(() => {
+    testCount = 0;
+  }, ttl * 1000);
+  testCount += 1;
+
+  return new Promise((success, reject) => {
+    const msg = args || `DEV NEARBY TEST ${testCount}`;
+    program.nearbyNotification({ msg, ttl, color: '#34FFF9', dev: true });
     success({ msg });
   });
 }
@@ -50,7 +83,7 @@ function servicesHandler({ args }) {
   const service = args[0];
   return new Promise((success, reject) => {
     try {
-      success(dmt.services(service));
+      success(services(service));
     } catch (e) {
       reject(e);
     }

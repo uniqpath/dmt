@@ -1,13 +1,11 @@
-import colors from 'colors';
 import path from 'path';
-import dmt from 'dmt/common';
 import fs from 'fs';
 
-const { scan, log } = dmt;
+import { scan, log, colors, dmtPath, dmtUserDir, dmtHerePath } from 'dmt/common';
 
-export const appsDir = path.join(dmt.dmtPath, 'apps');
-const userAppsDir = path.join(dmt.userDir, 'apps');
-const deviceAppsDir = path.join(dmt.dmtHerePath, 'apps');
+export const appsDir = path.join(dmtPath, 'apps');
+const userAppsDir = path.join(dmtUserDir, 'apps');
+const deviceAppsDir = path.join(dmtHerePath, 'apps');
 
 function getSubdirs(directory) {
   return scan.dir(directory, { onlyDirs: true }).filter(dir => !['_dmt_deps'].includes(path.basename(dir)));

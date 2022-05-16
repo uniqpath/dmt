@@ -1,10 +1,8 @@
-import colors from 'colors';
 import fs from 'fs';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors } from 'dmt/common';
 
 import { push } from 'dmt/notify';
 
@@ -41,9 +39,12 @@ class AppLoader {
       this.loadApp(program, appInit)
         .then(success)
         .catch(e => {
-          const msg = `⚠️🙀 Problem loading ${colors.cyan(appName)} app — ${colors.red(e)}`;
+          const msg = `🪲⚠️ Problem loading ${colors.cyan(appName)} app — ${colors.red(e)}`;
           log.red(msg);
-          push.highPriority().notify(stripAnsi(msg));
+
+          program.exceptionNotify(stripAnsi(msg));
+
+          log.magenta(`↳ ${colors.cyan('dmt-proc')} will continue without this app`);
 
           success();
         });

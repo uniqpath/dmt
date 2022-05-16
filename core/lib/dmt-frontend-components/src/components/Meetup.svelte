@@ -266,7 +266,9 @@
   }
 
   .meetup_title {
-    color: var(--dmt-warm-pink);
+    /*color: var(--dmt-warm-pink);*/
+    /*color: var(--zeta-green);*/
+    color: var(--dmt-system-cyan);
   }
 
   section {

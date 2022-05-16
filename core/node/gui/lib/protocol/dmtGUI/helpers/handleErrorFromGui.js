@@ -1,12 +1,11 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, dmtPath } from 'dmt/common';
 
 import path from 'path';
 import fs from 'fs';
 import retrace from 'retrace';
 
 export default function handleErrorFromGui(stacktrace) {
-  const sourceMapPath = path.join(dmt.dmtPath, 'core/node/gui/gui-frontend-core/app/public/bundle.js.map');
+  const sourceMapPath = path.join(dmtPath, 'core/node/gui/gui-frontend-core/app/public/bundle.js.map');
 
   if (fs.existsSync(sourceMapPath)) {
     retrace.register(null, fs.readFileSync(sourceMapPath));

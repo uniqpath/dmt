@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
-import colors from 'colors';
+import { log, colors, device } from 'dmt/common';
 import EventEmitter from 'events';
 
 import UdpBus from '../udpbus';
@@ -9,7 +7,7 @@ class LanBusOverUdpBroadcast extends EventEmitter {
   constructor({ program }) {
     super();
 
-    this.device = dmt.device({ onlyBasicParsing: true });
+    this.device = device({ onlyBasicParsing: true });
     this.program = program;
 
     this.udpBus = new UdpBus();
@@ -19,7 +17,7 @@ class LanBusOverUdpBroadcast extends EventEmitter {
 
   handlePingRequest(msg) {
     if (msg.request == 'lanbus-ping-request') {
-      if (msg.targetDeviceName == this.device.id) {
+      if (msg.__targetDevice == this.device.id) {
         this.emit('lanbus-ping-request-for-us');
       }
 
@@ -31,7 +29,9 @@ class LanBusOverUdpBroadcast extends EventEmitter {
     log.green(`✓ LanBus-over-${colors.yellow('UDP-BROADCAST')} initialized`);
 
     this.udpBus.on('message', msg => {
-      if (!this.handlePingRequest(msg) && msg.origin == 'dmt') {
+      if (!this.handlePingRequest(msg) && (msg.origin == 'dmt' || msg.__origin == 'dmt')) {
+        delete msg.__origin;
+
         this.emit('message', msg);
       }
 
@@ -40,7 +40,7 @@ class LanBusOverUdpBroadcast extends EventEmitter {
   }
 
   broadcastMessage(msgJson) {
-    if (this.program.store('device').get().ip) {
+    if (this.program.store('device').get('ip')) {
       const msg = JSON.stringify(msgJson);
 
       this.udpBus

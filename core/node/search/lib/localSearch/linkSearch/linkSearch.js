@@ -1,5 +1,3 @@
-import dmt from 'dmt/common';
-
 import { entireLinkIndex } from 'dmt/webindex';
 
 import addSiteTag from './addSiteTag';
@@ -8,7 +6,7 @@ import superTagcloud from './superTagcloud/superTagcloud';
 
 import sortLinks from '../../sortResults/sortLinks';
 
-const { tags } = dmt;
+import { tags } from 'dmt/common';
 const { createTagcloud } = tags;
 
 function linkSearch({ terms, selectedTags, page = 1, count }) {

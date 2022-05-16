@@ -5,7 +5,11 @@ nacl.util = naclutil;
 import { isObject, addHeader } from '../../server/channel/sendHelpers.js';
 import { integerToByteArray } from '../../utils/index.js';
 
+import logger from '../../utils/logger/logger.js';
+
 function send({ data, connector }) {
+  const { log } = connector;
+
   if (isObject(data)) {
     data = JSON.stringify(data);
   }
@@ -26,23 +30,23 @@ function send({ data, connector }) {
       const encryptedMessage = nacl.secretbox(encodedMessage, nonce, connector.sharedSecret);
 
       if (connector.verbose) {
-        console.log();
-        console.log(`Connector → Sending encrypted message #${connector.sentCount} @ ${connector.address}:`);
-        console.log(data);
+        logger.write(log);
+        logger.green(log, `Connector ${connector.remoteAddress()} → Sending encrypted message #${connector.sentCount} ↴`);
+        logger.gray(log, data);
       }
 
       connector.connection.websocket.send(encryptedMessage);
     } else {
       if (connector.verbose) {
-        console.log();
-        console.log(`Connector → Sending message #${connector.sentCount} @ ${connector.address}:`);
-        console.log(data);
+        logger.write(log);
+        logger.green(log, `Connector ${connector.remoteAddress()} → Sending message #${connector.sentCount} ↴`);
+        logger.gray(log, data);
       }
 
       connector.connection.websocket.send(data);
     }
   } else {
-    console.log(`⚠️ Warning: "${data}" was not sent because connector is not ready`);
+    logger.red(log, `⚠️ Warning: "${data}" was not sent because connector is not ready`);
   }
 }
 

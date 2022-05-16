@@ -190,6 +190,8 @@ function se {
 
     local cmd=$(echo "$@" | sed 's/,/;/g')
 
+    #local original_cmd="$cmd"
+
     if [ -n "$delay" ]; then
       cmd="timer $delay; $cmd"
     fi
@@ -208,7 +210,7 @@ function se {
       cmd="${cmd}; exec bash"
     fi
 
-    printf "${GREEN}Executing in background screen:\n${YELLOW}${cmd}${NC}\n"
+    printf "${CYAN}Execute in background: ${GRAY}${cmd}${NC}\n"
 
     cmd="if [ -f ~/.dmt/etc/.bash_aliases_bundle ]; then . ~/.dmt/etc/.bash_aliases_bundle; fi; ${cmd}"
 

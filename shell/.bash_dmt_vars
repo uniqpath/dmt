@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# ⚠️ keep this independent -- no use of anything defined in any other dmt shell file
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 #LOGNAME_HOME="$HOME"
@@ -39,7 +41,7 @@ DMT_RUNTIMES=(node rust)
 DMT_SCRIPTS="$DMT_PATH/etc/scripts"
 
 DMT_PLATFORM=""
-if dmt_macos; then
+if [[ $OSTYPE == darwin* ]]; then
   DMT_PLATFORM="darwin"
 elif [ "$OSTYPE" == "linux-gnu" ]; then
   DMT_PLATFORM="linux-x64"
@@ -55,4 +57,4 @@ DMT_AP_DEFAULT_HOST="root@192.168.0.20"
 
 # there are some other places that should be updated if nodejs flags change! find and replace ...
 DMT_NODEJS_EXEC="node --experimental-modules --experimental-specifier-resolution=node --unhandled-rejections=strict"
-DMT_MIN_NODEJS_VERSION="14.0"
+DMT_MIN_NODEJS_VERSION="16.13.0"

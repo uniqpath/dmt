@@ -61,6 +61,39 @@ function gui {
   dmt_gui "$@"
 }
 
+function d {
+  dmt "$@"
+}
+
+function u {
+  if [ -n "$2" ]; then
+    dmt update --parallel "$@"
+  else
+    dmt update "$@"
+  fi
+}
+
+function us {
+  dmt update "$@"
+}
+
+function un {
+  dmt nearby update --parallel "$@"
+}
+
+# perhaps more intuitive than un
+function nu {
+  un "$@"
+}
+
+function uc {
+  if [ -n "$2" ]; then
+    dmt copy --parallel "$@"
+  else
+    dmt copy "$@"
+  fi
+}
+
 function s {
   dmt_search "$@"
 }
@@ -71,14 +104,6 @@ function m {
 
 function v {
   dmt_media "$@" @media=video
-}
-
-function u {
-  dmt_update "$@"
-}
-
-function uc {
-  dmt_copy "$@"
 }
 
 function k() {

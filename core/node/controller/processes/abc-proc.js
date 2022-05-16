@@ -1,7 +1,6 @@
 import fs from 'fs';
 
-import dmt from 'dmt/common';
-const { log, scan } = dmt;
+import { log, scan, abcSocket, device } from 'dmt/common';
 
 import { push } from 'dmt/notify';
 
@@ -10,8 +9,10 @@ push.initABC();
 import setupGlobalErrorHandler from './abc/setupGlobalErrorHandler';
 import abcProc from './abc/proc';
 
+const deviceName = device({ onlyBasicParsing: true }).id;
+
 const logfile = 'abc.log';
-log.init({ dmt, logfile, foreground: false, procTag: 'abc' });
+log.init({ deviceName, logfile, foreground: false, procTag: 'abc' });
 
 setupGlobalErrorHandler();
 
@@ -25,8 +26,8 @@ if (fs.existsSync(log.logfilePath)) {
   }
 }
 
-if (fs.existsSync(dmt.abcSocket)) {
-  fs.unlinkSync(dmt.abcSocket);
+if (fs.existsSync(abcSocket)) {
+  fs.unlinkSync(abcSocket);
   setTimeout(abcProc, 2000);
 } else {
   abcProc();

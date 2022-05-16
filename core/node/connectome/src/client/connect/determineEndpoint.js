@@ -21,6 +21,9 @@ export default function determineEndpoint({ endpoint, host, port }) {
         endpoint = `${endpoint}:${window.location.port}`;
       }
     } else {
+      if (!port) {
+        throw new Error(`Connectome determineEndpoint: No websocket port provided for ${host}`);
+      }
       endpoint = `ws://${host || 'localhost'}:${port}`;
     }
   }

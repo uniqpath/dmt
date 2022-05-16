@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { dmtContent, scan } = dmt;
+import { dmtContent, scan } from 'dmt/common';
 
 let permittedPaths;
 

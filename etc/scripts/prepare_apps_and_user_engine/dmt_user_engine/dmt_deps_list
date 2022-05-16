@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # DMT USER ENGINE deps
-# ⚠️ keep this file in sync with dmt_user_engine/package.json !
+# ⚠️ keep this file in sync with:
+# - dmt_user_engine/exports.json !
+# dmt_apps:
+#  - dmt_deps_list
+#  - package.json
 
 declare -a List=(
   "core/node/common"
@@ -9,5 +13,5 @@ declare -a List=(
   "core/node/iot"
   "core/node/connectome/src/client connectome"
   "core/node/connectome/src/server connectome-server"
-  "core/node/connectome/src/stores connectome-stores"
+  "core/node/connectome/src/stores-node connectome-stores"
 )

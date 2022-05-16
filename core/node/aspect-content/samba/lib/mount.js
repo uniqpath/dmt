@@ -1,6 +1,6 @@
 import fs from 'fs';
-import dmt from 'dmt/common';
-const { log } = dmt;
+
+import { log } from 'dmt/common';
 
 import * as mountutils from './mountutils';
 

@@ -1,9 +1,6 @@
-import colors from 'colors';
-
 import { Connectome } from 'dmt/connectome-server';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors, keypair, isDevMachine, isDevUser } from 'dmt/common';
 
 class ProgramConnectionsAcceptor {
   constructor(program) {
@@ -11,12 +8,17 @@ class ProgramConnectionsAcceptor {
 
     const port = 7780;
 
-    this.keypair = dmt.keypair();
+    this.keypair = keypair();
 
     if (this.keypair) {
       log.write(`Initializing ProgramConnectionsAcceptor with public key ${colors.gray(this.keypair.publicKeyHex)}`);
 
-      this.connectome = new Connectome({ port, keypair: this.keypair });
+      this.connectome = new Connectome({
+        port,
+        keypair: this.keypair,
+        log,
+        verbose: false
+      });
 
       this.connectome.subscribe(({ connectionList }) => {
         program.store('connectionsIn').set(connectionList);
@@ -25,13 +27,13 @@ class ProgramConnectionsAcceptor {
       this.connectome.on('connection', channel => {});
 
       this.connectome.on('connection_closed', channel => {
-        if (dmt.isDevMachine()) {
+        if (isDevMachine()) {
           console.log(colors.gray(`channel [ ${channel.protocol} ] ${channel.remoteIp() ? channel.remoteIp() : 'UNKNOWN/STALE'} closed`));
         }
       });
 
       this.connectome.on('protocol_added', ({ protocol }) => {
-        log.brightWhite(`💡 Connectome protocol ${colors.cyan(protocol)} ready.`);
+        log.white(`💡 Connectome protocol ${colors.cyan(protocol)} ready.`);
       });
     } else {
       log.red('ProgramConnectionsAcceptor not started because device keypair could not be established.');

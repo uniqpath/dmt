@@ -1,4 +1,3 @@
-import dmt from 'dmt/common';
-const { util } = dmt;
+import { util, device } from 'dmt/common';
 
-util.dir(dmt.device());
+util.dir(device());

@@ -1,8 +1,9 @@
-import colors from 'colors';
+import { util } from 'dmt/common';
+import { colors } from 'dmt/common';
+
 import { ipcClient } from 'dmt/cli';
 
-import dmt from 'dmt/common';
-const { orderBy, normalizeMac } = dmt.util;
+const { orderBy, normalizeMac } = util;
 
 const args = process.argv.slice(2);
 

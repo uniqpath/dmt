@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { def, suntime } = dmt;
+import { def, suntime, device as _device } from 'dmt/common';
 
 const _months = {
   eng: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -15,7 +14,7 @@ let device;
 
 function determineTimeAndDate({ latlng, lang }) {
   if (!device) {
-    device = dmt.device({ onlyBasicParsing: true });
+    device = _device({ onlyBasicParsing: true });
   }
 
   let d = new Date();

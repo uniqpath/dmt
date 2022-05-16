@@ -1,7 +1,4 @@
-import colors from 'colors';
-
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors } from 'dmt/common';
 
 import express from 'express';
 
@@ -19,7 +16,12 @@ class Server {
         this.app.use(`/${appName}`, initResult.express);
       } else {
         const appMatch = appList.find(appInfo => appInfo.appName == appName);
-        setupAppRoute({ app: this.app, appName, publicDir: appMatch.publicDir });
+        if (appMatch) {
+          setupAppRoute({ app: this.app, appName, publicDir: appMatch.publicDir });
+        } else {
+          log.red(`No match for ${appName} in appList:`);
+          log.red(appList);
+        }
       }
     }
 
@@ -37,7 +39,6 @@ class Server {
         log.magenta('-------------------------------------------------');
         log.magenta(`💡🚀🎸 OPEN DMT FRONTEND → ${colors.magenta(`http://localhost:${port}`)}`);
         log.magenta('-------------------------------------------------');
-        //   desktop.notify('OPEN DMT IN BROWSER', `🚀🎸 http://localhost:${port}`);
       })
       .on('error', () => {
         throw new Error(`Failed to listen at frontend port ${port}`);

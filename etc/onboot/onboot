@@ -11,8 +11,7 @@
 
 source ~/.dmt/shell/.bash_custom
 
-# TERM=xterm is needed for colors to work when started from cron job
-TERM=xterm ~/.dmt/etc/onboot/daemons start #_or_restart
+~/.dmt/etc/onboot/daemons start #_or_restart
 
 if [ -f ~/.dmt/user/devices/this/onboot ]; then
   ~/.dmt/user/devices/this/onboot

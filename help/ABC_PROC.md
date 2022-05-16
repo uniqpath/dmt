@@ -37,17 +37,21 @@ Who monitors `dmt-proc` and starts it again in case it crashes or is killed? It 
 - smaller devices like RaspberryPi computers (especially with worn-out sd-cards) can sometimes (rarely) kill any process for no reason and this is out of our control... we need to continue when this happens and this approach enables this. User/developer should know (via receiving a push message on the phone) that this happened and they should analyze if anything is to be done or conclude that it is a rare event of single board computers unpredictability and we have to live with. This is not troublesome because **dmt system** abstracts the problem away. In reality this should almost never happen, our testing shows that on most devices it does not happen at all, we only had one RPi device with occasional unexplained killed `dmt-proc` and even this only twice a few days apart and never since.
 - there is no possibility of infinite loops when `abc-proc` and `dmt-proc` would keep trying to restart each other and fail
 
-#### What is (currently) not covered with this approach?
+#### What is not covered with this approach?
 
-There is still a possibility for `dmt-proc` not to be running when it actually should be.
+There is still a possibility for `dmt-proc` not to be running when it actually should be:
 
-This would theoretically happen if both `dmt-proc` and `abc-proc` would get killed (the equivalent of `kill -9`) by OS.
+This would theoretically happen if `dmt-proc` and `abc-proc`  both got killed at the same time (`kill -9`).
 
 `cron` would still restart `abc-proc` within a minute but `abc-proc` would not know it needs to start a new `dmt-proc`. See above rules (eg. `abc-proc` only starts `dmt-proc` when it detects IPC disconnect, it cannot just blindly start `dmt-proc` if it is not running because user may have manually stopped `dmt-proc` because she actually doesn't want it to be running).
 
 We think that this happening is not realistic since `abc-proc` is very simple and small and doing almost nothing. We will have to test in practice and if this turns out like a realistic option we have to decide and figure out a solution by adding some complexity or decide it is not worth it since it almost never happens. For now this is not a crucial open question, it will get worked on as needed.
 
-#### How can you test this functionality?
+#### Crashloops
+
+`dmt-proc` health monitoring has built-in smart protection for crash loops. If `dmt-proc` crashes three consecutive times within 60s, then `abc-proc` will indefinitely stop trying to respawn it since we are mostl likely in a never-ending crash looping scenario. Owner gets very clear realtime push messages about everything that is happening and also regular warnings afterwards if the issue is not resolved (first one after 30min and then two more times every 4h).
+
+#### Try for yourself
 
 Make sure that on RaspberryPi you add the following [lines](https://github.com/uniqpath/dmt/blob/main/etc/cron/readme.txt) to cron (using `crontab -e`).
 

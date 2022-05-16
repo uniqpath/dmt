@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 import { appFrontendList } from 'dmt/load-app-engines';
 

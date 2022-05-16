@@ -1,8 +1,6 @@
-import dmt from 'dmt/common';
-
 import { push } from 'dmt/notify';
 
-const { log } = dmt;
+import { log, isRPi, isDevUser, prettyFileSize, colors } from 'dmt/common';
 
 import { getCPUInfo, getCPUTemperature } from './lib/piInfo';
 
@@ -17,19 +15,17 @@ let reportedVeryHighCpuTempAt;
 
 let reportedLowSpaceAt;
 
-const { prettyFileSize } = dmt;
-
 function init(program) {
   let ticks = 0;
 
   program.on('slowtick', () => {
-    if (dmt.isRPi()) {
+    if (isRPi()) {
       const sysinfo = {};
 
       Promise.all([usedSwapMemory(), getCPUInfo(), getCPUTemperature(), checkDiskSpace('/')]).then(([usedSwapPerc, cpuUsage, cpuTemp, diskSpace]) => {
         sysinfo.usedSwap = usedSwapPerc;
 
-        if (dmt.isDevUser()) {
+        if (isDevUser()) {
           if (usedSwapPerc >= 80) {
             if (!reportedHighSwap) {
               const msg = `🏗️⚠️ High swap usage: ${usedSwapPerc}%`;
@@ -41,7 +37,6 @@ function init(program) {
             if (!reportedGrowingSwap) {
               const msg = `🏗️⚠️ Rising swap usage: ${usedSwapPerc}%`;
               log.gray(msg);
-              push.notify(msg);
               reportedGrowingSwap = true;
             }
           }
@@ -49,15 +44,18 @@ function init(program) {
 
         sysinfo.cpuUsage = cpuUsage.percentUsed;
 
+        if (isDevUser()) {
+        }
+
         sysinfo.cpuTemp = cpuTemp;
 
-        if (cpuTemp >= 80 && (!reportedVeryHighCpuTempAt || Date.now() - reportedVeryHighCpuTempAt > 3 * 60000)) {
+        if (cpuTemp >= 80 && (!reportedVeryHighCpuTempAt || Date.now() - reportedVeryHighCpuTempAt > 30 * 60000)) {
           const msg = `⚠️ Very high cpu temperature: ${Math.round(cpuTemp)}°C`;
           log.gray(msg);
           push.notify(msg);
 
           reportedVeryHighCpuTempAt = Date.now();
-        } else if (cpuTemp >= 70 && (!reportedHighCpuTempAt || Date.now() - reportedHighCpuTempAt > 3 * 60000)) {
+        } else if (cpuTemp >= 70 && (!reportedHighCpuTempAt || Date.now() - reportedHighCpuTempAt > 30 * 60000)) {
           const msg = `High cpu temperature: ${Math.round(cpuTemp)}°C`;
           log.gray(msg);
           push.notify(msg);
@@ -65,8 +63,8 @@ function init(program) {
           reportedHighCpuTempAt = Date.now();
         } else if (
           cpuTemp <= 60 &&
-          ((reportedHighCpuTempAt && Date.now() - reportedHighCpuTempAt < 10 * 60000) ||
-            (reportedVeryHighCpuTempAt && Date.now() - reportedVeryHighCpuTempAt < 10 * 60000))
+          ((reportedHighCpuTempAt && Date.now() - reportedHighCpuTempAt < 15 * 60000) ||
+            (reportedVeryHighCpuTempAt && Date.now() - reportedVeryHighCpuTempAt < 15 * 60000))
         ) {
           reportedHighCpuTempAt = undefined;
           reportedVeryHighCpuTempAt = undefined;

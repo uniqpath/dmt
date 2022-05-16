@@ -76,25 +76,24 @@ There are two types of state:
 
 ```js
 import { Connectome } from 'connectome/server';
+import { SyncStore } from 'connectome/stores';
 
 const connectome = new Connectome({ port: 8200 });
 
 const channels = connectome.registerProtocol({ protocol: 'dmt/player' });
 
 // set shared per-protocol state which is reflected on all connected clients
-channels.state.set({ song: 'O Misterio', timeposition: 0 });
+const store = new SyncStore({ song: 'O Misterio', timeposition: 0 });
 
 let timeposition = 0;
 setInterval(() => { 
   // update timeposition state key
-  channels.state.update({ timeposition });
+  store.update({ timeposition });
   timeposition += 1;
 }, 1000);
 
 connectome.start();
 ```
-
-💡You use `channels.state.update({ someKey: { ... } })` to update only part of the state instead of setting the entire state from scratch each time. There is no performance difference between `set()` and `update()`, it is just for more readable and resilient code.
 
 **Client:**
 

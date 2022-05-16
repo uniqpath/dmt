@@ -1,11 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
-import dmt from 'dmt/common';
-
 import { def2json, json2def } from 'dmt-defjson';
 
-const filePath = path.join(dmt.userDir, 'def/pushover.def');
+const filePath = path.join(dmt.dmtUserDir, 'def/pushover.def');
 
 if (fs.existsSync(filePath)) {
   const defString = fs.readFileSync(filePath).toString();

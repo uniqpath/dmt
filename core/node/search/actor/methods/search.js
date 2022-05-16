@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { log, dmtContent } = dmt;
+import { log, dmtContent } from 'dmt/common';
 
 import { parseSearchQuery } from '../../lib/utils/query';
 import normalizeTerms from '../../lib/utils/normalizeTerms';

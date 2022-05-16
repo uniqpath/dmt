@@ -1,9 +1,9 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, keypair } from 'dmt/common';
 
 import { ConnectorPool } from 'dmt/connectome';
 
+import { isDevUser, isMainDevice } from 'dmt/common';
+
 export default function createFiberPool({ port, protocol }) {
-  const keypair = dmt.keypair();
-  return new ConnectorPool({ protocol, port, keypair, log: log.write });
+  return new ConnectorPool({ protocol, port, keypair: keypair(), log: isMainDevice() ? log : console.log(), verbose: isMainDevice() });
 }

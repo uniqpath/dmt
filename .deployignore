@@ -3,13 +3,15 @@ deploy
 
 /etc/.bash_aliases_bundle
 /etc/.bash_aliases_slim
+/etc/README_DEPLOY_IGNORE
 /shell/.bash_staging
+
+todo.txt
 
 /archive
 .trash
 
-target/debug
-target/release
+target
 
 /user/devices/this
 /devices/this
@@ -18,4 +20,4 @@ keys.def
 /state
 /log
 
-
+/user/engine/.gitignore

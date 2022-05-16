@@ -1,11 +1,9 @@
-import colors from 'colors';
 import express from 'express';
 
 import fs from 'fs';
 import path from 'path';
 
-import dmt from 'dmt/common';
-const { log, dmtVersion } = dmt;
+import { log, dmtVersion, colors, dmtPath, services } from 'dmt/common';
 
 import streamDmtZip from './endpoints/streamDmtZip';
 import serveInstallScript from './endpoints/serveInstallScript';
@@ -22,7 +20,7 @@ function serverInit({ app, program, port, replicateUserCodeTransform, replicateE
   });
 
   app.get('/dmt.zip', (req, res) => {
-    const existingDmtZipFilePath = path.join(dmt.dmtPath, 'state/dmt.zip');
+    const existingDmtZipFilePath = path.join(dmtPath, 'state/dmt.zip');
     if (fs.existsSync(existingDmtZipFilePath)) {
       log.green(`Serving existing dmt.zip file from ${existingDmtZipFilePath}`);
       res.sendFile(existingDmtZipFilePath);
@@ -33,9 +31,14 @@ function serverInit({ app, program, port, replicateUserCodeTransform, replicateE
   });
 
   app.get('/version', (req, res) => {
-    const fetchedVersion = dmtVersion(path.join(dmt.dmtPath, 'state/dmt.zip.version.txt'));
-    if (fs.existsSync(path.join(dmt.dmtPath, 'state/dmt.zip')) && fetchedVersion) {
-      res.send(fetchedVersion);
+    const zipVersionFile = path.join(dmtPath, 'state/dmt.zip.version.txt');
+
+    if (fs.existsSync(path.join(dmtPath, 'state/dmt.zip')) && fs.existsSync(zipVersionFile)) {
+      const zipVersion = fs
+        .readFileSync(zipVersionFile)
+        .toString()
+        .trim();
+      res.send(zipVersion);
     } else {
       res.send(dmtVersion());
     }
@@ -48,7 +51,7 @@ function serverInit({ app, program, port, replicateUserCodeTransform, replicateE
 function init(program) {
   program.on('user_engine_ready', ({ replicateUserCodeTransform = null, replicateExcludedByUser = null } = {}) => {
     const app = express();
-    const service = dmt.services('replicate');
+    const service = services('replicate');
 
     if (service) {
       const { port } = service;

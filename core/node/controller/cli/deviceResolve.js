@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-
-import colors from 'colors';
+import { colors, getIp, getGlobalIp, device as _device } from 'dmt/common';
 
 const args = process.argv.slice(2);
 
@@ -13,13 +11,13 @@ const arg = args.shift(1);
 
 const deviceName = arg.startsWith('@') ? arg.replace('@', '') : arg;
 
-const ip = dmt.getIp({ deviceName });
+const ip = getIp({ deviceName });
 if (ip.error) {
   console.error(ip.error);
   process.exit();
 }
 
-const globalIp = dmt.getGlobalIp({ deviceName });
+const globalIp = getGlobalIp({ deviceName });
 
 console.log(`name: ${deviceName}`);
 console.log(`ip: ${ip}`);
@@ -27,7 +25,7 @@ if (globalIp && !globalIp.error) {
   console.log(`globalIp: ${globalIp}`);
 }
 
-const device = dmt.device({ deviceName, onlyBasicParsing: true });
+const device = _device({ deviceName, onlyBasicParsing: true });
 
 if (device && device.try('network.user')) {
   console.log(`user: ${device.network.user}`);

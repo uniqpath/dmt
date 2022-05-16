@@ -1,4 +1,4 @@
-import colorer from 'colors';
+import { colors as colorer } from 'dmt/common';
 
 const defaultColors = {
   separator: 'gray',

@@ -1,7 +1,7 @@
-import dmt from 'dmt/common';
+import { versionCompareSymbol } from 'dmt/common';
 
 function attachVersionInfo(device) {
-  return { ...device, versionCompareSymbol: dmt.versionCompareSymbol(device.dmtVersion) };
+  return { ...device, versionCompareSymbol: versionCompareSymbol(device.dmtVersion) };
 }
 
 export default function deriveDeviceData(device) {

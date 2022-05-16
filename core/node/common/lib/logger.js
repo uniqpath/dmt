@@ -2,16 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import util from 'util';
-import colors from 'colors';
 
-import { deviceDefFile, dmtPath, isDevMachine, debugMode } from './dmtPreHelper';
-import dmtUtil from './util';
+import { colors, deviceDefFile, dmtPath, debugMode } from './dmtPreHelper';
 import scan from './scan';
 
 import colorJSON from './colorJSON';
 import ScreenOutput from './loggerScreenOutput';
 
-const LIMIT = 10000;
+import formatDuration from './timeutils/formatDuration';
+
+const LIMIT = 20000;
 const FIVE_MIN = 300000;
 
 function getAllFuncs(obj) {
@@ -25,12 +25,20 @@ function includeModule(obj, Module) {
   }
 }
 
+function getSymbol(source) {
+  if (source == 'connectome') {
+    return colors.cyan('⧦');
+  }
+
+  return '∞';
+}
+
 class Logger {
   constructor() {
     this.buffer = [];
     this.linesWrittenCount = 0;
 
-    this.REPORT_LINES = 35;
+    this.REPORT_LINES = 50;
 
     includeModule(this, ScreenOutput);
   }
@@ -43,13 +51,12 @@ class Logger {
     return this.buffer.slice(-lines);
   }
 
-  init({ dmt, logfile, foreground, procTag }) {
+  init({ deviceName, logfile, foreground, profiling, procTag }) {
+    this.foreground = !!foreground;
+    this.profiling = !!profiling;
+
     if (logfile) {
       this.logfilePath = path.join(dmtPath, `log/${logfile}`);
-
-      if (this.isForeground == undefined) {
-        this.isForeground = false;
-      }
     }
 
     this.procTag = procTag;
@@ -63,20 +70,20 @@ class Logger {
       process.exit();
     }
 
-    if (foreground != undefined) {
-      this.isForeground = foreground;
-    }
-
     try {
-      this.deviceName = dmt.device({ onlyBasicParsing: true }).id;
+      this.deviceName = deviceName;
     } catch (e) {
       this.red(e);
       process.exit();
     }
+  }
 
-    if (foreground) {
-      this.white(`${colors.cyan('dmt-proc')} running in terminal (foreground)`);
-    }
+  isForeground() {
+    return this.foreground;
+  }
+
+  isProfiling() {
+    return this.profiling;
   }
 
   fwrite(msg) {
@@ -100,7 +107,7 @@ class Logger {
       deviceName: this.deviceName,
       pid: process.pid,
       time: new Date().toLocaleString(),
-      epoch: Date.now()
+      timestamp: Date.now()
     };
 
     if (error) {
@@ -110,35 +117,61 @@ class Logger {
     return meta;
   }
 
-  infoLine({ deviceName, pid, time, epoch }) {
+  infoLine({ deviceName, pid, time }) {
     return `${deviceName ? `${colors.magenta(deviceName)}` : '[unknown deviceName, before log init]'} ${pid} ${colors.gray(time)}`;
   }
 
-  logOutput(color, { onlyToFile = false, skipMeta = false, error = false } = {}, ...args) {
+  logOutput(color, { onlyToFile = false, skipMeta = false, error = false, source } = {}, ...args) {
     const meta = this.lineMetadata({ error });
 
-    let msg = color(util.format(...args));
+    const rawMsg = util.format(...args);
+
+    let _color;
+
+    if (!color) {
+      _color = colors.white;
+    } else if (typeof color == 'string') {
+      if (color == 'white') {
+        _color = colors.bold().white;
+      } else {
+        _color = colors[color];
+      }
+    } else {
+      _color = color;
+    }
+
+    let msg = _color(rawMsg);
+
     if (!skipMeta) {
       const infoLine = this.infoLine(meta);
 
       let diffStr = '';
+
       if (this.buffer.length > 0) {
         const prev = this.buffer[this.buffer.length - 1];
-        const diff = meta.epoch - prev.meta.epoch;
-        if (diff < FIVE_MIN && diff >= 0) {
-          diffStr = ` (+${dmtUtil.pad(diff, 2)}ms)`;
+        const diff = meta.timestamp - prev.meta.timestamp;
+
+        diffStr = ` (+${formatDuration(diff)})`;
+
+        if (diff > 1000) {
+          diffStr = colors.white(diffStr);
         }
       }
 
-      let foregroundMark = colors.gray('[before init] ');
+      let foregroundMark = colors.gray('[?] ');
 
-      if (this.isForeground == true) {
+      if (this.foreground == true) {
         foregroundMark = colors.gray('[run] ');
-      } else if (this.isForeground == false) {
+        if (this.profiling == true) {
+          foregroundMark += colors.cyan('[profiling] ');
+        }
+      } else if (this.foreground == false) {
         foregroundMark = '';
       }
 
-      msg = `${foregroundMark}${this.procTag ? `${colors.cyan(this.procTag)} ` : ''}${infoLine}${colors.gray(diffStr)} ∞ ${msg}`;
+      const symbol = rawMsg.trim() == '' ? '' : getSymbol(source);
+
+      msg = `${foregroundMark}${this.procTag ? `${colors.cyan(this.procTag)} ` : ''}${infoLine}${colors.gray(diffStr)} ${symbol} ${msg}`;
     }
 
     if (!onlyToFile) {
@@ -166,12 +199,6 @@ class Logger {
     if (obj) {
       const cj = colorJSON(obj);
       this.logOutput(colors.white, { skipMeta: true }, cj);
-    }
-  }
-
-  dev(msg) {
-    if (isDevMachine()) {
-      this.logOutput(colors.yellow, {}, msg);
     }
   }
 

@@ -1,4 +1,4 @@
-import colors from 'colors';
+import { colors } from 'dmt/common';
 import { apn } from '../index';
 
 function help() {
@@ -11,16 +11,10 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
   process.exit();
 }
 function send(msg) {
-  apn
-    .notify(msg)
-    .then(() => {
-      console.log(colors.green('Push message sent'));
-      process.exit();
-    })
-    .catch(error => {
-      console.log(colors.red('Problem sending the push message:'));
-      console.log(error);
-    });
+  apn.notify(msg).then(() => {
+    console.log(colors.green('Push message sent'));
+    process.exit();
+  });
 }
 
 const args = process.argv.slice(2);

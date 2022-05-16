@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-
-const { log } = dmt;
+import { log, isLinux, disconnectedIPAddress } from 'dmt/common';
 
 import mapToLocal from './lib/mapToLocal';
 
@@ -8,17 +6,27 @@ import checkServerSambaSharesConfig from './lib/checkServerSambaSharesConfig';
 import prepareMountpoints from './lib/prepareMountpoints';
 import mount from './lib/mount';
 
+function tryMount(program) {
+  const { ip } = program.store('device').get();
+  if (ip && !disconnectedIPAddress(ip)) {
+    prepareMountpoints(program).forEach(mountInfo => mount(mountInfo));
+  }
+}
+
 function init(program) {
   checkServerSambaSharesConfig();
 
-  if (dmt.isLinux()) {
-    program.on('slowtick', () => {
-      const { ip } = program.store('device').get();
-      if (ip && !dmt.disconnectedIPAddress(ip)) {
-        prepareMountpoints().forEach(mountInfo => mount(mountInfo));
-      }
-    });
-  }
+  program.on('ready', () => {
+    if (isLinux()) {
+      setTimeout(() => {
+        tryMount(program);
+
+        program.on('slowtick', () => {
+          tryMount(program);
+        });
+      }, 4000);
+    }
+  });
 
   program.mapToLocal = mapToLocal;
 }

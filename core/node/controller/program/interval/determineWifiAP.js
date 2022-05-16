@@ -1,9 +1,8 @@
-import dmt from 'dmt/common';
 import { platformTools } from 'dmt/bash-exec';
 
 import { push } from 'dmt/notify';
 
-const { log, identifyDeviceByMac } = dmt;
+import { log, identifyDeviceByMac, isRPi } from 'dmt/common';
 const { wifiAccessPointMAC } = platformTools;
 
 const RETRY_DELAY = 500;
@@ -13,11 +12,17 @@ function reportChange({ program, currentApssid, apssid, currentWifiAP, wifiAP, c
 
   if (ip) {
     setTimeout(() => {
-      const msg = `📶 ${program.device.id}: ${currentWifiAP || ''} ${currentApssid} → ${wifiAP || ''} ${apssid}`.replace(/\s+/g, ' ');
+      const msg = `📶 Wifi AP switched: ${currentWifiAP || ''} ${currentApssid} → ${wifiAP || ''} ${apssid}`.replace(/\s+/g, ' ');
       log.gray(msg);
 
-      if (dmt.isRPi()) {
-        push.notify(msg);
+      setTimeout(() => {
+        program.notifyMainDevice({ msg });
+      }, 1500);
+
+      if (isRPi()) {
+        setTimeout(() => {
+          push.notify(msg);
+        }, 3000);
       }
     }, RETRY_DELAY);
   } else {
@@ -36,8 +41,7 @@ export default function determineWifiAP(program) {
     .then(({ bssid }) => {
       if (bssid != '0:0:0:0:0:0') {
         const apssid = bssid;
-        const currentWifiAP = program.store('device').get().wifiAP;
-        const currentApssid = program.store('device').get().apssid;
+        const { wifiAP: currentWifiAP, apssid: currentApssid } = program.store('device').get();
 
         const wifiAP = identifyDeviceByMac(apssid)?.name;
 

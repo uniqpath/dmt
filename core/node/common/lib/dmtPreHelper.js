@@ -1,17 +1,27 @@
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import def from './parsers/def/parser';
-import colors from 'colors';
+import colors from './colors/colors';
+import colors2 from './colors/colors2';
 import scan from './scan';
 
 const DEF_EXTENSION = '.def';
 
-const { homedir } = os;
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const dmtPath = path.join(homedir(), '.dmt');
+const DMT_DIR = '.dmt';
+
+if (!__dirname.includes(DMT_DIR)) {
+  console.log(`${colors.cyan('dmt-proc')} has to be running from ~/.dmt`);
+  process.exit();
+}
+
+const dmtPath = path.join(__dirname.split(DMT_DIR)[0], DMT_DIR);
+
 const dmtUserDir = path.join(dmtPath, 'user');
-const stateDir = path.join(dmtPath, 'state');
+const dmtStateDir = path.join(dmtPath, 'state');
 
 const defDir = path.join(dmtUserDir, 'def');
 
@@ -50,15 +60,19 @@ function readDeviceDef({ filePath, onlyBasicParsing, caching = true }) {
 }
 
 function isDevMachine() {
-  return fs.existsSync(`${homedir()}/.dmt/.prevent_dmt_next`);
+  return fs.existsSync(path.join(dmtPath, '.prevent_dmt_next'));
 }
 
-function isDevUser() {
-  return isDevMachine() || user().dev == 'true';
+function isDevPanel() {
+  return isDevMachine() || device().devPanel == 'true';
 }
 
 function isMainDevice() {
-  return this.device().main == 'true';
+  return device().main == 'true';
+}
+
+function isDevUser() {
+  return user().dev == 'true';
 }
 
 function device({ deviceName = 'this', onlyBasicParsing = false, caching = true } = {}) {
@@ -135,7 +149,7 @@ function devices({ onlyBasicParsing = false, caching = true } = {}) {
 }
 
 function debugMode(category = null) {
-  const debugInfoFile = path.join(stateDir, '.debug-mode');
+  const debugInfoFile = path.join(dmtStateDir, '.debug-mode');
 
   if (fs.existsSync(debugInfoFile)) {
     if (category) {
@@ -148,7 +162,7 @@ function debugMode(category = null) {
 
 function debugCategory(category = null) {
   if (category) {
-    const debugInfoFile = path.join(stateDir, '.debug-mode');
+    const debugInfoFile = path.join(dmtStateDir, '.debug-mode');
 
     const categoriesDebugModeFile = !fs.existsSync(debugInfoFile)
       ? []
@@ -171,4 +185,20 @@ function debugCategory(category = null) {
   }
 }
 
-export { dmtPath, dmtUserDir, stateDir, user, userDef, device, devices, deviceDefFile, isMainDevice, isDevMachine, isDevUser, debugMode, debugCategory };
+export {
+  colors,
+  colors2,
+  dmtPath,
+  dmtUserDir,
+  dmtStateDir,
+  user,
+  userDef,
+  device,
+  devices,
+  deviceDefFile,
+  isMainDevice,
+  isDevMachine,
+  isDevUser,
+  debugMode,
+  debugCategory
+};

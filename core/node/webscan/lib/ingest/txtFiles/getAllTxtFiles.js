@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { scan } = dmt;
+import { scan } from 'dmt/common';
 
 export default function(directory) {
   return scan.recursive(directory, {

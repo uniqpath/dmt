@@ -1,7 +1,5 @@
-import dmt from 'dmt/common';
-
 import enhanceFS from './enhanceFSResult';
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 function enhanceResult({ result, providerAddress, providerPort, providerKey, searchOriginHost }) {
   const { resultType } = result;

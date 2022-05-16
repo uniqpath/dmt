@@ -1,7 +1,6 @@
 import fs from 'fs';
 
-import dmt from 'dmt/common';
-const { textfileParsers } = dmt;
+import { textfileParsers } from 'dmt/common';
 const { textfileKeyValueParser } = textfileParsers;
 
 import { exec } from 'child_process';
@@ -28,6 +27,7 @@ export default () => {
       const keys = 'BSSID';
       const keyMap = { BSSID: 'bssid' };
       const result = textfileKeyValueParser({ content, keys, keyMap, delimiter: ':' });
+
       success(result);
     });
   });

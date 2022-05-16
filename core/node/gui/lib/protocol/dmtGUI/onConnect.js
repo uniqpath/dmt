@@ -1,6 +1,6 @@
 import os from 'os';
-import dmt from 'dmt/common';
 
+import { services } from 'dmt/common';
 import handleErrorFromGui from './helpers/handleErrorFromGui';
 
 import PlayerRemoteTarget from './objects/player';
@@ -33,7 +33,7 @@ function onConnect({ program, channel }) {
 
 function loadInitialView(channel) {
   if (os.uptime() <= 60 && !channel.initialIdleViewLoad) {
-    const { idleView } = dmt.services('gui');
+    const { idleView } = services('gui');
 
     channel.initialIdleViewLoad = true;
 

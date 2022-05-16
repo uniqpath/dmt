@@ -1,12 +1,13 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
-import colors from 'colors';
+import { log, colors } from 'dmt/common';
+
 import EventEmitter from 'events';
 
 import dgram from 'dgram';
 
 const BROADCAST_ADDR = '255.255.255.255';
 const PORT = 27770;
+
+const DEBUG = false;
 
 class UdpBus extends EventEmitter {
   constructor() {
@@ -29,6 +30,11 @@ class UdpBus extends EventEmitter {
         if (!obj.ip) {
           obj.ip = rinfo.address;
         }
+        if (DEBUG && !obj.processId) {
+          log.cyan(`Received message over ${colors.yellow('LANBUS UDP')} (ignoring standard nearby chatter):`);
+          log.magenta(obj);
+        }
+
         this.emit('message', obj);
       } catch (e) {
         log.write(
@@ -53,6 +59,14 @@ class UdpBus extends EventEmitter {
   }
 
   publish(message) {
+    if (DEBUG) {
+      const obj = typeof message === 'string' ? JSON.parse(message) : message;
+      if (!obj.processId) {
+        log.cyan(`Publishing message over ${colors.yellow('LANBUS UDP')} (ignoring standard nearby chatter)`);
+        log.green(message);
+      }
+    }
+
     return new Promise((success, reject) => {
       const strMsg = typeof message === 'string' ? message : JSON.stringify(message);
       const networkMessage = Buffer.from(strMsg);

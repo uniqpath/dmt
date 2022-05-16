@@ -1,6 +1,6 @@
 {
   "name": "connectome",
-  "version": "0.1.7",
+  "version": "0.1.13",
   "description": "Dynamic realtime connectivity and state management",
   "typings": "typings/src/client/index.d.ts",
   "scripts": {
@@ -23,8 +23,12 @@
       "require": "./server/index.js"
     },
     "./stores": {
+      "node": {
+        "import": "./stores/node/index.mjs",
+        "require": "./stores/node/index.js"
+      },
       "import": "./stores/index.mjs",
-      "require": "./stores/index.js"
+      "default": "./stores/index.js"
     },
     "./typings": "./typings",
     "./package.json": "./package.json"
@@ -33,6 +37,7 @@
     "dist",
     "server",
     "stores",
+    "stores-node",
     "typings"
   ],
   "repository": {
@@ -43,8 +48,8 @@
   "license": "ISC",
   "dependencies": {
     "bufferutil": "^4.0.2",
-    "colors": "^1.4.0",
     "fast-json-patch": "^3.0.0-1",
+    "kleur": "^4.1.5",
     "quantum-generator": "^1.9.1",
     "rfc6902": "^4.0.1",
     "tweetnacl": "^1.0.3",

@@ -1,7 +1,6 @@
-import dmt from 'dmt/common';
 import createHandler from './createHandler';
 
-const { util } = dmt;
+import { util } from 'dmt/common';
 
 class ActorManagement {
   constructor(program) {

@@ -21,7 +21,7 @@ export class ProtocolStore extends Eev {
   latent: boolean;
   state: any;
   lastAnnouncedState: any;
-  syncOver(channelList: any): void;
+  sync(channelList: any): void;
   set(
     state: any,
     {

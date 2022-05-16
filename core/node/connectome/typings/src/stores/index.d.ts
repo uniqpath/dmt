@@ -52,7 +52,7 @@ export class MultiConnectedStore extends MergeStore {
   activeDeviceKey(): any;
 }
 
-export class SlottedStore extends Eev {
+export class SyncStore extends Eev {
   constructor(
     initialState?: {},
     {
@@ -75,7 +75,7 @@ export class SlottedStore extends Eev {
   lastAnnouncedState: any;
   stateChangesCount: number;
   subscriptions: any[];
-  syncOver(channelList: any): void;
+  sync(channelList: any): void;
   channelList: any;
   sendRemote({ state, diff }: { state: any; diff: any }): void;
   state(): Record<string, any>;
@@ -141,8 +141,8 @@ declare class KeyValueStore {
   clearBaseKey(baseKey: any): void;
   replaceSubKey({ baseKey, key, value }: { baseKey: any; key: any; value: any }): void;
   removeSubKey({ baseKey, key }: { baseKey: any; key: any }): void;
-  pushToArray(baseKey: any, value: any): void;
-  removeFromArray(baseKey: any, removePredicate: any): void;
+  push(baseKey: any, value: any): void;
+  removeArrayElements(baseKey: any, removePredicate: any): void;
   replaceArrayElement(baseKey: any, selectorPredicate: any, value: any): boolean;
-  updateArrayElement(baseKey: any, selectorPredicate: any, value: any): boolean;
+  updateArray(baseKey: any, selectorPredicate: any, value: any): boolean;
 }

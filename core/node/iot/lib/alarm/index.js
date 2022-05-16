@@ -1,6 +1,6 @@
-import dmt from 'dmt/common';
+import { push } from 'dmt/notify';
 
-const { fsState } = dmt;
+import { fsState } from 'dmt/common';
 
 const alarmOnStateLabel = 'alarm_on';
 
@@ -16,7 +16,11 @@ class Alarm {
   enable() {
     if (this.thisDeviceManagesAlarm()) {
       fsState.setBool(alarmOnStateLabel);
-      this.program.iotMsg('alarm', 'enabled');
+
+      const msg = 'Alarm enabled';
+
+      this.program.nearbyNotification({ msg, ttl: 60, color: '#EE2192', omitDeviceName: true, group: 'alarm_on' });
+      push.omitDeviceName().notify(msg);
     }
   }
 
@@ -24,7 +28,11 @@ class Alarm {
     if (this.thisDeviceManagesAlarm()) {
       if (this.isEnabled()) {
         fsState.setBool(alarmOnStateLabel, false);
-        this.program.iotMsg('alarm', 'disabled');
+
+        const msg = 'Alarm disabled';
+
+        this.program.nearbyNotification({ msg, ttl: 60, color: '#5FF5B5', omitDeviceName: true, group: 'alarm_off' });
+        push.omitDeviceName().notify(msg);
       }
     }
   }

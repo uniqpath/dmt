@@ -1,6 +1,6 @@
 import { unfurl } from 'unfurl.js';
 
-import colors from 'colors';
+import { colors } from 'dmt/common';
 
 import { concurrency } from 'dmt/connectome';
 

@@ -1,4 +1,5 @@
-import colors from 'colors';
+import { colors } from 'dmt/common';
+
 import fs from 'fs';
 
 import tools from '../tools';

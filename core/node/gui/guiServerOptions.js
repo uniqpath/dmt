@@ -1,22 +1,21 @@
 import path from 'path';
-
-import dmt from 'dmt/common';
+import { dmtUserDir, dmtPath, guiViews } from 'dmt/common';
 
 export default guiServerOptions;
 
 function guiServerOptions() {
   const redirects = { '/': '/home' };
 
-  const rootDir = path.join(dmt.dmtPath, 'core/node/gui/gui-frontend-core');
+  const rootDir = path.join(dmtPath, 'core/node/gui/gui-frontend-core');
   const assetsSubdir = 'common_assets';
   const publicDir = path.join(rootDir, 'app/public');
 
   const subServings = [
-    { dir: path.join(dmt.userDir, 'wallpapers'), mountpoint: '/user/wallpapers' },
-    { dir: path.join(dmt.dmtPath, 'docs'), recursive: true, indexFile: 'README.html', mountpoint: '/docs' }
+    { dir: path.join(dmtUserDir, 'wallpapers'), mountpoint: '/user/wallpapers' },
+    { dir: path.join(dmtPath, 'docs'), recursive: true, indexFile: 'README.html', mountpoint: '/docs' }
   ];
 
-  for (const view of dmt.guiViews()) {
+  for (const view of guiViews()) {
     subServings.push({ dir: publicDir, mountpoint: `/${view}` });
   }
 

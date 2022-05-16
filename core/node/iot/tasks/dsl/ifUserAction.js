@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-
-const { def } = dmt;
+import { def } from 'dmt/common';
 
 import * as helpers from './helpers';
 

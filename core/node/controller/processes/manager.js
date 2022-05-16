@@ -1,12 +1,13 @@
 import fs from 'fs';
 import path from 'path';
-import dmt from 'dmt/common';
 
 import daemonize from './daemonize2/lib/daemonize';
 
 import { push } from 'dmt/notify';
 
 import { fileURLToPath } from 'url';
+
+import { dmtPath, nodeFlags, device } from 'dmt/common';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -30,7 +31,7 @@ if (!fs.existsSync(`${proc}`)) {
   process.exit();
 }
 
-const pidFilePath = path.join(dmt.dmtPath, `log/${procName}.pid`);
+const pidFilePath = path.join(dmtPath, `log/${procName}.pid`);
 
 function removeStalePidFile() {
   if (fs.existsSync(pidFilePath)) {
@@ -43,30 +44,36 @@ const daemon = daemonize({
   main: `${proc}`,
   name: `${procName}`,
   pidfile: pidFilePath,
-  nodeFlags: dmt.nodeFlags
+  nodeFlags
 });
 
 function restart({ notifyOnFail = false } = {}) {
   let triedStart;
   let didKill;
+
   daemon.on('stopped', () => {
     if (!didKill) {
       if (!triedStart) {
         triedStart = true;
         daemon.start();
       } else if (notifyOnFail) {
-        push.notify(`Failed to (re)start process on ${dmt.device().id} (check log)`).then(() => {
-          process.exit();
-        });
+        push
+          .highPriority()
+          .notify(`Failed to (re)start process on ${device().id} (check log)`)
+          .then(() => {
+            process.exit();
+          });
       }
     }
   });
+
   daemon.on('notrunning', () => {
     if (!didKill) {
       triedStart = true;
       daemon.start();
     }
   });
+
   daemon.stop();
 }
 

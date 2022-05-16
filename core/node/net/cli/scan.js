@@ -1,7 +1,6 @@
 import fs from 'fs';
-import colors from 'colors';
-import dmt from 'dmt/common';
 
+import { colors, dmtUserDir as dataDirPath } from 'dmt/common';
 import netScan from '../lib/net-scanner/netScan';
 import netScanScreenOutput from '../lib/net-scanner/screenOutput';
 
@@ -16,7 +15,6 @@ import netScanScreenOutput from '../lib/net-scanner/screenOutput';
     process.exit();
   }
 
-  const dataDirPath = dmt.userDir;
   if (!fs.existsSync(dataDirPath)) {
     fs.mkdirSync(dataDirPath);
   }

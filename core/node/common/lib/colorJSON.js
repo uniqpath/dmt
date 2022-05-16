@@ -1,4 +1,4 @@
-import colorer from 'colors';
+import colorer from './colors/colors';
 
 const defaultColors = {
   separator: 'gray',

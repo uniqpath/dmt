@@ -2,11 +2,10 @@ import express from 'express';
 import fs from 'fs';
 import pathModule from 'path';
 
-import dmt from 'dmt/common';
-const { scan } = dmt;
+import { scan } from 'dmt/common';
 
 function setFileSystemRoutes(app, { rootDir, publicDir, assetsSubdir, subServings = [] }) {
-  const components = dmt.scan
+  const components = scan
     .dir(rootDir, { onlyDirs: true })
     .filter(path => pathModule.basename(path) != assetsSubdir)
     .map(path => {

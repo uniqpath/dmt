@@ -1,4 +1,4 @@
-import WritableStore from '../../stores/front/helperStores/writableStore.js';
+import WritableStore from '../../stores/lib/helperStores/writableStore.js';
 
 export default class connectionState extends WritableStore {
   constructor(connector) {

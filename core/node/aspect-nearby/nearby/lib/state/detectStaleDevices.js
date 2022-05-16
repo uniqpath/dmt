@@ -4,10 +4,10 @@ export default function detectStaleDevices({ nearbyDevices, broadcastInterval })
   const now = Date.now();
 
   for (const device of nearbyDevices.filter(({ thisDevice }) => !thisDevice)) {
-    if (now - device.lastSeenAt > 2.2 * broadcastInterval) {
+    if (now - device.lastSeenAt >= 1.95 * broadcastInterval) {
       if (!device.stale) {
         list.push({ ...device, ...{ stale: true, staleDetectedAt: now } });
-      } else if (device.staleDetectedAt && now - device.staleDetectedAt < 3000) {
+      } else if (device.staleDetectedAt && now - device.staleDetectedAt <= broadcastInterval / 2) {
         list.push({ ...device });
       }
     } else {

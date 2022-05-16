@@ -1,6 +1,4 @@
-import colors from 'colors';
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors } from 'dmt/common';
 
 import { spawn } from 'child_process';
 

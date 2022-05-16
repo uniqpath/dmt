@@ -1,7 +1,5 @@
-import dmt from 'dmt/common';
-const { log, util } = dmt;
+import { log, util, colors, platformExecutablePath } from 'dmt/common';
 
-import colors from 'colors';
 import { spawn } from 'child_process';
 
 import stripAnsi from 'strip-ansi';
@@ -36,7 +34,7 @@ export default function executableSearch(binary, { terms, path, noColor, mediaTy
 
   log.write(`Calling external binary ${cwd ? `${colors.cyan(`cd ${cwd}`)}; ` : ''}${colors.cyan(binary)} ${colors.yellow(constructedTerms.join(' '))}`);
 
-  const ls = spawn(dmt.platformExecutablePath(binary), constructedTerms, {
+  const ls = spawn(platformExecutablePath(binary), constructedTerms, {
     cwd
   });
 

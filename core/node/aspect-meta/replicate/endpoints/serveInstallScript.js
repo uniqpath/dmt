@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import dmt from 'dmt/common';
+import * as dmt from 'dmt/common';
 const { util, dmtVersion } = dmt;
 
 const { dirname } = path;
@@ -31,11 +31,11 @@ function install({ req, res, isCurl, program, port }) {
   let host;
   let protocol = 'http';
 
-  if (program.store('device').get().serverMode) {
+  if (program.store('device').get('serverMode')) {
     host = req.headers.host;
     protocol = req.protocol;
   } else {
-    host = program.store('device').get().ip ? program.store('device').get().ip : 'localhost';
+    host = program.store('device').get('ip') || 'localhost';
     host = `${host}:${port}`;
   }
 
@@ -116,7 +116,10 @@ function install({ req, res, isCurl, program, port }) {
     const htmlTemplate = fs
       .readFileSync(path.join(__dirname, '../templates/template.html'))
       .toString()
-      .replace('{{demoPath}}', program.store('device').get().serverMode ? '/home' : `${protocol}://${hostname}:${program.store('device').get().actualGuiPort}`)
+      .replace(
+        '{{demoPath}}',
+        program.store('device').get('serverMode') ? '/home' : `${protocol}://${hostname}:${program.store('device').get('actualGuiPort')}`
+      )
       .replace('{{content}}', content);
 
     res.send(htmlTemplate);

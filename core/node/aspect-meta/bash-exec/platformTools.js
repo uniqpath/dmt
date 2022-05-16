@@ -1,4 +1,5 @@
-import dmt from 'dmt/common';
+import * as dmt from 'dmt/common';
+
 import { wpaStatus, macosAirport } from './otherScripts';
 
 function wifiAccessPointMAC() {

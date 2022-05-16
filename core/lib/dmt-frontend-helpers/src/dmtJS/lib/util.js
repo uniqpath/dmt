@@ -59,11 +59,6 @@ function compareValues(key, order = 'asc') {
   };
 }
 
-function mapTempToHUE(temp) {
-  const percent = 50 - temp;
-  return Math.round((270 * percent) / 100.0 + (temp < -10 ? 65 : temp > 20 ? 35 : 60));
-}
-
 function accessProperty(obj, acc) {
   return def.tryOnTheFly(obj, acc);
 }
@@ -225,7 +220,6 @@ export default {
   unique,
   setWallpaper,
   compareValues,
-  mapTempToHUE,
   msIntoTimeSpan,
   humanTime,
   songTime,

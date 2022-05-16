@@ -68,5 +68,21 @@ export default [
       }
     ],
     onwarn
+  },
+  {
+    input: 'src/stores-node/index.js',
+    external: builtinModules,
+    plugins: [nodeResolve({ preferBuiltins: true }), commonjs()],
+    output: [
+      {
+        format: 'esm',
+        file: 'stores/node/index.mjs'
+      },
+      {
+        format: 'cjs',
+        file: 'stores/node/index.js'
+      }
+    ],
+    onwarn
   }
 ];

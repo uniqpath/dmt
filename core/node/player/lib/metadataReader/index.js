@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-
-const { processBatch } = dmt;
+import { processBatch, isRPi } from 'dmt/common';
 
 import asyncMap from './asyncMap';
 
@@ -23,9 +21,9 @@ class MetadataReader {
     processBatch({
       entries,
       asyncMap,
-      batchSize: dmt.isRPi() ? 20 : 100,
-      firstBatchSize: dmt.isRPi() ? 5 : 20,
-      batchDelay: dmt.isRPi() ? 300 : 0,
+      batchSize: isRPi() ? 20 : 100,
+      firstBatchSize: isRPi() ? 5 : 20,
+      batchDelay: isRPi() ? 300 : 0,
       afterAsyncResultsBatch: results => {
         results.forEach(song => {
           delete song.asyncReadingMetadata;

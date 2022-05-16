@@ -1,5 +1,7 @@
 import fs from 'fs';
-import colors from 'colors';
+
+import { colors } from 'dmt/common';
+
 import { ipcClient, parseArgs, Table } from 'dmt/cli';
 import kindOf from 'kind-of';
 
@@ -32,9 +34,9 @@ function displayType(value) {
 
 function showHelp() {
   console.log(`${colors.green('dmt state')} show process state table with slot names`);
-  console.log(`${colors.green(`dmt state ${colors.brightGreen('[slot]')}`)} show some slot contents`);
+  console.log(`${colors.green(`dmt state ${colors.bold().green('[slot]')}`)} show some slot contents`);
   console.log(`${colors.green('dmt state --all')} output the entire process state`);
-  console.log(`${colors.green(`dmt state --export ${colors.brightGreen('[file.json]')}`)} output the entire process state and save to a file`);
+  console.log(`${colors.green(`dmt state --export ${colors.bold().green('[file.json]')}`)} output the entire process state and save to a file`);
 }
 
 function numElements(value) {
@@ -76,7 +78,7 @@ ipcClient({ actorName: 'controller', action })
       console.log(state[slotName]);
       console.log();
     } else {
-      console.log(colors.brightWhite(`🗒️  ${colors.cyan('dmt-proc')} in-memory ${colors.magenta('state:')}`));
+      console.log(colors.bold().white(`🗒️  ${colors.cyan('dmt-proc')} in-memory ${colors.magenta('state:')}`));
       console.log();
       table.push(headers.map(h => colors.cyan(h)));
 
@@ -87,7 +89,7 @@ ipcClient({ actorName: 'controller', action })
           .sort()
           .map(slot => {
             const value = state[slot];
-            return [`${colors.brightWhite(slot)} ${colors.gray(displayType(value))}`, numElements(value)];
+            return [`${colors.bold().white(slot)} ${colors.gray(displayType(value))}`, numElements(value)];
           })
       );
 

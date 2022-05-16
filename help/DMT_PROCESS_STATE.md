@@ -1,2 +1,0 @@
-# DMT PROCESS STATE
-

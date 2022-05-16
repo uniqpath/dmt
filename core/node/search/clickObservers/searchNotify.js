@@ -1,7 +1,6 @@
-import dmt from 'dmt/common';
 import { push, apn } from 'dmt/notify';
 
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 function notify({ msg, host, url }) {
   push

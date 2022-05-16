@@ -1,16 +1,14 @@
-import colors from 'colors';
-import dmt from 'dmt/common';
 import os from 'os';
 
 import { push } from 'dmt/notify';
 
-const { log } = dmt;
+import { log, colors, isRPi, disconnectedIPAddress, globals } from 'dmt/common';
 
 let tickCounter = 0;
 
 export default function checkForLocalOnlyIpAndRebootDevice({ program, ip, prevIp }) {
-  if (ip && dmt.isRPi()) {
-    if (dmt.disconnectedIPAddress(ip)) {
+  if (ip && isRPi()) {
+    if (disconnectedIPAddress(ip)) {
       if (prevIp != ip) {
         log.red(`⚠️  Disconneced IP address assigned: ${colors.gray(ip)}`);
         log.cyan('  [ device is "partially connected" - does not have a valid IP address to communicate, perhaps DHCP is not working properly? ]');
@@ -20,27 +18,25 @@ export default function checkForLocalOnlyIpAndRebootDevice({ program, ip, prevIp
         tickCounter += 1;
 
         // we reboot if IP was wrong for an entire slowTick period (20s))
-        if (tickCounter > dmt.globals.slowTickerFactor) {
-          const msg = 'Rebooting device in a few seconds to try obtain a valid IP address ...';
+        if (tickCounter == globals.slowTickerFactor) {
+          const msg = 'Rebooting device in about 10s seconds to try obtain a valid IP address ...';
           log.red(msg);
           push.notify(msg);
 
-          program.showNotification({ msg, ttl: 20, bgColor: '#C90029', color: 'white' });
-
-          tickCounter = 0;
+          program.showNotification({ msg, ttl: 20, color: '#C90029' });
 
           setTimeout(() => {
             program.store('rebootReason').set(`Device had invalid IP address: ${ip}`);
             program.emit('dmt_gui_action', { action: 'reboot', namespace: 'device' });
-          }, 4000);
+          }, 10000);
         }
       }
-    } else if (dmt.disconnectedIPAddress(prevIp)) {
-      if (prevIp != ip) {
+    } else {
+      tickCounter = 0;
+
+      if (prevIp != ip && disconnectedIPAddress(prevIp)) {
         log.green(`✓ Device received a valid IP address (${colors.gray(ip)}) again.`);
       }
-
-      tickCounter = 0;
     }
   }
 }

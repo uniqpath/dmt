@@ -1,6 +1,6 @@
 import fastJsonPatch from 'fast-json-patch';
 
-import WritableStore from '../../stores/front/helperStores/writableStore.js';
+import WritableStore from '../../stores/lib/helperStores/writableStore.js';
 
 const { applyPatch: applyJSONPatch } = fastJsonPatch;
 

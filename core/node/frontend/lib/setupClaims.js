@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-const { log, def } = dmt;
-import colors from 'colors';
+import { log, isDevUser, colors } from 'dmt/common';
 
 import { apn } from 'dmt/notify';
 
@@ -16,7 +14,7 @@ export default function setupClaims({ app, appName, publicDir, appList, appClaim
         )} already exists`
       );
 
-      if (dmt.isDevMachine()) {
+      if (isDevUser()) {
         apn.notify(`⚠️ Claim /${appClaim} failed, see log.`);
       }
     } else {

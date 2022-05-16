@@ -1,8 +1,7 @@
-import colors from 'colors';
 import EventEmitter from 'events';
 import fs from 'fs';
-import dmt from 'dmt/common';
-const { log, util } = dmt;
+
+import { log, util, colors, dmtPath, debugCategory, services } from 'dmt/common';
 
 import pathModule from 'path';
 
@@ -14,8 +13,6 @@ import { spawn } from 'child_process';
 
 import MpvAPI from './lib/mpv/mpv';
 
-import { resetAlsa, resetAlsaIfLongIdle } from './mpvBugWorkarounds';
-
 class MpvEngine extends EventEmitter {
   constructor(program) {
     super();
@@ -23,11 +20,11 @@ class MpvEngine extends EventEmitter {
     this.program = program;
 
     const opts = { verbose: false, time_update: 2 };
-    if (process.platform == 'linux' && !dmt.services('player').forceAlsa && fs.existsSync('/etc/pulse/default.pa')) {
+    if (process.platform == 'linux' && !services('player').forceAlsa && fs.existsSync('/etc/pulse/default.pa')) {
       opts.pulseaudio = true;
     }
 
-    if (dmt.debugCategory('mpv')) {
+    if (debugCategory('mpv')) {
       log.debug('⚠️  Enabling mpv logging into ~/.dmt/log/mpv.log requires mpv process restart (dmt stop, killall mpv, dmt start)');
       this.enableMpvLogging(opts);
     }
@@ -45,9 +42,7 @@ class MpvEngine extends EventEmitter {
 
     this.prepareEngine(program).then(() => {
       program.on('player:initialized', playerState => {
-        resetAlsa(this.mpvProcess, playerState).then(() => {
-          this.initEngine(playerState);
-        });
+        this.initEngine(playerState);
       });
     });
   }
@@ -84,7 +79,7 @@ class MpvEngine extends EventEmitter {
     this.mpvProcess.on('stopped', () => {
       this.clearTimeposition();
 
-      log.write('Current media just finished');
+      log.gray('Current player media just finished');
 
       if (this.spawning && Date.now() - this.connectedAt < 500) {
         log.cyan('Received introductory IDLE (stop) event on first connect after spawn from mpv on macOS (?), ignoring!');
@@ -186,7 +181,7 @@ class MpvEngine extends EventEmitter {
 
   enableMpvLogging(opts, { enable = true } = {}) {
     if (enable) {
-      const logDir = pathModule.join(dmt.dmtPath, 'log');
+      const logDir = pathModule.join(dmtPath, 'log');
       if (fs.existsSync(logDir)) {
         opts.log = pathModule.join(logDir, 'mpv.log');
       }
@@ -220,22 +215,14 @@ class MpvEngine extends EventEmitter {
               .then(() => {
                 engine.mpvProcess
                   .play()
-                  .then(() => {
-                    resetAlsaIfLongIdle(engine.mpvProcess, engine.playerEngineState.idleSince)
-                      .then(success)
-                      .catch(reject);
-                  })
+                  .then(success)
                   .catch(reject);
               })
               .catch(reject);
           } else {
             engine.mpvProcess
               .play()
-              .then(() => {
-                resetAlsaIfLongIdle(engine.mpvProcess, engine.playerEngineState.idleSince)
-                  .then(success)
-                  .catch(reject);
-              })
+              .then(success)
               .catch(reject);
           }
         })
@@ -301,7 +288,7 @@ class MpvEngine extends EventEmitter {
   volume(vol) {
     return new Promise((success, reject) => {
       if (vol == null) {
-        success(this.program.store('player').get().volume);
+        success(this.program.store('player').get('volume'));
       } else {
         this.program.store('player').update({ volume: vol });
         this.setEngineVolume(vol);
@@ -341,8 +328,8 @@ class MpvEngine extends EventEmitter {
               '/usr/bin/mpv'
             )}`;
             program.store('player').update({ error: { msg: stripAnsi(msg), type: 'mpv_binary_missing', helpUrl } });
-            log.white(`${colors.yellow('WARN:')} ${msg}`);
-            log.white(`mpv install instructions: ${colors.gray(helpUrl)}`);
+            log.write(`${colors.yellow('WARN:')} ${msg}`);
+            log.write(`mpv install instructions: ${colors.gray(helpUrl)}`);
           });
       }
     });
@@ -425,7 +412,10 @@ class MpvEngine extends EventEmitter {
             }
           });
       })
-      .catch(e => log.red(e));
+      .catch(e => {
+        log.red('MPV');
+        log.red(e);
+      });
   }
 
   spawnMpv() {

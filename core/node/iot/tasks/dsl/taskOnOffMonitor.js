@@ -13,9 +13,9 @@ class TaskOnOffMonitor {
     }
   }
 
-  handleIotEvent({ topic, msg }) {
+  handleMqttEvent({ topic, msg }) {
     if (this.onOffMonitor) {
-      this.onOffMonitor.handleIotEvent({ topic, msg });
+      this.onOffMonitor.handleMqttEvent({ topic, msg });
     }
   }
 }

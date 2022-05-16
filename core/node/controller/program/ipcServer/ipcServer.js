@@ -1,22 +1,20 @@
-import colors from 'colors';
+import { log, colors, ipc, dmtSocket } from 'dmt/common';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
 import fs from 'fs';
 
 import { push } from 'dmt/notify';
 
 export default function server(program) {
-  if (fs.existsSync(dmt.dmtSocket)) {
-    fs.unlinkSync(dmt.dmtSocket);
+  if (fs.existsSync(dmtSocket)) {
+    fs.unlinkSync(dmtSocket);
   }
 
-  const ser = new dmt.ipc();
+  const ser = new ipc();
 
-  ser.listen({ path: dmt.dmtSocket }, e => {
+  ser.listen({ path: dmtSocket }, e => {
     if (e) throw e;
 
-    log.yellow(`DMT IPC listening on ${colors.gray(dmt.dmtSocket)}`);
+    log.yellow(`DMT IPC listening on ${colors.gray(dmtSocket)}`);
   });
 
   ser.on('stopping', payload => {

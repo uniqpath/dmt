@@ -1,4 +1,5 @@
-import colors from 'colors';
+import { colors } from 'dmt/common';
+
 import { ipcClient } from 'dmt/cli';
 
 const args = process.argv.slice(2);
