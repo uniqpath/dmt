@@ -1,7 +1,6 @@
-import dmt from 'dmt/common';
 import { push } from 'dmt/notify';
 
-function manageTick(program) {}
+function onProgramTick(program) {}
 
 function setup(program) {}
 
@@ -22,7 +21,7 @@ function handleRestartFinished(program, { restarterId }) {
   program.store(slotName).removeKey(restarterId, { announce: true });
 }
 
-function handleIotEvent({ program, topic, msg }) {
+function handleMqttEvent({ program, topic, msg }) {
   if (topic == 'device_restart') {
     const data = JSON.parse(msg);
 
@@ -46,4 +45,4 @@ function handleIotEvent({ program, topic, msg }) {
   }
 }
 
-export { setup, handleIotEvent, manageTick };
+export { setup, handleMqttEvent, onProgramTick };

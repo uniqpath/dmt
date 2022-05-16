@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 import { dmtApp } from './dmtApp';
 
@@ -28,16 +27,25 @@ function handleError(e, { message, app, group }) {
   const msg = 'Error sending message over pushover.net API:';
 
   log.red(msg);
-  log.red(e);
+  log.red(e.toString());
 
-  if (dmt.isDevUser() && e.request) {
-    log.red('Request:');
-    log.cyan(e.request);
-  }
+  const msg2 = `⚠️ℹ️ Msg that failed: \"${message}\" (app: ${app}${group ? `, group: ${group}` : ''})`;
 
-  apn.notify(`⚠️ℹ️ Msg that failed: \"${message}\" (app: ${app}${group ? `, group: ${group}` : ''})`).then(() => {
-    apn.notify(`⚠️⚠️⚠️ 😾 ${msg} Check dmt log and previous apn push msg.`);
-  });
+  apn
+    .notify(msg2)
+    .then(() => {
+      const msg3 = `⚠️⚠️⚠️ 😾 ${msg} Check dmt log and previous apn push msg.`;
+      apn.notify(msg3).catch(e => {
+        log.red('Problem sending apn message');
+        log.red(msg3);
+        log.red(e);
+      });
+    })
+    .catch(e => {
+      log.red('Problem sending apn message');
+      log.red(msg2);
+      log.red(e);
+    });
 }
 
 function notify(message, { app = dmtApp, title, userKey, group, omitDeviceName, network, recipient = getUser(), url, urlTitle, highPriority, isABC } = {}) {
@@ -59,13 +67,13 @@ function notify(message, { app = dmtApp, title, userKey, group, omitDeviceName, 
 
       client
         .sendMessage(msg)
-        .then(success)
+        .then(() => success(true))
         .catch(e => {
           handleError(e, { message, app, group });
-          success();
+          success(false);
         });
     } else {
-      success();
+      success(true);
     }
   });
 }

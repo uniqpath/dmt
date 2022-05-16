@@ -211,6 +211,16 @@ function net {
   esac
 }
 
+function net_scan {
+  local cmd="${DMT_NODE_CORE}/net/cli/scan.js"
+
+  if [ -f "$cmd" ]; then
+    $DMT_NODEJS_EXEC "$cmd" "$@"
+  else
+    printf "${RED}dmt-net package not installed, please install${NC}\n"
+  fi
+}
+
 function get_current_device {
   local __device_id=''
 

@@ -1,4 +1,4 @@
-import dmt from 'dmt/common';
+import { log } from 'dmt/common';
 import { push } from 'dmt/notify';
 
 import { parseSearchQuery, serializeContentRefs } from 'dmt/search';
@@ -7,8 +7,6 @@ import { parseSearchQuery, serializeContentRefs } from 'dmt/search';
 import { fiberHandle } from 'dmt/connectome-next';
 
 const RESULTS_LIMIT = 20;
-
-const { log } = dmt;
 
 function enhanceThisMachineResponse({ response, isLAN }) {
   const { meta } = response;

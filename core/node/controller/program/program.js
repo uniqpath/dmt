@@ -1,8 +1,9 @@
 import EventEmitter from 'events';
-import colors from 'colors';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
+import * as dmt from 'dmt/common';
+const { log, colors, colors2 } = dmt;
+
+import { desktop } from 'dmt/notify';
 
 import { contentServer } from 'dmt/connectome-next';
 
@@ -12,6 +13,7 @@ import ActorManagement from './actorManagement/index.js';
 import initIntervalTicker from './interval';
 import { setupTimeUpdater } from './interval/timeUpdater';
 import onProgramTick from './interval/onProgramTick';
+import onProgramSlowTick from './interval/onProgramSlowTick';
 
 import createFiberPool from './peerlist/createFiberPool';
 import syncPeersToProgramState from './peerlist/syncPeersToProgramState';
@@ -29,12 +31,19 @@ import loadMiddleware from './boot/loadMiddleware';
 import reportOSUptime from './boot/reportOSUptime';
 
 import generateKeypair from './generateKeypair';
+import exceptionNotify from './exceptionNotify';
 import ipcServer from './ipcServer/ipcServer';
 import ipcServerLegacy from './ipcServer/ipcServerLegacy';
 
 class Program extends EventEmitter {
   constructor({ mids }) {
     super();
+
+    this.on('ready', () => {
+      this.notifyMainDevice({ msg: 'Ready', ttl: 10, color: '#50887E' });
+    });
+
+    this.mqttHandlers = [];
 
     ensureDirectories();
 
@@ -51,7 +60,8 @@ class Program extends EventEmitter {
 
     setupGlobalErrorHandler(this);
 
-    log.cyan('dmt-proc booting ...');
+    log.green(`${colors.cyan('dmt-proc')} is starting ${this.runningInTerminalForeground() ? colors.magenta('in terminal foreground ') : ''}…`);
+
     reportOSUptime();
 
     const port = 7780;
@@ -124,6 +134,18 @@ class Program extends EventEmitter {
     }
   }
 
+  runningInTerminalForeground() {
+    return log.isForeground();
+  }
+
+  exceptionNotify(msg, origin) {
+    if (origin) {
+      msg = `${origin}: ${msg} (check log for details, not restarting dmt-proc)`;
+    }
+
+    return exceptionNotify({ program: this, msg });
+  }
+
   registerActor(actor, options = {}) {
     this.actors.register(actor, options);
   }
@@ -151,8 +173,7 @@ class Program extends EventEmitter {
 
   continueBooting() {
     this.on('tick', () => onProgramTick(this));
-
-    initIntervalTicker(this);
+    this.on('slowtick', () => onProgramSlowTick(this));
 
     initControllerActor(this);
 
@@ -165,23 +186,28 @@ class Program extends EventEmitter {
 
     log.green('Started IPC server');
 
-    log.green(`✓ ${colors.cyan('dmt-proc')} ${colors.magenta(dmt.dmtVersion())} booted`);
-    this.emit('ready');
+    this.on('ready', () => {
+      log.green(`✓ ${colors.cyan('dmt-proc')} ${colors.bold().white(`v${dmt.dmtVersion()}`)} ${colors.cyan('ready')}`);
 
-    const debugInstructions = dmt.debugMode()
-      ? colors.gray(`→ disable with: ${colors.yellow('dmt debug off')}`)
-      : colors.gray(`→ enable with ${colors.green('dmt debug')}`);
-    log.cyan(`${colors.magenta('DEBUG logging is: ')}${dmt.debugMode() ? '🔧 enabled' : 'disabled'} ${debugInstructions}`);
+      initIntervalTicker(this);
 
-    if (dmt.isDevMachine()) {
-      log.cyan(`${colors.magenta('DEV MACHINE: ')}: true`);
-    }
+      const debugInstructions = dmt.debugMode()
+        ? colors.white(`→ disable with: ${colors.green('dmt debug off')}`)
+        : colors.white(`→ enable with ${colors.green('dmt debug')}`);
+      log.cyan(`${colors.magenta('Debug logging: ')}${dmt.debugMode() ? '🔧 enabled' : colors.gray('disabled')} ${debugInstructions}`);
 
-    if (dmt.isDevUser()) {
-      log.cyan(`${colors.magenta('DEV USER: ')}: true`);
-    }
+      if (dmt.isDevMachine()) {
+        log.cyan(`${colors.magenta('Dev machine:')} true`);
+      }
 
-    setupTimeUpdater(this);
+      if (dmt.isDevUser()) {
+        log.cyan(`${colors.magenta('Dev user:')} true`);
+      }
+
+      setupTimeUpdater(this);
+    });
+
+    this.emit('nearby_setup');
   }
 
   latlng() {
@@ -204,31 +230,19 @@ class Program extends EventEmitter {
     return 'eng';
   }
 
-  apMode() {
-    return dmt.apMode();
-  }
-
   isHub() {
-    return this.store('device').get().ip == dmt.accessPointIP;
+    return this.store('device').get('ip') == dmt.accessPointIP;
   }
 
   hasGui() {
     return this.device.try('service[gui].disable') != 'true';
   }
 
-  showNotification({ id, msg, ttl, color, bgColor }) {
-    const DEFAULT_TTL = 30;
-
-    const notification = {
-      id,
-      msg,
-      color,
-      bgColor,
-      expireAt: Date.now() + (ttl || DEFAULT_TTL) * 1000,
-      addedAt: Date.now()
-    };
-
-    this.store('notifications').pushToArray(notification);
+  hasValidIP() {
+    const { ip } = this.store('device').get();
+    if (ip && !dmt.disconnectedIPAddress(ip)) {
+      return true;
+    }
   }
 
   store(slotName) {
@@ -239,26 +253,130 @@ class Program extends EventEmitter {
     return this._store;
   }
 
-  setLanbus(lanbus) {
-    this.lanbus = lanbus;
-  }
-
   sendABC({ message, context }) {
     this.emit('send_abc', { message, context });
   }
 
-  initIot(iotBus) {
-    this.iotBus = iotBus;
+  setPlayer(player) {
+    this._player = player;
   }
 
-  iotMsg(topic, msg) {
-    if (this.iotBus) {
-      this.iotBus.publish({ topic, msg });
-    } else {
-      log.yellow(
-        `Tried to send an iot message ${topic} ■ ${msg} before iotBus was initialized... usually not a problem if message is periodic and will be resent again`
-      );
+  player() {
+    return this._player;
+  }
+
+  isDevPanel() {
+    const devPanels = ['fpanel', 'gpanel', 'dpanel', 'tablica', 'epanel'];
+    return dmt.isDevUser() && (devPanels.includes(this.device.id) || dmt.isMainDevice());
+  }
+
+  showNotification(
+    { title, msg, ttl = 30, color = '#FFFFFF', group, cancelIds = [], omitDeviceName = false, noDesktopNotification = false, dev = false },
+    { originDevice = undefined } = {}
+  ) {
+    if (dev && (!dmt.isDevUser() || !this.isDevPanel())) {
+      return;
     }
+
+    const bgColor = color;
+
+    const id = Math.random();
+
+    let _title;
+
+    if (originDevice) {
+      if (omitDeviceName) {
+        _title = title;
+      } else if (!title) {
+        _title = originDevice;
+      } else {
+        _title = `${originDevice} · ${title}`;
+      }
+    } else {
+      _title = omitDeviceName ? title : title || this.device.id;
+    }
+
+    const notification = {
+      __id: id,
+      title: _title,
+      msg,
+      bgColor,
+      color: colors2.invertColor(bgColor),
+      group,
+      expireAt: Date.now() + ttl * 1000,
+      addedAt: Date.now()
+    };
+
+    this.store('notifications').removeArrayElements(
+      n => {
+        return cancelIds.includes(n.__id) || (group && n.group == group);
+      },
+      { announce: false }
+    );
+
+    this.store('notifications').push(notification);
+
+    if (dmt.isMainDevice() && !noDesktopNotification) {
+      desktop.notify(msg, _title);
+    }
+
+    return id;
+  }
+
+  nearbyNotification(obj) {
+    const { dev } = obj;
+
+    if (dev && !dmt.isDevUser()) {
+      return;
+    }
+
+    if (!dev || (dev && this.isDevPanel())) {
+      this.showNotification(obj);
+    }
+
+    if (this._nearby) {
+      this._nearby.broadcast('notification', obj);
+    } else {
+      log.red('⚠️  Dropping nearbyNotification ↴');
+      log.yellow(obj);
+      log.red(`Tried to send too early, please start sending only after ${colors.yellow("program.on('ready')")}`);
+    }
+  }
+
+  notifyMainDevice(obj) {
+    if (this._nearby) {
+      this._nearby.broadcast('notify_main_device', obj);
+    } else {
+      log.red('⚠️  Dropping notifyMainDevice ↴');
+      log.yellow(obj);
+      log.red(`Tried to send too early, please start sending only after ${colors.yellow("program.on('ready')")}`);
+    }
+  }
+
+  setNearby(nearby) {
+    this._nearby = nearby;
+
+    nearby.on('notification', ({ originDevice, obj }) => {
+      if (this.device.id == originDevice) {
+        return;
+      }
+
+      this.showNotification(obj, { originDevice });
+    });
+
+    nearby.on('notify_main_device', ({ originDevice, obj }) => {
+      if (this.device.id == originDevice) {
+        return;
+      }
+
+      if (dmt.isMainDevice()) {
+        this.showNotification(obj, { originDevice });
+      }
+    });
+  }
+
+  nearby() {
+    return this._nearby;
   }
 }
 

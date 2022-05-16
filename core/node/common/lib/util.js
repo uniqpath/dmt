@@ -134,11 +134,6 @@ export default {
   dir(obj) {
     console.log(colorJSON(obj));
   },
-  round(value, decimals = 2) {
-    const factor = 10 ** decimals;
-    const res = Math.round(value * factor) / factor;
-    return res == -0 ? Math.abs(res) : res;
-  },
   epoch: () => {
     return Math.floor(new Date() / 1000);
   },

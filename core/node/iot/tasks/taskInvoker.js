@@ -9,12 +9,12 @@ class TaskInvoker {
     this.tasks.forEach(task => task.setup());
   }
 
-  manageTick(program) {
+  onProgramTick(program) {
     this.tasks.forEach(task => task.tick());
   }
 
-  handleIotEvent({ program, topic, msg }) {
-    this.tasks.forEach(task => task.handleIotEvent({ topic, msg }));
+  handleMqttEvent({ program, topic, msg }) {
+    this.tasks.forEach(task => task.handleMqttEvent({ topic, msg }));
   }
 }
 

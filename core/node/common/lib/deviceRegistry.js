@@ -1,9 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import colors from 'colors';
 
-import dmt from './dmtHelper';
-const { log } = dmt;
+import { log, colors, dmtUserDir } from './dmtHelper';
 
 function readJson(devicesFile) {
   let _devices = [];
@@ -20,7 +18,6 @@ function readJson(devicesFile) {
   return _devices;
 }
 
-const dmtUserDir = dmt.userDir;
 const devicesFile = path.join(dmtUserDir, 'devices/devices.json');
 
 export const deviceRegistry = readJson(devicesFile);

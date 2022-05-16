@@ -1,14 +1,13 @@
-import colors from 'colors';
 import fs from 'fs';
 import path from 'path';
-import dmt from 'dmt/common';
+
+import { colors, dmtStateDir } from 'dmt/common';
 
 import { identify } from './deviceIdentifier';
 import currentNetworkDef from '../currentNetworkDef';
 
 (async () => {
   const networkDef = await currentNetworkDef();
-  const dmtStateDir = dmt.stateDir;
   const stateDir = networkDef ? path.join(dmtStateDir, networkDef.id.toLowerCase()) : dmtStateDir;
 
   const lastScanPath = path.join(stateDir, 'lastScan.json');

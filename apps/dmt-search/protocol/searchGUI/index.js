@@ -1,14 +1,24 @@
-import { ProtocolStore } from 'dmt/connectome-stores';
+import { SyncStore } from 'dmt/connectome-stores';
 
 import onConnect from './onConnect';
 
 export default function setup({ program }) {
-  const searchAppStore = new ProtocolStore();
+  const store = new SyncStore();
 
-  searchAppStore.syncOver(program.registerProtocol({ protocol: 'dmtapp/search', onConnect }));
+  store.sync(program.registerProtocol({ protocol: 'dmtapp/search', onConnect }));
 
   program.store().subscribe(state => {
     const { device, peerlist, entireLinkIndexCloud, entireLinkIndexCount, recentSearchQueries, recentWeblinks } = state; // recentSearchQueries == log of all search queries
-    searchAppStore.set({ device, peerlist, entireLinkIndexCloud, entireLinkIndexCount, recentSearchQueries, recentWeblinks });
+
+    // store.slot('device').set(device, { announce: false });
+    // store.slot('peerlist').set(peerlist, { announce: false });
+    // store.slot('entireLinkIndexCloud').set(entireLinkIndexCloud, { announce: false });
+    // store.slot('entireLinkIndexCount').set(entireLinkIndexCount, { announce: false });
+    // store.slot('recentSearchQueries').set(recentSearchQueries, { announce: false });
+    // store.slot('recentWeblinks').set(recentWeblinks, { announce: false });
+
+    // store.announceStateChange();
+
+    store.update({ device, peerlist, entireLinkIndexCloud, entireLinkIndexCount, recentSearchQueries, recentWeblinks });
   });
 }

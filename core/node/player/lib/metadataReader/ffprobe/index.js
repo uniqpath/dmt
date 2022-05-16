@@ -1,10 +1,9 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 import { execFile } from 'child_process';
 import parseOutput from './parseOutput';
 
-const { scan } = dmt;
+import { scan } from 'dmt/common';
 const { commandExists } = scan;
 
 let ffprobeCommandExists;

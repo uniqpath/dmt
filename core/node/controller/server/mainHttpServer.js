@@ -1,7 +1,4 @@
-import colors from 'colors';
-
-import dmt from 'dmt/common';
-const { log, def } = dmt;
+import { log, def, colors, user, determineGUIPort } from 'dmt/common';
 
 import { desktop } from 'dmt/notify';
 
@@ -21,7 +18,7 @@ class Server {
   listen() {
     const description = '🌐 DMT-SERVER';
 
-    const port = dmt.determineGUIPort();
+    const port = determineGUIPort();
 
     if (!port) {
       throw new Error('Gui port is not properly specified! Please specify in services.def');
@@ -33,10 +30,7 @@ class Server {
         log.cyan(`💡🚀🎸 OPEN DMT IN BROWSER → ${colors.magenta(`http://localhost:${port}`)}`);
         log.cyan('--------------------------------------------------');
 
-        if (dmt.user().disableStartNotification != 'true') {
-          desktop.notify('💡 OPEN DMT IN BROWSER', `🚀🎸 http://localhost:${port}`);
-        }
-
+        //   desktop.notify(`🚀🎸 http://localhost:${port}`, 'OPEN DMT IN BROWSER');
         this.program.store('device').update({ actualGuiPort: port }, { announce: false });
       })
       .on('error', () => {

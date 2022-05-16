@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { parseCliArgs, util } = dmt;
+import { parseCliArgs, util } from 'dmt/common';
 
 import maxResults from './maxResults';
 

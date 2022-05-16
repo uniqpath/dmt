@@ -1,4 +1,5 @@
-import dmt from 'dmt/common';
+import { globals } from 'dmt/common';
+
 import { getCurrentYearMonthDay } from './helpers';
 import { holidayName, holidayDataExists } from './holidays';
 
@@ -10,7 +11,7 @@ function updateCurrentHoliday(program) {
 
     const holiday = holidayName(year, month, day, { country });
 
-    if (program.store('time').get().holiday != holiday) {
+    if (program.store('time').get('holiday') != holiday) {
       program.store('time').update({ holiday });
     }
   }
@@ -26,11 +27,11 @@ function init(program) {
   if (!program.country()) {
     setTimeout(() => {
       updateCurrentHoliday(program);
-    }, dmt.globals.tickerPeriod * 1000 + 500);
+    }, globals.tickerPeriod * 1000 + 500);
 
     setTimeout(() => {
       updateCurrentHoliday(program);
-    }, 2 * dmt.globals.tickerPeriod * 1000);
+    }, 2 * globals.tickerPeriod * 1000);
   }
 }
 

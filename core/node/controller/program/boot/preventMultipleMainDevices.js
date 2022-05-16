@@ -1,11 +1,7 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
-
-import colors from 'colors';
+import { log, colors, devices } from 'dmt/common';
 
 export default function preventMultipleMainDevices() {
-  const mainDevices = dmt
-    .devices()
+  const mainDevices = devices()
     .map(({ _coredata }) => _coredata)
     .filter(({ mainDevice }) => mainDevice);
 
@@ -15,7 +11,7 @@ export default function preventMultipleMainDevices() {
 
   if (mainDevices.length == 1) {
     const mainDevice = mainDevices[0];
-    const thisStr = mainDevice.thisDevice ? colors.cyan(' (this)') : '';
+    const thisStr = mainDevice.thisDevice ? colors.gray(' (this)') : '';
     log.cyan(`${colors.green('✍️')}  mainDevice: ${colors.magenta(mainDevice.deviceName)}${thisStr}`);
   } else {
     log.yellow('⚠️  mainDevice is not defined');

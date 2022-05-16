@@ -2,10 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { decode } from '../fiberHandle/encodePath.js';
 
-import colors from 'colors';
-
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors } from 'dmt/common';
 
 import { push } from 'dmt/notify';
 

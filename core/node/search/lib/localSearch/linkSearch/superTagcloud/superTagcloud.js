@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { sets, tags } = dmt;
+import { sets, tags } from 'dmt/common';
 
 const { sortTagcloud, pruneTagcloud } = tags;
 

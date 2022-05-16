@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import colors from 'colors';
-import dmt from 'dmt/common';
 
+import { colors, dmtStateDir } from 'dmt/common';
 import arpscanner from './arpscanner-promise';
 import { identify } from './deviceIdentifier';
 import deviceDiffer from './deviceDiffer';
@@ -15,7 +14,7 @@ import networkInterfaces from '../networkInterfaces';
 async function netScan(term = '', { rescan = true, silent = true } = {}) {
   try {
     const networkDef = await currentNetworkDef();
-    const dmtStateDir = dmt.stateDir;
+
     const stateDir = networkDef ? path.join(dmtStateDir, networkDef.id.toLowerCase()) : dmtStateDir;
 
     if (!rescan) {

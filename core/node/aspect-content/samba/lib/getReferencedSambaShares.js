@@ -2,8 +2,7 @@ import path from 'path';
 import os from 'os';
 const { homedir } = os;
 
-import dmt from 'dmt/common';
-const { def, dmtContent } = dmt;
+import { def, dmtContent, services, device as _device } from 'dmt/common';
 
 let cachedReferencedSambaShares;
 
@@ -12,13 +11,13 @@ function getReferencedSambaShares() {
     return cachedReferencedSambaShares;
   }
 
-  const playerInfo = dmt.services('player');
+  const playerInfo = services('player');
 
   if (!playerInfo) {
     return [];
   }
 
-  const device = dmt.device({ onlyBasicParsing: true });
+  const device = _device({ onlyBasicParsing: true });
 
   const contentRefs = def.values(playerInfo.contentRef);
   const providers = dmtContent.parseContentRefs(contentRefs);
@@ -40,7 +39,7 @@ function getReferencedSambaShares() {
     const mountBase = `${homedir()}/DMTMountedMedia/${deviceName}`;
     const mountPath = path.join(mountBase, sambaShare);
 
-    list.push({ deviceName, sambaServerIp: provider.ip, contentId, mountPath, sambaShare, sambaPath });
+    list.push({ deviceName, contentId, mountPath, sambaShare, sambaPath });
   }
 
   cachedReferencedSambaShares = list;

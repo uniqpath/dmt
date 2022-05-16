@@ -1,8 +1,7 @@
 import { homedir } from 'os';
 import path from 'path';
 
-import dmt from 'dmt/common';
-const { log, util, numberRanges, stopwatch } = dmt;
+import { log, util, numberRanges, stopwatch } from 'dmt/common';
 
 import { detectMediaType, searchPredicate } from 'dmt/search';
 
@@ -67,7 +66,6 @@ class Playlist {
     }
 
     if (currentSongPath && this.currentIndex == null && !isStream) {
-      log.red('Current playing state out of sync with saved dmt state, clearing mpv player state ...');
       this.engine.clearState();
     }
 
@@ -98,19 +96,20 @@ class Playlist {
         }
       });
 
-      if (matchingIndex != null) {
-        this.currentIndex = matchingIndex;
-
-        if (this.currentIndex >= DIRECT_PLAY_ROLLOVER_TRIGGERING_INDEX) {
-          this.rollover();
-        }
-
-        this.broadcastPlaylistState();
-
-        success();
-      } else {
-        reject();
+      if (matchingIndex == null) {
+        reject(new Error(`No songId ${songId}`));
+        return;
       }
+
+      this.currentIndex = matchingIndex;
+
+      if (this.currentIndex >= DIRECT_PLAY_ROLLOVER_TRIGGERING_INDEX) {
+        this.rollover();
+      }
+
+      this.broadcastPlaylistState();
+
+      success();
     });
   }
 

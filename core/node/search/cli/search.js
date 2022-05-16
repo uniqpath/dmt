@@ -1,4 +1,4 @@
-import colors from 'colors';
+import { colors } from 'dmt/common';
 
 import { ipcClient, aggregateSearchResultsFormatter, colorJSON } from 'dmt/cli';
 

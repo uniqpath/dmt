@@ -1,10 +1,8 @@
-import colors from 'colors';
 import archiver from 'archiver';
 import path from 'path';
 import fs from 'fs';
 
-import dmt from 'dmt/common';
-const { scan, log, def, stopwatch } = dmt;
+import { scan, log, def, stopwatch, colors, parseDef, dmtPath } from 'dmt/common';
 
 import { pipeline, Transform } from 'stream';
 import { StringDecoder } from 'string_decoder';
@@ -59,7 +57,7 @@ function dmtFilesAndSymlinks({ replicateExcludedByUser }) {
 
   const _replicateExcludedByUser = replicateExcludedByUser || (() => false);
 
-  const pkgPath = dmt.dmtPath;
+  const pkgPath = dmtPath;
 
   const files = scan.recursive(pkgPath, {
     flatten: true,
@@ -81,13 +79,13 @@ function filterOutUnneededBin(fileInfo) {
 }
 
 function filterOutDevGui(fileInfo) {
-  const viewDefsPath = path.join(dmt.dmtPath, 'def/gui_views.def');
+  const viewDefsPath = path.join(dmtPath, 'def/gui_views.def');
 
   const wallpapers = [];
   const views = [];
 
   if (fs.existsSync(viewDefsPath)) {
-    for (const viewDef of dmt.parseDef(viewDefsPath, { caching: false }).multi) {
+    for (const viewDef of parseDef(viewDefsPath, { caching: false }).multi) {
       wallpapers.push(...def.values(viewDef.wallpaper));
       views.push(viewDef.id);
     }
@@ -147,6 +145,7 @@ function streamDmtZip({ req, res, program, files, replicateExcludedByUser, repli
       !file.reldir.includes('/dist/') &&
       !file.reldir.endsWith('/connectome/server') &&
       !file.reldir.endsWith('/connectome/stores') &&
+      !file.reldir.endsWith('/connectome/stores/node') &&
       !file.reldir.endsWith('/build') &&
       !file.path.includes('node_modules')
     ) {

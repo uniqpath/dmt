@@ -1,7 +1,4 @@
-import colors from 'colors';
-import dmt from 'dmt/common';
-
-const { log, stopwatchAdv } = dmt;
+import { log, stopwatchAdv, colors } from 'dmt/common';
 
 import contentSearch from './fsSearch/contentSearch';
 

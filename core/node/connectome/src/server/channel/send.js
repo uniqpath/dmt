@@ -5,7 +5,11 @@ nacl.util = naclutil;
 import { isObject, addHeader } from './sendHelpers.js';
 import { integerToByteArray } from '../../utils/index.js';
 
+import logger from '../../utils/logger/logger.js';
+
 function send({ message, channel }) {
+  const { log } = channel;
+
   if (isObject(message)) {
     message = JSON.stringify(message);
   }
@@ -14,12 +18,12 @@ function send({ message, channel }) {
 
   if (channel.verbose) {
     if (channel.sharedSecret) {
-      console.log(`Channel → Sending encrypted message #${channel.sentCount} @ ${channel.remoteAddress()}:`);
+      logger.write(log, `Channel ${channel.remoteAddress()} → Sending encrypted message #${channel.sentCount}:`);
     } else {
-      console.log(`Channel → Sending message #${channel.sentCount} @ ${channel.remoteAddress()}:`);
+      logger.write(log, `Channel ${channel.remoteAddress()} → Sending message #${channel.sentCount}:`);
     }
 
-    console.log(message);
+    logger.write(log, message);
   }
 
   if (channel.sharedSecret) {
@@ -36,13 +40,13 @@ function send({ message, channel }) {
     message = encryptedMessage;
 
     if (channel.verbose == 'extra') {
-      console.log('Encrypted bytes:');
-      console.log(encryptedMessage);
+      logger.write(log, 'Encrypted bytes:');
+      logger.write(log, encryptedMessage);
     }
   }
 
   if (channel.verbose) {
-    console.log();
+    logger.write(log);
   }
 
   if (!channel.ws.terminated && channel.ws.readyState == channel.ws.OPEN) {

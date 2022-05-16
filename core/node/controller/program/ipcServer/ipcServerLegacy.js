@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { log, parseCliArgs } = dmt;
+import { log, parseCliArgs, getLocalIpViaNearby } from 'dmt/common';
 
 import path from 'path';
 import { homedir } from 'os';
@@ -16,10 +15,15 @@ function emitResponse({ response, socket }) {
   ipc.server.emit(socket, 'ack', response);
 }
 
-function emitError({ error, socket }) {
+function emitError({ error, socket, program }) {
+  const errorMsg = error?.message || 'Missing error message (rejected without an Error object)';
+
   log.red('IPC server error:');
-  log.red(error);
-  ipc.server.emit(socket, 'ack', { error: error.message });
+  log.red(error || errorMsg);
+
+  program.exceptionNotify(errorMsg, 'IPC server error');
+
+  ipc.server.emit(socket, 'ack', { error: errorMsg });
 }
 
 function server(program) {
@@ -37,7 +41,7 @@ function server(program) {
             const device = parseCliArgs(atDevice).atDevices[0];
             let { address, port, hostType, host } = device;
             if (hostType == 'dmt') {
-              const nearbyIp = dmt.getLocalIpViaNearby({ program, deviceName: host });
+              const nearbyIp = getLocalIpViaNearby({ program, deviceName: host });
               if (nearbyIp) {
                 address = nearbyIp;
                 port = null;
@@ -53,22 +57,23 @@ function server(program) {
                     .call(action, payload)
                     .then(response => emitResponse({ response, socket }));
                 } else {
-                  emitError({ error: new Error('Connector was not ready in time, please retry the request.'), socket });
+                  emitError({ program, error: new Error('Connector was not ready in time, please retry the request.'), socket });
                 }
               })
-              .catch(error => emitError({ error, socket }));
+              .catch(error => emitError({ program, error, socket }));
           } else {
             program
               .actor(actorName)
               .call(action, payload)
               .then(response => emitResponse({ response, socket }))
-              .catch(error => emitError({ error, socket }));
+              .catch(error => emitError({ program, error, socket }));
           }
         } else {
           log.red(`Cannot process IPC request: ${data}`);
         }
-      } catch (e) {
-        log.red(e);
+      } catch (error) {
+        log.red('IPC Server Coding Error - should not happen');
+        emitError({ program, error, socket });
       }
     });
   });

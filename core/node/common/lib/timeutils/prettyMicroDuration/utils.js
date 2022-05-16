@@ -22,13 +22,13 @@ const regex = {
   ns: /^(nano(second)?s?|ns?)$/
 };
 
-const isSmallest = function(uom, unit) {
+function isSmallest(uom, unit) {
   return regex[uom].test(unit);
-};
+}
 
-const round = function(num, digits) {
+function round(num, digits) {
   const n = Math.abs(num);
   return /[0-9]/.test(digits) ? n.toFixed(digits) : Math.round(n);
-};
+}
 
 export { nano, scale, regex, isSmallest, round };

@@ -1,23 +1,11 @@
-import dmt from 'dmt/common';
-const { def } = dmt;
-
-import { saveState, loadState } from './statePersist';
+import * as dmt from 'dmt/common';
+const { def, programStateFile: stateFilePath, isDevUser, apMode, apInfo } = dmt;
 
 import { reduceSizeOfStateForGUI as omitStateFn } from 'dmt/gui';
 
-import { SlottedStore } from 'dmt/connectome-stores';
+import { SyncStore } from 'dmt/connectome-stores';
 
-// todo: improve conceptually
-function removeStateChangeFalseTriggers(stateClone) {
-  if (stateClone.nearbyDevices) {
-    for (const deviceInfo of stateClone.nearbyDevices) {
-      delete deviceInfo.staleDetectedAt;
-      delete deviceInfo.lastSeenAt;
-    }
-  }
-
-  return stateClone;
-}
+const STATE_SCHEMA_VERSION = 0.8;
 
 export default function createProgramStore(program) {
   const { device } = program;
@@ -36,8 +24,8 @@ export default function createProgramStore(program) {
       devMachine: dmt.isDevMachine(),
       devUser: dmt.isDevUser(),
       // connectivity
-      apMode: program.apMode(),
-      apInfo: program.apMode() ? program.apInfo() : undefined,
+      apMode: apMode(),
+      apInfo: apMode() ? apInfo() : undefined,
       // versions
       dmtVersion: dmt.dmtVersion(),
       nodejsVersion: process.version,
@@ -47,60 +35,63 @@ export default function createProgramStore(program) {
     }
   };
 
-  const store = new SlottedStore(initState, { saveState, loadState, omitStateFn, removeStateChangeFalseTriggers });
+  const beforeLoadAndSave = state => {
+    const { player } = state;
+    if (player) {
+      delete player.currentMedia;
+
+      delete player.timeposition;
+      delete player.percentposition;
+      delete player.bitrate;
+
+      delete player.duration;
+      delete player.paused;
+
+      delete player.limitReached;
+      delete player.timeLimitReached;
+
+      delete player.error;
+      delete player.isStream;
+
+      delete player.idleSince;
+    }
+  };
+
+  const store = new SyncStore(initState, {
+    stateFilePath,
+    unsavedSlots: [
+      'device',
+      'time',
+      'log',
+      'appList',
+      'nearbyDevices',
+      'nearbySensors',
+      'environment',
+      // connectivity
+      'peerlist',
+      'connectionsIn',
+      'connectionsOut',
+      // dubious
+      'entireLinkIndexCloud',
+      'entireLinkIndexCount',
+      'sysinfo',
+      'services',
+      'gui',
+      // todo: move to the app ... and create app state functions!
+      'blinds',
+      'deviceRestarters'
+    ],
+    schemaVersion: STATE_SCHEMA_VERSION,
+    beforeLoadAndSave,
+    noRecovery: !isDevUser(), // only pile up recovery files on state drops if dev user .. to find all migration bugs.. if they make it to production, so be it, cannot help it anymore and lost state must have not been that important
+    omitStateFn
+  });
 
   store.slot('notifications').makeArray();
+  store.slot('nearbyDevices').makeArray();
+  store.slot('environment').makeArray();
   store.slot('recentSearchQueries').makeArray();
-
-  // these don't survive dmt-proc restart (so called volatile memory)
-  store.slot('device').makeVolatile();
-  store.slot('time').makeVolatile();
-  store.slot('log').makeVolatile();
-  // applist
-  store.slot('appList').makeVolatile();
-  // nearby
-  store.slot('nearbySensors').makeVolatile();
-  store.slot('nearbyDevices').makeVolatile();
-
-  store.slot('environment').makeVolatile(environment => {
-    delete environment.timestamp;
-    delete environment.updatedAt;
-    delete environment.expireAt;
-  });
-
-  // connectivity
-  store.slot('peerlist').makeVolatile();
-  store.slot('connectionsIn').makeVolatile();
-  store.slot('connectionsOut').makeVolatile();
-  // dubious
-  store.slot('entireLinkIndexCloud').makeVolatile();
-  store.slot('entireLinkIndexCount').makeVolatile();
-  store.slot('sysinfo').makeVolatile();
-  store.slot('services').makeVolatile();
-  store.slot('gui').makeVolatile();
-  //⚠️
-  store.slot('blinds').makeVolatile(); // todo: move to the app ... and create app state functions!
-  store.slot('deviceRestarters').makeVolatile(); // this as well
-
-  store.slot('player').makeVolatile(playerState => {
-    // we don't need this between dmt proc restarts, only during program run
-    delete playerState.currentMedia;
-
-    delete playerState.timeposition;
-    delete playerState.percentposition;
-    delete playerState.bitrate;
-
-    delete playerState.duration;
-    delete playerState.paused;
-
-    delete playerState.limitReached;
-    delete playerState.timeLimitReached;
-
-    delete playerState.error;
-    delete playerState.isStream;
-
-    delete playerState.idleSince;
-  });
+  store.slot('log').makeArray();
 
   store.slot('nearbyDevices').muteAnnounce(nearbyDevices => {
     for (const deviceInfo of nearbyDevices) {

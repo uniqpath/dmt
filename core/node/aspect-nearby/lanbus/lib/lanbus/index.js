@@ -1,7 +1,11 @@
 import EventEmitter from 'events';
 
+import { log } from 'dmt/common';
+
 import OverUDP from './lanbusOverUdpBroadcast';
-import OverIot from './lanbusOverIotBus';
+import OverMqtt from './lanbusOverMqtt';
+
+const DEBUG = false;
 
 class LanBus extends EventEmitter {
   constructor({ program }) {
@@ -9,24 +13,29 @@ class LanBus extends EventEmitter {
 
     this.overUdp = new OverUDP({ program });
 
-    this.overIot = new OverIot({ program });
+    this.overMqtt = new OverMqtt({ program });
 
-    for (const bus of [this.overUdp, this.overIot]) {
-      bus.on('message', obj => {
+    for (const rail of [this.overUdp, this.overMqtt]) {
+      rail.on('message', obj => {
+        if (DEBUG && !obj.processId) {
+          log.green(`Retransmitting message from ${rail.constructor.name}:`);
+          log.magenta(obj);
+        }
+
         this.emit('message', obj);
       });
 
-      bus.on('lanbus-ping-request-for-us', () => {
+      rail.on('lanbus-ping-request-for-us', () => {
         this.emit('lanbus-ping-request-for-us');
       });
     }
   }
 
   broadcastMessage(msgJson, { onlyUdp = false } = {}) {
-    this.overUdp.broadcastMessage(msgJson);
+    this.overUdp.broadcastMessage({ ...msgJson, __origin: 'dmt' });
 
     if (!onlyUdp) {
-      this.overIot.broadcastMessage(msgJson);
+      this.overMqtt.broadcastMessage(msgJson);
     }
   }
 }

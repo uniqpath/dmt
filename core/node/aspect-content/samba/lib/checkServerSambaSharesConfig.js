@@ -2,9 +2,7 @@ import fs from 'fs';
 
 import { push } from 'dmt/notify';
 
-import dmt from 'dmt/common';
-
-const { log, textfileParsers, dmtContent } = dmt;
+import { log, textfileParsers, dmtContent, device } from 'dmt/common';
 
 const { sambaConfigParser } = textfileParsers;
 
@@ -28,7 +26,7 @@ export default function checkServerSambaSharesConfig() {
         const ident = `content.def content:${contentId}`;
         const msg = `⚠️ ⚠️ ⚠️  ${ident} sambaPath (${content.sambaPath}) is different than path defined in ${sambaConfigFile} (${sambaPath}) for share [${content.sambaShare}]`;
         log.red(msg);
-        push.notify(`${dmt.device().id}: ${msg}`);
+        push.notify(`${device().id}: ${msg}`);
       }
     }
   }

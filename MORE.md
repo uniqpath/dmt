@@ -1,6 +1,6 @@
 ## Documentation
 
-Read [DMT ENGINE technical documentation](https://docs.uniqpath.com/dmt) with core ideas and concepts.
+[[[ <a href="./DOCS.md">DOCS</a> ]]]
 
 ## DMT-GUI
 

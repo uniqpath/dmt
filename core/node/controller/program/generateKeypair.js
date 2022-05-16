@@ -1,8 +1,7 @@
 import os from 'os';
 import fs from 'fs';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, keypair, deviceKeyDefFile } from 'dmt/common';
 
 import { tools } from 'dmt/crypto';
 const { newKeypair } = tools;
@@ -15,13 +14,13 @@ function generateKeyPair(defFilePath) {
 }
 
 function generate() {
-  const keyDefFilePath = dmt.deviceKeyDefFile();
+  const keyDefFilePath = deviceKeyDefFile();
 
   if (!fs.existsSync(keyDefFilePath)) {
     log.write('Default keypair for this device not present. Generating ...');
     generateKeyPair(keyDefFilePath);
 
-    if (!dmt.keypair()) {
+    if (!keypair()) {
       log.red('Warning: keypair generation failed...');
     }
   }

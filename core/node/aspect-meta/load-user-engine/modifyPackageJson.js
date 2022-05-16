@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import dmt from 'dmt/common';
-const { log } = dmt;
+
+import { log, dmtPath } from 'dmt/common';
 
 export default function modifyPackageJson(userEnginePath) {
   const packageJsonPath = path.join(userEnginePath, 'package.json');
 
-  const userEngineScriptsPath = path.join(dmt.dmtPath, 'etc/scripts/prepare_apps_and_user_engine/dmt_user_engine');
+  const userEngineScriptsPath = path.join(dmtPath, 'etc/scripts/prepare_apps_and_user_engine/dmt_user_engine');
   const exportsPath = path.join(userEngineScriptsPath, 'exports.json');
 
   if (fs.existsSync(exportsPath)) {

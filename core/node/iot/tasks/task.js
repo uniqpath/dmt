@@ -23,12 +23,11 @@ class Task {
     }
   }
 
-  handleIotEvent({ topic, msg }) {
+  handleMqttEvent({ topic, msg }) {
     if (this.program.isHub()) {
-      this.ifMsg.handleIotEvent({ topic, msg });
+      this.ifMsg.handleMqttEvent({ topic, msg });
+      this.onOffMonitor.handleMqttEvent({ topic, msg });
     }
-
-    this.onOffMonitor.handleIotEvent({ topic, msg });
   }
 }
 

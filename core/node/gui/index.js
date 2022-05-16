@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 import staticServerSetup from './lib/subcomponent-static-http-server/setup';
 import guiServerOptions from './guiServerOptions';

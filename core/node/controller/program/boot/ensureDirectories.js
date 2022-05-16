@@ -1,7 +1,6 @@
 import path from 'path';
 
-import dmt from 'dmt/common';
-const { scan } = dmt;
+import { scan, dmtPath, dmtHerePath } from 'dmt/common';
 
 export default function ensureDirectories() {
   const dirs = [];
@@ -9,8 +8,8 @@ export default function ensureDirectories() {
   dirs.push('state');
   dirs.push('user/wallpapers');
   for (const dir of dirs) {
-    scan.ensureDirSync(path.join(dmt.dmtPath, dir));
+    scan.ensureDirSync(path.join(dmtPath, dir));
   }
 
-  scan.ensureDirSync(dmt.dmtHerePath);
+  scan.ensureDirSync(dmtHerePath);
 }

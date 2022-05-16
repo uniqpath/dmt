@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-
-const { log } = dmt;
+import { log, peerConnections, versionCompareSymbol } from 'dmt/common';
 import { push } from 'dmt/notify';
 
 function onReconnect({ connector, slotName, program, selectorPredicate }) {
@@ -8,12 +6,12 @@ function onReconnect({ connector, slotName, program, selectorPredicate }) {
     .remoteObject('dmt')
     .call('version')
     .then(dmtVersion => {
-      const versionCompareSymbol = dmt.versionCompareSymbol(dmtVersion);
-      program.store(slotName).updateArrayElement(selectorPredicate, { versionCompareSymbol, dmtVersion });
+      const versionCompareSymbol = versionCompareSymbol(dmtVersion);
+      program.store(slotName).updateArrayElements(selectorPredicate, { versionCompareSymbol, dmtVersion });
     })
     .catch(e => {});
 
-  program.store(slotName).updateArrayElement(selectorPredicate, { ready: connector.isReady() });
+  program.store(slotName).updateArrayElements(selectorPredicate, { ready: connector.isReady() });
 }
 
 export default function syncPeersToProgramState({ program, connectorPool, port }) {
@@ -21,27 +19,25 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
 
   program.store(slotName).makeArray();
 
-  for (const peer of dmt.peerConnections()) {
-    const { deviceName, address, deviceTag, syncState } = peer;
+  for (const peer of peerConnections()) {
+    const { deviceName, address, deviceTag } = peer;
 
     let endpoint;
     if (address.endsWith('/ws')) {
       endpoint = `wss://${address}`;
     }
 
-    program.store(slotName).pushToArray({ deviceName, address, deviceTag }, { announce: false });
+    program.store(slotName).push({ deviceName, address, deviceTag }, { announce: false });
 
     const selectorPredicate = peer => peer.deviceTag == deviceTag;
 
     connectorPool.getConnector({ endpoint, host: address, port, deviceTag }).then(connector => {
-      onReconnect({ connector, slotName, program, selectorPredicate });
-
       connector.on('ready', () => {
         onReconnect({ connector, slotName, program, selectorPredicate });
       });
 
       connector.on('disconnect', () => {
-        program.store(slotName).updateArrayElement(selectorPredicate, { ready: false });
+        program.store(slotName).updateArrayElements(selectorPredicate, { ready: false });
       });
     });
   }

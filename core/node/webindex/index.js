@@ -1,5 +1,3 @@
-import dmt from 'dmt/common';
-
 import linkIndexPath from './lib/linkIndexPath';
 import latestLinkIndexVersion from './lib/linkIndexVersion';
 import { entireLinkIndex, deviceLinkIndexWithoutDerivedData, rereadIndexLoop } from './lib/readLinkIndex';

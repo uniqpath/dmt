@@ -1,8 +1,4 @@
-import dmt from 'dmt/common';
-
-import helper from '../dmtHelper';
-
-const { dateFns } = helper;
+import { dateFns } from '../dmtHelper';
 
 const {
   parseISO,

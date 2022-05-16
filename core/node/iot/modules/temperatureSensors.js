@@ -1,8 +1,8 @@
-import dmt from 'dmt/common';
-
-const { def } = dmt;
+import { def, colors2, isDevMachine } from 'dmt/common';
 
 import * as sensorMsg from '../lib/sensorMessageFormats';
+const FAKE_DATA_ON_DEV_MACHINE = false;
+
 const updateFrequencyMin = 2;
 const dataStaleMin = 2;
 
@@ -14,6 +14,46 @@ const keepNumHistoric = Math.round(lookbackWindowMin / updateFrequencyMin);
 
 const tempDirectionDiff = 1;
 const tempDirectionStickinessMin = 15;
+
+function onProgramTick(program) {}
+
+function setup(program) {
+  if (FAKE_DATA_ON_DEV_MACHINE && isDevMachine()) {
+    const now = Date.now();
+
+    const env = program.store('environment');
+
+    env.set([], { announce: false });
+
+    for (let i = 0; i < 23; i++) {
+      const temperature = -50 + i * 5;
+
+      const bgColor = colors2.mapTemperatureToRGB(temperature);
+      const color = colors2.invertColor(bgColor);
+
+      const data = {
+        humidity: 0,
+        temperature,
+        tempPrecise: temperature,
+        tempUnit: 'C',
+        bgColor,
+        color,
+        timestamp: now,
+        updateAfter: now + updateFrequencyMin * 60 * 1000,
+        expireAt: now + dataStaleMin * 60 * 1000
+      };
+
+      env.push(data, { announce: false });
+    }
+
+    env.sortArray(
+      (a, b) => {
+        return b.temperature - a.temperature;
+      },
+      { announce: false }
+    );
+  }
+}
 
 function temperatureDirection(historicReadings) {
   const blank = { symbol: '' };
@@ -79,7 +119,11 @@ function calcDirection() {
   }
 }
 
-function handleIotEvent({ program, topic, msg }) {
+function handleMqttEvent({ program, topic, msg }) {
+  if (FAKE_DATA_ON_DEV_MACHINE && isDevMachine()) {
+    return;
+  }
+
   if (def.isTruthy(program.device.demo)) {
     const now = Date.now();
     const environment = {
@@ -88,56 +132,85 @@ function handleIotEvent({ program, topic, msg }) {
       tempPrecise: 18,
       tempUnit: 'C',
       timestamp: now,
-      updatedAt: now + updateFrequencyMin * 60 * 1000,
+      updateAfter: now + updateFrequencyMin * 60 * 1000,
       expireAt: now + dataStaleMin * 60 * 1000,
       tempDirection: { symbol: '⇡', tempDirectionUpdateAt: Date.now() }
     };
 
-    program.store('environment').set(environment);
+    program.store('environmentTemperature').set(environment);
 
     return;
   }
 
   const parsedMsg = sensorMsg.parse({ topic, msg });
 
-  let weatherData;
+  let sensorData;
 
-  if (parsedMsg && parsedMsg.type == sensorMsg.Type.ENVIRONMENT && parsedMsg.id == 'TempOutside') {
-    weatherData = parsedMsg.data;
+  if (parsedMsg && parsedMsg.type == sensorMsg.Type.ENVIRONMENT) {
+    sensorData = parsedMsg.data;
   }
 
-  if (weatherData) {
+  if (sensorData && sensorData.Temperature != undefined) {
     const now = Date.now();
 
     const c = program.store('device').get();
     if (c && c.environment && c.environment.timestamp) {
-      if (c.environment.updatedAt && now < c.environment.updatedAt) {
+      if (c.environment.updateAfter && now < c.environment.updateAfter) {
         return;
       }
     }
 
-    const environment = {
-      humidity: Math.round(weatherData.Humidity),
-      temperature: Math.round(weatherData.Temperature),
-      tempPrecise: weatherData.Temperature,
-      tempUnit: weatherData.TempUnit,
+    const sensorId = parsedMsg.id;
+    const temperature = sensorData.Temperature;
+
+    const bgColor = colors2.mapTemperatureToRGB(temperature);
+    const color = colors2.invertColor(bgColor);
+
+    const pinned = sensorId == 'Okolica';
+
+    const data = {
+      sensorId,
+      pinned,
+      humidity: Math.round(sensorData.Humidity),
+      temperature: Math.round(temperature),
+      tempPrecise: temperature,
+      tempUnit: sensorData.TempUnit,
+      bgColor,
+      color,
       timestamp: now,
-      updatedAt: now + updateFrequencyMin * 60 * 1000,
+      updateAfter: now + updateFrequencyMin * 60 * 1000,
       expireAt: now + dataStaleMin * 60 * 1000
     };
 
-    if (environment.temperature) {
-      historicReadings.push(environment);
+    historicReadings.push(data);
 
-      if (historicReadings.length > keepNumHistoric) {
-        historicReadings.shift();
-      }
-
-      environment.tempDirection = temperatureDirection(historicReadings);
+    if (historicReadings.length > keepNumHistoric) {
+      historicReadings.shift();
     }
 
-    program.store('environment').set(environment);
+    data.tempDirection = temperatureDirection(historicReadings);
+
+    const selectorPredicate = ({ sensorId }) => sensorId == data.sensorId;
+
+    const env = program.store('environment');
+
+    env.setArrayElement(selectorPredicate, data, { announce: false });
+
+    env.removeArrayElements(({ expireAt }) => expireAt < now, { announce: false });
+
+    env.sortArray(
+      (a, b) => {
+        return b.temperature - a.temperature;
+      },
+      { announce: false }
+    );
+
+    const list = env.get();
+    const pinnedReading = list.find(({ pinned }) => pinned);
+    if (pinnedReading) {
+      env.set([pinnedReading, ...list.filter(({ pinned }) => !pinned)], { announce: false });
+    }
   }
 }
 
-export { handleIotEvent };
+export { setup, onProgramTick, handleMqttEvent };

@@ -1,7 +1,5 @@
 import net from 'net';
 
-import dmt from 'dmt/common';
-
 import EventEmitter from 'events';
 
 import cuid from '../cuid';
@@ -10,7 +8,7 @@ import eventsModule from './_events';
 import ErrorHandler from '../error';
 import ipcRequest from './ipcRequest';
 
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 function ipcInterface(options) {
   this.options = options;

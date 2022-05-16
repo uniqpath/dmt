@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import util from 'util';
 
+import { colors } from 'dmt/common';
+
 import { spawn } from 'child_process';
 
 import EventEmitter from 'events';
@@ -257,24 +259,24 @@ Daemon.prototype._isFile = function(path) {
 
 Daemon.prototype._bindConsole = function() {
   this.on('starting', () => {
-    console.log(`Starting ${this.name} daemon...`);
+    console.log(`✨ Starting ${colors.cyan(this.name)}...`);
   })
     .on('started', pid => {
-      console.log(`${this.name} daemon started. PID: ${pid}`);
+      console.log(colors.gray(` ${colors.green('✓')} ${colors.cyan(this.name)} started PID ${pid}`));
     })
     .on('stopping', () => {
-      console.log(`Stopping ${this.name} daemon...`);
+      console.log(`🔴 Stopping ${colors.cyan(this.name)}...`);
     })
     .on('stopped', pid => {
-      console.log(`${this.name} daemon stopped.`);
+      console.log(colors.gray(`   ${colors.cyan(this.name)} stopped PID ${pid}.`));
     })
     .on('running', pid => {
-      console.log(`${this.name} daemon already running. PID: ${pid}`);
+      console.log(`${colors.cyan(this.name)} already running (PID ${pid})`);
     })
     .on('notrunning', () => {
-      console.log(`${this.name} daemon is not running`);
+      console.log(`${colors.cyan(this.name)} is not running`);
     })
     .on('error', err => {
-      console.log(`${this.name} daemon failed to start: ${err.message}`);
+      console.log(`${colors.cyan(this.name)} failed to start: ${err.message}`);
     });
 };

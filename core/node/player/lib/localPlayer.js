@@ -1,7 +1,5 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors, globals, services } from 'dmt/common';
 
-import colors from 'colors';
 import fs from 'fs';
 
 import Playlist from './playlist';
@@ -44,7 +42,7 @@ class LocalPlayer {
             this.removeTimeLimit({ announce: true });
           }
         } else {
-          let remainingTime = player.timeLimit - dmt.globals.tickerPeriod / 60;
+          let remainingTime = player.timeLimit - globals.tickerPeriod / 60;
           if (remainingTime < 0) {
             remainingTime = 0;
           }
@@ -83,7 +81,7 @@ class LocalPlayer {
     const limitReached = this.decrementLimit();
 
     if (limitReached) {
-      log.magenta('Stopping because limit was reached');
+      log.cyan('Stopping media play because limit was reached');
 
       this.program.store('player').update({ limitReached: true });
 
@@ -96,7 +94,7 @@ class LocalPlayer {
     const playNext = () =>
       this.next({ fromAction: false })
         .then(() => {
-          if (!this.program.store('player').get().repeatCount) {
+          if (!this.program.store('player').get('repeatCount')) {
             this.playlist.rollover();
           }
         })
@@ -129,8 +127,8 @@ class LocalPlayer {
   }
 
   initVolume() {
-    const currentVolume = this.program.store('player').get().volume;
-    const defaultDeviceVolume = dmt.services('player').try('defaultVolume.mpv');
+    const currentVolume = this.program.store('player').get('volume');
+    const defaultDeviceVolume = services('player').try('defaultVolume.mpv');
     const defaultVolume = parseInt(defaultDeviceVolume) || 75;
 
     if (currentVolume != null) {
@@ -323,11 +321,12 @@ class LocalPlayer {
   }
 
   decrementLimit() {
-    if (this.program.store('player').get().repeatCount) {
+    if (this.program.store('player').get('repeatCount')) {
       return false;
     }
 
     const { limit } = this.program.store('player').get();
+
     if (limit > 1) {
       this.program.store('player').update({ limit: limit - 1 }, { announce: false });
     } else if (limit == 1) {
@@ -371,7 +370,7 @@ class LocalPlayer {
             .catch(reject);
         };
 
-        if (!fromAction && this.program.store('player').get().repeatCount) {
+        if (!fromAction && this.program.store('player').get('repeatCount')) {
           let { repeatCount } = this.program.store('player').get();
           if (repeatCount == 1) {
             repeatCount = null;
@@ -387,7 +386,7 @@ class LocalPlayer {
           }
           cont();
         } else {
-          reject();
+          reject(new Error('Cannot play next media (?)'));
         }
       }
     });
@@ -405,8 +404,9 @@ class LocalPlayer {
       if (!exists) {
         this.playlist.detectMissingMedia();
 
-        log.red(`${colors.gray(song.path)} doesn't exist`);
-        reject(new Error("Song doesn't exist on disk"));
+        const msg = `${colors.gray(song.path)} doesn't exist on file system`;
+        log.red(msg);
+        reject(new Error(msg));
         return;
       }
 
@@ -454,7 +454,7 @@ class LocalPlayer {
       if (num != 'reset' && num != '0' && num != 0) {
         num = parseInt(num);
 
-        limit = this.program.store('player').get().limit;
+        limit = this.program.store('player').get('limit');
 
         if (num) {
           limit = num;
@@ -483,7 +483,7 @@ class LocalPlayer {
       if (num != 'reset' && num != '0' && num != 0) {
         num = parseInt(num);
 
-        timeLimit = this.program.store('player').get().timeLimit;
+        timeLimit = this.program.store('player').get('timeLimit');
 
         if (num) {
           timeLimit = num;
@@ -556,7 +556,7 @@ class LocalPlayer {
   }
 
   gotoPercentPos(percentPos) {
-    if (!this.program.store('player').get().paused) {
+    if (!this.program.store('player').get('paused')) {
       const duration = this.mediaDuration();
       if (duration) {
         const timepos = percentPos * duration;
@@ -566,15 +566,15 @@ class LocalPlayer {
   }
 
   hasLoadedMedia() {
-    return this.program.store('player').get().currentMedia?.songPath;
+    return this.program.store('player').get('currentMedia')?.songPath;
   }
 
   mediaDuration() {
-    return this.program.store('player').get().currentMedia?.duration;
+    return this.program.store('player').get('currentMedia')?.duration;
   }
 
   isStream() {
-    return this.program.store('player').get().isStream;
+    return this.program.store('player').get('isStream');
   }
 
   stop() {
@@ -628,18 +628,18 @@ class LocalPlayer {
   }
 
   volume(vol) {
-    const prevVolume = this.program.store('player').get().volume;
+    const prevVolume = this.program.store('player').get('volume');
     let newVolume;
 
     const DEFAULT_VOLUME_STEP = 5;
 
-    const volumeStep = parseInt(dmt.services('player').volumeStep || DEFAULT_VOLUME_STEP);
+    const volumeStep = parseInt(services('player').volumeStep || DEFAULT_VOLUME_STEP);
 
     if (vol == 'up') {
       newVolume = Math.min(100, prevVolume + volumeStep);
     } else if (vol == 'down') {
       newVolume = Math.max(0, prevVolume - volumeStep);
-    } else if (!isNaN(parseInt(vol))) {
+    } else if (!Number.isNaN(parseInt(vol))) {
       newVolume = parseInt(vol);
       if (newVolume < 0) {
         newVolume = 0;

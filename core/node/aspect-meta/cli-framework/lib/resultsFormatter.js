@@ -1,4 +1,4 @@
-import colors from 'colors';
+import { colors } from 'dmt/common';
 
 import fs from 'fs';
 import { homedir } from 'os';

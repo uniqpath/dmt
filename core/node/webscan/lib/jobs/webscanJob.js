@@ -1,11 +1,9 @@
-import colors from 'colors';
-import dmt from 'dmt/common';
-const { util } = dmt;
+import { util, colors } from 'dmt/common';
 
 import scanWebLink from '../scanWebLink';
 import ingestLinksFromDirectory from '../ingest/txtFiles/ingestLinksFromDirectory';
 
-const { processBatch } = dmt;
+import { processBatch } from 'dmt/common';
 
 const INVALID_TITLES = ['Attention Required!', 'Amazon.com', '403 Forbidden'];
 function invalidTitle(title) {

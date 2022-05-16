@@ -1,9 +1,8 @@
-import dmt from 'dmt/common';
 import { push } from 'dmt/notify';
 
 const slotName = 'blinds';
 
-function manageTick(program) {}
+function onProgramTick(program) {}
 
 function setup(program) {}
 
@@ -26,7 +25,7 @@ function handleStopped(program, { placeId, blindsId, blindsDirection, blindsStat
   program.store(slotName).removeKey(id, { announce: true });
 }
 
-function handleIotEvent({ program, topic, msg }) {
+function handleMqttEvent({ program, topic, msg }) {
   if (topic == 'blinds') {
     const data = JSON.parse(msg);
 
@@ -50,4 +49,4 @@ function handleIotEvent({ program, topic, msg }) {
   }
 }
 
-export { setup, handleIotEvent, manageTick };
+export { setup, handleMqttEvent, onProgramTick };

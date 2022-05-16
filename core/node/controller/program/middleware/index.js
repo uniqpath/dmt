@@ -1,10 +1,8 @@
-import colors from 'colors';
 import fs from 'fs';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors, dmtPath } from 'dmt/common';
 
 import { push } from 'dmt/notify';
 
@@ -25,17 +23,17 @@ class MidLoader {
 
     this.parseMidsDefinition(mids).forEach(({ mid, condition, packages }) => {
       if (condition && !condition(deviceDef)) {
-        log.cyan(`${colors.magenta(mid)} middleware ${colors.white('not loaded: prevented by condition in dmt-proc.js')}`);
+        log.cyan(`${colors.magenta(mid)} aspect ${colors.white('not loaded: prevented by condition in dmt-proc.js')}`);
         return;
       }
 
       if (packages) {
         for (const midPkg of packages) {
-          log.cyan(`Loading ${colors.magenta(mid)} middleware — ${colors.yellow(midPkg)}`);
+          log.cyan(`Loading ${colors.magenta(mid)} aspect — ${colors.yellow(midPkg)}`);
           promises.push(this.tryLoadMid(program, midPkg));
         }
       } else {
-        log.cyan(`Loading ${colors.magenta(mid)} middleware`);
+        log.cyan(`Loading ${colors.magenta(mid)} aspect`);
         promises.push(this.tryLoadMid(program, mid));
       }
     });
@@ -48,9 +46,12 @@ class MidLoader {
       this.loadMid(program, midPkg)
         .then(success)
         .catch(e => {
-          const msg = `⚠️🙀 Problem loading ${colors.cyan(midPkg)} middleware — ${colors.red(e)}`;
+          const msg = `🪲⚠️ Problem loading ${colors.cyan(midPkg)} aspect — ${colors.red(e)}`;
           log.yellow(msg);
-          push.highPriority().notify(stripAnsi(msg));
+
+          program.exceptionNotify(stripAnsi(msg));
+
+          log.magenta(`↳ ${colors.cyan('dmt-proc')} will continue without this aspect`);
 
           success();
         });
@@ -66,9 +67,9 @@ class MidLoader {
         dir = `aspect-${aspect}/${pkg}`;
       }
 
-      const midDirectory = path.join(dmt.dmtPath, `core/node/${dir}`);
+      const midDirectory = path.join(dmtPath, `core/node/${dir}`);
       if (!fs.existsSync(midDirectory)) {
-        log.cyan(`${colors.red('✖')} ${colors.magenta(midPkgName)} middleware ${colors.white('is not present')}`);
+        log.cyan(`${colors.red('✖')} ${colors.magenta(midPkgName)} aspect ${colors.white('is not present')}`);
         success();
         return;
       }

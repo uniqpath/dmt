@@ -1,9 +1,8 @@
-import colors from 'colors';
 import express from 'express';
-import dmt from 'dmt/common';
+
 import fs from 'fs';
 
-const { log } = dmt;
+import { log, colors } from 'dmt/common';
 
 import AppLoader from './loadApps';
 import { appFrontendList, appsDir, allApps } from './appFrontendList';

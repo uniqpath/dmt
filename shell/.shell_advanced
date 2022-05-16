@@ -14,6 +14,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/.bash_devices"
 . "$DIR/.bash_dep"
 
-. "$DIR/.bash_core_helpers"
+. "$DIR/.bash_push_notify"
 . "$DIR/.bash_networking"
 . "$DIR/.bash_electronics"

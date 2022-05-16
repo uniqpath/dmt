@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
-import dmt from 'dmt/common';
-const { log } = dmt;
 
-const user = dmt.user();
+import { log, user as _user } from 'dmt/common';
+
+const user = _user();
 
 let transporter = nodemailer.createTransport({
   host: user.try('server.id'),

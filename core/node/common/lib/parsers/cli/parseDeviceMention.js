@@ -1,5 +1,6 @@
-import colors from 'colors';
-import dmt from '../../dmtHelper';
+import * as dmt from '../../dmtHelper';
+
+const { colors } = dmt;
 
 function parseDeviceMention(attrData) {
   let host = attrData.name;

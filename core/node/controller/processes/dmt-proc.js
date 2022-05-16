@@ -1,16 +1,25 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, device, isDevUser } from 'dmt/common';
 
 import program from '../program/program';
+import exceptionNotify from '../program/exceptionNotify';
+import exit from '../program/exit';
+import getExitMsg from '../program/getExitMsg';
 
 let foreground;
+let profiling;
 
 if (process.argv.length > 2 && process.argv[2] == '--fg') {
   foreground = true;
+
+  if (process.argv.length > 3 && process.argv[3] == '--profile') {
+    profiling = true;
+  }
 }
 
+const deviceName = device({ onlyBasicParsing: true }).id;
+
 const logfile = 'dmt.log';
-log.init({ dmt, foreground, logfile });
+log.init({ deviceName, foreground, profiling, logfile });
 
 const mids = [];
 
@@ -31,6 +40,7 @@ mids.push('content/samba');
 
 mids.push('meta/abc-connect');
 
+mids.push('meta/netping');
 mids.push('meta/bash-exec');
 mids.push('meta/replicate');
 mids.push('meta/sysinfo');
@@ -42,6 +52,12 @@ mids.push('webscan');
 try {
   program({ mids });
 } catch (e) {
-  log.magenta('⚠️  GENERAL ERROR ⚠️');
+  const title = '⚠️  DMT BOOT ERROR ⚠️';
+
+  log.red(title);
   log.red(e);
+
+  exceptionNotify(getExitMsg(e)).then(() => {
+    exit();
+  });
 }

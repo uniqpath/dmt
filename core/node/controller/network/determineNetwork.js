@@ -1,7 +1,4 @@
-import colors from 'colors';
-
-import dmt from 'dmt/common';
-const { log, loop } = dmt;
+import { log, loop, colors, networkDef, deviceNetworkId, apMode } from 'dmt/common';
 
 class DetermineNetwork {
   constructor({ program, obj }) {
@@ -20,10 +17,10 @@ class DetermineNetwork {
   }
 
   determineCurrentNetwork(nearbyDevices) {
-    if (this.program.apMode()) {
+    if (apMode()) {
       this.obj.def = null;
-    } else if (dmt.deviceNetworkId()) {
-      this.obj.def = dmt.networkDef(dmt.deviceNetworkId());
+    } else if (deviceNetworkId()) {
+      this.obj.def = networkDef(deviceNetworkId());
     } else if (nearbyDevices) {
       this.dynamicallyDetermineCurrentNetwork(nearbyDevices);
     }
@@ -54,7 +51,7 @@ class DetermineNetwork {
     }
 
     if (networkId && !inconsistent) {
-      this.obj.def = dmt.networkDef(networkId);
+      this.obj.def = networkDef(networkId);
     }
 
     if (inconsistent) {

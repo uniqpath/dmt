@@ -1,8 +1,9 @@
-import colors from 'colors';
 import util from '../../util';
-import dmt from '../../dmtHelper';
+import * as dmt from '../../dmtHelper';
 import parser from './parser';
 import parseDeviceMention from './parseDeviceMention';
+
+const { colors } = dmt;
 
 function parseArgs(allArgs) {
   const parsedArgs = parser(allArgs);

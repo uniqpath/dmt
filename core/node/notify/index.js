@@ -1,6 +1,6 @@
 import { app, group, title, omitDeviceName, url, urlTitle, highPriority, userKey, notify, notifyAll } from './lib/pushover';
 import * as apn from './lib/apn';
-import * as desktop from './lib/macos';
+import * as desktop from './lib/desktop';
 import * as email from './lib/email';
 
 let program;

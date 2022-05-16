@@ -1,4 +1,4 @@
-import dmt from 'dmt/common';
+import { listify } from 'dmt/common';
 import { currentNetworkDef } from '../index';
 import wifi from 'node-wifi';
 
@@ -12,14 +12,14 @@ wifi.getCurrentConnections((err, currentConnections) => {
   }
   if (currentConnections.length > 0) {
     const conn = currentConnections[0];
-    const mac = conn.mac;
+    const { mac } = conn;
 
     currentNetworkDef()
       .then(network => {
         if (network.segments) {
-          for (const segment of dmt.listify(network.segments.segment)) {
-            for (const room of dmt.listify(segment.room)) {
-              for (const ap of dmt.listify(room.ap)) {
+          for (const segment of listify(network.segments.segment)) {
+            for (const room of listify(segment.room)) {
+              for (const ap of listify(room.ap)) {
                 if (ap == mac) {
                   console.log(`${network.id} ● ${segment.id} ● ${room.id} ● ${conn.frequency}`);
                 }

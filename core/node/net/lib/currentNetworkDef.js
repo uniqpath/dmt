@@ -1,10 +1,10 @@
-import dmt from 'dmt/common';
+import { util, userDef } from 'dmt/common';
 import getGatewayMac from './gatewayMac';
 
-const { normalizeMac } = dmt.util;
+const { normalizeMac } = util;
 
 async function currentNetworkDefEntry() {
-  const networkDefs = dmt.userDef('networks').multi;
+  const networkDefs = userDef('networks').multi;
   if (networkDefs) {
     try {
       const gatewayMac = normalizeMac(await getGatewayMac());

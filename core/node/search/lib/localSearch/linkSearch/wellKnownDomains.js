@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-
-const { util } = dmt;
+import { util } from 'dmt/common';
 
 const WELL_KNOWN_DOMAINS = {
   github: '.com',

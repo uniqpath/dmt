@@ -1,7 +1,4 @@
-import colors from 'colors';
-
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors } from 'dmt/common';
 
 function createHandler({ method, actorName, program }, setupData = {}) {
   return args => {
@@ -13,10 +10,7 @@ function createHandler({ method, actorName, program }, setupData = {}) {
         method
           .handler({ args, method, actorName, program }, setupData)
           .then(success)
-          .catch(e => {
-            log.red(e);
-            reject(e);
-          });
+          .catch(reject);
       }
     });
   };

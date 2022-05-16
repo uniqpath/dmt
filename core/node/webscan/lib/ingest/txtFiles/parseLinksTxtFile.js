@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { util } = dmt;
+import { util } from 'dmt/common';
 
 function emptyLine(line) {
   return line == '';

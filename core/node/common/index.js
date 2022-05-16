@@ -1,7 +1,6 @@
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
-import colors from 'colors';
 import express from 'express';
 import xstate from 'xstate';
 import quantum from 'quantum-generator';
@@ -13,6 +12,8 @@ import scan from './lib/scan';
 import sets from './lib/sets';
 import tags from './lib/tags';
 import * as quantile from './lib/quantile';
+import * as formatNumber from './lib/formatNumber/formatNumber';
+import formatDuration from './lib/timeutils/formatDuration';
 import stopwatch from './lib/timeutils/stopwatch';
 import stopwatchAdv from './lib/timeutils/stopwatchAdv';
 import prettyMicroDuration from './lib/timeutils/prettyMicroDuration';
@@ -32,8 +33,10 @@ import identifyDeviceByMac from './lib/identifyDeviceByMac';
 
 import def from './lib/parsers/def/parser';
 import parseCliArgs from './lib/parsers/cli/cliHelper';
-import helper from './lib/dmtHelper';
+import * as helper from './lib/dmtHelper';
 import * as dmtContent from './lib/dmtContent';
+
+const { colors, colors2 } = helper;
 
 import * as numberRanges from './lib/parsers/numbers/rangeParser';
 import * as textfileParsers from './lib/parsers/textfiles';
@@ -42,12 +45,16 @@ import { apMode, apInfo, accessPointIP } from './lib/apTools';
 
 nacl.util = naclutil;
 
-const abcProcPath = path.join(helper.dmtPath, 'core/node/controller/processes/abc-proc.js');
+const dmtSocket = path.join(helper.dmtPath, 'state/ipc.dmt-proc.sock');
 const abcSocket = path.join(helper.dmtPath, 'state/ipc.abc-proc.sock');
+const abcProcPath = path.join(helper.dmtPath, 'core/node/controller/processes/abc-proc.js');
+
 const dmtProcPath = path.join(helper.dmtPath, 'core/node/controller/processes/dmt-proc.js');
 const dmtProcManagerPath = path.join(helper.dmtPath, 'core/node/controller/processes/manager.js');
 const daemonsPath = path.join(helper.dmtPath, 'core/node/controller/processes');
-const dmtSocket = path.join(helper.dmtPath, 'state/ipc.dmt-proc.sock');
+const assetsDir = path.join(helper.dmtPath, 'core/assets');
+const accessTokensDir = path.join(helper.dmtUserDir, 'access_tokens');
+const programStateFile = path.join(helper.dmtPath, 'state/program.json');
 
 if (!fs.existsSync(helper.dmtPath)) {
   console.log(
@@ -80,10 +87,12 @@ function memoryUsage() {
 
 let _dmtVersion;
 
-function dmtVersion(versionFile = path.join(helper.dmtPath, '.version')) {
+function dmtVersion() {
   if (_dmtVersion) {
     return _dmtVersion;
   }
+
+  const versionFile = path.join(helper.dmtPath, '.version');
 
   if (fs.existsSync(versionFile)) {
     _dmtVersion = fs
@@ -92,6 +101,8 @@ function dmtVersion(versionFile = path.join(helper.dmtPath, '.version')) {
       .trim();
     return _dmtVersion;
   }
+
+  throw new Error(`Missing version file: ${versionFile}`);
 }
 
 function abcVersion({ allowCrash = true } = {}) {
@@ -163,7 +174,166 @@ function versionCompareSymbol(otherDmtVersion) {
 
 const nodeFlags = ['--experimental-modules', '--experimental-specifier-resolution=node', '--unhandled-rejections=strict'];
 
-export default {
+const {
+  globals,
+  log,
+  disconnectedIPAddress,
+  deviceDefFile,
+  dateFns,
+  determineGUIPort,
+  isDevMachine,
+  isDevUser,
+  isMainDevice,
+  debugMode,
+  debugCategory,
+
+  dmtStateDir,
+  dmtPath,
+  dmtHereEnsure,
+  dmtHerePath,
+  dmtUserDir,
+  deviceDir,
+  catalogsDir
+} = helper;
+
+const { periodicRepeat: loop, listify } = util;
+
+const fsState = new FsState(dmtStateDir);
+
+function guiViews() {
+  const viewsDefFile = path.join(helper.dmtPath, 'def/gui_views.def');
+  return def.values(helper.parseDef(viewsDefFile, { caching: false }).multi);
+}
+
+function isInstalled() {
+  return fs.existsSync(helper.dmtPath);
+}
+
+function parseDef(...args) {
+  return helper.parseDef(...args);
+}
+
+function userDef(file, options = {}) {
+  return helper.userDef(file, options);
+}
+
+function user() {
+  return helper.user();
+}
+
+function deviceGeneralIdentifier() {
+  const deviceName = device({ onlyBasicParsing: true }).id;
+  const hostname = os.hostname();
+
+  return deviceName == hostname ? deviceName : `${deviceName} (host ${hostname})`;
+}
+
+function userDefaults(defPath) {
+  return helper.userDefaults(defPath);
+}
+
+function userDeviceTypes(type) {
+  return helper.userDeviceTypes(type);
+}
+
+function deviceNetworkId() {
+  return helper.deviceNetworkId();
+}
+
+function networkDef(networkId) {
+  return helper.networkDef(networkId);
+}
+
+function networks(network) {
+  return helper.networks(network);
+}
+
+function services(service) {
+  return helper.services(service);
+}
+
+function device(options) {
+  return helper.device(options);
+}
+
+function devices(options) {
+  return helper.devices(options);
+}
+
+function peerConnections() {
+  const connections = helper.peerConnections();
+
+  return connections
+    .map(({ id, deviceTag, syncState }) => {
+      if (id.includes('.')) {
+        const address = id;
+        return { address, deviceTag: deviceTag || address, syncState };
+      }
+
+      const deviceName = id;
+      const globalIp = helper.getIp({ deviceName });
+      return { deviceName, address: globalIp, deviceTag: deviceName, syncState };
+    })
+    .filter(({ address }) => !address.error)
+    .sort(util.orderBy('deviceTag'));
+}
+
+function keypair() {
+  return helper.keypair();
+}
+
+function keys() {
+  return helper.keys();
+}
+
+function defaultKey() {
+  const keys = helper.keys();
+  if (keys.length > 0) {
+    return keys.find(keyInfo => !def.id(keyInfo));
+  }
+}
+
+function deviceKeyDefFile() {
+  return helper.deviceDefFile('this', 'keys');
+}
+
+function getIp({ deviceName }) {
+  return helper.getIp({ deviceName });
+}
+
+function getLocalIpViaNearby({ program, deviceName }) {
+  return helper.getLocalIpViaNearby({ program, deviceName });
+}
+
+function getGlobalIp({ deviceName }) {
+  return helper.getGlobalIp({ deviceName });
+}
+
+function accessTokens(...args) {
+  return helper.accessTokens(...args);
+}
+
+function platformExecutablePath(executable) {
+  return helper.platformExecutablePath(executable);
+}
+
+function isMacOS() {
+  return helper.isMacOS();
+}
+function isWindows() {
+  return helper.isWindows();
+}
+function isLinux() {
+  return helper.isLinux();
+}
+function isRPi() {
+  return helper.isRPi();
+}
+function platformDescription() {
+  return helper.platformDescription();
+}
+
+export {
   abcProcPath,
   abcSocket,
   dmtProcPath,
@@ -172,7 +342,7 @@ export default {
   daemonsPath,
   nodeFlags,
   ipc,
-  log: helper.log,
+  log,
   util,
   scan,
   sets,
@@ -182,6 +352,7 @@ export default {
   xstate,
   quantum,
   colors,
+  colors2,
   express,
   def,
   dmtVersion,
@@ -199,174 +370,66 @@ export default {
   prettyMicroDuration,
   prettyTimeAge,
   convertSeconds,
+  formatNumber,
+  formatDuration,
   stopwatch,
   stopwatchAdv,
   apMode,
   apInfo,
   accessPointIP,
-  disconnectedIPAddress: helper.disconnectedIPAddress,
-
+  disconnectedIPAddress,
   meetup,
-
-  loop: util.periodicRepeat,
-
-  guiViews: () => {
-    const viewsDefFile = path.join(helper.dmtPath, 'def/gui_views.def');
-    return def.values(helper.parseDef(viewsDefFile, { caching: false }).multi);
-  },
-
-  isInstalled() {
-    return fs.existsSync(helper.dmtPath);
-  },
-
-  deviceDefFile: helper.deviceDefFile,
-  dateFns: helper.dateFns,
-
-  parseDef(...args) {
-    return helper.parseDef(...args);
-  },
-
-  userDef(file, options = {}) {
-    return helper.userDef(file, options);
-  },
-
-  user() {
-    return helper.user();
-  },
-
-  programStateFile: path.join(helper.dmtPath, 'state/program.json'),
+  loop,
+  listify,
+  guiViews,
+  isInstalled,
+  deviceDefFile,
+  dateFns,
+  determineGUIPort,
+  programStateFile,
   memoryUsage,
-
-  deviceGeneralIdentifier() {
-    const deviceName = this.device({ onlyBasicParsing: true }).id;
-    const hostname = os.hostname();
-
-    return deviceName == hostname ? deviceName : `${deviceName} (host ${hostname})`;
-  },
-
-  userDefaults(defPath) {
-    return helper.userDefaults(defPath);
-  },
-
-  userDeviceTypes(type) {
-    return helper.userDeviceTypes(type);
-  },
-
-  deviceNetworkId() {
-    return helper.deviceNetworkId();
-  },
-
-  networkDef(networkId) {
-    return helper.networkDef(networkId);
-  },
-
-  networks(network) {
-    return helper.networks(network);
-  },
-
-  determineGUIPort: helper.determineGUIPort,
-
-  services(service) {
-    return helper.services(service);
-  },
-
-  device(options) {
-    return helper.device(options);
-  },
-
-  devices(options) {
-    return helper.devices(options);
-  },
-
-  peerConnections() {
-    const connections = helper.peerConnections();
-
-    return connections
-      .map(({ id, deviceTag, syncState }) => {
-        if (id.includes('.')) {
-          const address = id;
-          return { address, deviceTag: deviceTag || address, syncState };
-        }
-
-        const deviceName = id;
-        const globalIp = helper.getIp({ deviceName });
-        return { deviceName, address: globalIp, deviceTag: deviceName, syncState };
-      })
-      .filter(({ address }) => !address.error)
-      .sort(util.orderBy('deviceTag'));
-  },
-
-  keypair() {
-    return helper.keypair();
-  },
-
-  keys() {
-    return helper.keys();
-  },
-
-  defaultKey() {
-    const keys = helper.keys();
-    if (keys.length > 0) {
-      return keys.find(keyInfo => !def.id(keyInfo));
-    }
-  },
-
-  deviceKeyDefFile() {
-    return helper.deviceDefFile('this', 'keys');
-  },
-
-  getIp({ deviceName }) {
-    return helper.getIp({ deviceName });
-  },
-
-  getLocalIpViaNearby({ program, deviceName }) {
-    return helper.getLocalIpViaNearby({ program, deviceName });
-  },
-
-  getGlobalIp({ deviceName }) {
-    return helper.getGlobalIp({ deviceName });
-  },
-
-  accessTokens(...args) {
-    return helper.accessTokens(...args);
-  },
-
-  platformExecutablePath(executable) {
-    return helper.platformExecutablePath(executable);
-  },
-
-  isDevMachine: helper.isDevMachine,
-  isDevUser: helper.isDevUser,
-  isMainDevice: helper.isMainDevice,
-  debugMode: helper.debugMode,
-  debugCategory: helper.debugCategory,
-  determineTimeAndDate: helper.determineTimeAndDate,
-  fsState: new FsState(helper.stateDir),
-  stateDir: helper.stateDir,
-  dmtPath: helper.dmtPath,
-  dmtHereEnsure: helper.dmtHereEnsure,
-  dmtHerePath: helper.dmtHerePath,
-  userDir: helper.userDir,
-  deviceDir: helper.deviceDir,
-  catalogsDir: helper.catalogsDir,
-  assetsDir: path.join(helper.dmtPath, 'core/assets'),
-  accessTokensDir: path.join(helper.userDir, 'access_tokens'),
-  isMacOS: () => {
-    return helper.isMacOS();
-  },
-  isWindows: () => {
-    return helper.isWindows();
-  },
-  isLinux: () => {
-    return helper.isLinux();
-  },
-  isRPi: () => {
-    return helper.isRPi();
-  },
-  platformDescription: () => {
-    return helper.platformDescription();
-  },
-  globals: helper.globals,
-  promiseTimeout,
-  listify: util.listify
+  parseDef,
+  userDef,
+  user,
+  deviceGeneralIdentifier,
+  userDefaults,
+  userDeviceTypes,
+  deviceNetworkId,
+  networkDef,
+  networks,
+  services,
+  device,
+  devices,
+  peerConnections,
+  keypair,
+  keys,
+  defaultKey,
+  deviceKeyDefFile,
+  getIp,
+  getLocalIpViaNearby,
+  getGlobalIp,
+  accessTokens,
+  platformExecutablePath,
+  isMacOS,
+  isWindows,
+  isLinux,
+  isRPi,
+  platformDescription,
+  isDevMachine,
+  isDevUser,
+  isMainDevice,
+  debugMode,
+  debugCategory,
+  fsState,
+  dmtStateDir,
+  dmtPath,
+  dmtHereEnsure,
+  dmtHerePath,
+  dmtUserDir,
+  deviceDir,
+  catalogsDir,
+  assetsDir,
+  accessTokensDir,
+  globals,
+  promiseTimeout
 };

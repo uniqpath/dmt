@@ -3941,117 +3941,6 @@ websocket.Sender = sender;
 
 var ws = websocket;
 
-function noop() {}
-
-class RunnableLink {
-  constructor(prev, next, fn) {
-    this.prev = prev;
-    this.next = next;
-    this.fn = fn || noop;
-  }
-
-  run(data) {
-    this.fn(data);
-    this.next && this.next.run(data);
-  }
-}
-
-class LinkedList {
-  constructor(linkConstructor) {
-    this.head = new RunnableLink();
-    this.tail = new RunnableLink(this.head);
-    this.head.next = this.tail;
-    this.linkConstructor = linkConstructor;
-    this.reg = {};
-  }
-
-  insert(data) {
-    const link = new RunnableLink(this.tail.prev, this.tail, data);
-    link.next.prev = link;
-    link.prev.next = link;
-    return link;
-  }
-
-  remove(link) {
-    link.prev.next = link.next;
-    link.next.prev = link.prev;
-  }
-}
-
-let id = 0;
-
-class Eev {
-  constructor() {
-    this.__events_list = {};
-  }
-
-  on(name, fn) {
-    const list = this.__events_list[name] || (this.__events_list[name] = new LinkedList());
-    const eev = fn._eev || (fn._eev = ++id);
-
-    list.reg[eev] || (list.reg[eev] = list.insert(fn));
-  }
-
-  off(name, fn) {
-    if (fn) {
-      const list = this.__events_list[name];
-
-      if (!list) {
-        return;
-      }
-
-      const link = list.reg[fn._eev];
-
-      list.reg[fn._eev] = undefined;
-
-      list && link && list.remove(link);
-    }
-  }
-
-  removeListener(...args) {
-    this.off(...args);
-  }
-
-  emit(name, data) {
-    const evt = this.__events_list[name];
-    evt && evt.head.run(data);
-  }
-}
-
-function log(msg) {
-  console.log(`${new Date().toLocaleString()} → ${msg}`);
-}
-
-function listify(obj) {
-  if (typeof obj == 'undefined' || obj == null) {
-    return [];
-  }
-  return Array.isArray(obj) ? obj : [obj];
-}
-
-function bufferToHex(buffer) {
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
-function hexToBuffer(hex) {
-  const tokens = hex.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g);
-  return new Uint8Array(tokens.map((token) => parseInt(token, 16)));
-}
-
-function integerToByteArray(long, arrayLen = 8) {
-  const byteArray = new Array(arrayLen).fill(0);
-
-  for (let index = 0; index < byteArray.length; index++) {
-    const byte = long & 0xff;
-    byteArray[index] = byte;
-    long = (long - byte) / 256;
-  }
-
-  return byteArray;
-}
-
 var naclFast = createCommonjsModule(function (module) {
 (function(nacl) {
 
@@ -6543,9 +6432,185 @@ function addHeader(_msg, flag) {
   return msg;
 }
 
+function noop() {}
+
+class RunnableLink {
+  constructor(prev, next, fn) {
+    this.prev = prev;
+    this.next = next;
+    this.fn = fn || noop;
+  }
+
+  run(data) {
+    this.fn(data);
+    this.next && this.next.run(data);
+  }
+}
+
+class LinkedList {
+  constructor(linkConstructor) {
+    this.head = new RunnableLink();
+    this.tail = new RunnableLink(this.head);
+    this.head.next = this.tail;
+    this.linkConstructor = linkConstructor;
+    this.reg = {};
+  }
+
+  insert(data) {
+    const link = new RunnableLink(this.tail.prev, this.tail, data);
+    link.next.prev = link;
+    link.prev.next = link;
+    return link;
+  }
+
+  remove(link) {
+    link.prev.next = link.next;
+    link.next.prev = link.prev;
+  }
+}
+
+let id = 0;
+
+class Eev {
+  constructor() {
+    this.__events_list = {};
+  }
+
+  on(name, fn) {
+    const list = this.__events_list[name] || (this.__events_list[name] = new LinkedList());
+    const eev = fn._eev || (fn._eev = ++id);
+
+    list.reg[eev] || (list.reg[eev] = list.insert(fn));
+  }
+
+  off(name, fn) {
+    if (fn) {
+      const list = this.__events_list[name];
+
+      if (!list) {
+        return;
+      }
+
+      const link = list.reg[fn._eev];
+
+      list.reg[fn._eev] = undefined;
+
+      list && link && list.remove(link);
+    }
+  }
+
+  removeListener(...args) {
+    this.off(...args);
+  }
+
+  emit(name, data) {
+    const evt = this.__events_list[name];
+    evt && evt.head.run(data);
+  }
+}
+
+function listify(obj) {
+  if (typeof obj == 'undefined' || obj == null) {
+    return [];
+  }
+  return Array.isArray(obj) ? obj : [obj];
+}
+
+function bufferToHex(buffer) {
+  return Array.from(new Uint8Array(buffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function hexToBuffer(hex) {
+  const tokens = hex.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g);
+  return new Uint8Array(tokens.map(token => parseInt(token, 16)));
+}
+
+function integerToByteArray(long, arrayLen = 8) {
+  const byteArray = new Array(arrayLen).fill(0);
+
+  for (let index = 0; index < byteArray.length; index++) {
+    const byte = long & 0xff;
+    byteArray[index] = byte;
+    long = (long - byte) / 256;
+  }
+
+  return byteArray;
+}
+
+function timedConsoleLog(msg) {
+  console.log(`${new Date().toLocaleString()} → ${msg}`);
+}
+
+function doLogging(color, log, ...args) {
+  if (typeof log == 'function') {
+    // console.log or anything else that wraps it etc.
+    timedConsoleLog(...args);
+  } else if (log) {
+    // dmt logger object
+    log.logOutput(color, { source: 'connectome' }, ...args);
+  }
+}
+
+class Logger {
+  write(log, ...args) {
+    doLogging(undefined, log, ...args);
+  }
+
+  red(log, ...args) {
+    doLogging('red', log, ...args);
+  }
+
+  green(log, ...args) {
+    doLogging('green', log, ...args);
+  }
+
+  yellow(log, ...args) {
+    doLogging('yellow', log, ...args);
+  }
+
+  blue(log, ...args) {
+    doLogging('blue', log, ...args);
+  }
+
+  cyan(log, ...args) {
+    doLogging('cyan', log, ...args);
+  }
+
+  magenta(log, ...args) {
+    doLogging('magenta', log, ...args);
+  }
+
+  gray(log, ...args) {
+    doLogging('gray', log, ...args);
+  }
+
+  white(log, ...args) {
+    doLogging('white', log, ...args);
+  }
+}
+
+var logger = new Logger();
+
+//import colors from 'kleur';
 naclFast.util = naclUtil;
 
 function send({ data, connector }) {
+  const { log } = connector;
+
+  // const log = (...opts) => {
+  //   if (opts.length == 0) {
+  //     connector.logger.write(log);
+  //   } else {
+  //     connector.logger.write(log,
+  //       colors.magenta('📡'),
+  //       colors.gray(connector.tag || connector.endpoint),
+  //       colors.magenta(...opts)
+  //     );
+  //   }
+  // };
+
   if (isObject(data)) {
     data = JSON.stringify(data);
   }
@@ -6566,26 +6631,33 @@ function send({ data, connector }) {
       const encryptedMessage = naclFast.secretbox(encodedMessage, nonce, connector.sharedSecret);
 
       if (connector.verbose) {
-        console.log();
-        console.log(`Connector → Sending encrypted message #${connector.sentCount} @ ${connector.address}:`);
-        console.log(data);
+        logger.write(log); // empty line
+        logger.green(
+          log,
+          `Connector ${connector.remoteAddress()} → Sending encrypted message #${connector.sentCount} ↴`
+        );
+        logger.gray(log, data);
       }
 
       connector.connection.websocket.send(encryptedMessage);
     } else {
       if (connector.verbose) {
-        console.log();
-        console.log(`Connector → Sending message #${connector.sentCount} @ ${connector.address}:`);
-        console.log(data);
+        logger.write(log); // empty line
+        logger.green(
+          log,
+          `Connector ${connector.remoteAddress()} → Sending message #${connector.sentCount} ↴`
+        );
+        logger.gray(log, data);
       }
 
       connector.connection.websocket.send(data);
     }
   } else {
-    console.log(`⚠️ Warning: "${data}" was not sent because connector is not ready`);
+    logger.red(log, `⚠️ Warning: "${data}" was not sent because connector is not ready`);
   }
 }
 
+//import colors from 'kleur';
 naclFast.util = naclUtil;
 
 function isRpcCallResult(jsonData) {
@@ -6593,13 +6665,30 @@ function isRpcCallResult(jsonData) {
 }
 
 function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connector }) {
+  const { log } = connector;
+
+  // const log = (...opts) => {
+  //   if (opts.length == 0) {
+  //     connector.logger.write(log, );
+  //   } else {
+  //     connector.logger.write(log,
+  //       colors.yellow('📥'),
+  //       colors.gray(connector.tag || connector.endpoint),
+  //       colors.yellow(...opts)
+  //     );
+  //   }
+  // };
+
   connector.lastMessageAt = Date.now();
 
   const nonce = new Uint8Array(integerToByteArray(2 * connector.receivedCount + 1, 24));
 
   if (connector.verbose && !wasEncrypted) {
-    console.log();
-    console.log(`Connector → Received message #${connector.receivedCount} @ ${connector.address}:`);
+    logger.write(log);
+    logger.magenta(
+      log,
+      `Connector ${connector.remoteAddress()} → Received message #${connector.receivedCount} ↴`
+    );
   }
 
   // 💡 unencrypted jsonData !
@@ -6607,8 +6696,8 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     if (jsonData.jsonrpc) {
       if (isRpcCallResult(jsonData)) {
         if (connector.verbose && !wasEncrypted) {
-          console.log('Received plain-text rpc result');
-          console.log(jsonData);
+          logger.magenta(log, `Connector ${connector.remoteAddress()} received plain-text rpc result ↴`);
+          logger.gray(log, jsonData);
         }
 
         connector.rpcClient.jsonrpcMsgReceive(rawMessage);
@@ -6621,9 +6710,12 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
   } else if (encryptedData) {
     // 💡 encryptedJson data!!
     if (connector.verbose == 'extra') {
-      console.log('Received bytes:');
-      console.log(encryptedData);
-      console.log(`Decrypting with shared secret ${connector.sharedSecret}...`);
+      logger.magenta(log, `Connector ${connector.remoteAddress()} received bytes ↴`);
+      logger.gray(log, encryptedData);
+      logger.magenta(
+        log,
+        `Connector ${connector.remoteAddress()} decrypting with shared secret ${connector.sharedSecret}...`
+      );
     }
 
     const _decryptedMessage = naclFast.secretbox.open(encryptedData, nonce, connector.sharedSecret);
@@ -6635,7 +6727,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
       const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
 
       // if (connector.verbose) {
-      //   console.log(`Received message: ${decodedMessage}`);
+      //   logger.write(log, `Received message: ${decodedMessage}`);
       // }
 
       try {
@@ -6644,8 +6736,8 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         // 💡 rpc
         if (jsonData.jsonrpc) {
           if (connector.verbose) {
-            console.log('Received and decrypted rpc result:');
-            console.log(jsonData);
+            logger.magenta(log, `Connector ${connector.remoteAddress()} decrypted rpc result ↴`);
+            logger.gray(log, jsonData);
           }
 
           wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
@@ -6676,8 +6768,8 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
           connector.emit('receive', { jsonData, rawMessage: decodedMessage });
         }
       } catch (e) {
-        console.log("Couldn't parse json message although the flag was for string ...");
-        console.log(decodedMessage);
+        logger.red(log, "Couldn't parse json message although the flag was for string ...");
+        logger.red(log, decodedMessage);
         throw e;
       }
     } else {
@@ -7283,7 +7375,7 @@ class SpecificRpcClient {
   }
 }
 
-const DEFAULT_REQUEST_TIMEOUT = 10000;
+const DEFAULT_REQUEST_TIMEOUT = 50000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {
@@ -8167,6 +8259,7 @@ class connectionState extends WritableStore {
   }
 }
 
+//import colors from 'kleur';
 naclFast.util = naclUtil;
 
 class Connector extends Eev {
@@ -8177,11 +8270,13 @@ class Connector extends Eev {
     rpcRequestTimeout,
     verbose = false,
     tag,
+    log = console.log,
     dummy
   } = {}) {
     super();
 
     this.protocol = protocol;
+    this.log = log;
 
     const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = acceptKeypair(keypair);
 
@@ -8220,6 +8315,11 @@ class Connector extends Eev {
         this.connected.set(false);
       }
     }, 700); // formerly 300ms
+
+    if (verbose) {
+      logger.cyan(this.log, `Connector ${this.remoteAddress()} instantiated`);
+      //logger.write(this.log, );
+    }
   }
 
   send(data) {
@@ -8229,23 +8329,50 @@ class Connector extends Eev {
 
   signal(signal, data) {
     if (this.connected.get()) {
-      //console.log(`Sending signal '${signal}' over connector ${this.endpoint}`);
+      //log(`Sending signal '${signal}' over connector ${this.endpoint}`);
       this.send({ signal, data });
     } else {
-      console.log(
+      logger.write(
+        this.log,
         'Warning: trying to send signal over disconnected connector, this should be prevented by GUI'
       );
     }
+  }
+
+  // pre-check for edge cases
+  on(eventName, handler) {
+    if (eventName == 'ready') {
+      // latecomer !! for example via connectorPool.getConnector
+      // connector might be ready or not ..
+      // with earlier approach we might have missed on ready event because we are attaching handler like this:
+      //
+      // connectorPool.getConnector({ endpoint, host: address, port, deviceTag }).then(connector => {
+      //   connector.on('ready', () => {
+      //     onReconnect({ connector, slotName, program, selectorPredicate });
+      //   });
+      // ...
+
+      if (this.isReady()) {
+        // connector already ready at time of attaching on ready event,
+        // we have missed the event, now simulate the event so that
+        // calling code handler is executed and client is aware of correct status
+        handler(); // we call on('ready', () => { ... }) handler manually for attached code that missed the event
+      }
+    }
+
+    // attach real handler
+    super.on(eventName, handler);
+  }
+
+  // just used in connectome examples for now, no real use in api
+  getSharedSecret() {
+    return this.sharedSecret ? bufferToHex(this.sharedSecret) : undefined;
   }
 
   wireReceive({ jsonData, encryptedData, rawMessage }) {
     wireReceive({ jsonData, encryptedData, rawMessage, connector: this });
     this.receivedCount += 1;
   }
-
-  // state() {
-  //   return this.state;
-  // }
 
   field(name) {
     return this.connectionState.get(name);
@@ -8274,24 +8401,36 @@ class Connector extends Eev {
 
       const num = this.successfulConnectsCount;
 
+      if (this.verbose) {
+        logger.write(this.log, `✓ Connector ${this.remoteAddress()} websocket connected`);
+      }
+
       this.diffieHellman({
         clientPrivateKey: this.clientPrivateKey,
         clientPublicKey: this.clientPublicKey,
         protocol: this.protocol
       })
-        .then(({ sharedSecret, sharedSecretHex }) => {
-          this.ready = true;
+        //.then(({ sharedSecret, sharedSecretHex }) => {
+        .then(() => {
           this.connectedAt = Date.now();
-
-
           this.connected.set(true);
 
-          this.emit('ready', { sharedSecret, sharedSecretHex });
+          // new trick so that any state has time to get populated
+          // this.connectedTimeout = setTimeout(() => {
+          //   this.connected.set(true);
+          // }, 100);
+          // WHAT ABOUT this from dmt-connect ?
+          // {#if !$connected || Object.keys($state).length <= 0}
+          //   <Loading />
+
+          this.ready = true;
+
+          this.emit('ready');
         })
         .catch(e => {
           if (num == this.successfulConnectsCount) {
-            console.log(e);
-            console.log('dropping connection and retrying again');
+            logger.write(this.log, e);
+            logger.write(this.log, 'dropping connection and retrying');
             this.connection.terminate();
           }
         });
@@ -8304,13 +8443,16 @@ class Connector extends Eev {
 
       if (this.transportConnected == undefined) {
         const tag = this.tag ? ` (${this.tag})` : '';
-        console.log(
+        logger.write(
+          this.log,
           `Connector ${this.endpoint}${tag} was not able to connect at first try, setting READY to false`
         );
       }
 
       this.transportConnected = false;
       this.ready = false;
+      this.sharedSecret = undefined; // could also stay but less confusion if we clear it
+
       delete this.connectedAt;
 
       if (isDisconnect) {
@@ -8339,35 +8481,40 @@ class Connector extends Eev {
         .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
         .then(remotePubkeyHex => {
           const sharedSecret = naclFast.box.before(hexToBuffer(remotePubkeyHex), clientPrivateKey);
-          const sharedSecretHex = bufferToHex(sharedSecret);
+
+          //const sharedSecretHex = bufferToHex(sharedSecret);
           this.sharedSecret = sharedSecret;
 
           this._remotePubkeyHex = remotePubkeyHex;
 
           if (this.verbose) {
-            console.log('Established shared secret through diffie-hellman exchange:');
-            console.log(sharedSecretHex);
+            logger.write(
+              this.log,
+              `Connector ${this.endpoint}: Established shared secret through diffie-hellman exchange.`
+            );
+            //logger.write(this.log, sharedSecretHex);
           }
 
           this.remoteObject('Auth')
             .call('finalizeHandshake', { protocol })
             .then(res => {
               if (res && res.error) {
-                console.log(`x Protocol ${this.protocol} error:`);
-                console.log(res.error);
+                logger.write(this.log, `x Protocol ${this.protocol} error:`);
+                logger.write(this.log, res.error);
               } else {
-                success({ sharedSecret, sharedSecretHex });
+                //success({ sharedSecret, sharedSecretHex });
+                success();
 
-                //console.log(`✓ Lane ${this.lane} negotiated `);
+                //logger.write(this.log, `✓ Lane ${this.lane} negotiated `);
                 const tag = this.tag ? ` (${this.tag})` : '';
-                console.log(
+                logger.cyan(
+                  this.log,
                   `✓ Protocol [ ${this.protocol || '"no-name"'} ] connection [ ${this.endpoint}${tag} ] ready`
                 );
               }
             })
             .catch(e => {
-              console.log(`x Protocol ${this.protocol} finalizeHandshake error:`);
-              console.log(e);
+              logger.write(this.log, `x Protocol ${this.protocol} finalizeHandshake error:`);
               reject(e);
             });
         })
@@ -8407,7 +8554,8 @@ function determineEndpoint({ endpoint, host, port }) {
       endpoint = `${wsProtocol}://${host}`;
 
       // new addition
-      if (wsProtocol == 'wss') { // if wss from browser we forget all about the port and use /ws which has to be upgraded to websocket connection by our reverse-proxy
+      if (wsProtocol == 'wss') {
+        // if wss from browser we forget all about the port and use /ws which has to be upgraded to websocket connection by our reverse-proxy
         // read this as well, very informative :: https://medium.com/intrinsic-blog/why-should-i-use-a-reverse-proxy-if-node-js-is-production-ready-5a079408b2ca
         endpoint = `${wsProtocol}://${host}/ws`;
       } else if (port) {
@@ -8416,6 +8564,9 @@ function determineEndpoint({ endpoint, host, port }) {
         endpoint = `${endpoint}:${window.location.port}`;
       }
     } else {
+      if (!port) {
+        throw new Error(`Connectome determineEndpoint: No websocket port provided for ${host}`);
+      }
       // node.js ... if wss is needed, then full endpoint has to be passed in instead of host and port
       // endpoint is then used "as is with no modifications" and this entire block of code is not needed
       endpoint = `ws://${host || 'localhost'}:${port}`;
@@ -8433,8 +8584,8 @@ const wsOPEN = 1;
 
 //todo: remove 'dummy' argument once legacyLib with old MCS is history
 function establishAndMaintainConnection(
-  { endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, verbose, tag, dummy },
-  { WebSocket, log }
+  { endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, log, verbose, tag, dummy },
+  { WebSocket }
 ) {
   endpoint = determineEndpoint({ endpoint, host, port });
 
@@ -8445,6 +8596,7 @@ function establishAndMaintainConnection(
     keypair,
     verbose,
     tag,
+    log,
     dummy
   });
 
@@ -8463,12 +8615,12 @@ function establishAndMaintainConnection(
     checkTicker: 0
   };
 
-  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log }), 10);
+  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }), 10);
 
   const connectionCheckInterval = 1500;
   const callback = () => {
     if (!connector.decommissioned) {
-      checkConnection({ connector, endpoint }, { WebSocket, log });
+      checkConnection({ connector, endpoint }, { WebSocket, log, verbose });
       setTimeout(callback, connectionCheckInterval);
     }
   };
@@ -8478,16 +8630,18 @@ function establishAndMaintainConnection(
   return connector;
 }
 
-function checkConnection({ connector, endpoint }, { WebSocket, log }) {
+function checkConnection({ connector, endpoint }, { WebSocket, log, verbose }) {
   const conn = connector.connection;
 
-  if (connectionIdle(conn) || connector.decommissioned) {
+  if (verbose && (connectionIdle(conn) || connector.decommissioned)) {
     if (connectionIdle(conn)) {
-      log(
+      logger.yellow(
+        log,
         `Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`
       );
     } else {
-      log(
+      logger.yellow(
+        log,
         `Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `
       );
     }
@@ -8501,17 +8655,17 @@ function checkConnection({ connector, endpoint }, { WebSocket, log }) {
     conn.websocket.send('ping');
   } else {
     if (connector.connected == undefined) {
-      log(`Setting connector status to FALSE because connector.connected is undefined`);
+      logger.write(log, `Setting connector status to FALSE because connector.connected is undefined`);
       connector.connectStatus(false);
     }
 
-    tryReconnect({ connector, endpoint }, { WebSocket, log });
+    tryReconnect({ connector, endpoint }, { WebSocket, log, verbose });
   }
 
   conn.checkTicker += 1;
 }
 
-function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
+function tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }) {
   const conn = connector.connection;
 
   if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
@@ -8528,11 +8682,11 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   // added this so that it shows in frontend log in dmt-gui..
   // "native" console errors like
   // establishAndMaintainConnection.js:104 WebSocket connection to 'ws://192.168.0.64:7780/' failed: ...
-  // are not visible since we need to use our own log() function
+  // are not visible since we need to use our own logger.write(log, ) function
   // MEH: this didn't work on Chromium on RPi !!
   // ws.onerror = error => {
-  //   //console.log(error);
-  //   log(`error (connecting?) websocket: ${ws.rand} to ${conn.endpoint}`);
+  //   //console.logger.write(log, error);
+  //   logger.write(log, `error (connecting?) websocket: ${ws.rand} to ${conn.endpoint}`);
   // };
 
   conn.currentlyTryingWS = ws;
@@ -8540,7 +8694,7 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
 
   ws.rand = Math.random();
 
-  //log(`created new websocket: ${ws.rand} to ${conn.endpoint}`);
+  //logger.write(log, `created new websocket: ${ws.rand} to ${conn.endpoint}`);
 
   if (browser$1) {
     ws.binaryType = 'arraybuffer';
@@ -8551,9 +8705,13 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   }
 
   const openCallback = m => {
+    if (verbose) {
+      logger.write(log, `websocket ${endpoint} connection opened (${ws.rand})`);
+    }
+
     conn.currentlyTryingWS = null;
     conn.checkTicker = 0;
-    addSocketListeners({ ws, connector, openCallback }, { log });
+    addSocketListeners({ ws, connector, openCallback }, { log, verbose });
     conn.websocket = ws;
     connector.connectStatus(true);
   };
@@ -8569,15 +8727,19 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   }
 }
 
-function addSocketListeners({ ws, connector, openCallback }, { log }) {
+function addSocketListeners({ ws, connector, openCallback }, { log, verbose }) {
   const conn = connector.connection;
 
   const errorCallback = m => {
-    log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
-    log(m);
+    logger.write(log, `websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
+    logger.write(log, m);
   };
 
   const closeCallback = m => {
+    if (verbose) {
+      logger.write(log, `websocket ${connector.connection.endpoint} connection closed (${ws.rand})`);
+    }
+
     connector.connectStatus(false);
   };
 
@@ -8628,11 +8790,12 @@ function socketConnected(conn) {
 }
 
 function connectionIdle(conn) {
-  return socketConnected(conn) && conn.checkTicker > 5;
+  return socketConnected(conn) && conn.checkTicker > 2; // CHANGE TO 2 !! it was 5 for long time
 }
 
 function establishAndMaintainConnection$1(opts) {
-  return establishAndMaintainConnection(opts, { WebSocket: ws, log: opts.log || log });
+  opts.log = opts.log || console.log;
+  return establishAndMaintainConnection(opts, { WebSocket: ws });
 }
 
 function promiseTimeout(ms, promise) {

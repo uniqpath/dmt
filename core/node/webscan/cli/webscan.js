@@ -1,4 +1,3 @@
-import colors from 'colors';
 import fs from 'fs';
 import path from 'path';
 
@@ -7,12 +6,11 @@ import writeFileAtomic from 'write-file-atomic';
 
 import { push } from 'dmt/notify';
 
-import dmt from 'dmt/common';
-const { log, util } = dmt;
+import { log, util, colors, scan, device as _device, dmtHereEnsure } from 'dmt/common';
 
-const { relativizePath } = dmt.scan;
+const { relativizePath } = scan;
 
-const device = dmt.device({ onlyBasicParsing: true });
+const device = _device({ onlyBasicParsing: true });
 
 import webscanJob from '../lib/jobs/webscanJob';
 
@@ -28,8 +26,8 @@ const deviceName = args[0] || device.id;
 
 const linksDirectory = linkIndexPath(deviceName);
 
-const indexFile = path.join(dmt.dmtHereEnsure('webindex'), `${deviceName}.json`);
-const indexFileInProgress = path.join(dmt.dmtHereEnsure('webindex'), `${deviceName}.json-in-progress`);
+const indexFile = path.join(dmtHereEnsure('webindex'), `${deviceName}.json`);
+const indexFileInProgress = path.join(dmtHereEnsure('webindex'), `${deviceName}.json-in-progress`);
 
 function writeLinkIndexAtomic(linkIndex) {
   writeFileAtomic.sync(indexFileInProgress, JSON.stringify(linkIndex, null, 2));

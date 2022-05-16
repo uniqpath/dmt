@@ -1,18 +1,16 @@
 import fs from 'fs';
 import path from 'path';
-import colors from 'colors';
 
 import { addSiteTag } from 'dmt/search';
 
 import { push } from 'dmt/notify';
 
-import dmt from 'dmt/common';
-const { log, stopwatch, tags, util } = dmt;
+import { log, stopwatch, tags, util, colors, dmtHereEnsure } from 'dmt/common';
 
 const REREAD_INDEX_INTERVAL_SECONDS = 10;
 const RECENT_WEBLINKS_NUM = 30;
 
-const { scan } = dmt;
+import { scan } from 'dmt/common';
 import addDerivedData from './derived';
 
 function addDerived(webindex) {
@@ -41,7 +39,7 @@ function addLinkIndexName(index, linkIndexName) {
 
 function deviceLinkIndexWithoutDerivedData(deviceName) {
   if (deviceName) {
-    const indexFile = path.join(dmt.dmtHereEnsure('webindex'), `${deviceName}.json`);
+    const indexFile = path.join(dmtHereEnsure('webindex'), `${deviceName}.json`);
 
     if (fs.existsSync(indexFile)) {
       return JSON.parse(fs.readFileSync(indexFile));
@@ -64,7 +62,7 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
 
     const start = stopwatch.start();
 
-    const files = scan.recursive(dmt.dmtHereEnsure('webindex'), {
+    const files = scan.recursive(dmtHereEnsure('webindex'), {
       flatten: true,
       extname: '.json',
       filter: ({ basename, reldir }) => {

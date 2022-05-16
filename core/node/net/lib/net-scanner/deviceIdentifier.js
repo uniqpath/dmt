@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-
-const { identifyDeviceByMac } = dmt;
+import { identifyDeviceByMac } from 'dmt/common';
 
 function findByMac(devices, mac) {
   return devices.find(device => device.mac == mac);

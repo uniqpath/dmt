@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-
-const { def } = dmt;
+import { def } from 'dmt/common';
 
 console.log(def.parse('key: value'));
 

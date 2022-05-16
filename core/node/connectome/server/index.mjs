@@ -13,10 +13,6 @@ import require$$0 from 'stream';
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-function getDefaultExportFromCjs (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
 function createCommonjsModule(fn, basedir, module) {
 	return module = {
 		path: basedir,
@@ -4014,13 +4010,13 @@ function listify(obj) {
 
 function bufferToHex(buffer) {
   return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
+    .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
 function hexToBuffer(hex) {
   const tokens = hex.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g);
-  return new Uint8Array(tokens.map((token) => parseInt(token, 16)));
+  return new Uint8Array(tokens.map(token => parseInt(token, 16)));
 }
 
 function integerToByteArray(long, arrayLen = 8) {
@@ -6544,9 +6540,65 @@ function addHeader(_msg, flag) {
   return msg;
 }
 
+function timedConsoleLog(msg) {
+  console.log(`${new Date().toLocaleString()} → ${msg}`);
+}
+
+function doLogging(color, log, ...args) {
+  if (typeof log == 'function') {
+    // console.log or anything else that wraps it etc.
+    timedConsoleLog(...args);
+  } else if (log) {
+    // dmt logger object
+    log.logOutput(color, { source: 'connectome' }, ...args);
+  }
+}
+
+class Logger {
+  write(log, ...args) {
+    doLogging(undefined, log, ...args);
+  }
+
+  red(log, ...args) {
+    doLogging('red', log, ...args);
+  }
+
+  green(log, ...args) {
+    doLogging('green', log, ...args);
+  }
+
+  yellow(log, ...args) {
+    doLogging('yellow', log, ...args);
+  }
+
+  blue(log, ...args) {
+    doLogging('blue', log, ...args);
+  }
+
+  cyan(log, ...args) {
+    doLogging('cyan', log, ...args);
+  }
+
+  magenta(log, ...args) {
+    doLogging('magenta', log, ...args);
+  }
+
+  gray(log, ...args) {
+    doLogging('gray', log, ...args);
+  }
+
+  white(log, ...args) {
+    doLogging('white', log, ...args);
+  }
+}
+
+var logger = new Logger();
+
 naclFast.util = naclUtil;
 
 function send({ message, channel }) {
+  const { log } = channel;
+
   if (isObject(message)) {
     message = JSON.stringify(message);
   }
@@ -6555,12 +6607,22 @@ function send({ message, channel }) {
 
   if (channel.verbose) {
     if (channel.sharedSecret) {
-      console.log(`Channel → Sending encrypted message #${channel.sentCount} @ ${channel.remoteAddress()}:`);
+      logger.write(
+        log,
+        `Channel ${channel.remoteAddress()} → Sending encrypted message #${
+          channel.sentCount
+        } @ ${channel.remoteAddress()}:`
+      );
     } else {
-      console.log(`Channel → Sending message #${channel.sentCount} @ ${channel.remoteAddress()}:`);
+      logger.write(
+        log,
+        `Channel ${channel.remoteAddress()} → Sending message #${
+          channel.sentCount
+        } @ ${channel.remoteAddress()}:`
+      );
     }
 
-    console.log(message);
+    logger.write(log, message);
   }
 
   if (channel.sharedSecret) {
@@ -6577,13 +6639,13 @@ function send({ message, channel }) {
     message = encryptedMessage;
 
     if (channel.verbose == 'extra') {
-      console.log('Encrypted bytes:');
-      console.log(encryptedMessage);
+      logger.write(log, 'Encrypted bytes:');
+      logger.write(log, encryptedMessage);
     }
   }
 
   if (channel.verbose) {
-    console.log();
+    logger.write(log);
   }
 
   if (!channel.ws.terminated && channel.ws.readyState == channel.ws.OPEN) {
@@ -6596,15 +6658,23 @@ function send({ message, channel }) {
 naclFast.util = naclUtil;
 
 function handleMessage(channel, message) {
+  const { log } = channel;
+
   let jsonData;
 
+  // we implemented this because all messages should be json
+  // but there was a bug when we sent some message before connection ready
+  // and message snuck in just before the last step (finalizeHandshake
+  // process expected unencrypted data but message was received
+  // just as finalize handshake was executing and it was already encrypted since this.sharedSecret was set in
+  // connector diffieHellman immediately after return from exchangePubkeys
   try {
     jsonData = JSON.parse(message);
   } catch (e) {
-    console.log('Error: Message should be json !');
-    console.log(message);
-    console.log('---');
-    return;
+    logger.red(log, 'Error: Message should be json !');
+    logger.red(log, message);
+    logger.red(log, message.toString());
+    throw e; // let program crash
   }
 
   if (jsonData.jsonrpc) {
@@ -6625,19 +6695,21 @@ function handleMessage(channel, message) {
 }
 
 function messageReceived({ message, channel }) {
+  const { log } = channel;
+
   channel.lastMessageAt = Date.now();
 
   const nonce = new Uint8Array(integerToByteArray(2 * channel.receivedCount, 24));
 
   if (channel.verbose) {
-    console.log(`Channel → Received message #${channel.receivedCount} @ ${channel.remoteAddress()}:`);
+    logger.write(log, `Channel ${channel.remoteAddress()} → Received message #${channel.receivedCount} @ ${channel.remoteAddress()} ↴`);
   }
 
   //if (channel.sharedSecret) {
   // if (channel.sharedSecret && channel.verbose == 'extra') {
-  //   console.log('Received bytes:');
-  //   console.log(message);
-  //   console.log(`Decrypting with shared secret ${channel.sharedSecret}...`);
+  //   logger.write(log, 'Received bytes:');
+  //   logger.write(log, message);
+  //   logger.write(log, `Decrypting with shared secret ${channel.sharedSecret}...`);
   // }
 
   try {
@@ -6654,6 +6726,10 @@ function messageReceived({ message, channel }) {
     const flag = _decryptedMessage[0];
     const decryptedMessage = _decryptedMessage.subarray(1);
 
+    if (channel.verbose) {
+      logger.write(log, `decryptedMessage: ${decryptedMessage}`);
+    }
+
     // text (json)
     if (flag == 1) {
       const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
@@ -6662,15 +6738,15 @@ function messageReceived({ message, channel }) {
       // todo: channel.sharedSecret will never be true here... move/ dduplicate
       // if (channel.verbose) {
       //   if (channel.sharedSecret) {
-      //     console.log('Decrypted message:');
+      //     logger.write(log, 'Decrypted message:');
       //   }
 
-      //   console.log(message);
-      //   console.log();
+      //   logger.write(log, message);
+      //   logger.write(log, );
       // }
 
       if (channel.verbose) {
-        console.log(`Message: ${decodedMessage}`);
+        logger.write(log, `Message: ${decodedMessage}`);
       }
 
       handleMessage(channel, decodedMessage);
@@ -7238,7 +7314,7 @@ class SpecificRpcClient {
   }
 }
 
-const DEFAULT_REQUEST_TIMEOUT = 10000;
+const DEFAULT_REQUEST_TIMEOUT = 50000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {
@@ -7311,9 +7387,11 @@ class WritableStore extends ReadableStore {
 }
 
 class Channel$1 extends Eev {
-  constructor(ws, { rpcRequestTimeout, verbose = false }) {
+  constructor(ws, { rpcRequestTimeout, log = console.log, verbose = false }) {
     super();
     this.ws = ws;
+
+    this.log = log;
     this.verbose = verbose;
 
     //this.protocol = ws.protocol;
@@ -7478,7 +7556,7 @@ function heartbeat() {
 // });
 
 class WsServer extends Eev {
-  constructor({ port, server, verbose }) {
+  constructor({ port, server, log = console.log, verbose }) {
     super();
 
     process.nextTick(() => {
@@ -7494,13 +7572,13 @@ class WsServer extends Eev {
         //this.webSocketServer = new WebSocket.Server({ port, handleProtocols });
       }
 
-      this.continueSetup({ verbose });
+      this.continueSetup({ log, verbose });
     });
   }
 
-  continueSetup({ verbose }) {
+  continueSetup({ log, verbose }) {
     this.webSocketServer.on('connection', (ws, req) => {
-      const channel = new Channel$1(ws, { verbose });
+      const channel = new Channel$1(ws, { log, verbose });
 
       channel._remoteIp = getRemoteIp(req);
       channel._remoteAddress = getRemoteHost(req);
@@ -7597,6 +7675,28 @@ function initializeProtocol({ server, channel }) {
 
 naclFast.util = naclUtil;
 
+const DAY = 24 * 60 * 60 * 1000;
+
+// common among all instances of AuthTarget
+const _errorReportTimestamps = {};
+const _errorReportCounters = {};
+
+//cleanup --⚠️ it should be and it is just one global setInterval
+// if we have a lot connections from different IPs and our processes are really long running, then this
+// data structure may grow unbounded.. probably not a really pressing problem but we still play it nice
+// and free up the memory because it is the right thing to do
+setInterval(() => {
+  const now = Date.now();
+
+  for (const [remoteIp, timestamp] of Object.entries(_errorReportTimestamps)) {
+    if (now - timestamp > 2 * DAY) {
+      // remove processes that are no longer reconnecting in last 2 days
+      delete _errorReportTimestamps[remoteIp];
+      delete _errorReportCounters[remoteIp];
+    }
+  }
+}, DAY); // cleanup data structure every day
+
 class AuthTarget extends Eev {
   constructor({ keypair, channel, server }) {
     super();
@@ -7618,29 +7718,55 @@ class AuthTarget extends Eev {
 
   finalizeHandshake({ protocol }) {
     const { server, channel } = this;
+
     channel.setSharedSecret(this.sharedSecret);
     channel.setProtocol(protocol);
+
+    const { log } = this.channel;
+
+    // in the future if remote process doesn't have the correct allowance (public key), we also let it hang
+    // as we do now with missing or incorrect dmt protocol
 
     if (initializeProtocol({ server, channel })) {
       server.emit('connection', channel);
     } else {
       const error = `Error: request from ${channel.remoteIp()} (${channel.remotePubkeyHex()}) - unknown protocol ${protocol}, disconnecting in 60s`;
-      console.log(error);
+
+      _errorReportCounters[channel.remoteIp()] = (_errorReportCounters[channel.remoteIp()] || 0) + 1;
+
+      // report at most once per 24h -- for example if some old dmt-proc keeps reconnecting
+      if (
+        !_errorReportTimestamps[channel.remoteIp()] ||
+        Date.now() - _errorReportTimestamps[channel.remoteIp()] > DAY
+      ) {
+        logger.yellow(log, error);
+
+        logger.yellow(
+          log,
+          'Maybe it is a stray or unwelcome dmt-proc which will keep reconnecting until terminated... we report at most once per 24h per remote ip'
+        );
+
+        logger.yellow(
+          log,
+          `Reconnect tries since this dmt-proc started: ${_errorReportCounters[channel.remoteIp()]}`
+        );
+
+        _errorReportTimestamps[channel.remoteIp()] = Date.now();
+      }
 
       setTimeout(() => {
         channel.terminate();
-      }, 60000);
+      }, 60 * 60 * 1000); // we keep it hanging for one hour, why not .. reconsider this approach and how to block such leech connections... but maybe this is good enough
 
       return { error };
       //channel.terminate(); // don't do this so we don't get reconnect looping!
       // client will need to refresh the page and this is better than to keep trying
-      // we will get multiple connections though.. maybe disconnect after 5min...
     }
   }
 }
 
 function initializeConnection({ server, channel }) {
-  server.emit('prepare_channel', channel);
+  //server.emit('prepare_channel', channel);
 
   const auth = new AuthTarget({ keypair: server.keypair, channel, server });
   channel.attachObject('Auth', auth);
@@ -7690,886 +7816,7 @@ function orderBy(key, key2, order = 'asc') {
   };
 }
 
-function clone(obj) {
-  if (typeof obj == 'function') {
-    return obj;
-  }
-  var result = Array.isArray(obj) ? [] : {};
-  for (var key in obj) {
-    var value = obj[key];
-    var type = {}.toString.call(value).slice(8, -1);
-    if (type == 'Array' || type == 'Object') {
-      result[key] = clone(value);
-    } else if (type == 'Date') {
-      result[key] = new Date(value.getTime());
-    } else if (type == 'RegExp') {
-      result[key] = RegExp(value.source, getRegExpFlags(value));
-    } else {
-      result[key] = value;
-    }
-  }
-  return result;
-}
-
-function getRegExpFlags(regExp) {
-  if (typeof regExp.source.flags == 'string') {
-    return regExp.source.flags;
-  } else {
-    var flags = [];
-    regExp.global && flags.push('g');
-    regExp.ignoreCase && flags.push('i');
-    regExp.multiline && flags.push('m');
-    regExp.sticky && flags.push('y');
-    regExp.unicode && flags.push('u');
-    return flags.join('');
-  }
-}
-
-var pointer = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Pointer = void 0;
-/**
-Unescape token part of a JSON Pointer string
-
-`token` should *not* contain any '/' characters.
-
-> Evaluation of each reference token begins by decoding any escaped
-> character sequence.  This is performed by first transforming any
-> occurrence of the sequence '~1' to '/', and then transforming any
-> occurrence of the sequence '~0' to '~'.  By performing the
-> substitutions in this order, an implementation avoids the error of
-> turning '~01' first into '~1' and then into '/', which would be
-> incorrect (the string '~01' correctly becomes '~1' after
-> transformation).
-
-Here's my take:
-
-~1 is unescaped with higher priority than ~0 because it is a lower-order escape character.
-I say "lower order" because '/' needs escaping due to the JSON Pointer serialization technique.
-Whereas, '~' is escaped because escaping '/' uses the '~' character.
-*/
-function unescape(token) {
-    return token.replace(/~1/g, '/').replace(/~0/g, '~');
-}
-/** Escape token part of a JSON Pointer string
-
-> '~' needs to be encoded as '~0' and '/'
-> needs to be encoded as '~1' when these characters appear in a
-> reference token.
-
-This is the exact inverse of `unescape()`, so the reverse replacements must take place in reverse order.
-*/
-function escape(token) {
-    return token.replace(/~/g, '~0').replace(/\//g, '~1');
-}
-/**
-JSON Pointer representation
-*/
-var Pointer = /** @class */ (function () {
-    function Pointer(tokens) {
-        if (tokens === void 0) { tokens = ['']; }
-        this.tokens = tokens;
-    }
-    /**
-    `path` *must* be a properly escaped string.
-    */
-    Pointer.fromJSON = function (path) {
-        var tokens = path.split('/').map(unescape);
-        if (tokens[0] !== '')
-            throw new Error("Invalid JSON Pointer: " + path);
-        return new Pointer(tokens);
-    };
-    Pointer.prototype.toString = function () {
-        return this.tokens.map(escape).join('/');
-    };
-    /**
-    Returns an object with 'parent', 'key', and 'value' properties.
-    In the special case that this Pointer's path == "",
-    this object will be {parent: null, key: '', value: object}.
-    Otherwise, parent and key will have the property such that parent[key] == value.
-    */
-    Pointer.prototype.evaluate = function (object) {
-        var parent = null;
-        var key = '';
-        var value = object;
-        for (var i = 1, l = this.tokens.length; i < l; i++) {
-            parent = value;
-            key = this.tokens[i];
-            // not sure if this the best way to handle non-existant paths...
-            value = (parent || {})[key];
-        }
-        return { parent: parent, key: key, value: value };
-    };
-    Pointer.prototype.get = function (object) {
-        return this.evaluate(object).value;
-    };
-    Pointer.prototype.set = function (object, value) {
-        var cursor = object;
-        for (var i = 1, l = this.tokens.length - 1, token = this.tokens[i]; i < l; i++) {
-            // not sure if this the best way to handle non-existant paths...
-            cursor = (cursor || {})[token];
-        }
-        if (cursor) {
-            cursor[this.tokens[this.tokens.length - 1]] = value;
-        }
-    };
-    Pointer.prototype.push = function (token) {
-        // mutable
-        this.tokens.push(token);
-    };
-    /**
-    `token` should be a String. It'll be coerced to one anyway.
-  
-    immutable (shallowly)
-    */
-    Pointer.prototype.add = function (token) {
-        var tokens = this.tokens.concat(String(token));
-        return new Pointer(tokens);
-    };
-    return Pointer;
-}());
-exports.Pointer = Pointer;
-});
-
-var util = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.clone = exports.objectType = exports.hasOwnProperty = void 0;
-exports.hasOwnProperty = Object.prototype.hasOwnProperty;
-function objectType(object) {
-    if (object === undefined) {
-        return 'undefined';
-    }
-    if (object === null) {
-        return 'null';
-    }
-    if (Array.isArray(object)) {
-        return 'array';
-    }
-    return typeof object;
-}
-exports.objectType = objectType;
-function isNonPrimitive(value) {
-    // loose-equality checking for null is faster than strict checking for each of null/undefined/true/false
-    // checking null first, then calling typeof, is faster than vice-versa
-    return value != null && typeof value == 'object';
-}
-/**
-Recursively copy a value.
-
-@param source - should be a JavaScript primitive, Array, or (plain old) Object.
-@returns copy of source where every Array and Object have been recursively
-         reconstructed from their constituent elements
-*/
-function clone(source) {
-    if (!isNonPrimitive(source)) {
-        // short-circuiting is faster than a single return
-        return source;
-    }
-    // x.constructor == Array is the fastest way to check if x is an Array
-    if (source.constructor == Array) {
-        // construction via imperative for-loop is faster than source.map(arrayVsObject)
-        var length_1 = source.length;
-        // setting the Array length during construction is faster than just `[]` or `new Array()`
-        var arrayTarget = new Array(length_1);
-        for (var i = 0; i < length_1; i++) {
-            arrayTarget[i] = clone(source[i]);
-        }
-        return arrayTarget;
-    }
-    // Object
-    var objectTarget = {};
-    // declaring the variable (with const) inside the loop is faster
-    for (var key in source) {
-        // hasOwnProperty costs a bit of performance, but it's semantically necessary
-        // using a global helper is MUCH faster than calling source.hasOwnProperty(key)
-        if (exports.hasOwnProperty.call(source, key)) {
-            objectTarget[key] = clone(source[key]);
-        }
-    }
-    return objectTarget;
-}
-exports.clone = clone;
-});
-
-var diff = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.diffAny = exports.diffObjects = exports.diffArrays = exports.intersection = exports.subtract = exports.isDestructive = void 0;
- // we only need this for type inference
-
-function isDestructive(_a) {
-    var op = _a.op;
-    return op === 'remove' || op === 'replace' || op === 'copy' || op === 'move';
-}
-exports.isDestructive = isDestructive;
-/**
-List the keys in `minuend` that are not in `subtrahend`.
-
-A key is only considered if it is both 1) an own-property (o.hasOwnProperty(k))
-of the object, and 2) has a value that is not undefined. This is to match JSON
-semantics, where JSON object serialization drops keys with undefined values.
-
-@param minuend Object of interest
-@param subtrahend Object of comparison
-@returns Array of keys that are in `minuend` but not in `subtrahend`.
-*/
-function subtract(minuend, subtrahend) {
-    // initialize empty object; we only care about the keys, the values can be anything
-    var obj = {};
-    // build up obj with all the properties of minuend
-    for (var add_key in minuend) {
-        if (util.hasOwnProperty.call(minuend, add_key) && minuend[add_key] !== undefined) {
-            obj[add_key] = 1;
-        }
-    }
-    // now delete all the properties of subtrahend from obj
-    // (deleting a missing key has no effect)
-    for (var del_key in subtrahend) {
-        if (util.hasOwnProperty.call(subtrahend, del_key) && subtrahend[del_key] !== undefined) {
-            delete obj[del_key];
-        }
-    }
-    // finally, extract whatever keys remain in obj
-    return Object.keys(obj);
-}
-exports.subtract = subtract;
-/**
-List the keys that shared by all `objects`.
-
-The semantics of what constitutes a "key" is described in {@link subtract}.
-
-@param objects Array of objects to compare
-@returns Array of keys that are in ("own-properties" of) every object in `objects`.
-*/
-function intersection(objects) {
-    var length = objects.length;
-    // prepare empty counter to keep track of how many objects each key occurred in
-    var counter = {};
-    // go through each object and increment the counter for each key in that object
-    for (var i = 0; i < length; i++) {
-        var object = objects[i];
-        for (var key in object) {
-            if (util.hasOwnProperty.call(object, key) && object[key] !== undefined) {
-                counter[key] = (counter[key] || 0) + 1;
-            }
-        }
-    }
-    // now delete all keys from the counter that were not seen in every object
-    for (var key in counter) {
-        if (counter[key] < length) {
-            delete counter[key];
-        }
-    }
-    // finally, extract whatever keys remain in the counter
-    return Object.keys(counter);
-}
-exports.intersection = intersection;
-function isArrayAdd(array_operation) {
-    return array_operation.op === 'add';
-}
-function isArrayRemove(array_operation) {
-    return array_operation.op === 'remove';
-}
-function appendArrayOperation(base, operation) {
-    return {
-        // the new operation must be pushed on the end
-        operations: base.operations.concat(operation),
-        cost: base.cost + 1,
-    };
-}
-/**
-Calculate the shortest sequence of operations to get from `input` to `output`,
-using a dynamic programming implementation of the Levenshtein distance algorithm.
-
-To get from the input ABC to the output AZ we could just delete all the input
-and say "insert A, insert Z" and be done with it. That's what we do if the
-input is empty. But we can be smarter.
-
-          output
-               A   Z
-               -   -
-          [0]  1   2
-input A |  1  [0]  1
-      B |  2  [1]  1
-      C |  3   2  [2]
-
-1) start at 0,0 (+0)
-2) keep A (+0)
-3) remove B (+1)
-4) replace C with Z (+1)
-
-If the `input` (source) is empty, they'll all be in the top row, resulting in an
-array of 'add' operations.
-If the `output` (target) is empty, everything will be in the left column,
-resulting in an array of 'remove' operations.
-
-@returns A list of add/remove/replace operations.
-*/
-function diffArrays(input, output, ptr, diff) {
-    if (diff === void 0) { diff = diffAny; }
-    // set up cost matrix (very simple initialization: just a map)
-    var memo = {
-        '0,0': { operations: [], cost: 0 },
-    };
-    /**
-    Calculate the cheapest sequence of operations required to get from
-    input.slice(0, i) to output.slice(0, j).
-    There may be other valid sequences with the same cost, but none cheaper.
-  
-    @param i The row in the layout above
-    @param j The column in the layout above
-    @returns An object containing a list of operations, along with the total cost
-             of applying them (+1 for each add/remove/replace operation)
-    */
-    function dist(i, j) {
-        // memoized
-        var memo_key = i + "," + j;
-        var memoized = memo[memo_key];
-        if (memoized === undefined) {
-            // TODO: this !diff(...).length usage could/should be lazy
-            if (i > 0 && j > 0 && !diff(input[i - 1], output[j - 1], new pointer.Pointer()).length) {
-                // equal (no operations => no cost)
-                memoized = dist(i - 1, j - 1);
-            }
-            else {
-                var alternatives = [];
-                if (i > 0) {
-                    // NOT topmost row
-                    var remove_base = dist(i - 1, j);
-                    var remove_operation = {
-                        op: 'remove',
-                        index: i - 1,
-                    };
-                    alternatives.push(appendArrayOperation(remove_base, remove_operation));
-                }
-                if (j > 0) {
-                    // NOT leftmost column
-                    var add_base = dist(i, j - 1);
-                    var add_operation = {
-                        op: 'add',
-                        index: i - 1,
-                        value: output[j - 1],
-                    };
-                    alternatives.push(appendArrayOperation(add_base, add_operation));
-                }
-                if (i > 0 && j > 0) {
-                    // TABLE MIDDLE
-                    // supposing we replaced it, compute the rest of the costs:
-                    var replace_base = dist(i - 1, j - 1);
-                    // okay, the general plan is to replace it, but we can be smarter,
-                    // recursing into the structure and replacing only part of it if
-                    // possible, but to do so we'll need the original value
-                    var replace_operation = {
-                        op: 'replace',
-                        index: i - 1,
-                        original: input[i - 1],
-                        value: output[j - 1],
-                    };
-                    alternatives.push(appendArrayOperation(replace_base, replace_operation));
-                }
-                // the only other case, i === 0 && j === 0, has already been memoized
-                // the meat of the algorithm:
-                // sort by cost to find the lowest one (might be several ties for lowest)
-                // [4, 6, 7, 1, 2].sort((a, b) => a - b) -> [ 1, 2, 4, 6, 7 ]
-                var best = alternatives.sort(function (a, b) { return a.cost - b.cost; })[0];
-                memoized = best;
-            }
-            memo[memo_key] = memoized;
-        }
-        return memoized;
-    }
-    // handle weird objects masquerading as Arrays that don't have proper length
-    // properties by using 0 for everything but positive numbers
-    var input_length = (isNaN(input.length) || input.length <= 0) ? 0 : input.length;
-    var output_length = (isNaN(output.length) || output.length <= 0) ? 0 : output.length;
-    var array_operations = dist(input_length, output_length).operations;
-    var padded_operations = array_operations.reduce(function (_a, array_operation) {
-        var operations = _a[0], padding = _a[1];
-        if (isArrayAdd(array_operation)) {
-            var padded_index = array_operation.index + 1 + padding;
-            var index_token = padded_index < (input_length + padding) ? String(padded_index) : '-';
-            var operation = {
-                op: array_operation.op,
-                path: ptr.add(index_token).toString(),
-                value: array_operation.value,
-            };
-            // padding++ // maybe only if array_operation.index > -1 ?
-            return [operations.concat(operation), padding + 1];
-        }
-        else if (isArrayRemove(array_operation)) {
-            var operation = {
-                op: array_operation.op,
-                path: ptr.add(String(array_operation.index + padding)).toString(),
-            };
-            // padding--
-            return [operations.concat(operation), padding - 1];
-        }
-        else { // replace
-            var replace_ptr = ptr.add(String(array_operation.index + padding));
-            var replace_operations = diff(array_operation.original, array_operation.value, replace_ptr);
-            return [operations.concat.apply(operations, replace_operations), padding];
-        }
-    }, [[], 0])[0];
-    return padded_operations;
-}
-exports.diffArrays = diffArrays;
-function diffObjects(input, output, ptr, diff) {
-    if (diff === void 0) { diff = diffAny; }
-    // if a key is in input but not output -> remove it
-    var operations = [];
-    subtract(input, output).forEach(function (key) {
-        operations.push({ op: 'remove', path: ptr.add(key).toString() });
-    });
-    // if a key is in output but not input -> add it
-    subtract(output, input).forEach(function (key) {
-        operations.push({ op: 'add', path: ptr.add(key).toString(), value: output[key] });
-    });
-    // if a key is in both, diff it recursively
-    intersection([input, output]).forEach(function (key) {
-        operations.push.apply(operations, diff(input[key], output[key], ptr.add(key)));
-    });
-    return operations;
-}
-exports.diffObjects = diffObjects;
-/**
-`diffAny()` returns an empty array if `input` and `output` are materially equal
-(i.e., would produce equivalent JSON); otherwise it produces an array of patches
-that would transform `input` into `output`.
-
-> Here, "equal" means that the value at the target location and the
-> value conveyed by "value" are of the same JSON type, and that they
-> are considered equal by the following rules for that type:
-> o  strings: are considered equal if they contain the same number of
->    Unicode characters and their code points are byte-by-byte equal.
-> o  numbers: are considered equal if their values are numerically
->    equal.
-> o  arrays: are considered equal if they contain the same number of
->    values, and if each value can be considered equal to the value at
->    the corresponding position in the other array, using this list of
->    type-specific rules.
-> o  objects: are considered equal if they contain the same number of
->    members, and if each member can be considered equal to a member in
->    the other object, by comparing their keys (as strings) and their
->    values (using this list of type-specific rules).
-> o  literals (false, true, and null): are considered equal if they are
->    the same.
-*/
-function diffAny(input, output, ptr, diff) {
-    if (diff === void 0) { diff = diffAny; }
-    // strict equality handles literals, numbers, and strings (a sufficient but not necessary cause)
-    if (input === output) {
-        return [];
-    }
-    var input_type = util.objectType(input);
-    var output_type = util.objectType(output);
-    if (input_type == 'array' && output_type == 'array') {
-        return diffArrays(input, output, ptr, diff);
-    }
-    if (input_type == 'object' && output_type == 'object') {
-        return diffObjects(input, output, ptr, diff);
-    }
-    // at this point we know that input and output are materially different;
-    // could be array -> object, object -> array, boolean -> undefined,
-    // number -> string, or some other combination, but nothing that can be split
-    // up into multiple patches: so `output` must replace `input` wholesale.
-    return [{ op: 'replace', path: ptr.toString(), value: output }];
-}
-exports.diffAny = diffAny;
-});
-
-var patch = createCommonjsModule(function (module, exports) {
-var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.apply = exports.InvalidOperationError = exports.test = exports.copy = exports.move = exports.replace = exports.remove = exports.add = exports.TestError = exports.MissingError = void 0;
-
-
-
-var MissingError = /** @class */ (function (_super) {
-    __extends(MissingError, _super);
-    function MissingError(path) {
-        var _this = _super.call(this, "Value required at path: " + path) || this;
-        _this.path = path;
-        _this.name = 'MissingError';
-        return _this;
-    }
-    return MissingError;
-}(Error));
-exports.MissingError = MissingError;
-var TestError = /** @class */ (function (_super) {
-    __extends(TestError, _super);
-    function TestError(actual, expected) {
-        var _this = _super.call(this, "Test failed: " + actual + " != " + expected) || this;
-        _this.actual = actual;
-        _this.expected = expected;
-        _this.name = 'TestError';
-        return _this;
-    }
-    return TestError;
-}(Error));
-exports.TestError = TestError;
-function _add(object, key, value) {
-    if (Array.isArray(object)) {
-        // `key` must be an index
-        if (key == '-') {
-            object.push(value);
-        }
-        else {
-            var index = parseInt(key, 10);
-            object.splice(index, 0, value);
-        }
-    }
-    else {
-        object[key] = value;
-    }
-}
-function _remove(object, key) {
-    if (Array.isArray(object)) {
-        // '-' syntax doesn't make sense when removing
-        var index = parseInt(key, 10);
-        object.splice(index, 1);
-    }
-    else {
-        // not sure what the proper behavior is when path = ''
-        delete object[key];
-    }
-}
-/**
->  o  If the target location specifies an array index, a new value is
->     inserted into the array at the specified index.
->  o  If the target location specifies an object member that does not
->     already exist, a new member is added to the object.
->  o  If the target location specifies an object member that does exist,
->     that member's value is replaced.
-*/
-function add(object, operation) {
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    // it's not exactly a "MissingError" in the same way that `remove` is -- more like a MissingParent, or something
-    if (endpoint.parent === undefined) {
-        return new MissingError(operation.path);
-    }
-    _add(endpoint.parent, endpoint.key, util.clone(operation.value));
-    return null;
-}
-exports.add = add;
-/**
-> The "remove" operation removes the value at the target location.
-> The target location MUST exist for the operation to be successful.
-*/
-function remove(object, operation) {
-    // endpoint has parent, key, and value properties
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    if (endpoint.value === undefined) {
-        return new MissingError(operation.path);
-    }
-    // not sure what the proper behavior is when path = ''
-    _remove(endpoint.parent, endpoint.key);
-    return null;
-}
-exports.remove = remove;
-/**
-> The "replace" operation replaces the value at the target location
-> with a new value.  The operation object MUST contain a "value" member
-> whose content specifies the replacement value.
-> The target location MUST exist for the operation to be successful.
-
-> This operation is functionally identical to a "remove" operation for
-> a value, followed immediately by an "add" operation at the same
-> location with the replacement value.
-
-Even more simply, it's like the add operation with an existence check.
-*/
-function replace(object, operation) {
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    if (endpoint.parent === null) {
-        return new MissingError(operation.path);
-    }
-    // this existence check treats arrays as a special case
-    if (Array.isArray(endpoint.parent)) {
-        if (parseInt(endpoint.key, 10) >= endpoint.parent.length) {
-            return new MissingError(operation.path);
-        }
-    }
-    else if (endpoint.value === undefined) {
-        return new MissingError(operation.path);
-    }
-    endpoint.parent[endpoint.key] = operation.value;
-    return null;
-}
-exports.replace = replace;
-/**
-> The "move" operation removes the value at a specified location and
-> adds it to the target location.
-> The operation object MUST contain a "from" member, which is a string
-> containing a JSON Pointer value that references the location in the
-> target document to move the value from.
-> This operation is functionally identical to a "remove" operation on
-> the "from" location, followed immediately by an "add" operation at
-> the target location with the value that was just removed.
-
-> The "from" location MUST NOT be a proper prefix of the "path"
-> location; i.e., a location cannot be moved into one of its children.
-
-TODO: throw if the check described in the previous paragraph fails.
-*/
-function move(object, operation) {
-    var from_endpoint = pointer.Pointer.fromJSON(operation.from).evaluate(object);
-    if (from_endpoint.value === undefined) {
-        return new MissingError(operation.from);
-    }
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    if (endpoint.parent === undefined) {
-        return new MissingError(operation.path);
-    }
-    _remove(from_endpoint.parent, from_endpoint.key);
-    _add(endpoint.parent, endpoint.key, from_endpoint.value);
-    return null;
-}
-exports.move = move;
-/**
-> The "copy" operation copies the value at a specified location to the
-> target location.
-> The operation object MUST contain a "from" member, which is a string
-> containing a JSON Pointer value that references the location in the
-> target document to copy the value from.
-> The "from" location MUST exist for the operation to be successful.
-
-> This operation is functionally identical to an "add" operation at the
-> target location using the value specified in the "from" member.
-
-Alternatively, it's like 'move' without the 'remove'.
-*/
-function copy(object, operation) {
-    var from_endpoint = pointer.Pointer.fromJSON(operation.from).evaluate(object);
-    if (from_endpoint.value === undefined) {
-        return new MissingError(operation.from);
-    }
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    if (endpoint.parent === undefined) {
-        return new MissingError(operation.path);
-    }
-    _add(endpoint.parent, endpoint.key, util.clone(from_endpoint.value));
-    return null;
-}
-exports.copy = copy;
-/**
-> The "test" operation tests that a value at the target location is
-> equal to a specified value.
-> The operation object MUST contain a "value" member that conveys the
-> value to be compared to the target location's value.
-> The target location MUST be equal to the "value" value for the
-> operation to be considered successful.
-*/
-function test(object, operation) {
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    // TODO: this diffAny(...).length usage could/should be lazy
-    if (diff.diffAny(endpoint.value, operation.value, new pointer.Pointer()).length) {
-        return new TestError(endpoint.value, operation.value);
-    }
-    return null;
-}
-exports.test = test;
-var InvalidOperationError = /** @class */ (function (_super) {
-    __extends(InvalidOperationError, _super);
-    function InvalidOperationError(operation) {
-        var _this = _super.call(this, "Invalid operation: " + operation.op) || this;
-        _this.operation = operation;
-        _this.name = 'InvalidOperationError';
-        return _this;
-    }
-    return InvalidOperationError;
-}(Error));
-exports.InvalidOperationError = InvalidOperationError;
-/**
-Switch on `operation.op`, applying the corresponding patch function for each
-case to `object`.
-*/
-function apply(object, operation) {
-    // not sure why TypeScript can't infer typesafety of:
-    //   {add, remove, replace, move, copy, test}[operation.op](object, operation)
-    // (seems like a bug)
-    switch (operation.op) {
-        case 'add': return add(object, operation);
-        case 'remove': return remove(object, operation);
-        case 'replace': return replace(object, operation);
-        case 'move': return move(object, operation);
-        case 'copy': return copy(object, operation);
-        case 'test': return test(object, operation);
-    }
-    return new InvalidOperationError(operation);
-}
-exports.apply = apply;
-});
-
-var rfc6902 = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTests = exports.createPatch = exports.applyPatch = void 0;
-
-
-
-/**
-Apply a 'application/json-patch+json'-type patch to an object.
-
-`patch` *must* be an array of operations.
-
-> Operation objects MUST have exactly one "op" member, whose value
-> indicates the operation to perform.  Its value MUST be one of "add",
-> "remove", "replace", "move", "copy", or "test"; other values are
-> errors.
-
-This method mutates the target object in-place.
-
-@returns list of results, one for each operation: `null` indicated success,
-         otherwise, the result will be an instance of one of the Error classes:
-         MissingError, InvalidOperationError, or TestError.
-*/
-function applyPatch(object, patch$1) {
-    return patch$1.map(function (operation) { return patch.apply(object, operation); });
-}
-exports.applyPatch = applyPatch;
-function wrapVoidableDiff(diff$1) {
-    function wrappedDiff(input, output, ptr) {
-        var custom_patch = diff$1(input, output, ptr);
-        // ensure an array is always returned
-        return Array.isArray(custom_patch) ? custom_patch : diff.diffAny(input, output, ptr, wrappedDiff);
-    }
-    return wrappedDiff;
-}
-/**
-Produce a 'application/json-patch+json'-type patch to get from one object to
-another.
-
-This does not alter `input` or `output` unless they have a property getter with
-side-effects (which is not a good idea anyway).
-
-`diff` is called on each pair of comparable non-primitive nodes in the
-`input`/`output` object trees, producing nested patches. Return `undefined`
-to fall back to default behaviour.
-
-Returns list of operations to perform on `input` to produce `output`.
-*/
-function createPatch(input, output, diff$1) {
-    var ptr = new pointer.Pointer();
-    // a new Pointer gets a default path of [''] if not specified
-    return (diff$1 ? wrapVoidableDiff(diff$1) : diff.diffAny)(input, output, ptr);
-}
-exports.createPatch = createPatch;
-/**
-Create a test operation based on `input`'s current evaluation of the JSON
-Pointer `path`; if such a pointer cannot be resolved, returns undefined.
-*/
-function createTest(input, path) {
-    var endpoint = pointer.Pointer.fromJSON(path).evaluate(input);
-    if (endpoint !== undefined) {
-        return { op: 'test', path: path, value: endpoint.value };
-    }
-}
-/**
-Produce an 'application/json-patch+json'-type list of tests, to verify that
-existing values in an object are identical to the those captured at some
-checkpoint (whenever this function is called).
-
-This does not alter `input` or `output` unless they have a property getter with
-side-effects (which is not a good idea anyway).
-
-Returns list of test operations.
-*/
-function createTests(input, patch) {
-    var tests = new Array();
-    patch.filter(diff.isDestructive).forEach(function (operation) {
-        var pathTest = createTest(input, operation.path);
-        if (pathTest)
-            tests.push(pathTest);
-        if ('from' in operation) {
-            var fromTest = createTest(input, operation.from);
-            if (fromTest)
-                tests.push(fromTest);
-        }
-    });
-    return tests;
-}
-exports.createTests = createTests;
-});
-
-var rfc6902$1 = /*@__PURE__*/getDefaultExportFromCjs(rfc6902);
-
-const generateJsonPatch = rfc6902$1.createPatch;
-
-function getDiff(prevAnnouncedState, currentState) {
-  const diff = generateJsonPatch(prevAnnouncedState, currentState);
-
-  if (diff.length > 0) {
-    return diff;
-  }
-}
-
-class ProtocolStore extends Eev {
-  constructor(initialState = {}, { latent = false } = {}) {
-    super();
-
-    this.latent = latent;
-
-    this.state = initialState;
-    this.lastAnnouncedState = clone(initialState);
-  }
-
-  syncOver(channelList) {
-    channelList.on('new_channel', channel => {
-      if (!this.latent) {
-        channel.send({ state: this.lastAnnouncedState });
-      }
-    });
-
-    this.on('diff', diff => {
-      if (this.latent) {
-        this.latent = false;
-        channelList.sendAll({ state: this.state });
-      } else {
-        channelList.sendAll({ diff });
-      }
-    });
-  }
-
-  set(state, { announce = true } = {}) {
-    this.state = state;
-    this.announceStateChange(announce);
-  }
-
-  update(patch, { announce = true } = {}) {
-    this.state = { ...this.state, ...patch };
-    this.announceStateChange(announce);
-  }
-
-  get() {
-    return this.state;
-  }
-
-  announceStateChange(announce = true) {
-    if (!announce) {
-      return;
-    }
-
-    const { state } = this;
-
-    const diff = getDiff(this.lastAnnouncedState, state);
-
-    if (diff) {
-      this.emit('diff', diff);
-
-      this.lastAnnouncedState = clone(state);
-    }
-  }
-}
+//import ProtocolStore from '../../stores/back/protocolStore';
 
 class ChannelList extends Eev {
   constructor({ protocol }) {
@@ -8579,10 +7826,10 @@ class ChannelList extends Eev {
 
     this.channels = [];
 
-    // latent means that it won't send anything over the channels until we first use it (set the state)
-    // this allows for outside stores to mirror into channel list which default ProtocolStore (channels.state) remains unused
-    this.state = new ProtocolStore({}, { latent: true });
-    this.state.syncOver(this);
+    // // latent means that it won't send anything over the channels until we first use it (set the state)
+    // // this allows for outside stores to mirror into channel list which default ProtocolStore (channels.state) remains unused
+    // this.state = new ProtocolStore({}, { latent: true });
+    // this.state.sync(this);
 
     process.nextTick(() => {
       this.reportStatus();
@@ -8676,7 +7923,7 @@ naclFast.util = naclUtil;
 //import { EventEmitter } from '../../utils/index.js';
 
 class Connectome extends ReadableStore {
-  constructor({ port, keypair = newKeypair(), server, verbose }) {
+  constructor({ port, keypair = newKeypair(), server, log = console.log, verbose }) {
     super({ connectionList: [] });
 
     this.port = port;
@@ -8684,6 +7931,7 @@ class Connectome extends ReadableStore {
 
     this.server = server;
 
+    this.log = log;
     this.verbose = verbose;
 
     this.protocols = {};
@@ -8708,6 +7956,7 @@ class Connectome extends ReadableStore {
   start() {
     this.wsServer = new WsServer({
       port: this.port,
+      log: this.log,
       verbose: this.verbose,
       server: this.server
     });

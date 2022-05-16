@@ -3,14 +3,13 @@ import apns2 from 'apns2';
 import fs from 'fs';
 import path from 'path';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, dateFns, accessTokensDir, deviceGeneralIdentifier } from 'dmt/common';
 
-const { format } = dmt.dateFns;
+const { format } = dateFns;
 
-const { APNS, BasicNotification } = apns2;
+const { ApnsClient, Notification } = apns2;
 
-const apnConfigDir = path.join(dmt.accessTokensDir, 'apple_push');
+const apnConfigDir = path.join(accessTokensDir, 'apple_push');
 
 const configFile = path.join(apnConfigDir, 'config.json');
 
@@ -23,7 +22,8 @@ if (fs.existsSync(configFile)) {
   const { server_auth } = config;
   const { token } = server_auth;
 
-  client = new APNS({
+  client = new ApnsClient({
+    requestTimeout: 2000,
     team: token.teamId,
     keyId: token.keyId,
     signingKey: fs.readFileSync(path.join(apnConfigDir, token.key)),
@@ -31,41 +31,55 @@ if (fs.existsSync(configFile)) {
   });
 }
 
-async function notify(msg, { users = null } = {}) {
-  if (client) {
-    let devices;
+function notify(msg, { users = null } = {}) {
+  return new Promise((success, reject) => {
+    if (client) {
+      let devices;
 
-    if (users) {
-      users = users.map(user => user.toLowerCase());
-      devices = config.devices.filter(d => users.includes(d.name.toLowerCase()));
-    } else {
-      devices = config.devices.filter(d => d.admin);
+      if (users) {
+        users = users.map(user => user.toLowerCase());
+        devices = config.devices.filter(d => users.includes(d.name.toLowerCase()));
+      } else {
+        devices = config.devices.filter(d => d.admin);
+      }
+
+      devices = devices.filter(device => device.active != false);
+
+      if (devices.length > 0) {
+        notifyDevices(
+          msg,
+          devices.map(({ token }) => token)
+        )
+          .then(success)
+          .catch(reject);
+      }
     }
-
-    devices = devices.filter(device => device.active != false);
-
-    if (devices.length > 0) {
-      await notifyDevices(
-        msg,
-        devices.map(({ token }) => token)
-      );
-    }
-  }
+  });
 }
 
-async function notifyDevices(msg, tokens) {
-  if (client) {
-    msg = `${dmt.deviceGeneralIdentifier()} → ${msg}`;
+function notifyDevices(msg, tokens) {
+  return new Promise((success, reject) => {
+    if (client) {
+      msg = `${deviceGeneralIdentifier()} → ${msg}`;
 
-    const notifications = tokens.map(token => new BasicNotification(token, msg));
+      const notifications = tokens.map(token => new Notification(token, { alert: msg }));
 
-    try {
-      await client.sendMany(notifications);
-    } catch (err) {
-      log.red('⚠️  Push notification error:');
-      log.red(err.reason);
+      Promise.all(
+        notifications.map(notification => {
+          return new Promise((success, reject) => {
+            client
+              .send(notification)
+              .then(success)
+              .catch(e => {
+                log.red(`⚠️  Push notification to ${notification.deviceToken} error:`);
+                log.red(e);
+                success();
+              });
+          });
+        })
+      ).then(success);
     }
-  }
+  });
 }
 
 async function notifyAll(msg) {

@@ -1,6 +1,6 @@
-import dmt from 'dmt/common';
+import { globals } from 'dmt/common';
 
-const intervalPeriod = dmt.globals.tickerPeriod * 1000;
+const intervalPeriod = globals.tickerPeriod * 1000;
 
 let tickCounter = -1;
 
@@ -11,7 +11,7 @@ function startTicker(program) {
 function oneTick(program) {
   program.emit('tick');
 
-  if (tickCounter == dmt.globals.slowTickerFactor) {
+  if (tickCounter == globals.slowTickerFactor) {
     tickCounter = 0;
   }
 

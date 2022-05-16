@@ -1,10 +1,10 @@
 import { fork } from 'child_process';
 
-import dmt from 'dmt/common';
+import { abcProcPath } from 'dmt/common';
 
 export default function startABC() {
   return new Promise((success, reject) => {
-    const child = fork(dmt.abcProcPath, [], { detached: true, stdio: 'ignore', shell: true });
+    const child = fork(abcProcPath, [], { detached: true, stdio: 'ignore' });
 
     child.on('error', err => {
       reject(err);

@@ -1,11 +1,9 @@
-import dmt from 'dmt/common';
-
 import LocalProviderSearch from './localSearch/localProviderSearch';
 import RemoteProviderSearch from './remoteSearch/remoteProviderSearch';
 
 import enhanceResult from './enhanceResult';
 
-const { log, util } = dmt;
+import { log, util } from 'dmt/common';
 
 class ParaSearch {
   constructor({ connectorPool, contentProviders, searchOriginHost } = {}) {
@@ -35,7 +33,7 @@ class ParaSearch {
           .search(options)
           .then(providerResponse => success({ providerResponse, providerAddress: providerSearch.providerAddress, providerKey: providerSearch.providerKey }))
           .catch(e => {
-            console.log('This should not happen');
+            log.red('This should not happen');
             log.red(e);
             reject(e);
           });

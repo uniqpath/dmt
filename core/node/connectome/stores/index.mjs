@@ -143,10 +143,6 @@ class MergeStore extends WritableStore {
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-function getDefaultExportFromCjs (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
 function createCommonjsModule(fn, basedir, module) {
 	return module = {
 		path: basedir,
@@ -2660,10 +2656,6 @@ var naclUtil = createCommonjsModule(function (module) {
 }));
 });
 
-function log(msg) {
-  console.log(`${new Date().toLocaleString()} → ${msg}`);
-}
-
 function listify(obj) {
   if (typeof obj == 'undefined' || obj == null) {
     return [];
@@ -2673,13 +2665,13 @@ function listify(obj) {
 
 function bufferToHex(buffer) {
   return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
+    .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
 function hexToBuffer(hex) {
   const tokens = hex.match(/.{1,2}(?=(.{2})+(?!.))|.{1,2}$/g);
-  return new Uint8Array(tokens.map((token) => parseInt(token, 16)));
+  return new Uint8Array(tokens.map(token => parseInt(token, 16)));
 }
 
 function integerToByteArray(long, arrayLen = 8) {
@@ -2734,9 +2726,78 @@ function addHeader(_msg, flag) {
   return msg;
 }
 
+function timedConsoleLog(msg) {
+  console.log(`${new Date().toLocaleString()} → ${msg}`);
+}
+
+function doLogging(color, log, ...args) {
+  if (typeof log == 'function') {
+    // console.log or anything else that wraps it etc.
+    timedConsoleLog(...args);
+  } else if (log) {
+    // dmt logger object
+    log.logOutput(color, { source: 'connectome' }, ...args);
+  }
+}
+
+class Logger {
+  write(log, ...args) {
+    doLogging(undefined, log, ...args);
+  }
+
+  red(log, ...args) {
+    doLogging('red', log, ...args);
+  }
+
+  green(log, ...args) {
+    doLogging('green', log, ...args);
+  }
+
+  yellow(log, ...args) {
+    doLogging('yellow', log, ...args);
+  }
+
+  blue(log, ...args) {
+    doLogging('blue', log, ...args);
+  }
+
+  cyan(log, ...args) {
+    doLogging('cyan', log, ...args);
+  }
+
+  magenta(log, ...args) {
+    doLogging('magenta', log, ...args);
+  }
+
+  gray(log, ...args) {
+    doLogging('gray', log, ...args);
+  }
+
+  white(log, ...args) {
+    doLogging('white', log, ...args);
+  }
+}
+
+var logger = new Logger();
+
+//import colors from 'kleur';
 naclFast.util = naclUtil;
 
 function send({ data, connector }) {
+  const { log } = connector;
+
+  // const log = (...opts) => {
+  //   if (opts.length == 0) {
+  //     connector.logger.write(log);
+  //   } else {
+  //     connector.logger.write(log,
+  //       colors.magenta('📡'),
+  //       colors.gray(connector.tag || connector.endpoint),
+  //       colors.magenta(...opts)
+  //     );
+  //   }
+  // };
+
   if (isObject(data)) {
     data = JSON.stringify(data);
   }
@@ -2757,26 +2818,33 @@ function send({ data, connector }) {
       const encryptedMessage = naclFast.secretbox(encodedMessage, nonce, connector.sharedSecret);
 
       if (connector.verbose) {
-        console.log();
-        console.log(`Connector → Sending encrypted message #${connector.sentCount} @ ${connector.address}:`);
-        console.log(data);
+        logger.write(log); // empty line
+        logger.green(
+          log,
+          `Connector ${connector.remoteAddress()} → Sending encrypted message #${connector.sentCount} ↴`
+        );
+        logger.gray(log, data);
       }
 
       connector.connection.websocket.send(encryptedMessage);
     } else {
       if (connector.verbose) {
-        console.log();
-        console.log(`Connector → Sending message #${connector.sentCount} @ ${connector.address}:`);
-        console.log(data);
+        logger.write(log); // empty line
+        logger.green(
+          log,
+          `Connector ${connector.remoteAddress()} → Sending message #${connector.sentCount} ↴`
+        );
+        logger.gray(log, data);
       }
 
       connector.connection.websocket.send(data);
     }
   } else {
-    console.log(`⚠️ Warning: "${data}" was not sent because connector is not ready`);
+    logger.red(log, `⚠️ Warning: "${data}" was not sent because connector is not ready`);
   }
 }
 
+//import colors from 'kleur';
 naclFast.util = naclUtil;
 
 function isRpcCallResult(jsonData) {
@@ -2784,13 +2852,30 @@ function isRpcCallResult(jsonData) {
 }
 
 function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connector }) {
+  const { log } = connector;
+
+  // const log = (...opts) => {
+  //   if (opts.length == 0) {
+  //     connector.logger.write(log, );
+  //   } else {
+  //     connector.logger.write(log,
+  //       colors.yellow('📥'),
+  //       colors.gray(connector.tag || connector.endpoint),
+  //       colors.yellow(...opts)
+  //     );
+  //   }
+  // };
+
   connector.lastMessageAt = Date.now();
 
   const nonce = new Uint8Array(integerToByteArray(2 * connector.receivedCount + 1, 24));
 
   if (connector.verbose && !wasEncrypted) {
-    console.log();
-    console.log(`Connector → Received message #${connector.receivedCount} @ ${connector.address}:`);
+    logger.write(log);
+    logger.magenta(
+      log,
+      `Connector ${connector.remoteAddress()} → Received message #${connector.receivedCount} ↴`
+    );
   }
 
   // 💡 unencrypted jsonData !
@@ -2798,8 +2883,8 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     if (jsonData.jsonrpc) {
       if (isRpcCallResult(jsonData)) {
         if (connector.verbose && !wasEncrypted) {
-          console.log('Received plain-text rpc result');
-          console.log(jsonData);
+          logger.magenta(log, `Connector ${connector.remoteAddress()} received plain-text rpc result ↴`);
+          logger.gray(log, jsonData);
         }
 
         connector.rpcClient.jsonrpcMsgReceive(rawMessage);
@@ -2812,9 +2897,12 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
   } else if (encryptedData) {
     // 💡 encryptedJson data!!
     if (connector.verbose == 'extra') {
-      console.log('Received bytes:');
-      console.log(encryptedData);
-      console.log(`Decrypting with shared secret ${connector.sharedSecret}...`);
+      logger.magenta(log, `Connector ${connector.remoteAddress()} received bytes ↴`);
+      logger.gray(log, encryptedData);
+      logger.magenta(
+        log,
+        `Connector ${connector.remoteAddress()} decrypting with shared secret ${connector.sharedSecret}...`
+      );
     }
 
     const _decryptedMessage = naclFast.secretbox.open(encryptedData, nonce, connector.sharedSecret);
@@ -2826,7 +2914,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
       const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
 
       // if (connector.verbose) {
-      //   console.log(`Received message: ${decodedMessage}`);
+      //   logger.write(log, `Received message: ${decodedMessage}`);
       // }
 
       try {
@@ -2835,8 +2923,8 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         // 💡 rpc
         if (jsonData.jsonrpc) {
           if (connector.verbose) {
-            console.log('Received and decrypted rpc result:');
-            console.log(jsonData);
+            logger.magenta(log, `Connector ${connector.remoteAddress()} decrypted rpc result ↴`);
+            logger.gray(log, jsonData);
           }
 
           wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
@@ -2867,8 +2955,8 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
           connector.emit('receive', { jsonData, rawMessage: decodedMessage });
         }
       } catch (e) {
-        console.log("Couldn't parse json message although the flag was for string ...");
-        console.log(decodedMessage);
+        logger.red(log, "Couldn't parse json message although the flag was for string ...");
+        logger.red(log, decodedMessage);
         throw e;
       }
     } else {
@@ -3436,7 +3524,7 @@ class SpecificRpcClient {
   }
 }
 
-const DEFAULT_REQUEST_TIMEOUT = 10000;
+const DEFAULT_REQUEST_TIMEOUT = 50000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {
@@ -4296,6 +4384,7 @@ class connectionState extends WritableStore {
   }
 }
 
+//import colors from 'kleur';
 naclFast.util = naclUtil;
 
 class Connector extends Eev {
@@ -4306,11 +4395,13 @@ class Connector extends Eev {
     rpcRequestTimeout,
     verbose = false,
     tag,
+    log = console.log,
     dummy
   } = {}) {
     super();
 
     this.protocol = protocol;
+    this.log = log;
 
     const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = acceptKeypair(keypair);
 
@@ -4349,6 +4440,11 @@ class Connector extends Eev {
         this.connected.set(false);
       }
     }, 700); // formerly 300ms
+
+    if (verbose) {
+      logger.cyan(this.log, `Connector ${this.remoteAddress()} instantiated`);
+      //logger.write(this.log, );
+    }
   }
 
   send(data) {
@@ -4358,23 +4454,50 @@ class Connector extends Eev {
 
   signal(signal, data) {
     if (this.connected.get()) {
-      //console.log(`Sending signal '${signal}' over connector ${this.endpoint}`);
+      //log(`Sending signal '${signal}' over connector ${this.endpoint}`);
       this.send({ signal, data });
     } else {
-      console.log(
+      logger.write(
+        this.log,
         'Warning: trying to send signal over disconnected connector, this should be prevented by GUI'
       );
     }
+  }
+
+  // pre-check for edge cases
+  on(eventName, handler) {
+    if (eventName == 'ready') {
+      // latecomer !! for example via connectorPool.getConnector
+      // connector might be ready or not ..
+      // with earlier approach we might have missed on ready event because we are attaching handler like this:
+      //
+      // connectorPool.getConnector({ endpoint, host: address, port, deviceTag }).then(connector => {
+      //   connector.on('ready', () => {
+      //     onReconnect({ connector, slotName, program, selectorPredicate });
+      //   });
+      // ...
+
+      if (this.isReady()) {
+        // connector already ready at time of attaching on ready event,
+        // we have missed the event, now simulate the event so that
+        // calling code handler is executed and client is aware of correct status
+        handler(); // we call on('ready', () => { ... }) handler manually for attached code that missed the event
+      }
+    }
+
+    // attach real handler
+    super.on(eventName, handler);
+  }
+
+  // just used in connectome examples for now, no real use in api
+  getSharedSecret() {
+    return this.sharedSecret ? bufferToHex(this.sharedSecret) : undefined;
   }
 
   wireReceive({ jsonData, encryptedData, rawMessage }) {
     wireReceive({ jsonData, encryptedData, rawMessage, connector: this });
     this.receivedCount += 1;
   }
-
-  // state() {
-  //   return this.state;
-  // }
 
   field(name) {
     return this.connectionState.get(name);
@@ -4403,24 +4526,36 @@ class Connector extends Eev {
 
       const num = this.successfulConnectsCount;
 
+      if (this.verbose) {
+        logger.write(this.log, `✓ Connector ${this.remoteAddress()} websocket connected`);
+      }
+
       this.diffieHellman({
         clientPrivateKey: this.clientPrivateKey,
         clientPublicKey: this.clientPublicKey,
         protocol: this.protocol
       })
-        .then(({ sharedSecret, sharedSecretHex }) => {
-          this.ready = true;
+        //.then(({ sharedSecret, sharedSecretHex }) => {
+        .then(() => {
           this.connectedAt = Date.now();
-
-
           this.connected.set(true);
 
-          this.emit('ready', { sharedSecret, sharedSecretHex });
+          // new trick so that any state has time to get populated
+          // this.connectedTimeout = setTimeout(() => {
+          //   this.connected.set(true);
+          // }, 100);
+          // WHAT ABOUT this from dmt-connect ?
+          // {#if !$connected || Object.keys($state).length <= 0}
+          //   <Loading />
+
+          this.ready = true;
+
+          this.emit('ready');
         })
         .catch(e => {
           if (num == this.successfulConnectsCount) {
-            console.log(e);
-            console.log('dropping connection and retrying again');
+            logger.write(this.log, e);
+            logger.write(this.log, 'dropping connection and retrying');
             this.connection.terminate();
           }
         });
@@ -4433,13 +4568,16 @@ class Connector extends Eev {
 
       if (this.transportConnected == undefined) {
         const tag = this.tag ? ` (${this.tag})` : '';
-        console.log(
+        logger.write(
+          this.log,
           `Connector ${this.endpoint}${tag} was not able to connect at first try, setting READY to false`
         );
       }
 
       this.transportConnected = false;
       this.ready = false;
+      this.sharedSecret = undefined; // could also stay but less confusion if we clear it
+
       delete this.connectedAt;
 
       if (isDisconnect) {
@@ -4468,35 +4606,40 @@ class Connector extends Eev {
         .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
         .then(remotePubkeyHex => {
           const sharedSecret = naclFast.box.before(hexToBuffer(remotePubkeyHex), clientPrivateKey);
-          const sharedSecretHex = bufferToHex(sharedSecret);
+
+          //const sharedSecretHex = bufferToHex(sharedSecret);
           this.sharedSecret = sharedSecret;
 
           this._remotePubkeyHex = remotePubkeyHex;
 
           if (this.verbose) {
-            console.log('Established shared secret through diffie-hellman exchange:');
-            console.log(sharedSecretHex);
+            logger.write(
+              this.log,
+              `Connector ${this.endpoint}: Established shared secret through diffie-hellman exchange.`
+            );
+            //logger.write(this.log, sharedSecretHex);
           }
 
           this.remoteObject('Auth')
             .call('finalizeHandshake', { protocol })
             .then(res => {
               if (res && res.error) {
-                console.log(`x Protocol ${this.protocol} error:`);
-                console.log(res.error);
+                logger.write(this.log, `x Protocol ${this.protocol} error:`);
+                logger.write(this.log, res.error);
               } else {
-                success({ sharedSecret, sharedSecretHex });
+                //success({ sharedSecret, sharedSecretHex });
+                success();
 
-                //console.log(`✓ Lane ${this.lane} negotiated `);
+                //logger.write(this.log, `✓ Lane ${this.lane} negotiated `);
                 const tag = this.tag ? ` (${this.tag})` : '';
-                console.log(
+                logger.cyan(
+                  this.log,
                   `✓ Protocol [ ${this.protocol || '"no-name"'} ] connection [ ${this.endpoint}${tag} ] ready`
                 );
               }
             })
             .catch(e => {
-              console.log(`x Protocol ${this.protocol} finalizeHandshake error:`);
-              console.log(e);
+              logger.write(this.log, `x Protocol ${this.protocol} finalizeHandshake error:`);
               reject(e);
             });
         })
@@ -4536,7 +4679,8 @@ function determineEndpoint({ endpoint, host, port }) {
       endpoint = `${wsProtocol}://${host}`;
 
       // new addition
-      if (wsProtocol == 'wss') { // if wss from browser we forget all about the port and use /ws which has to be upgraded to websocket connection by our reverse-proxy
+      if (wsProtocol == 'wss') {
+        // if wss from browser we forget all about the port and use /ws which has to be upgraded to websocket connection by our reverse-proxy
         // read this as well, very informative :: https://medium.com/intrinsic-blog/why-should-i-use-a-reverse-proxy-if-node-js-is-production-ready-5a079408b2ca
         endpoint = `${wsProtocol}://${host}/ws`;
       } else if (port) {
@@ -4545,6 +4689,9 @@ function determineEndpoint({ endpoint, host, port }) {
         endpoint = `${endpoint}:${window.location.port}`;
       }
     } else {
+      if (!port) {
+        throw new Error(`Connectome determineEndpoint: No websocket port provided for ${host}`);
+      }
       // node.js ... if wss is needed, then full endpoint has to be passed in instead of host and port
       // endpoint is then used "as is with no modifications" and this entire block of code is not needed
       endpoint = `ws://${host || 'localhost'}:${port}`;
@@ -4562,8 +4709,8 @@ const wsOPEN = 1;
 
 //todo: remove 'dummy' argument once legacyLib with old MCS is history
 function establishAndMaintainConnection(
-  { endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, verbose, tag, dummy },
-  { WebSocket, log }
+  { endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, log, verbose, tag, dummy },
+  { WebSocket }
 ) {
   endpoint = determineEndpoint({ endpoint, host, port });
 
@@ -4574,6 +4721,7 @@ function establishAndMaintainConnection(
     keypair,
     verbose,
     tag,
+    log,
     dummy
   });
 
@@ -4592,12 +4740,12 @@ function establishAndMaintainConnection(
     checkTicker: 0
   };
 
-  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log }), 10);
+  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }), 10);
 
   const connectionCheckInterval = 1500;
   const callback = () => {
     if (!connector.decommissioned) {
-      checkConnection({ connector, endpoint }, { WebSocket, log });
+      checkConnection({ connector, endpoint }, { WebSocket, log, verbose });
       setTimeout(callback, connectionCheckInterval);
     }
   };
@@ -4607,16 +4755,18 @@ function establishAndMaintainConnection(
   return connector;
 }
 
-function checkConnection({ connector, endpoint }, { WebSocket, log }) {
+function checkConnection({ connector, endpoint }, { WebSocket, log, verbose }) {
   const conn = connector.connection;
 
-  if (connectionIdle(conn) || connector.decommissioned) {
+  if (verbose && (connectionIdle(conn) || connector.decommissioned)) {
     if (connectionIdle(conn)) {
-      log(
+      logger.yellow(
+        log,
         `Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`
       );
     } else {
-      log(
+      logger.yellow(
+        log,
         `Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `
       );
     }
@@ -4630,17 +4780,17 @@ function checkConnection({ connector, endpoint }, { WebSocket, log }) {
     conn.websocket.send('ping');
   } else {
     if (connector.connected == undefined) {
-      log(`Setting connector status to FALSE because connector.connected is undefined`);
+      logger.write(log, `Setting connector status to FALSE because connector.connected is undefined`);
       connector.connectStatus(false);
     }
 
-    tryReconnect({ connector, endpoint }, { WebSocket, log });
+    tryReconnect({ connector, endpoint }, { WebSocket, log, verbose });
   }
 
   conn.checkTicker += 1;
 }
 
-function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
+function tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }) {
   const conn = connector.connection;
 
   if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
@@ -4657,11 +4807,11 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   // added this so that it shows in frontend log in dmt-gui..
   // "native" console errors like
   // establishAndMaintainConnection.js:104 WebSocket connection to 'ws://192.168.0.64:7780/' failed: ...
-  // are not visible since we need to use our own log() function
+  // are not visible since we need to use our own logger.write(log, ) function
   // MEH: this didn't work on Chromium on RPi !!
   // ws.onerror = error => {
-  //   //console.log(error);
-  //   log(`error (connecting?) websocket: ${ws.rand} to ${conn.endpoint}`);
+  //   //console.logger.write(log, error);
+  //   logger.write(log, `error (connecting?) websocket: ${ws.rand} to ${conn.endpoint}`);
   // };
 
   conn.currentlyTryingWS = ws;
@@ -4669,7 +4819,7 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
 
   ws.rand = Math.random();
 
-  //log(`created new websocket: ${ws.rand} to ${conn.endpoint}`);
+  //logger.write(log, `created new websocket: ${ws.rand} to ${conn.endpoint}`);
 
   if (browser$1) {
     ws.binaryType = 'arraybuffer';
@@ -4680,9 +4830,13 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   }
 
   const openCallback = m => {
+    if (verbose) {
+      logger.write(log, `websocket ${endpoint} connection opened (${ws.rand})`);
+    }
+
     conn.currentlyTryingWS = null;
     conn.checkTicker = 0;
-    addSocketListeners({ ws, connector, openCallback }, { log });
+    addSocketListeners({ ws, connector, openCallback }, { log, verbose });
     conn.websocket = ws;
     connector.connectStatus(true);
   };
@@ -4698,15 +4852,19 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log }) {
   }
 }
 
-function addSocketListeners({ ws, connector, openCallback }, { log }) {
+function addSocketListeners({ ws, connector, openCallback }, { log, verbose }) {
   const conn = connector.connection;
 
   const errorCallback = m => {
-    log(`websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
-    log(m);
+    logger.write(log, `websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
+    logger.write(log, m);
   };
 
   const closeCallback = m => {
+    if (verbose) {
+      logger.write(log, `websocket ${connector.connection.endpoint} connection closed (${ws.rand})`);
+    }
+
     connector.connectStatus(false);
   };
 
@@ -4757,11 +4915,12 @@ function socketConnected(conn) {
 }
 
 function connectionIdle(conn) {
-  return socketConnected(conn) && conn.checkTicker > 5;
+  return socketConnected(conn) && conn.checkTicker > 2; // CHANGE TO 2 !! it was 5 for long time
 }
 
 function establishAndMaintainConnection$1(opts) {
-  return establishAndMaintainConnection(opts, { WebSocket, log });
+  opts.log = opts.log || console.log;
+  return establishAndMaintainConnection(opts, { WebSocket });
 }
 
 //import ConnectedStore from '../../connectedStore/connectedStore.js';
@@ -5067,1245 +5226,4 @@ class LogStore extends WritableStore {
   }
 }
 
-function clone(obj) {
-  if (typeof obj == 'function') {
-    return obj;
-  }
-  var result = Array.isArray(obj) ? [] : {};
-  for (var key in obj) {
-    var value = obj[key];
-    var type = {}.toString.call(value).slice(8, -1);
-    if (type == 'Array' || type == 'Object') {
-      result[key] = clone(value);
-    } else if (type == 'Date') {
-      result[key] = new Date(value.getTime());
-    } else if (type == 'RegExp') {
-      result[key] = RegExp(value.source, getRegExpFlags(value));
-    } else {
-      result[key] = value;
-    }
-  }
-  return result;
-}
-
-function getRegExpFlags(regExp) {
-  if (typeof regExp.source.flags == 'string') {
-    return regExp.source.flags;
-  } else {
-    var flags = [];
-    regExp.global && flags.push('g');
-    regExp.ignoreCase && flags.push('i');
-    regExp.multiline && flags.push('m');
-    regExp.sticky && flags.push('y');
-    regExp.unicode && flags.push('u');
-    return flags.join('');
-  }
-}
-
-function isObject$1(val) {
-  return val != null && typeof val === 'object' && Array.isArray(val) === false;
-}
-
-function isObjectObject(o) {
-  return isObject$1(o) === true && Object.prototype.toString.call(o) === '[object Object]';
-}
-
-function isPlainObject(o) {
-  var ctor, prot;
-
-  if (isObjectObject(o) === false) return false;
-
-  ctor = o.constructor;
-  if (typeof ctor !== 'function') return false;
-
-  prot = ctor.prototype;
-  if (isObjectObject(prot) === false) return false;
-
-  if (prot.hasOwnProperty('isPrototypeOf') === false) {
-    return false;
-  }
-
-  return true;
-}
-
-function emptyTarget(val) {
-  return Array.isArray(val) ? [] : {};
-}
-
-function cloneUnlessOtherwiseSpecified(value, options) {
-  return options.clone !== false && options.isMergeableObject(value) ? deepmerge(emptyTarget(value), value, options) : value;
-}
-
-function defaultArrayMerge(target, source, options) {
-  return target.concat(source).map(function(element) {
-    return cloneUnlessOtherwiseSpecified(element, options);
-  });
-}
-
-function getMergeFunction(key, options) {
-  if (!options.customMerge) {
-    return deepmerge;
-  }
-  var customMerge = options.customMerge(key);
-  return typeof customMerge === 'function' ? customMerge : deepmerge;
-}
-
-function mergeObject(target, source, options) {
-  var destination = {};
-  if (options.isMergeableObject(target)) {
-    Object.keys(target).forEach(function(key) {
-      destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
-    });
-  }
-  Object.keys(source).forEach(function(key) {
-    if (!options.isMergeableObject(source[key]) || !target[key]) {
-      destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
-    } else {
-      destination[key] = getMergeFunction(key, options)(target[key], source[key], options);
-    }
-  });
-  return destination;
-}
-
-function deepmerge(target, source, options) {
-  options = options || {};
-  options.arrayMerge = options.arrayMerge || defaultArrayMerge;
-  options.isMergeableObject = options.isMergeableObject || isPlainObject;
-
-  var sourceIsArray = Array.isArray(source);
-  var targetIsArray = Array.isArray(target);
-  var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
-
-  if (!sourceAndTargetTypesMatch) {
-    return cloneUnlessOtherwiseSpecified(source, options);
-  } else if (sourceIsArray) {
-    return options.arrayMerge(target, source, options);
-  } else {
-    return mergeObject(target, source, options);
-  }
-}
-
-deepmerge.all = function deepmergeAll(array, options) {
-  if (!Array.isArray(array)) {
-    throw new Error('first argument should be an array');
-  }
-
-  return array.reduce(function(prev, next) {
-    return deepmerge(prev, next, options);
-  }, {});
-};
-
-var pointer = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Pointer = void 0;
-/**
-Unescape token part of a JSON Pointer string
-
-`token` should *not* contain any '/' characters.
-
-> Evaluation of each reference token begins by decoding any escaped
-> character sequence.  This is performed by first transforming any
-> occurrence of the sequence '~1' to '/', and then transforming any
-> occurrence of the sequence '~0' to '~'.  By performing the
-> substitutions in this order, an implementation avoids the error of
-> turning '~01' first into '~1' and then into '/', which would be
-> incorrect (the string '~01' correctly becomes '~1' after
-> transformation).
-
-Here's my take:
-
-~1 is unescaped with higher priority than ~0 because it is a lower-order escape character.
-I say "lower order" because '/' needs escaping due to the JSON Pointer serialization technique.
-Whereas, '~' is escaped because escaping '/' uses the '~' character.
-*/
-function unescape(token) {
-    return token.replace(/~1/g, '/').replace(/~0/g, '~');
-}
-/** Escape token part of a JSON Pointer string
-
-> '~' needs to be encoded as '~0' and '/'
-> needs to be encoded as '~1' when these characters appear in a
-> reference token.
-
-This is the exact inverse of `unescape()`, so the reverse replacements must take place in reverse order.
-*/
-function escape(token) {
-    return token.replace(/~/g, '~0').replace(/\//g, '~1');
-}
-/**
-JSON Pointer representation
-*/
-var Pointer = /** @class */ (function () {
-    function Pointer(tokens) {
-        if (tokens === void 0) { tokens = ['']; }
-        this.tokens = tokens;
-    }
-    /**
-    `path` *must* be a properly escaped string.
-    */
-    Pointer.fromJSON = function (path) {
-        var tokens = path.split('/').map(unescape);
-        if (tokens[0] !== '')
-            throw new Error("Invalid JSON Pointer: " + path);
-        return new Pointer(tokens);
-    };
-    Pointer.prototype.toString = function () {
-        return this.tokens.map(escape).join('/');
-    };
-    /**
-    Returns an object with 'parent', 'key', and 'value' properties.
-    In the special case that this Pointer's path == "",
-    this object will be {parent: null, key: '', value: object}.
-    Otherwise, parent and key will have the property such that parent[key] == value.
-    */
-    Pointer.prototype.evaluate = function (object) {
-        var parent = null;
-        var key = '';
-        var value = object;
-        for (var i = 1, l = this.tokens.length; i < l; i++) {
-            parent = value;
-            key = this.tokens[i];
-            // not sure if this the best way to handle non-existant paths...
-            value = (parent || {})[key];
-        }
-        return { parent: parent, key: key, value: value };
-    };
-    Pointer.prototype.get = function (object) {
-        return this.evaluate(object).value;
-    };
-    Pointer.prototype.set = function (object, value) {
-        var cursor = object;
-        for (var i = 1, l = this.tokens.length - 1, token = this.tokens[i]; i < l; i++) {
-            // not sure if this the best way to handle non-existant paths...
-            cursor = (cursor || {})[token];
-        }
-        if (cursor) {
-            cursor[this.tokens[this.tokens.length - 1]] = value;
-        }
-    };
-    Pointer.prototype.push = function (token) {
-        // mutable
-        this.tokens.push(token);
-    };
-    /**
-    `token` should be a String. It'll be coerced to one anyway.
-  
-    immutable (shallowly)
-    */
-    Pointer.prototype.add = function (token) {
-        var tokens = this.tokens.concat(String(token));
-        return new Pointer(tokens);
-    };
-    return Pointer;
-}());
-exports.Pointer = Pointer;
-});
-
-var util = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.clone = exports.objectType = exports.hasOwnProperty = void 0;
-exports.hasOwnProperty = Object.prototype.hasOwnProperty;
-function objectType(object) {
-    if (object === undefined) {
-        return 'undefined';
-    }
-    if (object === null) {
-        return 'null';
-    }
-    if (Array.isArray(object)) {
-        return 'array';
-    }
-    return typeof object;
-}
-exports.objectType = objectType;
-function isNonPrimitive(value) {
-    // loose-equality checking for null is faster than strict checking for each of null/undefined/true/false
-    // checking null first, then calling typeof, is faster than vice-versa
-    return value != null && typeof value == 'object';
-}
-/**
-Recursively copy a value.
-
-@param source - should be a JavaScript primitive, Array, or (plain old) Object.
-@returns copy of source where every Array and Object have been recursively
-         reconstructed from their constituent elements
-*/
-function clone(source) {
-    if (!isNonPrimitive(source)) {
-        // short-circuiting is faster than a single return
-        return source;
-    }
-    // x.constructor == Array is the fastest way to check if x is an Array
-    if (source.constructor == Array) {
-        // construction via imperative for-loop is faster than source.map(arrayVsObject)
-        var length_1 = source.length;
-        // setting the Array length during construction is faster than just `[]` or `new Array()`
-        var arrayTarget = new Array(length_1);
-        for (var i = 0; i < length_1; i++) {
-            arrayTarget[i] = clone(source[i]);
-        }
-        return arrayTarget;
-    }
-    // Object
-    var objectTarget = {};
-    // declaring the variable (with const) inside the loop is faster
-    for (var key in source) {
-        // hasOwnProperty costs a bit of performance, but it's semantically necessary
-        // using a global helper is MUCH faster than calling source.hasOwnProperty(key)
-        if (exports.hasOwnProperty.call(source, key)) {
-            objectTarget[key] = clone(source[key]);
-        }
-    }
-    return objectTarget;
-}
-exports.clone = clone;
-});
-
-var diff = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.diffAny = exports.diffObjects = exports.diffArrays = exports.intersection = exports.subtract = exports.isDestructive = void 0;
- // we only need this for type inference
-
-function isDestructive(_a) {
-    var op = _a.op;
-    return op === 'remove' || op === 'replace' || op === 'copy' || op === 'move';
-}
-exports.isDestructive = isDestructive;
-/**
-List the keys in `minuend` that are not in `subtrahend`.
-
-A key is only considered if it is both 1) an own-property (o.hasOwnProperty(k))
-of the object, and 2) has a value that is not undefined. This is to match JSON
-semantics, where JSON object serialization drops keys with undefined values.
-
-@param minuend Object of interest
-@param subtrahend Object of comparison
-@returns Array of keys that are in `minuend` but not in `subtrahend`.
-*/
-function subtract(minuend, subtrahend) {
-    // initialize empty object; we only care about the keys, the values can be anything
-    var obj = {};
-    // build up obj with all the properties of minuend
-    for (var add_key in minuend) {
-        if (util.hasOwnProperty.call(minuend, add_key) && minuend[add_key] !== undefined) {
-            obj[add_key] = 1;
-        }
-    }
-    // now delete all the properties of subtrahend from obj
-    // (deleting a missing key has no effect)
-    for (var del_key in subtrahend) {
-        if (util.hasOwnProperty.call(subtrahend, del_key) && subtrahend[del_key] !== undefined) {
-            delete obj[del_key];
-        }
-    }
-    // finally, extract whatever keys remain in obj
-    return Object.keys(obj);
-}
-exports.subtract = subtract;
-/**
-List the keys that shared by all `objects`.
-
-The semantics of what constitutes a "key" is described in {@link subtract}.
-
-@param objects Array of objects to compare
-@returns Array of keys that are in ("own-properties" of) every object in `objects`.
-*/
-function intersection(objects) {
-    var length = objects.length;
-    // prepare empty counter to keep track of how many objects each key occurred in
-    var counter = {};
-    // go through each object and increment the counter for each key in that object
-    for (var i = 0; i < length; i++) {
-        var object = objects[i];
-        for (var key in object) {
-            if (util.hasOwnProperty.call(object, key) && object[key] !== undefined) {
-                counter[key] = (counter[key] || 0) + 1;
-            }
-        }
-    }
-    // now delete all keys from the counter that were not seen in every object
-    for (var key in counter) {
-        if (counter[key] < length) {
-            delete counter[key];
-        }
-    }
-    // finally, extract whatever keys remain in the counter
-    return Object.keys(counter);
-}
-exports.intersection = intersection;
-function isArrayAdd(array_operation) {
-    return array_operation.op === 'add';
-}
-function isArrayRemove(array_operation) {
-    return array_operation.op === 'remove';
-}
-function appendArrayOperation(base, operation) {
-    return {
-        // the new operation must be pushed on the end
-        operations: base.operations.concat(operation),
-        cost: base.cost + 1,
-    };
-}
-/**
-Calculate the shortest sequence of operations to get from `input` to `output`,
-using a dynamic programming implementation of the Levenshtein distance algorithm.
-
-To get from the input ABC to the output AZ we could just delete all the input
-and say "insert A, insert Z" and be done with it. That's what we do if the
-input is empty. But we can be smarter.
-
-          output
-               A   Z
-               -   -
-          [0]  1   2
-input A |  1  [0]  1
-      B |  2  [1]  1
-      C |  3   2  [2]
-
-1) start at 0,0 (+0)
-2) keep A (+0)
-3) remove B (+1)
-4) replace C with Z (+1)
-
-If the `input` (source) is empty, they'll all be in the top row, resulting in an
-array of 'add' operations.
-If the `output` (target) is empty, everything will be in the left column,
-resulting in an array of 'remove' operations.
-
-@returns A list of add/remove/replace operations.
-*/
-function diffArrays(input, output, ptr, diff) {
-    if (diff === void 0) { diff = diffAny; }
-    // set up cost matrix (very simple initialization: just a map)
-    var memo = {
-        '0,0': { operations: [], cost: 0 },
-    };
-    /**
-    Calculate the cheapest sequence of operations required to get from
-    input.slice(0, i) to output.slice(0, j).
-    There may be other valid sequences with the same cost, but none cheaper.
-  
-    @param i The row in the layout above
-    @param j The column in the layout above
-    @returns An object containing a list of operations, along with the total cost
-             of applying them (+1 for each add/remove/replace operation)
-    */
-    function dist(i, j) {
-        // memoized
-        var memo_key = i + "," + j;
-        var memoized = memo[memo_key];
-        if (memoized === undefined) {
-            // TODO: this !diff(...).length usage could/should be lazy
-            if (i > 0 && j > 0 && !diff(input[i - 1], output[j - 1], new pointer.Pointer()).length) {
-                // equal (no operations => no cost)
-                memoized = dist(i - 1, j - 1);
-            }
-            else {
-                var alternatives = [];
-                if (i > 0) {
-                    // NOT topmost row
-                    var remove_base = dist(i - 1, j);
-                    var remove_operation = {
-                        op: 'remove',
-                        index: i - 1,
-                    };
-                    alternatives.push(appendArrayOperation(remove_base, remove_operation));
-                }
-                if (j > 0) {
-                    // NOT leftmost column
-                    var add_base = dist(i, j - 1);
-                    var add_operation = {
-                        op: 'add',
-                        index: i - 1,
-                        value: output[j - 1],
-                    };
-                    alternatives.push(appendArrayOperation(add_base, add_operation));
-                }
-                if (i > 0 && j > 0) {
-                    // TABLE MIDDLE
-                    // supposing we replaced it, compute the rest of the costs:
-                    var replace_base = dist(i - 1, j - 1);
-                    // okay, the general plan is to replace it, but we can be smarter,
-                    // recursing into the structure and replacing only part of it if
-                    // possible, but to do so we'll need the original value
-                    var replace_operation = {
-                        op: 'replace',
-                        index: i - 1,
-                        original: input[i - 1],
-                        value: output[j - 1],
-                    };
-                    alternatives.push(appendArrayOperation(replace_base, replace_operation));
-                }
-                // the only other case, i === 0 && j === 0, has already been memoized
-                // the meat of the algorithm:
-                // sort by cost to find the lowest one (might be several ties for lowest)
-                // [4, 6, 7, 1, 2].sort((a, b) => a - b) -> [ 1, 2, 4, 6, 7 ]
-                var best = alternatives.sort(function (a, b) { return a.cost - b.cost; })[0];
-                memoized = best;
-            }
-            memo[memo_key] = memoized;
-        }
-        return memoized;
-    }
-    // handle weird objects masquerading as Arrays that don't have proper length
-    // properties by using 0 for everything but positive numbers
-    var input_length = (isNaN(input.length) || input.length <= 0) ? 0 : input.length;
-    var output_length = (isNaN(output.length) || output.length <= 0) ? 0 : output.length;
-    var array_operations = dist(input_length, output_length).operations;
-    var padded_operations = array_operations.reduce(function (_a, array_operation) {
-        var operations = _a[0], padding = _a[1];
-        if (isArrayAdd(array_operation)) {
-            var padded_index = array_operation.index + 1 + padding;
-            var index_token = padded_index < (input_length + padding) ? String(padded_index) : '-';
-            var operation = {
-                op: array_operation.op,
-                path: ptr.add(index_token).toString(),
-                value: array_operation.value,
-            };
-            // padding++ // maybe only if array_operation.index > -1 ?
-            return [operations.concat(operation), padding + 1];
-        }
-        else if (isArrayRemove(array_operation)) {
-            var operation = {
-                op: array_operation.op,
-                path: ptr.add(String(array_operation.index + padding)).toString(),
-            };
-            // padding--
-            return [operations.concat(operation), padding - 1];
-        }
-        else { // replace
-            var replace_ptr = ptr.add(String(array_operation.index + padding));
-            var replace_operations = diff(array_operation.original, array_operation.value, replace_ptr);
-            return [operations.concat.apply(operations, replace_operations), padding];
-        }
-    }, [[], 0])[0];
-    return padded_operations;
-}
-exports.diffArrays = diffArrays;
-function diffObjects(input, output, ptr, diff) {
-    if (diff === void 0) { diff = diffAny; }
-    // if a key is in input but not output -> remove it
-    var operations = [];
-    subtract(input, output).forEach(function (key) {
-        operations.push({ op: 'remove', path: ptr.add(key).toString() });
-    });
-    // if a key is in output but not input -> add it
-    subtract(output, input).forEach(function (key) {
-        operations.push({ op: 'add', path: ptr.add(key).toString(), value: output[key] });
-    });
-    // if a key is in both, diff it recursively
-    intersection([input, output]).forEach(function (key) {
-        operations.push.apply(operations, diff(input[key], output[key], ptr.add(key)));
-    });
-    return operations;
-}
-exports.diffObjects = diffObjects;
-/**
-`diffAny()` returns an empty array if `input` and `output` are materially equal
-(i.e., would produce equivalent JSON); otherwise it produces an array of patches
-that would transform `input` into `output`.
-
-> Here, "equal" means that the value at the target location and the
-> value conveyed by "value" are of the same JSON type, and that they
-> are considered equal by the following rules for that type:
-> o  strings: are considered equal if they contain the same number of
->    Unicode characters and their code points are byte-by-byte equal.
-> o  numbers: are considered equal if their values are numerically
->    equal.
-> o  arrays: are considered equal if they contain the same number of
->    values, and if each value can be considered equal to the value at
->    the corresponding position in the other array, using this list of
->    type-specific rules.
-> o  objects: are considered equal if they contain the same number of
->    members, and if each member can be considered equal to a member in
->    the other object, by comparing their keys (as strings) and their
->    values (using this list of type-specific rules).
-> o  literals (false, true, and null): are considered equal if they are
->    the same.
-*/
-function diffAny(input, output, ptr, diff) {
-    if (diff === void 0) { diff = diffAny; }
-    // strict equality handles literals, numbers, and strings (a sufficient but not necessary cause)
-    if (input === output) {
-        return [];
-    }
-    var input_type = util.objectType(input);
-    var output_type = util.objectType(output);
-    if (input_type == 'array' && output_type == 'array') {
-        return diffArrays(input, output, ptr, diff);
-    }
-    if (input_type == 'object' && output_type == 'object') {
-        return diffObjects(input, output, ptr, diff);
-    }
-    // at this point we know that input and output are materially different;
-    // could be array -> object, object -> array, boolean -> undefined,
-    // number -> string, or some other combination, but nothing that can be split
-    // up into multiple patches: so `output` must replace `input` wholesale.
-    return [{ op: 'replace', path: ptr.toString(), value: output }];
-}
-exports.diffAny = diffAny;
-});
-
-var patch = createCommonjsModule(function (module, exports) {
-var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.apply = exports.InvalidOperationError = exports.test = exports.copy = exports.move = exports.replace = exports.remove = exports.add = exports.TestError = exports.MissingError = void 0;
-
-
-
-var MissingError = /** @class */ (function (_super) {
-    __extends(MissingError, _super);
-    function MissingError(path) {
-        var _this = _super.call(this, "Value required at path: " + path) || this;
-        _this.path = path;
-        _this.name = 'MissingError';
-        return _this;
-    }
-    return MissingError;
-}(Error));
-exports.MissingError = MissingError;
-var TestError = /** @class */ (function (_super) {
-    __extends(TestError, _super);
-    function TestError(actual, expected) {
-        var _this = _super.call(this, "Test failed: " + actual + " != " + expected) || this;
-        _this.actual = actual;
-        _this.expected = expected;
-        _this.name = 'TestError';
-        return _this;
-    }
-    return TestError;
-}(Error));
-exports.TestError = TestError;
-function _add(object, key, value) {
-    if (Array.isArray(object)) {
-        // `key` must be an index
-        if (key == '-') {
-            object.push(value);
-        }
-        else {
-            var index = parseInt(key, 10);
-            object.splice(index, 0, value);
-        }
-    }
-    else {
-        object[key] = value;
-    }
-}
-function _remove(object, key) {
-    if (Array.isArray(object)) {
-        // '-' syntax doesn't make sense when removing
-        var index = parseInt(key, 10);
-        object.splice(index, 1);
-    }
-    else {
-        // not sure what the proper behavior is when path = ''
-        delete object[key];
-    }
-}
-/**
->  o  If the target location specifies an array index, a new value is
->     inserted into the array at the specified index.
->  o  If the target location specifies an object member that does not
->     already exist, a new member is added to the object.
->  o  If the target location specifies an object member that does exist,
->     that member's value is replaced.
-*/
-function add(object, operation) {
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    // it's not exactly a "MissingError" in the same way that `remove` is -- more like a MissingParent, or something
-    if (endpoint.parent === undefined) {
-        return new MissingError(operation.path);
-    }
-    _add(endpoint.parent, endpoint.key, util.clone(operation.value));
-    return null;
-}
-exports.add = add;
-/**
-> The "remove" operation removes the value at the target location.
-> The target location MUST exist for the operation to be successful.
-*/
-function remove(object, operation) {
-    // endpoint has parent, key, and value properties
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    if (endpoint.value === undefined) {
-        return new MissingError(operation.path);
-    }
-    // not sure what the proper behavior is when path = ''
-    _remove(endpoint.parent, endpoint.key);
-    return null;
-}
-exports.remove = remove;
-/**
-> The "replace" operation replaces the value at the target location
-> with a new value.  The operation object MUST contain a "value" member
-> whose content specifies the replacement value.
-> The target location MUST exist for the operation to be successful.
-
-> This operation is functionally identical to a "remove" operation for
-> a value, followed immediately by an "add" operation at the same
-> location with the replacement value.
-
-Even more simply, it's like the add operation with an existence check.
-*/
-function replace(object, operation) {
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    if (endpoint.parent === null) {
-        return new MissingError(operation.path);
-    }
-    // this existence check treats arrays as a special case
-    if (Array.isArray(endpoint.parent)) {
-        if (parseInt(endpoint.key, 10) >= endpoint.parent.length) {
-            return new MissingError(operation.path);
-        }
-    }
-    else if (endpoint.value === undefined) {
-        return new MissingError(operation.path);
-    }
-    endpoint.parent[endpoint.key] = operation.value;
-    return null;
-}
-exports.replace = replace;
-/**
-> The "move" operation removes the value at a specified location and
-> adds it to the target location.
-> The operation object MUST contain a "from" member, which is a string
-> containing a JSON Pointer value that references the location in the
-> target document to move the value from.
-> This operation is functionally identical to a "remove" operation on
-> the "from" location, followed immediately by an "add" operation at
-> the target location with the value that was just removed.
-
-> The "from" location MUST NOT be a proper prefix of the "path"
-> location; i.e., a location cannot be moved into one of its children.
-
-TODO: throw if the check described in the previous paragraph fails.
-*/
-function move(object, operation) {
-    var from_endpoint = pointer.Pointer.fromJSON(operation.from).evaluate(object);
-    if (from_endpoint.value === undefined) {
-        return new MissingError(operation.from);
-    }
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    if (endpoint.parent === undefined) {
-        return new MissingError(operation.path);
-    }
-    _remove(from_endpoint.parent, from_endpoint.key);
-    _add(endpoint.parent, endpoint.key, from_endpoint.value);
-    return null;
-}
-exports.move = move;
-/**
-> The "copy" operation copies the value at a specified location to the
-> target location.
-> The operation object MUST contain a "from" member, which is a string
-> containing a JSON Pointer value that references the location in the
-> target document to copy the value from.
-> The "from" location MUST exist for the operation to be successful.
-
-> This operation is functionally identical to an "add" operation at the
-> target location using the value specified in the "from" member.
-
-Alternatively, it's like 'move' without the 'remove'.
-*/
-function copy(object, operation) {
-    var from_endpoint = pointer.Pointer.fromJSON(operation.from).evaluate(object);
-    if (from_endpoint.value === undefined) {
-        return new MissingError(operation.from);
-    }
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    if (endpoint.parent === undefined) {
-        return new MissingError(operation.path);
-    }
-    _add(endpoint.parent, endpoint.key, util.clone(from_endpoint.value));
-    return null;
-}
-exports.copy = copy;
-/**
-> The "test" operation tests that a value at the target location is
-> equal to a specified value.
-> The operation object MUST contain a "value" member that conveys the
-> value to be compared to the target location's value.
-> The target location MUST be equal to the "value" value for the
-> operation to be considered successful.
-*/
-function test(object, operation) {
-    var endpoint = pointer.Pointer.fromJSON(operation.path).evaluate(object);
-    // TODO: this diffAny(...).length usage could/should be lazy
-    if (diff.diffAny(endpoint.value, operation.value, new pointer.Pointer()).length) {
-        return new TestError(endpoint.value, operation.value);
-    }
-    return null;
-}
-exports.test = test;
-var InvalidOperationError = /** @class */ (function (_super) {
-    __extends(InvalidOperationError, _super);
-    function InvalidOperationError(operation) {
-        var _this = _super.call(this, "Invalid operation: " + operation.op) || this;
-        _this.operation = operation;
-        _this.name = 'InvalidOperationError';
-        return _this;
-    }
-    return InvalidOperationError;
-}(Error));
-exports.InvalidOperationError = InvalidOperationError;
-/**
-Switch on `operation.op`, applying the corresponding patch function for each
-case to `object`.
-*/
-function apply(object, operation) {
-    // not sure why TypeScript can't infer typesafety of:
-    //   {add, remove, replace, move, copy, test}[operation.op](object, operation)
-    // (seems like a bug)
-    switch (operation.op) {
-        case 'add': return add(object, operation);
-        case 'remove': return remove(object, operation);
-        case 'replace': return replace(object, operation);
-        case 'move': return move(object, operation);
-        case 'copy': return copy(object, operation);
-        case 'test': return test(object, operation);
-    }
-    return new InvalidOperationError(operation);
-}
-exports.apply = apply;
-});
-
-var rfc6902 = createCommonjsModule(function (module, exports) {
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTests = exports.createPatch = exports.applyPatch = void 0;
-
-
-
-/**
-Apply a 'application/json-patch+json'-type patch to an object.
-
-`patch` *must* be an array of operations.
-
-> Operation objects MUST have exactly one "op" member, whose value
-> indicates the operation to perform.  Its value MUST be one of "add",
-> "remove", "replace", "move", "copy", or "test"; other values are
-> errors.
-
-This method mutates the target object in-place.
-
-@returns list of results, one for each operation: `null` indicated success,
-         otherwise, the result will be an instance of one of the Error classes:
-         MissingError, InvalidOperationError, or TestError.
-*/
-function applyPatch(object, patch$1) {
-    return patch$1.map(function (operation) { return patch.apply(object, operation); });
-}
-exports.applyPatch = applyPatch;
-function wrapVoidableDiff(diff$1) {
-    function wrappedDiff(input, output, ptr) {
-        var custom_patch = diff$1(input, output, ptr);
-        // ensure an array is always returned
-        return Array.isArray(custom_patch) ? custom_patch : diff.diffAny(input, output, ptr, wrappedDiff);
-    }
-    return wrappedDiff;
-}
-/**
-Produce a 'application/json-patch+json'-type patch to get from one object to
-another.
-
-This does not alter `input` or `output` unless they have a property getter with
-side-effects (which is not a good idea anyway).
-
-`diff` is called on each pair of comparable non-primitive nodes in the
-`input`/`output` object trees, producing nested patches. Return `undefined`
-to fall back to default behaviour.
-
-Returns list of operations to perform on `input` to produce `output`.
-*/
-function createPatch(input, output, diff$1) {
-    var ptr = new pointer.Pointer();
-    // a new Pointer gets a default path of [''] if not specified
-    return (diff$1 ? wrapVoidableDiff(diff$1) : diff.diffAny)(input, output, ptr);
-}
-exports.createPatch = createPatch;
-/**
-Create a test operation based on `input`'s current evaluation of the JSON
-Pointer `path`; if such a pointer cannot be resolved, returns undefined.
-*/
-function createTest(input, path) {
-    var endpoint = pointer.Pointer.fromJSON(path).evaluate(input);
-    if (endpoint !== undefined) {
-        return { op: 'test', path: path, value: endpoint.value };
-    }
-}
-/**
-Produce an 'application/json-patch+json'-type list of tests, to verify that
-existing values in an object are identical to the those captured at some
-checkpoint (whenever this function is called).
-
-This does not alter `input` or `output` unless they have a property getter with
-side-effects (which is not a good idea anyway).
-
-Returns list of test operations.
-*/
-function createTests(input, patch) {
-    var tests = new Array();
-    patch.filter(diff.isDestructive).forEach(function (operation) {
-        var pathTest = createTest(input, operation.path);
-        if (pathTest)
-            tests.push(pathTest);
-        if ('from' in operation) {
-            var fromTest = createTest(input, operation.from);
-            if (fromTest)
-                tests.push(fromTest);
-        }
-    });
-    return tests;
-}
-exports.createTests = createTests;
-});
-
-var rfc6902$1 = /*@__PURE__*/getDefaultExportFromCjs(rfc6902);
-
-const generateJsonPatch = rfc6902$1.createPatch;
-
-function getDiff(prevAnnouncedState, currentState) {
-  const diff = generateJsonPatch(prevAnnouncedState, currentState);
-
-  if (diff.length > 0) {
-    return diff;
-  }
-}
-
-class ProtocolStore extends Eev {
-  constructor(initialState = {}, { latent = false } = {}) {
-    super();
-
-    this.latent = latent;
-
-    this.state = initialState;
-    this.lastAnnouncedState = clone(initialState);
-  }
-
-  syncOver(channelList) {
-    channelList.on('new_channel', channel => {
-      if (!this.latent) {
-        channel.send({ state: this.lastAnnouncedState });
-      }
-    });
-
-    this.on('diff', diff => {
-      if (this.latent) {
-        this.latent = false;
-        channelList.sendAll({ state: this.state });
-      } else {
-        channelList.sendAll({ diff });
-      }
-    });
-  }
-
-  set(state, { announce = true } = {}) {
-    this.state = state;
-    this.announceStateChange(announce);
-  }
-
-  update(patch, { announce = true } = {}) {
-    this.state = { ...this.state, ...patch };
-    this.announceStateChange(announce);
-  }
-
-  get() {
-    return this.state;
-  }
-
-  announceStateChange(announce = true) {
-    if (!announce) {
-      return;
-    }
-
-    const { state } = this;
-
-    const diff = getDiff(this.lastAnnouncedState, state);
-
-    if (diff) {
-      this.emit('diff', diff);
-
-      this.lastAnnouncedState = clone(state);
-    }
-  }
-}
-
-function mergeState(state, patch) {
-  const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
-  return deepmerge(state, patch, { arrayMerge: overwriteMerge });
-}
-
-class KeyValueStore {
-  constructor() {
-    this.state = {};
-  }
-
-  update(patch) {
-    this.state = mergeState(this.state, patch);
-  }
-
-  replaceBaseKey(baseKey, value) {
-    this.state[baseKey] = value;
-  }
-
-  clearBaseKey(baseKey) {
-    delete this.state[baseKey];
-  }
-
-  replaceSubKey({ baseKey, key, value }) {
-    this.state[baseKey] = this.state[baseKey] || {};
-    this.state[baseKey][key] = value;
-  }
-
-  removeSubKey({ baseKey, key }) {
-    this.state[baseKey] = this.state[baseKey] || {};
-    delete this.state[baseKey][key];
-  }
-
-  pushToArray(baseKey, value) {
-    this.state[baseKey].push(value);
-  }
-
-  removeFromArray(baseKey, removePredicate) {
-    this.state[baseKey] = this.state[baseKey].filter(entry => !removePredicate(entry));
-  }
-
-  replaceArrayElement(baseKey, selectorPredicate, value) {
-    const entry = this.state[baseKey].find(entry => selectorPredicate(entry));
-
-    if (entry) {
-      // in-place replace entry completely (array reference stays the same)
-      Object.keys(entry).forEach(key => delete entry[key]);
-      Object.assign(entry, value);
-      return true;
-    }
-  }
-
-  updateArrayElement(baseKey, selectorPredicate, value) {
-    const entry = this.state[baseKey].find(entry => selectorPredicate(entry));
-
-    if (entry) {
-      // in-place replace entry completely (array reference stays the same)
-      //Object.keys(entry).forEach(key => delete entry[key]);
-      Object.assign(entry, value);
-      return true;
-    }
-  }
-}
-
-class Slot {
-  constructor({ name, parent }) {
-    this.name = name;
-    this.parent = parent;
-  }
-
-  makeArray() {
-    if (!Array.isArray(this.get())) {
-      this.set([], { announce: false });
-    }
-    return this;
-  }
-
-  get() {
-    return this.parent.get(this.name) || {};
-  }
-
-  set(state, { announce = true } = {}) {
-    this.parent.kvStore.replaceBaseKey(this.name, state);
-    this.parent.announceStateChange(announce);
-  }
-
-  update(patch, { announce = true } = {}) {
-    const _patch = {};
-    _patch[this.name] = patch;
-    this.parent.update(_patch, { announce });
-  }
-
-  remove({ announce = true } = {}) {
-    this.parent.kvStore.clearBaseKey(this.name);
-    this.parent.announceStateChange(announce);
-  }
-
-  removeKey(key, { announce = true } = {}) {
-    this.parent.kvStore.removeSubKey({ baseKey: this.name, key });
-    this.parent.announceStateChange(announce);
-  }
-
-  pushToArray(entry, { announce = true } = {}) {
-    this.parent.kvStore.pushToArray(this.name, entry);
-    this.parent.announceStateChange(announce);
-  }
-
-  removeFromArray(removePredicate, { announce = true } = {}) {
-    this.parent.kvStore.removeFromArray(this.name, removePredicate);
-    this.parent.announceStateChange(announce);
-  }
-
-  replaceArrayElement(selectorPredicate, value, { announce = true } = {}) {
-    const foundMatch = this.parent.kvStore.replaceArrayElement(this.name, selectorPredicate, value);
-    this.parent.announceStateChange(announce);
-    return foundMatch;
-  }
-
-  updateArrayElement(selectorPredicate, value, { announce = true } = {}) {
-    const foundMatch = this.parent.kvStore.updateArrayElement(this.name, selectorPredicate, value);
-    this.parent.announceStateChange(announce);
-    return foundMatch;
-  }
-}
-
-// WARNING: initialState can mess with loaded state!
-// example:
-//
-// new SlottedStore({ messages: [] })
-//
-// this won't have the intented consequences because this state will override
-// any messages loaded from the file... use carefuly!
-//
-// initial state is merged into loaded state (2-level merge) and in this case when slot is attay instead of object
-// it will set that slot to empty array
-
-// Do this instead:
-//
-// store.slot('notifications').makeArray().pushToArray(data);
-
-class SlottedStore extends Eev {
-  constructor(
-    initialState = {},
-    { loadState = null, saveState = null, omitStateFn = x => x, removeStateChangeFalseTriggers = x => x } = {}
-  ) {
-    super();
-
-    this.omitStateFn = omitStateFn;
-    this.saveState = saveState;
-    this.removeStateChangeFalseTriggers = removeStateChangeFalseTriggers;
-
-    //this.lastAnnouncedState = clone(initialState); // alternative to below...
-
-    this.slots = {};
-    this.kvStore = new KeyValueStore();
-
-    if (loadState) {
-      const persistedState = loadState();
-
-      if (persistedState) {
-        this.kvStore.update(persistedState);
-      }
-    }
-
-    this.kvStore.update(initialState);
-
-    this.lastAnnouncedState = this.omitAndCloneState(); // think more about this!
-
-    this.stateChangesCount = 0;
-
-    this.subscriptions = [];
-  }
-
-  syncOver(channelList) {
-    this.channelList = channelList;
-
-    channelList.on('new_channel', channel => {
-      channel.send({ state: this.lastAnnouncedState });
-    });
-  }
-
-  sendRemote({ state, diff }) {
-    if (this.channelList) {
-      this.channelList.sendAll({ state, diff }); // one or the other
-    }
-  }
-
-  state() {
-    return this.kvStore.state;
-  }
-
-  get(key) {
-    return key ? this.state()[key] : this.state();
-  }
-
-  omitAndCloneState() {
-    return this.omitStateFn(clone(this.state()));
-  }
-
-  /* State update functions */
-
-  slot(name) {
-    if (!this.slots[name]) {
-      this.slots[name] = new Slot({ name, parent: this });
-    }
-
-    return this.slots[name];
-  }
-
-  update(patch, { announce = true, skipDiffing = false } = {}) {
-    this.kvStore.update(patch);
-    this.announceStateChange(announce, skipDiffing);
-  }
-
-  /* end State update functions */
-
-  save() {
-    if (this.saveState) {
-      this.lastSavedState =
-        this.saveState({ state: clone(this.state()), lastSavedState: this.lastSavedState }) ||
-        this.lastSavedState;
-    }
-  }
-
-  announceStateChange(announce = true, skipDiffing = false) {
-    if (!announce) {
-      return;
-    }
-
-    const remoteState = this.omitAndCloneState();
-
-    if (skipDiffing) {
-      this.sendRemote({ state: remoteState });
-      this.tagState({ state: remoteState });
-      return;
-    }
-
-    const diff = getDiff(this.lastAnnouncedState, this.removeStateChangeFalseTriggers(remoteState));
-
-    if (diff) {
-      //this.emit('diff', diff)
-      this.sendRemote({ diff });
-      this.stateChangesCount += 1;
-      this.tagState({ state: remoteState });
-    }
-  }
-
-  tagState({ state }) {
-    this.save();
-    this.lastAnnouncedState = state;
-    this.pushStateToLocalSubscribers();
-  }
-
-  subscribe(handler) {
-    this.subscriptions.push(handler);
-
-    handler(this.state());
-
-    return () => {
-      this.subscriptions = this.subscriptions.filter(sub => sub !== handler);
-    };
-  }
-
-  pushStateToLocalSubscribers() {
-    this.subscriptions.forEach(handler => handler(this.state()));
-  }
-}
-
-export { LogStore, MultiConnectedStore, ProtocolStore, SlottedStore };
+export { LogStore, MultiConnectedStore };

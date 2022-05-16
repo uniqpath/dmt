@@ -1,9 +1,9 @@
-import dmt from 'dmt/common';
+import { device } from 'dmt/common';
 
 export default function setupRedirects({ app }) {
   const redirects = { '/': '/dmt-frontend' };
 
-  if (dmt.device().serverMode) {
+  if (device().serverMode) {
     redirects['/'] = '/dmt-search';
   }
 

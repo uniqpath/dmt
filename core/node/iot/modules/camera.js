@@ -7,11 +7,11 @@ function setup(program) {
   camera = new CameraRecorder();
 }
 
-function handleIotEvent({ program, topic, msg }) {
+function handleMqttEvent({ program, topic, msg }) {
   const { device } = program;
 
   if (topic == 'alarm' && msg == 'triggered') {
-    program.showNotification({ id: 'alarm', msg: 'Recording video and calling police ...', ttl: 30, bgColor: '#EE0006' });
+    program.showNotification({ title: 'alarm', msg: 'Recording video and calling police ...', ttl: 30, color: '#EE0006' });
 
     if (device.try('iot.camera')) {
       push.notify(`Motion detected, recording video on ${device.id} ...`);
@@ -20,4 +20,4 @@ function handleIotEvent({ program, topic, msg }) {
   }
 }
 
-export { setup, handleIotEvent };
+export { setup, handleMqttEvent };

@@ -1,16 +1,12 @@
-import colors from 'colors';
+import colors from './colors/colors';
 
 class ScreenOutput {
   write(...args) {
-    this.white(...args);
-  }
-
-  white(...args) {
     this.logOutput(colors.white, {}, ...args);
   }
 
-  brightWhite(...args) {
-    this.logOutput(colors.brightWhite, {}, ...args);
+  red(...args) {
+    this.logOutput(colors.red, {}, ...args);
   }
 
   green(...args) {
@@ -21,12 +17,8 @@ class ScreenOutput {
     this.logOutput(colors.yellow, {}, ...args);
   }
 
-  red(...args) {
-    this.logOutput(colors.red, {}, ...args);
-  }
-
-  error(...args) {
-    this.logOutput(colors.red, { error: true }, ...args);
+  blue(...args) {
+    this.logOutput(colors.blue, {}, ...args);
   }
 
   cyan(...args) {
@@ -39,6 +31,14 @@ class ScreenOutput {
 
   gray(...args) {
     this.logOutput(colors.gray, {}, ...args);
+  }
+
+  white(...args) {
+    this.logOutput(colors.bold().white, {}, ...args);
+  }
+
+  error(...args) {
+    this.logOutput(colors.red, { error: true }, ...args);
   }
 }
 

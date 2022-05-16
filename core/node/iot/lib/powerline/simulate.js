@@ -1,6 +1,4 @@
-import colors from 'colors';
-import dmt from 'dmt/common';
-const { scan } = dmt;
+import { scan, colors } from 'dmt/common';
 
 import PowerMonitor from './powerMonitor';
 

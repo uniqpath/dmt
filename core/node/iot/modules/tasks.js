@@ -8,12 +8,12 @@ function setup(program) {
   taskInvoker.setup(program);
 }
 
-function manageTick(program) {
-  taskInvoker.manageTick(program);
+function onProgramTick(program) {
+  taskInvoker.onProgramTick(program);
 }
 
-function handleIotEvent({ program, topic, msg }) {
-  taskInvoker.handleIotEvent({ program, topic, msg });
+function handleMqttEvent({ program, topic, msg }) {
+  taskInvoker.handleMqttEvent({ program, topic, msg });
 }
 
-export { setup, handleIotEvent, manageTick };
+export { setup, handleMqttEvent, onProgramTick };

@@ -1,4 +1,4 @@
-import colors from 'colors';
+import colors from 'kleur';
 
 import { newServerKeypair, Connectome } from '../../../src/server';
 import { printServerInfo } from '../exampleUtils.js';

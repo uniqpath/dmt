@@ -1,9 +1,11 @@
-import colors from 'colors';
 import path from 'path';
 import fs from 'fs';
 import inlineValueParser from './inlineValueParser';
 
-import { json2def as fromJson } from 'dmt-defjson';
+import _defjson from 'dmt-defjson';
+const { json2def: fromJson } = _defjson;
+
+import colors from '../../colors/colors';
 
 const cache = {};
 const basicParsingCache = {};

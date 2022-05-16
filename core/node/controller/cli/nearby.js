@@ -1,4 +1,5 @@
-import colors from 'colors';
+import { colors } from 'dmt/common';
+
 import { ipcClient, parseArgs, Table } from 'dmt/cli';
 
 const args = parseArgs(process.argv.slice(2));
@@ -37,7 +38,7 @@ function ipInfo({ ip, isSpecialNode, thisDevice }) {
   }
 
   if (isSpecialNode) {
-    return colors.brightWhite(ip);
+    return colors.bold().white(ip);
   }
 
   if (thisDevice) {
@@ -106,5 +107,5 @@ ipcClient({ actorName: 'controller', action })
   })
   .catch(e => {
     console.log(colors.red(e));
-    process.exit();
+    process.exit(1);
   });

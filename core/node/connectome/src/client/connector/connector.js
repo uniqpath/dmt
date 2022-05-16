@@ -5,7 +5,8 @@ nacl.util = naclutil;
 import send from './send.js';
 import receive from './receive.js';
 
-import WritableStore from '../../stores/front/helperStores/writableStore.js';
+import WritableStore from '../../stores/lib/helperStores/writableStore.js';
+import logger from '../../utils/logger/logger.js';
 
 import { EventEmitter, listify, hexToBuffer, bufferToHex } from '../../utils/index.js';
 
@@ -18,10 +19,11 @@ import ProtocolState from './protocolState';
 import ConnectionState from './connectionState';
 
 class Connector extends EventEmitter {
-  constructor({ endpoint, protocol, keypair = newKeypair(), rpcRequestTimeout, verbose = false, tag, dummy } = {}) {
+  constructor({ endpoint, protocol, keypair = newKeypair(), rpcRequestTimeout, verbose = false, tag, log = console.log, dummy } = {}) {
     super();
 
     this.protocol = protocol;
+    this.log = log;
 
     const { privateKey: clientPrivateKey, publicKey: clientPublicKey } = acceptKeypair(keypair);
 
@@ -55,6 +57,10 @@ class Connector extends EventEmitter {
         this.connected.set(false);
       }
     }, 700);
+
+    if (verbose) {
+      logger.cyan(this.log, `Connector ${this.remoteAddress()} instantiated`);
+    }
   }
 
   send(data) {
@@ -66,8 +72,22 @@ class Connector extends EventEmitter {
     if (this.connected.get()) {
       this.send({ signal, data });
     } else {
-      console.log('Warning: trying to send signal over disconnected connector, this should be prevented by GUI');
+      logger.write(this.log, 'Warning: trying to send signal over disconnected connector, this should be prevented by GUI');
     }
+  }
+
+  on(eventName, handler) {
+    if (eventName == 'ready') {
+      if (this.isReady()) {
+        handler();
+      }
+    }
+
+    super.on(eventName, handler);
+  }
+
+  getSharedSecret() {
+    return this.sharedSecret ? bufferToHex(this.sharedSecret) : undefined;
   }
 
   wireReceive({ jsonData, encryptedData, rawMessage }) {
@@ -102,23 +122,27 @@ class Connector extends EventEmitter {
 
       const num = this.successfulConnectsCount;
 
+      if (this.verbose) {
+        logger.write(this.log, `✓ Connector ${this.remoteAddress()} websocket connected`);
+      }
+
       this.diffieHellman({
         clientPrivateKey: this.clientPrivateKey,
         clientPublicKey: this.clientPublicKey,
         protocol: this.protocol
       })
-        .then(({ sharedSecret, sharedSecretHex }) => {
-          this.ready = true;
+        .then(() => {
           this.connectedAt = Date.now();
-
           this.connected.set(true);
 
-          this.emit('ready', { sharedSecret, sharedSecretHex });
+          this.ready = true;
+
+          this.emit('ready');
         })
         .catch(e => {
           if (num == this.successfulConnectsCount) {
-            console.log(e);
-            console.log('dropping connection and retrying again');
+            logger.write(this.log, e);
+            logger.write(this.log, 'dropping connection and retrying');
             this.connection.terminate();
           }
         });
@@ -131,11 +155,13 @@ class Connector extends EventEmitter {
 
       if (this.transportConnected == undefined) {
         const tag = this.tag ? ` (${this.tag})` : '';
-        console.log(`Connector ${this.endpoint}${tag} was not able to connect at first try, setting READY to false`);
+        logger.write(this.log, `Connector ${this.endpoint}${tag} was not able to connect at first try, setting READY to false`);
       }
 
       this.transportConnected = false;
       this.ready = false;
+      this.sharedSecret = undefined;
+
       delete this.connectedAt;
 
       if (isDisconnect) {
@@ -163,32 +189,30 @@ class Connector extends EventEmitter {
         .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
         .then(remotePubkeyHex => {
           const sharedSecret = nacl.box.before(hexToBuffer(remotePubkeyHex), clientPrivateKey);
-          const sharedSecretHex = bufferToHex(sharedSecret);
+
           this.sharedSecret = sharedSecret;
 
           this._remotePubkeyHex = remotePubkeyHex;
 
           if (this.verbose) {
-            console.log('Established shared secret through diffie-hellman exchange:');
-            console.log(sharedSecretHex);
+            logger.write(this.log, `Connector ${this.endpoint}: Established shared secret through diffie-hellman exchange.`);
           }
 
           this.remoteObject('Auth')
             .call('finalizeHandshake', { protocol })
             .then(res => {
               if (res && res.error) {
-                console.log(`x Protocol ${this.protocol} error:`);
-                console.log(res.error);
+                logger.write(this.log, `x Protocol ${this.protocol} error:`);
+                logger.write(this.log, res.error);
               } else {
-                success({ sharedSecret, sharedSecretHex });
+                success();
 
                 const tag = this.tag ? ` (${this.tag})` : '';
-                console.log(`✓ Protocol [ ${this.protocol || '"no-name"'} ] connection [ ${this.endpoint}${tag} ] ready`);
+                logger.cyan(this.log, `✓ Protocol [ ${this.protocol || '"no-name"'} ] connection [ ${this.endpoint}${tag} ] ready`);
               }
             })
             .catch(e => {
-              console.log(`x Protocol ${this.protocol} finalizeHandshake error:`);
-              console.log(e);
+              logger.write(this.log, `x Protocol ${this.protocol} finalizeHandshake error:`);
               reject(e);
             });
         })

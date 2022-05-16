@@ -1,6 +1,6 @@
 import path from 'path';
-import dmt from 'dmt/common';
-const { log } = dmt;
+
+import { log, device as _device, isRPi } from 'dmt/common';
 
 import { exec } from 'child_process';
 
@@ -11,7 +11,7 @@ import fs from 'fs';
 
 import { push, email } from 'dmt/notify';
 
-const device = dmt.device();
+const device = _device();
 
 const streamCamera = new StreamCamera({
   codec: Codec.H264,
@@ -25,7 +25,7 @@ class Recorder {
   }
 
   recordVideo() {
-    if (!dmt.isRPi()) {
+    if (!isRPi()) {
       log.write("Calling stub function on pi_camera.js because it's not RaspberryPi");
       return;
     }

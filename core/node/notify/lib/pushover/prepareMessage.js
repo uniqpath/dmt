@@ -1,10 +1,10 @@
-import dmt from 'dmt/common';
+import { deviceGeneralIdentifier } from 'dmt/common';
 
 import pushoverApi from './pushoverApi';
 
 import { dmtApp } from './dmtApp';
 
-const deviceId = dmt.deviceGeneralIdentifier();
+const deviceId = deviceGeneralIdentifier();
 
 export default function prepareMessage({ message, recipient, title, app, omitDeviceName, network, highPriority, url, urlTitle, isABC }) {
   let messageTitle = title;
@@ -31,6 +31,7 @@ export default function prepareMessage({ message, recipient, title, app, omitDev
       } else if (messageTitle.length > 0) {
         messageTitle = `${messageTitle} · `;
       }
+
       messageTitle = `${messageTitle}${network}`;
     }
 

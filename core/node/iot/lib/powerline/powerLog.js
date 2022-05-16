@@ -1,11 +1,12 @@
-import dmt from 'dmt/common';
+import { dmtPath } from 'dmt/common';
+
 import fs from 'fs';
 import path from 'path';
 
 let stream;
 
 function powerLog({ topic, msg }) {
-  const filePath = path.join(dmt.dmtPath, 'user/data/power.csv');
+  const filePath = path.join(dmtPath, 'user/data/power.csv');
 
   if (!stream) {
     stream = fs.createWriteStream(filePath, { flags: 'a' });

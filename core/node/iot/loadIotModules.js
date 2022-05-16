@@ -1,7 +1,8 @@
 import path from 'path';
 
-import dmt from 'dmt/common';
-const { scan } = dmt;
+import { scan } from 'dmt/common';
+
+import mqttClient from './createMqttClient';
 
 const iotMessageHandlers = [];
 const tickHandlers = [];
@@ -12,7 +13,7 @@ function loadIotModules({ program, modulesPath }) {
   if (!program.iotModulesHandlerAttached) {
     program.iotModulesHandlerAttached = true;
 
-    program.on('iot:message', ({ topic, msg }) => {
+    mqttClient.on('message', ({ topic, msg }) => {
       for (const handler of iotMessageHandlers) {
         handler({ program, topic, msg });
       }
@@ -26,17 +27,17 @@ function loadIotModules({ program, modulesPath }) {
   }
 
   modules.forEach(mod =>
-    import(mod).then(({ setup, handleIotEvent, manageTick }) => {
+    import(mod).then(({ setup, handleMqttEvent, onProgramTick }) => {
       if (setup) {
         setup(program);
       }
 
-      if (handleIotEvent) {
-        iotMessageHandlers.push(handleIotEvent);
+      if (handleMqttEvent) {
+        iotMessageHandlers.push(handleMqttEvent);
       }
 
-      if (manageTick) {
-        tickHandlers.push(manageTick);
+      if (onProgramTick) {
+        tickHandlers.push(onProgramTick);
       }
     })
   );

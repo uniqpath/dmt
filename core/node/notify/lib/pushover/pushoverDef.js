@@ -1,7 +1,6 @@
-import dmt from 'dmt/common';
-const { def } = dmt;
+import { def, userDef } from 'dmt/common';
 
-const config = dmt.userDef('pushover')?.pushover;
+const config = userDef('pushover')?.pushover;
 
 function getUserToken() {
   return config?.user;

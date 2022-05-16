@@ -1,7 +1,4 @@
-import colors from 'colors';
-
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors, isDevMachine } from 'dmt/common';
 
 import loadGuiViewsDef from '../../../loadGuiViewsDef';
 
@@ -12,9 +9,11 @@ export default function initProtocol({ program }) {
 
   const channels = program.registerProtocol({ protocol: 'dmt/gui', onConnect });
 
-  program.store().syncOver(channels);
+  program.store().sync(channels);
 
-  log.dev('⚠️  Reminder: remove this GUITarget after dmt gui moves to Svelte3');
+  if (isDevMachine()) {
+    log.magenta('⚠️  Reminder: remove this GUITarget after dmt gui moves to Svelte3');
+  }
 
   program.on('send_to_connected_guis', ({ action, payload }) => {
     log.cyan(

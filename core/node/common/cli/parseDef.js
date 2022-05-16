@@ -1,4 +1,5 @@
-import colors from 'colors';
+import { colors } from 'dmt/common';
+
 import colorJSON from '../lib/colorJSON';
 import def from '../lib/parsers/def/parser';
 

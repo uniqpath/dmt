@@ -1,7 +1,7 @@
 import WsServer from './wsServer.js';
 import initializeConnection from './initializeConnection.js';
 
-import ReadableStore from '../../stores/front/helperStores/readableStore.js';
+import ReadableStore from '../../stores/lib/helperStores/readableStore.js';
 
 import { orderBy } from '../../utils/sorting/sorting.js';
 
@@ -10,7 +10,7 @@ import ChannelList from '../channel/channelList.js';
 import { newKeypair } from '../../utils/crypto/index.js';
 
 export default class Connectome extends ReadableStore {
-  constructor({ port, keypair = newKeypair(), server, verbose }) {
+  constructor({ port, keypair = newKeypair(), server, log = console.log, verbose }) {
     super({ connectionList: [] });
 
     this.port = port;
@@ -18,6 +18,7 @@ export default class Connectome extends ReadableStore {
 
     this.server = server;
 
+    this.log = log;
     this.verbose = verbose;
 
     this.protocols = {};
@@ -42,6 +43,7 @@ export default class Connectome extends ReadableStore {
   start() {
     this.wsServer = new WsServer({
       port: this.port,
+      log: this.log,
       verbose: this.verbose,
       server: this.server
     });

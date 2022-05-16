@@ -1,15 +1,13 @@
 import path from 'path';
-import colors from 'colors';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors, dmtPath, isRPi } from 'dmt/common';
 
 import bashShutdown from './lib/shutdown';
 import bashReboot from './lib/reboot';
 import bashSetAccessPoint from './lib/setAccessPoint';
 import bashDmtNext from './lib/dmtNext';
 
-const scriptsPath = path.join(dmt.dmtPath, 'etc/scripts');
+const scriptsPath = path.join(dmtPath, 'etc/scripts');
 
 function scriptActionHandler({ program, action, namespace }) {
   if (namespace == 'device') {
@@ -23,7 +21,7 @@ function scriptActionHandler({ program, action, namespace }) {
         break;
     }
 
-    if (!dmt.isRPi()) {
+    if (!isRPi()) {
       log.red(
         `Device is not ${colors.yellow(
           'RaspberryPi'

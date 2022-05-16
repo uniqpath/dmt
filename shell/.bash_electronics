@@ -49,13 +49,22 @@ function get_highest_version_subdir {
   eval "$1='${__highest}'"
 }
 
-# esptool -vv -cd ck -cb 115200 -cp /dev/cu.SLAB_USBtoUART -ca 0x00000 -cf /var/folders/8l/7gg0cdz556x6shrd9n42kf140000gn/T/arduino_build_444147/lights.ino.bin
+# 1. Install CP201x drivers for MacOS from here:
+#    https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers
+# 2. Install Arduino IDE
+# 3. Install ESP8266 external board https://github.com/esp8266/Arduino/#installing-with-boards-manager
+# 4. try "esp erase"
+#
+# todo: check if https://github.com/espressif/esptool is working ok and then maybe use this in the future
+# but it was a bit different than what we are using now
 function esp {
   # local ftdi1="/dev/tty.SLAB_USBtoUART"
   # local ftdi2="/dev/tty.wchusbserial1420"
 
+  # esptool -vv -cd ck -cb 115200 -cp /dev/cu.SLAB_USBtoUART -ca 0x00000 -cf /var/folders/8l/7gg0cdz556x6shrd9n42kf140000gn/T/arduino_build_444147/lights.ino.bin
+
   local ftdi1="/dev/cu.SLAB_USBtoUART"
-  local ftdi2="/dev/cu.wchusbserial1420"
+  #local ftdi2="/dev/cu.wchusbserial1420"
 
   local ftdi=$ftdi1
 
@@ -94,7 +103,14 @@ function esp {
     local esp_tool_path="${esp_tool_parent_path}/${highest}/esptool"
     if [ ! -f "$esp_tool_path" ]; then
       printf "${esp_tool_path} ${RED}file is missing${NC}\n"
-      return
+
+      local DMT_ESPTOOL="$DMT_PATH/etc/scripts/esptool"
+      if [ -f "$DMT_ESPTOOL" ]; then
+        printf "Using ${GREEN}~/.dmt/etc/scripts/esptool${NC}\n"
+        esp_tool_path="$DMT_ESPTOOL"
+      else
+        return
+      fi
     fi
 
     case "$matching_opt" in
@@ -144,6 +160,7 @@ function esp {
             printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip]${NC}\n"
             return
           fi
+
           # if [ ! -f "$2" ]; then
           #   printf "${RED}Firmware file doesn't exist${NC}\n"
           #   return

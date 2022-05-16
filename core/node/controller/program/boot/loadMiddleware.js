@@ -1,11 +1,10 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 import MidLoader from '../middleware';
 
 export default function loadMiddleware(program, mids) {
   return new Promise((success, reject) => {
-    log.gray('Starting to load middleware ...');
+    log.gray('Starting to load dmt-proc modules ...');
 
     const midLoader = new MidLoader();
 

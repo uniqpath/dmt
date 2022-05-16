@@ -1,28 +1,45 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors, prettyFileSize } from 'dmt/common';
 
-import { push, desktop } from 'dmt/notify';
+import wtf from 'wtfnode';
 
-import stripAnsi from 'strip-ansi';
+import { push, apn, desktop } from 'dmt/notify';
+
+let terminationInProgress;
+
+import exit from '../exit';
+import getExitMsg from '../getExitMsg';
+
+function crashNotify2(exitMsg, delay = 3000) {
+  setTimeout(() => {
+    setTimeout(() => {
+      exit();
+    }, delay);
+
+    apn.notify(exitMsg).then(() => {
+      exit();
+    });
+  }, delay);
+}
 
 function terminateProgram(err, reason, program) {
   const msg = `${reason}: ${err}`;
 
-  if (log.isForeground) {
-    reportStopping(program);
-  }
-
   log.red(msg);
   log.red(err.stack);
-  log.yellow('— PREPARING TO EXIT THE PROGRAM —');
 
-  push
-    .highPriority()
-    .notify(`🛑😱 ${stripAnsi(msg)} → PROCESS TERMINATED`)
-    .then(() => {
-      log.yellow('EXITING, bye ✋');
-      process.exit();
+  if (!terminationInProgress) {
+    terminationInProgress = true;
+
+    log.yellow('— PREPARING TO EXIT THE PROGRAM —');
+
+    const exitMsg = getExitMsg(msg);
+
+    crashNotify2(exitMsg, 3000);
+
+    program.exceptionNotify(exitMsg).then(() => {
+      exit();
     });
+  }
 }
 
 function reportStopping(program) {
@@ -33,14 +50,26 @@ export default function setupGlobalErrorHandler(program) {
   process.on('uncaughtException', (err, origin) => terminateProgram(err, origin, program));
 
   process.on('SIGTERM', signal => {
-    log.yellow(`Process received a ${signal} signal (usually because of normal stop/restart)`);
     reportStopping(program);
+    log.yellow(`Process received a ${signal} signal (usually because of normal stop/restart)`);
+
     process.exit(0);
   });
 
   process.on('SIGINT', signal => {
-    log.yellow(`Process has been interrupted: ${signal}`);
     reportStopping(program);
+    log.yellow(`Process has been interrupted: ${signal}`);
+
+    if (log.isProfiling()) {
+      log.green('Active handles:');
+      wtf.dump();
+      log.green('Memory usage:');
+
+      for (const [key, size] of Object.entries(process.memoryUsage())) {
+        log.write(`${colors.cyan(key)}: ${prettyFileSize(size)}`);
+      }
+    }
+
     process.exit(0);
   });
 }

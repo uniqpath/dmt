@@ -1,10 +1,6 @@
 import stopwatch from './stopwatch/stopwatch.js';
 import EventEmitter from './emitter/index.js';
 
-function log(msg) {
-  console.log(`${new Date().toLocaleString()} → ${msg}`);
-}
-
 function isBrowser() {
   return typeof window !== 'undefined';
 }
@@ -43,4 +39,4 @@ function integerToByteArray(long, arrayLen = 8) {
   return byteArray;
 }
 
-export { stopwatch, EventEmitter, log, isBrowser, isNodeJs, listify, bufferToHex, hexToBuffer, integerToByteArray };
+export { stopwatch, EventEmitter, isBrowser, isNodeJs, listify, bufferToHex, hexToBuffer, integerToByteArray };

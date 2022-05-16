@@ -1,5 +1,4 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 function userActionHandlers({ program, player }) {
   program.on('dmt_gui_action', ({ action, namespace, payload }) => {

@@ -1,6 +1,4 @@
-import dmt from 'dmt/common';
-
-const { processBatch } = dmt;
+import { processBatch } from 'dmt/common';
 
 import asyncMap from './asyncMap';
 

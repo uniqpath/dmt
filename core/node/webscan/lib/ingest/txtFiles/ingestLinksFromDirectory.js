@@ -1,8 +1,6 @@
 import fs from 'fs';
 
-import dmt from 'dmt/common';
-
-const { scan } = dmt;
+import { scan } from 'dmt/common';
 
 import parseLinksTxtFile from './parseLinksTxtFile';
 import getAllTxtFiles from './getAllTxtFiles';

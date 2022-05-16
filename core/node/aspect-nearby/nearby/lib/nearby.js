@@ -1,31 +1,26 @@
-import dmt from 'dmt/common';
-const { log, util } = dmt;
+import { log, util, globals, keypair } from 'dmt/common';
 
 import constructOurMessage from './attach/constructOurMessage';
 import deriveDeviceData from './attach/deriveDeviceData';
 import detectStaleDevices from './state/detectStaleDevices';
 import updateDeviceInList from './state/updateDeviceInList';
 
+import Api from './api/nearbyApi';
+
 class Nearby {
-  constructor(program) {
+  constructor({ program, lanbus }) {
     this.program = program;
 
-    program.store('nearbyDevices').makeArray();
+    this.api = new Api(this);
 
-    this.broadcastInterval = 2 * dmt.globals.tickerPeriod * 1000;
-
-    program.on('tick', () => {
-      if (!this.lanbus) {
-        this.lanbus = this.program.lanbus;
-
-        if (this.lanbus) {
-          this.init();
-        }
-      }
-    });
+    this.broadcastInterval = globals.tickerPeriod * 1000;
+    this.init(lanbus);
   }
 
-  init() {
+  init(lanbus) {
+    this.lanbus = lanbus;
+
+    this.program.setNearby(this.api);
     this.refreshNearbyDevicesList();
 
     this.program.on('tick', () => this.refreshNearbyDevicesList());
@@ -56,10 +51,12 @@ class Nearby {
 
       broadcastLoop();
     }, 1000);
+
+    this.program.emit('ready');
   }
 
   ourMessage() {
-    const msg = { processId: process.pid, message: 'ΞΞΞ HEY', origin: 'dmt' };
+    const msg = { processId: process.pid, message: 'ΞΞΞ HEY' };
     return constructOurMessage({ program: this.program, msg });
   }
 
@@ -96,11 +93,12 @@ class Nearby {
 
     this.lanbus.on('message', obj => {
       try {
-        if (obj.deviceKey == dmt.keypair().publicKeyHex) {
+        if (obj.deviceKey == keypair().publicKeyHex) {
           return;
         }
 
-        if (this.program.device.subnet && this.program.device.subnet != obj.subnet) {
+        if (obj.__isNearbyApi) {
+          this.api.messageReceived(obj);
           return;
         }
 
@@ -128,6 +126,7 @@ class Nearby {
         const { program } = this;
         updateDeviceInList({ device: deriveDeviceData(device), program, announce });
       } catch (e) {
+        this.program.exceptionNotify(e.message, 'LanBus error');
         log.red(e);
       }
     });

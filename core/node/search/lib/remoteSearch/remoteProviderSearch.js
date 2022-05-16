@@ -1,9 +1,8 @@
-import dmt from 'dmt/common';
 import { reconstructSearchQuery } from 'dmt/search';
 
 import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
 
-const { log, stopwatchAdv, prettyMicroDuration } = dmt;
+import { log, stopwatchAdv, prettyMicroDuration } from 'dmt/common';
 
 class RemoteProviderSearch {
   constructor({ provider, connector }) {

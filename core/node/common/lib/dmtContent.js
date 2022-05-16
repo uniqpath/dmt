@@ -3,10 +3,9 @@ import def from './parsers/def/parser';
 
 import cliParser from './parsers/cli/parser';
 import parseDeviceMention from './parsers/cli/parseDeviceMention';
-import { sambaDefinitionErrorCheck } from './sambaHelpers';
+import sambaDefinitionErrorCheck from './sambaDefinitionErrorCheck';
 
-import dmt from './dmtHelper';
-const { log } = dmt;
+import { log, deviceDefFile, device as _device, absolutizePath } from './dmtHelper';
 
 function parseContentRefs(contentRefs) {
   contentRefs = contentRefs.map(contentRef => {
@@ -44,15 +43,15 @@ function readContentDef({ filePath }) {
 }
 
 function getContentIDs() {
-  const filePath = dmt.deviceDefFile('this', 'content');
+  const filePath = deviceDefFile('this', 'content');
   const contentDef = readContentDef({ filePath });
 
   return def.values(contentDef.multi).filter(id => id);
 }
 
 function contentPaths({ contentId, deviceName = 'this', returnSambaSharesInfo = false }) {
-  const device = dmt.device({ deviceName });
-  const filePath = dmt.deviceDefFile(deviceName, 'content');
+  const device = _device({ deviceName });
+  const filePath = deviceDefFile(deviceName, 'content');
   const contentDef = readContentDef({ filePath });
 
   if (contentDef.empty) {
@@ -76,7 +75,7 @@ function contentPaths({ contentId, deviceName = 'this', returnSambaSharesInfo = 
   }
 
   if (content) {
-    return def.values(content.path).map(path => dmt.absolutizePath({ path, device }));
+    return def.values(content.path).map(path => absolutizePath({ path, device }));
   }
 }
 

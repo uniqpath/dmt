@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import dmt from 'dmt/common';
 
+import { dmtUserDir } from 'dmt/common';
 import modifyPackageJson from './modifyPackageJson';
 
 async function init(program) {
@@ -9,7 +9,7 @@ async function init(program) {
     program.emit('user_engine_ready', results);
   }
 
-  const userEnginePath = path.join(dmt.userDir, 'engine');
+  const userEnginePath = path.join(dmtUserDir, 'engine');
   const userEngineEntryPoint = path.join(userEnginePath, 'index.js');
 
   modifyPackageJson(userEnginePath);

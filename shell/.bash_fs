@@ -229,7 +229,7 @@ function awesome_cd {
 }
 
 function p {
-  if dmt_macos; then
+  #if dmt_macos; then
 
     AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system "$1"
 
@@ -237,9 +237,9 @@ function p {
       AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system/packages "$1"
     fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/Projects/node "$1"
-    fi
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/node "$1"
+    # fi
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/Projects/rust "$1"
@@ -250,6 +250,10 @@ function p {
     fi
 
     if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd /var/projects "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine "$1"
     fi
 
@@ -257,17 +261,13 @@ function p {
       AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine/playground "$1"
     fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system/playground "$1"
-    fi
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system/playground "$1"
+    # fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd /var/projects "$1"
-    fi
-
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/Projects/node/dcrypt "$1"
-    fi
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/node/dcrypt "$1"
+    # fi
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node "$1"
@@ -277,13 +277,13 @@ function p {
       AWESOME_SILENCE=true awesome_cd ~/.dmt/core/rust "$1"
     fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/Projects/ethereum "$1"
-    fi
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/ethereum "$1"
+    # fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/Projects/music "$1"
-    fi
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/music "$1"
+    # fi
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd $GOPATH/src "$1"
@@ -301,9 +301,9 @@ function p {
       AWESOME_SILENCE=true awesome_cd ~/Install "$1"
     fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/Projects/node/archive "$1"
-    fi
+    # if [ $? -gt 0 ]; then
+    #   AWESOME_SILENCE=true awesome_cd ~/Projects/node/archive "$1"
+    # fi
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd ~/Library/Application\ Support/Sublime\ Text/Packages "$1"
@@ -321,42 +321,42 @@ function p {
       awesome_cd ~/Misc "$1"
     fi
 
-  else
-    # nice side effect:
-    # p -> /var/projects
-    # p (second time) -> /var/www
-    AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node/controller "$1"
+  # else
+  #   # nice side effect:
+  #   # p -> /var/projects
+  #   # p (second time) -> /var/www
+  #   AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node/controller "$1"
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine "$1"
-    fi
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine "$1"
+  #   fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine/playground "$1"
-    fi
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd ~/.dmt/user/engine/playground "$1"
+  #   fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd /var/projects "$1"
-    fi
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd /var/projects "$1"
+  #   fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node "$1"
-    fi
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd ~/.dmt/core/node "$1"
+  #   fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd ~/.dmt/core/rust "$1"
-    fi
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd ~/.dmt/core/rust "$1"
+  #   fi
 
-    if [ $? -gt 0 ]; then
-      AWESOME_SILENCE=true awesome_cd /var/www "$1"
+  #   if [ $? -gt 0 ]; then
+  #     AWESOME_SILENCE=true awesome_cd /var/www "$1"
 
-      if [ $? -gt 0 ]; then
-        awesome_cd ~/Install "$1"
-      elif [ -d "current" ]; then
-        cd current
-      fi
-    fi
-  fi
+  #     if [ $? -gt 0 ]; then
+  #       awesome_cd ~/Install "$1"
+  #     elif [ -d "current" ]; then
+  #       cd current
+  #     fi
+  #   fi
+  #fi
 }
 
 # TREE:
@@ -402,6 +402,10 @@ function h {
     else
 
       AWESOME_SILENCE=true awesome_cd ~/Storage "$1"
+
+      if [ $? -gt 0 ]; then
+        AWESOME_SILENCE=true awesome_cd ~/Media/SolarBackup "$1"
+      fi
 
       if [ $? -gt 0 ]; then
         AWESOME_SILENCE=true awesome_cd ~/System "$1"
@@ -881,7 +885,8 @@ function r {
 
     if [ -n "$executable" ]; then
       local args="$@"
-      printf "${YELLOW}$executable $matching_file ${args}${NC}\n" # if using $@ directly here, only the first argument is printed :/
+      printf "[ ${GRAY}$executable $matching_file ${args}${NC}]\n" # if using $@ directly here, only the first argument is printed :/
+      echo
       command $executable "$matching_file" "$@"
     elif [ -d "cli" ]; then
       cli "$pattern" "$@"

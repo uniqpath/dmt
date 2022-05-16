@@ -1,10 +1,10 @@
 import path from 'path';
 import fs from 'fs';
-import dmt from 'dmt/common';
-const { def } = dmt;
+
+import { def, dmtUserDir } from 'dmt/common';
 
 function getTasks() {
-  const iotDef = path.join(dmt.userDir, 'def/iot.def');
+  const iotDef = path.join(dmtUserDir, 'def/iot.def');
   if (fs.existsSync(iotDef)) {
     return def.parseFile(iotDef).multi;
   }

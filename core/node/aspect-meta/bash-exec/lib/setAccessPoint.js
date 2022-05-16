@@ -1,8 +1,6 @@
 import path from 'path';
-import colors from 'colors';
 
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log, colors } from 'dmt/common';
 
 import { exec } from 'child_process';
 

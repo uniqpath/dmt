@@ -1,17 +1,13 @@
 import fs from 'fs';
-import dmt from 'dmt/common';
 
+import { log, abcVersion as _abcVersion, isRPi, abcSocket } from 'dmt/common';
 import connect from './lib/connect';
 import _initConnection from './lib/initConnection';
 import startABC from './lib/startABC';
 
 import { push } from 'dmt/notify';
 
-const device = dmt.device({ onlyBasicParsing: true });
-
-const abcVersion = dmt.abcVersion();
-
-const { log } = dmt;
+const abcVersion = _abcVersion();
 
 let client;
 
@@ -39,7 +35,7 @@ function initConnection({ ipcClient, program }) {
 
 function tryConnect({ once = false, counter = 1, program } = {}) {
   return new Promise((success, reject) => {
-    connect(dmt.abcSocket)
+    connect(abcSocket)
       .then(ipcClient => {
         initConnection({ ipcClient, program });
         log.cyan('✓ Connected to 🔦 ABC process');
@@ -84,7 +80,7 @@ function tryStartABC(program) {
 }
 
 function startAndConnectToABC(program) {
-  if (fs.existsSync(dmt.abcSocket)) {
+  if (fs.existsSync(abcSocket)) {
     tryConnect({ once: true, program }).catch(() => {
       log.gray('Failed to connect to ABC process, (re)starting ABC ...');
       tryStartABC(program);
@@ -105,7 +101,7 @@ function setupDmtToAbcBridge(program) {
 function init(program) {
   setupDmtToAbcBridge(program);
 
-  const tick = dmt.isRPi() ? 'slowtick' : 'tick';
+  const tick = isRPi() ? 'slowtick' : 'tick';
 
   program.on(tick, () => {
     program.sendABC({ message: program.network.name(), context: 'set_network' });

@@ -1,16 +1,15 @@
 #!/bin/bash
 
-# detect missing ABC process
+# Detect missing ABC process
 
 source ~/.dmt/etc/.bash_aliases_bundle # push_notify, DMT_PATH
 
 proc=$(ps -ef | grep "abc-proc" | grep -v "nano abc-proc" | grep -v "eslint" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
 
 if [ -z "$proc" ]; then
-  #HOST=`hostname`
   push_notify "dmt shell → ⚠️🔦 ABC process is not running, starting ABC …"
 
-  TERM=xterm ${DMT_PATH}/etc/onboot/daemons start abc-proc # TERM=xterm -> enable colors (because of cron)
+  ${DMT_PATH}/etc/onboot/daemons start abc-proc # TERM=xterm -> enable colors (because of cron)
 fi
 
 # Execute DEVICE CRON

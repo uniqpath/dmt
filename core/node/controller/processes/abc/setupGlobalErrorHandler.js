@@ -1,47 +1,56 @@
-import dmt from 'dmt/common';
-const { log } = dmt;
+import { log } from 'dmt/common';
 
 import { push, apn } from 'dmt/notify';
 
 import stripAnsi from 'strip-ansi';
 
-let remainingTerminateRetries = 1;
+let terminationInProgress;
+
+function exit() {
+  log.yellow('EXITING ABC, bye ☠️');
+  process.exit();
+}
+
+function crashNotify2(exitMsg, delay = 3000) {
+  setTimeout(() => {
+    setTimeout(() => {
+      exit();
+    }, delay);
+
+    apn.notify(exitMsg).then(() => {
+      exit();
+    });
+  }, delay);
+}
 
 function terminateProgram(err, reason) {
-  const exitMsg = 'EXITING ABC, bye ☠️';
+  const msg = `${reason}: ${err}`;
 
-  if (remainingTerminateRetries > 0) {
-    const msg = `${reason}: ${err}`;
+  log.red(msg);
+  log.red(err.stack);
 
-    remainingTerminateRetries -= 1;
+  if (!terminationInProgress) {
+    terminationInProgress = true;
 
-    const _msg = `🔦🛑😱 ${stripAnsi(msg)} → ABC PROCESS TERMINATED`;
+    log.yellow('— PREPARING TO EXIT ABC —');
 
-    push
-      .highPriority()
-      .notify(_msg)
-      .then(() => {
-        log.red(msg);
-        log.red(err.stack);
-        log.yellow(exitMsg);
-        process.exit();
-      });
-  } else {
-    log.yellow(
-      '⚠️⚠️ Was not able to send a push notification about the original error that cause ABC process crash because of some kind of additional bug inside push notification logic:'
-    );
+    const exitMsg = `🪲😱 ${stripAnsi(msg)} → 🛑 ABC PROCESS TERMINATED`;
 
-    const msg = `${reason}: ${err}`;
+    crashNotify2(exitMsg, 3000);
 
-    log.cyan(msg);
-    log.cyan(err.stack);
-    log.green('We have two problems to solve - fix push notifications first!');
-    log.yellow('— PREPARING TO EXIT THE PROGRAM —');
+    try {
+      push
+        .highPriority()
+        .notify(exitMsg)
+        .then(() => {
+          exit();
+        });
+    } catch (e) {
+      log.red('⚠️ Error in push message implementation:');
+      log.red(e);
 
-    apn.notify('ABC 🔦☠️ Bug in pushover notification code, check log').then(() => {
-      log.red(exitMsg);
-      process.exit();
-    });
+      crashNotify2(exitMsg, 2000);
+    }
   }
 }
 

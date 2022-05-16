@@ -1,8 +1,6 @@
-import colors from 'colors';
 import fs from 'fs';
 
-import dmt from 'dmt/common';
-const { util, cli } = dmt;
+import { util, cli, colors } from 'dmt/common';
 
 import ffprobe from '../lib/metadataReader/ffprobe';
 

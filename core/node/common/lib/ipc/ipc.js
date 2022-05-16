@@ -5,14 +5,12 @@ import EventEmitter from 'events';
 
 const defaults = {
   server: {
-    path: '/tmp/crocket-ipc.sock',
     host: null,
     port: null,
     reconnect: 2000,
     encoding: 'utf8'
   },
   client: {
-    path: '/tmp/crocket-ipc.sock',
     host: null,
     port: null,
     reconnect: -1,

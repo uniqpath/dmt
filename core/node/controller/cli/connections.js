@@ -1,7 +1,6 @@
-import colors from 'colors';
 import { ipcClient, parseArgs, Table } from 'dmt/cli';
 
-import dmt from 'dmt/common';
+import { colors, prettyTimeAge } from 'dmt/common';
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -45,8 +44,8 @@ function displayTable(connectionList, outgoing = true) {
 
       const addressLine = `${connectedMarker} ${colors.white(address)}`;
 
-      const connUptime = connectedAt ? dmt.prettyTimeAge(connectedAt, { detailed: true }).replace(' ago', '') : '';
-      const lastMessageTime = lastMessageAt ? dmt.prettyTimeAge(lastMessageAt, { detailed: true }) : '';
+      const connUptime = connectedAt ? prettyTimeAge(connectedAt, { detailed: true }).replace(' ago', '') : '';
+      const lastMessageTime = lastMessageAt ? prettyTimeAge(lastMessageAt, { detailed: true }) : '';
 
       const line = [addressLine, protocol];
 
@@ -73,9 +72,9 @@ function displayTable(connectionList, outgoing = true) {
 
 ipcClient({ actorName: 'controller', action })
   .then(({ incoming, outgoing }) => {
-    console.log(colors.brightWhite(`Open ${colors.cyan('dmt-proc')} ⚡ connections:`));
+    console.log(colors.bold().white(`Open ${colors.cyan('dmt-proc')} ⚡ connections:`));
     console.log();
-    console.log(colors.brightWhite(`${colors.cyan('🔺')} Outgoing`));
+    console.log(colors.bold().white(`${colors.cyan('🔺')} Outgoing`));
     if (args.raw) {
       console.log(outgoing);
     } else {
@@ -83,7 +82,7 @@ ipcClient({ actorName: 'controller', action })
     }
     console.log();
 
-    console.log(colors.brightWhite(`${colors.cyan('🔻')} Incoming`));
+    console.log(colors.bold().white(`${colors.cyan('🔻')} Incoming`));
     if (args.raw) {
       console.log(incoming);
     } else {

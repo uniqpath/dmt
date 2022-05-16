@@ -5,6 +5,6 @@ fs.writeFileSync(
 );
 
 fs.writeFileSync(
-  'stores/package.json',
+  'stores/node/package.json',
   JSON.stringify({ main: 'index.js', module: 'index.mjs', typings: '../typings/src/stores/index.d.ts' }, undefined, '\t')
 );
