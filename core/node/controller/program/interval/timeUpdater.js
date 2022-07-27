@@ -1,6 +1,6 @@
 let lastDetectedMinute;
 
-import determineTimeAndDate from './determineTimeAndDate';
+import determineTimeAndDate from './determineTimeAndDate.js';
 
 function updateTime(program, { announce = false } = {}) {
   const latlng = program.latlng();
@@ -8,7 +8,7 @@ function updateTime(program, { announce = false } = {}) {
 
   const time = determineTimeAndDate({ latlng, lang });
 
-  program.store('time').update(time, { announce });
+  program.slot('time').update(time, { announce });
 }
 
 function rolloverSecondDetect(program) {

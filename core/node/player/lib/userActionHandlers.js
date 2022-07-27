@@ -1,11 +1,16 @@
 import { log, colors } from 'dmt/common';
 
 function userActionHandlers({ program, player }) {
-  program.on('dmt_gui_action', ({ action, namespace, payload }) => {
-    if (namespace == 'player') {
+  program
+    .dev('dmt')
+    .protocol('gui')
+    .onUserAction('player', ({ action, payload }) => {
       switch (action) {
         case 'play':
           player.play().catch(log.red);
+          break;
+        case 'bump':
+          player.bump(payload.args).catch(log.red);
           break;
         case 'play_radio': {
           const { radioId } = payload;
@@ -22,7 +27,7 @@ function userActionHandlers({ program, player }) {
           player.volume('down').catch(log.red);
           break;
         case 'next':
-          player.next().catch(log.red);
+          player.next({ songId: payload?.songId }).catch(log.red);
           break;
         case 'shuffle':
           player.shuffle().catch(log.red);
@@ -86,8 +91,7 @@ function userActionHandlers({ program, player }) {
         default:
           break;
       }
-    }
-  });
+    });
 }
 
 export default userActionHandlers;

@@ -1,14 +1,14 @@
 import { log, colors } from 'dmt/common';
 
-function createHandler({ method, actorName, program }, setupData = {}) {
+function createHandler({ method, apiName, program }, setupData = {}) {
   return args => {
     return new Promise((success, reject) => {
       const calledWith = args ? `with ${colors.white(args)}` : '';
-      log.gray(`actor method called → ${colors.cyan(actorName)}/${colors.green(method.name)} ${calledWith}`);
+      log.gray(`actor method called → ${colors.cyan(apiName)}/${colors.green(method.name)} ${calledWith}`);
 
       if (method.handler) {
         method
-          .handler({ args, method, actorName, program }, setupData)
+          .handler({ args, method, apiName, program }, setupData)
           .then(success)
           .catch(reject);
       }

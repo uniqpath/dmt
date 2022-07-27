@@ -1,8 +1,10 @@
 import { globals } from 'dmt/common';
 
-const intervalPeriod = globals.tickerPeriod * 1000;
+const intervalPeriod = globals.tickerPeriod;
 
 let tickCounter = -1;
+
+import { stores } from '../createStore/createStore.js';
 
 function startTicker(program) {
   oneTick(program);
@@ -21,7 +23,13 @@ function oneTick(program) {
 
   tickCounter += 1;
 
-  setTimeout(() => program.store().announceStateChange(), intervalPeriod / 2);
+  setTimeout(() => {
+    program.store().announceStateChange();
+
+    for (const store of Object.values(stores)) {
+      store.announceStateChange();
+    }
+  }, intervalPeriod / 2);
 
   setTimeout(() => {
     oneTick(program);

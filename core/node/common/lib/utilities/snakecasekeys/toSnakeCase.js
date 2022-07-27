@@ -1,4 +1,4 @@
-import toSpace from './toSpaceCase';
+import toSpace from './toSpaceCase.js';
 
 export default toSnakeCase;
 

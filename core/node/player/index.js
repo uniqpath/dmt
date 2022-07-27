@@ -1,6 +1,6 @@
-import createPlayer from './createPlayer';
+import createPlayer from './createPlayer.js';
 
-import methods from './actor/methods';
+import methods from './apiPlayer/methods.js';
 
 function init(program) {
   const { paraSearch, player } = createPlayer(program);
@@ -9,7 +9,7 @@ function init(program) {
     return { paraSearch, player };
   };
 
-  program.registerActor({ actorName: 'player', methods, setup });
+  program.registerApi({ apiName: 'player', methods, setup });
 
   return { player };
 }

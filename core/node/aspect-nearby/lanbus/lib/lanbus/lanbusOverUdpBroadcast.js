@@ -1,7 +1,7 @@
 import { log, colors, device } from 'dmt/common';
 import EventEmitter from 'events';
 
-import UdpBus from '../udpbus';
+import UdpBus from '../udpbus/index.js';
 
 class LanBusOverUdpBroadcast extends EventEmitter {
   constructor({ program }) {
@@ -40,7 +40,7 @@ class LanBusOverUdpBroadcast extends EventEmitter {
   }
 
   broadcastMessage(msgJson) {
-    if (this.program.store('device').get('ip')) {
+    if (this.program.slot('device').get('ip')) {
       const msg = JSON.stringify(msgJson);
 
       this.udpBus

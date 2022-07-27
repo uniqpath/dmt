@@ -1,6 +1,6 @@
 import colors from 'kleur';
 
-import { newServerKeypair, Connectome } from '../../../src/server';
+import { newServerKeypair, Connectome } from '../../../src/server/index.js';
 import { printServerInfo } from '../exampleUtils.js';
 import { bufferToHex } from '../../../src/utils/index.js';
 

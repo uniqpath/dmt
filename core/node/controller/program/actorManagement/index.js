@@ -1,4 +1,6 @@
-import createHandler from './createHandler';
+import { log, colors } from 'dmt/common';
+
+import createHandler from './createHandler.js';
 
 import { util } from 'dmt/common';
 
@@ -9,45 +11,45 @@ class ActorManagement {
     this.actors = {};
   }
 
-  register({ actorName, methods, setup }, { restrictToLocal = false } = {}) {
+  register({ apiName, methods, setup }, { restrictToLocal = false } = {}) {
     let setupResults;
 
     if (setup) {
-      setupResults = setup({ program: this.program, actorName });
+      setupResults = setup({ program: this.program, apiName });
     }
 
-    if (this.actors[actorName]) {
-      throw new Error(`Actor ${actorName} was already registered.`);
+    if (this.actors[apiName]) {
+      throw new Error(`Actor ${apiName} was already registered.`);
     }
 
     const actorMethods = {};
-    this.actors[actorName] = { actorMetadata: { restrictToLocal }, actorMethods };
+    this.actors[apiName] = { actorMetadata: { restrictToLocal }, actorMethods };
 
     for (const method of methods) {
-      const handler = createHandler({ method, actorName, program: this.program }, setupResults);
+      const handler = createHandler({ method, apiName, program: this.program }, setupResults);
       actorMethods[method.name] = handler;
     }
   }
 
   setupChannel(channel) {
-    for (const [actorName, actor] of Object.entries(this.actors)) {
+    for (const [apiName, actor] of Object.entries(this.actors)) {
       if (!actor.actorMetadata.restrictToLocal) {
-        channel.attachObject(actorName, actor.actorMethods);
+        channel.attachObject(apiName, actor.actorMethods);
       }
     }
   }
 
-  get(actorName) {
+  get(apiName) {
     return {
       call: (methodName, args) => {
-        return this.call(actorName, methodName, args);
+        return this.call(apiName, methodName, args);
       }
     };
   }
 
-  call(actorName, methodName, args) {
+  call(apiName, methodName, args) {
     return new Promise((success, reject) => {
-      const actor = this.actors[actorName];
+      const actor = this.actors[apiName];
 
       if (actor) {
         const method = actor.actorMethods[methodName];
@@ -57,20 +59,24 @@ class ActorManagement {
             .then(success)
             .catch(reject);
         } else {
-          reject(new Error(`Actor method ${actorName}/${methodName} does not exist.`));
+          reject(new Error(`Actor method ${apiName}/${methodName} does not exist.`));
         }
       } else {
-        reject(new Error(`Actor ${actorName} does not exist.`));
+        const msg = `⚠️  Program API ${colors.magenta(apiName)} is not registered (yet?) — ignoring call to ${colors.yellow(apiName)}/${colors.yellow(
+          methodName
+        )}`;
+
+        reject(new Error(msg));
       }
     });
   }
 
   registeredActors() {
     return Object.entries(this.actors)
-      .map(([actorName, actor]) => {
-        return { actorName, methodList: Object.keys(actor.actorMethods), restrictToLocal: actor.actorMetadata.restrictToLocal };
+      .map(([apiName, actor]) => {
+        return { apiName, methodList: Object.keys(actor.actorMethods), restrictToLocal: actor.actorMetadata.restrictToLocal };
       })
-      .sort(util.orderBy('actorName'));
+      .sort(util.orderBy('apiName'));
   }
 }
 

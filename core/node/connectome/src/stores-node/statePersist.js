@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-import writeFileAtomic from './lib/writeFileAtomic';
-import migrateState from './migrateState';
+import writeFileAtomic from './lib/writeFileAtomic.js';
+import migrateState from './migrateState.js';
 
 import compare from './lib/compare.js';
 

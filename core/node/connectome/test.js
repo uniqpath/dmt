@@ -8,8 +8,8 @@ const store = new stores.ProtocolStore({});
 function onConnect({ channel, store }) {
   console.log('New example/gui connection');
 
-  channel.on('action', ({ action, namespace, payload }) => {
-    if (namespace == 'svelte' && action == 'set_component') {
+  channel.on('action', ({ action, scope, payload }) => {
+    if (scope == 'svelte' && action == 'set_component') {
       const { compiledComponent } = payload;
       store.set({ compiledComponent });
     }

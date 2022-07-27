@@ -1,7 +1,7 @@
 import { log } from 'dmt/common';
 
 import { execFile } from 'child_process';
-import parseOutput from './parseOutput';
+import parseOutput from './parseOutput.js';
 
 import { scan } from 'dmt/common';
 const { commandExists } = scan;

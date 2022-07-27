@@ -3,8 +3,8 @@ import path from 'path';
 
 import { colors, dmtStateDir } from 'dmt/common';
 
-import { identify } from './deviceIdentifier';
-import currentNetworkDef from '../currentNetworkDef';
+import { identify } from './deviceIdentifier.js';
+import currentNetworkDef from '../currentNetworkDef.js';
 
 (async () => {
   const networkDef = await currentNetworkDef();

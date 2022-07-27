@@ -1,7 +1,7 @@
-import LocalProviderSearch from './localSearch/localProviderSearch';
-import RemoteProviderSearch from './remoteSearch/remoteProviderSearch';
+import LocalProviderSearch from './localSearch/localProviderSearch.js';
+import RemoteProviderSearch from './remoteSearch/remoteProviderSearch.js';
 
-import enhanceResult from './enhanceResult';
+import enhanceResult from './enhanceResult/index.js';
 
 import { log, util } from 'dmt/common';
 

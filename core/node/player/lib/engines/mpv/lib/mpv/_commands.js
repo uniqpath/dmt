@@ -1,42 +1,42 @@
 const commands = {
   getProperty(property) {
-    return this.socket.getProperty(property);
+    return this.ipc.getProperty(property);
   },
   setProperty(property, value) {
-    return this.socket.setProperty(property, value);
+    return this.ipc.setProperty(property, value);
   },
   setMultipleProperties(properties) {
     Object.keys(properties).forEach(
       function(property) {
-        this.socket.setProperty(property, properties[property]);
+        this.ipc.setProperty(property, properties[property]);
       }.bind(this)
     );
   },
   addProperty(property, value) {
-    return this.socket.addProperty(property, value);
+    return this.ipc.addProperty(property, value);
   },
   multiplyProperty(property, value) {
-    return this.socket.multiplyProperty(property, value);
+    return this.ipc.multiplyProperty(property, value);
   },
   cycleProperty(property) {
-    return this.socket.cycleProperty(property);
+    return this.ipc.cycleProperty(property);
   },
   command(command, args) {
-    return this.socket.command(command, args);
+    return this.ipc.command(command, args);
   },
   freeCommand(command) {
-    this.socket.freeCommand(command);
+    this.ipc.freeCommand(command);
   },
 
   observeProperty(property, id) {
     this.observed[property] = null;
     this.observedIDs[id] = property;
-    this.socket.command('observe_property', [id, property]);
+    this.ipc.command('observe_property', [id, property]);
   },
   unobserveProperty(id) {
     delete this.observed[this.observedIDs[id]];
     delete this.observedIDs[id];
-    this.socket.command('unobserve_property', [id]);
+    this.ipc.command('unobserve_property', [id]);
   }
 };
 

@@ -1,4 +1,4 @@
-import defaultIsMergeableObject from './isPlainObject';
+import defaultIsMergeableObject from './isPlainObject.js';
 
 export default deepmerge;
 

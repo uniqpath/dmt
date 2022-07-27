@@ -14,7 +14,7 @@ const action = 'search';
 
 const query = args.join(' ');
 
-ipcClient({ actorName: 'search', action, payload: { query } })
+ipcClient({ apiName: 'search', action, payload: { query } })
   .then(response => {
     aggregateSearchResultsFormatter(response);
 

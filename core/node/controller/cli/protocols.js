@@ -25,7 +25,7 @@ function displayTable(registeredProtocols) {
   console.log(table.toString());
 }
 
-ipcClient({ actorName: 'controller', action: 'protocols' })
+ipcClient({ apiName: 'controller', action: 'protocols' })
   .then(({ registeredProtocols }) => {
     displayTable(registeredProtocols);
     process.exit();

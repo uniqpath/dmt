@@ -1,7 +1,7 @@
 import { util, colors } from 'dmt/common';
 
-import scanWebLink from '../scanWebLink';
-import ingestLinksFromDirectory from '../ingest/txtFiles/ingestLinksFromDirectory';
+import scanWebLink from '../scanWebLink.js';
+import ingestLinksFromDirectory from '../ingest/txtFiles/ingestLinksFromDirectory.js';
 
 import { processBatch } from 'dmt/common';
 

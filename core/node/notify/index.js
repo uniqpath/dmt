@@ -1,13 +1,14 @@
-import { app, group, title, omitDeviceName, url, urlTitle, highPriority, userKey, notify, notifyAll } from './lib/pushover';
-import * as apn from './lib/apn';
-import * as desktop from './lib/desktop';
-import * as email from './lib/email';
+import { app, group, title, omitDeviceName, url, urlTitle, highPriority, userKey, notify, notifyAll } from './lib/pushover/index.js';
+import * as apn from './lib/apn.js';
+import * as desktop from './lib/desktop.js';
+import * as email from './lib/email.js';
 
-let program;
+import dailyNotifier from './lib2/dailyNotifier.js';
+import weeklyNotifier from './lib2/weeklyNotifier.js';
+import dateNotifier from './lib2/dateNotifier.js';
+import trashTakeoutNotifier from './lib2/trashTakeoutNotifier.js';
 
-function init(_program) {
-  program = _program;
-}
+import { notify as notifyRaw } from './lib/pushover/notifier.js';
 
 let isABC;
 let abcNetworkID;
@@ -18,22 +19,18 @@ function initABC(networkId) {
 }
 
 const _push = {
-  app: appName => app({ program, isABC, abcNetworkID }, appName),
-  group: groupName => group({ program, isABC, abcNetworkID }, groupName),
-  userKey: _userKey => userKey({ program, isABC, abcNetworkID }, _userKey),
-  title: _title => title({ program, isABC, abcNetworkID }, _title),
-  omitDeviceName: () => omitDeviceName({ program, isABC, abcNetworkID }),
-  url: () => url({ program, isABC, abcNetworkID }),
-  urlTitle: () => urlTitle({ program, isABC, abcNetworkID }),
-  highPriority: (high = true) => highPriority({ program, isABC, abcNetworkID }, high),
-  notify: (...options) => notify({ program, isABC, abcNetworkID }, ...options),
-  notifyAll: (...options) => notifyAll({ program, isABC, abcNetworkID }, ...options),
+  app: appName => app({ isABC, abcNetworkID }, appName),
+  group: groupName => group({ isABC, abcNetworkID }, groupName),
+  userKey: _userKey => userKey({ isABC, abcNetworkID }, _userKey),
+  title: _title => title({ isABC, abcNetworkID }, _title),
+  omitDeviceName: () => omitDeviceName({ isABC, abcNetworkID }),
+  url: () => url({ isABC, abcNetworkID }),
+  urlTitle: () => urlTitle({ isABC, abcNetworkID }),
+  highPriority: (high = true) => highPriority({ isABC, abcNetworkID }, high),
+  notify: (...options) => notify({ isABC, abcNetworkID }, ...options),
+  notifyAll: (...options) => notifyAll({ isABC, abcNetworkID }, ...options),
+  notifyRaw,
   initABC
 };
 
-const _apn = {
-  notify: (...args) => apn.notify(program, ...args),
-  notifyAll: (...args) => apn.notifyAll(program, ...args)
-};
-
-export { init, _push as push, _apn as apn, desktop, email };
+export { _push as push, apn, desktop, email, dailyNotifier, weeklyNotifier, dateNotifier, trashTakeoutNotifier };

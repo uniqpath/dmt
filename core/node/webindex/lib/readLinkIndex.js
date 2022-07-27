@@ -11,7 +11,7 @@ const REREAD_INDEX_INTERVAL_SECONDS = 10;
 const RECENT_WEBLINKS_NUM = 30;
 
 import { scan } from 'dmt/common';
-import addDerivedData from './derived';
+import addDerivedData from './derived/index.js';
 
 function addDerived(webindex) {
   for (const linkInfo of webindex) {
@@ -108,10 +108,10 @@ function entireLinkIndex({ forceRead = false, benchmark = false, program } = {})
           .slice(0, RECENT_WEBLINKS_NUM)
           .map(entry => addSiteTag(entry));
 
-        program.store('recentWeblinks').set(recentWeblinks);
+        program.slot('recentWeblinks').set(recentWeblinks);
 
-        program.store('entireLinkIndexCloud').set(createEntireLinkIndexCloud(webindexCache), { announce: false });
-        program.store('entireLinkIndexCount').set(webindexCache.length, { announce: false });
+        program.slot('entireLinkIndexCloud').set(createEntireLinkIndexCloud(webindexCache), { announce: false });
+        program.slot('entireLinkIndexCount').set(webindexCache.length, { announce: false });
 
         if (benchmark && files.length) {
           log.green(

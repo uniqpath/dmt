@@ -1,4 +1,4 @@
-import Table from '../index';
+import Table from '../index.js';
 
 var table = new Table({ head: ['', 'Top Header 1', 'Top Header 2'] });
 

@@ -60,7 +60,7 @@ Make sure that on RaspberryPi you add the following [lines](https://github.com/u
 1. `ps aux | grep abc-proc` whould report something like:
 
    ```
-   root     10899  0.0  4.8 153552 43524 ?        Ssl  Aug14   1:06 /root/n/bin/node --unhandled-rejections=strict --experimental-specifier-resolution=node --experimental-modules /root/.dmt/core/node/controller/daemons/abc-proc.js
+   root     10899  0.0  4.8 153552 43524 ?        Ssl  Aug14   1:06 /root/n/bin/node --unhandled-rejections=strict /root/.dmt/core/node/controller/daemons/abc-proc.js
    ```
 
 2. Note the process pid (`10899`) and issue `kill -9 10899` to kill the process.

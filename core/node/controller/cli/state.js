@@ -57,7 +57,7 @@ function numElements(value) {
   return len > 0 ? len : colors.gray(len);
 }
 
-ipcClient({ actorName: 'controller', action })
+ipcClient({ apiName: 'controller', action })
   .then(({ state }) => {
     if (arg == '--all') {
       console.log(state);

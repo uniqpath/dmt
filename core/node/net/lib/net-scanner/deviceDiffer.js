@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { findByMac } from './deviceIdentifier';
+import { findByMac } from './deviceIdentifier.js';
 
 export default function deviceDiffer(stateDir, devices) {
   const lastScanPath = path.join(stateDir, 'lastScan.json');

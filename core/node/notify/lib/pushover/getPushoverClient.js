@@ -1,6 +1,6 @@
-import pushoverApi from './pushoverApi';
-import { getAppToken } from './pushoverDef';
-import { dmtApp } from './dmtApp';
+import pushoverApi from './pushoverApi/index.js';
+import { getAppToken } from './pushoverDef.js';
+import { dmtApp } from './dmtApp.js';
 
 function getPushoverClient(appName = dmtApp) {
   const token = getAppToken(appName);

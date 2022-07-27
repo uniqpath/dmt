@@ -1,13 +1,13 @@
 import { parseCliArgs, util } from 'dmt/common';
 
-import maxResults from './maxResults';
+import maxResults from './maxResults.js';
 
-function parseSearchQuery({ query, actorName, defaultMediaType }) {
+function parseSearchQuery({ query, apiName, defaultMediaType }) {
   if (typeof query !== 'string') {
     throw new Error('parseSearchQuery:query must be string!');
   }
 
-  const { serverMaxResults } = maxResults(actorName);
+  const { serverMaxResults } = maxResults(apiName);
 
   const { terms, atDevices, attributeOptions } = parseCliArgs(query.trim().split(/\s+/));
 

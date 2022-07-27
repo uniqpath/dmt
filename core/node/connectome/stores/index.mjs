@@ -2726,15 +2726,431 @@ function addHeader(_msg, flag) {
   return msg;
 }
 
+/**
+ * Module exports.
+ */
+
+var browserUtilInspect = inspect;
+
+/**
+ * Echos the value of a value. Trys to print the value out
+ * in the best way possible given the different types.
+ *
+ * @param {Object} obj The object to print out.
+ * @param {Object} opts Optional options object that alters the output.
+ * @license MIT (© Joyent)
+ */
+/* legacy: obj, showHidden, depth, colors*/
+
+function inspect(obj, opts) {
+  // default options
+  var ctx = {
+    seen: [],
+    stylize: stylizeNoColor
+  };
+  // legacy...
+  if (arguments.length >= 3) ctx.depth = arguments[2];
+  if (arguments.length >= 4) ctx.colors = arguments[3];
+  if (isBoolean(opts)) {
+    // legacy...
+    ctx.showHidden = opts;
+  } else if (opts) {
+    // got an "options" object
+    _extend(ctx, opts);
+  }
+  // set default options
+  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+  if (isUndefined(ctx.depth)) ctx.depth = 2;
+  if (isUndefined(ctx.colors)) ctx.colors = false;
+  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+  if (ctx.colors) ctx.stylize = stylizeWithColor;
+  return formatValue(ctx, obj, ctx.depth);
+}
+
+// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+inspect.colors = {
+  'bold' : [1, 22],
+  'italic' : [3, 23],
+  'underline' : [4, 24],
+  'inverse' : [7, 27],
+  'white' : [37, 39],
+  'grey' : [90, 39],
+  'black' : [30, 39],
+  'blue' : [34, 39],
+  'cyan' : [36, 39],
+  'green' : [32, 39],
+  'magenta' : [35, 39],
+  'red' : [31, 39],
+  'yellow' : [33, 39]
+};
+
+// Don't use 'blue' not visible on cmd.exe
+inspect.styles = {
+  'special': 'cyan',
+  'number': 'yellow',
+  'boolean': 'yellow',
+  'undefined': 'grey',
+  'null': 'bold',
+  'string': 'green',
+  'date': 'magenta',
+  // "name": intentionally not styling
+  'regexp': 'red'
+};
+
+function stylizeNoColor(str, styleType) {
+  return str;
+}
+
+function isBoolean(arg) {
+  return typeof arg === 'boolean';
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+
+function stylizeWithColor(str, styleType) {
+  var style = inspect.styles[styleType];
+
+  if (style) {
+    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+           '\u001b[' + inspect.colors[style][1] + 'm';
+  } else {
+    return str;
+  }
+}
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+
+function isString(arg) {
+  return typeof arg === 'string';
+}
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+
+function isNull(arg) {
+  return arg === null;
+}
+
+function hasOwn(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+function isRegExp(re) {
+  return isObject$1(re) && objectToString(re) === '[object RegExp]';
+}
+
+function isObject$1(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isError(e) {
+  return isObject$1(e) &&
+      (objectToString(e) === '[object Error]' || e instanceof Error);
+}
+
+function isDate(d) {
+  return isObject$1(d) && objectToString(d) === '[object Date]';
+}
+
+function objectToString(o) {
+  return Object.prototype.toString.call(o);
+}
+
+function arrayToHash(array) {
+  var hash = {};
+
+  array.forEach(function(val, idx) {
+    hash[val] = true;
+  });
+
+  return hash;
+}
+
+function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+  var output = [];
+  for (var i = 0, l = value.length; i < l; ++i) {
+    if (hasOwn(value, String(i))) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          String(i), true));
+    } else {
+      output.push('');
+    }
+  }
+  keys.forEach(function(key) {
+    if (!key.match(/^\d+$/)) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          key, true));
+    }
+  });
+  return output;
+}
+
+function formatError(value) {
+  return '[' + Error.prototype.toString.call(value) + ']';
+}
+
+function formatValue(ctx, value, recurseTimes) {
+  // Provide a hook for user-specified inspect functions.
+  // Check that value is an object with an inspect function on it
+  if (ctx.customInspect &&
+      value &&
+      isFunction(value.inspect) &&
+      // Filter out the util module, it's inspect function is special
+      value.inspect !== inspect &&
+      // Also filter out any prototype objects using the circular check.
+      !(value.constructor && value.constructor.prototype === value)) {
+    var ret = value.inspect(recurseTimes, ctx);
+    if (!isString(ret)) {
+      ret = formatValue(ctx, ret, recurseTimes);
+    }
+    return ret;
+  }
+
+  // Primitive types cannot have properties
+  var primitive = formatPrimitive(ctx, value);
+  if (primitive) {
+    return primitive;
+  }
+
+  // Look up the keys of the object.
+  var keys = Object.keys(value);
+  var visibleKeys = arrayToHash(keys);
+
+  try {
+    if (ctx.showHidden && Object.getOwnPropertyNames) {
+      keys = Object.getOwnPropertyNames(value);
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  // IE doesn't make error fields non-enumerable
+  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+  if (isError(value)
+      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+    return formatError(value);
+  }
+
+  // Some type of object without properties can be shortcutted.
+  if (keys.length === 0) {
+    if (isFunction(value)) {
+      var name = value.name ? ': ' + value.name : '';
+      return ctx.stylize('[Function' + name + ']', 'special');
+    }
+    if (isRegExp(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    }
+    if (isDate(value)) {
+      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+    }
+    if (isError(value)) {
+      return formatError(value);
+    }
+  }
+
+  var base = '', array = false, braces = ['{', '}'];
+
+  // Make Array say that they are Array
+  if (Array.isArray(value)) {
+    array = true;
+    braces = ['[', ']'];
+  }
+
+  // Make functions say that they are functions
+  if (isFunction(value)) {
+    var n = value.name ? ': ' + value.name : '';
+    base = ' [Function' + n + ']';
+  }
+
+  // Make RegExps say that they are RegExps
+  if (isRegExp(value)) {
+    base = ' ' + RegExp.prototype.toString.call(value);
+  }
+
+  // Make dates with properties first say the date
+  if (isDate(value)) {
+    base = ' ' + Date.prototype.toUTCString.call(value);
+  }
+
+  // Make error with message first say the error
+  if (isError(value)) {
+    base = ' ' + formatError(value);
+  }
+
+  if (keys.length === 0 && (!array || value.length == 0)) {
+    return braces[0] + base + braces[1];
+  }
+
+  if (recurseTimes < 0) {
+    if (isRegExp(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    } else {
+      return ctx.stylize('[Object]', 'special');
+    }
+  }
+
+  ctx.seen.push(value);
+
+  var output;
+  if (array) {
+    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+  } else {
+    output = keys.map(function(key) {
+      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+    });
+  }
+
+  ctx.seen.pop();
+
+  return reduceToSingleString(output, base, braces);
+}
+
+function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+  var name, str, desc;
+  desc = { value: void 0 };
+  try {
+    // ie6 › navigator.toString
+    // throws Error: Object doesn't support this property or method
+    desc.value = value[key];
+  } catch (e) {
+    // ignore
+  }
+  try {
+    // ie10 › Object.getOwnPropertyDescriptor(window.location, 'hash')
+    // throws TypeError: Object doesn't support this action
+    if (Object.getOwnPropertyDescriptor) {
+      desc = Object.getOwnPropertyDescriptor(value, key) || desc;
+    }
+  } catch (e) {
+    // ignore
+  }
+  if (desc.get) {
+    if (desc.set) {
+      str = ctx.stylize('[Getter/Setter]', 'special');
+    } else {
+      str = ctx.stylize('[Getter]', 'special');
+    }
+  } else {
+    if (desc.set) {
+      str = ctx.stylize('[Setter]', 'special');
+    }
+  }
+  if (!hasOwn(visibleKeys, key)) {
+    name = '[' + key + ']';
+  }
+  if (!str) {
+    if (ctx.seen.indexOf(desc.value) < 0) {
+      if (isNull(recurseTimes)) {
+        str = formatValue(ctx, desc.value, null);
+      } else {
+        str = formatValue(ctx, desc.value, recurseTimes - 1);
+      }
+      if (str.indexOf('\n') > -1) {
+        if (array) {
+          str = str.split('\n').map(function(line) {
+            return '  ' + line;
+          }).join('\n').substr(2);
+        } else {
+          str = '\n' + str.split('\n').map(function(line) {
+            return '   ' + line;
+          }).join('\n');
+        }
+      }
+    } else {
+      str = ctx.stylize('[Circular]', 'special');
+    }
+  }
+  if (isUndefined(name)) {
+    if (array && key.match(/^\d+$/)) {
+      return str;
+    }
+    name = JSON.stringify('' + key);
+    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+      name = name.substr(1, name.length - 2);
+      name = ctx.stylize(name, 'name');
+    } else {
+      name = name.replace(/'/g, "\\'")
+                 .replace(/\\"/g, '"')
+                 .replace(/(^"|"$)/g, "'");
+      name = ctx.stylize(name, 'string');
+    }
+  }
+
+  return name + ': ' + str;
+}
+
+function formatPrimitive(ctx, value) {
+  if (isUndefined(value))
+    return ctx.stylize('undefined', 'undefined');
+  if (isString(value)) {
+    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+                                             .replace(/'/g, "\\'")
+                                             .replace(/\\"/g, '"') + '\'';
+    return ctx.stylize(simple, 'string');
+  }
+  if (isNumber(value))
+    return ctx.stylize('' + value, 'number');
+  if (isBoolean(value))
+    return ctx.stylize('' + value, 'boolean');
+  // For some reason typeof null is "object", so special case here.
+  if (isNull(value))
+    return ctx.stylize('null', 'null');
+}
+
+function reduceToSingleString(output, base, braces) {
+  var length = output.reduce(function(prev, cur) {
+    if (cur.indexOf('\n') >= 0) ;
+    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+  }, 0);
+
+  if (length > 60) {
+    return braces[0] +
+           (base === '' ? '' : base + '\n ') +
+           ' ' +
+           output.join(',\n  ') +
+           ' ' +
+           braces[1];
+  }
+
+  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+}
+
+function _extend(origin, add) {
+  // Don't do anything if add isn't an object
+  if (!add || !isObject$1(add)) return origin;
+
+  var keys = Object.keys(add);
+  var i = keys.length;
+  while (i--) {
+    origin[keys[i]] = add[keys[i]];
+  }
+  return origin;
+}
+
 function doLogging(color, log, ...args) {
-  if (typeof log == 'function') {
-    // -- frontend --
-    // console.log or anything else that wraps it etc.
-    log(`${new Date().toLocaleString()} → ${args}`);
-    //timedConsoleLog(log, ...args);
-  } else if (log) {
-    // dmt logger object
-    log.logOutput(color, { source: 'connectome' }, ...args);
+  try {
+    if (log == console.log) {
+      // by doing inspect in this way we get normal text in quotations: '...'
+      // 9/2/2022, 9:42:11 PM → 'Connector ws://192.168.0.16:7780 created'
+      // we remove them with 2x replace ...
+      log(
+        `${new Date().toLocaleString()} → ${browserUtilInspect(...args)
+          .replace(/^'/, '')
+          .replace(/'$/, '')}`
+      );
+    } else if (typeof log == 'function') {
+      log(...args); // recently changed from args to ...args -- see if some other places need change
+    } else if (log) {
+      // dmt logger object
+      log.logOutput(color, { source: 'connectome' }, ...args);
+    }
+  } catch (e) {
+    console.log(e);
   }
 }
 
@@ -2816,10 +3232,10 @@ function send({ data, connector }) {
       const encryptedMessage = naclFast.secretbox(encodedMessage, nonce, connector.sharedSecret);
 
       if (connector.verbose) {
-        logger.write(log); // empty line
+        //logger.write(log); // empty line
         logger.green(
           log,
-          `Connector ${connector.remoteAddress()} → Sending encrypted message #${connector.sentCount} ↴`
+          `Connector ${connector.endpoint} → Sending encrypted message #${connector.sentCount} ↴`
         );
         logger.gray(log, data);
       }
@@ -2827,10 +3243,10 @@ function send({ data, connector }) {
       connector.connection.websocket.send(encryptedMessage);
     } else {
       if (connector.verbose) {
-        logger.write(log); // empty line
+        //logger.write(log); // empty line
         logger.green(
           log,
-          `Connector ${connector.remoteAddress()} → Sending message #${connector.sentCount} ↴`
+          `Connector ${connector.endpoint} → Sending message #${connector.sentCount} ↴`
         );
         logger.gray(log, data);
       }
@@ -2869,11 +3285,8 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
   const nonce = new Uint8Array(integerToByteArray(2 * connector.receivedCount + 1, 24));
 
   if (connector.verbose && !wasEncrypted) {
-    logger.write(log);
-    logger.magenta(
-      log,
-      `Connector ${connector.remoteAddress()} → Received message #${connector.receivedCount} ↴`
-    );
+    //logger.write(log);
+    logger.magenta(log, `Connector ${connector.endpoint} → Received message #${connector.receivedCount} ↴`);
   }
 
   // 💡 unencrypted jsonData !
@@ -2881,7 +3294,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     if (jsonData.jsonrpc) {
       if (isRpcCallResult(jsonData)) {
         if (connector.verbose && !wasEncrypted) {
-          logger.magenta(log, `Connector ${connector.remoteAddress()} received plain-text rpc result ↴`);
+          logger.magenta(log, `Connector ${connector.endpoint} received plain-text rpc result ↴`);
           logger.gray(log, jsonData);
         }
 
@@ -2892,14 +3305,19 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     } else {
       connector.emit('receive', { jsonData, rawMessage });
     }
+
+    // logger.magenta(
+    //   log,
+    //   `Connector ${connector.endpoint} → ${rawMessage}`
+    // );
   } else if (encryptedData) {
     // 💡 encryptedJson data!!
     if (connector.verbose == 'extra') {
-      logger.magenta(log, `Connector ${connector.remoteAddress()} received bytes ↴`);
+      logger.magenta(log, `Connector ${connector.endpoint} received bytes ↴`);
       logger.gray(log, encryptedData);
       logger.magenta(
         log,
-        `Connector ${connector.remoteAddress()} decrypting with shared secret ${connector.sharedSecret}...`
+        `Connector ${connector.endpoint} decrypting with shared secret ${connector.sharedSecret}...`
       );
     }
 
@@ -2911,19 +3329,19 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     if (flag == 1) {
       const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
 
-      // if (connector.verbose) {
-      //   logger.write(log, `Received message: ${decodedMessage}`);
-      // }
+      if (connector.verbose) {
+        logger.write(log, `Received message: ${decodedMessage}`);
+      }
 
       try {
         const jsonData = JSON.parse(decodedMessage);
 
         // 💡 rpc
         if (jsonData.jsonrpc) {
-          if (connector.verbose) {
-            logger.magenta(log, `Connector ${connector.remoteAddress()} decrypted rpc result ↴`);
-            logger.gray(log, jsonData);
-          }
+          // if (connector.verbose) {
+          //   logger.magenta(log, `Connector ${connector.endpoint} decrypted rpc result ↴`);
+          //   logger.gray(log, jsonData);
+          // }
 
           wireReceive({ jsonData, rawMessage: decodedMessage, wasEncrypted: true, connector });
           // } else if (jsonData.tag) {
@@ -2967,6 +3385,66 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
   }
 }
 
+naclFast.util = naclUtil;
+
+function diffieHellman({ connector, afterFirstStep = () => {} }) {
+  const {
+    clientPrivateKey,
+    clientPublicKey,
+    clientPublicKeyHex,
+    protocol,
+    tag,
+    endpoint,
+    verbose
+  } = connector;
+
+  return new Promise((success, reject) => {
+    connector.remoteObject('Auth')
+      .call('exchangePubkeys', { pubkey: clientPublicKeyHex })
+      .then(remotePubkeyHex => {
+        const sharedSecret = naclFast.box.before(hexToBuffer(remotePubkeyHex), clientPrivateKey);
+
+        afterFirstStep({ sharedSecret, remotePubkeyHex });
+
+        if (verbose) {
+          logger.write(
+            connector.log,
+            `Connector ${endpoint} established shared secret through diffie-hellman exchange.`
+          );
+        }
+
+        connector.remoteObject('Auth')
+          .call('finalizeHandshake', { protocol })
+          .then(res => {
+            // finalizeHandshake rpc endpoint on server can cleanly retorn {error} as a result
+            // in case the protocol we are trying to connect to is not registered (does not exist at the endpoint)
+            if (res && res.error) {
+              console.log(res.error);
+              // this connection will keep hangling and no reconnect tries will be made
+              // since we keep websocket open just that nothing is happening
+
+              // when we enable the protocol on the endpoint we have to restart the process
+              // frontend connector will get disconnected at this point, websocket will close
+              // and from then on it tries reconnecting again so when ws first connects
+              // and protocol is present , it will be a success
+
+              // DONT'T REJECT here! reject(res.error); -- we need to keep this websocket hanging
+            } else {
+              success();
+
+              const _tag = tag ? ` (${tag})` : '';
+              logger.cyan(
+                connector.log,
+                `${endpoint}${_tag} ✓ Connection [ ${protocol || '"no-name"'} ] ready`
+              );
+            }
+          })
+          .catch(reject); // for example Timeout ... delayed! we have to be careful with closing any connections because new websocket might have already be created, we should not close that one
+      })
+      .catch(reject);
+  });
+}
+
 class Channel extends Eev {
   constructor(connector) {
     super();
@@ -2984,7 +3462,8 @@ var errorCodes = {
   INVALID_REQUEST: -32600,
   METHOD_NOT_FOUND: -32601,
   INVALID_PARAMS: -32602,
-  REMOTE_INTERNAL_ERROR: -32603
+  REMOTE_INTERNAL_ERROR: -32603,
+  TIMEOUT: -32701
 };
 
 class MoleServer {
@@ -3056,6 +3535,8 @@ class MoleServer {
       };
     } else {
       this.currentTransport = transport;
+
+      //console.log(`Method call: ${methodName}`);
 
       try {
         const result = await this.methods[methodName].apply(this.methods, params);
@@ -3156,7 +3637,7 @@ class ServerError extends Base {}
 class RequestTimeout extends ServerError {
   constructor(message, timeout) {
     super({
-      code: -32001,
+      code: errorCodes.TIMEOUT,
       message: `Request exceeded maximum execution time (${timeout}ms): ${message}`
     });
   }
@@ -3522,7 +4003,7 @@ class SpecificRpcClient {
   }
 }
 
-const DEFAULT_REQUEST_TIMEOUT = 50000;
+const DEFAULT_REQUEST_TIMEOUT = 10000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {
@@ -4382,8 +4863,15 @@ class connectionState extends WritableStore {
   }
 }
 
-//import colors from 'kleur';
 naclFast.util = naclUtil;
+
+const ADJUST_UNDEFINED_CONNECTION_STATUS_DELAY = 700; // was 700 for a long time, was ok, maybe a bit long, before that 300
+
+const DECOMMISSION_INACTIVITY = 60000; // 1min
+//const DECOMMISSION_INACTIVITY = 120000; // 2min
+//const DECOMMISSION_INACTIVITY = 10000; // 2min
+
+const wsOPEN = 1;
 
 class Connector extends Eev {
   constructor({
@@ -4394,6 +4882,7 @@ class Connector extends Eev {
     verbose = false,
     tag,
     log = console.log,
+    autoDecommission = false,
     dummy
   } = {}) {
     super();
@@ -4413,6 +4902,8 @@ class Connector extends Eev {
     this.verbose = verbose;
     this.tag = tag;
 
+    this.autoDecommission = autoDecommission;
+
     this.sentCount = 0;
     this.receivedCount = 0;
 
@@ -4429,6 +4920,24 @@ class Connector extends Eev {
 
     this.connected = new WritableStore();
 
+    this.delayedAdjustConnectionStatus();
+
+    if (verbose) {
+      logger.green(this.log, `Connector ${this.endpoint} created`);
+    }
+
+    this.decommissionCheckCounter = 0;
+
+    // not actually true but for what we need it's great ...
+    // this will make sure that we correctly decommission connectors that never even connected for the first time
+    this.lastPongReceivedAt = Date.now();
+
+    this.on('pong', () => {
+      this.lastPongReceivedAt = Date.now();
+    });
+  }
+
+  delayedAdjustConnectionStatus() {
     // 💡 connected == undefined ==> while trying to connect
     // 💡 connected == false => while disconnected
     // 💡 connected == true => while connected
@@ -4437,12 +4946,7 @@ class Connector extends Eev {
       if (this.connected.get() == undefined) {
         this.connected.set(false);
       }
-    }, 700); // formerly 300ms
-
-    if (verbose) {
-      logger.cyan(this.log, `Connector ${this.remoteAddress()} instantiated`);
-      //logger.write(this.log, );
-    }
+    }, ADJUST_UNDEFINED_CONNECTION_STATUS_DELAY);
   }
 
   send(data) {
@@ -4452,7 +4956,6 @@ class Connector extends Eev {
 
   signal(signal, data) {
     if (this.connected.get()) {
-      //log(`Sending signal '${signal}' over connector ${this.endpoint}`);
       this.send({ signal, data });
     } else {
       logger.write(
@@ -4460,6 +4963,11 @@ class Connector extends Eev {
         'Warning: trying to send signal over disconnected connector, this should be prevented by GUI'
       );
     }
+  }
+
+  // convenience method
+  userAction({ action, scope, payload }) {
+    this.signal('__action', { action, scope, payload });
   }
 
   // pre-check for edge cases
@@ -4509,10 +5017,6 @@ class Connector extends Eev {
     return !this.transportConnected;
   }
 
-  decommission() {
-    this.decommissioned = true;
-  }
-
   connectStatus(connected) {
     if (connected) {
       this.sentCount = 0;
@@ -4522,39 +5026,78 @@ class Connector extends Eev {
 
       this.successfulConnectsCount += 1;
 
-      const num = this.successfulConnectsCount;
-
       if (this.verbose) {
-        logger.write(this.log, `✓ Connector ${this.remoteAddress()} websocket connected`);
+        logger.green(this.log, `✓ Connector ${this.endpoint} connected #${this.successfulConnectsCount}`);
       }
 
-      this.diffieHellman({
-        clientPrivateKey: this.clientPrivateKey,
-        clientPublicKey: this.clientPublicKey,
-        protocol: this.protocol
-      })
-        //.then(({ sharedSecret, sharedSecretHex }) => {
+      const websocketId = this.connection.websocket.__id;
+
+      const afterFirstStep = ({ sharedSecret, remotePubkeyHex }) => {
+        this.sharedSecret = sharedSecret;
+        this._remotePubkeyHex = remotePubkeyHex;
+      };
+
+      // there can {error} object returned from finalizeHandshake in case protocol is not present on server
+      // websocket will just keep hanging until first reconnect and prehaps then the desired protocol is present in the endpoint
+      // two more possible errors which are indeed handled in our catch block are:
+      // - timeout when handshake messages were delayed, we have to try again in this case
+      // - some other rpc error (?) mayme implementation.. but this is not relevant since we have no issues that throw inside our handshake
+      // procuderes on server - it is tested well enough, perhaps later if something is added we will encounter such errors again?
+      diffieHellman({ connector: this, afterFirstStep })
         .then(() => {
           this.connectedAt = Date.now();
           this.connected.set(true);
 
-          // new trick so that any state has time to get populated
-          // this.connectedTimeout = setTimeout(() => {
-          //   this.connected.set(true);
-          // }, 100);
-          // WHAT ABOUT this from dmt-connect ?
-          // {#if !$connected || Object.keys($state).length <= 0}
-          //   <Loading />
-
           this.ready = true;
-
-          this.emit('ready');
+          this.emit('ready'); //⚠️ Note: when inside any client handler for ready we throw an error it gets caught in the following catch statement (along with Timeouts and other things)
         })
         .catch(e => {
-          if (num == this.successfulConnectsCount) {
-            logger.write(this.log, e);
-            logger.write(this.log, 'dropping connection and retrying');
-            this.connection.terminate();
+          // if there was a timeout error our websocket MIGHT have already closed
+          // we only drop the current websocket if it is still open,
+          // most likely it was not a timeout but some error on the other end which was passed to us
+          // websocket would stay open but to try and reconnect we have to drop it, otherwise it will be left hanging
+          // but sometimes we also get an open websocket after rpc timeout (not sure but this code handles it anyway, should be no problem, only better for all cases)
+          if (
+            this.connection.websocket.__id == websocketId &&
+            this.connection.websocket.readyState == wsOPEN
+          ) {
+            //⚠️ we only show if it seems still relevant, special case
+            // previously we had this first log output above this if statement
+            // so on every reject
+            // but then timeout messages sometimes came for websockets that already closed because of normal reconnect when dmt-proc was restarting etc.
+            // and it was strange because new connector was ready and then this late error came
+            // now we don't report handshake rpc errors on already closed websockets, they are probably no interesting at all
+            // but still - watch this space for some time, maybe there are some small remaining voids in this logic
+            if (e.code == errorCodes.TIMEOUT) {
+              logger.write(
+                this.log,
+                `${this.endpoint} x Connector [ ${this.protocol} ] handshake error: "${e.message}"`
+              );
+
+              logger.write(
+                this.log,
+                `${this.endpoint} Connector dropping stale websocket after handshake error`
+              );
+
+              // ⚠️ todo: test with some rpc error (not timeout) .. (not sure how to achieve it)..
+              // not so urgent since we don't expect rpc errors except timeouts (we don't have bugs in remote handshake endpoints which would be passes here as rpc errors over the wire)
+              // and maybe implement a short delay here so that there is no immediate fast infinite reconnect loop
+              // with error thrown, socket terminated, error thrown again etc.
+              this.connection.terminate();
+            }
+          }
+
+          // we show all other errors even if websocket has already closed
+          if (e.code != errorCodes.TIMEOUT) {
+            logger.write(
+              this.log,
+              `${this.endpoint} x Connector [ ${this.protocol} ] on:ready error: "${e.stack}" — (will not try to reconnect, fix the error and reload this gui)`
+            );
+
+            // TODO: what about errors coming from RPC ? Like remote exceptions
+            // see -- rpc/mole/errorCodes.js --
+            // not critical or even that important because it could only matter in development but once we don't expect any remote exceptions
+            // we don't need to reconnect automatically in such cases.. if error in on:ready we expect frontend to be reloaded anyway
           }
         });
     } else {
@@ -4565,11 +5108,8 @@ class Connector extends Eev {
       }
 
       if (this.transportConnected == undefined) {
-        const tag = this.tag ? ` (${this.tag})` : '';
-        logger.write(
-          this.log,
-          `Connector ${this.endpoint}${tag} was not able to connect at first try, setting READY to false`
-        );
+        //const tag = this.tag ? ` (${this.tag})` : '';
+        logger.write(this.log, `${this.endpoint} Connector was not able to connect at first try`);
       }
 
       this.transportConnected = false;
@@ -4580,10 +5120,57 @@ class Connector extends Eev {
 
       if (isDisconnect) {
         this.emit('disconnect');
-        //clearTimeout(this.connectedTimeout);
-        this.connected.set(false);
+
+        // connected will be false or undefined
+        // establishAndMaintainConnection sets this to undefined after close connection
+        // so that again red cross doesn't appear immediately -- experimental!
+
+        // used unly when ws is closed
+        // useful on dmt-mobile when we switch back to app
+        // and websockets need to be quickly reconnected
+        // we want to avoid the red x
+        // on the other hand with legit disconnects we will have to tolerate a small delay
+        if (connected == undefined) {
+          this.delayedAdjustConnectionStatus();
+        }
+
+        this.connected.set(connected); // false or undefined
       }
     }
+  }
+
+  checkForDecommission() {
+    if (!this.autoDecommission) {
+      return;
+    }
+
+    // we want fresh 12 consecutive checks and only then we check for late pings and decommission connector
+    // this assures that in dmt-mobile when switching back to app connector has chance to reconnect to any endpoint
+    // that was either down or dmt-mobile was in background ... so checks for late pings are only relevant if app is in foreground
+    // for a few seconds
+
+    if (this.decommissionCheckRequestedAt && Date.now() - this.decommissionCheckRequestedAt > 3000) {
+      this.decommissionCheckCounter = 0;
+    }
+
+    this.decommissionCheckRequestedAt = Date.now();
+
+    this.decommissionCheckCounter += 1;
+
+    // 12 x tick = around 10s
+    if (this.decommissionCheckCounter > 12) {
+      // and now the real check DECOMMISSION_INACTIVITY (1min)
+      if (Date.now() - this.lastPongReceivedAt > DECOMMISSION_INACTIVITY) {
+        logger.write(this.log, `Decommissioning connector ${this.endpoint} (long inactive)`);
+
+        this.decommission();
+        this.emit('decommission');
+      }
+    }
+  }
+
+  decommission() {
+    this.decommissioned = true;
   }
 
   remoteObject(handle) {
@@ -4596,56 +5183,6 @@ class Connector extends Eev {
 
   attachObject(handle, obj) {
     new RPCTarget({ serversideChannel: this, serverMethods: obj, methodPrefix: handle });
-  }
-
-  diffieHellman({ clientPrivateKey, clientPublicKey, protocol }) {
-    return new Promise((success, reject) => {
-      this.remoteObject('Auth')
-        .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
-        .then(remotePubkeyHex => {
-          const sharedSecret = naclFast.box.before(hexToBuffer(remotePubkeyHex), clientPrivateKey);
-
-          //const sharedSecretHex = bufferToHex(sharedSecret);
-          this.sharedSecret = sharedSecret;
-
-          this._remotePubkeyHex = remotePubkeyHex;
-
-          if (this.verbose) {
-            logger.write(
-              this.log,
-              `Connector ${this.endpoint}: Established shared secret through diffie-hellman exchange.`
-            );
-            //logger.write(this.log, sharedSecretHex);
-          }
-
-          this.remoteObject('Auth')
-            .call('finalizeHandshake', { protocol })
-            .then(res => {
-              if (res && res.error) {
-                logger.write(this.log, `x Protocol ${this.protocol} error:`);
-                logger.write(this.log, res.error);
-              } else {
-                //success({ sharedSecret, sharedSecretHex });
-                success();
-
-                //logger.write(this.log, `✓ Lane ${this.lane} negotiated `);
-                const tag = this.tag ? ` (${this.tag})` : '';
-                logger.cyan(
-                  this.log,
-                  `✓ Protocol [ ${this.protocol || '"no-name"'} ] connection [ ${this.endpoint}${tag} ] ready`
-                );
-              }
-            })
-            .catch(e => {
-              logger.write(this.log, `x Protocol ${this.protocol} finalizeHandshake error:`);
-              logger.write(this.log, e.toString()); // todo: remove?
-              logger.write(this.log, e.message);
-
-              reject(e);
-            });
-        })
-        .catch(reject);
-    });
   }
 
   clientPubkey() {
@@ -4706,11 +5243,36 @@ function determineEndpoint({ endpoint, host, port }) {
 const browser$1 = typeof window !== 'undefined';
 
 const wsCONNECTING = 0;
-const wsOPEN = 1;
+const wsOPEN$1 = 1;
+//const wsCLOSING = 2;
+//const wsCLOSED = 3;
+
+// connection tick
+const CONN_CHECK_INTERVAL = 1000; // was 1500 for a long time, then 1000 seemed to work ok, 800 was prehaps a bit too low
+
+// it was 5 for long time (and with higher CONN_CHECK_INTERVAL), 3 seems to be working great now (CONN_CHECK_INTERVAL=800), sweet balance!
+// 1,2 is too low... some raspberries when busy (switching songs / just starting dmt-proc) can easily miss out on sending pongs at the right moment
+const CONN_IDLE_TICKS = 3;
+
+// how long to wait for a new websocket to connect... after this we cancel it
+const WAIT_FOR_NEW_CONN_TICKS = 5; // 5000 ms ( = (5) * CONN_CHECK_INTERVAL )
 
 //todo: remove 'dummy' argument once legacyLib with old MCS is history
 function establishAndMaintainConnection(
-  { endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, log, verbose, tag, dummy },
+  {
+    endpoint,
+    host,
+    port,
+    protocol,
+    keypair,
+    remotePubkey,
+    rpcRequestTimeout,
+    autoDecommission,
+    log,
+    verbose,
+    tag,
+    dummy
+  },
   { WebSocket }
 ) {
   endpoint = determineEndpoint({ endpoint, host, port });
@@ -4723,55 +5285,59 @@ function establishAndMaintainConnection(
     verbose,
     tag,
     log,
+    autoDecommission,
     dummy
   });
 
-  // recently removed, seemed useless since it was never true ?!?!
-  // if (connector.connection) {
-  //   return connector;
-  // }
+  const reconnect = () => {
+    tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verbose });
+  };
 
   connector.connection = {
     terminate() {
       this.websocket._removeAllCallbacks();
       this.websocket.close();
+      //connector.connectStatus(undefined);
       connector.connectStatus(false);
+      reconnect();
+      //for multiconnected store ↴ so that not everything tries to reconnect at once.. oh well didn't have much influence it seems, we can do everything at once! :)
+      //setTimeout(reconnect, MAX_RECONNECT_DELAY_AFTER_WS_CLOSE * Math.random());
     },
     endpoint,
     checkTicker: 0
   };
 
-  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }), 10);
-
-  const connectionCheckInterval = 1000;
-
   const callback = () => {
     if (!connector.decommissioned) {
-      checkConnection({ connector, endpoint }, { WebSocket, log, verbose });
-      setTimeout(callback, connectionCheckInterval);
+      checkConnection({ connector, reconnect, log });
+      setTimeout(callback, CONN_CHECK_INTERVAL);
     }
   };
 
-  setTimeout(callback, connectionCheckInterval);
+  // setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }), 10);
+  // setTimeout(callback, CONN_CHECK_INTERVAL);
+  setTimeout(callback, 10);
 
   return connector;
 }
 
-function checkConnection({ connector, endpoint }, { WebSocket, log, verbose }) {
+function checkConnection({ connector, reconnect, log }) {
   const conn = connector.connection;
 
   //if (verbose && (connectionIdle(conn) || connector.decommissioned)) {
-  if ((connectionIdle(conn) || connector.decommissioned)) {
-    if (connectionIdle(conn)) {
+  if (connectionIdle(conn) || connector.decommissioned) {
+    if (connector.decommissioned) {
+      // decommissioned
       logger.yellow(
         log,
-        `Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`
+        `${connector.endpoint} Connection decommisioned, closing websocket ${conn.websocket.__id}, will not retry again `
       );
+
+      decommission(connector);
     } else {
-      logger.yellow(
-        log,
-        `Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `
-      );
+      // idle connection
+      connector.emit('inactive_connection');
+      logger.yellow(log, `${connector.endpoint} ✖ Terminated inactive connection`);
     }
 
     conn.terminate();
@@ -4784,64 +5350,92 @@ function checkConnection({ connector, endpoint }, { WebSocket, log, verbose }) {
     conn.websocket.send('ping');
   } else {
     if (connector.connected == undefined) {
-      logger.write(log, `Setting connector status to FALSE because connector.connected is undefined`);
+      logger.write(
+        log,
+        `${connector.endpoint} Setting connector status to FALSE because connector.connected is undefined`
+      );
       connector.connectStatus(false);
     }
 
-    tryReconnect({ connector, endpoint }, { WebSocket, log, verbose });
+    reconnect();
   }
 
   conn.checkTicker += 1;
 }
 
-function tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }) {
+function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verbose }) {
   const conn = connector.connection;
 
+  // if device on the other side went missing we will usually get websocket connecting timeouts
+  // so we retry WAIT_FOR_NEW_CONN_TICKS times (4800ms in total) and then discard the current websocket
+  // and we again try the same with a new WebSocket
+  // if device (IP) is online but websocket server is not responsing / program not running, then ...
+  // [ see explanation a few lines below] ...
+
+  connector.checkForDecommission();
+
+  if (connector.decommissioned) {
+    decommission(connector); // our side of things -- tear down any ws callbacks
+    return;
+  }
+
+  //logger.write(log, `${endpoint} CONN_TICK`);
+  //logger.write(log, `${endpoint} wsReadyState ${conn.currentlyTryingWS?.readyState}`);
+
   if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
-    if (conn.currentlyTryingWS._waitForConnectCounter == 3) {
-      conn.currentlyTryingWS._removeAllCallbacks();
-      conn.currentlyTryingWS.close();
-    } else {
+    if (conn.currentlyTryingWS._waitForConnectCounter < WAIT_FOR_NEW_CONN_TICKS) {
+      //logger.write(log, `${endpoint} wsCONNECTING`);
       conn.currentlyTryingWS._waitForConnectCounter += 1;
       return;
     }
+
+    if (verbose || browser$1) {
+      logger.write(log, `${endpoint} Reconnect timeout, creating new ws`);
+    }
+
+    conn.currentlyTryingWS._removeAllCallbacks();
+    conn.currentlyTryingWS.close();
+  } else if (verbose || browser$1) {
+    logger.write(log, `${endpoint} Created new websocket`);
   }
 
+  // so in case when device is online but websocket server is not running we usually
+  // get immediate close event (websocket readyState becomes CLOSED) and we land here every
+  // CONN_CHECK_INTERVAL ms to create a new WebSocket and try again with a new WebSocket
+  // which will again fail immediately until it can successfuly connect (process is running)
+  // if in addition to process not running the devices goes offline, then we get long delays again
+  // (see above)... and we try with a new websocket every 4800ms again instead on every tick (800ms)
+
   const ws = new WebSocket(endpoint);
-  // added this so that it shows in frontend log in dmt-gui..
-  // "native" console errors like
-  // establishAndMaintainConnection.js:104 WebSocket connection to 'ws://192.168.0.64:7780/' failed: ...
-  // are not visible since we need to use our own logger.write(log, ) function
-  // MEH: this didn't work on Chromium on RPi !!
-  // ws.onerror = error => {
-  //   //console.logger.write(log, error);
-  //   logger.write(log, `error (connecting?) websocket: ${ws.rand} to ${conn.endpoint}`);
-  // };
+  ws.__id = Math.random();
 
   conn.currentlyTryingWS = ws;
   conn.currentlyTryingWS._waitForConnectCounter = 0;
-
-  ws.rand = Math.random();
-
-  //logger.write(log, `created new websocket: ${ws.rand} to ${conn.endpoint}`);
 
   if (browser$1) {
     ws.binaryType = 'arraybuffer';
   }
 
   if (!browser$1) {
-    ws.on('error', error => {});
+    ws.on('error', () => {});
   }
 
-  const openCallback = m => {
-    if (verbose) {
-      logger.write(log, `websocket ${endpoint} connection opened (${ws.rand})`);
+  const openCallback = () => {
+    // should not come here because we remove open callbacks, but sometimes it might
+    if (connector.decommissioned) {
+      return;
+    }
+
+    if (verbose || browser$1) {
+      logger.write(log, `${endpoint} Websocket open`);
     }
 
     conn.currentlyTryingWS = null;
     conn.checkTicker = 0;
-    addSocketListeners({ ws, connector, openCallback }, { log, verbose });
+
+    addSocketListeners({ ws, connector, openCallback, reconnect }, { log, verbose });
     conn.websocket = ws;
+
     connector.connectStatus(true);
   };
 
@@ -4856,24 +5450,42 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }) {
   }
 }
 
-function addSocketListeners({ ws, connector, openCallback }, { log, verbose }) {
+function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, verbose }) {
   const conn = connector.connection;
 
-  const errorCallback = m => {
-    logger.write(log, `websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
-    //console.log(m)
-    logger.write(log, m);
+  const errorCallback = event => {
+    //const msg = `websocket ${ws.__id} conn ${connector.endpoint} error`;
+    const msg = `${connector.endpoint} Websocket error`;
+    // whould not output normally since error events happen mostly on iphone.. didn't usually happen on desktop browsers or nodejs
+    // this is also not standardized, it outputs nothing useful and we always get close event immediately after this error event
+    console.log(msg);
+    console.log(event);
+    // this also wasn't useful / didn't work everywhere: ws.onerror = error => {}
   };
 
-  const closeCallback = m => {
-    //if (verbose) {
-    logger.write(log, `websocket ${connector.connection.endpoint} connection closed (${ws.rand})`);
-    //}
+  const closeCallback = () => {
+    logger.write(log, `${connector.endpoint} ✖ Connection closed`);
 
-    connector.connectStatus(false);
+    if (connector.decommissioned) {
+      connector.connectStatus(false);
+      return;
+    }
+
+    // when switching back to dmt-mobile it will usually quickly close the old connection and reconnect
+    // we want some buffer delay (see connector::ADJUST_UNDEFINED_CONNECTION_STATUS_DELAY) as we had on first connection
+    // where we don't show red x for some short time so that ws has a chance to connect first ... looks better in the UI
+    // flip side is that there is such small delay between when we stop some process and when red x appears... but it's quite ok!
+    // we do however disable all commands immediately ... so: show red X when connect status is FALSE excusively and disable all gui actions when it's NOT TRUE (false or undefined)
+    connector.connectStatus(undefined);
+    reconnect();
+    //setTimeout(reconnect, MAX_RECONNECT_DELAY_AFTER_WS_CLOSE * Math.random()); // turns out we don't really need to do these delays, works fine without
   };
 
   const messageCallback = _msg => {
+    if (connector.decommissioned) {
+      return;
+    }
+
     conn.checkTicker = 0;
 
     const msg = browser$1 ? _msg.data : _msg;
@@ -4916,12 +5528,30 @@ function addSocketListeners({ ws, connector, openCallback }, { log, verbose }) {
   }
 }
 
+function decommission(connector) {
+  const conn = connector.connection;
+
+  if (conn.currentlyTryingWS) {
+    conn.currentlyTryingWS._removeAllCallbacks();
+    conn.currentlyTryingWS.close();
+    conn.currentlyTryingWS = null;
+  }
+
+  if (conn.ws) {
+    conn.ws._removeAllCallbacks();
+    conn.ws.close();
+    conn.ws = null;
+  }
+
+  connector.connectStatus(false);
+}
+
 function socketConnected(conn) {
-  return conn.websocket && conn.websocket.readyState == wsOPEN;
+  return conn.websocket && conn.websocket.readyState == wsOPEN$1;
 }
 
 function connectionIdle(conn) {
-  return socketConnected(conn) && conn.checkTicker > 2; // CHANGE TO 2 !! it was 5 for long time
+  return socketConnected(conn) && conn.checkTicker > CONN_IDLE_TICKS;
 }
 
 function establishAndMaintainConnection$1(opts) {
@@ -4938,9 +5568,9 @@ class ConnectDevice {
     this.connectToDeviceKey = connectToDeviceKey;
   }
 
-  createConnector({ host }) {
+  createConnector({ host, autoDecommission = false }) {
     const { port, protocol, rpcRequestTimeout, log, verbose, keypair } = this.mcs;
-    return establishAndMaintainConnection$1({ host, port, protocol, keypair, rpcRequestTimeout, log, verbose });
+    return establishAndMaintainConnection$1({ host, port, protocol, keypair, rpcRequestTimeout, autoDecommission, log, verbose });
   }
 
   getDeviceKey(state) {
@@ -4957,21 +5587,26 @@ class ConnectDevice {
   connectThisDevice({ host }) {
     const thisConnector = this.createConnector({ host });
 
-    let alreadySetPong = false;
+    let alreadySetupPong = false;
 
     thisConnector.state.subscribe(state => {
       if (!state.nearbyDevices) {
         state.nearbyDevices = [];
       }
 
+      if (!state.notifications) {
+        state.notifications = [];
+      }
+
       const deviceKey = this.getDeviceKey(state);
 
       if (deviceKey) {
-        if (!alreadySetPong) {
+        if (!alreadySetupPong) {
           thisConnector.on('pong', () => {
             this.mcs.emit('pong', { deviceKey });
           });
-          alreadySetPong = true;
+
+          alreadySetupPong = true;
         }
 
         if (!this.thisDeviceAlreadySetup) {
@@ -5004,20 +5639,42 @@ class ConnectDevice {
   }
 
   connectOtherDevice({ host, deviceKey }) {
-    const connector = this.createConnector({ host });
+    if (!this.mcs.connectors[deviceKey]) {
+      // because of preconnect, not normal switching
+      const connector = this.createConnector({ host, autoDecommission: true });
 
-    connector.on('pong', () => {
-      this.mcs.emit('pong', { deviceKey });
-    });
+      connector.on('decommission', () => {
+        delete this.mcs.connectors[deviceKey];
+        // todo: maybe we can also purge state in MCS ? or we don't have this ??
+        // probably not...
+        if (connector.__removeListeners) {
+          connector.__removeListeners();
+        }
+      });
 
-    this.initNewConnector({ deviceKey, connector });
+      const pongCallback = () => {
+        this.mcs.emit('pong', { deviceKey });
+      };
 
-    connector.state.subscribe(state => {
-      if (this.mcs.activeDeviceKey() == deviceKey) {
-        const optimisticDeviceName = state.device ? state.device.deviceName : null;
-        this.foreground.set(state, { optimisticDeviceName });
-      }
-    });
+      connector.on('pong', pongCallback);
+
+      this.initNewConnector({ deviceKey, connector });
+
+      const unsubscribe = connector.state.subscribe(state => {
+        if (this.mcs.activeDeviceKey() == deviceKey) {
+          const optimisticDeviceName = state.device ? state.device.deviceName : null;
+          this.foreground.set(state, { optimisticDeviceName });
+        }
+      });
+
+      connector.__removeListeners = () => {
+        connector.off('pong', pongCallback);
+        unsubscribe();
+      };
+    }
+
+    // only used in preconnect method
+    return this.mcs.connectors[deviceKey];
   }
 
   initNewConnector({ deviceKey, connector }) {
@@ -5034,6 +5691,62 @@ class ConnectDevice {
       }
     });
   }
+}
+
+function msIntoTimeSpan(timeInMs, index = 0, result = {}) {
+  const times = ['day', 'h', 'min', 's'];
+  const arr = [24, 60, 60, 1000];
+
+  if (index == times.length) {
+    result.ms = timeInMs;
+    return result;
+  }
+
+  if (index == 0) {
+    result.totalSeconds = timeInMs / 1000.0;
+  }
+
+  const n = arr.slice(index).reduce((total, num) => total * num, 1);
+  result[times[index]] = Math.floor(timeInMs / n);
+
+  return msIntoTimeSpan(timeInMs % n, index + 1, result);
+}
+
+function humanTime(ts) {
+  const times = ['day', 'h', 'min', 's'];
+  let str = '';
+
+  for (const t of times) {
+    if (ts[t] > 0) {
+      if (t != 's' || (t == 's' && ts.totalSeconds < 60)) {
+        // show seconds only if time is under a minute
+        str = `${str} ${ts[t]} ${t}`;
+      }
+    }
+  }
+
+  return str.trim();
+}
+
+// we need to do this on frontend so that a) notifications dissappear if backend is disconnected b) time still works if backend is disconnected
+function notificationsExpireAndCalculateRelativeTime(notifications) {
+  if (notifications) {
+    const now = Date.now();
+
+    const NOWNESS = 3000;
+
+    return notifications
+      .filter(n => now < n.expireAt)
+      .map(n => {
+        return {
+          ...n,
+          relativeTimeAdded:
+            now - n.addedAt < NOWNESS ? 'now' : `${humanTime(msIntoTimeSpan(now - n.addedAt))} ago`
+        };
+      });
+  }
+
+  return [];
 }
 
 class Foreground {
@@ -5072,7 +5785,11 @@ class Foreground {
     const setState = {};
 
     for (const key of this.thisDeviceStateKeys) {
-      setState[key] = localDeviceState[key];
+      if (key == 'notifications') {
+        setState[key] = notificationsExpireAndCalculateRelativeTime(localDeviceState[key]);
+      } else {
+        setState[key] = localDeviceState[key];
+      }
     }
 
     this.mcs.setMerge(setState);
@@ -5090,7 +5807,7 @@ class SwitchDevice extends Eev {
 
   switchState({ deviceKey, deviceName }) {
     this.mcs.setMerge({ activeDeviceKey: deviceKey });
-    const { state, connected } = this.mcs.connectors[deviceKey];
+    const { state, connected } = this.mcs.connectors[deviceKey]; //⚠️⚠️ z-hub -- right side of assignment cannot be destructured... from mobile app, when setting up dnevna vs hub
     this.foreground.set(state.get(), { optimisticDeviceName: deviceName });
     this.mcs.connected.set(connected.get());
   }
@@ -5124,6 +5841,8 @@ class SwitchDevice extends Eev {
 
 //import logger from '../../../utils/logger/logger.js';
 
+const NOTIFICATIONS_CHECK_INTERVAL = 500;
+
 class MultiConnectedStore extends MergeStore {
   constructor({
     //endpoint,
@@ -5132,13 +5851,13 @@ class MultiConnectedStore extends MergeStore {
     protocol,
     keypair = newKeypair(),
     connectToDeviceKey,
-    rpcRequestTimeout,
+    rpcRequestTimeout = 3000,
     log,
     verbose
   }) {
     super();
 
-    const thisDeviceStateKeys = ['time', 'environment', 'nearbyDevices', 'notifications'];
+    const thisDeviceStateKeys = ['time', 'environment', 'nearbyDevices', 'nearbySensors', 'notifications'];
 
     const { publicKey, privateKey } = acceptKeypair(keypair);
 
@@ -5171,6 +5890,22 @@ class MultiConnectedStore extends MergeStore {
 
     // use from the outside as part of api as well, see dmt-mobile app
     this.localConnector = connectDevice.connectThisDevice({ host });
+
+    this._notificationsExpireAndCalculateRelativeTime();
+  }
+
+  // we don't do the same for environment (sensors) and nearbuDevices
+  // we don't expire these at frontend because it's less critical
+  // and for nearbyDevices it's even better to keep...
+  // notifications are more critical and we need to expire at frontend when dmt-proc is down
+  _notificationsExpireAndCalculateRelativeTime() {
+    const { notifications } = this.get();
+
+    this.setMerge({ notifications: notificationsExpireAndCalculateRelativeTime(notifications) });
+
+    setTimeout(() => {
+      this._notificationsExpireAndCalculateRelativeTime();
+    }, NOTIFICATIONS_CHECK_INTERVAL);
   }
 
   signal(signal, data) {
@@ -5197,9 +5932,13 @@ class MultiConnectedStore extends MergeStore {
     );
   }
 
-  // only for other devices
-  preconnect({ host, deviceKey }) {
-    this.connectDevice.connectOtherDevice({ host, deviceKey });
+  // returns corresponding connector
+  preconnect({ host, deviceKey, thisDevice }) {
+    if (thisDevice) {
+      return this.localConnector;
+    }
+
+    return this.connectDevice.connectOtherDevice({ host, deviceKey });
   }
 
   switch({ host, deviceKey, deviceName }) {

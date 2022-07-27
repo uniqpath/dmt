@@ -6,8 +6,8 @@ import stripAnsi from 'strip-ansi';
 
 import pathModule from 'path';
 
-import allowFSResult from './allowFSResult';
-import zetaDirPath from './dotZeta/zetaDirPath';
+import allowFSResult from './allowFSResult.js';
+import zetaDirPath from './dotZeta/zetaDirPath.js';
 
 export default function executableSearch(binary, { terms, path, noColor, mediaType, page = 1, maxResults, accessKey }, processLineCallback) {
   if (!maxResults) {

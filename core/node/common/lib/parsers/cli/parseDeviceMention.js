@@ -1,4 +1,4 @@
-import * as dmt from '../../dmtHelper';
+import * as dmt from '../../dmtHelper.js';
 
 const { colors } = dmt;
 

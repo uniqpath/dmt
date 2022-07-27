@@ -1,4 +1,4 @@
-import DetermineNetwork from './determineNetwork';
+import DetermineNetwork from './determineNetwork.js';
 
 export default class Network {
   constructor(program) {
@@ -25,6 +25,13 @@ export default class Network {
     });
   }
 
+  connectedWifiAP() {
+    const { apssid, wifiAP } = this.program.slot('device').get();
+    if (apssid) {
+      return `📶 Wifi AP ${wifiAP || ''} ${wifiAP ? '' : apssid}`.replace(/\s+/g, ' ');
+    }
+  }
+
   name() {
     return this.deviceStore().get('network');
   }
@@ -42,6 +49,6 @@ export default class Network {
   }
 
   deviceStore() {
-    return this.program.store('device');
+    return this.program.slot('device');
   }
 }

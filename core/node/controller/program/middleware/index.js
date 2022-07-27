@@ -88,7 +88,7 @@ class MidLoader {
 
   importComplex({ program, midDirectory, midPkgName }) {
     return new Promise((success, reject) => {
-      import(midDirectory)
+      import(path.join(midDirectory, 'index.js'))
         .then(mid => {
           let promiseOrData;
           let isPromise;

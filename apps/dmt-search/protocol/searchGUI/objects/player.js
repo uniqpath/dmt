@@ -9,7 +9,7 @@ class GUIPlayerObject {
 
     return new Promise((success, reject) => {
       this.program
-        .actor('player')
+        .api('player')
         .call('playUrl', playableUrl)
         .then(success)
         .catch(error => {

@@ -1,4 +1,4 @@
-import MessageSender from './messageSender';
+import MessageSender from './messageSender.js';
 
 function notify(constructorOptions, ...options) {
   return new MessageSender(constructorOptions).notify(...options);

@@ -1,4 +1,4 @@
-import Command from './Command';
+import Command from './Command.js';
 
 class CancelEmergency extends Command {
   constructor(receipt) {

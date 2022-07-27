@@ -1,7 +1,7 @@
-import util from '../../util';
-import * as dmt from '../../dmtHelper';
-import parser from './parser';
-import parseDeviceMention from './parseDeviceMention';
+import util from '../../util.js';
+import * as dmt from '../../dmtHelper.js';
+import parser from './parser.js';
+import parseDeviceMention from './parseDeviceMention.js';
 
 const { colors } = dmt;
 

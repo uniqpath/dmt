@@ -1,5 +1,5 @@
 import path from 'path';
-import isInsideZetaDir from './dotZeta/isInsideZetaDir';
+import isInsideZetaDir from './dotZeta/isInsideZetaDir.js';
 
 function allowFSResult(filePath) {
   return (

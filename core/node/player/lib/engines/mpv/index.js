@@ -5,13 +5,15 @@ import { log, util, colors, dmtPath, debugCategory, services } from 'dmt/common'
 
 import pathModule from 'path';
 
+import { apn } from 'dmt/notify';
+
 import { detectMediaType } from 'dmt/search';
 
 import stripAnsi from 'strip-ansi';
 
 import { spawn } from 'child_process';
 
-import MpvAPI from './lib/mpv/mpv';
+import MpvAPI from './lib/mpv/mpv.js';
 
 class MpvEngine extends EventEmitter {
   constructor(program) {
@@ -31,6 +33,63 @@ class MpvEngine extends EventEmitter {
 
     this.mpvProcess = new MpvAPI(opts);
 
+    this.mpvProcess.on('crashed', () => {
+      const msg = 'mpv process crashed, will restart on next player interaction';
+      program.nearbyNotification({ msg, ttl: 60, dev: true, group: `${program.device.id}_mpv_crash` });
+      apn.notify(msg);
+      log.red(msg);
+
+      program.slot('player').removeKey('currentMedia', { announce: false });
+      program.slot('player').update({ paused: true });
+      this.playerEngineState = {};
+      this.prevStatus = undefined;
+      this.connectedAt = undefined;
+      this.connectedToMpvProcess = false;
+      this.spawning = false;
+    });
+
+    this.mpvProcess.on('stopped', () => {
+      if (!this.connectedToMpvProcess) {
+        return;
+      }
+
+      this.clearTimeposition();
+
+      log.gray('Current player media just finished');
+
+      if (this.spawning && Date.now() - this.connectedAt < 500) {
+        log.cyan('Received introductory IDLE (stop) event on first connect after spawn from mpv on macOS (?), ignoring!');
+      } else if (!this.isStream()) {
+        this.emit('media_finished');
+      }
+    });
+
+    this.mpvProcess.on('timeposition', ({ seconds, percent }) => {
+      if (!this.connectedToMpvProcess) {
+        return;
+      }
+      const changed = this.playerEngineState.timeposition != seconds;
+
+      if (changed && seconds >= 0) {
+        this.playerEngineState.timeposition = seconds;
+        this.playerEngineState.percentposition = percent;
+
+        let bitrate = this.audioBitrate;
+
+        if (bitrate) {
+          if (bitrate >= 1000) {
+            bitrate = `${Math.round(bitrate / 1000)} kbps`;
+          } else {
+            bitrate = `${bitrate} bps`;
+          }
+        }
+
+        this.playerEngineState.bitrate = bitrate;
+
+        this.program.slot('player').update(this.playerEngineState, { announce: true });
+      }
+    });
+
     this.playerEngineState = {};
 
     this.prevStatus = undefined;
@@ -40,11 +99,9 @@ class MpvEngine extends EventEmitter {
       this.prevStatus = { ...status };
     });
 
-    this.prepareEngine(program).then(() => {
-      program.on('player:initialized', playerState => {
-        this.initEngine(playerState);
-      });
-    });
+    this.prepareEngine()
+      .then(() => {})
+      .catch(() => {});
   }
 
   processStatusChange({ status, prevStatus }) {
@@ -65,51 +122,6 @@ class MpvEngine extends EventEmitter {
     delete this.playerEngineState.timeposition;
     delete this.playerEngineState.percentposition;
     delete this.playerEngineState.bitrate;
-
-    this.program.store('player').update(this.playerEngineState);
-  }
-
-  initEngine(playerState) {
-    this.playerInitialized = true;
-
-    this.setEngineVolume(playerState.volume);
-
-    setTimeout(() => this.program.store('player').update(this.playerEngineState), 500);
-
-    this.mpvProcess.on('stopped', () => {
-      this.clearTimeposition();
-
-      log.gray('Current player media just finished');
-
-      if (this.spawning && Date.now() - this.connectedAt < 500) {
-        log.cyan('Received introductory IDLE (stop) event on first connect after spawn from mpv on macOS (?), ignoring!');
-      } else if (!this.isStream()) {
-        this.emit('media_finished');
-      }
-    });
-
-    this.mpvProcess.on('timeposition', ({ seconds, percent }) => {
-      const changed = this.playerEngineState.timeposition != seconds;
-
-      if (changed && seconds >= 0) {
-        this.playerEngineState.timeposition = seconds;
-        this.playerEngineState.percentposition = percent;
-
-        let bitrate = this.audioBitrate;
-
-        if (bitrate) {
-          if (bitrate >= 1000) {
-            bitrate = `${Math.round(bitrate / 1000)} kbps`;
-          } else {
-            bitrate = `${bitrate} bps`;
-          }
-        }
-
-        this.playerEngineState.bitrate = bitrate;
-
-        this.program.store('player').update(this.playerEngineState, { announce: true });
-      }
-    });
   }
 
   reflectMPVState(options) {
@@ -127,7 +139,6 @@ class MpvEngine extends EventEmitter {
     const { timeposition, percentposition, bitrate } = this.playerEngineState;
 
     const newState = {
-      volume,
       paused: pause || !path,
       timeposition,
       bitrate,
@@ -141,6 +152,16 @@ class MpvEngine extends EventEmitter {
       }
     };
 
+    if (
+      this.connectedToMpvProcess &&
+      Date.now() - this.connectedAt > 1000 &&
+      volume &&
+      volume != this.program.slot('player').get('volume') &&
+      (!this.volumeSetAt || Date.now() - this.volumeSetAt > 300)
+    ) {
+      newState.volume = volume;
+    }
+
     newState.isStream = this.isStream(path);
     newState.currentMedia.filename = newState.isStream ? undefined : filename;
 
@@ -151,21 +172,17 @@ class MpvEngine extends EventEmitter {
         year: metadata.date || metadata.DATE
       });
     } else {
-      newState.currentMedia = Object.assign(newState.currentMedia, {
-        artist: '',
-        album: '',
-        year: ''
-      });
+      newState.currentMedia = { artist: '', album: '', year: '' };
     }
 
-    if (this.playerInitialized && !util.compare(this.playerEngineState, newState)) {
-      this.program.store('player').update(newState);
+    if (this.connectedToMpvProcess && !util.compare(this.playerEngineState, newState)) {
+      this.program.slot('player').update(newState);
 
       clearTimeout(this.stateChangedSmallDelayTimer);
 
-      if (this.playerEngineState.paused != newState.paused || this.playerEngineState.currentMedia.mediaType != newState.currentMedia.mediaType) {
+      if (this.playerEngineState.paused != newState.paused || this.playerEngineState.currentMedia?.mediaType != newState.currentMedia?.mediaType) {
         const emit = () => {
-          this.program.emit('player_play_state_changed', { paused: newState.paused, mediaType: newState.currentMedia.mediaType });
+          this.program.emit('player_play_state_changed', { paused: newState.paused, mediaType: newState.currentMedia?.mediaType });
         };
 
         if (newState.paused) {
@@ -208,7 +225,7 @@ class MpvEngine extends EventEmitter {
           if (filePath) {
             this.clearTimeposition();
 
-            log.yellow(`mpv engine play ${filePath}`);
+            log.green(`🎵 mpv engine play ${colors.cyan(filePath)}`);
 
             engine.mpvProcess
               .load(filePath)
@@ -288,50 +305,26 @@ class MpvEngine extends EventEmitter {
   volume(vol) {
     return new Promise((success, reject) => {
       if (vol == null) {
-        success(this.program.store('player').get('volume'));
+        success(this.program.slot('player').get('volume'));
       } else {
-        this.program.store('player').update({ volume: vol });
-        this.setEngineVolume(vol);
-        success(vol);
+        this.program.slot('player').update({ volume: vol });
+        this.volumeSetAt = Date.now();
+
+        this.setVolume(vol)
+          .then(() => success(vol))
+          .catch(reject);
       }
     });
   }
 
-  setEngineVolume(vol) {
-    const self = this;
+  setVolume(vol) {
     return new Promise((success, reject) => {
       this.prepareEngine()
         .then(engine => {
-          self.playerEngineState.volume = vol;
           engine.mpvProcess.volume(vol);
           success();
         })
         .catch(reject);
-    });
-  }
-
-  prepareEngine(program) {
-    const self = this;
-
-    return new Promise((success, reject) => {
-      if (self.connectedToMpvProcess) {
-        success(self);
-      } else {
-        this.start()
-          .then(engine => {
-            program.store('player').removeKey('error');
-            success(engine);
-          })
-          .catch(e => {
-            const helpUrl = 'https://github.com/uniqpath/dmt/blob/master/help/MPV_SETUP.md';
-            const msg = `${colors.cyan('mpv media player')} binary not present or cannot be found at ${colors.yellow('/usr/local/bin/mpv')} or ${colors.yellow(
-              '/usr/bin/mpv'
-            )}`;
-            program.store('player').update({ error: { msg: stripAnsi(msg), type: 'mpv_binary_missing', helpUrl } });
-            log.write(`${colors.yellow('WARN:')} ${msg}`);
-            log.write(`mpv install instructions: ${colors.gray(helpUrl)}`);
-          });
-      }
     });
   }
 
@@ -349,7 +342,29 @@ class MpvEngine extends EventEmitter {
     });
   }
 
-  start() {
+  prepareEngine() {
+    return new Promise((success, reject) => {
+      if (this.connectedToMpvProcess) {
+        success(this);
+      } else {
+        this.connectMpv()
+          .then(engine => {
+            this.program.slot('player').removeKey('error');
+            success(engine);
+          })
+          .catch(() => {
+            const helpUrl = 'https://github.com/uniqpath/dmt/blob/master/help/MPV_SETUP.md';
+            const msg = `${colors.cyan('mpv media player')} binary not present or cannot be found`;
+            this.program.slot('player').update({ error: { msg: stripAnsi(msg), type: 'mpv_binary_missing', helpUrl } });
+            log.write(`⚠️  ${msg}`);
+            log.write(`mpv install instructions: ${colors.gray(helpUrl)}`);
+            reject(new Error(msg));
+          });
+      }
+    });
+  }
+
+  connectMpv() {
     return new Promise((success, reject) => {
       if (this.connectedToMpvProcess) {
         success(this);
@@ -361,61 +376,56 @@ class MpvEngine extends EventEmitter {
       this.mpvProcess
         .connect()
         .then(({ mpvVersion }) => {
-          this.program.store('device').update({ mpvVersion }, { announce: false });
+          this.program.slot('device').update({ mpvVersion }, { announce: false });
 
           if (this.connectedToMpvProcess) {
             success(this);
           } else {
             this.mpvProcess.clearPlaylist().then(() => {
+              this.program.slot('player').update(this.playerEngineState);
+
               this.connectedToMpvProcess = true;
 
               log.green(`✓ Connected to ${colors.cyan('mpv process')}`);
 
               this.connectedAt = Date.now();
 
-              this.readPlayerProcessState();
+              this.mpvProcess
+                .getProperty('pause')
+                .then(pause => {
+                  this.mpvProcess
+                    .getProperty('path')
+                    .then(path => {
+                      this.emit('connected', { paused: pause, currentSongPath: path, isStream: this.isStream(path) });
+                    })
+                    .catch(() => {
+                      this.emit('connected', { paused: pause });
+                    });
+                })
+                .catch(e => {
+                  log.red('MPV');
+                  log.red(e);
+                });
 
               success(this);
             });
           }
         })
-        .catch((e, info) => {
+        .catch(e => {
           if (e.message == 'mpv_not_available') {
             reject(e);
             return;
           }
+
           if (!this.connectedToMpvProcess) {
-            this.spawnMpv().then(this.start().then(success));
+            this.spawnMpv().then(() => {
+              this.connectMpv()
+                .then(success)
+                .catch(reject);
+            });
           }
         });
     });
-  }
-
-  isStream(path) {
-    return path && path.startsWith('http');
-  }
-
-  readPlayerProcessState() {
-    this.mpvProcess
-      .getProperty('pause')
-      .then(pause => {
-        this.mpvProcess
-          .getProperty('path')
-          .then(path => {
-            if (this.program) {
-              this.program.emit('player:connected', { paused: pause, currentSongPath: path, isStream: this.isStream(path) });
-            }
-          })
-          .catch(() => {
-            if (this.program) {
-              this.program.emit('player:connected', { paused: pause });
-            }
-          });
-      })
-      .catch(e => {
-        log.red('MPV');
-        log.red(e);
-      });
   }
 
   spawnMpv() {
@@ -427,9 +437,9 @@ class MpvEngine extends EventEmitter {
 
       this.spawning = true;
 
-      log.magenta(`Spawning long-running ${colors.cyan('mpv process')} ${colors.gray('(it will persist between dmt restarts)')}`);
-
       const { options, mpv_arguments } = this.mpvProcess;
+
+      log.magenta(`Spawning long-running ${colors.cyan('mpv')} process ${colors.yellow(options.binary || '')}`);
 
       const player = spawn(options.binary ? options.binary : 'mpv', mpv_arguments, {
         detached: true,
@@ -443,6 +453,10 @@ class MpvEngine extends EventEmitter {
 
       setTimeout(success, 2000);
     });
+  }
+
+  isStream(path) {
+    return path && path.startsWith('http');
   }
 }
 

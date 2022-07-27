@@ -26,8 +26,8 @@ export default function checkForLocalOnlyIpAndRebootDevice({ program, ip, prevIp
           program.showNotification({ msg, ttl: 20, color: '#C90029' });
 
           setTimeout(() => {
-            program.store('rebootReason').set(`Device had invalid IP address: ${ip}`);
-            program.emit('dmt_gui_action', { action: 'reboot', namespace: 'device' });
+            program.slot('rebootReason').set(`Device had invalid IP address: ${ip}`);
+            program.api('device').call('reboot');
           }, 10000);
         }
       }

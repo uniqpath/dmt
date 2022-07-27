@@ -1,17 +1,17 @@
-import { EventEmitter, stopwatch } from '../utils/index.js';
+import { EventEmitter, stopwatchAdv } from '../utils/index.js';
 
 import clone from './lib/clone.js';
 
 import KeyValueStore from './twoLevelMergeKVStore.js';
 
-import Slot from './slot';
+import Slot from './slot.js';
 
 import getDiff from './lib/getDiff.js';
 
-import removeUnsaved from './removeUnsaved';
-import muteAnnounce from './muteAnnounce';
+import removeUnsaved from './removeUnsaved.js';
+import muteAnnounce from './muteAnnounce.js';
 
-import { saveState, loadState } from './statePersist';
+import { saveState, loadState } from './statePersist.js';
 export default class SyncStore extends EventEmitter {
   constructor(
     initialState = {},
@@ -22,7 +22,8 @@ export default class SyncStore extends EventEmitter {
       schemaVersion,
       schemaMigrations = [],
       noRecovery = false,
-      omitStateFn = state => state
+      omitStateFn = state => state,
+      log
     } = {}
   ) {
     super();
@@ -32,6 +33,7 @@ export default class SyncStore extends EventEmitter {
     this.beforeLoadAndSave = beforeLoadAndSave;
     this.schemaVersion = schemaVersion;
     this.omitStateFn = omitStateFn;
+    this._log = log;
 
     this.slots = {};
     this.kvStore = new KeyValueStore();
@@ -51,6 +53,12 @@ export default class SyncStore extends EventEmitter {
     this.stateChangesCount = 0;
 
     this.subscriptions = [];
+  }
+
+  log(...args) {
+    if (this._log) {
+      this._log.write(...args);
+    }
   }
 
   sync(channelList) {
@@ -99,6 +107,7 @@ export default class SyncStore extends EventEmitter {
   save() {
     if (this.stateFilePath) {
       const state = removeUnsaved(clone(this.state()), this.unsavedSlots, this.beforeLoadAndSave);
+      this.log('removeUnsaved(clone(this.state()), this.unsavedSlots, this.beforeLoadAndSave)');
       const savedState = saveState({
         stateFilePath: this.stateFilePath,
         schemaVersion: this.schemaVersion,
@@ -107,40 +116,44 @@ export default class SyncStore extends EventEmitter {
       });
 
       if (savedState) {
+        this.log('state did save');
         this.lastSavedState = savedState;
+      } else {
+        this.log('state did not save');
       }
     }
   }
 
-  announceStateChange(announce = true, skipDiffing = false) {
+  announceStateChange(announce = true) {
     if (!announce) {
       return;
     }
 
+    this.log('--- announceStateChange ---');
+
     const remoteState = this.omitAndCloneState();
 
-    if (skipDiffing) {
-      this.sendRemote({ state: remoteState });
-      this.tagState({ state: remoteState });
-      return;
-    }
-
-    const start = stopwatch.start();
+    this.log('after clone');
 
     const diff = getDiff(this.lastAnnouncedState, muteAnnounce(this.slots, remoteState));
 
-    const duration = stopwatch.stop(start);
+    this.log('after diff clone');
+
     if (diff) {
       this.sendRemote({ diff });
+      this.log('after send remote');
       this.stateChangesCount += 1;
       this.tagState({ state: remoteState });
+      this.log('after tag state');
     }
   }
 
   tagState({ state }) {
     this.save();
+    this.log('after save');
     this.lastAnnouncedState = state;
     this.pushStateToLocalSubscribers();
+    this.log('after pushStateToLocalSubscribers');
   }
 
   subscribe(handler) {

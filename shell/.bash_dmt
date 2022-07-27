@@ -37,7 +37,7 @@ function dmt_status {
 
   else
 
-    local comment="${MAGENTA}in background${NC}"
+    local comment="${GREEN}in background${NC}"
 
     if [ "$dmt_fg_bg" == "fg" ]; then
       comment="in another terminal"
@@ -49,7 +49,7 @@ function dmt_status {
       already="$1 "
     fi
 
-    printf "${CYAN}dmt-proc${GREEN} ${MAGENTA}is ${already}running ${comment} ${GRAY}(PID ${dmt_proc_pid})${NC}\n"
+    printf "${GREEN}✓ ${CYAN}dmt-proc${GREEN} ${GREEN}is ${already}running ${comment} ${GRAY}(PID ${dmt_proc_pid})${NC}\n"
   fi
 }
 
@@ -219,7 +219,7 @@ function dmt {
 
     echo
 
-    declare -a expressions=('Digital Mastery Techniques' 'Digital Multi Tool' 'Distributed Modular Technologies' 'Dare Mighty Things' 'Does Many Things' 'Does Many Tricks' 'Dreamy Memorable Transmissions')
+    declare -a expressions=('Digital Mastery Techniques' 'Digital Multi Tool' 'Dynamic Modular Technologies' 'Dare Mighty Things' 'Does Many Things' 'Delivering Many Tricks' 'Dreamy Memorable Transmissions')
     local index=$[$RANDOM % ${#expressions[@]}]
     local selected_expression=${expressions[index]}
 
@@ -325,11 +325,12 @@ function dmt {
     "version"
     "device"
     "nearby"
+    "reboot"
     "protocols"
     "identity"
     "webscan"
     "weblinks"
-    "actors"
+    "apis"
     "reach"
     "connections"
     "services"
@@ -361,6 +362,8 @@ function dmt {
     "media"
     "search"
     "reload"
+    "execute"
+    "integrate"
   )
 
   if dev_machine; then
@@ -434,6 +437,10 @@ function dmt {
       fi
       ;;
 
+    reboot)
+      dmt_reboot "$@"
+      ;;
+
     state)
       if [ -n "$dmt_proc_pid" ]; then
         $DMT_NODEJS_EXEC "$CLI_DIR/state.js" "$@"
@@ -456,9 +463,9 @@ function dmt {
       fi
       ;;
 
-    actors)
+    apis)
       if [ -n "$dmt_proc_pid" ]; then
-        $DMT_NODEJS_EXEC "$CLI_DIR/actors.js" "$@"
+        $DMT_NODEJS_EXEC "$CLI_DIR/apis.js" "$@"
       fi
       ;;
 
@@ -592,6 +599,10 @@ function dmt {
       dmt_device "$@"
       ;;
 
+    execute)
+      dmt_execute "$@"
+      ;;
+
     next)
       dmt_next "$@"
       ;;
@@ -708,12 +719,14 @@ function dmt {
       while [ -n "$dmt_proc_pid" ]; do
 
         if [[ $dmt_fg_bg == 'fg' ]]; then
-          dmt_status
-          read -r -p "Terminate the other process and run here? [Y/n] " response
-          if [[ $response =~ ^([nN])$ ]]
-          then
-            return
-          fi
+          # dmt_status
+          # read -r -p "Terminate the other process and run here? [Y/n] " response
+          # if [[ $response =~ ^([nN])$ ]]
+          # then
+          #   return
+          # fi
+
+          printf "⚠️  ${RED}dmt process already running${NC}\n"
 
           stop_dmt_in_foreground "$dmt_proc_pid"
           echo
@@ -721,14 +734,30 @@ function dmt {
           stop_dmt_if_running_in_bg
           echo
 
-          local dmt_proc_pid=''
-          local dmt_fg_bg=''
-          get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+          # local result="$?"
+          # echo "$result"
 
-          if [ -n "$dmt_proc_pid" ]; then
-            printf "⚠️  ${RED}It looks like another ${CYAN}dmt-proc ${RED}just managed to start, aborting ${GREEN}dmt run${NC}\n"
-            return
-          fi
+          # this doesn't work... it is only important for
+          # ⚠️ 💀 Daemon manager problem
+          # in case this happens we just get "It looks like another dmt process..." message in console... which is not correct
+          # but doesn't really matter, important thing is to get a push message about Daemon manager problem.. which we do
+          # #if [ $? -ne 0 ]; then
+          # if [ "$result" -ne 0 ]; then
+          #   printf "${RED}⚠️  Error stopping the ${CYAN}dmt-proc${NC}\n"
+          #   return
+          # else
+            local dmt_proc_pid=''
+            local dmt_fg_bg=''
+            get_dmt_proc_pid dmt_proc_pid dmt_fg_bg
+
+            if [ -n "$dmt_proc_pid" ]; then
+              #echo
+              #printf "⚠️  ${RED}It looks like another ${CYAN}dmt-proc ${RED}just managed to start, aborting ${GREEN}dmt run${NC}\n"
+              printf "⚠️  ${RED}Aborting ${YELLOW}dmt run ${RED}.......${NC}\n"
+              echo
+              return
+            fi
+          # fi
         fi
 
         ## for race conditions (detecting already running dmt processes)
@@ -788,7 +817,10 @@ function dmt {
         printf "   You can see the equivalent realtime log output of the daemonized process with ${GREEN}dmt log${NC}.\n"
         echo
 
-        $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+        # we need FORCE_COLOR and TERM here only for when dmt will spawn abc-proc
+        # if we don't do it then abc log will not have colors
+        # rel && killall abc-proc && d run
+        FORCE_COLOR=true TERM=xterm-256color $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       fi
 
       if [[ $? -eq 1 ]]; then
@@ -878,7 +910,7 @@ function dmt {
       #   printf "${CYAN}dmt-proc${NC} ${MAGENTA}is starting...${NC}\n\n"
       # fi
 
-      # we have one loophole for simulateneous start of two processes
+      # we have one loophole for simultaeneous start of two processes
       # 1.) dmt start
       # 2.) in another tab prepare command: dmt run
       # 3.) run "dmt restart" and quickly in another tab "dmt run"
@@ -956,6 +988,10 @@ function dmt {
 
     cd)
       dmt_cd
+      ;;
+
+    integrate)
+      dmt_integrate
       ;;
 
   esac
@@ -1134,6 +1170,18 @@ function dmt_device {
   esac
 }
 
+function dmt_reboot {
+  local deviceName="$1"
+
+  if [ "$deviceName" == "nearby" ] || [ "$deviceName" == "all" ]; then
+    dmt nearby reboot
+  elif [ -n "$deviceName" ]; then
+    dmt_publish_mqtt reboot "$deviceName"
+  else
+    shut reboot
+  fi
+}
+
 function dev {
   dmt_device "$@"
 }
@@ -1218,6 +1266,43 @@ function device_helper {
         for_all_devices
         ;;
     esac
+  fi
+}
+
+function dmt_execute {
+
+  local host="$1"
+  shift
+
+  local command="$@"
+
+  if [ -z "$host" ] || [ "$host" == "-h" ] || [ "$host" == "--help" ] || [ -z "$command" ]; then
+    if [ -z "$1" ]; then
+      printf "${YELLOW}Usage:${NC}\n"
+      printf "${GREEN}dmt execute [dmt_device] [command] [args]${NC} ${GRAY}execute commands via ssh on remote device${NC}\n"
+      return
+    fi
+  else
+    if [ "$host" == "ap" ] || [ "$host" == "hub" ]; then
+      host="$DMT_AP_DEFAULT_HOST"
+      ssh_port=22
+    else
+      matching_host=''
+      ssh_port=''
+      _compress=''
+      get_full_host matching_host ssh_port _compress "$host"
+      if [ $? -ne 1 ]; then # no error
+        host="$matching_host"
+      fi
+      # compress regardless if passed in argument if device has globalIp defined (get_full_host will return "--compress")
+      if [[ $_compress == "--compress" ]]; then
+        compress=$_compress # yes, please compress :)
+      fi
+    fi
+
+    if [ -n "$host" ]; then
+      dmt_ssh_execute -h "$host" $command
+    fi
   fi
 }
 
@@ -1497,16 +1582,23 @@ function dmt_log {
     return
   fi
 
-  # awk prepend didn't work properly! did not show the entire log :/ and only first lines of multiline output were shown (for example with errors)
-
-  local SPECIAL_LOG_SYMBOL=">"
-
   if [ "$1" == "full" ]; then
-    cat "$LOGFILE" | while read line; do echo "${SPECIAL_LOG_SYMBOL} $line"; done
+    cat "$LOGFILE"
   else
     # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) update device.. 4) PROBLEM: even older log messages will be shown
-    tail -f -n ${TAIL_LOG_LINES} "$LOGFILE" | while read line; do echo "${SPECIAL_LOG_SYMBOL} $line"; done # better than | awk '{print "[log]", $0}' -- https://serverfault.com/a/72814/183891
+    tail -f -n ${TAIL_LOG_LINES} "$LOGFILE"
   fi
+
+  # awk prepend didn't work properly! did not show the entire log :/ and only first lines of multiline output were shown (for example with errors)
+  # current solution has indentation issues.. for example when logging objects... that's why not using it anymore
+  # local SPECIAL_LOG_SYMBOL=">"
+
+  # if [ "$1" == "full" ]; then
+  #   cat "$LOGFILE" | while read line; do echo "${SPECIAL_LOG_SYMBOL} $line"; done
+  # else
+  #   # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) update device.. 4) PROBLEM: even older log messages will be shown
+  #   tail -f -n ${TAIL_LOG_LINES} "$LOGFILE" | while read line; do echo "${SPECIAL_LOG_SYMBOL} $line"; done # better than | awk '{print "[log]", $0}' -- https://serverfault.com/a/72814/183891
+  # fi
 }
 
 function dmt_help {
@@ -1520,7 +1612,7 @@ function dmt_help {
   # echo
   # printf "  ${CYAN}■${NC} ${GREEN}dmt deactivate ${GRAY} · deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY} · )${NC}\n"
   # echo
-  printf "${CYAN}💡 DMT PROC${NC} ${WHITE}management:${NC}\n"
+  printf "${CYAN}💡 dmt-proc${NC} ${WHITE}management:${NC}\n"
   # printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
   echo
   printf "  ${CYAN}■${NC} ${GREEN}dmt start ${GRAY}starts the daemonized process ${CYAN}(dmt-proc)${NC}\n"
@@ -1532,7 +1624,7 @@ function dmt_help {
   # printf "  ${CYAN}■${NC} ${CYAN}dmt log ${GRAY}shows a few recent log entries (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
   printf "  ${CYAN}■${NC} ${GREEN}dmt log ${GRAY}shows last ${TAIL_LOG_LINES} log entries and monitors for further entries, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
   printf "  ${CYAN}■${NC} ${GREEN}dmt log full ${GRAY}shows the entire log (can be long)${NC}\n"
-  printf "  ${CYAN}■${NC} ${GREEN}dmt abclog ${GRAY}shows recent abc-proc log entries and monitors for more, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt abc ${GRAY}shows recent abc-proc log entries and monitors for more, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
   #printf "  ${CYAN}■${NC} ${GREEN}dmt loglan ${GRAY}starts listening to network log message broadcasts${NC}\n"
 
   echo
@@ -1556,17 +1648,17 @@ function dmt_help {
   # echo
   printf "${MAGENTA}DMT Connectome${NC}\n"
   echo
-  printf "  ${CYAN}■${NC} ${CYAN}dmt nearby ${GRAY}shows nearby devices ${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt nearby ${GRAY}show and update nearby devices ${NC}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt connections ${GRAY}shows dmt-proc ${UNDERLINE}incoming${RESET} ${GRAY}and ${UNDERLINE}outgoing connections${RESET}${NC}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt protocols${NC} ${GRAY}show registered realtime communication protocols${NC}\n"
-  printf "  ${CYAN}■${NC} ${CYAN}dmt identities${NC} ${GRAY}manage cryptographic user identities${NC}\n"
+  #printf "  ${CYAN}■${NC} ${CYAN}dmt identities${NC} ${GRAY}manage cryptographic user identities${NC}\n"
   echo
 
   printf "${MAGENTA}GUI and State${NC}\n"
   echo
   printf "  ${CYAN}■${NC} ${CYAN}dmt gui ${GRAY}various methods related to ${UNDERLINE}dmt-gui${RESET}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt state ${GRAY}shows dmt-proc ${UNDERLINE}in-memory program state${RESET} ${GRAY}(part of this is saved to ${UNDERLINE}program.json${RESET} ${GRAY}file)${NC}\n"
-  printf "  ${CYAN}■${NC} ${CYAN}dmt actors ${GRAY}shows dmt-proc registered actor objects than can be called over connectome or cli${NC}\n"
+  printf "  ${CYAN}■${NC} ${CYAN}dmt apis ${GRAY}shows dmt-proc registered program APIs${NC}\n"
   echo
 
   printf "${MAGENTA}Search and Multimedia${NC}\n"
@@ -1574,6 +1666,11 @@ function dmt_help {
   printf "  ${CYAN}■${NC} ${CYAN}dmt search ${GRAY}various methods for cli search\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt media ${GRAY}various methods for cli media player manipulation\n"
   #printf "  ${CYAN}■${NC} ${CYAN}dmt reach${NC} ${GRAY}[todo]${NC}\n"
+  echo
+
+  printf "${MAGENTA}Device${NC}\n"
+  echo
+  printf "  ${CYAN}■${NC} ${CYAN}dmt reboot [deviceName | nearby]${GRAY}reboot this device, some other device or all nearby devices (only RPi)\n"
 }
 
 function dmt_help_explain_rpc {
@@ -1653,12 +1750,16 @@ function dmt_nearby_help {
   echo
   printf "${CYAN}■${NC} ${GREEN}dmt nearby copy ${GRAY}· sync ~/.dmt to nearby devices${NC}\n"
   printf "${CYAN}■${NC} ${GREEN}dmt nearby update ${GRAY}· update nearby devices (copy + restart ${UNDERLINE}dmt-proc${RESET}${GRAY})${NC}\n"
-  printf "${CYAN}■${NC} ${GREEN}dmt nearby run ${CYAN}\"command [args]\" ${GRAY}· run a bash command on nearby devices${NC}\n"
+  printf "${CYAN}■${NC} ${GREEN}dmt nearby execute ${CYAN}command [args] ${GRAY}· run a bash command on nearby devices${NC}\n"
   echo
   printf "${GRAY}Faster parallel command versions using [screen] to run in background:${NC}\n"
   echo
-  printf "${CYAN} ■ ${NC}${GREEN}dmt nearby [update|copy|run] --parallel${NC}\n"
-  printf "${GRAY}or ${GREEN}dmt nearby [pupdate|pcopy|prun]${NC}\n"
+  printf "${CYAN} ■ ${NC}${GREEN}dmt nearby [update|copy|execute] --parallel${NC}\n"
+  printf "${GRAY}or ${GREEN}dmt nearby [pupdate|pcopy|pexecute]${NC}\n"
+  echo
+  printf "💡 ${MAGENTA}Reboot all nearby RasbperryPi devices:${NC}\n"
+  echo
+  printf "${CYAN}■${NC} ${GREEN}dmt nearby reboot\n"
 
   echo
 }
@@ -1694,8 +1795,9 @@ function dmt_nearby {
     "pupdate" # pupdate -> background parallel update, using screen to run update in parallel
     "copy"
     "pcopy" # pcopy -> background parallel copy, using screen to run copy in parallel
-    "run"
-    "prun"
+    "execute"
+    "pexecute"
+    "reboot"
   )
 
   local matching_opt=''
@@ -1726,6 +1828,10 @@ function dmt_nearby {
       echo
     fi
 
+    if [ "$matching_opt" == "reboot" ]; then
+      echo
+    fi
+
     for device in "${devices[@]}"; do
 
       local deviceInfo=(${device//;/ })
@@ -1739,22 +1845,22 @@ function dmt_nearby {
       # ⚠️ it takes some time to start working if we instantiate multiple screens at the same instant -- is there any solution to speed it up?
       if [ "$matching_opt" == "pupdate" ]; then
         dmt update --skip_prepare --parallel "$ipWithUser"
-        echo
       elif [ "$matching_opt" == "pcopy" ]; then
         dmt copy --skip_prepare --parallel "$ipWithUser"
-        echo
-      elif [ "$matching_opt" == "run" ] || [ "$matching_opt" == "prun" ]; then
+      elif [ "$matching_opt" == "execute" ] || [ "$matching_opt" == "pexecute" ]; then
         if [[ -n "$@" ]]; then
-          if [ "$matching_opt" == "prun" ] || [ "$parallel" == '--parallel' ]; then
-            se "remote -h $ipWithUser \"$@\""
+          if [ "$matching_opt" == "pexecute" ] || [ "$parallel" == '--parallel' ]; then
+            se "dmt_ssh_execute -h $ipWithUser \"$@\""
           else
-            remote -h $ipWithUser "$@"
+            dmt_ssh_execute -h $ipWithUser "$@"
           fi
         else
-          printf "${RED}missing arguments for ${GREEN}dmt nearby run${NC}\n"
+          printf "${RED}missing arguments for ${GREEN}dmt nearby execute${NC}\n"
         fi
       elif [ "$matching_opt" == "copy" ] || [ "$matching_opt" == "update" ]; then
         dmt "$matching_opt" "$parallel" --skip_prepare "$ipWithUser" # dmt update | dmt copy
+      elif [ "$matching_opt" == "reboot" ]; then
+        dmt_publish_mqtt reboot $deviceName
       else
         printf "${RED}Not yet implemented: ${matching_opt}${NC}\n"
       fi
@@ -1780,7 +1886,7 @@ function dmt_nearby {
     done < <( $DMT_NODEJS_EXEC "$CLI_DIR/nearby.js" --simple "$@" )
 
     echo
-    printf "${GRAY}${CYAN}Detected ${MAGENTA}${#devices[@]} ${CYAN}nearby devices.${NC}\n"
+    printf "— ${MAGENTA}${#devices[@]} ${CYAN}nearby devices${NC} —\n"
     echo
     printf "${GRAY}See ${GREEN}dmt nearby help${GRAY} for more options.${NC}\n"
     echo
@@ -1978,7 +2084,10 @@ function dmt_next {
         fi
       else
         echo
-        printf "${RED}Failed to fetch ${YELLOW}${dir}/dmt.zip ${RED}✖${NC}\n"
+        printf "${RED}✖${RED}Failed to fetch ${YELLOW}${dir}/dmt.zip${NC}\n"
+        local msg="Failed to fetch dmt.zip"
+        push_notify_apn "$msg"
+        push_notify highPriority "$msg"
       fi
 
       cd "$cwd"
@@ -2074,7 +2183,7 @@ function dmt_next {
   # . ~/.dmt/shell/.shell_basic (todo: try))
   dmt start # will call newly fetched dmt restart method (in case it was just updated)
 
-  printf "${GREEN}Done.${NC}\n"
+  printf "${GREEN}✓ Done.${NC}\n"
   echo
 }
 
@@ -2162,6 +2271,10 @@ function dmt_next_from_github {
       printf "${RED}Aborting fetch from unknown git source.${NC}\n"
     fi
   fi
+}
+
+function dmt_integrate {
+  "$DMT_PATH/etc/integrate/dmt-integrate" "$@"
 }
 
 function setup_github_uniqpath_dmt_origin {
@@ -2281,6 +2394,9 @@ function prepare_dmt_engine {
   # this is a prerequisite for apps to work
   local dir="$DMT_PATH/etc/scripts/prepare_apps_and_user_engine"
 
+  # we do this in './install' as well (at least dmt-here apps)
+  # because dmt-here/apps have to be corrected also with "dmt update" on remote machine
+  # we cannot prepare these apps locally before syncing...
   cd "$dir"
   ./prepare_apps
 
@@ -2733,11 +2849,6 @@ function dmt_snapshot {
   # ⚠️ delete older than 90 days
   find "$SNAPSHOTS_DIR" -mindepth 1 -mtime +90 -type d -exec rm -rf "{}" \;
 
-  # if [[ `pwd` =~ log/snapshots$ ]]; then
-  # else
-  #   echo `pwd`
-  # fi
-
   dmt state --export "$DIR/in_process_state.json"
 
   local DMT_LOG="$DMT_PATH/log/dmt.log"
@@ -2760,6 +2871,19 @@ function dmt_snapshot {
   local DMT_STATE="$DMT_PATH/state/program.json"
   if [ -f "$DMT_STATE" ]; then
     cp "$DMT_STATE" .
+  fi
+
+  local SYS_LOG_DIR=/var/log
+
+  if [ -d "$SYS_LOG_DIR" ]; then
+    mkdir -p "$DIR/system_logs"
+    cd "$DIR/system_logs"
+
+    cp $SYS_LOG_DIR/syslog* .
+    cp $SYS_LOG_DIR/kern* .
+    cp $SYS_LOG_DIR/messages* .
+
+    gunzip *.gz
   fi
 
   echo

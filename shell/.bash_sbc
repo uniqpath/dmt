@@ -167,6 +167,8 @@ function shut {
   if [ "$1" == 'reboot' ] || [ "$1" == 'r' ]; then
     if dmt_is_rpi; then
       # fix: "This profile appears to be in use by another Chromium process (543)...""
+      # update: this is most likely not needed anymore because we do the same in
+      # ~/.dmt/etc/onboot .... but it can stay here as well "just in case"
       if [ -d /home/pi/.config/chromium ]; then
         rm /home/pi/.config/chromium/Singleton*
       fi

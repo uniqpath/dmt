@@ -1,5 +1,5 @@
 import { util, userDef } from 'dmt/common';
-import getGatewayMac from './gatewayMac';
+import getGatewayMac from './gatewayMac.js';
 
 const { normalizeMac } = util;
 

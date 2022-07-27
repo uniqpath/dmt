@@ -17,3 +17,4 @@ if [ -f ~/.dmt/shell/.loader ]; then . ~/.dmt/shell/.loader; fi # Added by dmt-s
 It is not active in any way without the `~/.dmt` directory.
 
 You can also remove it manually if you want: look into `~/.bash_profile` or `~/.bashrc` or `~/.zshrc`.
+

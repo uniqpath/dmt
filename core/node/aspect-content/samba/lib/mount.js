@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { log } from 'dmt/common';
 
-import * as mountutils from './mountutils';
+import * as mountutils from './mountutils.js';
 
 export default function mount({ mountPath, sambaServerIp, sambaShare, writable = false }) {
   if (fs.existsSync(mountPath)) {

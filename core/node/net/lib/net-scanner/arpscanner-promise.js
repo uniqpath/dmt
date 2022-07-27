@@ -1,4 +1,4 @@
-import scanner from './arpscanner';
+import scanner from './arpscanner.js';
 
 export default arpScanner;
 

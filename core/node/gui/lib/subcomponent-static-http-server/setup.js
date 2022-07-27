@@ -1,4 +1,4 @@
-import servingStrategy from './servingStrategy';
+import servingStrategy from './servingStrategy.js';
 
 function setup(app, { servingOptions = {}, redirects = {} }) {
   configureRedirects(servingStrategy(app, servingOptions), redirects);

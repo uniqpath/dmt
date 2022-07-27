@@ -95,12 +95,25 @@ function zeta_config {
     lighttpd)
       local conf="/etc/lighttpd/lighttpd.conf"
 
-      if [ -f "${conf}" ]; then
-        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
-        sudo nano "${conf}"
+      # readlink -- "$conf"
+
+      local target=$(readlink -- "$conf")
+
+      if [[ "$target" =~ ^"$HOME/.dmt/user/devices" ]]; then
+
+        printf "⚠️  ${MAGENTA}Cannot edit this config file here because it is symlinked to ~/.dmt${NC}\n"
+        printf "Symlink ${WHITE}${conf}${NC} → ${CYAN}${target}${NC}\n"
+        echo
+        printf "${GRAY}You should edit on your ${MAGENTA}mainDevice${NC} ${GRAY}and ${GREEN}dmt copy ${GRAY}it to this device ...${NC}\n"
+        echo
       else
-        printf "${RED}no lighttpd config file found${NC}\n"
-        return
+        if [ -f "${conf}" ]; then
+          printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+          sudo nano "${conf}"
+        else
+          printf "${RED}no lighttpd config file found${NC}\n"
+          return
+        fi
       fi
       ;;
 

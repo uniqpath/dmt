@@ -1,39 +1,46 @@
 import EventEmitter from 'events';
 
 import * as dmt from 'dmt/common';
-const { log, colors, colors2 } = dmt;
+const { log, colors, colors2, def } = dmt;
 
-import { desktop, apn } from 'dmt/notify';
+import { desktop, apn, push } from 'dmt/notify';
 
 import { contentServer } from 'dmt/connectome-next';
 
-import initControllerActor from '../actor';
+import initControllerActor from '../apiController/index.js';
+import initDeviceActor from '../apiDevice/index.js';
 import ActorManagement from './actorManagement/index.js';
 
-import initIntervalTicker from './interval';
-import { setupTimeUpdater } from './interval/timeUpdater';
-import onProgramTick from './interval/onProgramTick';
-import onProgramSlowTick from './interval/onProgramSlowTick';
+import initIntervalTicker from './interval/index.js';
+import { setupTimeUpdater } from './interval/timeUpdater.js';
+import onProgramTick from './interval/onProgramTick.js';
+import onProgramSlowTick from './interval/onProgramSlowTick.js';
 
-import createFiberPool from './peerlist/createFiberPool';
-import syncPeersToProgramState from './peerlist/syncPeersToProgramState';
+import createFiberPool from './peerlist/createFiberPool.js';
+import syncPeersToProgramState from './peerlist/syncPeersToProgramState.js';
 
-import Network from '../network';
-import Server from '../server/mainHttpServer';
-import ProgramConnectionsAcceptor from '../server/programConnectionsAcceptor';
+import Network from '../network/index.js';
+import Server from '../server/mainHttpServer.js';
+import ProgramConnectionsAcceptor from '../server/programConnectionsAcceptor.js';
 
-import ensureDirectories from './boot/ensureDirectories';
-import preventMultipleMainDevices from './boot/preventMultipleMainDevices';
-import getDeviceInfo from './boot/getDeviceInfo';
-import createProgramStore from './createProgramStore/createProgramStore.js';
-import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler';
-import loadMiddleware from './boot/loadMiddleware';
-import reportOSUptime from './boot/reportOSUptime';
+import ensureDirectories from './boot/ensureDirectories.js';
+import preventMultipleMainDevices from './boot/preventMultipleMainDevices.js';
+import preventMultipleMainServers from './boot/preventMultipleMainServers.js';
+import getDeviceInfo from './boot/getDeviceInfo.js';
 
-import generateKeypair from './generateKeypair';
-import exceptionNotify from './exceptionNotify';
-import ipcServer from './ipcServer/ipcServer';
-import ipcServerLegacy from './ipcServer/ipcServerLegacy';
+import createProgramStore from './createStore/createProgramStore.js';
+import { createStore, getStore } from './createStore/createStore.js';
+
+import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler.js';
+import loadMiddleware from './boot/loadMiddleware.js';
+import osUptime from './interval/osUptime.js';
+
+import generateKeypair from './generateKeypair.js';
+import exceptionNotify from './exceptionNotify.js';
+import ipcServer from './ipcServer/ipcServer.js';
+import ipcServerLegacy from './ipcServer/ipcServerLegacy.js';
+
+import load from './load.js';
 
 class Program extends EventEmitter {
   constructor({ mids }) {
@@ -41,46 +48,51 @@ class Program extends EventEmitter {
 
     this.mqttHandlers = [];
 
+    this.cachedNearbyNotifications = [];
+    this.cachedMainDeviceNotifications = [];
+
     ensureDirectories();
 
     generateKeypair();
 
     preventMultipleMainDevices();
+    preventMultipleMainServers();
 
     this.log = dmt.log;
     this.device = getDeviceInfo();
 
     this.network = new Network(this);
     this.server = new Server(this);
-    this._store = createProgramStore(this);
+    this._programStore = createProgramStore(this);
 
     setupGlobalErrorHandler(this);
 
     this.on('ready', () => {
-      this.notifyMainDevice({ msg: 'Ready', ttl: 10, color: '#50887E' });
       if (!dmt.isMainDevice()) {
-        setTimeout(
-          () => {
-            if (this.network.name() == 'zaboric') {
-              const msg = `Started DMT v${dmt.dmtVersion()}`;
-              apn.notify(msg);
-            }
-          },
-          dmt.isRPi() ? 7000 : 1000
-        );
+        this.nearbyNotification({ msg: 'dmt-proc started', ttl: 10, color: '#50887E', dev: true });
       }
+      this.sendCachedNearbyNotifications();
+      this.sendCachedMainDeviceNotifications();
     });
 
     log.green(`${colors.cyan('dmt-proc')} is starting ${this.runningInTerminalForeground() ? colors.magenta('in terminal foreground ') : ''}…`);
 
-    reportOSUptime();
+    osUptime(this);
 
     const port = 7780;
     const protocol = 'dmt';
     this.fiberPool = createFiberPool({ port, protocol });
 
+    if (dmt.isDevUser() && !dmt.isMainDevice()) {
+      this.fiberPool.on('inactive_connection', connector => {
+        const msg = `⚠️  Inactive_connection to ${connector.endpoint}, check log`;
+        this.nearbyNotification({ msg, ttl: 30, dev: true, color: '#EDDE29', omitDesktopNotification: true });
+        apn.notify(msg);
+      });
+    }
+
     this.fiberPool.subscribe(({ connectionList }) => {
-      this.store('connectionsOut').set(connectionList);
+      this.slot('connectionsOut').set(connectionList);
     });
 
     const emitter = new EventEmitter();
@@ -100,15 +112,15 @@ class Program extends EventEmitter {
         version: () => dmt.dmtVersion()
       });
 
-      program.actors.setupChannel(channel);
+      this.actors.setupChannel(channel);
     };
 
-    this.registerProtocol({ protocol, onConnect });
+    this.dev('dmt').registerProtocol(undefined, onConnect);
 
     if (dmt.isRPi()) {
-      this.store('device').update({ isRPi: true }, { announce: false });
+      this.slot('device').update({ isRPi: true }, { announce: false });
     } else {
-      this.store('device').removeKey('isRPi', { announce: false });
+      this.slot('device').removeKey('isRPi', { announce: false });
     }
 
     if (mids.includes('apps')) {
@@ -157,21 +169,21 @@ class Program extends EventEmitter {
     return exceptionNotify({ program: this, msg });
   }
 
-  registerActor(actor, options = {}) {
-    this.actors.register(actor, options);
-  }
-
-  actor(name) {
+  api(name) {
     return this.actors.get(name);
   }
 
-  registerProtocol({ protocol, lane, onConnect = () => {} }) {
-    const onConnectWrap = ({ channel }) => onConnect({ program: this, channel });
-    return this.acceptor.registerProtocol({ protocol, lane, onConnect: onConnectWrap });
+  registerApi(actor, options = {}) {
+    log.cyan(`Registered Program API — ${colors.magenta(actor.apiName)}`);
+    this.actors.register(actor, options);
+  }
+
+  registeredApis() {
+    return this.actors.registeredActors();
   }
 
   peerlist() {
-    const peerlist = this.store('peerlist').get();
+    const peerlist = this.slot('peerlist').get();
 
     if (peerlist) {
       return Object.entries(peerlist).map(([deviceName, values]) => {
@@ -187,8 +199,11 @@ class Program extends EventEmitter {
     this.on('slowtick', () => onProgramSlowTick(this));
 
     initControllerActor(this);
+    initDeviceActor(this);
 
-    this.acceptor.start();
+    setTimeout(() => {
+      this.acceptor.start();
+    }, 200);
 
     this.server.listen();
 
@@ -228,21 +243,65 @@ class Program extends EventEmitter {
   }
 
   country() {
+    if (dmt.user().country) {
+      return dmt.user().country;
+    }
+
     if (this.network) {
       return this.network.country();
     }
   }
 
   lang() {
-    if (this.network) {
-      return this.network.lang();
-    }
+    return dmt.user().language || 'eng';
+  }
 
-    return 'eng';
+  loadDirectory(dir) {
+    load(this, dir);
   }
 
   isHub() {
-    return this.store('device').get('ip') == dmt.accessPointIP;
+    const definedIp = this.device.try('network.ip');
+    const assignedIp = this.slot('device').get('ip');
+
+    const { accessPointIP } = dmt;
+
+    return (!assignedIp && definedIp == accessPointIP) || assignedIp == accessPointIP;
+  }
+
+  getPrimaryLanServer() {
+    const lanServers = this.slot('nearbyDevices')
+      .get()
+      .filter(({ lanServer, ip, stale }) => lanServer && !stale && dmt.isValidIPv4Address(ip) && !dmt.disconnectedIPAddress(ip))
+      .sort((a, b) => {
+        const num1 = Number(
+          a.ip
+            .split('.')
+            .map(num => `000${num}`.slice(-3))
+            .join('')
+        );
+        const num2 = Number(
+          b.ip
+            .split('.')
+            .map(num => `000${num}`.slice(-3))
+            .join('')
+        );
+        return num1 - num2;
+      });
+
+    if (lanServers.length > 0) {
+      return lanServers[0];
+    }
+  }
+
+  isPrimaryLanServer() {
+    return dmt.isLanServer() && this.getPrimaryLanServer()?.thisDevice;
+  }
+
+  lanServerNearby() {
+    return !!this.slot('nearbyDevices')
+      .get()
+      .find(({ lanServer, stale, thisDevice, ip }) => lanServer && !thisDevice && !stale && dmt.isValidIPv4Address(ip) && !dmt.disconnectedIPAddress(ip));
   }
 
   hasGui() {
@@ -250,18 +309,54 @@ class Program extends EventEmitter {
   }
 
   hasValidIP() {
-    const { ip } = this.store('device').get();
+    const { ip } = this.slot('device').get();
     if (ip && !dmt.disconnectedIPAddress(ip)) {
       return true;
     }
   }
 
-  store(slotName) {
-    if (slotName) {
-      return this._store.slot(slotName);
-    }
+  constructOldProtocolHandle(dmtID, protocol) {
+    return protocol ? `${dmtID}/${protocol}` : dmtID;
+  }
 
-    return this._store;
+  dev(dmtID) {
+    return this.developer(dmtID);
+  }
+
+  developer(dmtID) {
+    const { connectome } = this.acceptor;
+
+    return {
+      registerProtocol: (protocol, onConnect = () => {}) => {
+        const onConnectWrap = ({ channel }) => {
+          onConnect({ program: this, channel });
+        };
+
+        return connectome.dev(dmtID).registerProtocol(protocol, onConnectWrap);
+      },
+
+      protocol: _protocol => {
+        const handle = this.constructOldProtocolHandle(dmtID, _protocol);
+
+        const store = () => getStore(handle);
+        const slot = slotName => getStore(handle).slot(slotName);
+
+        const p = connectome.dev(dmtID).protocol(_protocol);
+
+        const onUserAction = p.onUserAction.bind(connectome);
+        const scope = p.scope.bind(connectome);
+
+        return { onUserAction, scope, createStore: (...args) => createStore(handle, ...args), store, slot };
+      }
+    };
+  }
+
+  slot(slotName) {
+    return this._programStore.slot(slotName);
+  }
+
+  store() {
+    return this._programStore;
   }
 
   sendABC({ message, context }) {
@@ -276,16 +371,30 @@ class Program extends EventEmitter {
     return this._player;
   }
 
-  isDevPanel() {
-    const devPanels = ['fpanel', 'gpanel', 'dpanel', 'tablica', 'epanel'];
-    return dmt.isDevUser() && (devPanels.includes(this.device.id) || dmt.isMainDevice());
+  showDevNotifications() {
+    return dmt.isDevPanel() || dmt.isMainDevice();
+  }
+
+  clearNearbyNotification(group) {
+    this.nearbyNotification({ group });
   }
 
   showNotification(
-    { title, msg, ttl = 30, color = '#FFFFFF', group, cancelIds = [], omitDeviceName = false, noDesktopNotification = false, dev = false },
-    { originDevice = undefined } = {}
+    {
+      title,
+      msg,
+      ttl = 30,
+      color = '#FFFFFF',
+      group,
+      omitDeviceName = false,
+      omitDesktopNotification = false,
+      omitTtl = false,
+      replaceTtl = null,
+      dev = false
+    },
+    { originDevice = undefined, onlyMain = undefined } = {}
   ) {
-    if (dev && (!dmt.isDevUser() || !this.isDevPanel())) {
+    if (dev && !this.showDevNotifications()) {
       return;
     }
 
@@ -293,88 +402,133 @@ class Program extends EventEmitter {
 
     const id = Math.random();
 
-    let _title;
+    let recommendedTitle;
 
-    if (originDevice) {
-      if (omitDeviceName) {
-        _title = title;
-      } else if (!title) {
-        _title = originDevice;
-      } else {
-        _title = `${originDevice} · ${title}`;
+    if (title) {
+      recommendedTitle = originDevice && !omitDeviceName ? `${originDevice} · ${title}` : title;
+    } else if (originDevice) {
+      if (!omitDeviceName) {
+        recommendedTitle = originDevice;
       }
-    } else {
-      _title = omitDeviceName ? title : title || this.device.id;
+    } else if (!omitDeviceName) {
+      recommendedTitle = this.device.id;
     }
 
     const notification = {
       __id: id,
-      title: _title,
+      title: onlyMain ? `${recommendedTitle} [MAIN]` : dev ? `${recommendedTitle} [DΞV]` : recommendedTitle,
       msg,
       bgColor,
       color: colors2.invertColor(bgColor),
       group,
+      omitTtl,
+      replaceTtl,
       expireAt: Date.now() + ttl * 1000,
       addedAt: Date.now()
     };
 
-    this.store('notifications').removeArrayElements(
+    this.slot('notifications').removeArrayElements(
       n => {
-        return cancelIds.includes(n.__id) || (group && n.group == group);
+        return group && n.group == group;
       },
       { announce: !msg }
     );
 
     if (msg) {
-      this.store('notifications').push(notification);
+      this.slot('notifications').push(notification);
 
-      if (dmt.isMainDevice() && !noDesktopNotification) {
-        desktop.notify(msg, _title);
+      if (dmt.isDevUser() && this.isPrimaryLanServer()) {
+        const obj = { title, msg, group, dev, originDevice };
+        Object.keys(obj).forEach(key => {
+          if (obj[key] === undefined) {
+            delete obj[key];
+          }
+        });
+        if (!obj.dev) {
+          delete obj.dev;
+        }
+
+        log.cyan(`GUI notification → ${colors.bold().white(JSON.stringify(obj, null, 2))}`);
       }
 
-      return id;
+      if (dmt.isPersonalComputer() && !omitDesktopNotification) {
+        desktop.notify(msg, `${recommendedTitle || this.network.name() || this.device.id} ${replaceTtl || ''}`.trim());
+      }
     }
   }
 
   nearbyNotification(obj) {
-    const { dev } = obj;
+    const { dev, device, devices } = obj;
+    const _devices = Array(device || devices || []).flat();
 
     if (dev && !dmt.isDevUser()) {
       return;
     }
 
-    if (!dev || (dev && this.isDevPanel())) {
-      this.showNotification(obj);
-    }
-
     if (this._nearby) {
-      this._nearby.broadcast('notification', obj);
+      if (!dev || (dev && this.showDevNotifications())) {
+        if (_devices.length == 0 || _devices.includes(this.device.id)) {
+          this.showNotification(obj);
+        }
+      }
+
+      this._nearby.send('notification', obj);
     } else {
-      log.red('⚠️  Dropping nearbyNotification ↴');
-      log.yellow(obj);
-      log.red(`Tried to send too early, please start sending only after ${colors.yellow("program.on('ready')")}`);
+      this.cachedNearbyNotifications.push(obj);
+    }
+  }
+
+  sendCachedNearbyNotifications() {
+    while (this.cachedNearbyNotifications.length) {
+      this.nearbyNotification(this.cachedNearbyNotifications.shift());
     }
   }
 
   notifyMainDevice(obj) {
     if (this._nearby) {
-      this._nearby.broadcast('notify_main_device', obj);
+      this._nearby.send('notify_main_device', obj);
     } else {
-      log.red('⚠️  Dropping notifyMainDevice ↴');
-      log.yellow(obj);
-      log.red(`Tried to send too early, please start sending only after ${colors.yellow("program.on('ready')")}`);
+      this.cachedMainDeviceNotifications.push(obj);
+    }
+  }
+
+  nearbyProxyApnMsgViaLanServer(obj) {
+    if (this._nearby) {
+      this._nearby.send('proxy_apn_notification', obj);
+    } else {
+      throw new Error('Too early, todo: cache');
+    }
+  }
+
+  nearbyProxyPushMsgViaLanServer(obj) {
+    if (this._nearby) {
+      this._nearby.send('proxy_push_notification', obj);
+    } else {
+      throw new Error('Too early, todo: cache');
+    }
+  }
+
+  sendCachedMainDeviceNotifications() {
+    while (this.cachedMainDeviceNotifications.length) {
+      this.notifyMainDevice(this.cachedMainDeviceNotifications.shift());
     }
   }
 
   setNearby(nearby) {
     this._nearby = nearby;
 
+    log.cyan('Nearby aspect ready');
+
     nearby.on('notification', ({ originDevice, obj }) => {
       if (this.device.id == originDevice) {
         return;
       }
 
-      this.showNotification(obj, { originDevice });
+      const { device, devices } = obj;
+      const _devices = Array(device || devices || []).flat();
+      if (_devices.length == 0 || _devices.includes(this.device.id)) {
+        this.showNotification(obj, { originDevice });
+      }
     });
 
     nearby.on('notify_main_device', ({ originDevice, obj }) => {
@@ -383,7 +537,32 @@ class Program extends EventEmitter {
       }
 
       if (dmt.isMainDevice()) {
-        this.showNotification(obj, { originDevice });
+        this.showNotification(obj, { originDevice, onlyMain: true });
+      }
+    });
+
+    nearby.on('proxy_apn_notification', ({ originDevice, obj }) => {
+      if (this.device.id == originDevice) {
+        return;
+      }
+
+      if (this.isPrimaryLanServer()) {
+        log.cyan('Primary lanServer — received proxy_apn_notification:');
+        log.gray(obj);
+        const { msg, users } = obj;
+        apn.notify(msg, { users, originDevice });
+      }
+    });
+
+    nearby.on('proxy_push_notification', ({ originDevice, obj }) => {
+      if (this.device.id == originDevice) {
+        return;
+      }
+
+      if (this.isPrimaryLanServer()) {
+        log.cyan('Primary lanServer — received proxy_push_notification:');
+        log.gray(obj);
+        push.notifyRaw({ ...obj, originDevice });
       }
     });
   }
@@ -394,5 +573,6 @@ class Program extends EventEmitter {
 }
 
 export default (...args) => {
-  return new Program(...args);
+  const p = new Program(...args);
+  return dmt.setProgram(p);
 };

@@ -1,4 +1,4 @@
-import compare from '../just/collection-compare';
+import compare from '../just/collection-compare/index.js';
 
 export default merge;
 

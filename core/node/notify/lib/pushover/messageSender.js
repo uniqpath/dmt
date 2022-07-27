@@ -1,8 +1,9 @@
-import { notify, notifyAll } from './notifier';
+import { program } from 'dmt/common';
+
+import { notify, notifyAll } from './notifier.js';
 
 class MessageSender {
-  constructor({ program, isABC, abcNetworkID }) {
-    this.program = program;
+  constructor({ isABC, abcNetworkID }) {
     this.isABC = isABC;
     this.networkName = abcNetworkID;
   }
@@ -48,11 +49,12 @@ class MessageSender {
   }
 
   notify(message) {
-    const network = this.networkName || this.program?.network.name();
+    const network = this.networkName || program?.network.name();
 
-    return notify(message, {
+    return notify({
       app: this._app,
       group: this._group,
+      message,
       title: this._title,
       network,
       omitDeviceName: this._omitDeviceName,
@@ -65,15 +67,17 @@ class MessageSender {
   }
 
   notifyAll(message) {
-    const network = this.networkName || this.program?.network.name();
+    const network = this.networkName || program?.network.name();
 
-    return notifyAll(message, {
+    return notifyAll({
       app: this._app,
+      message,
       title: this._title,
       network,
       omitDeviceName: this._omitDeviceName,
       url: this._url,
       urlTitle: this._urlTitle,
+      userKey: this._userKey,
       highPriority: this._highPriority,
       isABC: this.isABC
     });

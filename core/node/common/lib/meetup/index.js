@@ -1,25 +1,13 @@
-import { dateFns } from '../dmtHelper';
+import { timeutils } from 'dmt/common';
 
-const {
-  parseISO,
-  formatISO,
-  isBefore,
-  isAfter,
-  addHours,
-  addSeconds,
-  addMinutes,
-  subMinutes,
-  subDays,
-  addDays,
-  isToday,
-  isTomorrow,
-  formatDistanceToNow,
-  formatDistanceToNowStrict,
-  sl_locale
-} = dateFns;
+const { formatFutureDistance } = timeutils;
+
+import { dateFns } from '../dmtHelper.js';
+
+const { parseISO, isBefore, isAfter, addMinutes, subMinutes, subDays, isToday, isTomorrow, formatDistanceToNow, localeSL } = dateFns;
 
 export default function meetupState({ startsAtISO, meetupUrl, meetupTitle, expectedDurationMin = 60, stillAllowJoinAfterExpectedEndMin = 60, lang = 'en' }) {
-  const locale = lang == 'sl' ? sl_locale : undefined;
+  const locale = lang == 'sl' ? localeSL : undefined;
 
   let meetupPassword;
 
@@ -28,11 +16,7 @@ export default function meetupState({ startsAtISO, meetupUrl, meetupTitle, expec
   let _isToday = isToday(startsAt);
   let _isTomorrow = isTomorrow(startsAt);
 
-  let startsIn = isBefore(Date.now(), startsAt) ? formatDistanceToNowStrict(startsAt, { locale }) : null;
-
-  if (startsIn && lang == 'sl') {
-    startsIn = startsIn.replace(/\b1 minuta/, '1 minuto').replace(/\b1 ura/, '1 uro');
-  }
+  let startsIn = isBefore(Date.now(), startsAt) ? formatFutureDistance(startsAt, { lang }) : null;
 
   let startedAgo;
 

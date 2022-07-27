@@ -1,29 +1,65 @@
+import { log, colors, globals, isDevMachine } from 'dmt/common';
 import ping from 'nodejs-tcp-ping';
 
-import { log, stopwatch, promiseTimeout, colors } from 'dmt/common';
+const TIMEOUT = 1500;
 
-let counter = 0;
+const prevAttemptAt = {};
 
-export default function doPing(target, TIMEOUT = 1500) {
+const consecutiveUnresolvedTimeouts = {};
+
+export default function doPing(target, timeout = TIMEOUT) {
   return new Promise((success, reject) => {
-    const pingPromise = ping.tcpPing({
-      attempts: 5,
-      host: target,
-      timeout: TIMEOUT
-    });
+    const startedAt = Date.now();
 
-    pingPromise
+    if (prevAttemptAt[target] && startedAt - prevAttemptAt[target] > 2.1 * globals.tickerPeriod) {
+      if (isDevMachine()) {
+        log.magenta(`devMachine -- pinger ${target} reset timeout counter after ${startedAt - prevAttemptAt[target]}ms`);
+      }
+
+      consecutiveUnresolvedTimeouts[target] = 0;
+    }
+
+    prevAttemptAt[target] = startedAt;
+
+    consecutiveUnresolvedTimeouts[target] = (consecutiveUnresolvedTimeouts[target] || 0) + 1;
+    if (consecutiveUnresolvedTimeouts[target] >= 3) {
+      if (isDevMachine()) {
+        log.red(`devMachine -- ${target} consecutiveUnresolvedTimeout after ${consecutiveUnresolvedTimeouts[target] - 1}x unresolved promise`);
+      }
+
+      consecutiveUnresolvedTimeouts[target] = 0;
+
+      const timeoutError = new Error('Timeout');
+      timeoutError.code = `${consecutiveUnresolvedTimeouts[target]}x TIMEOUT `;
+
+      reject(timeoutError);
+      return;
+    }
+
+    ping
+      .tcpPing({
+        attempts: 5,
+        host: target,
+        timeout
+      })
       .then(results => {
-        if (results.filter(el => el.ping < TIMEOUT).length == 0) {
-          const timeoutError = new Error('Timeout');
-          timeoutError.code = `TIMEOUT ${TIMEOUT}ms`;
-          reject(timeoutError);
-        } else {
-          success(results);
+        const delay = Date.now() - startedAt;
+
+        if (delay < timeout) {
+          consecutiveUnresolvedTimeouts[target] = 0;
+
+          if (results.filter(el => el.ping < timeout).length == 0) {
+            const timeoutError = new Error('Timeout');
+            timeoutError.code = `TIMEOUT ${timeout}ms`;
+            reject(timeoutError);
+          } else {
+            success(results);
+          }
+        } else if (isDevMachine()) {
+          log.green(`⚠️  devMachine → Ping ${target} anomaly ignored: delay ${colors.red(delay)}ms > timeout (${timeout})ms`);
+          log.gray(results);
         }
       })
-      .catch(e => {
-        reject(e);
-      });
+      .catch(reject);
   });
 }

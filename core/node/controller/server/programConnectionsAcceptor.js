@@ -20,7 +20,7 @@ class ProgramConnectionsAcceptor {
       });
 
       this.connectome.subscribe(({ connectionList }) => {
-        program.store('connectionsIn').set(connectionList);
+        program.slot('connectionsIn').set(connectionList);
       });
 
       this.connectome.on('connection', channel => {});
@@ -42,10 +42,6 @@ class ProgramConnectionsAcceptor {
 
   ok() {
     return !!this.keypair;
-  }
-
-  registerProtocol({ protocol, onConnect }) {
-    return this.connectome.registerProtocol({ protocol, onConnect });
   }
 
   connectionList() {

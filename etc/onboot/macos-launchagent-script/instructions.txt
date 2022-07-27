@@ -1,0 +1,37 @@
+dmt stop
+
+cp dmt-proc.plist /Library/LaunchDaemons
+
+cd /Library/LaunchDaemons
+
+sudo chown root:wheel dmt-proc.plist
+
+sudo nano dmt-proc.plist
+
+replace my_user with your main user account on the machine under which dmt-proc should run
+
+(check what permissions other files have)
+
+test:
+
+sudo bash -l
+
+root@computer:~$ launchctl load /Library/LaunchDaemons/dmt-proc.plist
+
+dmt
+
+it should report that dmt is running
+
+now reboot computer and process should run before any user is logged in
+
+---
+
+Some background info:
+
+https://superuser.com/a/130819/220321
+
+~/Library/LaunchAgents         Per-user agents provided by the user.
+/Library/LaunchAgents          Per-user agents provided by the administrator.
+/Library/LaunchDaemons         System wide daemons provided by the administrator.
+/System/Library/LaunchAgents   Mac OS X Per-user agents.
+/System/Library/LaunchDaemons  Mac OS X System wide daemons.

@@ -250,6 +250,39 @@ function dmt_platform_bin_command {
   eval "$1='${__result}'"
 }
 
+function dmt_publish_mqtt {
+  if [ -z "$1" ]; then
+    printf "${MAGENTA}mqtt publish using mosquitto${NC}\n\n"
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}pub [topic] [msg]${NC} ${GRAY}if no msg is specified, empty message is sent${NC}\n"
+    return
+  fi
+
+  local mqttBroker="192.168.0.20"
+  # local mqttBroker="localhost"
+
+  # local result=''
+  # local network_id=''
+  # network_def_reader result network_id "broker"
+  # if [ -n "$result" ]; then
+  #   mqttBroker="$result"
+  # fi
+
+  local host=$mqttBroker
+  local topic="$1"
+  local msg=""
+
+  if [ -n "$2" ]; then
+    msg="$2"
+  fi
+
+  printf "${GRAY}Sending mqtt message ${MAGENTA}${topic}${NC}${GRAY}/${CYAN}${msg} ${GRAY}(via $host)${NC}\n"
+
+  mosquitto_pub -h "$host" -t "$topic" -m "$msg"
+
+  #mosquitto_pub -h "192.168.0.62" -t "$topic" -m "$msg"
+}
+
 # very simple parsing... scan all the lines until "parent_key" is found,
 # then search for the first occurence of "key" and return its "value"
 function dmt_def_reader {

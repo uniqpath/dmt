@@ -1,6 +1,6 @@
 import { colors } from 'dmt/common';
 
-import resultsFormatter from './resultsFormatter';
+import resultsFormatter from './resultsFormatter.js';
 
 function aggregateResultsFormatter(aggregateResults) {
   for (const providerResponse of aggregateResults) {

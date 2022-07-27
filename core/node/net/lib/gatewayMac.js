@@ -1,5 +1,5 @@
-import getNetworkInterfaces from './networkInterfaces';
-import readMAC from './readMac';
+import getNetworkInterfaces from './networkInterfaces.js';
+import readMAC from './readMac.js';
 
 async function getGatewayMac() {
   const _interfaces = await getNetworkInterfaces();

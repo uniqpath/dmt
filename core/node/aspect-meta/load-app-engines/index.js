@@ -4,8 +4,8 @@ import fs from 'fs';
 
 import { log, colors } from 'dmt/common';
 
-import AppLoader from './loadApps';
-import { appFrontendList, appsDir, allApps } from './appFrontendList';
+import AppLoader from './loadApps.js';
+import { appFrontendList, appsDir, allApps } from './appFrontendList.js';
 
 function expressAppSetup(app) {
   appFrontendList().forEach(({ appName, publicDir }) => {
@@ -15,7 +15,7 @@ function expressAppSetup(app) {
 }
 
 async function init(program) {
-  program.store('appList').set(appFrontendList());
+  program.slot('appList').set(appFrontendList());
 
   const appLoader = new AppLoader(program);
 

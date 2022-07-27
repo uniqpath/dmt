@@ -1,8 +1,8 @@
 import fs from 'fs';
 
 import { colors, dmtUserDir as dataDirPath } from 'dmt/common';
-import netScan from '../lib/net-scanner/netScan';
-import netScanScreenOutput from '../lib/net-scanner/screenOutput';
+import netScan from '../lib/net-scanner/netScan.js';
+import netScanScreenOutput from '../lib/net-scanner/screenOutput.js';
 
 (async () => {
   const terms = process.argv.slice(2);

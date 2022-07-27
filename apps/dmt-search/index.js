@@ -1,4 +1,4 @@
-import setupSearchGUIProtocol from './protocol/searchGUI/index';
+import setupSearchGUIProtocol from './protocol/searchGUI/index.js';
 
 function init(program) {
   setupSearchGUIProtocol({ program });

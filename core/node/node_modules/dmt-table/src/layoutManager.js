@@ -1,6 +1,6 @@
 import kindOf from 'kind-of';
-import { Cell, RowSpanCell, ColSpanCell } from './cell/cell';
-import Divider from './divider';
+import { Cell, RowSpanCell, ColSpanCell } from './cell/cell.js';
+import Divider from './divider.js';
 
 function layoutTable(table) {
   table.forEach((row, rowIndex) => {

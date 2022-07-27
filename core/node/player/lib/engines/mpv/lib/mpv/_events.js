@@ -3,52 +3,6 @@ import net from 'net';
 import { log, colors } from 'dmt/common';
 
 const events = {
-  closeHandler(errorCode) {
-    this.mpvPlayer.removeAllListeners('close');
-    this.mpvPlayer.removeAllListeners('error');
-    this.mpvPlayer.removeAllListeners('message');
-    clearTimeout(this.timepositionListenerId);
-
-    this.socket.socket.destroy();
-
-    this.running = false;
-
-    switch (errorCode) {
-      case 0:
-        this.emit('quit');
-        if (this.options.debug || this.options.verbose) {
-          console.log('MPV was quit by the user.');
-        }
-        break;
-      case 4:
-        if (this.options.auto_restart) {
-          if (this.options.debug || this.options.verbose) {
-            console.log('MPV Player has crashed, tying to restart');
-          }
-
-          this.start()
-            .then(() => {
-              this.emit('crashed');
-              if (this.options.debug || this.options.verbose) {
-                console.log('Restarted MPV Player');
-              }
-            })
-            .catch(error => {
-              console.log(error);
-            });
-        } else {
-          this.emit('crashed');
-          if (this.options.debug || this.options.verbose) {
-            console.log('MPV Player has crashed');
-          }
-        }
-        break;
-      default:
-        if (this.options.debug || this.options.verbose) {
-          console.log('MPV player was terminated with an unknown error code: ' + errorCode);
-        }
-    }
-  },
   errorHandler(error) {
     if (this.options.debug) {
       console.log(error);

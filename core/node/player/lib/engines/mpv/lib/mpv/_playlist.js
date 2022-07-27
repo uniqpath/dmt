@@ -1,6 +1,6 @@
 const playlist = {
   clearPlaylist() {
-    return this.socket.command('playlist-clear');
+    return this.ipc.command('playlist-clear');
   }
 };
 

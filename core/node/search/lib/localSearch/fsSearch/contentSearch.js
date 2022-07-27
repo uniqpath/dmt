@@ -4,9 +4,9 @@ import { stopwatchAdv, dmtContent, promiseTimeout } from 'dmt/common';
 
 import { fiberHandle } from 'dmt/connectome-next';
 
-import multipathSearch from './multipathSearch';
+import multipathSearch from './multipathSearch.js';
 
-import sortFiles from '../../sortResults/sortFiles';
+import sortFiles from '../../sortResults/sortFiles.js';
 
 function contentSearch({ contentId, place, terms, mediaType, page = 1, count, maxResults }) {
   const _maxResults = count || maxResults || settings().searchLimit.maxResults;

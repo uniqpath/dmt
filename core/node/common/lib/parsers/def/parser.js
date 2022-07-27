@@ -1,11 +1,15 @@
 import path from 'path';
 import fs from 'fs';
-import inlineValueParser from './inlineValueParser';
+import inlineValueParser from './inlineValueParser.js';
+
+import util from '../../util.js';
+
+const { clone } = util;
 
 import _defjson from 'dmt-defjson';
 const { json2def: fromJson } = _defjson;
 
-import colors from '../../colors/colors';
+import colors from '../../colors/colors.js';
 
 const cache = {};
 const basicParsingCache = {};
@@ -18,7 +22,7 @@ function parseFile(filePath, { caching = true, onlyBasicParsing = false } = {}) 
   const cachedResult = onlyBasicParsing ? basicParsingCache[filePath] : cache[filePath];
 
   if (caching && cachedResult) {
-    return finalResult(JSON.parse(JSON.stringify(cachedResult)), { onlyBasicParsing });
+    return finalResult(cachedResult, { onlyBasicParsing });
   }
 
   const result = parseFileActual(filePath, { onlyBasicParsing });
@@ -35,15 +39,15 @@ function parseFile(filePath, { caching = true, onlyBasicParsing = false } = {}) 
     }
   }
 
-  return finalResult(JSON.parse(JSON.stringify(result)), { onlyBasicParsing });
+  return finalResult(result, { onlyBasicParsing });
 }
 
 function finalResult(result, { onlyBasicParsing }) {
   const rootKey = Object.keys(result)[0];
 
   const finalResult = {};
-  finalResult.multi = result[rootKey];
-  finalResult[rootKey] = makeTryable(JSON.parse(JSON.stringify(result[rootKey][0])));
+  finalResult.multi = clone(result[rootKey]);
+  finalResult[rootKey] = makeTryable(finalResult.multi[0]);
 
   if (onlyBasicParsing) {
     return makeTryable(finalResult);

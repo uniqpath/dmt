@@ -2,15 +2,21 @@ const browser = typeof window !== 'undefined';
 
 const wsCONNECTING = 0;
 const wsOPEN = 1;
-const wsCLOSING = 2;
-const wsCLOSED = 3;
+const CONN_CHECK_INTERVAL = 1000;
+
+const CONN_IDLE_TICKS = 3;
+
+const WAIT_FOR_NEW_CONN_TICKS = 5;
 
 import Connector from '../connector/connector.js';
 import determineEndpoint from './determineEndpoint.js';
 
 import logger from '../../utils/logger/logger.js';
 
-function establishAndMaintainConnection({ endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, log, verbose, tag, dummy }, { WebSocket }) {
+function establishAndMaintainConnection(
+  { endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, autoDecommission, log, verbose, tag, dummy },
+  { WebSocket }
+) {
   endpoint = determineEndpoint({ endpoint, host, port });
 
   const connector = new Connector({
@@ -21,45 +27,50 @@ function establishAndMaintainConnection({ endpoint, host, port, protocol, keypai
     verbose,
     tag,
     log,
+    autoDecommission,
     dummy
   });
+
+  const reconnect = () => {
+    tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verbose });
+  };
 
   connector.connection = {
     terminate() {
       this.websocket._removeAllCallbacks();
       this.websocket.close();
       connector.connectStatus(false);
+      reconnect();
     },
     endpoint,
     checkTicker: 0
   };
 
-  setTimeout(() => tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }), 10);
-
-  const connectionCheckInterval = 1000;
-
   const callback = () => {
     if (!connector.decommissioned) {
-      checkConnection({ connector, endpoint }, { WebSocket, log, verbose });
-      setTimeout(callback, connectionCheckInterval);
+      checkConnection({ connector, reconnect, log });
+      setTimeout(callback, CONN_CHECK_INTERVAL);
     }
   };
 
-  setTimeout(callback, connectionCheckInterval);
+  setTimeout(callback, 10);
 
   return connector;
 }
 
 export default establishAndMaintainConnection;
 
-function checkConnection({ connector, endpoint }, { WebSocket, log, verbose }) {
+function checkConnection({ connector, reconnect, log }) {
   const conn = connector.connection;
 
   if (connectionIdle(conn) || connector.decommissioned) {
-    if (connectionIdle(conn)) {
-      logger.yellow(log, `Connection ${connector.connection.endpoint} became idle, closing websocket ${conn.websocket.rand}`);
+    if (connector.decommissioned) {
+      logger.yellow(log, `${connector.endpoint} Connection decommisioned, closing websocket ${conn.websocket.__id}, will not retry again `);
+
+      decommission(connector);
     } else {
-      logger.yellow(log, `Connection ${connector.connection.endpoint} decommisioned, closing websocket ${conn.websocket.rand}, will not retry again `);
+      connector.emit('inactive_connection');
+      logger.yellow(log, `${connector.endpoint} ✖ Terminated inactive connection`);
     }
 
     conn.terminate();
@@ -72,52 +83,71 @@ function checkConnection({ connector, endpoint }, { WebSocket, log, verbose }) {
     conn.websocket.send('ping');
   } else {
     if (connector.connected == undefined) {
-      logger.write(log, `Setting connector status to FALSE because connector.connected is undefined`);
+      logger.write(log, `${connector.endpoint} Setting connector status to FALSE because connector.connected is undefined`);
       connector.connectStatus(false);
     }
 
-    tryReconnect({ connector, endpoint }, { WebSocket, log, verbose });
+    reconnect();
   }
 
   conn.checkTicker += 1;
 }
 
-function tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }) {
+function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verbose }) {
   const conn = connector.connection;
 
+  connector.checkForDecommission();
+
+  if (connector.decommissioned) {
+    decommission(connector);
+    return;
+  }
+
   if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
-    if (conn.currentlyTryingWS._waitForConnectCounter == 3) {
-      conn.currentlyTryingWS._removeAllCallbacks();
-      conn.currentlyTryingWS.close();
-    } else {
+    if (conn.currentlyTryingWS._waitForConnectCounter < WAIT_FOR_NEW_CONN_TICKS) {
       conn.currentlyTryingWS._waitForConnectCounter += 1;
       return;
     }
+
+    if (verbose || browser) {
+      logger.write(log, `${endpoint} Reconnect timeout, creating new ws`);
+    }
+
+    conn.currentlyTryingWS._removeAllCallbacks();
+    conn.currentlyTryingWS.close();
+  } else if (verbose || browser) {
+    logger.write(log, `${endpoint} Created new websocket`);
   }
 
   const ws = new WebSocket(endpoint);
+  ws.__id = Math.random();
+
   conn.currentlyTryingWS = ws;
   conn.currentlyTryingWS._waitForConnectCounter = 0;
-
-  ws.rand = Math.random();
 
   if (browser) {
     ws.binaryType = 'arraybuffer';
   }
 
   if (!browser) {
-    ws.on('error', error => {});
+    ws.on('error', () => {});
   }
 
-  const openCallback = m => {
-    if (verbose) {
-      logger.write(log, `websocket ${endpoint} connection opened (${ws.rand})`);
+  const openCallback = () => {
+    if (connector.decommissioned) {
+      return;
+    }
+
+    if (verbose || browser) {
+      logger.write(log, `${endpoint} Websocket open`);
     }
 
     conn.currentlyTryingWS = null;
     conn.checkTicker = 0;
-    addSocketListeners({ ws, connector, openCallback }, { log, verbose });
+
+    addSocketListeners({ ws, connector, openCallback, reconnect }, { log, verbose });
     conn.websocket = ws;
+
     connector.connectStatus(true);
   };
 
@@ -132,20 +162,32 @@ function tryReconnect({ connector, endpoint }, { WebSocket, log, verbose }) {
   }
 }
 
-function addSocketListeners({ ws, connector, openCallback }, { log, verbose }) {
+function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, verbose }) {
   const conn = connector.connection;
 
-  const errorCallback = m => {
-    logger.write(log, `websocket ${ws.rand} conn ${connector.connection.endpoint} error`);
-    logger.write(log, m);
+  const errorCallback = event => {
+    const msg = `${connector.endpoint} Websocket error`;
+    console.log(msg);
+    console.log(event);
   };
 
-  const closeCallback = m => {
-    logger.write(log, `websocket ${connector.connection.endpoint} connection closed (${ws.rand})`);
-    connector.connectStatus(false);
+  const closeCallback = () => {
+    logger.write(log, `${connector.endpoint} ✖ Connection closed`);
+
+    if (connector.decommissioned) {
+      connector.connectStatus(false);
+      return;
+    }
+
+    connector.connectStatus(undefined);
+    reconnect();
   };
 
   const messageCallback = _msg => {
+    if (connector.decommissioned) {
+      return;
+    }
+
     conn.checkTicker = 0;
 
     const msg = browser ? _msg.data : _msg;
@@ -188,10 +230,28 @@ function addSocketListeners({ ws, connector, openCallback }, { log, verbose }) {
   }
 }
 
+function decommission(connector) {
+  const conn = connector.connection;
+
+  if (conn.currentlyTryingWS) {
+    conn.currentlyTryingWS._removeAllCallbacks();
+    conn.currentlyTryingWS.close();
+    conn.currentlyTryingWS = null;
+  }
+
+  if (conn.ws) {
+    conn.ws._removeAllCallbacks();
+    conn.ws.close();
+    conn.ws = null;
+  }
+
+  connector.connectStatus(false);
+}
+
 function socketConnected(conn) {
   return conn.websocket && conn.websocket.readyState == wsOPEN;
 }
 
 function connectionIdle(conn) {
-  return socketConnected(conn) && conn.checkTicker > 2;
+  return socketConnected(conn) && conn.checkTicker > CONN_IDLE_TICKS;
 }

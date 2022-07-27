@@ -30,13 +30,13 @@ function server(program) {
   ipc.serve(() => {
     ipc.server.on('message', (data, socket) => {
       try {
-        const { actorName, namespace, action, payload, atDevice } = JSON.parse(data);
+        const { apiName, namespace, action, payload, atDevice } = JSON.parse(data);
 
         if (namespace == 'gui') {
           program.emit('send_to_connected_guis', { action, payload });
 
           ipc.server.emit(socket, 'ack', 'empty');
-        } else if (actorName) {
+        } else if (apiName) {
           if (atDevice) {
             const device = parseCliArgs(atDevice).atDevices[0];
             let { address, port, hostType, host } = device;
@@ -53,7 +53,7 @@ function server(program) {
               .then(connector => {
                 if (connector.isReady()) {
                   connector
-                    .remoteObject(actorName)
+                    .remoteObject(apiName)
                     .call(action, payload)
                     .then(response => emitResponse({ response, socket }));
                 } else {
@@ -63,7 +63,7 @@ function server(program) {
               .catch(error => emitError({ program, error, socket }));
           } else {
             program
-              .actor(actorName)
+              .api(apiName)
               .call(action, payload)
               .then(response => emitResponse({ response, socket }))
               .catch(error => emitError({ program, error, socket }));
@@ -72,7 +72,6 @@ function server(program) {
           log.red(`Cannot process IPC request: ${data}`);
         }
       } catch (error) {
-        log.red('IPC Server Coding Error - should not happen');
         emitError({ program, error, socket });
       }
     });

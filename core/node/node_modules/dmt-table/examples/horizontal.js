@@ -1,4 +1,4 @@
-import Table from '../index';
+import Table from '../index.js';
 
 // instantiate
 var table = new Table({

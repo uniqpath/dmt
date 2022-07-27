@@ -1,6 +1,6 @@
 import { def, suntime } from 'dmt/common';
 
-import * as helpers from './helpers';
+import * as helpers from './helpers.js';
 
 const eveningRE = new RegExp(/\bevening\b/i);
 const lateEveningRE = new RegExp(/\blate-evening\b/i);

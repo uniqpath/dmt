@@ -1,3 +1,3 @@
-import MqttClient from './lib/mqttClient';
+import MqttClient from './lib/mqttClient/index.js';
 
 export default new MqttClient();

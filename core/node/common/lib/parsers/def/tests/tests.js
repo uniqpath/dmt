@@ -1,4 +1,4 @@
-import def from '../parser';
+import def from '../parser.js';
 
 const example = `
 country: tuva

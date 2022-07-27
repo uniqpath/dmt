@@ -1,4 +1,3 @@
-export { default as Colors } from './components/Colors.svelte';
 export { default as CloseIcon } from './components/icons/CloseIcon.svelte';
 export { default as ChevronDownIcon } from './components/icons/ChevronDownIcon.svelte';
 export { default as Button } from './components/Button.svelte';

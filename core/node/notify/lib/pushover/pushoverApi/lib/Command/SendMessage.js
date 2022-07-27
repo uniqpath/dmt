@@ -1,5 +1,5 @@
-import Command from './Command';
-import Message from '../Message';
+import Command from './Command.js';
+import Message from '../Message.js';
 
 function removeEmpty(obj) {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));

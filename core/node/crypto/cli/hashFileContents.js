@@ -2,7 +2,7 @@ import { colors } from 'dmt/common';
 
 import fs from 'fs';
 
-import tools from '../tools';
+import tools from '../tools.js';
 const { fileHash } = tools;
 
 const args = process.argv.slice(2);

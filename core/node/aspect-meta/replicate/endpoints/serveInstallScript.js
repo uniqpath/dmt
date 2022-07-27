@@ -4,6 +4,8 @@ import path from 'path';
 import * as dmt from 'dmt/common';
 const { util, dmtVersion } = dmt;
 
+import determineReplicatedDmtVersion from '../determineReplicatedDmtVersion.js';
+
 const { dirname } = path;
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -17,25 +19,15 @@ function dmtSource(host) {
   return host;
 }
 
-function determineVersion() {
-  const fetchedVersion = dmtVersion(path.join(dmt.dmtPath, 'state/dmt.zip.version.txt'));
-
-  if (fs.existsSync(path.join(dmt.dmtPath, 'state/dmt.zip')) && fetchedVersion) {
-    return fetchedVersion;
-  }
-
-  return dmtVersion();
-}
-
 function install({ req, res, isCurl, program, port }) {
   let host;
   let protocol = 'http';
 
-  if (program.store('device').get('serverMode')) {
+  if (program.slot('device').get('serverMode')) {
     host = req.headers.host;
     protocol = req.protocol;
   } else {
-    host = program.store('device').get('ip') || 'localhost';
+    host = program.slot('device').get('ip') || 'localhost';
     host = `${host}:${port}`;
   }
 
@@ -43,7 +35,7 @@ function install({ req, res, isCurl, program, port }) {
     .readFileSync(path.join(__dirname, '../templates/install_from'))
     .toString()
     .replace(new RegExp('{{protocol}}', 'g'), protocol)
-    .replace(new RegExp('{{version}}', 'g'), determineVersion())
+    .replace(new RegExp('{{version}}', 'g'), determineReplicatedDmtVersion())
     .replace(new RegExp('{{host}}', 'g'), host)
     .replace(new RegExp('{{dmtSource}}', 'g'), dmtSource(host));
 
@@ -116,10 +108,7 @@ function install({ req, res, isCurl, program, port }) {
     const htmlTemplate = fs
       .readFileSync(path.join(__dirname, '../templates/template.html'))
       .toString()
-      .replace(
-        '{{demoPath}}',
-        program.store('device').get('serverMode') ? '/home' : `${protocol}://${hostname}:${program.store('device').get('actualGuiPort')}`
-      )
+      .replace('{{demoPath}}', program.slot('device').get('serverMode') ? '/home' : `${protocol}://${hostname}:${program.slot('device').get('actualGuiPort')}`)
       .replace('{{content}}', content);
 
     res.send(htmlTemplate);

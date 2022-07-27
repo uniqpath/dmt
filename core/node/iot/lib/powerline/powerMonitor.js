@@ -2,9 +2,9 @@ import { loop } from 'dmt/common';
 import { push } from 'dmt/notify';
 
 import EventEmitter from 'events';
-import * as sensorMsg from '../sensorMessageFormats';
+import * as sensorMsg from '../sensorMessageFormats/index.js';
 
-import mqttClient from '../../createMqttClient';
+import mqttClient from '../../createMqttClient.js';
 
 class PowerMonitor extends EventEmitter {
   constructor(program, { deviceName, idleSeconds = 120, safetyOffMinutes = null, triggeringCounter = 4 } = {}) {

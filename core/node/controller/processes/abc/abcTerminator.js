@@ -1,6 +1,8 @@
 import fs from 'fs';
 
-import { log, abcVersion, prettyTimeAge, abcSocket, isDevUser, isMainDevice } from 'dmt/common';
+import { log, abcVersion, timeutils, abcSocket, isDevUser, isMainDevice } from 'dmt/common';
+
+const { prettyTimeAge } = timeutils;
 
 import { push, desktop } from 'dmt/notify';
 

@@ -2,14 +2,14 @@ import fs from 'fs';
 import path from 'path';
 
 import { colors, dmtStateDir } from 'dmt/common';
-import arpscanner from './arpscanner-promise';
-import { identify } from './deviceIdentifier';
-import deviceDiffer from './deviceDiffer';
-import deviceFilter from './deviceFilter';
-import deviceSorter from './deviceSorter';
+import arpscanner from './arpscanner-promise.js';
+import { identify } from './deviceIdentifier.js';
+import deviceDiffer from './deviceDiffer.js';
+import deviceFilter from './deviceFilter.js';
+import deviceSorter from './deviceSorter.js';
 
-import currentNetworkDef from '../currentNetworkDef';
-import networkInterfaces from '../networkInterfaces';
+import currentNetworkDef from '../currentNetworkDef.js';
+import networkInterfaces from '../networkInterfaces.js';
 
 async function netScan(term = '', { rescan = true, silent = true } = {}) {
   try {

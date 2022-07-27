@@ -193,7 +193,7 @@ function net {
 
       local host="$2"
 
-      if [ "$host" == "ap" ]; then
+      if [ "$host" == "ap" ] || [ "$host" == "hub" ]; then
         host="192.168.0.20"
       fi
 

@@ -5,10 +5,10 @@ import os from 'os';
 const { homedir } = os;
 const { username } = os.userInfo();
 
-import isRPi from './detectRPi';
-import def from './parsers/def/parser';
+import isRPi from './detectRPi.js';
+import def from './parsers/def/parser.js';
 
-import util from './util';
+import util from './util.js';
 
 import {
   colors,
@@ -24,17 +24,21 @@ import {
   isDevMachine,
   isDevUser,
   isMainDevice,
+  isMainServer,
+  isPersonalComputer,
+  isLanServer,
+  isDevPanel,
   debugMode,
   debugCategory,
   prettyFileSize
-} from './dmtPreHelper';
+} from './dmtPreHelper.js';
 
 const _device = device;
 
-import Logger from './logger';
+import Logger from './logger.js';
 const log = new Logger();
 
-import * as dateFns from './timeutils/dateFnsCompacted';
+import * as dateFns from './timeutils/dateFnsCompacted/index.js';
 
 const { hexToBuffer } = util.hexutils;
 
@@ -44,7 +48,7 @@ const catalogsDir = path.join(dmtUserDir, 'catalogs');
 let deviceKeypair;
 
 const globals = {
-  tickerPeriod: 2,
+  tickerPeriod: 2000,
   slowTickerFactor: 10
 };
 globals.slowTickerPeriod = globals.tickerPeriod * globals.slowTickerFactor;
@@ -368,7 +372,7 @@ export function getIp({ deviceName }) {
 export function getLocalIpViaNearby({ program, deviceName }) {
   const _deviceName = deviceName;
   const match = program
-    .store('nearbyDevices')
+    .slot('nearbyDevices')
     .get()
     .find(({ deviceName, stale }) => !stale && deviceName == _deviceName);
   if (match) {
@@ -390,6 +394,10 @@ export {
   isDevMachine,
   isDevUser,
   isMainDevice,
+  isMainServer,
+  isPersonalComputer,
+  isLanServer,
+  isDevPanel,
   debugMode,
   debugCategory,
   dateFns,

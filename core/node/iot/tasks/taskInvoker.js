@@ -1,5 +1,5 @@
-import Task from './task';
-import * as parser from './parser';
+import Task from './task.js';
+import * as parser from './parser.js';
 class TaskInvoker {
   constructor(program) {
     this.tasks = parser.getTasks().map(taskDef => new Task({ program, taskDef }));

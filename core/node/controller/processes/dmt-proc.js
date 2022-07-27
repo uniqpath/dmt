@@ -1,9 +1,9 @@
-import { log, device, isDevUser } from 'dmt/common';
+import { log, device, isDevUser, dmtHerePath } from 'dmt/common';
 
-import program from '../program/program';
-import exceptionNotify from '../program/exceptionNotify';
-import exit from '../program/exit';
-import getExitMsg from '../program/getExitMsg';
+import program from '../program/program.js';
+import exceptionNotify from '../program/exceptionNotify.js';
+import exit from '../program/exit.js';
+import getExitMsg from '../program/getExitMsg.js';
 
 let foreground;
 let profiling;
@@ -26,7 +26,6 @@ const mids = [];
 mids.push('meta/load-user-engine');
 mids.push('player');
 mids.push('search');
-mids.push('notify');
 mids.push('meta/load-app-engines');
 
 mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable') != 'true' } });
@@ -41,7 +40,6 @@ mids.push('content/samba');
 mids.push('meta/abc-connect');
 
 mids.push('meta/netping');
-mids.push('meta/bash-exec');
 mids.push('meta/replicate');
 mids.push('meta/sysinfo');
 mids.push('meta/holidays');

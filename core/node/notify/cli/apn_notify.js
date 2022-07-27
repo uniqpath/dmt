@@ -1,8 +1,8 @@
 import { colors } from 'dmt/common';
-import { apn } from '../index';
+import * as apn from '../lib/apn.js';
 
 function help() {
-  console.log(colors.green('Send push message to mobile devices via pushover.net service'));
+  console.log(colors.green('Send push message to mobile devices via apple APN service'));
   console.log(`${colors.yellow('Usage:')} cli apn [msg]`);
 }
 

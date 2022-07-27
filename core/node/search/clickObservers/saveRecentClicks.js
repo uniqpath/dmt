@@ -18,12 +18,12 @@ export default function observer(program) {
     if (page == 1) {
       const el = { query, page, selectedTags, totalHits, timezone, datetime: Date.now() };
 
-      add(program.store(slotName), el);
+      add(program.slot(slotName), el);
     }
   });
 
   program.on('dmtapp::link_click', ({ url, providerTag, timezone, clickMetadata }) => {
     const el = { url, timezone, datetime: Date.now() };
-    add(program.store(slotName), el);
+    add(program.slot(slotName), el);
   });
 }

@@ -1,6 +1,6 @@
 import fs from 'fs';
-import scan from '../../scan';
-import util from '../../util';
+import scan from '../../scan.js';
+import util from '../../util.js';
 
 function getLines({ filePath, content, lines }) {
   let resultingLines = lines;

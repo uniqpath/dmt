@@ -27,7 +27,7 @@ export default class LanBusOverMqtt extends EventEmitter {
   }
 
   init() {
-    mqttClient.on('message', ({ topic, msg }) => {
+    mqttClient.receive(({ topic, msg }) => {
       if (topic == 'lanbus-chatter') {
         try {
           const jsonMsg = JSON.parse(msg);

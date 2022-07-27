@@ -1,6 +1,6 @@
-import Command from './Command';
-import Group from '../Group';
-import User from '../User';
+import Command from './Command.js';
+import Group from '../Group.js';
+import User from '../User.js';
 
 class VerifyUser extends Command {
   constructor(user) {

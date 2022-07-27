@@ -2,10 +2,10 @@ import fs from 'fs';
 
 import { scan } from 'dmt/common';
 
-import parseLinksTxtFile from './parseLinksTxtFile';
-import getAllTxtFiles from './getAllTxtFiles';
-import normalizeUrls from './normalizeUrls';
-import deduplicate from './deduplicate';
+import parseLinksTxtFile from './parseLinksTxtFile.js';
+import getAllTxtFiles from './getAllTxtFiles.js';
+import normalizeUrls from './normalizeUrls.js';
+import deduplicate from './deduplicate.js';
 
 function splitToLines(buffer) {
   return buffer

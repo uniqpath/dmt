@@ -3,9 +3,9 @@ import fs from 'fs';
 
 import { log, def, colors, dmtPath, device as __device, parseDef } from 'dmt/common';
 
-import mapUrlpathToFilepath from './mapUrlpathToFilepath';
+import mapUrlpathToFilepath from './mapUrlpathToFilepath.js';
 
-import serverOptions from './guiServerOptions';
+import serverOptions from './guiServerOptions.js';
 
 export default program => {
   const guiServerOptions = serverOptions();
@@ -110,6 +110,6 @@ export default program => {
   }
 
   if (Object.keys(views).length > 0) {
-    program.store('gui').update({ views }, { announce: false });
+    program.slot('gui').update({ views }, { announce: false });
   }
 };

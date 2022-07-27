@@ -81,7 +81,7 @@ class GUISearchObject {
         .join(' ');
 
       this.program
-        .actor('search')
+        .api('search')
         .call('search', { query: `${terms.join(' ')} ${providers} @page=${page} @count=${RESULTS_LIMIT}`, selectedTags, searchOriginHost })
         //.call('search', { query: `${providers.join(' ')} @count=10 ${query}`, searchOriginHost })
         .then(responses => {

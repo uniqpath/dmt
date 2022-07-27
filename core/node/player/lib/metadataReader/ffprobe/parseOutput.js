@@ -1,7 +1,7 @@
 import { textfileParsers } from 'dmt/common';
 const { textfileKeyValueParser } = textfileParsers;
 
-import parseDuration from './parseDurationHelper';
+import parseDuration from './parseDurationHelper.js';
 
 function fixYear(id3Data) {
   if (id3Data.year && id3Data.year.length != 4) {

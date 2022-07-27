@@ -1,6 +1,6 @@
 import { log, colors } from 'dmt/common';
 
-import mqttClient from '../../createMqttClient';
+import mqttClient from '../../createMqttClient.js';
 
 function compareTopicAndMsg({ topicAndMsg, topic, msg, context }) {
   if (topicAndMsg.indexOf('/') == -1) {

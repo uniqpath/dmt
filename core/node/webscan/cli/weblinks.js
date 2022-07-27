@@ -9,7 +9,7 @@ import { linkIndexPath } from 'dmt/webindex';
 
 const device = _device({ onlyBasicParsing: true });
 
-import ingestLinksFromDirectory from '../lib/ingest/txtFiles/ingestLinksFromDirectory';
+import ingestLinksFromDirectory from '../lib/ingest/txtFiles/ingestLinksFromDirectory.js';
 
 const args = process.argv.slice(2);
 

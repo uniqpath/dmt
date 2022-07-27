@@ -15,7 +15,8 @@ const payload = args.slice(1).join(' ');
 
 promiseTimeout(2000, ipcClient({ namespace: 'gui', action, payload }))
   .then(() => {
-    console.log(colors.green('ok'));
+    console.log();
+    console.log(colors.green('✓ GUI reloaded'));
     process.exit();
   })
   .catch(() => {

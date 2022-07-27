@@ -1,7 +1,7 @@
 import fs from 'fs';
-import scan from './scan';
+import scan from './scan.js';
 
-import { textfileKeyValueParser } from './parsers/textfiles';
+import { textfileKeyValueParser } from './parsers/textfiles/index.js';
 
 export { apMode, apInfo, accessPointIP };
 

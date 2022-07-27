@@ -7,17 +7,17 @@ function onReconnect({ connector, slotName, program, selectorPredicate }) {
     .call('version')
     .then(dmtVersion => {
       const versionCompareSymbol = versionCompareSymbol(dmtVersion);
-      program.store(slotName).updateArrayElements(selectorPredicate, { versionCompareSymbol, dmtVersion });
+      program.slot(slotName).updateArrayElements(selectorPredicate, { versionCompareSymbol, dmtVersion });
     })
     .catch(e => {});
 
-  program.store(slotName).updateArrayElements(selectorPredicate, { ready: connector.isReady() });
+  program.slot(slotName).updateArrayElements(selectorPredicate, { ready: connector.isReady() });
 }
 
 export default function syncPeersToProgramState({ program, connectorPool, port }) {
   const slotName = 'peerlist';
 
-  program.store(slotName).makeArray();
+  program.slot(slotName).makeArray();
 
   for (const peer of peerConnections()) {
     const { deviceName, address, deviceTag } = peer;
@@ -27,7 +27,7 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
       endpoint = `wss://${address}`;
     }
 
-    program.store(slotName).push({ deviceName, address, deviceTag }, { announce: false });
+    program.slot(slotName).push({ deviceName, address, deviceTag }, { announce: false });
 
     const selectorPredicate = peer => peer.deviceTag == deviceTag;
 
@@ -37,7 +37,7 @@ export default function syncPeersToProgramState({ program, connectorPool, port }
       });
 
       connector.on('disconnect', () => {
-        program.store(slotName).updateArrayElements(selectorPredicate, { ready: false });
+        program.slot(slotName).updateArrayElements(selectorPredicate, { ready: false });
       });
     });
   }

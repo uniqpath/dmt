@@ -1,0 +1,108 @@
+#!/bin/bash
+
+source ~/.dmt/etc/.bash_aliases_bundle # dirsync, colors
+
+printf "     —— ${CYAN}DMT INTEGRATE${NC} ——\n"
+printf "${GRAY}Integrate apps into DMT ENGINE${NC}\n"
+echo
+
+APP_DIR="`pwd`"
+#echo "$cwd"
+#echo "$SOURCE"
+
+if [ ! -f "$APP_DIR/vite.config.ts" ] || [ ! -d "$APP_DIR/dmt" ]; then
+  printf "⚠️  ${RED}Please run inside dmt app directory${NC}\n"
+  exit
+fi
+
+#SOURCE="$(cd "$(dirname "$1")"; pwd)/$(basename "$1")"
+
+#cd $SOURCE
+
+SETTINGS="$APP_DIR/dmt/settings.json"
+
+if [ ! -f "$SETTINGS" ]; then
+  echo $APP_DIR
+  echo "$(basename $APP_DIR)"
+  printf "⚠️  ${RED}Missing ${YELLOW}$(basename $APP_DIR)/dmt/settings.json ${RED}file${NC}\n"
+  exit
+fi
+
+printf "${YELLOW}Settings for ${CYAN}$(basename $APP_DIR)${NC} =${NC}\n"
+cat "$SETTINGS"
+
+# variables
+app_base="$(node dmt/variables/app_base.cjs)"
+build="$(node dmt/variables/build.cjs)"
+hook="$(node dmt/variables/hook.cjs)"
+
+INTEGRATE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# echo $DIR
+# exit
+
+echo
+printf "app_base: ${YELLOW}${app_base}${NC}\n"
+
+# sync
+if [ $app_base = my-app-base ]; then
+
+printf "${RED}Please open setting.json and change app_base to yours! "
+echo ''
+echo 'Not Successful'
+
+else
+
+    # before build scripts
+    echo
+    printf "${GREEN}Changing app_base in svelte configuration:${NC}\n"
+    node $INTEGRATE/editBase.js "$APP_DIR"
+
+    echo
+
+    exit
+
+    node dmt/editAppHtml.cjs
+
+    # build
+    npm run build
+
+    # after build scripts
+    if [ -f dmt/editManifest.cjs ]; then node dmt/editManifest.cjs; fi
+    node dmt/resetAppHtml.cjs
+    node dmt/resetBase.cjs
+
+
+
+
+    # dmt apps dir
+    DMT_APPS="$HOME/.dmt/user/apps"
+
+    # DMT-APPS sync
+    SOURCE_HOOK="${SOURCE}${hook}"
+    SOURCE_PUBLIC="${SOURCE}${build}"
+
+
+    # sync backend
+    if [ -d $SOURCE_HOOK ]; then
+    mkdir -p "$DMT_APPS/${app_base}/backend"; cd $_
+    dirsync "$SOURCE_HOOK" .
+    dmt restart
+    fi
+
+    # sync frontend
+    if [ -d $SOURCE_PUBLIC ]; then
+    mkdir -p "$DMT_APPS/$app_base/public"; cd $_
+    dirsync "$SOURCE_PUBLIC" .
+    fi
+
+
+    printf "${GREEN}✓ Updated ~/.dmt/apps${NC}\n"
+
+    cd $SOURCE
+
+    # # if we wanted to sync the changes to server then uncomment below and change USERNAME & SERVER_IP
+    # echo 'rsync server'
+    # rsync -azP "$DMT_APPS/$app_base" "USERNAME@SERVER_IP:/home/USERNAME/.dmt/apps/user/$app_base"
+
+fi

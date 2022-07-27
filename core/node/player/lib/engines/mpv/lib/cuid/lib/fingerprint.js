@@ -1,4 +1,4 @@
-import pad from './pad';
+import pad from './pad.js';
 
 import os from 'os';
 

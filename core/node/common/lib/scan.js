@@ -4,7 +4,7 @@ import fs from 'fs';
 import fse from 'fs-extra';
 import { homedir } from 'os';
 
-import { commandExists, commandExistsSync } from './utilities/command-exists/command-exists';
+import { commandExists, commandExistsSync } from './utilities/command-exists/command-exists.js';
 
 function ensureDirSync(directory) {
   const options = {

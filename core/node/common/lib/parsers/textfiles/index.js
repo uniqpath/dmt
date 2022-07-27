@@ -1,4 +1,4 @@
-import simpleKeyValuePairs from './simpleKeyValuePairs';
-import sambaConfigParser from './sambaConfigParser';
+import simpleKeyValuePairs from './simpleKeyValuePairs.js';
+import sambaConfigParser from './sambaConfigParser.js';
 
 export { simpleKeyValuePairs as textfileKeyValueParser, sambaConfigParser };

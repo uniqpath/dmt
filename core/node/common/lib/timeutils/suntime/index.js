@@ -1,5 +1,5 @@
-import { parse, isBefore, isAfter, addHours, subHours } from '../dateFnsCompacted';
-import PT from './salat_times';
+import { parse, isBefore, isAfter, addHours, subHours } from '../dateFnsCompacted/index.js';
+import PT from './salat_times.js';
 
 function getTimes(location, time = new Date()) {
   const times = PT.getTimes(time, location);

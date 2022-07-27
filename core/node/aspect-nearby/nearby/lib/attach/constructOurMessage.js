@@ -1,7 +1,9 @@
-import { prettyTimeAge, accessPointIP, deviceNetworkId } from 'dmt/common';
+import { timeutils, accessPointIP, deviceNetworkId } from 'dmt/common';
 import os from 'os';
 
-import deriveDeviceData from './deriveDeviceData';
+const { prettyTimeAge } = timeutils;
+
+import deriveDeviceData from './deriveDeviceData.js';
 
 export default function constructOurMessage({ program, msg }) {
   const { username } = os.userInfo();
@@ -11,7 +13,7 @@ export default function constructOurMessage({ program, msg }) {
     return msg;
   }
 
-  const playerState = program.store('player').get();
+  const playerState = program.slot('player').get();
 
   if (playerState) {
     const playing = !playerState.paused && (playerState.isStream || (playerState.currentMedia && playerState.currentMedia.songPath));
@@ -26,13 +28,20 @@ export default function constructOurMessage({ program, msg }) {
     }
   }
 
-  Object.assign(msg, program.store('device').get());
+  Object.assign(msg, program.slot('device').get());
 
-  msg.uptime = prettyTimeAge(program.store('device').get('dmtStartedAt')).replace(' ago', '');
+  msg.uptime = prettyTimeAge(program.slot('device').get('dmtStartedAt'))
+    .replace(' ago', '')
+    .replace('about', '')
+    .trim();
 
   msg.hasGui = program.hasGui();
 
-  const logLines = program.store('log').get();
+  if (program.isHub()) {
+    msg.isHub = true;
+  }
+
+  const logLines = program.slot('log').get();
 
   if (logLines && logLines.find(line => line.meta.error)) {
     msg.hasErrors = true;

@@ -31,7 +31,7 @@ class Server {
         log.cyan('--------------------------------------------------');
 
         //   desktop.notify(`🚀🎸 http://localhost:${port}`, 'OPEN DMT IN BROWSER');
-        this.program.store('device').update({ actualGuiPort: port }, { announce: false });
+        this.program.slot('device').update({ actualGuiPort: port }, { announce: false });
       })
       .on('error', () => {
         throw new Error(`Failed to listen at gui port ${port}`);

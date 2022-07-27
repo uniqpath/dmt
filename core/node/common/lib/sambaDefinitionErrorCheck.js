@@ -1,5 +1,5 @@
 import def from './parsers/def/parser.js';
-import util from './util';
+import util from './util.js';
 
 function sambaDefinitionErrorCheck(content, filePath) {
   if (content.sambaShare) {

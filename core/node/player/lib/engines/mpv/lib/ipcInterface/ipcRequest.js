@@ -1,6 +1,6 @@
-import ErrorHandler from '../error';
+import ErrorHandler from '../error.js';
 
-const ipcRequest = class {
+class ipcRequest {
   constructor(resolve, reject, args) {
     this.messageResolve = resolve;
     this.messageReject = reject;
@@ -19,6 +19,6 @@ const ipcRequest = class {
     const errMessage = errHandler.errorMessage(3, this.caller, this.args, err);
     this.messageReject(errMessage);
   }
-};
+}
 
 export default ipcRequest;

@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
 import { stat } from 'fs';
 
-import ErrorHandler from './error';
+import ErrorHandler from './error.js';
 
 const util = {
   findIPCCommand(options) {

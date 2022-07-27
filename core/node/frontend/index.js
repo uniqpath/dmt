@@ -4,7 +4,7 @@ import { appFrontendList } from 'dmt/load-app-engines';
 
 const PORT = 8888;
 
-import Server from './server';
+import Server from './server.js';
 
 function init(program) {
   const appList = appFrontendList();

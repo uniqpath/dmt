@@ -1,5 +1,5 @@
 function removeStaleNearbySensorsData(program) {
-  const nearbySensors = program.store('nearbySensors').get();
+  const nearbySensors = program.slot('nearbySensors').get();
 
   const dataStaleSeconds = 35;
 
@@ -8,7 +8,7 @@ function removeStaleNearbySensorsData(program) {
       const { lastUpdateAt } = sensorInfo;
 
       if (!lastUpdateAt || lastUpdateAt < Date.now() - dataStaleSeconds * 1000) {
-        program.store('nearbySensors').removeKey(id, { announce: false });
+        program.slot('nearbySensors').removeKey(id, { announce: false });
       }
     }
   }

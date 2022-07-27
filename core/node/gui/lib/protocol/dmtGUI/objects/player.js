@@ -9,7 +9,7 @@ class PlayerTarget extends EventEmitter {
   action(action, args) {
     return new Promise((success, reject) => {
       this.program
-        .actor('player')
+        .api('player')
         .call(action, args)
         .then(success)
         .catch(reject);

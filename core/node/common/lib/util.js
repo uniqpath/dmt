@@ -1,12 +1,17 @@
-import colorJSON from './colorJSON';
-import fs from 'fs';
-import random from './utilities/just/array-random';
-import compare from './utilities/just/collection-compare';
-import clone from './utilities/just/collection-clone';
-import last from './utilities/just/array-last';
+import colorJSON from './colorJSON.js';
+import fastJsonPatch from 'fast-json-patch';
 
-import * as hexutils from './utilities/hexutils';
-import snakeCaseKeys from './utilities/snakecasekeys';
+import fs from 'fs';
+import random from './utilities/just/array-random/index.js';
+import clone from './utilities/just/collection-clone/index.js';
+import last from './utilities/just/array-last/index.js';
+
+function compare(a, b) {
+  return fastJsonPatch.compare(a, b).length == 0;
+}
+
+import * as hexutils from './utilities/hexutils.js';
+import snakeCaseKeys from './utilities/snakecasekeys/index.js';
 
 function periodicRepeat(callback, timeMs) {
   const update = () => {

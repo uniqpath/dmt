@@ -1,4 +1,4 @@
-import { matchHost } from '../wellKnownDomains';
+import { matchHost } from '../wellKnownDomains.js';
 
 const DOMAIN_PRIORITIES = ['com', 'eth', 'org', 'net', 'app'];
 const MAX_DOMAINS = 100;

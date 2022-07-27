@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { util, cli, colors } from 'dmt/common';
 
-import ffprobe from '../lib/metadataReader/ffprobe';
+import ffprobe from '../lib/metadataReader/ffprobe/index.js';
 
 function help() {
   console.log(colors.yellow('Usage:'));

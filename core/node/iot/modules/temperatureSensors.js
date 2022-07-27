@@ -1,6 +1,6 @@
 import { def, colors2, isDevMachine } from 'dmt/common';
 
-import * as sensorMsg from '../lib/sensorMessageFormats';
+import * as sensorMsg from '../lib/sensorMessageFormats/index.js';
 const FAKE_DATA_ON_DEV_MACHINE = false;
 
 const updateFrequencyMin = 2;
@@ -21,7 +21,7 @@ function setup(program) {
   if (FAKE_DATA_ON_DEV_MACHINE && isDevMachine()) {
     const now = Date.now();
 
-    const env = program.store('environment');
+    const env = program.slot('environment');
 
     env.set([], { announce: false });
 
@@ -137,7 +137,7 @@ function handleMqttEvent({ program, topic, msg }) {
       tempDirection: { symbol: '⇡', tempDirectionUpdateAt: Date.now() }
     };
 
-    program.store('environmentTemperature').set(environment);
+    program.slot('environmentTemperature').set(environment);
 
     return;
   }
@@ -153,7 +153,7 @@ function handleMqttEvent({ program, topic, msg }) {
   if (sensorData && sensorData.Temperature != undefined) {
     const now = Date.now();
 
-    const c = program.store('device').get();
+    const c = program.slot('device').get();
     if (c && c.environment && c.environment.timestamp) {
       if (c.environment.updateAfter && now < c.environment.updateAfter) {
         return;
@@ -192,11 +192,9 @@ function handleMqttEvent({ program, topic, msg }) {
 
     const selectorPredicate = ({ sensorId }) => sensorId == data.sensorId;
 
-    const env = program.store('environment');
+    const env = program.slot('environment');
 
     env.setArrayElement(selectorPredicate, data, { announce: false });
-
-    env.removeArrayElements(({ expireAt }) => expireAt < now, { announce: false });
 
     env.sortArray(
       (a, b) => {

@@ -18,7 +18,7 @@ if (args.help == true) {
 
 const table = new Table();
 
-const headers = ['device', 'dmtVersion', 'local ip', 'platform', 'Node.js', 'uptime', 'user', 'wifiAP', 'deviceKey'];
+const headers = ['device', 'IP address', 'dmt version', 'node.js', 'platform', 'os uptime', 'dmt uptime', 'user', 'wifiAP'];
 
 const action = 'nearby';
 
@@ -52,7 +52,7 @@ function displayDmtVersion({ dmtVersion, versionCompareSymbol }) {
   return colors.gray(`${colors.cyan(versionCompareSymbol)} ${dmtVersion}`);
 }
 
-ipcClient({ actorName: 'controller', action })
+ipcClient({ apiName: 'controller', action })
   .then(_nearbyDevices => {
     table.push(headers.map(h => colors.cyan(h)));
 
@@ -72,6 +72,7 @@ ipcClient({ actorName: 'controller', action })
             deviceKey,
             ip,
             platform,
+            osUptime,
             username,
             uptime,
             thisDevice,
@@ -88,14 +89,14 @@ ipcClient({ actorName: 'controller', action })
 
           return [
             deviceWithMediaMark({ deviceName, playing, mediaType, isStream, thisDevice }),
-            displayDmtVersion({ dmtVersion, versionCompareSymbol }),
             ipInfo({ ip, isSpecialNode, thisDevice }),
-            platform ? colors.gray(platform) : '?',
+            displayDmtVersion({ dmtVersion, versionCompareSymbol }),
             colors.gray(nodejsVersion),
+            platform ? colors.gray(platform) : '?',
+            osUptime ? colors.cyan(osUptime) : '',
             colors.green(uptime),
             colors.gray(username),
-            colors.gray(wifiAP || apssid || '/'),
-            colors.gray(args.full ? deviceKey : `${deviceKey?.substr(0, 8)}…`)
+            colors.gray(wifiAP || apssid || '/')
           ];
         })
       );

@@ -1,8 +1,10 @@
+import { log, stopwatchAdv, timeutils } from 'dmt/common';
+
 import { reconstructSearchQuery } from 'dmt/search';
 
-import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
+import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo.js';
 
-import { log, stopwatchAdv, prettyMicroDuration } from 'dmt/common';
+const { prettyMicroDuration } = timeutils;
 
 class RemoteProviderSearch {
   constructor({ provider, connector }) {

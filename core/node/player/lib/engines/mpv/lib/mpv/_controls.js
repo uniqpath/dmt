@@ -1,46 +1,45 @@
+import { log } from 'dmt/common';
+
 const controls = {
   togglePause() {
-    return this.socket.cycleProperty('pause');
+    return this.ipc.cycleProperty('pause');
   },
   pause() {
-    return this.socket.setProperty('pause', true);
+    return this.ipc.setProperty('pause', true);
   },
   resume() {
-    return this.socket.setProperty('pause', false);
+    return this.ipc.setProperty('pause', false);
   },
   play() {
-    return this.socket.setProperty('pause', false);
+    return this.ipc.setProperty('pause', false);
   },
   stop() {
-    return this.socket.command('stop', []);
+    return this.ipc.command('stop', []);
   },
   volume(value) {
-    return this.socket.setProperty('volume', value);
+    return this.ipc.setProperty('volume', value);
   },
 
-  hackAlsaEnable(enable = true) {
-    return new Promise(success => success());
-  },
   adjustVolume(value) {
-    return this.socket.addProperty('volume', value);
+    return this.ipc.addProperty('volume', value);
   },
   mute() {
-    return this.socket.setProperty('mute', true);
+    return this.ipc.setProperty('mute', true);
   },
   unmute() {
-    return this.socket.setProperty('mute', false);
+    return this.ipc.setProperty('mute', false);
   },
   toggleMute() {
-    return this.socket.cycleProperty('mute');
+    return this.ipc.cycleProperty('mute');
   },
   seek(seconds) {
-    return this.socket.command('seek', [seconds, 'relative']);
+    return this.ipc.command('seek', [seconds, 'relative']);
   },
   goToPosition(seconds) {
-    return this.socket.command('seek', [seconds, 'absolute']);
+    return this.ipc.command('seek', [seconds, 'absolute']);
   },
   loop(times) {
-    return this.socket.setProperty('loop', times);
+    return this.ipc.setProperty('loop', times);
   }
 };
 

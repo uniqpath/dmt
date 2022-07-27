@@ -1,4 +1,4 @@
-import operatorFrom from './inlineHandlers/operatorFrom';
+import operatorFrom from './inlineHandlers/operatorFrom.js';
 
 export default inlineValueParser;
 

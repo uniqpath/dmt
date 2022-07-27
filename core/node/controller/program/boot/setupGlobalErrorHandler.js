@@ -1,13 +1,11 @@
 import { log, colors, prettyFileSize } from 'dmt/common';
 
-import wtf from 'wtfnode';
-
 import { push, apn, desktop } from 'dmt/notify';
 
 let terminationInProgress;
 
-import exit from '../exit';
-import getExitMsg from '../getExitMsg';
+import exit from '../exit.js';
+import getExitMsg from '../getExitMsg.js';
 
 function crashNotify2(exitMsg, delay = 3000) {
   setTimeout(() => {
@@ -60,8 +58,6 @@ export default function setupGlobalErrorHandler(program) {
     log.yellow(`Process has been interrupted: ${signal}`);
 
     if (log.isProfiling()) {
-      log.green('Active handles:');
-      wtf.dump();
       log.green('Memory usage:');
 
       for (const [key, size] of Object.entries(process.memoryUsage())) {

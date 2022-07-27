@@ -1,10 +1,12 @@
 import * as dmt from 'dmt/common';
 const { log, isMainDevice } = dmt;
 
+import stripAnsi from 'strip-ansi';
+
 import { push, desktop } from 'dmt/notify';
 
 export default function exceptionNotify({ program, msg }) {
-  msg = msg.toString();
+  msg = stripAnsi(msg.toString());
 
   return new Promise((success, reject) => {
     if (isMainDevice()) {
@@ -19,7 +21,7 @@ export default function exceptionNotify({ program, msg }) {
         });
       }
     } else {
-      program.notifyMainDevice({ msg });
+      program.notifyMainDevice({ msg, color: '#e34042' });
 
       push
         .highPriority(!log.isForeground())

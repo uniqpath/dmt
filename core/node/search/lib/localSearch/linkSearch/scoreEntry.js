@@ -1,8 +1,8 @@
 import { searchPredicate } from 'dmt/search';
 
-import scoreUrl from './scorers/scoreUrl';
-import scoreUrlDomain from './scorers/scoreUrlDomain';
-import scoreBySelectedTags from './scorers/scoreBySelectedTags';
+import scoreUrl from './scorers/scoreUrl.js';
+import scoreUrlDomain from './scorers/scoreUrlDomain.js';
+import scoreBySelectedTags from './scorers/scoreBySelectedTags.js';
 
 function scoreForAppearance(text = '', { terms, score } = {}) {
   return score * searchPredicate(text, terms);

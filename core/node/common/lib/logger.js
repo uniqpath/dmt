@@ -3,13 +3,15 @@ import path from 'path';
 import os from 'os';
 import util from 'util';
 
-import { colors, deviceDefFile, dmtPath, debugMode, prettyFileSize } from './dmtPreHelper';
-import scan from './scan';
+import { Worker, isMainThread, parentPort } from 'worker_threads';
 
-import colorJSON from './colorJSON';
-import ScreenOutput from './loggerScreenOutput';
+import { colors, deviceDefFile, dmtPath, debugMode, prettyFileSize } from './dmtPreHelper.js';
+import scan from './scan.js';
 
-import formatDuration from './timeutils/formatDuration';
+import colorJSON from './colorJSON.js';
+import ScreenOutput from './loggerScreenOutput.js';
+
+import formatMilliseconds from './timeutils/formatMilliseconds.js';
 
 const LIMIT = 15000;
 
@@ -102,7 +104,7 @@ class Logger {
 
           if (currentLog.length > LIMIT) {
             if (fileSize > 100000000) {
-              this.logOutput(colors.yellow, {}, `⚠️  Warning: log file size reached ${prettyFileSize(fileSize)} before trimming`);
+              this.logOutput('yellow', {}, `⚠️  Warning: log file size reached ${prettyFileSize(fileSize)} before trimming`);
             }
 
             fs.writeFileSync(this.logfilePath, currentLog.slice(-LIMIT).join(os.EOL));
@@ -113,7 +115,7 @@ class Logger {
               fileSize
             )}). This should not happen normally.`;
             fs.unlinkSync(this.logfilePath);
-            this.logOutput(colors.red, {}, msg);
+            this.logOutput('red', {}, msg);
           } else {
             throw e;
           }
@@ -141,41 +143,57 @@ class Logger {
     return meta;
   }
 
-  infoLine({ deviceName, pid, time }) {
-    return `${deviceName ? `${colors.magenta(deviceName)}` : '[unknown deviceName, before log init]'} ${pid} ${colors.gray(time)}`;
+  wireWorker(worker) {
+    worker.on('message', msg => {
+      if (typeof msg === 'object' && !Array.isArray(msg) && msg?.type == '__log') {
+        const { color, options, args } = msg.payload;
+        this.logOutput(color, options, ...args);
+      }
+    });
   }
 
-  logOutput(color, { onlyToFile = false, skipMeta = false, error = false, source } = {}, ...args) {
+  logOutput(color, options = {}, ...args) {
+    if (!isMainThread) {
+      const payload = { color, options, args };
+      parentPort.postMessage({ type: '__log', payload });
+      return;
+    }
+
+    const { onlyToFile = false, skipMeta = false, error = false, source } = options;
+
+    let colorFn;
+
+    if (!color) {
+      colorFn = colors.white;
+    } else if (typeof color == 'string') {
+      if (color == 'white') {
+        colorFn = colors.bold().white;
+      } else {
+        colorFn = colors[color];
+      }
+    } else {
+      throw new Error('cannot pass color function anymore to logger, use color name as string');
+    }
+
     const meta = this.lineMetadata({ error });
 
     let rawMsg = util.format(...args);
-
-    let _color;
-
-    if (!color) {
-      _color = colors.white;
-    } else if (typeof color == 'string') {
-      if (color == 'white') {
-        _color = colors.bold().white;
-      } else {
-        _color = colors[color];
-      }
-    } else {
-      _color = color;
-    }
 
     let trimmedMark = '';
 
     if (rawMsg.length > MAX_LINE_LENGTH) {
       const RESET_COLOR = '\x1B[0m';
       rawMsg = rawMsg.slice(0, MAX_LINE_LENGTH).trim() + `${RESET_COLOR} ${colors.gray('…')}`;
-      trimmedMark = colors.gray('[trimmed] ');
+      trimmedMark = colors.bold().white('[trimmed] ');
     }
 
-    let msg = _color(rawMsg);
+    let msg = colorFn(rawMsg);
 
     if (!skipMeta) {
-      const infoLine = this.infoLine(meta);
+      const { deviceName, pid, time } = meta;
+
+      let pidStr = pid;
+      let timeStr = time;
 
       let diffStr = '';
 
@@ -183,14 +201,19 @@ class Logger {
         const prev = this.buffer[this.buffer.length - 1];
         const diff = meta.timestamp - prev.meta.timestamp;
 
-        diffStr = ` (+${formatDuration(diff)})`;
+        diffStr = ` (+${formatMilliseconds(diff)})`;
 
         if (diff > 1000) {
+          diffStr = colors.blue().bold(diffStr);
+        } else if (diff >= 100) {
           diffStr = colors.white(diffStr);
         }
+      } else {
+        pidStr = colors.magenta(pid);
+        timeStr = colors.bold().white(time);
       }
 
-      let foregroundMark = colors.gray('[?] ');
+      let foregroundMark = '';
 
       if (this.foreground == true) {
         foregroundMark = colors.gray('[run] ');
@@ -203,7 +226,9 @@ class Logger {
 
       const symbol = rawMsg.trim() == '' ? '' : getSymbol(source);
 
-      msg = `${foregroundMark}${this.procTag ? `${colors.cyan(this.procTag)} ` : ''}${infoLine}${colors.gray(diffStr)} ${symbol} ${trimmedMark}${msg}`;
+      msg = `${foregroundMark}${colors.cyan(this.procTag ? `${this.procTag} ` : '')}${!this.procTag && !deviceName ? colors.cyan('Proc') : ''}${
+        deviceName ? `${colors.blue().bold(deviceName)}` : ''
+      } ${pidStr} ${colors.gray(timeStr)}${colors.gray(diffStr)} ${symbol} ${trimmedMark}${msg}`.trim();
     }
 
     if (!onlyToFile) {
@@ -230,7 +255,7 @@ class Logger {
   dir(obj) {
     if (obj) {
       const cj = colorJSON(obj);
-      this.logOutput(colors.white, { skipMeta: true }, cj);
+      this.logOutput(undefined, { skipMeta: true }, cj);
     }
   }
 
@@ -243,11 +268,11 @@ class Logger {
       const commonOpts = { debug: true, debugCat: cat };
 
       if (title) {
-        this.logOutput(colors.yellow, commonOpts, title);
+        this.logOutput('yellow', commonOpts, title);
       }
 
       if (obj) {
-        this.logOutput(colors.gray, Object.assign(commonOpts, { onlyToFile: true }), obj);
+        this.logOutput('gray', Object.assign(commonOpts, { onlyToFile: true }), obj);
         console.log(colorJSON(obj));
       }
     }

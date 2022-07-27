@@ -1,11 +1,11 @@
 import fs from 'fs';
-import def from './parsers/def/parser';
+import def from './parsers/def/parser.js';
 
-import cliParser from './parsers/cli/parser';
-import parseDeviceMention from './parsers/cli/parseDeviceMention';
-import sambaDefinitionErrorCheck from './sambaDefinitionErrorCheck';
+import cliParser from './parsers/cli/parser.js';
+import parseDeviceMention from './parsers/cli/parseDeviceMention.js';
+import sambaDefinitionErrorCheck from './sambaDefinitionErrorCheck.js';
 
-import { log, deviceDefFile, device as _device, absolutizePath } from './dmtHelper';
+import { log, deviceDefFile, device as _device, absolutizePath } from './dmtHelper.js';
 
 function parseContentRefs(contentRefs) {
   contentRefs = contentRefs.map(contentRef => {
