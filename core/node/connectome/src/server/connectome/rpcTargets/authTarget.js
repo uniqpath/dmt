@@ -55,7 +55,7 @@ export default class AuthTarget extends EventEmitter {
     if (initializeProtocol({ server, channel })) {
       server.emit('connection', channel);
     } else {
-      const error = `Error: request from ${channel.remoteIp()} (${channel.remotePubkeyHex()}) - unknown protocol ${protocol}, disconnecting in 60s`;
+      const error = `Error: request from ${channel.remoteIp()} (${channel.remotePubkeyHex()}) - unknown protocol ${protocol}, disconnecting in 1h`;
 
       _errorReportCounters[channel.remoteIp()] = (_errorReportCounters[channel.remoteIp()] || 0) + 1;
 

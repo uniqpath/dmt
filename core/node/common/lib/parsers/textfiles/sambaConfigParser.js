@@ -1,5 +1,5 @@
-import simpleKeyValuePairs from './simpleKeyValuePairs';
-import { getLines } from './helpers';
+import simpleKeyValuePairs from './simpleKeyValuePairs.js';
+import { getLines } from './helpers.js';
 
 function parser({ filePath, content, lines, section, keys, keyMap = {}, delimiter = '=' }) {
   lines = getLines({ filePath, content, lines });

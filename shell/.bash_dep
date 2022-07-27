@@ -291,7 +291,7 @@ function dep {
 
 # Deploy and purge cache
 
-function remote {
+function dmt_ssh_execute {
   local silent=false
 
   if [ "$1" == "--silent" ]; then
@@ -326,25 +326,25 @@ function remote {
   if [ -z "$server" ] || [ -z "$1" ]; then
     printf "${MAGENTA}Runs the command on remote server (passed via -h argument or specified in .deploy file)${NC}\n\n"
     printf "${YELLOW}Usage:${NC}\n"
-    printf "remote -h host [command] [args] ${GRAY}(runs command on host)${NC}\n"
-    printf "remote [command] [args] ${GRAY}(.deploy file is needed to determine the host)${NC}\n"
-    printf "remote serve ${GRAY}(starts node.js server via forever/production.js script)${NC}\n"
+    printf "dmt_ssh_execute -h host [command] [args] ${GRAY}(runs command on host)${NC}\n"
+    printf "dmt_ssh_execute [command] [args] ${GRAY}(.deploy file is needed to determine the host)${NC}\n"
+    #printf "dmt_ssh_execute serve ${GRAY}(starts node.js server via forever/production.js script)${NC}\n"
 
     return
   fi
 
-  if [ "$1" == "serve" ]; then
-    if [ -f "./.deploy" ]; then
-      if [ -f "forever/production.json" ]; then
-        remote "cd \"$remote_dir\"; NODE_ENV=production forever start forever/production.json"
-        return
-      else
-        printf "${RED}Missing forever/production.json locally, presumed also on server${NC}\n"
-      fi
-    else
-      printf "${RED}.deploy file needed for this functionality${NC}\n"
-    fi
-  else
+  # if [ "$1" == "serve" ]; then
+  #   if [ -f "./.deploy" ]; then
+  #     if [ -f "forever/production.json" ]; then
+  #       remote "cd \"$remote_dir\"; NODE_ENV=production forever start forever/production.json"
+  #       return
+  #     else
+  #       printf "${RED}Missing forever/production.json locally, presumed also on server${NC}\n"
+  #     fi
+  #   else
+  #     printf "${RED}.deploy file needed for this functionality${NC}\n"
+  #   fi
+  # else
     #echo "$silent"
     printf "${MAGENTA}$server ${GRAY}→ ${GREEN}Executing ${GRAY}$@${NC} "
     #printf "${YELLOW}Warning: environment variables passed as part of command are evaluated locally${NC}\n"
@@ -358,7 +358,19 @@ function remote {
     # https://stackoverflow.com/questions/9393038/ssh-breaks-out-of-while-loop-in-bash
     eval "$cmd" 2>&1 | grep -v "Pseudo-terminal will not be allocated" | grep -v "Inappropriate ioctl for device" | grep -v "no job control in this shell" | grep -v "Warning: Permanently added" | grep -v "The programs included with the Debian" | grep -v "the exact distribution terms for each program are described" | grep -v "individual files in /usr/share/doc" | grep -v "Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY" | grep -v "permitted by applicable law"
     printf "${GREEN}✓ OK${NC}\n"
-  fi
+  # fi
+}
+
+function report_dirsync_error {
+  local exitStatus="$1"
+  local target="$2"
+
+  local msg="⚠️ dirsync to ${target} FAILED (code ${exitStatus})"
+
+  push_notify_high_priority_bg "$msg"
+
+  echo
+  printf "${RED}${msg}${NC}\n"
 }
 
 # Specify permanent ignores in $DMT_PATH/etc/.deployignore and per-project in ./.deployignore
@@ -527,11 +539,27 @@ function dirsync {
     if [ -f "./shell/.bash_general" ]; then
       #rsync $params $excludes --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$" | grep -v ".gitignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
       rsync $params $excludes --exclude-from <(cat $DMT_PATH/etc/.deployignore | grep -v ".deployignore$") --exclude-from <(cat ./.deployignore) -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
+
+      local exitStatus=${PIPESTATUS[0]}
+
+      if [ $exitStatus -ne 0 ]; then #  error
+        report_dirsync_error $exitStatus "$TARGET"
+        return 1
+      fi
+
       return
     fi
 
     if $total; then
       rsync $params $excludes -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
+
+      local exitStatus=${PIPESTATUS[0]}
+
+      if [ $exitStatus -ne 0 ]; then #  error
+        report_dirsync_error $exitStatus "$TARGET"
+        return 1
+      fi
+
       return
     fi
 
@@ -544,6 +572,13 @@ function dirsync {
     fi
 
     rsync $params $excludes -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
+
+    local exitStatus=${PIPESTATUS[0]}
+
+    if [ $exitStatus -ne 0 ]; then #  error
+      report_dirsync_error $exitStatus "$TARGET"
+      return 1
+    fi
 
     echo
   fi

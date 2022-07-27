@@ -9,7 +9,7 @@ if (args.error) {
   process.exit();
 }
 
-ipcClient({ actorName: 'identity', action: 'list' })
+ipcClient({ apiName: 'identity', action: 'list' })
   .then(({ identityList }) => {
     console.log(identityList);
     process.exit();

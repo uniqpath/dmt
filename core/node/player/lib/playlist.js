@@ -5,8 +5,8 @@ import { log, util, numberRanges, stopwatch } from 'dmt/common';
 
 import { detectMediaType, searchPredicate } from 'dmt/search';
 
-import MetadataReader from './metadataReader';
-import MissingFiles from './missingFiles';
+import MetadataReader from './metadataReader/index.js';
+import MissingFiles from './missingFiles/index.js';
 
 const MAX_LOOK_BEHIND = 3;
 
@@ -20,7 +20,7 @@ class Playlist {
     this.missingFiles = new MissingFiles({ playlist: this });
 
     program.on('tick', () => {
-      const playlistMetadata = program.store('playlistMetadata').get();
+      const playlistMetadata = program.slot('playlistMetadata').get();
 
       if (playlistMetadata) {
         const deselectAfterSeconds = 30;
@@ -29,7 +29,7 @@ class Playlist {
           this.deselectAll();
         } else if (Date.now() - playlistMetadata.lastSelectedAt > deselectAfterSeconds * 1000) {
           this.deselectAll();
-          program.store('playlistMetadata').removeKey('lastSelectedAt', { announce: false });
+          program.slot('playlistMetadata').removeKey('lastSelectedAt', { announce: false });
         }
       }
     });
@@ -40,11 +40,11 @@ class Playlist {
 
     this.currentIndex = null;
 
-    this.program.store('playlist').makeArray();
+    this.program.slot('playlist').makeArray();
 
-    this.playlist = this.program.store('playlist').get();
+    this.playlist = this.program.slot('playlist').get();
 
-    this.program.store('playlistMetadata').update({ playlistLength: this.playlist.length }, { announce: false });
+    this.program.slot('playlistMetadata').update({ playlistLength: this.playlist.length }, { announce: false });
 
     if (currentSongPath) {
       for (const [index, song] of this.playlist.entries()) {
@@ -450,6 +450,7 @@ class Playlist {
     this.playlist.forEach(songInfo => {
       if (songInfo.id == songId) {
         songInfo.selected = !songInfo.selected;
+
         this.broadcastPlaylistState();
 
         this.timestampLastSelected();
@@ -458,7 +459,7 @@ class Playlist {
   }
 
   timestampLastSelected() {
-    this.program.store('playlistMetadata').update(
+    this.program.slot('playlistMetadata').update(
       {
         lastSelectedAt: Date.now()
       },
@@ -468,7 +469,7 @@ class Playlist {
 
   shuffle() {
     if (this.currentIndex < this.playlist.length) {
-      const { limit } = this.program.store('player').get();
+      const { limit } = this.program.slot('player').get();
 
       const splitPoint = this.currentIndex + 1 + (limit ? limit - 1 : 0);
 
@@ -482,8 +483,22 @@ class Playlist {
     }
   }
 
-  detectMissingMedia() {
-    this.missingFiles.detect(this.playlist);
+  rescanMissingMedia() {
+    this.missingFiles.rescan(this.playlist);
+  }
+
+  markError(song) {
+    if (!song.error) {
+      song.error = true;
+      this.broadcastPlaylistState();
+    }
+  }
+
+  unmarkError(song) {
+    if (song.error) {
+      delete song.error;
+      this.broadcastPlaylistState();
+    }
   }
 
   removeMissingMedia() {
@@ -532,7 +547,7 @@ class Playlist {
   }
 
   updatePlaylistDerivedData() {
-    const { limit } = this.program.store('player').get();
+    const { limit } = this.program.slot('player').get();
 
     let prevSong;
     let metadataReadCount = 0;
@@ -542,9 +557,11 @@ class Playlist {
 
       const { metadata } = song;
 
-      if (metadata && metadata.artist && metadata.title) {
+      if (metadata?.artist && metadata?.title) {
         const { artist, title } = song.metadata;
         song.title = `${artist} - ${title}`;
+      } else if (metadata?.title) {
+        song.title = metadata.title;
       } else {
         song.title = titleFromFilePath;
       }

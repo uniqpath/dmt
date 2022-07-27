@@ -1,10 +1,10 @@
 import { entireLinkIndex } from 'dmt/webindex';
 
-import addSiteTag from './addSiteTag';
-import linkQueryResults from './linkQueryResults';
-import superTagcloud from './superTagcloud/superTagcloud';
+import addSiteTag from './addSiteTag.js';
+import linkQueryResults from './linkQueryResults.js';
+import superTagcloud from './superTagcloud/superTagcloud.js';
 
-import sortLinks from '../../sortResults/sortLinks';
+import sortLinks from '../../sortResults/sortLinks.js';
 
 import { tags } from 'dmt/common';
 const { createTagcloud } = tags;

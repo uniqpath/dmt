@@ -1,4 +1,6 @@
-# dmt-table
+# dmtsys table 
+
+### (nodejs, cli)
 
 A simple and modern `node.js` library for nice tables in all modern computer terminals 💻
 

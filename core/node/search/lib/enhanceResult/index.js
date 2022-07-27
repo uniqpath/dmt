@@ -1,4 +1,4 @@
-import enhanceFS from './enhanceFSResult';
+import enhanceFS from './enhanceFSResult.js';
 import { log } from 'dmt/common';
 
 function enhanceResult({ result, providerAddress, providerPort, providerKey, searchOriginHost }) {

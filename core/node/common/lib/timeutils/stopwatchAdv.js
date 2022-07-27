@@ -1,4 +1,5 @@
-import prettyMicroDuration from './prettyMicroDuration';
+import prettyMicroDuration from './prettyMicroDuration/index.js';
+import formatMilliseconds from './formatMilliseconds.js';
 
 function start() {
   return process.hrtime.bigint();
@@ -6,7 +7,10 @@ function start() {
 
 function stop(start) {
   const duration = Number(process.hrtime.bigint() - start);
-  return { duration, prettyTime: prettyMicroDuration(duration) };
+
+  const prettyTime = duration < 1e9 ? prettyMicroDuration(duration) : formatMilliseconds(duration / 1e6);
+
+  return { duration, prettyTime };
 }
 
 export default { start, stop };

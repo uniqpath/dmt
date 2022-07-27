@@ -1,18 +1,18 @@
-import ParaSearch from './lib/paraSearch';
+import ParaSearch from './lib/paraSearch.js';
 import addSiteTag from './lib/localSearch/linkSearch/addSiteTag.js';
-import settings from './settings';
+import settings from './settings.js';
 
-import detectMediaType from './lib/utils/detectMediaType';
-import { parseSearchQuery, reconstructSearchQuery, serializeContentRefs } from './lib/utils/query';
+import detectMediaType from './lib/utils/detectMediaType.js';
+import { parseSearchQuery, reconstructSearchQuery, serializeContentRefs } from './lib/utils/query.js';
 
-import initActor from './actor';
-import initObserver1 from './clickObservers/searchNotify';
-import initObserver2 from './clickObservers/saveRecentClicks';
+import initSearchApi from './apiSearch/index.js';
+import initObserver1 from './clickObservers/searchNotify.js';
+import initObserver2 from './clickObservers/saveRecentClicks.js';
 
-import { searchPredicate, normalizeTerms } from './lib/utils/simpleSearchPredicate';
+import { searchPredicate, normalizeTerms } from './lib/utils/simpleSearchPredicate.js';
 
 function init(program) {
-  initActor(program);
+  initSearchApi(program);
 
   initObserver1(program);
   initObserver2(program);

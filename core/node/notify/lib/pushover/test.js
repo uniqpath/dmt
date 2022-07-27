@@ -1,6 +1,6 @@
-import * as push from './index';
+import * as push from './index.js';
 
-import { getGroupToken } from './pushoverDef';
+import { getGroupToken } from './pushoverDef.js';
 
 console.log(getGroupToken({ app: 'kriptosola', group: 'meetups' }));
 console.log(getGroupToken({ app: 'dalmatia', group: 'website' }));

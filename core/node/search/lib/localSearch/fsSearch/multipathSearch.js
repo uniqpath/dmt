@@ -2,13 +2,15 @@ import fs from 'fs';
 
 import { settings, detectMediaType } from 'dmt/search';
 
-import { prettyFileSize, prettyTimeAge, log } from 'dmt/common';
+import { prettyFileSize, timeutils, log } from 'dmt/common';
+
+const { prettyTimeAge } = timeutils;
 
 import pathModule from 'path';
 
 import stripAnsi from 'strip-ansi';
 
-import executableSearch from './executableSearch';
+import executableSearch from './executableSearch.js';
 
 function multipathSearch({ contentPaths, terms, page, maxResults, mediaType }) {
   return new Promise((success, reject) => {

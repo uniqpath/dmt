@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { easter, easterMonday, getDataForCorrectYear } from './helpers';
+import { easter, easterMonday, getDataForCorrectYear } from './helpers.js';
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -33,7 +33,7 @@ function holidaysForYear(year, { country }) {
 
   if (holidays.EASTER_MONDAY) {
     const _easterMonday = easterMonday(year);
-    holidays[`${_easterMonday.getDate()}.${_easterMonday.getMonth() + 1}`] = holidays.EASTER;
+    holidays[`${_easterMonday.getDate()}.${_easterMonday.getMonth() + 1}`] = holidays.EASTER_MONDAY;
     delete holidays.EASTER_MONDAY;
   }
 
@@ -46,7 +46,11 @@ function holidayName(y, m, d, { country }) {
   }
 }
 
-function isHoliday(y, m, d, { country }) {
+function isHoliday(date, { country }) {
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+
   for (const holiday of Object.entries(holidaysForYear(y, { country }))) {
     if (`${d}.${m}` == holiday[0]) return true;
   }
@@ -54,4 +58,4 @@ function isHoliday(y, m, d, { country }) {
   return false;
 }
 
-export { holidayDataExists, holidaysForYear, holidayName };
+export { holidayDataExists, holidaysForYear, holidayName, isHoliday };

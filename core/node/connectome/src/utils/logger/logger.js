@@ -1,8 +1,20 @@
+import inspect from 'browser-util-inspect';
+
 function doLogging(color, log, ...args) {
-  if (typeof log == 'function') {
-    log(`${new Date().toLocaleString()} → ${args}`);
-  } else if (log) {
-    log.logOutput(color, { source: 'connectome' }, ...args);
+  try {
+    if (log == console.log) {
+      log(
+        `${new Date().toLocaleString()} → ${inspect(...args)
+          .replace(/^'/, '')
+          .replace(/'$/, '')}`
+      );
+    } else if (typeof log == 'function') {
+      log(...args);
+    } else if (log) {
+      log.logOutput(color, { source: 'connectome' }, ...args);
+    }
+  } catch (e) {
+    console.log(e);
   }
 }
 

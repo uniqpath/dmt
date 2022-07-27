@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import daemonize from './daemonize2/lib/daemonize';
+import daemonize from './daemonize2/lib/daemonize.js';
 
 import { push } from 'dmt/notify';
 
@@ -50,8 +50,13 @@ const daemon = daemonize({
 function restart({ notifyOnFail = false } = {}) {
   let triedStart;
   let didKill;
+  let wasUnresponsive;
 
   daemon.on('stopped', () => {
+    if (wasUnresponsive) {
+      return;
+    }
+
     if (!didKill) {
       if (!triedStart) {
         triedStart = true;
@@ -68,6 +73,10 @@ function restart({ notifyOnFail = false } = {}) {
   });
 
   daemon.on('notrunning', () => {
+    if (wasUnresponsive) {
+      return;
+    }
+
     if (!didKill) {
       triedStart = true;
       daemon.start();
@@ -75,6 +84,14 @@ function restart({ notifyOnFail = false } = {}) {
   });
 
   daemon.stop();
+
+  setTimeout(() => {
+    if (!triedStart) {
+      console.log('Killing the process because it is unresponsive, we let abc-proc restart it');
+      wasUnresponsive = true;
+      daemon.kill();
+    }
+  }, 10000);
 }
 
 switch (args[0]) {

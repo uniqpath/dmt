@@ -2,10 +2,10 @@ import { log, colors, globals, services } from 'dmt/common';
 
 import fs from 'fs';
 
-import Playlist from './playlist';
-import Mpv from './engines/mpv';
+import Playlist from './playlist.js';
+import Mpv from './engines/mpv/index.js';
 
-import setupUserActionHandlers from './userActionHandlers';
+import setupUserActionHandlers from './userActionHandlers.js';
 
 const DEFAULT_SKIP_SECONDS = 20;
 
@@ -29,7 +29,7 @@ class LocalPlayer {
     });
 
     program.on('tick', () => {
-      const player = program.store('player').get();
+      const player = program.slot('player').get();
 
       if (player.timeLimit) {
         if (player.paused) {
@@ -42,7 +42,7 @@ class LocalPlayer {
             this.removeTimeLimit({ announce: true });
           }
         } else {
-          let remainingTime = player.timeLimit - globals.tickerPeriod / 60;
+          let remainingTime = player.timeLimit - globals.tickerPeriod / (60 * 1000);
           if (remainingTime < 0) {
             remainingTime = 0;
           }
@@ -50,9 +50,9 @@ class LocalPlayer {
             log.cyan('Pausing because time limit was reached.');
             this.pause();
             this.removeTimeLimit({ announce: false });
-            this.program.store('player').update({ timeLimitReached: true });
+            this.program.slot('player').update({ timeLimitReached: true });
           } else {
-            this.program.store('player').update({ timeLimit: remainingTime }, { announce: false });
+            this.program.slot('player').update({ timeLimit: remainingTime }, { announce: false });
           }
         }
       }
@@ -69,7 +69,7 @@ class LocalPlayer {
       return;
     }
 
-    const { limit } = this.program.store('player').get();
+    const { limit } = this.program.slot('player').get();
     const limitStr = limit ? ` (limit: ${limit})` : '';
     log.yellow(`Player: finished media ${this.playlist.currentIndex + 1} of ${this.playlist.count()}${limitStr}`);
 
@@ -83,7 +83,7 @@ class LocalPlayer {
     if (limitReached) {
       log.cyan('Stopping media play because limit was reached');
 
-      this.program.store('player').update({ limitReached: true });
+      this.program.slot('player').update({ limitReached: true });
 
       this.playlist.selectNextMedia();
       this.playlist.rollover();
@@ -94,7 +94,7 @@ class LocalPlayer {
     const playNext = () =>
       this.next({ fromAction: false })
         .then(() => {
-          if (!this.program.store('player').get('repeatCount')) {
+          if (!this.program.slot('player').get('repeatCount')) {
             this.playlist.rollover();
           }
         })
@@ -115,9 +115,9 @@ class LocalPlayer {
       paused = true;
     }
 
-    this.program.store('player').update({ paused, currentMedia: { songPath: currentSongPath } });
+    this.program.slot('player').update({ paused, currentMedia: { songPath: currentSongPath } });
 
-    this.program.emit('player:initialized', this.program.store('player').get());
+    this.program.emit('player:initialized', this.program.slot('player').get());
 
     this.initialized = true;
   }
@@ -127,7 +127,7 @@ class LocalPlayer {
   }
 
   initVolume() {
-    const currentVolume = this.program.store('player').get('volume');
+    const currentVolume = this.program.slot('player').get('volume');
     const defaultDeviceVolume = services('player').try('defaultVolume.mpv');
     const defaultVolume = parseInt(defaultDeviceVolume) || 75;
 
@@ -144,15 +144,15 @@ class LocalPlayer {
     const volume = currentVolume == null ? defaultVolume : currentVolume;
 
     if (volume != null) {
-      this.program.store('player').update({ volume });
+      this.program.slot('player').update({ volume });
     } else {
-      this.program.store('player').removeKey('volume');
+      this.program.slot('player').removeKey('volume');
     }
   }
 
   removeLimitNotifications() {
-    this.program.store('player').removeKey('limitReached', { announce: false });
-    this.program.store('player').removeKey('timeLimitReached', { announce: false });
+    this.program.slot('player').removeKey('limitReached', { announce: false });
+    this.program.slot('player').removeKey('timeLimitReached', { announce: false });
   }
 
   async play({ files = [] } = {}) {
@@ -188,7 +188,7 @@ class LocalPlayer {
         return;
       }
 
-      this.program.store('player').removeKey('limit', { announce: false });
+      this.program.slot('player').removeKey('limit', { announce: false });
 
       this.playlist.clear();
       this.playlist.prepareNumbering();
@@ -279,7 +279,7 @@ class LocalPlayer {
   }
 
   async bump(args = '') {
-    const rangePatternOrStr = args;
+    const rangePatternOrStr = args.toString();
 
     if (rangePatternOrStr.match(/[a-zA-Z]/)) {
       return this.playlist.bumpSearch(rangePatternOrStr);
@@ -299,11 +299,11 @@ class LocalPlayer {
   async sublist(tag) {
     switch (tag) {
       case 'andreja':
-        this.bump('roisin murphy, cigarettes after sex, moloko, erlend oye, prljavo kazaliste, zaz french');
+        this.bump('roisin murphy, cigarettes after sex, moloko, erlend oye, prljavo kazaliste, zaz french, Rhye woman, sade artist, inxs');
         break;
       case 'david':
         this.bump(
-          'metallica, cigarettes after sex, prljavo kazaliste, mariza, madredeus, joe satriani, ozric tentacles, eat static, astropilot, cabeiri, shadow gallery'
+          'metallica, cigarettes after sex, prljavo kazaliste, mariza, madredeus, joe satriani, ozric tentacles, eat static, astropilot, cabeiri, shadow gallery, inxs'
         );
         break;
       case 'irma':
@@ -325,7 +325,7 @@ class LocalPlayer {
   async repeat() {
     const maxRepeat = 3;
 
-    let { repeatCount } = this.program.store('player').get();
+    let { repeatCount } = this.program.slot('player').get();
 
     if (repeatCount == null) {
       repeatCount = 1;
@@ -337,22 +337,22 @@ class LocalPlayer {
       repeatCount = undefined;
     }
 
-    this.program.store('player').update({ repeatCount });
+    this.program.slot('player').update({ repeatCount });
 
     return { repeatCount };
   }
 
   decrementLimit() {
-    if (this.program.store('player').get('repeatCount')) {
+    if (this.program.slot('player').get('repeatCount')) {
       return false;
     }
 
-    const { limit } = this.program.store('player').get();
+    const { limit } = this.program.slot('player').get();
 
     if (limit > 1) {
-      this.program.store('player').update({ limit: limit - 1 }, { announce: false });
+      this.program.slot('player').update({ limit: limit - 1 }, { announce: false });
     } else if (limit == 1) {
-      this.program.store('player').removeKey('limit', { announce: false });
+      this.program.slot('player').removeKey('limit', { announce: false });
       return true;
     }
 
@@ -392,17 +392,17 @@ class LocalPlayer {
             .catch(reject);
         };
 
-        if (!fromAction && this.program.store('player').get('repeatCount')) {
-          let { repeatCount } = this.program.store('player').get();
+        if (!fromAction && this.program.slot('player').get('repeatCount')) {
+          let { repeatCount } = this.program.slot('player').get();
           if (repeatCount == 1) {
             repeatCount = null;
           } else {
             repeatCount -= 1;
           }
-          this.program.store('player').update({ repeatCount });
+          this.program.slot('player').update({ repeatCount });
           cont();
         } else if (this.playlist.selectNextMedia() != null) {
-          this.program.store('player').removeKey('repeatCount');
+          this.program.slot('player').removeKey('repeatCount');
           if (fromAction) {
             this.decrementLimit();
           }
@@ -421,29 +421,31 @@ class LocalPlayer {
       const song = this.playlist.currentSong();
       log.green('Playing song 🎵');
 
-      const exists = fs.existsSync(song.path);
+      fs.access(song.path, fs.constants.R_OK, err => {
+        if (err) {
+          this.playlist.markError(song);
 
-      if (!exists) {
-        this.playlist.detectMissingMedia();
+          const msg = `${colors.gray(song.path)} doesn't exist on file system`;
+          log.red(msg);
 
-        const msg = `${colors.gray(song.path)} doesn't exist on file system`;
-        log.red(msg);
-        reject(new Error(msg));
-        return;
-      }
+          reject(new Error(msg));
+          return;
+        }
 
-      if (song.error && exists) {
-        this.playlist.detectMissingMedia();
-      }
+        if (song.error) {
+          this.playlist.unmarkError(song);
+          this.playlist.rescanMissingMedia();
+        }
 
-      log.dir(song);
+        log.dir(song);
 
-      this.engine
-        .play(song.path)
-        .then(() => {
-          success({ song });
-        })
-        .catch(reject);
+        this.engine
+          .play(song.path)
+          .then(() => {
+            success({ song });
+          })
+          .catch(reject);
+      });
     });
   }
 
@@ -476,7 +478,7 @@ class LocalPlayer {
       if (num != 'reset' && num != '0' && num != 0) {
         num = parseInt(num);
 
-        limit = this.program.store('player').get('limit');
+        limit = this.program.slot('player').get('limit');
 
         if (num) {
           limit = num;
@@ -489,7 +491,7 @@ class LocalPlayer {
 
       limit = Math.min(limit, this.playlist.count() - this.playlist.currentIndex);
 
-      this.program.store('player').update({ limit }, { announce: false });
+      this.program.slot('player').update({ limit }, { announce: false });
       this.removeTimeLimit({ announce: false });
 
       this.playlist.broadcastPlaylistState();
@@ -505,7 +507,7 @@ class LocalPlayer {
       if (num != 'reset' && num != '0' && num != 0) {
         num = parseInt(num);
 
-        timeLimit = this.program.store('player').get('timeLimit');
+        timeLimit = this.program.slot('player').get('timeLimit');
 
         if (num) {
           timeLimit = num;
@@ -526,14 +528,14 @@ class LocalPlayer {
       }
 
       if (!this.isStream()) {
-        this.program.store('player').removeKey('limit', { announce: false });
+        this.program.slot('player').removeKey('limit', { announce: false });
       }
 
       if (timeLimit == undefined) {
         this.removeTimeLimit({ announce: false });
       } else {
         const timeLimitSetAt = Date.now();
-        this.program.store('player').update({ timeLimit, timeLimitSetAt });
+        this.program.slot('player').update({ timeLimit, timeLimitSetAt });
       }
       this.playlist.broadcastPlaylistState();
 
@@ -542,8 +544,8 @@ class LocalPlayer {
   }
 
   removeTimeLimit({ announce = true } = {}) {
-    this.program.store('player').removeKey('timeLimitSetAt', { announce: false });
-    this.program.store('player').removeKey('timeLimit', { announce });
+    this.program.slot('player').removeKey('timeLimitSetAt', { announce: false });
+    this.program.slot('player').removeKey('timeLimit', { announce });
   }
 
   forward(seconds = DEFAULT_SKIP_SECONDS) {
@@ -578,7 +580,7 @@ class LocalPlayer {
   }
 
   gotoPercentPos(percentPos) {
-    if (!this.program.store('player').get('paused')) {
+    if (!this.program.slot('player').get('paused')) {
       const duration = this.mediaDuration();
       if (duration) {
         const timepos = percentPos * duration;
@@ -588,15 +590,15 @@ class LocalPlayer {
   }
 
   hasLoadedMedia() {
-    return this.program.store('player').get('currentMedia')?.songPath;
+    return this.program.slot('player').get('currentMedia')?.songPath;
   }
 
   mediaDuration() {
-    return this.program.store('player').get('currentMedia')?.duration;
+    return this.program.slot('player').get('currentMedia')?.duration;
   }
 
   isStream() {
-    return this.program.store('player').get('isStream');
+    return this.program.slot('player').get('isStream');
   }
 
   stop() {
@@ -643,14 +645,14 @@ class LocalPlayer {
 
   status() {
     return new Promise((success, reject) => {
-      const status = JSON.parse(JSON.stringify(this.program.store('player').get()));
+      const status = JSON.parse(JSON.stringify(this.program.slot('player').get()));
       delete status.playlist;
       success({ status });
     });
   }
 
   volume(vol) {
-    const prevVolume = this.program.store('player').get('volume');
+    const prevVolume = this.program.slot('player').get('volume');
     let newVolume;
 
     const DEFAULT_VOLUME_STEP = 5;

@@ -1,5 +1,6 @@
-import colors from '../colors/colors';
-import prettyMicroDuration from './prettyMicroDuration';
+import colors from '../colors/colors.js';
+import prettyMicroDuration from './prettyMicroDuration/index.js';
+import formatMilliseconds from './formatMilliseconds.js';
 
 function start() {
   return process.hrtime.bigint();
@@ -7,7 +8,7 @@ function start() {
 
 function stop(start) {
   const duration = Number(process.hrtime.bigint() - start);
-  return prettyMicroDuration(duration);
+  return duration < 1e9 ? prettyMicroDuration(duration) : formatMilliseconds(duration / 1e6);
 }
 
 function measureHelper(func, { desc = ' ', disable = false } = {}) {

@@ -1,4 +1,4 @@
-import powerLog from './powerLog';
-import PowerMonitor from './powerMonitor';
+import powerLog from './powerLog.js';
+import PowerMonitor from './powerMonitor.js';
 
 export { PowerMonitor, powerLog };

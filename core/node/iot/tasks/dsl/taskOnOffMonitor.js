@@ -1,4 +1,4 @@
-import OnOffMonitor from '../../lib/onOffMonitor';
+import OnOffMonitor from '../../lib/onOffMonitor/index.js';
 
 const statementName = 'on-off-monitor';
 

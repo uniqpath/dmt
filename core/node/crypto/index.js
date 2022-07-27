@@ -1,3 +1,3 @@
-import * as tools from './tools';
+import * as tools from './tools.js';
 
 export { tools };

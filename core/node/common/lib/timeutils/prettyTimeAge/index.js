@@ -1,8 +1,8 @@
-import { dateFns } from '../../dmtHelper';
+import { dateFns } from '../../dmtHelper.js';
 
 const { formatDistanceToNow } = dateFns;
 
-function prettyTimeAge(referenceDate, { detailed = false } = {}) {
+export default function prettyTimeAge(referenceDate, { detailed = false } = {}) {
   const diff = Math.round((Date.now() - referenceDate) / 1000);
 
   if (detailed && diff < 60) {
@@ -11,5 +11,3 @@ function prettyTimeAge(referenceDate, { detailed = false } = {}) {
 
   return formatDistanceToNow(referenceDate, { addSuffix: true });
 }
-
-export default prettyTimeAge;

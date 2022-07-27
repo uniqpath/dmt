@@ -1,6 +1,8 @@
 import { ipcClient, parseArgs, Table } from 'dmt/cli';
 
-import { colors, prettyTimeAge } from 'dmt/common';
+import { colors, timeutils } from 'dmt/common';
+
+const { prettyTimeAge } = timeutils;
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -70,7 +72,7 @@ function displayTable(connectionList, outgoing = true) {
   }
 }
 
-ipcClient({ actorName: 'controller', action })
+ipcClient({ apiName: 'controller', action })
   .then(({ incoming, outgoing }) => {
     console.log(colors.bold().white(`Open ${colors.cyan('dmt-proc')} ⚡ connections:`));
     console.log();

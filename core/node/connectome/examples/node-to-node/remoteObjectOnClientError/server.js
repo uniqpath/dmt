@@ -2,7 +2,7 @@ import colors from 'kleur';
 
 import { printServerInfo } from '../exampleUtils.js';
 
-import { newServerKeypair, ConnectionsAcceptor } from '../../../src/server';
+import { newServerKeypair, ConnectionsAcceptor } from '../../../src/server/index.js';
 import { bufferToHex } from '../../../src/utils/index.js';
 
 import onConnect from './serverEndpoint.js';

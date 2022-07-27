@@ -1,11 +1,11 @@
 import { log, util, globals, keypair } from 'dmt/common';
 
-import constructOurMessage from './attach/constructOurMessage';
-import deriveDeviceData from './attach/deriveDeviceData';
-import detectStaleDevices from './state/detectStaleDevices';
-import updateDeviceInList from './state/updateDeviceInList';
+import constructOurMessage from './attach/constructOurMessage.js';
+import deriveDeviceData from './attach/deriveDeviceData.js';
+import detectStaleDevices from './state/detectStaleDevices.js';
+import updateDeviceInList from './state/updateDeviceInList.js';
 
-import Api from './api/nearbyApi';
+import Api from './api/nearbyApi.js';
 
 class Nearby {
   constructor({ program, lanbus }) {
@@ -13,7 +13,7 @@ class Nearby {
 
     this.api = new Api(this);
 
-    this.broadcastInterval = globals.tickerPeriod * 1000;
+    this.broadcastInterval = globals.tickerPeriod;
     this.init(lanbus);
   }
 
@@ -71,7 +71,7 @@ class Nearby {
   }
 
   refreshNearbyDevicesList() {
-    const nearbyDevices = this.program.store('nearbyDevices').get();
+    const nearbyDevices = this.program.slot('nearbyDevices').get();
 
     const nearbyDevicesNew = detectStaleDevices({
       nearbyDevices,
@@ -82,7 +82,7 @@ class Nearby {
 
     const sortedDevices = nearbyDevicesNew.sort(util.orderBy('deviceName'));
 
-    this.program.store('nearbyDevices').set(sortedDevices, { announce: false });
+    this.program.slot('nearbyDevices').set(sortedDevices, { announce: false });
 
     this.program.emit('nearby_devices', sortedDevices);
   }
@@ -103,7 +103,7 @@ class Nearby {
         }
 
         const prevDeviceData = this.program
-          .store('nearbyDevices')
+          .slot('nearbyDevices')
           .get()
           .find(({ deviceKey }) => deviceKey == obj.deviceKey);
 

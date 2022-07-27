@@ -2,7 +2,7 @@ import archiver from 'archiver';
 import path from 'path';
 import fs from 'fs';
 
-import { scan, log, def, stopwatch, colors, parseDef, dmtPath } from 'dmt/common';
+import { scan, log, def, stopwatch, colors, parseDef, dmtPath, prettyFileSize } from 'dmt/common';
 
 import { pipeline, Transform } from 'stream';
 import { StringDecoder } from 'string_decoder';
@@ -127,7 +127,9 @@ function streamDmtZip({ req, res, program, files, replicateExcludedByUser, repli
   });
 
   archive.on('end', () => {
-    log.green(`Finished streaming ${colors.yellow(`${archive.pointer()} bytes`)} of ${colors.cyan('dmt.zip')} in ${colors.yellow(stopwatch.stop(start))}`);
+    log.green(
+      `Finished streaming ${colors.yellow(`${prettyFileSize(archive.pointer())}`)} of ${colors.cyan('dmt.zip')} in ${colors.yellow(stopwatch.stop(start))}`
+    );
     program.emit('replicate:finished', { host: req.headers.host });
   });
 

@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import def from './parsers/def/parser';
-import colors from './colors/colors';
-import colors2 from './colors/colors2';
-import scan from './scan';
+import def from './parsers/def/parser.js';
+import colors from './colors/colors.js';
+import colors2 from './colors/colors2.js';
+import scan from './scan.js';
 
-import prettyFileSize from './prettyFileSize';
+import prettyFileSize from './prettyFileSize.js';
 
 const DEF_EXTENSION = '.def';
 
@@ -65,16 +65,28 @@ function isDevMachine() {
   return fs.existsSync(path.join(dmtPath, '.prevent_dmt_next'));
 }
 
-function isDevPanel() {
-  return isDevMachine() || device().devPanel == 'true';
+function isMainDevice() {
+  return device({ onlyBasicParsing: true }).main == 'true' || device().mainDevice == 'true';
 }
 
-function isMainDevice() {
-  return device().main == 'true';
+function isMainServer() {
+  return device({ onlyBasicParsing: true }).mainServer == 'true';
+}
+
+function isPersonalComputer() {
+  return isMainDevice() || device({ onlyBasicParsing: true }).pc == 'true';
+}
+
+function isLanServer() {
+  return device({ onlyBasicParsing: true }).lanServer == 'true';
 }
 
 function isDevUser() {
-  return user().dev == 'true';
+  return user({ onlyBasicParsing: true }).dev == 'true';
+}
+
+function isDevPanel() {
+  return isDevUser() && device().devPanel == 'true';
 }
 
 function device({ deviceName = 'this', onlyBasicParsing = false, caching = true } = {}) {
@@ -138,8 +150,12 @@ function devices({ onlyBasicParsing = false, caching = true } = {}) {
       } else {
         Object.assign(_coredata, { deviceName: def.id });
 
-        if (def.try('main') == 'true') {
+        if (def.try('main') == 'true' || def.try('mainDevice') == 'true') {
           Object.assign(_coredata, { mainDevice: true });
+        }
+
+        if (def.try('mainServer') == 'true') {
+          Object.assign(_coredata, { mainServer: true });
         }
 
         devicesFull.push({ ...def, _coredata });
@@ -199,8 +215,12 @@ export {
   devices,
   deviceDefFile,
   isMainDevice,
+  isMainServer,
+  isPersonalComputer,
+  isLanServer,
   isDevMachine,
   isDevUser,
+  isDevPanel,
   debugMode,
   debugCategory,
   prettyFileSize

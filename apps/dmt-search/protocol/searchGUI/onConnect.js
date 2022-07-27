@@ -1,6 +1,6 @@
-import GUISearchObject from './objects/search';
-import GUIPlayerObject from './objects/player';
-import GUIFrontendAcceptor from './objects/frontendAcceptor';
+import GUISearchObject from './objects/search.js';
+import GUIPlayerObject from './objects/player.js';
+import GUIFrontendAcceptor from './objects/frontendAcceptor.js';
 
 import { push } from 'dmt/notify';
 

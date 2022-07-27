@@ -1,5 +1,7 @@
 import { colors } from 'dmt/common';
-import { push } from '../index';
+
+//we go directly here so that we load the absolute minimum amount of code (entire lib2 (dmt notifiers) is bypasses)
+import { highPriority as pushHP } from '../lib/pushover/index.js';
 
 function help() {
   console.log(colors.green('Send push message to mobile devices via pushover.net service'));
@@ -11,8 +13,8 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
   process.exit();
 }
 function send(msg, { highPriority = false } = {}) {
-  push
-    .highPriority(highPriority)
+  pushHP({}, highPriority)
+    .title('REMINDER')
     .notify(msg)
     .then(success => {
       if (success) {

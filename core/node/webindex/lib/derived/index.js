@@ -1,7 +1,7 @@
-import deriveTitle from './deriveTitle';
-import deriveTags from './deriveTags';
-import deriveMediaType from './deriveMediaType';
-import deriveSocialPreview from './deriveSocialPreview';
+import deriveTitle from './deriveTitle.js';
+import deriveTags from './deriveTags.js';
+import deriveMediaType from './deriveMediaType.js';
+import deriveSocialPreview from './deriveSocialPreview.js';
 
 export default function addDerivedData(linkEntry) {
   deriveTitle(linkEntry);

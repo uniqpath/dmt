@@ -1,14 +1,13 @@
 import { deviceGeneralIdentifier } from 'dmt/common';
 
-import pushoverApi from './pushoverApi';
+import pushoverApi from './pushoverApi/index.js';
 
-import { dmtApp } from './dmtApp';
+import { dmtApp } from './dmtApp.js';
 
 const deviceId = deviceGeneralIdentifier();
 
-export default function prepareMessage({ message, recipient, title, app, omitDeviceName, network, highPriority, url, urlTitle, isABC }) {
+function getMessageTitle({ title, app, network, deviceName, omitDeviceName, isABC, originDevice }) {
   let messageTitle = title;
-  const priority = highPriority ? 'high' : 'low';
 
   if (!messageTitle) {
     messageTitle = '';
@@ -22,7 +21,7 @@ export default function prepareMessage({ message, recipient, title, app, omitDev
         messageTitle = `${messageTitle} · `;
       }
 
-      messageTitle = `${messageTitle}${deviceId}`;
+      messageTitle = `${messageTitle}${deviceName}`;
     }
 
     if (network) {
@@ -39,6 +38,19 @@ export default function prepareMessage({ message, recipient, title, app, omitDev
       messageTitle = `ABC · ${messageTitle}`;
     }
   }
+
+  return messageTitle;
+}
+
+export default function prepareMessage({ message, recipient, title, app, omitDeviceName, network, highPriority, url, urlTitle, isABC, originDevice }) {
+  if (!message) {
+    throw new Error(`did not supply message to send, title: ${title}`);
+  }
+
+  const deviceName = originDevice || deviceId;
+
+  const messageTitle = getMessageTitle({ title, app, network, deviceName, omitDeviceName, isABC, originDevice });
+  const priority = highPriority ? 'high' : 'low';
 
   return new pushoverApi.Message({
     title: messageTitle,

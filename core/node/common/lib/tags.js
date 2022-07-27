@@ -1,4 +1,4 @@
-import { q25, q50, q95 } from './quantile';
+import { q25, q50, q95 } from './quantile.js';
 
 function findTag(tagcloud, tag) {
   return tagcloud.find(entry => entry.tag == tag);

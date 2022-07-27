@@ -1,7 +1,7 @@
 import { def, dmtContent, services } from 'dmt/common';
 
 import { ParaSearch } from 'dmt/search';
-import LocalPlayer from './lib/localPlayer';
+import LocalPlayer from './lib/localPlayer.js';
 
 export default function createPlayer(program) {
   const playerInfo = services('player');

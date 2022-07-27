@@ -1,7 +1,7 @@
 import { colors } from 'dmt/common';
 
-import colorJSON from '../lib/colorJSON';
-import def from '../lib/parsers/def/parser';
+import colorJSON from '../lib/colorJSON.js';
+import def from '../lib/parsers/def/parser.js';
 
 function help() {
   console.log(colors.cyan('\n'));

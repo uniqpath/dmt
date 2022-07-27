@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { log, colors, dmtUserDir } from './dmtHelper';
+import { log, colors, dmtUserDir } from './dmtHelper.js';
 
 function readJson(devicesFile) {
   let _devices = [];

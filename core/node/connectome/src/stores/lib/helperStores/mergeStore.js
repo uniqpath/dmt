@@ -1,4 +1,4 @@
-import WritableStore from './writableStore';
+import WritableStore from './writableStore.js';
 
 export default class MergeStore extends WritableStore {
   constructor(initialState = {}) {

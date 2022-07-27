@@ -193,7 +193,11 @@ if [ -n "$1" ]; then
 
             if $PARALLEL; then
               #./install $flags "$host"
-              printf "${CYAN}🎌 Parallel ${MAGENTA}(background) ${CYAN}updating${NC} ${MAGENTA}${host}${NC}\n"
+              type="copy"
+              if $RESTART; then
+                type="update"
+              fi
+              printf "${CYAN}🎌 Parallel ${MAGENTA}(background) ${CYAN}${type}${NC} ${MAGENTA}${host}${NC}\n"
               # - won't load the entire bash_bundle, basic shell which this install script loads is fine!
               #   "se" command helper from dmt would make everything slow because of bundle loading, we did this before buy not anymore :)
               # - will not pass --parallel flag here, that would make a loop
@@ -219,7 +223,7 @@ if [ -n "$1" ]; then
             # - call install on remote host ()
             # - restart
 
-            if [ "$host" == "ap" ]; then
+            if [ "$host" == "ap" ] || [ "$host" == "hub" ]; then
               host="$DMT_AP_DEFAULT_HOST"
               ssh_port=22
             else
@@ -274,6 +278,11 @@ if [ -n "$1" ]; then
 
                 target="${host}:.dmt/user"
                 dirsync $excludes $compress --port $ssh_port ~/.dmt/user "$target"
+
+                if [ $? -ne 0 ]; then #  error
+                  exit
+                fi
+
                 # IMPORTANT
                 # ~/.dmt/.deployignore ==>
                 # ...
@@ -294,6 +303,11 @@ if [ -n "$1" ]; then
 
                 target="${host}:.dmt"
                 dirsync $excludes $compress --port $ssh_port ~/.dmt "$target"
+
+                if [ $? -ne 0 ]; then #  error
+                  exit
+                fi
+
                 echo
 
               fi
@@ -301,13 +315,13 @@ if [ -n "$1" ]; then
               # restart remote dmt-proc
 
               if $RESTART; then
-                # 🌀 EXECUTE FINAL STEP 2 on remote machine AND then restaart the remote process
+                # 🌀 EXECUTE FINAL STEP 2 on remote machine AND then restart the remote process
                 #restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-update ]; then ~/.dmt/user/devices/this/before-update; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-update ]; then ~/.dmt/etc/deploy_hooks/before-update; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
                 INSTALL_AND_RESTART_CMD="screen -S dmt -dm bash -c \\\"cd ~/.dmt; ./install; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
-                remote -h "$host" --port "$ssh_port" "$INSTALL_AND_RESTART_CMD"
+                dmt_ssh_execute -h "$host" --port "$ssh_port" "$INSTALL_AND_RESTART_CMD"
               else
                 # 🌀 JUST EXECUTE FINAL STEP 2 on remote machine
-                remote --silent -h "$host" --port "$ssh_port" "screen -S dmt -dm bash -c \\\"cd ~/.dmt; ./install\\\""
+                dmt_ssh_execute --silent -h "$host" --port "$ssh_port" "screen -S dmt -dm bash -c \\\"cd ~/.dmt; ./install\\\""
               fi
               echo
 
@@ -357,7 +371,24 @@ else
     # an appropriate option "shell: full" is found inside ~/.dmt/user/def/user.def
     "$DMT_PATH/shell/.inject"
 
-    # 4.) run after-install (=after-update) hooks
+    # 5.) fix stuff for apps loading .. dmt-here/apps
+    # # we do this in prepare_engine as well upon "dmt start" or "dmt run"
+    # but prepare_engine is not run on remote machine during update or copy (dmt update / copy)
+    # but install is and so we ./prepare_apps here as well
+
+    prepare_dir="$DMT_PATH/etc/scripts/prepare_apps_and_user_engine"
+
+    cwd="`pwd`"
+
+    cd "$prepare_dir"
+    ./prepare_apps
+
+    cd "$prepare_dir"
+    ./prepare_user_engine
+
+    cd "$cwd"
+
+    # run after-install (=after-update) hooks
 
     # This is useful mostly only in the second (B) case after we ./install is called on remote device (via "dmt update user@host")
     # "$HOME/.dmt/etc/deploy_hooks/after-update" contains just one important line

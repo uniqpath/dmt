@@ -2,6 +2,8 @@ import { device } from 'dmt/common';
 
 import EventEmitter from 'events';
 
+const DUPLICATE_MESSAGES_WINDOW = 128;
+
 export default class NearbyAPI extends EventEmitter {
   constructor(nearby) {
     super();
@@ -20,7 +22,7 @@ export default class NearbyAPI extends EventEmitter {
     }
   }
 
-  broadcast(eventName, obj) {
+  send(eventName, obj) {
     const __id = Math.random();
 
     const wrapperMsg = { __id, __originDevice: device().id, __isNearbyApi: true, __eventName: eventName };
@@ -30,19 +32,19 @@ export default class NearbyAPI extends EventEmitter {
     this.nearby.lanbus.broadcastMessage(wrapperMsg);
   }
 
-  isUnique(wrapperMsg) {
-    let unique;
+  receive(eventName, callback) {
+    this.on(eventName, callback);
+  }
 
+  isUnique(wrapperMsg) {
+    const now = Date.now();
     const { __id } = wrapperMsg;
 
+    this.recentMessages = this.recentMessages.filter(({ receivedAt }) => receivedAt > now - DUPLICATE_MESSAGES_WINDOW * 1000);
+
     if (!this.recentMessages.find(({ id }) => id == __id)) {
-      unique = true;
-
-      this.recentMessages.push({ id: __id, receivedAt: Date.now() });
+      this.recentMessages.push({ id: __id, receivedAt: now });
+      return true;
     }
-
-    this.recentMessages = this.recentMessages.filter(({ receivedAt }) => receivedAt > Date.now() - 1000);
-
-    return unique;
   }
 }

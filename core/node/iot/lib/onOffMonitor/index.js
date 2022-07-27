@@ -1,7 +1,7 @@
 import { log } from 'dmt/common';
 import { push } from 'dmt/notify';
 
-import { PowerMonitor, powerLog } from '../powerline';
+import { PowerMonitor, powerLog } from '../powerline/index.js';
 
 function notify({ msg, program, onlyAdmin }) {
   if (program.isHub()) {

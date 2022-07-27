@@ -2,12 +2,12 @@ import { def, suntime, device as _device } from 'dmt/common';
 
 const _months = {
   eng: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  slo: ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Avg', 'Sep', 'Okt', 'Nov', 'Dec']
+  sl: ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Avg', 'Sep', 'Okt', 'Nov', 'Dec']
 };
 
 const _daynames = {
   eng: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
-  slo: ['NED', 'PON', 'TOR', 'SRE', 'ČET', 'PET', 'SOB']
+  sl: ['NED', 'PON', 'TOR', 'SRE', 'ČET', 'PET', 'SOB']
 };
 
 let device;

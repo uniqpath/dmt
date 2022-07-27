@@ -6,8 +6,8 @@ import { push } from 'dmt/notify';
 
 push.initABC();
 
-import setupGlobalErrorHandler from './abc/setupGlobalErrorHandler';
-import abcProc from './abc/proc';
+import setupGlobalErrorHandler from './abc/setupGlobalErrorHandler.js';
+import abcProc from './abc/proc.js';
 
 const deviceName = device({ onlyBasicParsing: true }).id;
 

@@ -5,11 +5,11 @@
   "main": "index.js",
   "type": "module",
   "exports": {
-    "./common": "./_dmt_deps/common",
-    "./notify": "./_dmt_deps/notify",
-    "./search": "./_dmt_deps/search",
-    "./connectome": "./_dmt_deps/connectome",
-    "./connectome-stores": "./_dmt_deps/connectome-stores",
-    "./connectome-next": "./_dmt_deps/connectome-next"
+    "./common": "./_dmt_deps/common/index.js",
+    "./notify": "./_dmt_deps/notify/index.js",
+    "./search": "./_dmt_deps/search/index.js",
+    "./connectome": "./_dmt_deps/connectome/index.js",
+    "./connectome-stores": "./_dmt_deps/connectome-stores/index.js",
+    "./connectome-next": "./_dmt_deps/connectome-next/index.js"
   }
 }

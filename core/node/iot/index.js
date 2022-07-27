@@ -6,15 +6,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const modulesPath = path.join(__dirname, 'modules');
 
-import mqttClient from './createMqttClient';
+import mqttClient from './createMqttClient.js';
 
-import * as powerline from './lib/powerline';
+import * as powerline from './lib/powerline/index.js';
 
-import removeStaleNearbySensorsData from './removeStaleNearbySensorsData';
+import removeStaleNearbySensorsData from './removeStaleNearbySensorsData.js';
 
-import Alarm from './lib/alarm';
-
-import loadIotModules from './loadIotModules';
+import loadIotModules from './loadIotModules.js';
 
 let program;
 
@@ -25,16 +23,6 @@ function init(_program) {
 
   removeStaleNearbySensorsData(program);
   program.on('tick', () => removeStaleNearbySensorsData(program));
-
-  program.on('dmt_gui_action', ({ action, namespace, payload }) => {
-    if (namespace == 'iot') {
-      if (typeof payload != 'string') {
-        payload = JSON.stringify(payload);
-      }
-
-      mqttClient.publish({ topic: action, msg: payload });
-    }
-  });
 }
 
-export { init, loadIotModules, mqttClient, Alarm, powerline };
+export { init, loadIotModules, mqttClient, powerline };

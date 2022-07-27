@@ -1,14 +1,14 @@
 import EventEmitter from 'events';
 
-import connectModule from './_connect';
-import commandModule from './_commands';
-import controlModule from './_controls';
-import eventModule from './_events';
-import informationModule from './_information';
-import playlistModule from './_playlist';
+import connectModule from './_connect.js';
+import commandModule from './_commands.js';
+import controlModule from './_controls.js';
+import eventModule from './_events.js';
+import informationModule from './_information.js';
+import playlistModule from './_playlist.js';
 
-import util from '../util';
-import ErrorHandler from '../error';
+import util from '../util.js';
+import ErrorHandler from '../error.js';
 
 function mpv(options, mpv_args) {
   EventEmitter.call(this);

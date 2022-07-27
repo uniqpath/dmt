@@ -1,3 +1,5 @@
+import notificationsExpireAndCalculateRelativeTime from './notificationsExpireAndCalculateRelativeTime.js';
+
 export default class Foreground {
   constructor({ mcs, thisDeviceStateKeys }) {
     this.mcs = mcs;
@@ -34,7 +36,11 @@ export default class Foreground {
     const setState = {};
 
     for (const key of this.thisDeviceStateKeys) {
-      setState[key] = localDeviceState[key];
+      if (key == 'notifications') {
+        setState[key] = notificationsExpireAndCalculateRelativeTime(localDeviceState[key]);
+      } else {
+        setState[key] = localDeviceState[key];
+      }
     }
 
     this.mcs.setMerge(setState);

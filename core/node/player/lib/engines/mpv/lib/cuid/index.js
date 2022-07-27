@@ -1,5 +1,5 @@
-import fingerprint from './lib/fingerprint';
-import pad from './lib/pad';
+import fingerprint from './lib/fingerprint.js';
+import pad from './lib/pad.js';
 
 var c = 0,
   blockSize = 4,

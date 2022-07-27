@@ -1,5 +1,5 @@
-import Command from './Command';
-import Group from '../Group';
+import Command from './Command.js';
+import Group from '../Group.js';
 
 class RenameGroup extends Command {
   constructor(group, name) {

@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-import { dmtUserDir } from 'dmt/common';
-import modifyPackageJson from './modifyPackageJson';
+import { colors, dmtUserDir } from 'dmt/common';
+import modifyPackageJson from './modifyPackageJson.js';
 
 async function init(program) {
   function userEngineReady(results) {
@@ -22,6 +22,10 @@ async function init(program) {
       userEngineReady(results);
     } else {
       userEngineReady();
+
+      throw new Error(
+        `User Engine entry point ${colors.yellow(userEngineEntryPoint)} exists but does not ${colors.cyan('export function init(program) { … }')}`
+      );
     }
   } else {
     userEngineReady();

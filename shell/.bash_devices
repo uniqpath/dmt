@@ -201,7 +201,7 @@ function q {
   local AP_IP="192.168.0.20"
   local ap_with_user
 
-  if [ "$1" == "ap" ]; then
+  if [ "$1" == "ap" ] || [ "$1" == "hub" ]; then
     ap_with_user="root@${AP_IP}"
   fi
 

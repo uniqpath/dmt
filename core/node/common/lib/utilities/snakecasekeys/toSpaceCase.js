@@ -1,4 +1,4 @@
-import clean from './toNoCase';
+import clean from './toNoCase.js';
 
 export default toSpaceCase;
 

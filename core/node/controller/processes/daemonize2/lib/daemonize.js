@@ -8,7 +8,7 @@ import { spawn } from 'child_process';
 
 import EventEmitter from 'events';
 
-import * as constants from './constants';
+import * as constants from './constants.js';
 
 export default function daemonize(options) {
   return new Daemon(options);
@@ -263,6 +263,7 @@ Daemon.prototype._bindConsole = function() {
   })
     .on('started', pid => {
       console.log(colors.gray(` ${colors.green('✓')} ${colors.cyan(this.name)} started PID ${pid}`));
+      process.exit();
     })
     .on('stopping', () => {
       console.log(`🔴 Stopping ${colors.cyan(this.name)}...`);

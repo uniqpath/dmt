@@ -3,12 +3,14 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 
-import { log, dmtVersion, colors, dmtPath, services } from 'dmt/common';
+import { log, colors, dmtPath, services } from 'dmt/common';
 
-import streamDmtZip from './endpoints/streamDmtZip';
-import serveInstallScript from './endpoints/serveInstallScript';
-import serveLogo from './endpoints/serveLogo';
-import serveWallpaper from './endpoints/serveWallpaper';
+import streamDmtZip from './endpoints/streamDmtZip.js';
+import serveInstallScript from './endpoints/serveInstallScript.js';
+import serveLogo from './endpoints/serveLogo.js';
+import serveWallpaper from './endpoints/serveWallpaper.js';
+
+import determineReplicatedDmtVersion from './determineReplicatedDmtVersion.js';
 
 function serverInit({ app, program, port, replicateUserCodeTransform, replicateExcludedByUser }) {
   const files = [];
@@ -31,17 +33,7 @@ function serverInit({ app, program, port, replicateUserCodeTransform, replicateE
   });
 
   app.get('/version', (req, res) => {
-    const zipVersionFile = path.join(dmtPath, 'state/dmt.zip.version.txt');
-
-    if (fs.existsSync(path.join(dmtPath, 'state/dmt.zip')) && fs.existsSync(zipVersionFile)) {
-      const zipVersion = fs
-        .readFileSync(zipVersionFile)
-        .toString()
-        .trim();
-      res.send(zipVersion);
-    } else {
-      res.send(dmtVersion());
-    }
+    res.send(determineReplicatedDmtVersion());
   });
 
   app.get('/wallpaper.jpg', serveWallpaper);

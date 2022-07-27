@@ -1,7 +1,7 @@
-import Group from './Group';
-import Priority from './Priority';
-import Sound from './Sound';
-import User from './User';
+import Group from './Group.js';
+import Priority from './Priority.js';
+import Sound from './Sound.js';
+import User from './User.js';
 
 const DEFAULT_PROPERTIES = {
   message: null,

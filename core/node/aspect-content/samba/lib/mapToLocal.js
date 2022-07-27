@@ -1,6 +1,6 @@
 import path from 'path';
 
-import getReferencedSambaShares from './getReferencedSambaShares';
+import getReferencedSambaShares from './getReferencedSambaShares.js';
 
 function mapToLocal(providerResults) {
   const { providerHost, contentId } = providerResults.meta;

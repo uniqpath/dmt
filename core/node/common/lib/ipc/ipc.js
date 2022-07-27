@@ -43,7 +43,6 @@ function IPC() {
       if (callback) {
         callback(e);
       } else {
-        mediator.emit('error', e);
       }
     }
   };

@@ -1,6 +1,6 @@
-import { deviceRegistry } from './deviceRegistry';
+import { deviceRegistry } from './deviceRegistry.js';
 
-import util from './util';
+import util from './util.js';
 const { normalizeMac } = util;
 
 export default function identifyDeviceByMac(_mac) {

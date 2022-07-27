@@ -1,6 +1,6 @@
-import util from '../../util';
+import util from '../../util.js';
 
-import { getLines } from './helpers';
+import { getLines } from './helpers.js';
 
 function valueForKey({ lines, key, delimiter, caseInsensitive }) {
   const re = new RegExp(`^${key}\\s*${delimiter}\\s*(.*?)$`, caseInsensitive ? 'i' : undefined);

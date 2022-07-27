@@ -1,10 +1,10 @@
 import { log, stopwatchAdv, colors } from 'dmt/common';
 
-import contentSearch from './fsSearch/contentSearch';
+import contentSearch from './fsSearch/contentSearch.js';
 
-import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo';
+import { basicMetaInfo } from '../resultsMetaInfo/basicMetaInfo.js';
 
-import linkSearch from './linkSearch/linkSearch';
+import linkSearch from './linkSearch/linkSearch.js';
 class LocalProviderSearch {
   constructor({ provider }) {
     this.providerHost = provider.host;

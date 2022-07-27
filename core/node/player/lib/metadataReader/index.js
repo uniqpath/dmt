@@ -1,6 +1,6 @@
 import { processBatch, isRPi } from 'dmt/common';
 
-import asyncMap from './asyncMap';
+import asyncMap from './asyncMap.js';
 
 class MetadataReader {
   constructor({ playlist }) {

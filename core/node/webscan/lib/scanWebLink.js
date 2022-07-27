@@ -4,8 +4,8 @@ import { colors } from 'dmt/common';
 
 import { concurrency } from 'dmt/connectome';
 
-import detectLinkMediaType from './detectLinkMediaType';
-import treatUrlmetadata from './treatUrlmetadata';
+import detectLinkMediaType from './detectLinkMediaType.js';
+import treatUrlmetadata from './treatUrlmetadata.js';
 
 const { promiseTimeout } = concurrency;
 

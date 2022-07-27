@@ -1,4 +1,4 @@
-import ErrorHandler from '../error';
+import ErrorHandler from '../error.js';
 
 const ipcRequest = class {
   constructor(resolve, reject, args) {

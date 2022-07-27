@@ -1,5 +1,5 @@
-import Command from './Command';
-import Receipt from '../Receipt';
+import Command from './Command.js';
+import Receipt from '../Receipt.js';
 
 class GetReceipt extends Command {
   constructor(receipt) {

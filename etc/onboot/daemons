@@ -46,7 +46,18 @@ function manage_daemon {
   # TERM=xterm is needed for colors to work when started from cron job -- and actually always since we replaced colors with chalk because it's more sensitive
   # chalk requires FORCE_COLOR because we're in tty=false here and will get no colors otherwise
   # https://github.com/chalk/chalk/blob/main/source/vendor/supports-color/index.js#L83
-  FORCE_COLOR=true TERM=xterm-256color NODE_ENV=production "$node_path" --experimental-modules --experimental-specifier-resolution=node --unhandled-rejections=strict "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
+  FORCE_COLOR=true TERM=xterm-256color NODE_ENV=production "$node_path" --unhandled-rejections=strict "$DAEMON_MANAGER" "$command" "${daemon_process}.js"
+
+  # should not happen - but it can if there is a bug in dmt/notify
+  # manager.js imports dmt/notify
+  # when there was a bug in one of DMT notifiers (lib2)
+  # this failed silently when trying to update remote devices
+  if [ $? -ne 0 ]; then
+    #echo
+    local msg="⚠️ 💀 Daemon manager problem — ${NC}execute ${YELLOW}dmt run${NC} and observe the error output."
+    printf "\n${RED}${msg}${NC}\n\n"
+    "$node_path" "$DMT_CORE/node/notify/cli/push_notify.js" highPriority "${msg}"
+  fi
 
   cd "$cwd"
 }

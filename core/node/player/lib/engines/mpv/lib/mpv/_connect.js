@@ -1,5 +1,5 @@
-import IpcInterface from '../ipcInterface/ipcInterface';
-import util from '../util';
+import IpcInterface from '../ipcInterface/ipcInterface.js';
+import util from '../util.js';
 
 const connect = {
   connect() {

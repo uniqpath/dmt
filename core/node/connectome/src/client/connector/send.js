@@ -30,16 +30,14 @@ function send({ data, connector }) {
       const encryptedMessage = nacl.secretbox(encodedMessage, nonce, connector.sharedSecret);
 
       if (connector.verbose) {
-        logger.write(log);
-        logger.green(log, `Connector ${connector.remoteAddress()} → Sending encrypted message #${connector.sentCount} ↴`);
+        logger.green(log, `Connector ${connector.endpoint} → Sending encrypted message #${connector.sentCount} ↴`);
         logger.gray(log, data);
       }
 
       connector.connection.websocket.send(encryptedMessage);
     } else {
       if (connector.verbose) {
-        logger.write(log);
-        logger.green(log, `Connector ${connector.remoteAddress()} → Sending message #${connector.sentCount} ↴`);
+        logger.green(log, `Connector ${connector.endpoint} → Sending message #${connector.sentCount} ↴`);
         logger.gray(log, data);
       }
 

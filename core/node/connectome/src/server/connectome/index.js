@@ -24,7 +24,94 @@ export default class Connectome extends ReadableStore {
     this.protocols = {};
   }
 
-  registerProtocol({ protocol, onConnect = () => {} }) {
+  constructOldProtocolHandle(dmtID, protocol) {
+    return protocol ? `${dmtID}/${protocol}` : dmtID;
+  }
+
+  dev(dmtID) {
+    return this.developer(dmtID);
+  }
+
+  developer(dmtID) {
+    const userAction = ({ dmtID, protocol, scope, action, payload, channel }) => {
+      const handle = this.constructOldProtocolHandle(dmtID, protocol);
+
+      const a = (this.userActionHandlers || {})[handle] || {};
+      for (const [scopeAndAction, handlers] of Object.entries(a)) {
+        const [_scope, _action] = scopeAndAction.split('/');
+        if (!_scope || (_scope == scope && (!_action || _action == action))) {
+          handlers.forEach(handler => handler({ scope, action, payload, channel }));
+        }
+      }
+    };
+
+    return {
+      registerProtocol: (protocol, onConnect = () => {}) => {
+        const onConnectWrap = ({ channel }) => {
+          channel.on('__action', ({ action, payload, scope }) => {
+            userAction({ dmtID, protocol, scope, action, payload, channel });
+          });
+
+          channel.on('action', ({ action, payload, scope }) => {
+            userAction({ dmtID, protocol, scope, action, payload, channel });
+          });
+
+          onConnect({ program: this, channel });
+        };
+
+        return this.__registerProtocol({
+          protocol: this.constructOldProtocolHandle(dmtID, protocol),
+          onConnect: onConnectWrap
+        });
+      },
+
+      protocol: _protocol => {
+        const handle = this.constructOldProtocolHandle(dmtID, _protocol);
+
+        const onUserAction = (scopeAndAction, handler) => {
+          if (!handler && typeof scopeAndAction == 'function') {
+            handler = scopeAndAction;
+            scopeAndAction = '';
+          }
+
+          this.userActionHandlers = this.userActionHandlers || {};
+          this.userActionHandlers[handle] = this.userActionHandlers[handle] || {};
+          this.userActionHandlers[handle][scopeAndAction] = this.userActionHandlers[handle][scopeAndAction] || [];
+          this.userActionHandlers[handle][scopeAndAction].push(handler);
+
+          const MAX_HANDLERS = 200;
+
+          const numHandlers = Object.keys(this.userActionHandlers).length;
+
+          if (numHandlers > MAX_HANDLERS) {
+            const msg = `⚠️ Too many user action handlers (${numHandlers}). Is this a memory leak?`;
+            console.log(msg);
+
+            if (numHandlers > 1.5 * MAX_HANDLERS) {
+              throw new Error(msg);
+            }
+          }
+        };
+
+        const scope = scope => {
+          return {
+            onUserAction: (action, handler) => {
+              if (!handler) {
+                handler = action;
+                onUserAction(scope, handler);
+              } else {
+                onUserAction(`${scope}/${action}`, handler);
+              }
+            }
+          };
+        };
+
+        return { onUserAction, scope };
+      }
+    };
+  }
+
+  __registerProtocol({ protocol, onConnect = () => {} }) {
     if (this.wsServer) {
       throw new Error('registerProtocol: Please add all protocols before starting the ws server.');
     }

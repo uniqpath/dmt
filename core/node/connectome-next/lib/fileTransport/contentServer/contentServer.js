@@ -6,7 +6,7 @@ import { log, colors } from 'dmt/common';
 
 import { push } from 'dmt/notify';
 
-import checkPermission from './checkPermission';
+import checkPermission from './checkPermission.js';
 
 function fileNotFound({ providerAddress, fileName, res, host }) {
   log.red(`File not found: ${providerAddress} -- ${fileName}`);

@@ -1,4 +1,4 @@
-import dmtHelper from '../dmtHelper';
+import dmtHelper from '../dmtHelper.js';
 
 const { colors } = dmtHelper;
 

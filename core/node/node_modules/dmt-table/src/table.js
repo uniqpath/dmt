@@ -1,7 +1,7 @@
-import * as utils from './utils';
-import * as tableLayout from './layoutManager';
+import * as utils from './utils.js';
+import * as tableLayout from './layoutManager.js';
 
-import Divider from './divider';
+import Divider from './divider.js';
 
 class Table extends Array {
   constructor(options) {

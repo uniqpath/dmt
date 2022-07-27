@@ -12,7 +12,7 @@ const { relativizePath } = scan;
 
 const device = _device({ onlyBasicParsing: true });
 
-import webscanJob from '../lib/jobs/webscanJob';
+import webscanJob from '../lib/jobs/webscanJob.js';
 
 const args = process.argv.slice(2);
 

@@ -19,7 +19,7 @@ export default function exceptionNotify({ program, msg }) {
         });
       }
     } else {
-      program.notifyMainDevice({ msg });
+      program.notifyMainDevice({ msg, color: '#e34042' });
 
       push
         .highPriority(!log.isForeground())

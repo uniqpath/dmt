@@ -1,3 +1,3 @@
-import resolveENS from './ens/mock';
+import resolveENS from './ens/mock.js';
 
 export { resolveENS };

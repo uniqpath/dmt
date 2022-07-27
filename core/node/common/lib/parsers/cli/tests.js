@@ -1,4 +1,4 @@
-import parse from './parser';
+import parse from './parser.js';
 
 function example(argsStr) {
   console.log(parse(argsStr));

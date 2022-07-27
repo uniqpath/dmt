@@ -6,6 +6,9 @@
 # dmt_user_engine:
 #  - dmt_deps_list
 #  - exports.json
+# ⚠️ don't use .js, this is a DIRECTORY LIST...
+# "core/node/common" ✓
+# "core/node/common.js" ✖
 
 declare -a List=(
   "core/node/common"

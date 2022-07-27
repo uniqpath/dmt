@@ -238,6 +238,8 @@ function count {
   find "$dir" -maxdepth 1 ! -path . ! -path "*/.git" -type d | wc -l | xargs
   printf "${GREEN}Files:       "
   find "$dir" -maxdepth 1 ! -path "*/.DS_Store" ! -path "*/.git" -type f | wc -l | xargs
+  printf "${GRAY}Symlinks:    "
+  find "$dir" -maxdepth 1 ! -path "*/.DS_Store" ! -path "*/.git" -type l | wc -l | xargs
   printf "${NC}"
 }
 
@@ -268,6 +270,15 @@ function countr {
   # Directory B) find . -type f > ~/Desktop/b.txt
   # Compare: diff ~/Desktop/a.txt ~/Desktop/b.txt
   find "$dir/" ! -path "*/.DS_Store" ! -path "*/.git/*" -type f | wc -l | xargs
+
+  printf "${GRAY}Symlinks: (Recursive):   "
+  # If you have issues here: for example mismatch in number of files in two directories where one is a copy of another,
+  # it's almost certainly symlinks issue, find out like this:
+  # Directory A) find . -type f > ~/Desktop/a.txt
+  # Directory B) find . -type f > ~/Desktop/b.txt
+  # Compare: diff ~/Desktop/a.txt ~/Desktop/b.txt
+  find "$dir/" ! -path "*/.DS_Store" ! -path "*/.git/*" -type l | wc -l | xargs
+
   printf "${NC}"
 }
 
@@ -383,7 +394,7 @@ function flash {
       read -r -p "Sure????? (you will be asked for sudo password) [Y/n] " response
       if [[ ! $response =~ ^([nN])$ ]]
       then
-        printf "${YELLOW}Flashing after password...${NC} Press Ctrl+T to see progress\n"
+        printf "${YELLOW}Flashing after password...${NC} Press ${GRAY}Ctrl+T${NC} to see progress\n"
         diskutil unmountDisk "/dev/disk${disk_n}"
         time sudo dd if="$matching_file" of="/dev/rdisk${disk_n}" bs=64m # changed from: 1m
         diskutil eject "/dev/disk${disk_n}"

@@ -7,39 +7,41 @@ import quantum from 'quantum-generator';
 import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 
-import util from './lib/util';
-import scan from './lib/scan';
-import sets from './lib/sets';
-import tags from './lib/tags';
-import * as quantile from './lib/quantile';
-import * as formatNumber from './lib/formatNumber/formatNumber';
-import formatDuration from './lib/timeutils/formatDuration';
-import stopwatch from './lib/timeutils/stopwatch';
-import stopwatchAdv from './lib/timeutils/stopwatchAdv';
-import prettyMicroDuration from './lib/timeutils/prettyMicroDuration';
-import prettyTimeAge from './lib/timeutils/prettyTimeAge';
-import convertSeconds from './lib/timeutils/convertSeconds';
-import * as suntime from './lib/timeutils/suntime';
-import meetup from './lib/meetup';
+import { holidaysForYear, holidayDataExists, isHoliday } from 'dmt/holidays';
 
-import FsState from './lib/fsState';
+import util from './lib/util.js';
+import scan from './lib/scan.js';
+import sets from './lib/sets.js';
+import tags from './lib/tags.js';
+import * as quantile from './lib/quantile.js';
+import * as formatNumber from './lib/formatNumber/formatNumber.js';
 
-import processBatch from './lib/processBatch';
+import stopwatch from './lib/timeutils/stopwatch.js';
+import stopwatchAdv from './lib/timeutils/stopwatchAdv.js';
+
+import * as timeutils from './lib/timeutils/index.js';
+import * as suntime from './lib/timeutils/suntime/index.js';
+
+import meetup from './lib/meetup/index.js';
+
+import FsState from './lib/fsState.js';
+
+import processBatch from './lib/processBatch.js';
 import ipc from './lib/ipc/ipc.js';
 
-import identifyDeviceByMac from './lib/identifyDeviceByMac';
+import identifyDeviceByMac from './lib/identifyDeviceByMac.js';
 
-import def from './lib/parsers/def/parser';
-import parseCliArgs from './lib/parsers/cli/cliHelper';
-import * as helper from './lib/dmtHelper';
-import * as dmtContent from './lib/dmtContent';
+import def from './lib/parsers/def/parser.js';
+import parseCliArgs from './lib/parsers/cli/cliHelper.js';
+import * as helper from './lib/dmtHelper.js';
+import * as dmtContent from './lib/dmtContent.js';
 
 const { colors, colors2 } = helper;
 
-import * as numberRanges from './lib/parsers/numbers/rangeParser';
-import * as textfileParsers from './lib/parsers/textfiles';
+import * as numberRanges from './lib/parsers/numbers/rangeParser.js';
+import * as textfileParsers from './lib/parsers/textfiles/index.js';
 
-import { apMode, apInfo, accessPointIP } from './lib/apTools';
+import { apMode, apInfo, accessPointIP } from './lib/apTools.js';
 
 nacl.util = naclutil;
 
@@ -170,7 +172,7 @@ function versionCompareSymbol(otherDmtVersion) {
   return '≡';
 }
 
-const nodeFlags = ['--experimental-modules', '--experimental-specifier-resolution=node', '--unhandled-rejections=strict'];
+const nodeFlags = ['--unhandled-rejections=strict'];
 
 const {
   globals,
@@ -182,6 +184,11 @@ const {
   isDevMachine,
   isDevUser,
   isMainDevice,
+  isMainServer,
+  isPersonalComputer,
+  isLanServer,
+  isDevPanel,
+  isValidIPv4Address,
   debugMode,
   debugCategory,
 
@@ -332,7 +339,16 @@ function platformDescription() {
   return helper.platformDescription();
 }
 
+let program;
+
+function setProgram(p) {
+  program = p;
+  return p;
+}
+
 export {
+  program,
+  setProgram,
   abcProcPath,
   abcSocket,
   dmtProcPath,
@@ -366,11 +382,8 @@ export {
   numberRanges,
   prettyFileSize,
   suntime,
-  prettyMicroDuration,
-  prettyTimeAge,
-  convertSeconds,
   formatNumber,
-  formatDuration,
+  timeutils,
   stopwatch,
   stopwatchAdv,
   apMode,
@@ -384,6 +397,9 @@ export {
   isInstalled,
   deviceDefFile,
   dateFns,
+  holidaysForYear,
+  isHoliday,
+  holidayDataExists,
   determineGUIPort,
   programStateFile,
   memoryUsage,
@@ -415,8 +431,13 @@ export {
   isRPi,
   platformDescription,
   isDevMachine,
+  isPersonalComputer,
   isDevUser,
   isMainDevice,
+  isMainServer,
+  isLanServer,
+  isDevPanel,
+  isValidIPv4Address,
   debugMode,
   debugCategory,
   fsState,

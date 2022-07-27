@@ -18,7 +18,7 @@ if (args.help == true) {
 
 const table = new Table();
 
-const headers = ['device', 'dmtVersion', 'local ip', 'platform', 'Node.js', 'uptime', 'user', 'wifiAP', 'deviceKey'];
+const headers = ['device', 'dmt version', 'local IP', 'platform', 'node.js', 'dmt-proc uptime', 'user', 'wifiAP', 'deviceKey'];
 
 const action = 'nearby';
 
@@ -52,7 +52,7 @@ function displayDmtVersion({ dmtVersion, versionCompareSymbol }) {
   return colors.gray(`${colors.cyan(versionCompareSymbol)} ${dmtVersion}`);
 }
 
-ipcClient({ actorName: 'controller', action })
+ipcClient({ apiName: 'controller', action })
   .then(_nearbyDevices => {
     table.push(headers.map(h => colors.cyan(h)));
 

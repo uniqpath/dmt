@@ -1,12 +1,12 @@
-import ffprobe from './ffprobe';
+import ffprobe from './ffprobe/index.js';
 
-import schemaVersion from './metadataSchemaVersion';
+import schemaVersion from './metadataSchemaVersion.js';
 
 export default function asyncMap(song) {
   return new Promise((success, reject) => {
     ffprobe({ filePath: song.path })
       .then(metadata => {
-        if (metadata.title && metadata.artist) {
+        if (metadata.title) {
           song.metadata = { ...metadata, ...{ schemaVersion } };
         } else if (metadata.duration) {
           song.metadata = { duration: metadata.duration, schemaVersion };

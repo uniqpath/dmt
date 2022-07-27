@@ -1,5 +1,5 @@
-import map from './mapObj';
-import snakeCase from './toSnakeCase';
+import map from './mapObj.js';
+import snakeCase from './toSnakeCase.js';
 
 export default snakeCaseKeys;
 

@@ -1,9 +1,9 @@
 import fs from 'fs';
 
 import { log, abcVersion as _abcVersion, isRPi, abcSocket } from 'dmt/common';
-import connect from './lib/connect';
-import _initConnection from './lib/initConnection';
-import startABC from './lib/startABC';
+import connect from './lib/connect.js';
+import _initConnection from './lib/initConnection.js';
+import startABC from './lib/startABC.js';
 
 import { push } from 'dmt/notify';
 

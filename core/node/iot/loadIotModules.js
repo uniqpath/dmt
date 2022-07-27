@@ -2,7 +2,7 @@ import path from 'path';
 
 import { scan } from 'dmt/common';
 
-import mqttClient from './createMqttClient';
+import mqttClient from './createMqttClient.js';
 
 const iotMessageHandlers = [];
 const tickHandlers = [];
@@ -13,7 +13,7 @@ function loadIotModules({ program, modulesPath }) {
   if (!program.iotModulesHandlerAttached) {
     program.iotModulesHandlerAttached = true;
 
-    mqttClient.on('message', ({ topic, msg }) => {
+    mqttClient.receive(({ topic, msg }) => {
       for (const handler of iotMessageHandlers) {
         handler({ program, topic, msg });
       }

@@ -1,8 +1,8 @@
 {
-  "./common": "./_dmt_deps/common",
-  "./notify": "./_dmt_deps/notify",
-  "./iot": "./_dmt_deps/iot",
-  "./connectome": "./_dmt_deps/connectome",
-  "./connectome-server": "./_dmt_deps/connectome-server",
-  "./connectome-stores": "./_dmt_deps/connectome-stores"
+  "./common": "./_dmt_deps/common/index.js",
+  "./notify": "./_dmt_deps/notify/index.js",
+  "./iot": "./_dmt_deps/iot/index.js",
+  "./connectome": "./_dmt_deps/connectome/index.js",
+  "./connectome-server": "./_dmt_deps/connectome-server/index.js",
+  "./connectome-stores": "./_dmt_deps/connectome-stores/index.js"
 }

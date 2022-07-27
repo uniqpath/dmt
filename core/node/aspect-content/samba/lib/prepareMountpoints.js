@@ -1,12 +1,12 @@
 import { log, util, disconnectedIPAddress } from 'dmt/common';
 const { mkdirp } = util;
 
-import getReferencedSambaShares from './getReferencedSambaShares';
+import getReferencedSambaShares from './getReferencedSambaShares.js';
 
 export default function prepareMountpoints(program) {
   const list = [];
 
-  const nearbyDevices = program.store('nearbyDevices').get();
+  const nearbyDevices = program.slot('nearbyDevices').get();
 
   for (const el of getReferencedSambaShares()) {
     const match = nearbyDevices.find(({ deviceName }) => deviceName == el.deviceName);

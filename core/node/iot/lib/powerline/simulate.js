@@ -1,6 +1,6 @@
 import { scan, colors } from 'dmt/common';
 
-import PowerMonitor from './powerMonitor';
+import PowerMonitor from './powerMonitor.js';
 
 const args = process.argv.slice(2);
 

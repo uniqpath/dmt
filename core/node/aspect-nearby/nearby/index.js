@@ -1,4 +1,4 @@
-import Nearby from './lib/nearby';
+import Nearby from './lib/nearby.js';
 
 function init(program) {}
 

@@ -1,6 +1,6 @@
-import linkIndexPath from './lib/linkIndexPath';
-import latestLinkIndexVersion from './lib/linkIndexVersion';
-import { entireLinkIndex, deviceLinkIndexWithoutDerivedData, rereadIndexLoop } from './lib/readLinkIndex';
+import linkIndexPath from './lib/linkIndexPath.js';
+import latestLinkIndexVersion from './lib/linkIndexVersion.js';
+import { entireLinkIndex, deviceLinkIndexWithoutDerivedData, rereadIndexLoop } from './lib/readLinkIndex.js';
 
 function init(program) {
   program.on('ready', () => {

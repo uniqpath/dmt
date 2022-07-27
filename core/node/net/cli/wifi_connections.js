@@ -1,5 +1,5 @@
 import { listify } from 'dmt/common';
-import { currentNetworkDef } from '../index';
+import { currentNetworkDef } from '../index.js';
 import wifi from 'node-wifi';
 
 wifi.init({

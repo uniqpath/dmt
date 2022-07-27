@@ -1,6 +1,6 @@
 import { log } from 'dmt/common';
 
-import MidLoader from '../middleware';
+import MidLoader from '../middleware/index.js';
 
 export default function loadMiddleware(program, mids) {
   return new Promise((success, reject) => {

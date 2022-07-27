@@ -2,11 +2,11 @@ import net from 'net';
 
 import EventEmitter from 'events';
 
-import cuid from '../cuid';
+import cuid from '../cuid/index.js';
 
-import eventsModule from './_events';
-import ErrorHandler from '../error';
-import ipcRequest from './ipcRequest';
+import eventsModule from './_events.js';
+import ErrorHandler from '../error.js';
+import ipcRequest from './ipcRequest.js';
 
 import { log } from 'dmt/common';
 

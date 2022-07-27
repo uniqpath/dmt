@@ -1,4 +1,4 @@
-import * as sensorMsg from '../lib/sensorMessageFormats';
+import * as sensorMsg from '../lib/sensorMessageFormats/index.js';
 
 function handleMqttEvent({ program, topic, msg }) {
   const parsedMsg = sensorMsg.parse({ topic, msg });
@@ -9,7 +9,7 @@ function handleMqttEvent({ program, topic, msg }) {
 
     const patch = {};
     patch[id] = parsedMsg;
-    program.store('nearbySensors').update(patch, { announce: false });
+    program.slot('nearbySensors').update(patch, { announce: false });
   }
 }
 

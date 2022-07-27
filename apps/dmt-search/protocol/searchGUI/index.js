@@ -1,11 +1,12 @@
 import { SyncStore } from 'dmt/connectome-stores';
 
-import onConnect from './onConnect';
+import onConnect from './onConnect.js';
 
 export default function setup({ program }) {
   const store = new SyncStore();
 
-  store.sync(program.registerProtocol({ protocol: 'dmtapp/search', onConnect }));
+  // todo: ugly -- change dmtID here... can't be dmtapp!
+  store.sync(program.dev('dmtapp').registerProtocol('search', onConnect));
 
   program.store().subscribe(state => {
     const { device, peerlist, entireLinkIndexCloud, entireLinkIndexCount, recentSearchQueries, recentWeblinks } = state; // recentSearchQueries == log of all search queries

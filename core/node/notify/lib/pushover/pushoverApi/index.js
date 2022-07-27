@@ -1,8 +1,8 @@
-import Client from './lib/Client';
-import Group from './lib/Group';
-import Message from './lib/Message';
-import Priority from './lib/Priority';
-import Sound from './lib/Sound';
-import User from './lib/User';
+import Client from './lib/Client.js';
+import Group from './lib/Group.js';
+import Message from './lib/Message.js';
+import Priority from './lib/Priority.js';
+import Sound from './lib/Sound.js';
+import User from './lib/User.js';
 
 export default { Client, Group, Message, Priority, Sound, User };

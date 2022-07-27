@@ -1,3 +1,7 @@
+# ⚠️ This repo is obsolete
+
+[DMT GUI KIT](https://github.com/dmtsys/dmt-gui-kit) will replace it ...
+
 # DMT Frontend Components
 
 Component library used in DMT Apps.

@@ -5,8 +5,13 @@ export {
   formatISO,
   isBefore,
   isAfter,
+  isEqual,
   isToday,
   isTomorrow,
+  isSameDay,
+  isSameSecond,
+  isSameMinute,
+  isSameHour,
   addDays,
   subDays,
   addHours,
@@ -15,9 +20,15 @@ export {
   subMinutes,
   addSeconds,
   subSeconds,
+  addMilliseconds,
+  subMilliseconds,
+  differenceInMilliseconds,
+  differenceInSeconds,
+  differenceInMinutes,
+  differenceInCalendarDays,
   formatDistance,
   formatDistanceToNow,
   formatDistanceToNowStrict
 } from 'date-fns';
 
-export { sl as sl_locale } from 'date-fns/locale';
+export { sl as localeSL } from 'date-fns/locale';

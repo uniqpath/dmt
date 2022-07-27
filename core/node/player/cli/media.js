@@ -2,7 +2,7 @@ import { colors } from 'dmt/common';
 
 import { ipcClient, colorJSON } from 'dmt/cli';
 
-import formatMediaResponse from './lib/formatMediaResponse';
+import formatMediaResponse from './lib/formatMediaResponse.js';
 
 function showHelp(response) {
   console.log(colors.yellow('Usage:'));
@@ -29,7 +29,7 @@ if (args.length > 0 && args[0].startsWith('@') && !args[0].includes('=')) {
 
 const payload = args.join(' ');
 
-ipcClient({ actorName: 'player', action, payload, atDevice })
+ipcClient({ apiName: 'player', action, payload, atDevice })
   .then(response => {
     console.log(`${colors.cyan('dmt-player')} ${colors.green(`Ξ ${action.toUpperCase()}`)}`);
 

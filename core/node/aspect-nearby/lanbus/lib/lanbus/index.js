@@ -2,8 +2,8 @@ import EventEmitter from 'events';
 
 import { log } from 'dmt/common';
 
-import OverUDP from './lanbusOverUdpBroadcast';
-import OverMqtt from './lanbusOverMqtt';
+import OverUDP from './lanbusOverUdpBroadcast.js';
+import OverMqtt from './lanbusOverMqtt.js';
 
 const DEBUG = false;
 
