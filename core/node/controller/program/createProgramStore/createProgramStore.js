@@ -21,8 +21,10 @@ export default function createProgramStore(program) {
       // - disable "dangerous options" -- "Have you tried"
       serverMode: def.isTruthy(device.serverMode),
       subnet: device.subnet,
+      lanServer: dmt.isLanServer(),
       devMachine: dmt.isDevMachine(),
       devUser: dmt.isDevUser(),
+      devPanel: dmt.isDevPanel(),
       // connectivity
       apMode: apMode(),
       apInfo: apMode() ? apInfo() : undefined,

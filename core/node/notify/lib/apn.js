@@ -3,7 +3,7 @@ import apns2 from 'apns2';
 import fs from 'fs';
 import path from 'path';
 
-import { log, dateFns, accessTokensDir, deviceGeneralIdentifier } from 'dmt/common';
+import { log, dateFns, accessTokensDir, deviceGeneralIdentifier, colors, isRPi, isLanServer } from 'dmt/common';
 
 const { format } = dateFns;
 
@@ -31,8 +31,14 @@ if (fs.existsSync(configFile)) {
   });
 }
 
-function notify(program, msg, { users = null } = {}) {
+function notify(program, msg, { users = null, originDevice = undefined } = {}) {
   return new Promise((success, reject) => {
+    if (program && isRPi() && !isLanServer() && program.lanServerNearby()) {
+      program.nearbyProxyApnMsgViaLanServer({ msg, users });
+      success();
+      return;
+    }
+
     if (client) {
       let devices;
 
@@ -49,7 +55,8 @@ function notify(program, msg, { users = null } = {}) {
         notifyDevices(
           program,
           msg,
-          devices.map(({ token }) => token)
+          devices.map(({ token }) => token),
+          originDevice
         )
           .then(success)
           .catch(reject);
@@ -58,11 +65,14 @@ function notify(program, msg, { users = null } = {}) {
   });
 }
 
-function notifyDevices(program, msg, tokens) {
+function notifyDevices(program, msg, tokens, originDevice) {
   return new Promise((success, reject) => {
     if (client) {
+      const deviceName = originDevice || deviceGeneralIdentifier();
+
       const networkName = program?.network.name();
-      msg = `${deviceGeneralIdentifier()}${networkName ? `@${networkName}` : ''} → ${msg}`;
+
+      msg = `🌀 ${deviceName}${networkName ? ` @ ${networkName}` : ''} — ${msg}`;
 
       const notifications = tokens.map(token => new Notification(token, { alert: msg }));
 
@@ -73,7 +83,7 @@ function notifyDevices(program, msg, tokens) {
               .send(notification)
               .then(success)
               .catch(e => {
-                log.red(`⚠️  Push notification to ${notification.deviceToken} error:`);
+                log.red(`⚠️  Push notification ${colors.gray(msg)} to ${notification.deviceToken} error:`);
                 log.red(e);
                 success();
               });

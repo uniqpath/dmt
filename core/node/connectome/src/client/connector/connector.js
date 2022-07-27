@@ -4,22 +4,39 @@ nacl.util = naclutil;
 
 import send from './send.js';
 import receive from './receive.js';
+import handshake from './handshake.js';
 
 import WritableStore from '../../stores/lib/helperStores/writableStore.js';
 import logger from '../../utils/logger/logger.js';
 
-import { EventEmitter, listify, hexToBuffer, bufferToHex } from '../../utils/index.js';
+import { EventEmitter, listify, bufferToHex } from '../../utils/index.js';
 
 import RpcClient from '../rpc/client.js';
 import RPCTarget from '../rpc/RPCTarget.js';
+import errorCodes from '../rpc/mole/errorCodes.js';
 
 import { newKeypair, acceptKeypair } from '../../utils/crypto/index.js';
 
 import ProtocolState from './protocolState';
 import ConnectionState from './connectionState';
 
+const ADJUST_UNDEFINED_CONNECTION_STATUS_DELAY = 700;
+
+const DECOMMISSION_INACTIVITY = 60000;
+const wsOPEN = 1;
+
 class Connector extends EventEmitter {
-  constructor({ endpoint, protocol, keypair = newKeypair(), rpcRequestTimeout, verbose = false, tag, log = console.log, dummy } = {}) {
+  constructor({
+    endpoint,
+    protocol,
+    keypair = newKeypair(),
+    rpcRequestTimeout,
+    verbose = false,
+    tag,
+    log = console.log,
+    autoDecommission = false,
+    dummy
+  } = {}) {
     super();
 
     this.protocol = protocol;
@@ -37,6 +54,8 @@ class Connector extends EventEmitter {
     this.verbose = verbose;
     this.tag = tag;
 
+    this.autoDecommission = autoDecommission;
+
     this.sentCount = 0;
     this.receivedCount = 0;
 
@@ -49,6 +68,22 @@ class Connector extends EventEmitter {
 
     this.connected = new WritableStore();
 
+    this.delayedAdjustConnectionStatus();
+
+    if (verbose) {
+      logger.green(this.log, `Connector ${this.endpoint} created`);
+    }
+
+    this.decommissionCheckCounter = 0;
+
+    this.lastPongReceivedAt = Date.now();
+
+    this.on('pong', () => {
+      this.lastPongReceivedAt = Date.now();
+    });
+  }
+
+  delayedAdjustConnectionStatus() {
     // connected == undefined ==> while trying to connect
     // connected == false => while disconnected
     // connected == true => while connected
@@ -56,11 +91,7 @@ class Connector extends EventEmitter {
       if (this.connected.get() == undefined) {
         this.connected.set(false);
       }
-    }, 700);
-
-    if (verbose) {
-      logger.cyan(this.log, `Connector ${this.remoteAddress()} instantiated`);
-    }
+    }, ADJUST_UNDEFINED_CONNECTION_STATUS_DELAY);
   }
 
   send(data) {
@@ -107,10 +138,6 @@ class Connector extends EventEmitter {
     return !this.transportConnected;
   }
 
-  decommission() {
-    this.decommissioned = true;
-  }
-
   connectStatus(connected) {
     if (connected) {
       this.sentCount = 0;
@@ -120,30 +147,41 @@ class Connector extends EventEmitter {
 
       this.successfulConnectsCount += 1;
 
-      const num = this.successfulConnectsCount;
-
       if (this.verbose) {
-        logger.write(this.log, `✓ Connector ${this.remoteAddress()} websocket connected`);
+        logger.green(this.log, `✓ Connector ${this.endpoint} connected #${this.successfulConnectsCount}`);
       }
 
-      this.diffieHellman({
-        clientPrivateKey: this.clientPrivateKey,
-        clientPublicKey: this.clientPublicKey,
-        protocol: this.protocol
-      })
+      const websocketId = this.connection.websocket.__id;
+
+      const afterFirstStep = ({ sharedSecret, remotePubkeyHex }) => {
+        this.sharedSecret = sharedSecret;
+        this._remotePubkeyHex = remotePubkeyHex;
+      };
+
+      handshake({ connector: this, afterFirstStep })
         .then(() => {
           this.connectedAt = Date.now();
           this.connected.set(true);
 
           this.ready = true;
-
           this.emit('ready');
         })
         .catch(e => {
-          if (num == this.successfulConnectsCount) {
-            logger.write(this.log, e);
-            logger.write(this.log, 'dropping connection and retrying');
-            this.connection.terminate();
+          if (this.connection.websocket.__id == websocketId && this.connection.websocket.readyState == wsOPEN) {
+            if (e.code == errorCodes.TIMEOUT) {
+              logger.write(this.log, `${this.endpoint} x Connector [ ${this.protocol} ] handshake error: "${e.message}"`);
+
+              logger.write(this.log, `${this.endpoint} Connector dropping stale websocket after handshake error`);
+
+              this.connection.terminate();
+            }
+          }
+
+          if (e.code != errorCodes.TIMEOUT) {
+            logger.write(
+              this.log,
+              `${this.endpoint} x Connector [ ${this.protocol} ] on:ready error: "${e.stack}" — (will not try to reconnect, fix the error and reload this gui)`
+            );
           }
         });
     } else {
@@ -154,8 +192,7 @@ class Connector extends EventEmitter {
       }
 
       if (this.transportConnected == undefined) {
-        const tag = this.tag ? ` (${this.tag})` : '';
-        logger.write(this.log, `Connector ${this.endpoint}${tag} was not able to connect at first try, setting READY to false`);
+        logger.write(this.log, `${this.endpoint} Connector was not able to connect at first try`);
       }
 
       this.transportConnected = false;
@@ -166,9 +203,41 @@ class Connector extends EventEmitter {
 
       if (isDisconnect) {
         this.emit('disconnect');
-        this.connected.set(false);
+
+        if (connected == undefined) {
+          this.delayedAdjustConnectionStatus();
+        }
+
+        this.connected.set(connected);
       }
     }
+  }
+
+  checkForDecommission() {
+    if (!this.autoDecommission) {
+      return;
+    }
+
+    if (this.decommissionCheckRequestedAt && Date.now() - this.decommissionCheckRequestedAt > 3000) {
+      this.decommissionCheckCounter = 0;
+    }
+
+    this.decommissionCheckRequestedAt = Date.now();
+
+    this.decommissionCheckCounter += 1;
+
+    if (this.decommissionCheckCounter > 12) {
+      if (Date.now() - this.lastPongReceivedAt > DECOMMISSION_INACTIVITY) {
+        logger.write(this.log, `Decommissioning connector ${this.endpoint} (long inactive)`);
+
+        this.decommission();
+        this.emit('decommission');
+      }
+    }
+  }
+
+  decommission() {
+    this.decommissioned = true;
   }
 
   remoteObject(handle) {
@@ -181,46 +250,6 @@ class Connector extends EventEmitter {
 
   attachObject(handle, obj) {
     new RPCTarget({ serversideChannel: this, serverMethods: obj, methodPrefix: handle });
-  }
-
-  diffieHellman({ clientPrivateKey, clientPublicKey, protocol }) {
-    return new Promise((success, reject) => {
-      this.remoteObject('Auth')
-        .call('exchangePubkeys', { pubkey: this.clientPublicKeyHex })
-        .then(remotePubkeyHex => {
-          const sharedSecret = nacl.box.before(hexToBuffer(remotePubkeyHex), clientPrivateKey);
-
-          this.sharedSecret = sharedSecret;
-
-          this._remotePubkeyHex = remotePubkeyHex;
-
-          if (this.verbose) {
-            logger.write(this.log, `Connector ${this.endpoint}: Established shared secret through diffie-hellman exchange.`);
-          }
-
-          this.remoteObject('Auth')
-            .call('finalizeHandshake', { protocol })
-            .then(res => {
-              if (res && res.error) {
-                logger.write(this.log, `x Protocol ${this.protocol} error:`);
-                logger.write(this.log, res.error);
-              } else {
-                success();
-
-                const tag = this.tag ? ` (${this.tag})` : '';
-                logger.cyan(this.log, `✓ Protocol [ ${this.protocol || '"no-name"'} ] connection [ ${this.endpoint}${tag} ] ready`);
-              }
-            })
-            .catch(e => {
-              logger.write(this.log, `x Protocol ${this.protocol} finalizeHandshake error:`);
-              logger.write(this.log, e.toString());
-              logger.write(this.log, e.message);
-
-              reject(e);
-            });
-        })
-        .catch(reject);
-    });
   }
 
   clientPubkey() {

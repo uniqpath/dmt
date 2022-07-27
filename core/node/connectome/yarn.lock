@@ -66,6 +66,11 @@
     "balanced-match" "^1.0.0"
     "concat-map" "0.0.1"
 
+"browser-util-inspect@^0.2.0":
+  "integrity" "sha512-R7WvAj0p9FtwS2Jbtc1HUd1+YZdeb5EEqjBSbbOK3owJtW1viWyJDeTPy43QZ7bZ8POtb1yMv++h844486jMsQ=="
+  "resolved" "https://registry.npmjs.org/browser-util-inspect/-/browser-util-inspect-0.2.0.tgz"
+  "version" "0.2.0"
+
 "bufferutil@^4.0.2":
   "integrity" "sha512-AtnG3W6M8B2n4xDQ5R+70EXvOpnXsFYg/AK2yTZd+HQ/oxAdz+GI+DvjmhBw3L0ole+LJ0ngqY4JMbDzkfNzhA=="
   "resolved" "https://registry.npmjs.org/bufferutil/-/bufferutil-4.0.2.tgz"

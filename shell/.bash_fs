@@ -237,6 +237,10 @@ function p {
       AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system/packages "$1"
     fi
 
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd ~/Projects/dmt-system/ecosystem "$1"
+    fi
+
     # if [ $? -gt 0 ]; then
     #   AWESOME_SILENCE=true awesome_cd ~/Projects/node "$1"
     # fi
@@ -251,6 +255,10 @@ function p {
 
     if [ $? -gt 0 ]; then
       AWESOME_SILENCE=true awesome_cd /var/projects "$1"
+    fi
+
+    if [ $? -gt 0 ]; then
+      AWESOME_SILENCE=true awesome_cd /var/www "$1"
     fi
 
     if [ $? -gt 0 ]; then
@@ -1125,7 +1133,7 @@ alias cd..='cd ..'
 
 function cop {
   if ! dmt_macos; then
-    printf "${MAGENTA}Warning: not copied to clipboard because in remote shell${NC}\n"
+    printf "${GRAY}⚠️  Not copied to clipboard because in remote shell${NC}\n"
   fi
 
   local path
@@ -1170,7 +1178,8 @@ function cop {
       printf "Clipboard: ${YELLOW}${path}${NC}\n"
       echo "$path" | tr -d '\n' | pbcopy
     else
-      echo "$path"
+      printf "${MAGENTA}${path}${NC}\n"
+      #echo "$path"
     fi
   else
     printf "${RED}No such file${NC}\n"

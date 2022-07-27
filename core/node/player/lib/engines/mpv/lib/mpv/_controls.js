@@ -18,9 +18,6 @@ const controls = {
     return this.socket.setProperty('volume', value);
   },
 
-  hackAlsaEnable(enable = true) {
-    return new Promise(success => success());
-  },
   adjustVolume(value) {
     return this.socket.addProperty('volume', value);
   },

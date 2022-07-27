@@ -8,29 +8,22 @@ const CLOUDFLARE_DNS = '1.0.0.1';
 const DEFAULT_TTL = 20;
 const NOTIFICATION_GROUP_PREFIX = `${device().id}_connectivity`;
 
-let connectionLostCount = 0;
-
 function reportConnectivityOnLan() {
-  return isRPi();
+  return isRPi() || ['labstore', 'elmstore'].includes(device().id);
 }
 
 function init(program) {
-  if (!['dnevna', 'balkon'].includes(device().id)) {
-    return;
-  }
-
   const executePing = new ExecutePing({ program, target: CLOUDFLARE_DNS, prefix: 'connectivity' });
 
   const localConnectivity = new ExecutePing({ program, prefix: 'localConnectivity' });
 
   executePing.on('connection_lost', ({ code }) => {
-    connectionLostCount += 1;
-
     const color = '#e34042';
 
-    const noConnectivityMsg = '✖ Internet unreachable';
+    const noConnectivityMsg = `✖ Internet unreachable — ping fail ${code || ''}`.trim();
 
     if (reportConnectivityOnLan()) {
+      log.red(noConnectivityMsg);
       program.nearbyNotification({ msg: noConnectivityMsg, ttl: DEFAULT_TTL, color, group: `${NOTIFICATION_GROUP_PREFIX}_unreachable` });
     } else {
       desktop.notify(noConnectivityMsg);
@@ -41,6 +34,7 @@ function init(program) {
     const connResumedMsg = 'Internet connection resumed';
 
     if (reportConnectivityOnLan()) {
+      log.green(`${connResumedMsg}`);
       program.nearbyNotification({ msg: connResumedMsg, ttl: DEFAULT_TTL, color: '#E9D872', group: `${NOTIFICATION_GROUP_PREFIX}_resumed` });
     } else {
       desktop.notify(connResumedMsg);
@@ -52,10 +46,10 @@ function init(program) {
   localConnectivity.on('connection_lost', ({ code }) => {
     const color = '#FF7A2C';
 
-    const noConnectivityMsg = '✖ Router unreachable';
+    const noConnectivityMsg = `✖ Router unreachable — ping fail ${code || ''}`.trim();
 
     if (reportConnectivityOnLan()) {
-      log.red(`${noConnectivityMsg} — ping fail ${code || ''}`.trim());
+      log.red(noConnectivityMsg);
       program.nearbyNotification({ msg: noConnectivityMsg, ttl: 20, color, group: `${NOTIFICATION_GROUP_PREFIX}_local_connectivity` });
     } else {
       desktop.notify(noConnectivityMsg);
@@ -66,6 +60,7 @@ function init(program) {
     const connResumedMsg = 'Router connection resumed';
 
     if (reportConnectivityOnLan()) {
+      log.green(`${connResumedMsg}`);
       program.nearbyNotification({ msg: connResumedMsg, ttl: 20, color: '#F1A36B', group: `${NOTIFICATION_GROUP_PREFIX}_local_connectivity` });
     } else {
       desktop.notify(connResumedMsg);

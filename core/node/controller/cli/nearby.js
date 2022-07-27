@@ -18,7 +18,7 @@ if (args.help == true) {
 
 const table = new Table();
 
-const headers = ['device', 'dmtVersion', 'local ip', 'platform', 'Node.js', 'uptime', 'user', 'wifiAP', 'deviceKey'];
+const headers = ['device', 'dmt version', 'local IP', 'platform', 'node.js', 'dmt-proc uptime', 'user', 'wifiAP', 'deviceKey'];
 
 const action = 'nearby';
 

@@ -1,9 +1,9 @@
 import EventEmitter from 'events';
 
 import * as dmt from 'dmt/common';
-const { log, colors, colors2 } = dmt;
+const { log, colors, colors2, def } = dmt;
 
-import { desktop, apn } from 'dmt/notify';
+import { desktop, apn, push } from 'dmt/notify';
 
 import { contentServer } from 'dmt/connectome-next';
 
@@ -41,6 +41,9 @@ class Program extends EventEmitter {
 
     this.mqttHandlers = [];
 
+    this.cachedNearbyNotifications = [];
+    this.cachedMainDeviceNotifications = [];
+
     ensureDirectories();
 
     generateKeypair();
@@ -57,18 +60,20 @@ class Program extends EventEmitter {
     setupGlobalErrorHandler(this);
 
     this.on('ready', () => {
-      this.notifyMainDevice({ msg: 'Ready', ttl: 10, color: '#50887E' });
       if (!dmt.isMainDevice()) {
+        this.nearbyNotification({ msg: 'dmt-proc started', ttl: 10, color: '#50887E', dev: true });
+
         setTimeout(
           () => {
             if (this.network.name() == 'zaboric') {
-              const msg = `Started DMT v${dmt.dmtVersion()}`;
-              apn.notify(msg);
+              apn.notify(`Started DMT v${dmt.dmtVersion()}`);
             }
           },
           dmt.isRPi() ? 7000 : 1000
         );
       }
+      this.sendCachedNearbyNotifications();
+      this.sendCachedMainDeviceNotifications();
     });
 
     log.green(`${colors.cyan('dmt-proc')} is starting ${this.runningInTerminalForeground() ? colors.magenta('in terminal foreground ') : ''}…`);
@@ -78,6 +83,14 @@ class Program extends EventEmitter {
     const port = 7780;
     const protocol = 'dmt';
     this.fiberPool = createFiberPool({ port, protocol });
+
+    if (dmt.isDevUser() && !dmt.isMainDevice()) {
+      this.fiberPool.on('inactive_connection', connector => {
+        const msg = `⚠️  Inactive_connection to ${connector.endpoint}, check log`;
+        this.nearbyNotification({ msg, ttl: 30, dev: true, color: '#EDDE29', omitDesktopNotification: true });
+        apn.notify(msg);
+      });
+    }
 
     this.fiberPool.subscribe(({ connectionList }) => {
       this.store('connectionsOut').set(connectionList);
@@ -188,7 +201,9 @@ class Program extends EventEmitter {
 
     initControllerActor(this);
 
-    this.acceptor.start();
+    setTimeout(() => {
+      this.acceptor.start();
+    }, 200);
 
     this.server.listen();
 
@@ -242,7 +257,47 @@ class Program extends EventEmitter {
   }
 
   isHub() {
-    return this.store('device').get('ip') == dmt.accessPointIP;
+    const definedIp = this.device.try('network.ip');
+    const assignedIp = this.store('device').get('ip');
+
+    const { accessPointIP } = dmt;
+
+    return (!assignedIp && definedIp == accessPointIP) || assignedIp == accessPointIP;
+  }
+
+  getPrimaryLanServer() {
+    const lanServers = this.store('nearbyDevices')
+      .get()
+      .filter(({ lanServer, ip, stale }) => lanServer && !stale && dmt.isValidIPv4Address(ip) && !dmt.disconnectedIPAddress(ip))
+      .sort((a, b) => {
+        const num1 = Number(
+          a.ip
+            .split('.')
+            .map(num => `000${num}`.slice(-3))
+            .join('')
+        );
+        const num2 = Number(
+          b.ip
+            .split('.')
+            .map(num => `000${num}`.slice(-3))
+            .join('')
+        );
+        return num1 - num2;
+      });
+
+    if (lanServers.length > 0) {
+      return lanServers[0];
+    }
+  }
+
+  isPrimaryLanServer() {
+    return dmt.isLanServer() && this.getPrimaryLanServer()?.thisDevice;
+  }
+
+  lanServerNearby() {
+    return !!this.store('nearbyDevices')
+      .get()
+      .find(({ lanServer, stale, thisDevice, ip }) => lanServer && !thisDevice && !stale && dmt.isValidIPv4Address(ip) && !dmt.disconnectedIPAddress(ip));
   }
 
   hasGui() {
@@ -276,16 +331,15 @@ class Program extends EventEmitter {
     return this._player;
   }
 
-  isDevPanel() {
-    const devPanels = ['fpanel', 'gpanel', 'dpanel', 'tablica', 'epanel'];
-    return dmt.isDevUser() && (devPanels.includes(this.device.id) || dmt.isMainDevice());
+  showDevNotifications() {
+    return dmt.isDevPanel() || dmt.isMainDevice();
   }
 
   showNotification(
-    { title, msg, ttl = 30, color = '#FFFFFF', group, cancelIds = [], omitDeviceName = false, noDesktopNotification = false, dev = false },
+    { title, msg, ttl = 30, color = '#FFFFFF', group, cancelIds = [], omitDeviceName = false, omitDesktopNotification = false, dev = false },
     { originDevice = undefined } = {}
   ) {
-    if (dev && (!dmt.isDevUser() || !this.isDevPanel())) {
+    if (dev && !this.showDevNotifications()) {
       return;
     }
 
@@ -309,7 +363,7 @@ class Program extends EventEmitter {
 
     const notification = {
       __id: id,
-      title: _title,
+      title: dev ? `${_title} [DΞV]` : _title,
       msg,
       bgColor,
       color: colors2.invertColor(bgColor),
@@ -328,7 +382,7 @@ class Program extends EventEmitter {
     if (msg) {
       this.store('notifications').push(notification);
 
-      if (dmt.isMainDevice() && !noDesktopNotification) {
+      if (dmt.isMainDevice() && !omitDesktopNotification) {
         desktop.notify(msg, _title);
       }
 
@@ -343,16 +397,20 @@ class Program extends EventEmitter {
       return;
     }
 
-    if (!dev || (dev && this.isDevPanel())) {
+    if (!dev || (dev && this.showDevNotifications())) {
       this.showNotification(obj);
     }
 
     if (this._nearby) {
       this._nearby.broadcast('notification', obj);
     } else {
-      log.red('⚠️  Dropping nearbyNotification ↴');
-      log.yellow(obj);
-      log.red(`Tried to send too early, please start sending only after ${colors.yellow("program.on('ready')")}`);
+      this.cachedNearbyNotifications.push(obj);
+    }
+  }
+
+  sendCachedNearbyNotifications() {
+    while (this.cachedNearbyNotifications.length) {
+      this.nearbyNotification(this.cachedNearbyNotifications.shift());
     }
   }
 
@@ -360,14 +418,36 @@ class Program extends EventEmitter {
     if (this._nearby) {
       this._nearby.broadcast('notify_main_device', obj);
     } else {
-      log.red('⚠️  Dropping notifyMainDevice ↴');
-      log.yellow(obj);
-      log.red(`Tried to send too early, please start sending only after ${colors.yellow("program.on('ready')")}`);
+      this.cachedMainDeviceNotifications.push(obj);
+    }
+  }
+
+  nearbyProxyApnMsgViaLanServer(obj) {
+    if (this._nearby) {
+      this._nearby.broadcast('proxy_apn_notification', obj);
+    } else {
+      throw new Error('Too early, todo: cache');
+    }
+  }
+
+  nearbyProxyPushMsgViaLanServer(obj) {
+    if (this._nearby) {
+      this._nearby.broadcast('proxy_push_notification', obj);
+    } else {
+      throw new Error('Too early, todo: cache');
+    }
+  }
+
+  sendCachedMainDeviceNotifications() {
+    while (this.cachedMainDeviceNotifications.length) {
+      this.notifyMainDevice(this.cachedMainDeviceNotifications.shift());
     }
   }
 
   setNearby(nearby) {
     this._nearby = nearby;
+
+    log.cyan('Nearby aspect ready');
 
     nearby.on('notification', ({ originDevice, obj }) => {
       if (this.device.id == originDevice) {
@@ -386,10 +466,52 @@ class Program extends EventEmitter {
         this.showNotification(obj, { originDevice });
       }
     });
+
+    nearby.on('proxy_apn_notification', ({ originDevice, obj }) => {
+      if (this.device.id == originDevice) {
+        return;
+      }
+
+      if (this.isPrimaryLanServer()) {
+        log.cyan('Primary lanServer — received proxy_apn_notification:');
+        log.gray(obj);
+        const { msg, users } = obj;
+        apn.notify(msg, { users, originDevice });
+      }
+    });
+
+    nearby.on('proxy_push_notification', ({ originDevice, obj }) => {
+      if (this.device.id == originDevice) {
+        return;
+      }
+
+      if (this.isPrimaryLanServer()) {
+        log.cyan('Primary lanServer — received proxy_push_notification:');
+        log.gray(obj);
+        push.notifyRaw(this, obj.msg, { ...obj.obj, originDevice });
+      }
+    });
   }
 
   nearby() {
     return this._nearby;
+  }
+
+  periodicNotification(checkCallback, executeCallback) {
+    const CHECK_INTERVAL = 5 * 60 * 1000;
+    const STANDOFF_INTERVAL = 90 * 60 * 1000;
+
+    let reportedAt;
+
+    setTimeout(() => {
+      dmt.loop(() => {
+        if (checkCallback(this) && (!reportedAt || Date.now() - reportedAt >= STANDOFF_INTERVAL)) {
+          executeCallback(this);
+
+          reportedAt = Date.now();
+        }
+      }, CHECK_INTERVAL);
+    }, 2 * CHECK_INTERVAL);
   }
 }
 

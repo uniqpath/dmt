@@ -1,11 +1,17 @@
-import { log, isMainDevice } from 'dmt/common';
+import { log, isMainDevice, device } from 'dmt/common';
 import { push, apn } from 'dmt/notify';
 
 const slotName = 'blinds';
 
 const PRESENCE_INTERVAL = 5;
 
-const REPORT_PRESENCE = false;
+const REPORT_PRESENCE = true;
+
+function deviceHandlesBlinds(program) {
+  if (program.isHub() || ['tv-ap2', 'turbine', 'andreja'].includes(device().id)) {
+    return true;
+  }
+}
 
 function updateBlindsState(id, _patch, { announce = true, program }) {
   const currentState = program.store(slotName).get(id) || {};
@@ -26,12 +32,9 @@ function detectStaleModules(program) {
         updateBlindsState(id, { present: false, detectedMissing: true }, { program, announce: false });
 
         if (program.isHub()) {
-          const msg = `${id} module not present`;
+          const msg = `${id} module missing`;
 
           if (REPORT_PRESENCE) {
-            program.nearbyNotification({ msg, ttl: 30, color: '#DB7293', omitDeviceName: true, group: `blinds_${id}_presence` });
-
-            apn.notify(msg);
           }
 
           log.red(msg);
@@ -45,15 +48,6 @@ function detectStaleModules(program) {
           const msg = `${id} module present again`;
 
           if (REPORT_PRESENCE) {
-            program.nearbyNotification({
-              msg,
-              ttl: 30,
-              color: '#09D839',
-              omitDeviceName: true,
-              group: `blinds_${id}_presence2`
-            });
-
-            apn.notify(msg);
           }
 
           log.green(msg);
@@ -74,7 +68,9 @@ function detectStaleModules(program) {
 }
 
 function onProgramTick(program) {
-  detectStaleModules(program);
+  if (deviceHandlesBlinds(program)) {
+    detectStaleModules(program);
+  }
 }
 
 function setup(program) {}
@@ -113,6 +109,10 @@ function handleStopped(program, { placeId, blindsId, blindsDirection, blindsStat
 }
 
 function handleMqttEvent({ program, topic, msg }) {
+  if (!deviceHandlesBlinds(program)) {
+    return;
+  }
+
   let data;
 
   if (topic == 'blinds') {
@@ -129,7 +129,7 @@ function handleMqttEvent({ program, topic, msg }) {
       if (blindsAction == 'move') {
         if (program.isHub()) {
           if (program.store(slotName).get(id)?.blindsStatus == 'moving') {
-            program.nearbyNotification({ msg: `${id} received stop command`, ttl: 5, color: '#B14942', omitDeviceName: true, group: `blinds_${id}_stop` });
+            program.nearbyNotification({ msg: `${id} received stop command`, ttl: 5, color: '#5DD5B4', omitDeviceName: true, group: `blinds_${id}_stop` });
             program.nearbyNotification({ group: `blinds_${id}_moving` });
           } else {
             program.nearbyNotification({ msg: `${id} received move command`, ttl: 5, color: '#279276', omitDeviceName: true, group: `blinds_${id}_move` });
@@ -145,16 +145,6 @@ function handleMqttEvent({ program, topic, msg }) {
 
           case 'moving':
             handleMoving(program, data);
-            if (program.isHub()) {
-              program.nearbyNotification({
-                msg: `${id} moving`,
-                ttl: 5,
-                color: '#3B419A',
-                omitDeviceName: true,
-                noDesktopNotification: true,
-                group: `blinds_${id}_moving`
-              });
-            }
             break;
           case 'presence':
             handlePresence(program, data);

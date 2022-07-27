@@ -62,7 +62,7 @@ class ServerError extends Base {}
 class RequestTimeout extends ServerError {
   constructor(message, timeout) {
     super({
-      code: -32001,
+      code: errorCodes.TIMEOUT,
       message: `Request exceeded maximum execution time (${timeout}ms): ${message}`
     });
   }

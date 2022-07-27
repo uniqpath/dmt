@@ -1,6 +1,6 @@
 {
   "name": "connectome",
-  "version": "0.1.14",
+  "version": "0.2.4",
   "description": "Dynamic realtime connectivity and state management",
   "typings": "typings/src/client/index.d.ts",
   "scripts": {
@@ -47,6 +47,7 @@
   "author": "davidhq",
   "license": "ISC",
   "dependencies": {
+    "browser-util-inspect": "^0.2.0",
     "bufferutil": "^4.0.2",
     "fast-json-patch": "^3.0.0-1",
     "kleur": "^4.1.5",

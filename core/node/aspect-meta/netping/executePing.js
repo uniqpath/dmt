@@ -1,7 +1,5 @@
 import EventEmitter from 'events';
 
-import { log, stopwatch, colors, isMainDevice, isDevUser, device, apMode } from 'dmt/common';
-
 import ping from './ping';
 
 export default class ExecutePing extends EventEmitter {

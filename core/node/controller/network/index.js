@@ -25,6 +25,13 @@ export default class Network {
     });
   }
 
+  connectedWifiAP() {
+    const { apssid, wifiAP } = this.program.store('device').get();
+    if (apssid) {
+      return `📶 Wifi AP ${wifiAP || ''} ${wifiAP ? '' : apssid}`.replace(/\s+/g, ' ');
+    }
+  }
+
   name() {
     return this.deviceStore().get('network');
   }

@@ -3,6 +3,8 @@ import * as apn from './lib/apn';
 import * as desktop from './lib/desktop';
 import * as email from './lib/email';
 
+import { notify as notifyRaw } from './lib/pushover/notifier';
+
 let program;
 
 function init(_program) {
@@ -28,6 +30,7 @@ const _push = {
   highPriority: (high = true) => highPriority({ program, isABC, abcNetworkID }, high),
   notify: (...options) => notify({ program, isABC, abcNetworkID }, ...options),
   notifyAll: (...options) => notifyAll({ program, isABC, abcNetworkID }, ...options),
+  notifyRaw,
   initABC
 };
 

@@ -4,6 +4,8 @@ import path from 'path';
 import * as dmt from 'dmt/common';
 const { util, dmtVersion } = dmt;
 
+import determineReplicatedDmtVersion from '../determineReplicatedDmtVersion';
+
 const { dirname } = path;
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -15,16 +17,6 @@ function dmtSource(host) {
   }
 
   return host;
-}
-
-function determineVersion() {
-  const fetchedVersion = dmtVersion(path.join(dmt.dmtPath, 'state/dmt.zip.version.txt'));
-
-  if (fs.existsSync(path.join(dmt.dmtPath, 'state/dmt.zip')) && fetchedVersion) {
-    return fetchedVersion;
-  }
-
-  return dmtVersion();
 }
 
 function install({ req, res, isCurl, program, port }) {
@@ -43,7 +35,7 @@ function install({ req, res, isCurl, program, port }) {
     .readFileSync(path.join(__dirname, '../templates/install_from'))
     .toString()
     .replace(new RegExp('{{protocol}}', 'g'), protocol)
-    .replace(new RegExp('{{version}}', 'g'), determineVersion())
+    .replace(new RegExp('{{version}}', 'g'), determineReplicatedDmtVersion())
     .replace(new RegExp('{{host}}', 'g'), host)
     .replace(new RegExp('{{dmtSource}}', 'g'), dmtSource(host));
 

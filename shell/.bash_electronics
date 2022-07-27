@@ -14,7 +14,7 @@ function get_highest_version_subdir {
   local dir="$2"
 
   if [ ! -d "$dir" ]; then
-    printf "${dir} ${RED}directory is missing${NC}\n"
+    printf "${dir} ${GRAY}directory is missing${NC}\n"
     return
   fi
 
@@ -102,7 +102,7 @@ function esp {
     get_highest_version_subdir highest "$esp_tool_parent_path"
     local esp_tool_path="${esp_tool_parent_path}/${highest}/esptool"
     if [ ! -f "$esp_tool_path" ]; then
-      printf "${esp_tool_path} ${RED}file is missing${NC}\n"
+      printf "${esp_tool_path} ${GRAY}file is missing${NC}\n"
 
       local DMT_ESPTOOL="$DMT_PATH/etc/scripts/esptool"
       if [ -f "$DMT_ESPTOOL" ]; then
@@ -156,8 +156,8 @@ function esp {
           fi
 
           if [ -z "$1" ]; then
-            printf "${RED}Please specify firmware file and ip address${NC}\n"
-            printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip]${NC}\n"
+            printf "${RED}Please specify firmware file and ip address or device name from net scan (devices.json)${NC}\n"
+            printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip|deviceName]${NC}\n"
             return
           fi
 
@@ -166,8 +166,8 @@ function esp {
           #   return
           # fi
           if [ -z "$2" ]; then
-            printf "${RED}Please specify an ip address${NC}\n"
-            printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip]${NC}\n"
+            printf "${RED}Please specify an ip address or device name from net scan (devices.json)${NC}\n"
+            printf "${GREEN}upload${NC} ${GRAY}[file.bin] [ip|deviceName]${NC}\n"
             return
           fi
           local file="$1"

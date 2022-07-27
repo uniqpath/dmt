@@ -24,6 +24,8 @@ import {
   isDevMachine,
   isDevUser,
   isMainDevice,
+  isLanServer,
+  isDevPanel,
   debugMode,
   debugCategory,
   prettyFileSize
@@ -390,6 +392,8 @@ export {
   isDevMachine,
   isDevUser,
   isMainDevice,
+  isLanServer,
+  isDevPanel,
   debugMode,
   debugCategory,
   dateFns,

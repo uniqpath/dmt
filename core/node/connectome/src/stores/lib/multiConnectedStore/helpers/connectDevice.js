@@ -7,9 +7,9 @@ export default class ConnectDevice {
     this.connectToDeviceKey = connectToDeviceKey;
   }
 
-  createConnector({ host }) {
+  createConnector({ host, autoDecommission = false }) {
     const { port, protocol, rpcRequestTimeout, log, verbose, keypair } = this.mcs;
-    return connect({ host, port, protocol, keypair, rpcRequestTimeout, log, verbose });
+    return connect({ host, port, protocol, keypair, rpcRequestTimeout, autoDecommission, log, verbose });
   }
 
   getDeviceKey(state) {
@@ -26,6 +26,10 @@ export default class ConnectDevice {
         state.nearbyDevices = [];
       }
 
+      if (!state.notifications) {
+        state.notifications = [];
+      }
+
       const deviceKey = this.getDeviceKey(state);
 
       if (deviceKey) {
@@ -33,6 +37,7 @@ export default class ConnectDevice {
           thisConnector.on('pong', () => {
             this.mcs.emit('pong', { deviceKey });
           });
+
           alreadySetupPong = true;
         }
 
@@ -65,20 +70,38 @@ export default class ConnectDevice {
   }
 
   connectOtherDevice({ host, deviceKey }) {
-    const connector = this.createConnector({ host });
+    if (!this.mcs.connectors[deviceKey]) {
+      const connector = this.createConnector({ host, autoDecommission: true });
 
-    connector.on('pong', () => {
-      this.mcs.emit('pong', { deviceKey });
-    });
+      connector.on('decommission', () => {
+        delete this.mcs.connectors[deviceKey];
+        if (connector.__removeListeners) {
+          connector.__removeListeners();
+        }
+      });
 
-    this.initNewConnector({ deviceKey, connector });
+      const pongCallback = () => {
+        this.mcs.emit('pong', { deviceKey });
+      };
 
-    connector.state.subscribe(state => {
-      if (this.mcs.activeDeviceKey() == deviceKey) {
-        const optimisticDeviceName = state.device ? state.device.deviceName : null;
-        this.foreground.set(state, { optimisticDeviceName });
-      }
-    });
+      connector.on('pong', pongCallback);
+
+      this.initNewConnector({ deviceKey, connector });
+
+      const unsubscribe = connector.state.subscribe(state => {
+        if (this.mcs.activeDeviceKey() == deviceKey) {
+          const optimisticDeviceName = state.device ? state.device.deviceName : null;
+          this.foreground.set(state, { optimisticDeviceName });
+        }
+      });
+
+      connector.__removeListeners = () => {
+        connector.off('pong', pongCallback);
+        unsubscribe();
+      };
+    }
+
+    return this.mcs.connectors[deviceKey];
   }
 
   initNewConnector({ deviceKey, connector }) {

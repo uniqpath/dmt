@@ -141,10 +141,6 @@ class Logger {
     return meta;
   }
 
-  infoLine({ deviceName, pid, time }) {
-    return `${deviceName ? `${colors.magenta(deviceName)}` : '[unknown deviceName, before log init]'} ${pid} ${colors.gray(time)}`;
-  }
-
   logOutput(color, { onlyToFile = false, skipMeta = false, error = false, source } = {}, ...args) {
     const meta = this.lineMetadata({ error });
 
@@ -169,13 +165,16 @@ class Logger {
     if (rawMsg.length > MAX_LINE_LENGTH) {
       const RESET_COLOR = '\x1B[0m';
       rawMsg = rawMsg.slice(0, MAX_LINE_LENGTH).trim() + `${RESET_COLOR} ${colors.gray('…')}`;
-      trimmedMark = colors.gray('[trimmed] ');
+      trimmedMark = colors.bold().white('[trimmed] ');
     }
 
     let msg = _color(rawMsg);
 
     if (!skipMeta) {
-      const infoLine = this.infoLine(meta);
+      const { deviceName, pid, time } = meta;
+
+      let pidStr = pid;
+      let timeStr = time;
 
       let diffStr = '';
 
@@ -188,6 +187,9 @@ class Logger {
         if (diff > 1000) {
           diffStr = colors.white(diffStr);
         }
+      } else {
+        pidStr = colors.cyan(pid);
+        timeStr = colors.bold().white(time);
       }
 
       let foregroundMark = colors.gray('[?] ');
@@ -203,7 +205,9 @@ class Logger {
 
       const symbol = rawMsg.trim() == '' ? '' : getSymbol(source);
 
-      msg = `${foregroundMark}${this.procTag ? `${colors.cyan(this.procTag)} ` : ''}${infoLine}${colors.gray(diffStr)} ${symbol} ${trimmedMark}${msg}`;
+      msg = `${foregroundMark}${this.procTag ? `${colors.cyan(this.procTag)} ` : ''}${
+        deviceName ? `${colors.magenta(deviceName)}` : '[unknown deviceName, before log init]'
+      } ${pidStr} ${colors.gray(timeStr)}${colors.gray(diffStr)} ${symbol} ${trimmedMark}${msg}`;
     }
 
     if (!onlyToFile) {

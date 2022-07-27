@@ -50,7 +50,7 @@ class MessageSender {
   notify(message) {
     const network = this.networkName || this.program?.network.name();
 
-    return notify(message, {
+    return notify(this.program, message, {
       app: this._app,
       group: this._group,
       title: this._title,
@@ -67,7 +67,7 @@ class MessageSender {
   notifyAll(message) {
     const network = this.networkName || this.program?.network.name();
 
-    return notifyAll(message, {
+    return notifyAll(this.program, message, {
       app: this._app,
       title: this._title,
       network,

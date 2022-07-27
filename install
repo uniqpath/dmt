@@ -274,6 +274,11 @@ if [ -n "$1" ]; then
 
                 target="${host}:.dmt/user"
                 dirsync $excludes $compress --port $ssh_port ~/.dmt/user "$target"
+
+                if [ $? -ne 0 ]; then #  error
+                  exit
+                fi
+
                 # IMPORTANT
                 # ~/.dmt/.deployignore ==>
                 # ...
@@ -294,6 +299,11 @@ if [ -n "$1" ]; then
 
                 target="${host}:.dmt"
                 dirsync $excludes $compress --port $ssh_port ~/.dmt "$target"
+
+                if [ $? -ne 0 ]; then #  error
+                  exit
+                fi
+
                 echo
 
               fi
@@ -304,10 +314,10 @@ if [ -n "$1" ]; then
                 # 🌀 EXECUTE FINAL STEP 2 on remote machine AND then restaart the remote process
                 #restart_cmd="source ~/.dmt/etc/.bash_aliases_slim && se \\\"if [ -f ~/.dmt/user/devices/this/before-update ]; then ~/.dmt/user/devices/this/before-update; fi; if [ -f ~/.dmt/etc/deploy_hooks/before-update ]; then ~/.dmt/etc/deploy_hooks/before-update; fi; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
                 INSTALL_AND_RESTART_CMD="screen -S dmt -dm bash -c \\\"cd ~/.dmt; ./install; ~/.dmt/etc/onboot/daemons restart_and_notify_on_fail\\\""
-                remote -h "$host" --port "$ssh_port" "$INSTALL_AND_RESTART_CMD"
+                dmt_ssh_execute -h "$host" --port "$ssh_port" "$INSTALL_AND_RESTART_CMD"
               else
                 # 🌀 JUST EXECUTE FINAL STEP 2 on remote machine
-                remote --silent -h "$host" --port "$ssh_port" "screen -S dmt -dm bash -c \\\"cd ~/.dmt; ./install\\\""
+                dmt_ssh_execute --silent -h "$host" --port "$ssh_port" "screen -S dmt -dm bash -c \\\"cd ~/.dmt; ./install\\\""
               fi
               echo
 

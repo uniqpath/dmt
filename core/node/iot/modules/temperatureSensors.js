@@ -196,8 +196,6 @@ function handleMqttEvent({ program, topic, msg }) {
 
     env.setArrayElement(selectorPredicate, data, { announce: false });
 
-    env.removeArrayElements(({ expireAt }) => expireAt < now, { announce: false });
-
     env.sortArray(
       (a, b) => {
         return b.temperature - a.temperature;

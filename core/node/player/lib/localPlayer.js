@@ -6,6 +6,7 @@ import Playlist from './playlist';
 import Mpv from './engines/mpv';
 
 import setupUserActionHandlers from './userActionHandlers';
+import measurePlaytime from './measurePlaytime';
 
 const DEFAULT_SKIP_SECONDS = 20;
 
@@ -30,6 +31,10 @@ class LocalPlayer {
 
     program.on('tick', () => {
       const player = program.store('player').get();
+
+      if (!player.paused && !this.isStream()) {
+        measurePlaytime({ program, player: this });
+      }
 
       if (player.timeLimit) {
         if (player.paused) {
@@ -279,7 +284,7 @@ class LocalPlayer {
   }
 
   async bump(args = '') {
-    const rangePatternOrStr = args;
+    const rangePatternOrStr = args.toString();
 
     if (rangePatternOrStr.match(/[a-zA-Z]/)) {
       return this.playlist.bumpSearch(rangePatternOrStr);
@@ -299,11 +304,11 @@ class LocalPlayer {
   async sublist(tag) {
     switch (tag) {
       case 'andreja':
-        this.bump('roisin murphy, cigarettes after sex, moloko, erlend oye, prljavo kazaliste, zaz french');
+        this.bump('roisin murphy, cigarettes after sex, moloko, erlend oye, prljavo kazaliste, zaz french, Rhye woman, sade artist, inxs');
         break;
       case 'david':
         this.bump(
-          'metallica, cigarettes after sex, prljavo kazaliste, mariza, madredeus, joe satriani, ozric tentacles, eat static, astropilot, cabeiri, shadow gallery'
+          'metallica, cigarettes after sex, prljavo kazaliste, mariza, madredeus, joe satriani, ozric tentacles, eat static, astropilot, cabeiri, shadow gallery, inxs'
         );
         break;
       case 'irma':

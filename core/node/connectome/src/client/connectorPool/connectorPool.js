@@ -26,6 +26,10 @@ class ConnectorPool extends ReadableStore {
         const connector = connect({ ...this.options, ...{ endpoint, host, port, tag } });
         this.connectors[hostWithPort] = connector;
         this.setupConnectorReactivity(connector);
+
+        connector.on('inactive_connection', () => {
+          this.emit('inactive_connection', connector);
+        });
       }
 
       success(this.connectors[hostWithPort]);

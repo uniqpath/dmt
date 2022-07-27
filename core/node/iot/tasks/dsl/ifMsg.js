@@ -34,8 +34,6 @@ class IfMsg {
             push.omitDeviceName().notifyAll(msg);
           }
 
-          log.cyan(notif);
-
           if (notif.color) {
             let group;
             if (notif.dedup == 'true') {

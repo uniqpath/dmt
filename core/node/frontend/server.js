@@ -3,27 +3,31 @@ import { log, colors } from 'dmt/common';
 import express from 'express';
 
 import setupRedirects from './lib/setupRedirects';
-import setupAppRoute from './lib/setupAppRoute';
 class Server {
   constructor({ program, appList, appInitResults }) {
     this.program = program;
 
     this.app = express();
 
-    for (const [appName, initResult] of appInitResults) {
-      if (initResult?.express) {
+    const ssrApps = [];
+
+    for (const [appName, { initData, ssrHandler }] of Object.entries(appInitResults)) {
+      if (ssrHandler) {
+        log.cyan(`Loading SRR handler → ${colors.magenta(appName)} ${colors.cyan('frontend')} at ${colors.gray(`/${appName}`)}`);
+        this.app.use(`/${appName}`, ssrHandler);
+        ssrApps.push(appName);
+      } else if (initData?.express) {
         log.cyan(`Loading SRR app → ${colors.magenta(appName)} ${colors.cyan('frontend')} at ${colors.gray(`/${appName}`)}`);
-        this.app.use(`/${appName}`, initResult.express);
-      } else {
-        const appMatch = appList.find(appInfo => appInfo.appName == appName);
-        if (appMatch) {
-          setupAppRoute({ app: this.app, appName, publicDir: appMatch.publicDir });
-        } else {
-          log.red(`No match for ${appName} in appList:`);
-          log.red(appList);
-        }
+        this.app.use(`/${appName}`, initData.express);
+        ssrApps.push(appName);
       }
     }
+
+    appList.forEach(({ appName, publicDir }) => {
+      if (!ssrApps.includes(appName)) {
+        this.app.use(`/${appName}`, express.static(publicDir));
+      }
+    });
 
     setupRedirects({ app: this.app });
   }

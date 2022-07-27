@@ -219,7 +219,7 @@ function dmt {
 
     echo
 
-    declare -a expressions=('Digital Mastery Techniques' 'Digital Multi Tool' 'Distributed Modular Technologies' 'Dare Mighty Things' 'Does Many Things' 'Does Many Tricks' 'Dreamy Memorable Transmissions')
+    declare -a expressions=('Digital Mastery Techniques' 'Digital Multi Tool' 'Dynamic Modular Technologies' 'Dare Mighty Things' 'Does Many Things' 'Delivering Many Tricks' 'Dreamy Memorable Transmissions')
     local index=$[$RANDOM % ${#expressions[@]}]
     local selected_expression=${expressions[index]}
 
@@ -361,6 +361,7 @@ function dmt {
     "media"
     "search"
     "reload"
+    "execute"
   )
 
   if dev_machine; then
@@ -592,6 +593,10 @@ function dmt {
       dmt_device "$@"
       ;;
 
+    execute)
+      dmt_execute "$@"
+      ;;
+
     next)
       dmt_next "$@"
       ;;
@@ -788,7 +793,10 @@ function dmt {
         printf "   You can see the equivalent realtime log output of the daemonized process with ${GREEN}dmt log${NC}.\n"
         echo
 
-        $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+        # we need FORCE_COLOR and TERM here only for when dmt will spawn abc-proc
+        # if we don't do it then abc log will not have colors
+        # rel && killall abc-proc && d run
+        FORCE_COLOR=true TERM=xterm-256color $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       fi
 
       if [[ $? -eq 1 ]]; then
@@ -1221,6 +1229,43 @@ function device_helper {
   fi
 }
 
+function dmt_execute {
+
+  local host="$1"
+  shift
+
+  local command="$@"
+
+  if [ -z "$host" ] || [ "$host" == "-h" ] || [ "$host" == "--help" ] || [ -z "$command" ]; then
+    if [ -z "$1" ]; then
+      printf "${YELLOW}Usage:${NC}\n"
+      printf "${GREEN}dmt execute [dmt_device] [command] [args]${NC} ${GRAY}execute commands via ssh on remote device${NC}\n"
+      return
+    fi
+  else
+    if [ "$host" == "ap" ]; then
+      host="$DMT_AP_DEFAULT_HOST"
+      ssh_port=22
+    else
+      matching_host=''
+      ssh_port=''
+      _compress=''
+      get_full_host matching_host ssh_port _compress "$host"
+      if [ $? -ne 1 ]; then # no error
+        host="$matching_host"
+      fi
+      # compress regardless if passed in argument if device has globalIp defined (get_full_host will return "--compress")
+      if [[ $_compress == "--compress" ]]; then
+        compress=$_compress # yes, please compress :)
+      fi
+    fi
+
+    if [ -n "$host" ]; then
+      dmt_ssh_execute -h "$host" $command
+    fi
+  fi
+}
+
 function dmt_state {
 
   if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
@@ -1497,16 +1542,23 @@ function dmt_log {
     return
   fi
 
-  # awk prepend didn't work properly! did not show the entire log :/ and only first lines of multiline output were shown (for example with errors)
-
-  local SPECIAL_LOG_SYMBOL=">"
-
   if [ "$1" == "full" ]; then
-    cat "$LOGFILE" | while read line; do echo "${SPECIAL_LOG_SYMBOL} $line"; done
+    cat "$LOGFILE"
   else
     # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) update device.. 4) PROBLEM: even older log messages will be shown
-    tail -f -n ${TAIL_LOG_LINES} "$LOGFILE" | while read line; do echo "${SPECIAL_LOG_SYMBOL} $line"; done # better than | awk '{print "[log]", $0}' -- https://serverfault.com/a/72814/183891
+    tail -f -n ${TAIL_LOG_LINES} "$LOGFILE"
   fi
+
+  # awk prepend didn't work properly! did not show the entire log :/ and only first lines of multiline output were shown (for example with errors)
+  # current solution has indentation issues.. for example when logging objects... that's why not using it anymore
+  # local SPECIAL_LOG_SYMBOL=">"
+
+  # if [ "$1" == "full" ]; then
+  #   cat "$LOGFILE" | while read line; do echo "${SPECIAL_LOG_SYMBOL} $line"; done
+  # else
+  #   # ISSUE: 1) dmt logfg 2) COMMAND+K (clear screen) 3) update device.. 4) PROBLEM: even older log messages will be shown
+  #   tail -f -n ${TAIL_LOG_LINES} "$LOGFILE" | while read line; do echo "${SPECIAL_LOG_SYMBOL} $line"; done # better than | awk '{print "[log]", $0}' -- https://serverfault.com/a/72814/183891
+  # fi
 }
 
 function dmt_help {
@@ -1520,7 +1572,7 @@ function dmt_help {
   # echo
   # printf "  ${CYAN}■${NC} ${GREEN}dmt deactivate ${GRAY} · deactivates shell but keep it present (to get it back just do ${CYAN}./install${GRAY} · )${NC}\n"
   # echo
-  printf "${CYAN}💡 DMT PROC${NC} ${WHITE}management:${NC}\n"
+  printf "${CYAN}💡 dmt-proc${NC} ${WHITE}management:${NC}\n"
   # printf "${CYAN}■ services will not persist after reboot — ${MAGENTA}use the docs${CYAN} to easily configure this.${NC}"
   echo
   printf "  ${CYAN}■${NC} ${GREEN}dmt start ${GRAY}starts the daemonized process ${CYAN}(dmt-proc)${NC}\n"
@@ -1532,7 +1584,7 @@ function dmt_help {
   # printf "  ${CYAN}■${NC} ${CYAN}dmt log ${GRAY}shows a few recent log entries (${CYAN}dmt-proc${GRAY} has to be running) ${NC}\n"
   printf "  ${CYAN}■${NC} ${GREEN}dmt log ${GRAY}shows last ${TAIL_LOG_LINES} log entries and monitors for further entries, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
   printf "  ${CYAN}■${NC} ${GREEN}dmt log full ${GRAY}shows the entire log (can be long)${NC}\n"
-  printf "  ${CYAN}■${NC} ${GREEN}dmt abclog ${GRAY}shows recent abc-proc log entries and monitors for more, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
+  printf "  ${CYAN}■${NC} ${GREEN}dmt abc ${GRAY}shows recent abc-proc log entries and monitors for more, to quit press ${UNDERLINE}ctrl+c${RESET}${NC}\n"
   #printf "  ${CYAN}■${NC} ${GREEN}dmt loglan ${GRAY}starts listening to network log message broadcasts${NC}\n"
 
   echo
@@ -1559,7 +1611,7 @@ function dmt_help {
   printf "  ${CYAN}■${NC} ${CYAN}dmt nearby ${GRAY}shows nearby devices ${NC}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt connections ${GRAY}shows dmt-proc ${UNDERLINE}incoming${RESET} ${GRAY}and ${UNDERLINE}outgoing connections${RESET}${NC}\n"
   printf "  ${CYAN}■${NC} ${CYAN}dmt protocols${NC} ${GRAY}show registered realtime communication protocols${NC}\n"
-  printf "  ${CYAN}■${NC} ${CYAN}dmt identities${NC} ${GRAY}manage cryptographic user identities${NC}\n"
+  #printf "  ${CYAN}■${NC} ${CYAN}dmt identities${NC} ${GRAY}manage cryptographic user identities${NC}\n"
   echo
 
   printf "${MAGENTA}GUI and State${NC}\n"
@@ -1653,7 +1705,7 @@ function dmt_nearby_help {
   echo
   printf "${CYAN}■${NC} ${GREEN}dmt nearby copy ${GRAY}· sync ~/.dmt to nearby devices${NC}\n"
   printf "${CYAN}■${NC} ${GREEN}dmt nearby update ${GRAY}· update nearby devices (copy + restart ${UNDERLINE}dmt-proc${RESET}${GRAY})${NC}\n"
-  printf "${CYAN}■${NC} ${GREEN}dmt nearby run ${CYAN}\"command [args]\" ${GRAY}· run a bash command on nearby devices${NC}\n"
+  printf "${CYAN}■${NC} ${GREEN}dmt nearby execute ${CYAN}command [args] ${GRAY}· run a bash command on nearby devices${NC}\n"
   echo
   printf "${GRAY}Faster parallel command versions using [screen] to run in background:${NC}\n"
   echo
@@ -1694,8 +1746,8 @@ function dmt_nearby {
     "pupdate" # pupdate -> background parallel update, using screen to run update in parallel
     "copy"
     "pcopy" # pcopy -> background parallel copy, using screen to run copy in parallel
-    "run"
-    "prun"
+    "execute"
+    "pexecute"
   )
 
   local matching_opt=''
@@ -1743,15 +1795,15 @@ function dmt_nearby {
       elif [ "$matching_opt" == "pcopy" ]; then
         dmt copy --skip_prepare --parallel "$ipWithUser"
         echo
-      elif [ "$matching_opt" == "run" ] || [ "$matching_opt" == "prun" ]; then
+      elif [ "$matching_opt" == "execute" ] || [ "$matching_opt" == "pexecute" ]; then
         if [[ -n "$@" ]]; then
-          if [ "$matching_opt" == "prun" ] || [ "$parallel" == '--parallel' ]; then
-            se "remote -h $ipWithUser \"$@\""
+          if [ "$matching_opt" == "pexecute" ] || [ "$parallel" == '--parallel' ]; then
+            se "dmt_ssh_execute -h $ipWithUser \"$@\""
           else
-            remote -h $ipWithUser "$@"
+            dmt_ssh_execute -h $ipWithUser "$@"
           fi
         else
-          printf "${RED}missing arguments for ${GREEN}dmt nearby run${NC}\n"
+          printf "${RED}missing arguments for ${GREEN}dmt nearby execute${NC}\n"
         fi
       elif [ "$matching_opt" == "copy" ] || [ "$matching_opt" == "update" ]; then
         dmt "$matching_opt" "$parallel" --skip_prepare "$ipWithUser" # dmt update | dmt copy
@@ -1978,7 +2030,10 @@ function dmt_next {
         fi
       else
         echo
-        printf "${RED}Failed to fetch ${YELLOW}${dir}/dmt.zip ${RED}✖${NC}\n"
+        printf "${RED}✖${RED}Failed to fetch ${YELLOW}${dir}/dmt.zip${NC}\n"
+        local msg="Failed to fetch dmt.zip"
+        push_notify_apn "$msg"
+        push_notify highPriority "$msg"
       fi
 
       cd "$cwd"
@@ -2074,7 +2129,7 @@ function dmt_next {
   # . ~/.dmt/shell/.shell_basic (todo: try))
   dmt start # will call newly fetched dmt restart method (in case it was just updated)
 
-  printf "${GREEN}Done.${NC}\n"
+  printf "${GREEN}✓ Done.${NC}\n"
   echo
 }
 
@@ -2733,11 +2788,6 @@ function dmt_snapshot {
   # ⚠️ delete older than 90 days
   find "$SNAPSHOTS_DIR" -mindepth 1 -mtime +90 -type d -exec rm -rf "{}" \;
 
-  # if [[ `pwd` =~ log/snapshots$ ]]; then
-  # else
-  #   echo `pwd`
-  # fi
-
   dmt state --export "$DIR/in_process_state.json"
 
   local DMT_LOG="$DMT_PATH/log/dmt.log"
@@ -2760,6 +2810,19 @@ function dmt_snapshot {
   local DMT_STATE="$DMT_PATH/state/program.json"
   if [ -f "$DMT_STATE" ]; then
     cp "$DMT_STATE" .
+  fi
+
+  local SYS_LOG_DIR=/var/log
+
+  if [ -d "$SYS_LOG_DIR" ]; then
+    mkdir -p "$DIR/system_logs"
+    cd "$DIR/system_logs"
+
+    cp $SYS_LOG_DIR/syslog* .
+    cp $SYS_LOG_DIR/kern* .
+    cp $SYS_LOG_DIR/messages* .
+
+    gunzip *.gz
   fi
 
   echo

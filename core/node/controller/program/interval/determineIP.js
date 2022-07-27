@@ -2,6 +2,8 @@ import os from 'os';
 
 import { networkInterfaces } from 'dmt/net';
 
+import determineWifiAP from './determineWifiAP';
+
 import { push } from 'dmt/notify';
 
 import { log, accessPointIP, apMode, colors } from 'dmt/common';
@@ -11,7 +13,7 @@ import checkForLocalOnlyIpAndRebootDevice from './checkForLocalOnlyIpAndRebootDe
 const BOOT_LIMIT_SECONDS = 60;
 const NETWORK_WAIT_SECONDS = 3 * BOOT_LIMIT_SECONDS;
 
-let needToSendPushMsg = os.uptime() < BOOT_LIMIT_SECONDS;
+let deliverBootMessages = os.uptime() < BOOT_LIMIT_SECONDS;
 
 function isEmpty(obj) {
   return Object.keys(obj).length === 0;
@@ -35,21 +37,25 @@ export default function determineIP(program) {
           gatewayIp = interfaces[0].gateway_ip;
         }
 
-        if (ip && needToSendPushMsg && os.uptime() < NETWORK_WAIT_SECONDS) {
+        if (ip && deliverBootMessages && os.uptime() < NETWORK_WAIT_SECONDS) {
+          deliverBootMessages = false;
+
           const reason = program.store('rebootReason').get();
 
-          const msg = `📟 BOOTED (${ip})${isEmpty(reason) ? '' : ` (${reason})`}`;
-          push.notify(msg);
-          log.green(msg);
+          determineWifiAP(program).then(() => {
+            const connectedWifiAP = program.network.connectedWifiAP();
+            const msg = `📟 BOOTED ${ip}${connectedWifiAP ? ` ${connectedWifiAP}` : ''}${isEmpty(reason) ? '' : ` (${reason})`}`;
 
-          if (isEmpty(reason)) {
-            program.nearbyNotification({ msg, ttl: 20, color: '#009D65' });
-          } else {
-            program.store('rebootReason').remove({ announce: false });
-            program.nearbyNotification({ msg, ttl: 30, color: '#A3229B' });
-          }
+            push.notify(msg);
+            log.green(msg);
 
-          needToSendPushMsg = false;
+            if (isEmpty(reason)) {
+              program.nearbyNotification({ msg, ttl: 20, color: '#009D65' });
+            } else {
+              program.store('rebootReason').remove({ announce: false });
+              program.nearbyNotification({ msg, ttl: 30, color: '#A3229B' });
+            }
+          });
         }
 
         const prevIp = program.store('device').get('ip');
@@ -61,6 +67,8 @@ export default function determineIP(program) {
 
           if (ip) {
             log.cyan(`Assigned IP: ${colors.yellow(ip)}`);
+
+            determineWifiAP(program);
           } else {
             log.yellow('⚠️  Device currently does not have any IP address assigned');
           }

@@ -6559,15 +6559,431 @@ function addHeader(_msg, flag) {
   return msg;
 }
 
+/**
+ * Module exports.
+ */
+
+var browserUtilInspect = inspect;
+
+/**
+ * Echos the value of a value. Trys to print the value out
+ * in the best way possible given the different types.
+ *
+ * @param {Object} obj The object to print out.
+ * @param {Object} opts Optional options object that alters the output.
+ * @license MIT (© Joyent)
+ */
+/* legacy: obj, showHidden, depth, colors*/
+
+function inspect(obj, opts) {
+  // default options
+  var ctx = {
+    seen: [],
+    stylize: stylizeNoColor
+  };
+  // legacy...
+  if (arguments.length >= 3) ctx.depth = arguments[2];
+  if (arguments.length >= 4) ctx.colors = arguments[3];
+  if (isBoolean(opts)) {
+    // legacy...
+    ctx.showHidden = opts;
+  } else if (opts) {
+    // got an "options" object
+    _extend(ctx, opts);
+  }
+  // set default options
+  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+  if (isUndefined(ctx.depth)) ctx.depth = 2;
+  if (isUndefined(ctx.colors)) ctx.colors = false;
+  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+  if (ctx.colors) ctx.stylize = stylizeWithColor;
+  return formatValue(ctx, obj, ctx.depth);
+}
+
+// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+inspect.colors = {
+  'bold' : [1, 22],
+  'italic' : [3, 23],
+  'underline' : [4, 24],
+  'inverse' : [7, 27],
+  'white' : [37, 39],
+  'grey' : [90, 39],
+  'black' : [30, 39],
+  'blue' : [34, 39],
+  'cyan' : [36, 39],
+  'green' : [32, 39],
+  'magenta' : [35, 39],
+  'red' : [31, 39],
+  'yellow' : [33, 39]
+};
+
+// Don't use 'blue' not visible on cmd.exe
+inspect.styles = {
+  'special': 'cyan',
+  'number': 'yellow',
+  'boolean': 'yellow',
+  'undefined': 'grey',
+  'null': 'bold',
+  'string': 'green',
+  'date': 'magenta',
+  // "name": intentionally not styling
+  'regexp': 'red'
+};
+
+function stylizeNoColor(str, styleType) {
+  return str;
+}
+
+function isBoolean(arg) {
+  return typeof arg === 'boolean';
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+
+function stylizeWithColor(str, styleType) {
+  var style = inspect.styles[styleType];
+
+  if (style) {
+    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+           '\u001b[' + inspect.colors[style][1] + 'm';
+  } else {
+    return str;
+  }
+}
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+
+function isString(arg) {
+  return typeof arg === 'string';
+}
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+
+function isNull(arg) {
+  return arg === null;
+}
+
+function hasOwn(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+function isRegExp(re) {
+  return isObject$1(re) && objectToString(re) === '[object RegExp]';
+}
+
+function isObject$1(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isError(e) {
+  return isObject$1(e) &&
+      (objectToString(e) === '[object Error]' || e instanceof Error);
+}
+
+function isDate(d) {
+  return isObject$1(d) && objectToString(d) === '[object Date]';
+}
+
+function objectToString(o) {
+  return Object.prototype.toString.call(o);
+}
+
+function arrayToHash(array) {
+  var hash = {};
+
+  array.forEach(function(val, idx) {
+    hash[val] = true;
+  });
+
+  return hash;
+}
+
+function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+  var output = [];
+  for (var i = 0, l = value.length; i < l; ++i) {
+    if (hasOwn(value, String(i))) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          String(i), true));
+    } else {
+      output.push('');
+    }
+  }
+  keys.forEach(function(key) {
+    if (!key.match(/^\d+$/)) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          key, true));
+    }
+  });
+  return output;
+}
+
+function formatError(value) {
+  return '[' + Error.prototype.toString.call(value) + ']';
+}
+
+function formatValue(ctx, value, recurseTimes) {
+  // Provide a hook for user-specified inspect functions.
+  // Check that value is an object with an inspect function on it
+  if (ctx.customInspect &&
+      value &&
+      isFunction(value.inspect) &&
+      // Filter out the util module, it's inspect function is special
+      value.inspect !== inspect &&
+      // Also filter out any prototype objects using the circular check.
+      !(value.constructor && value.constructor.prototype === value)) {
+    var ret = value.inspect(recurseTimes, ctx);
+    if (!isString(ret)) {
+      ret = formatValue(ctx, ret, recurseTimes);
+    }
+    return ret;
+  }
+
+  // Primitive types cannot have properties
+  var primitive = formatPrimitive(ctx, value);
+  if (primitive) {
+    return primitive;
+  }
+
+  // Look up the keys of the object.
+  var keys = Object.keys(value);
+  var visibleKeys = arrayToHash(keys);
+
+  try {
+    if (ctx.showHidden && Object.getOwnPropertyNames) {
+      keys = Object.getOwnPropertyNames(value);
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  // IE doesn't make error fields non-enumerable
+  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+  if (isError(value)
+      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+    return formatError(value);
+  }
+
+  // Some type of object without properties can be shortcutted.
+  if (keys.length === 0) {
+    if (isFunction(value)) {
+      var name = value.name ? ': ' + value.name : '';
+      return ctx.stylize('[Function' + name + ']', 'special');
+    }
+    if (isRegExp(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    }
+    if (isDate(value)) {
+      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+    }
+    if (isError(value)) {
+      return formatError(value);
+    }
+  }
+
+  var base = '', array = false, braces = ['{', '}'];
+
+  // Make Array say that they are Array
+  if (Array.isArray(value)) {
+    array = true;
+    braces = ['[', ']'];
+  }
+
+  // Make functions say that they are functions
+  if (isFunction(value)) {
+    var n = value.name ? ': ' + value.name : '';
+    base = ' [Function' + n + ']';
+  }
+
+  // Make RegExps say that they are RegExps
+  if (isRegExp(value)) {
+    base = ' ' + RegExp.prototype.toString.call(value);
+  }
+
+  // Make dates with properties first say the date
+  if (isDate(value)) {
+    base = ' ' + Date.prototype.toUTCString.call(value);
+  }
+
+  // Make error with message first say the error
+  if (isError(value)) {
+    base = ' ' + formatError(value);
+  }
+
+  if (keys.length === 0 && (!array || value.length == 0)) {
+    return braces[0] + base + braces[1];
+  }
+
+  if (recurseTimes < 0) {
+    if (isRegExp(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    } else {
+      return ctx.stylize('[Object]', 'special');
+    }
+  }
+
+  ctx.seen.push(value);
+
+  var output;
+  if (array) {
+    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+  } else {
+    output = keys.map(function(key) {
+      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+    });
+  }
+
+  ctx.seen.pop();
+
+  return reduceToSingleString(output, base, braces);
+}
+
+function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+  var name, str, desc;
+  desc = { value: void 0 };
+  try {
+    // ie6 › navigator.toString
+    // throws Error: Object doesn't support this property or method
+    desc.value = value[key];
+  } catch (e) {
+    // ignore
+  }
+  try {
+    // ie10 › Object.getOwnPropertyDescriptor(window.location, 'hash')
+    // throws TypeError: Object doesn't support this action
+    if (Object.getOwnPropertyDescriptor) {
+      desc = Object.getOwnPropertyDescriptor(value, key) || desc;
+    }
+  } catch (e) {
+    // ignore
+  }
+  if (desc.get) {
+    if (desc.set) {
+      str = ctx.stylize('[Getter/Setter]', 'special');
+    } else {
+      str = ctx.stylize('[Getter]', 'special');
+    }
+  } else {
+    if (desc.set) {
+      str = ctx.stylize('[Setter]', 'special');
+    }
+  }
+  if (!hasOwn(visibleKeys, key)) {
+    name = '[' + key + ']';
+  }
+  if (!str) {
+    if (ctx.seen.indexOf(desc.value) < 0) {
+      if (isNull(recurseTimes)) {
+        str = formatValue(ctx, desc.value, null);
+      } else {
+        str = formatValue(ctx, desc.value, recurseTimes - 1);
+      }
+      if (str.indexOf('\n') > -1) {
+        if (array) {
+          str = str.split('\n').map(function(line) {
+            return '  ' + line;
+          }).join('\n').substr(2);
+        } else {
+          str = '\n' + str.split('\n').map(function(line) {
+            return '   ' + line;
+          }).join('\n');
+        }
+      }
+    } else {
+      str = ctx.stylize('[Circular]', 'special');
+    }
+  }
+  if (isUndefined(name)) {
+    if (array && key.match(/^\d+$/)) {
+      return str;
+    }
+    name = JSON.stringify('' + key);
+    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+      name = name.substr(1, name.length - 2);
+      name = ctx.stylize(name, 'name');
+    } else {
+      name = name.replace(/'/g, "\\'")
+                 .replace(/\\"/g, '"')
+                 .replace(/(^"|"$)/g, "'");
+      name = ctx.stylize(name, 'string');
+    }
+  }
+
+  return name + ': ' + str;
+}
+
+function formatPrimitive(ctx, value) {
+  if (isUndefined(value))
+    return ctx.stylize('undefined', 'undefined');
+  if (isString(value)) {
+    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+                                             .replace(/'/g, "\\'")
+                                             .replace(/\\"/g, '"') + '\'';
+    return ctx.stylize(simple, 'string');
+  }
+  if (isNumber(value))
+    return ctx.stylize('' + value, 'number');
+  if (isBoolean(value))
+    return ctx.stylize('' + value, 'boolean');
+  // For some reason typeof null is "object", so special case here.
+  if (isNull(value))
+    return ctx.stylize('null', 'null');
+}
+
+function reduceToSingleString(output, base, braces) {
+  var length = output.reduce(function(prev, cur) {
+    if (cur.indexOf('\n') >= 0) ;
+    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+  }, 0);
+
+  if (length > 60) {
+    return braces[0] +
+           (base === '' ? '' : base + '\n ') +
+           ' ' +
+           output.join(',\n  ') +
+           ' ' +
+           braces[1];
+  }
+
+  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+}
+
+function _extend(origin, add) {
+  // Don't do anything if add isn't an object
+  if (!add || !isObject$1(add)) return origin;
+
+  var keys = Object.keys(add);
+  var i = keys.length;
+  while (i--) {
+    origin[keys[i]] = add[keys[i]];
+  }
+  return origin;
+}
+
 function doLogging(color, log, ...args) {
-  if (typeof log == 'function') {
-    // -- frontend --
-    // console.log or anything else that wraps it etc.
-    log(`${new Date().toLocaleString()} → ${args}`);
-    //timedConsoleLog(log, ...args);
-  } else if (log) {
-    // dmt logger object
-    log.logOutput(color, { source: 'connectome' }, ...args);
+  try {
+    if (log == console.log) {
+      // by doing inspect in this way we get normal text in quotations: '...'
+      // 9/2/2022, 9:42:11 PM → 'Connector ws://192.168.0.16:7780 created'
+      // we remove them with 2x replace ...
+      log(
+        `${new Date().toLocaleString()} → ${browserUtilInspect(...args)
+          .replace(/^'/, '')
+          .replace(/'$/, '')}`
+      );
+    } else if (typeof log == 'function') {
+      log(...args); // recently changed from args to ...args -- see if some other places need change
+    } else if (log) {
+      // dmt logger object
+      log.logOutput(color, { source: 'connectome' }, ...args);
+    }
+  } catch (e) {
+    console.log(e);
   }
 }
 
@@ -6655,9 +7071,9 @@ function send({ message, channel }) {
     }
   }
 
-  if (channel.verbose) {
-    logger.write(log);
-  }
+  // if (channel.verbose) {
+  //   logger.write(log);
+  // }
 
   if (!channel.ws.terminated && channel.ws.readyState == channel.ws.OPEN) {
     channel.ws.send(message);
@@ -6723,6 +7139,8 @@ function messageReceived({ message, channel }) {
   //   logger.write(log, `Decrypting with shared secret ${channel.sharedSecret}...`);
   // }
 
+  let decodedMessage;
+
   try {
     // handshake phase
     if (!channel.sharedSecret) {
@@ -6744,7 +7162,8 @@ function messageReceived({ message, channel }) {
 
     // text (json)
     if (flag == 1) {
-      const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
+      decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
+
       //const jsonData = JSON.parse(decodedMessage);
 
       // todo: channel.sharedSecret will never be true here... move/ dduplicate
@@ -6768,7 +7187,14 @@ function messageReceived({ message, channel }) {
       channel.emit('receive_binary', decryptedMessage);
     }
   } catch (e) {
-    throw new Error(`${message} -- ${channel.protocol} -- ${e.toString()}`);
+    // we repackage the error so we can include the channel message that triggered the problem
+    throw new Error(
+      `${e.toString()} \n-- Protocol ${
+        channel.protocol
+      } received channel message: ${decodedMessage} \n-- Stacktrace: ${
+        e.stack
+      }\n------ ↑ original stacktrace ------ `
+    );
   }
 }
 
@@ -6789,7 +7215,8 @@ var errorCodes = {
   INVALID_REQUEST: -32600,
   METHOD_NOT_FOUND: -32601,
   INVALID_PARAMS: -32602,
-  REMOTE_INTERNAL_ERROR: -32603
+  REMOTE_INTERNAL_ERROR: -32603,
+  TIMEOUT: -32701
 };
 
 class MoleServer {
@@ -6861,6 +7288,8 @@ class MoleServer {
       };
     } else {
       this.currentTransport = transport;
+
+      //console.log(`Method call: ${methodName}`);
 
       try {
         const result = await this.methods[methodName].apply(this.methods, params);
@@ -6961,7 +7390,7 @@ class ServerError extends Base {}
 class RequestTimeout extends ServerError {
   constructor(message, timeout) {
     super({
-      code: -32001,
+      code: errorCodes.TIMEOUT,
       message: `Request exceeded maximum execution time (${timeout}ms): ${message}`
     });
   }
@@ -7327,7 +7756,7 @@ class SpecificRpcClient {
   }
 }
 
-const DEFAULT_REQUEST_TIMEOUT = 50000;
+const DEFAULT_REQUEST_TIMEOUT = 10000;
 
 class RpcClient {
   constructor(connectorOrServersideChannel, requestTimeout) {
@@ -7743,7 +8172,7 @@ class AuthTarget extends Eev {
     if (initializeProtocol({ server, channel })) {
       server.emit('connection', channel);
     } else {
-      const error = `Error: request from ${channel.remoteIp()} (${channel.remotePubkeyHex()}) - unknown protocol ${protocol}, disconnecting in 60s`;
+      const error = `Error: request from ${channel.remoteIp()} (${channel.remotePubkeyHex()}) - unknown protocol ${protocol}, disconnecting in 1h`;
 
       _errorReportCounters[channel.remoteIp()] = (_errorReportCounters[channel.remoteIp()] || 0) + 1;
 
@@ -7767,9 +8196,16 @@ class AuthTarget extends Eev {
         _errorReportTimestamps[channel.remoteIp()] = Date.now();
       }
 
+      // we keep websocket open / hanging for one hour
+      // so there are no looped reconnects on non-existing protocol
+      // nothing will be happening on such websocket and will remain non-ready since it didn't complete the handshake
+      // in case protocol is added to this endpoint then process must have restarted anyway
+      // and these channels will be gone.. all frontend connectors with inactive hanging websockets
+      // will then get disconnected since websocket server will close.. and then they will start trying to reconnect
+      // if protocol is added here, it will succeed, it not the same thing will happen again - a hanging websocket
       setTimeout(() => {
         channel.terminate();
-      }, 60 * 60 * 1000); // we keep it hanging for one hour, why not .. reconsider this approach and how to block such leech connections... but maybe this is good enough
+      }, 60 * 60 * 1000);
 
       return { error };
       //channel.terminate(); // don't do this so we don't get reconnect looping!

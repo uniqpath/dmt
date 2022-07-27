@@ -16,10 +16,14 @@ let reportedVeryHighCpuTempAt;
 let reportedLowSpaceAt;
 
 function init(program) {
-  let ticks = 0;
+  if (isRPi()) {
+    program.on('tick', () => {
+      getCPUInfo().then(cpuUsage => {
+        program.store('device').update({ cpuUsage: cpuUsage.percentUsed }, { announce: false });
+      });
+    });
 
-  program.on('slowtick', () => {
-    if (isRPi()) {
+    program.on('slowtick', () => {
       const sysinfo = {};
 
       Promise.all([usedSwapMemory(), getCPUInfo(), getCPUTemperature(), checkDiskSpace('/')]).then(([usedSwapPerc, cpuUsage, cpuTemp, diskSpace]) => {
@@ -49,14 +53,16 @@ function init(program) {
 
         sysinfo.cpuTemp = cpuTemp;
 
+        program.store('device').update({ cpuTemp: Math.round(cpuTemp) }, { announce: false });
+
         if (cpuTemp >= 80 && (!reportedVeryHighCpuTempAt || Date.now() - reportedVeryHighCpuTempAt > 30 * 60000)) {
-          const msg = `⚠️ Very high cpu temperature: ${Math.round(cpuTemp)}°C`;
+          const msg = `🥵 Very high cpu temperature: ${Math.round(cpuTemp)}°C, cpu usage: ${cpuUsage.percentUsed}%`;
           log.gray(msg);
           push.notify(msg);
 
           reportedVeryHighCpuTempAt = Date.now();
         } else if (cpuTemp >= 70 && (!reportedHighCpuTempAt || Date.now() - reportedHighCpuTempAt > 30 * 60000)) {
-          const msg = `High cpu temperature: ${Math.round(cpuTemp)}°C`;
+          const msg = `🌡️ High cpu temperature: ${Math.round(cpuTemp)}°C, cpu usage: ${cpuUsage.percentUsed}%`;
           log.gray(msg);
           push.notify(msg);
 
@@ -69,7 +75,7 @@ function init(program) {
           reportedHighCpuTempAt = undefined;
           reportedVeryHighCpuTempAt = undefined;
 
-          const msg = `✓ cpu temperature dropped to ${Math.round(cpuTemp)}°C`;
+          const msg = `✓ cpu temperature dropped to ${Math.round(cpuTemp)}°C, cpu usage: ${cpuUsage.percentUsed}%`;
           log.gray(msg);
           push.notify(msg);
         }
@@ -85,11 +91,9 @@ function init(program) {
         }
 
         program.store('sysinfo').set(sysinfo, { announce: false });
-
-        ticks += 1;
       });
-    }
-  });
+    });
+  }
 }
 
 export { init, getCPUInfo, getCPUTemperature, usedSwapMemory, checkDiskSpace };

@@ -1,4 +1,4 @@
-import { deviceGeneralIdentifier } from 'dmt/common';
+import { deviceGeneralIdentifier, device } from 'dmt/common';
 
 import pushoverApi from './pushoverApi';
 
@@ -6,9 +6,8 @@ import { dmtApp } from './dmtApp';
 
 const deviceId = deviceGeneralIdentifier();
 
-export default function prepareMessage({ message, recipient, title, app, omitDeviceName, network, highPriority, url, urlTitle, isABC }) {
+function getMessageTitle({ title, app, network, deviceName, omitDeviceName, isABC, originDevice }) {
   let messageTitle = title;
-  const priority = highPriority ? 'high' : 'low';
 
   if (!messageTitle) {
     messageTitle = '';
@@ -22,7 +21,7 @@ export default function prepareMessage({ message, recipient, title, app, omitDev
         messageTitle = `${messageTitle} · `;
       }
 
-      messageTitle = `${messageTitle}${deviceId}`;
+      messageTitle = `${messageTitle}${deviceName}`;
     }
 
     if (network) {
@@ -39,6 +38,15 @@ export default function prepareMessage({ message, recipient, title, app, omitDev
       messageTitle = `ABC · ${messageTitle}`;
     }
   }
+
+  return messageTitle;
+}
+
+export default function prepareMessage({ message, recipient, title, app, omitDeviceName, network, highPriority, url, urlTitle, isABC, originDevice }) {
+  const deviceName = originDevice || deviceId;
+
+  const messageTitle = getMessageTitle({ title, app, network, deviceName, omitDeviceName, isABC, originDevice });
+  const priority = highPriority ? 'high' : 'low';
 
   return new pushoverApi.Message({
     title: messageTitle,

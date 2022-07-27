@@ -65,16 +65,20 @@ function isDevMachine() {
   return fs.existsSync(path.join(dmtPath, '.prevent_dmt_next'));
 }
 
-function isDevPanel() {
-  return isDevMachine() || device().devPanel == 'true';
-}
-
 function isMainDevice() {
   return device().main == 'true';
 }
 
+function isLanServer() {
+  return device().lanServer == 'true';
+}
+
 function isDevUser() {
   return user().dev == 'true';
+}
+
+function isDevPanel() {
+  return isDevUser() && device().devPanel == 'true';
 }
 
 function device({ deviceName = 'this', onlyBasicParsing = false, caching = true } = {}) {
@@ -199,8 +203,10 @@ export {
   devices,
   deviceDefFile,
   isMainDevice,
+  isLanServer,
   isDevMachine,
   isDevUser,
+  isDevPanel,
   debugMode,
   debugCategory,
   prettyFileSize
