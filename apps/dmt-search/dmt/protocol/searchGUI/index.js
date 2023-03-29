@@ -1,4 +1,4 @@
-import { SyncStore } from 'dmt/connectome-stores';
+import { SyncStore } from 'connectome/stores';
 
 import onConnect from './onConnect.js';
 

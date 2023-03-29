@@ -69,6 +69,8 @@ export default function initProtocol({ program }) {
 
     if (action == 'reload') {
       loadGuiViewsDef(program);
+
+      program.emit('gui:reload');
     }
 
     channels.signalAll('frontend_action', { action, payload });

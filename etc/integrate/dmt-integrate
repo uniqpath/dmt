@@ -108,25 +108,18 @@ if [ -n "$BUILD" ]; then
 
   if [ "$SYNC_ONLY" != true ]; then
     printf "${GREEN}Changing app_base in svelte configuration:${NC}\n"
-    # setBase
-    node $INTEGRATE/editBase.js "$APP_ROOT_DIR" $APP_BASE
 
     # build
-    pnpm build
+    BASE=$APP_BASE pnpm build
+    # npx vite build --base $APP_BASE
 
     # after build
 
     if [ $? -ne 0 ]; then # error
-      # resetBase
-      node $INTEGRATE/resetBase.js "$APP_ROOT_DIR" $APP_BASE
-
       echo
       printf "${RED}Build error${NC}\n"
       exit
     fi
-
-    # resetBase
-    node $INTEGRATE/resetBase.js "$APP_ROOT_DIR" $APP_BASE
   fi
   
   SOURCE_PUBLIC="${APP_ROOT_DIR}/${BUILD}"
@@ -217,6 +210,7 @@ if [ "$SYNC_ONLY" != true ]; then
 
   if [ -f "./index.js" ] || [ -f "./dmt/index.js" ]; then
     # dmt restart
+    printf "${GREEN}curl http://127.0.0.1:7777/__dmt__reload?app=$DMT_APPS_TARGET/$APP_BASE ${NC}\n"
     curl "http://127.0.0.1:7777/__dmt__reload?app=$DMT_APPS_TARGET/$APP_BASE"
     echo ""
   fi

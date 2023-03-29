@@ -10,6 +10,9 @@ if [ ! -f "$DMT_USER_ENGINE/package.json" ]; then
   cp ./dmt_user_engine/package.json "$DMT_USER_ENGINE"
 fi
 
+# ⚠️ user cannot have anything in devDependencies and exports in ~/.dmt/user/engine/package.json
+#
+
 USER_ENGINE_ENTRY="$DMT_USER_ENGINE/index.js"
 
 # ⚠️ TODO: remove this soon

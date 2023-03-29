@@ -41,8 +41,13 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     // encryptedJson data!!
     if (connector.verbose == 'extra') {
       logger.magenta(log, `Connector ${connector.endpoint} received bytes ↴`);
-      logger.gray(log, encryptedData);
-      logger.magenta(log, `Connector ${connector.endpoint} decrypting with shared secret ${connector.sharedSecret}...`);
+      logger.cyan(log, encryptedData);
+      logger.green(log, JSON.stringify(encryptedData));
+      logger.gray(log, `Connector ${connector.endpoint} decrypting with shared secret ${connector.sharedSecret}...`);
+    }
+
+    if (!connector.sharedSecret) {
+      logger.red(log, `Connector ${connector.endpoint} missing sharedSecret - should not happen...`);
     }
 
     const _decryptedMessage = nacl.secretbox.open(encryptedData, nonce, connector.sharedSecret);
@@ -54,7 +59,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
       const decodedMessage = nacl.util.encodeUTF8(decryptedMessage);
 
       if (connector.verbose) {
-        logger.write(log, `Received message: ${decodedMessage}`);
+        logger.yellow(log, `Connector ${connector.endpoint} received message: ${decodedMessage}`);
       }
 
       try {
@@ -83,6 +88,10 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         throw e;
       }
     } else {
+      if (connector.verbose) {
+        logger.yellow(log, `Connector ${connector.endpoint} received binary data`);
+      }
+
       connector.emit('receive_binary', decryptedMessage);
     }
   }
