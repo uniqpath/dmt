@@ -4,44 +4,54 @@ import stripAnsi from 'strip-ansi';
 
 import { log, colors, program } from 'dmt/common';
 
-export default function loadApps(appList) {
+export function loadApps(appList) {
   const promises = [];
   const appNames = [];
+  const appDirs = [];
+  const appEntries = [];
 
   appList.forEach(({ appDir }) => {
     const appEntryFilePath = path.join(appDir, 'index.js');
-    const appEntryFilePathHook = path.join(appDir, 'dmt/index.js');
-    if (fs.existsSync(appEntryFilePath) || fs.existsSync(appEntryFilePathHook)) {
+    const appEntrySubprogram = path.join(appDir, 'dmt/index.js');
+
+    if (fs.existsSync(appEntryFilePath) || fs.existsSync(appEntrySubprogram)) {
       const appName = path.basename(appDir);
 
       if (fs.existsSync(appEntryFilePath)) {
         appNames.push(appName);
+        appDirs.push(appDir);
+        appEntries.push(appEntryFilePath);
         promises.push(tryLoadApp(appEntryFilePath, appName));
       }
 
-      if (fs.existsSync(appEntryFilePathHook)) {
+      if (fs.existsSync(appEntrySubprogram)) {
         appNames.push(appName);
-        promises.push(tryLoadApp(appEntryFilePathHook, appName));
+        appDirs.push(appDir);
+        appEntries.push(appEntrySubprogram);
+        promises.push(tryLoadApp(appEntrySubprogram, appName));
       }
     }
   });
 
   return new Promise((success, reject) => {
-    const appDefinitions = {};
+    const appDefinitions = [];
 
     Promise.all(promises).then(returnObjects => {
       returnObjects.forEach((result, i) => {
         if (result) {
           const appName = appNames[i];
-          appDefinitions[appName] = appDefinitions[appName] || {};
+          const appDir = appDirs[i];
+          const appEntry = appEntries[i];
 
-          if (result.handler) {
-            appDefinitions[appName].ssrHandler = result.handler;
+          const { handler, expressAppSetup } = result;
+
+          let hasSSRHandler = false;
+
+          if (handler) {
+            hasSSRHandler = true;
           }
 
-          if (result.expressAppSetup) {
-            appDefinitions[appName].expressAppSetup = result.expressAppSetup;
-          }
+          appDefinitions.push({ appName, appDir, appEntry, hasSSRHandler, ssrHandler: handler, expressAppSetup });
         }
       });
 
@@ -77,9 +87,9 @@ async function loadApp(appEntryFilePath) {
   });
 }
 
-function importComplex(appEntryFilePath) {
+export function importComplex(appEntryFilePath) {
   return new Promise((success, reject) => {
-    import(appEntryFilePath + `?${Math.random()}`)
+    import(`${appEntryFilePath}?${Math.random()}`)
       .then(mod => {
         let promiseOrData;
         let isPromise;

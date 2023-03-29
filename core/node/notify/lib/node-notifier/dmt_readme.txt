@@ -1,0 +1,2 @@
+- snoreToast (for windows) was removed from vendors
+- terminalNotifier (for macOS) was updated to 2.0.0 because bundled version (1.7) had issues where old notifications didn't stay in notification center

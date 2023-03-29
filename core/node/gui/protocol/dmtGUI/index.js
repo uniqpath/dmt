@@ -1,3 +1,4 @@
+import { mqttClient } from 'dmt/iot';
 import { log, colors, isDevMachine } from 'dmt/common';
 
 import loadGuiViewsDef from '../../viewsDef/loadGuiViewsDef.js';
@@ -51,6 +52,27 @@ export default function initProtocol({ program }) {
   program
     .dev(dmtID)
     .protocol(protocol)
+    .scope('blinds')
+    .onUserAction(({ action, payload }) => {
+      if (action == 'command') {
+        mqttClient.send('blinds', payload);
+      }
+    });
+
+  program
+    .dev(dmtID)
+    .protocol(protocol)
+    .scope('nearbyDevices')
+    .onUserAction(({ action, payload }) => {
+      if (action == 'sleep') {
+        const deviceName = payload;
+        mqttClient.send('sleep', deviceName);
+      }
+    });
+
+  program
+    .dev(dmtID)
+    .protocol(protocol)
     .onUserAction(({ scope, action, payload }) => {
       if (scope != 'gui') {
         log.gray(`Received user action ${colors.cyan(scope)}::${colors.green(action)}`);
@@ -69,6 +91,8 @@ export default function initProtocol({ program }) {
 
     if (action == 'reload') {
       loadGuiViewsDef(program);
+
+      program.emit('gui:reload');
     }
 
     channels.signalAll('frontend_action', { action, payload });

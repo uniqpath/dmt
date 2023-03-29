@@ -152,7 +152,7 @@ class Connector extends EventEmitter {
       this.successfulConnectsCount += 1;
 
       if (this.verbose) {
-        logger.green(this.log, `✓ Connector ${this.endpoint} connected #${this.successfulConnectsCount}`);
+        logger.white(this.log, `✓ Connector ${this.endpoint} connected (${this.successfulConnectsCount} total reconnects)`);
       }
 
       const websocketId = this.connection.websocket.__id;

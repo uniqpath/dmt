@@ -331,7 +331,6 @@ function dmt {
     "webscan"
     "weblinks"
     "apis"
-    "reach"
     "connections"
     "services"
     "next"
@@ -801,7 +800,7 @@ function dmt {
         # delete older than 7 days
         find isolate*.log -mtime +7 -exec rm {} \;
 
-        $DMT_NODEJS_EXEC --trace-warnings --prof "${DMT_NODE_CORE}/controller/processes/dmt-proc.js"  --fg --profile # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+        $DMT_NODEJS_EXEC --trace-warnings --prof "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg --profile # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
 
         echo
         printf "${GRAY}Now please open ${CYAN}https://nodejs.org/es/docs/guides/simple-profiling/ ${GRAY}for further instructions...${NC}\n"
@@ -820,7 +819,8 @@ function dmt {
         # we need FORCE_COLOR and TERM here only for when dmt will spawn abc-proc
         # if we don't do it then abc log will not have colors
         # rel && killall abc-proc && d run
-        FORCE_COLOR=true TERM=xterm-256color $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+        FORCE_COLOR=true TERM=xterm-256color $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg
+        # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       fi
 
       if [[ $? -eq 1 ]]; then

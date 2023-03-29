@@ -9,11 +9,9 @@
 	<key>LaunchOnlyOnce</key>
 	<true/>
 	<key>UserName</key>
-  	<string>my_user</string>
+        <string>david</string>
 	<key>ProgramArguments</key>
 	<array>
-	<string>/bin/bash</string>
-	<string>-lc</string>
 	<string>$HOME/.dmt/etc/onboot/onboot</string>
 	</array>
 	<key>RunAtLoad</key>
