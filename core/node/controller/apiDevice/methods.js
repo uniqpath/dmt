@@ -46,7 +46,7 @@ function sleep({ args, program }) {
       program.nearbyNotification({ msg, ttl: 30, color: '#1D61C0', group: `device-sleep/${program.device.id}` });
       log.magenta(msg);
 
-      push.notify(`💤 ${msg}`).then(() => {
+      push.notifyAll(`💤 ${msg}`).then(() => {
         sleepMacOS({ program }).catch(err => push.highPriority().notifyAll(`❗⚠️ ${err} 💡 Solution: first login with main user and then it will work!`));
       });
     }

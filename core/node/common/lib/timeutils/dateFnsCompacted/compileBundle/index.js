@@ -3,6 +3,8 @@ export {
   parse,
   parseISO,
   formatISO,
+  getWeek,
+  startOfWeek,
   isBefore,
   isAfter,
   isEqual,
@@ -26,6 +28,7 @@ export {
   differenceInSeconds,
   differenceInMinutes,
   differenceInCalendarDays,
+  differenceInWeeks,
   formatDistance,
   formatDistanceToNow,
   formatDistanceToNowStrict

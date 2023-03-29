@@ -5,11 +5,11 @@ function getDataForCorrectYear(obj, year) {
   for (const o of obj) {
     if (year >= o.fromYear && o.fromYear > highestYear) {
       highestYear = o.fromYear;
-      match = o.data;
+      match = o;
     }
   }
 
-  if (match) return match;
+  if (match) return { symbol: match.symbol, holidays: match.data };
 
   throw new Error(`Error: no data for ${year} ${JSON.stringify(obj)}`);
 }

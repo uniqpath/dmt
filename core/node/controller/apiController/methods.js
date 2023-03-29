@@ -4,7 +4,7 @@ function getMethods() {
   const methods = [];
 
   methods.push({ name: 'info', handler: infoHandler });
-  methods.push({ name: 'gui_test', handler: guiTestHandler });
+  methods.push({ name: 'gui_notify', handler: guiNotifyHandler });
   methods.push({ name: 'gui_nearby_test', handler: guiNearbyTestHandler });
   methods.push({ name: 'gui_dev_nearby_test', handler: guiDevNearbyTestHandler });
 
@@ -32,7 +32,7 @@ function infoHandler() {
 let testCount = 0;
 let testCountResetTimeout;
 
-function guiTestHandler({ args, program }) {
+function guiNotifyHandler({ args, program }) {
   const ttl = 20;
 
   clearTimeout(testCountResetTimeout);
@@ -42,9 +42,9 @@ function guiTestHandler({ args, program }) {
   testCount += 1;
 
   return new Promise((success, reject) => {
-    const msg = args || `GUI TEST ${testCount}`;
+    const msg = args || `GUI NOTIFY ${testCount}`;
     program.showNotification({ msg, ttl, color: '#6163D1' });
-    success({ msg });
+    success();
   });
 }
 

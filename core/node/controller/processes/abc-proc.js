@@ -11,6 +11,8 @@ import abcProc from './abc/proc.js';
 
 const deviceName = device({ onlyBasicParsing: true }).id;
 
+const APP = 'dmt_errors';
+
 const logfile = 'abc.log';
 log.init({ deviceName, logfile, foreground: false, procTag: 'abc' });
 
@@ -21,7 +23,7 @@ if (fs.existsSync(log.logfilePath)) {
   if (currentLog.length > 0) {
     const lastLine = currentLog[currentLog.length - 1];
     if (lastLine.includes('EXITING ABC, bye')) {
-      push.notify('⚠️☠️ ABC process crashed on previous run');
+      push.optionalApp(APP).notify('ℹ️ ABC process crashed on previous run');
     }
   }
 }

@@ -21,23 +21,22 @@ function holidaysForYear(year, { country }) {
     COUNTRY_HOLIDAYS[country] = JSON.parse(fs.readFileSync(filePath(country)));
   }
 
-  const HOLIDAYS = COUNTRY_HOLIDAYS[country];
+  const HOLIDAYS = JSON.parse(JSON.stringify(COUNTRY_HOLIDAYS[country]));
 
-  const holidays = getDataForCorrectYear(HOLIDAYS, year);
+  const { symbol, holidays } = getDataForCorrectYear(HOLIDAYS, year);
 
-  if (holidays.EASTER) {
-    const _easter = easter(year);
-    holidays[`${_easter.getDate()}.${_easter.getMonth() + 1}`] = holidays.EASTER;
-    delete holidays.EASTER;
+  for (const holiday of holidays) {
+    if (holiday.date == 'EASTER') {
+      holiday.date = easter(year);
+    } else if (holiday.date == 'EASTER_MONDAY') {
+      holiday.date = easterMonday(year);
+    } else {
+      const [day, month] = holiday.date.split('.');
+      holiday.date = new Date(year, parseInt(month) - 1, parseInt(day));
+    }
   }
 
-  if (holidays.EASTER_MONDAY) {
-    const _easterMonday = easterMonday(year);
-    holidays[`${_easterMonday.getDate()}.${_easterMonday.getMonth() + 1}`] = holidays.EASTER_MONDAY;
-    delete holidays.EASTER_MONDAY;
-  }
-
-  return holidays;
+  return { symbol, holidays };
 }
 
 function holidayName(y, m, d, { country }) {

@@ -36,6 +36,7 @@ function getMethods() {
   methods.push({ name: 'forward', handler });
   methods.push({ name: 'backward', handler });
   methods.push({ name: 'goto', handler });
+  methods.push({ name: 'continue', handler });
 
   methods.push({ name: 'shuffle', handler });
   methods.push({ name: 'limit', handler });

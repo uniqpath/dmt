@@ -13,9 +13,9 @@ if [ -f "$DIR/.bash_dmt_vars" ]; then
   . "$DIR/.bash_dmt_vars"
 fi
 
-# function o {
-#   dmt "o" "$@"
-# }
+function o {
+  open "$@"
+}
 
 # can also do:
 # [some long process_with_text_result] | push_notify --> not anymore! check code in lib/apn.js and maybe put it back
@@ -44,6 +44,18 @@ function nearby_notify {
 
 function push_notify_all {
   local push_notifier="$DMT_NODE_CORE/notify/cli/push_notify_all.js"
+
+  if [ -f "$push_notifier" ]; then
+    # if stdin is passed to nodejs script (happens automatically),
+    # it is considered as a message, given argument is ignored
+    $DMT_NODEJS_EXEC "$push_notifier" "$@"
+  else
+    printf "${RED}Cannot push message${NC}\n"
+  fi
+}
+
+function push_notify_ziga {
+  local push_notifier="$DMT_NODE_CORE/notify/cli/push_notify_ziga.js"
 
   if [ -f "$push_notifier" ]; then
     # if stdin is passed to nodejs script (happens automatically),

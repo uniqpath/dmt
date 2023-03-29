@@ -1,5 +1,5 @@
-import Nearby from './lib/nearby.js';
+import { Nearby, broadcastInterval } from './lib/nearby.js';
 
 function init(program) {}
 
-export { init, Nearby };
+export { init, Nearby, broadcastInterval };

@@ -1,41 +1,36 @@
-import { log, colors, prettyFileSize } from 'dmt/common';
+import { log, colors, prettyFileSize, isRPi, isLanServer, timeutils } from 'dmt/common';
 
-import { push, apn, desktop } from 'dmt/notify';
+import { broadcastInterval as nearbyBroadcastInterval } from 'dmt/nearby';
 
 let terminationInProgress;
 
-import exit from '../exit.js';
-import getExitMsg from '../getExitMsg.js';
-
-function crashNotify2(exitMsg, delay = 3000) {
-  setTimeout(() => {
-    setTimeout(() => {
-      exit();
-    }, delay);
-
-    apn.notify(exitMsg).then(() => {
-      exit();
-    });
-  }, delay);
-}
+import getExitMsg from '../errors/getExitMsg.js';
 
 function terminateProgram(err, reason, program) {
   log.magenta(`⚠️  ${reason} ↴`);
   log.red(err);
-  const msg = `${reason}: ${err}`;
+  const msg = `${reason}: ${err.stack || err}`;
 
   if (!terminationInProgress) {
     terminationInProgress = true;
 
-    log.yellow('— PREPARING TO EXIT THE PROGRAM —');
+    log.yellow('PREPARING TO EXIT THE PROCESS —');
 
-    const exitMsg = getExitMsg(msg);
+    const exitMsg = getExitMsg(msg, { program, timeutils });
 
-    crashNotify2(exitMsg, 3000);
+    const dmtStartedAt = program.slot('device').get('dmtStartedAt');
+    const lanServerNearby = Date.now() - dmtStartedAt < 30000 && isRPi() && !isLanServer() && !program.lanServerNearby();
+    const delay = lanServerNearby ? nearbyBroadcastInterval : 0;
 
-    program.exceptionNotify(exitMsg).then(() => {
-      exit();
-    });
+    if (delay) {
+      log.gray(`Waiting for ${delay}ms for possible nearby lan server so that notification can be sent more reliably…`);
+    }
+
+    setTimeout(() => {
+      const delay = isRPi() && !lanServerNearby ? 6000 : 3000;
+
+      program.exceptionNotify(exitMsg, { delay, exitProcess: true });
+    }, delay);
   }
 }
 
@@ -66,5 +61,9 @@ export default function setupGlobalErrorHandler(program) {
     }
 
     process.exit(0);
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    log.red('⚠️  (2/2) Unhandled Rejection in:', promise, 'reason:', reason);
   });
 }

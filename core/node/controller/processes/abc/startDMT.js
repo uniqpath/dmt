@@ -15,7 +15,7 @@ export default function startDMT(counter = 0) {
     return;
   }
 
-  const child = spawn(process.execPath, nodeFlags.concat([dmtProcManagerPath, 'start', 'dmt-proc.js']), {
+  const child = spawn(process.execPath, nodeFlags.concat([dmtProcManagerPath, 'start', 'dmt-proc.js', '--from_abc']), {
     cwd: daemonsPath,
     detached: true,
     stdio: 'ignore'

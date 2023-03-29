@@ -2,7 +2,7 @@ import { ipcClient, parseArgs, Table } from 'dmt/cli';
 
 import { colors, timeutils } from 'dmt/common';
 
-const { prettyTimeAge } = timeutils;
+const { prettyTimeAgo } = timeutils;
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -46,8 +46,8 @@ function displayTable(connectionList, outgoing = true) {
 
       const addressLine = `${connectedMarker} ${colors.white(address)}`;
 
-      const connUptime = connectedAt ? prettyTimeAge(connectedAt, { detailed: true }).replace(' ago', '') : '';
-      const lastMessageTime = lastMessageAt ? prettyTimeAge(lastMessageAt, { detailed: true }) : '';
+      const connUptime = connectedAt ? prettyTimeAgo(connectedAt, { detailed: true }).replace(' ago', '') : '';
+      const lastMessageTime = lastMessageAt ? prettyTimeAgo(lastMessageAt, { detailed: true }) : '';
 
       const line = [addressLine, protocol];
 

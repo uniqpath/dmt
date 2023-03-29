@@ -6,7 +6,7 @@ import determineWifiAP from './determineWifiAP.js';
 
 import { push } from 'dmt/notify';
 
-import { log, accessPointIP, apMode, colors } from 'dmt/common';
+import { log, accessPointIP, apMode, colors, timeutils } from 'dmt/common';
 
 import checkForLocalOnlyIpAndRebootDevice from './checkForLocalOnlyIpAndRebootDevice.js';
 
@@ -44,10 +44,13 @@ export default function determineIP(program) {
 
           determineWifiAP(program).then(() => {
             const connectedWifiAP = program.network.connectedWifiAP();
-            const msg = `📟 BOOTED ${ip}${connectedWifiAP ? ` ${connectedWifiAP}` : ''}${isEmpty(reason) ? '' : ` (${reason})`}`;
+            const dmtStartedAt = program.slot('device').get('dmtStartedAt');
+            const ago = Date.now() - dmtStartedAt < 90000 ? '' : ` [ ${timeutils.prettyTimeAgo(dmtStartedAt)} ]`;
 
-            push.notify(msg);
+            const msg = `📟 BOOTED ${ip}${ago}${connectedWifiAP ? ` ${connectedWifiAP}` : ''}${isEmpty(reason) ? '' : ` (${reason})`}`;
+
             log.green(msg);
+            push.notify(msg);
 
             if (isEmpty(reason)) {
               program.nearbyNotification({ msg, ttl: 20, color: '#009D65' });

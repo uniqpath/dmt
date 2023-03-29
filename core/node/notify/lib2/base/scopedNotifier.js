@@ -1,32 +1,67 @@
-import { log, colors, loop, globals } from 'dmt/common';
+import { program, log, colors, everyMinute } from 'dmt/common';
 
 import DefaultNotifier from './defaultNotifier.js';
 
 export default class ScopedNotifier extends DefaultNotifier {
-  constructor(ident) {
+  constructor(ident, decommissionable) {
     super();
+
+    this.decommissionable = decommissionable;
+
     this.ident = `${this.constructor.name} ${colors.cyan(ident) || ''}`.trim();
 
     process.nextTick(() => {
+      program.registerNotifier(this);
+
       if (!this.callback) {
         this.defaults();
       }
     });
   }
 
-  scopeDevice(deviceIdsOrFunction) {
+  scope(deviceIdsOrFunction) {
+    this.scopeHasBeenSet = true;
+
+    const obj = { handle: this.__handleNotification.bind(this) };
+
     if (typeof deviceIdsOrFunction == 'function') {
       this.deviceCheckFunction = deviceIdsOrFunction;
-      return { handleNotification: this.__handleNotification.bind(this) };
+      return obj;
     }
 
     this.deviceIds = Array(deviceIdsOrFunction).flat();
 
-    return { handleNotification: this.__handleNotification.bind(this) };
+    return obj;
   }
 
-  scopeDevices(...args) {
-    return this.scopeDevice(...args);
+  performCheck() {
+    if (!this.isDecommissioned()) {
+      if ((!this.deviceIds || this.deviceIds.includes(program.device.id)) && (!this.deviceCheckFunction || this.deviceCheckFunction())) {
+        return true;
+      }
+    }
+  }
+
+  setCallback(callback) {
+    this.callback = callback;
+  }
+
+  decommission() {
+    if (!this.decommissionable) return;
+
+    this.decommissioned = true;
+
+    if (this.cancelPeriodicCheck) {
+      this.cancelPeriodicCheck();
+    }
+  }
+
+  isDecommissioned() {
+    return this.decommissioned;
+  }
+
+  randomElement(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
   }
 
   __handleNotification(callback) {
@@ -37,11 +72,11 @@ export default class ScopedNotifier extends DefaultNotifier {
       log.gray(`${colors.red('↑ All your devices will handle these notifications ↑')} [ Do you really want this? ]`);
     }
 
-    loop(() => {
-      if ((!this.deviceIds || this.deviceIds.includes(this.program.device.id)) && (!this.deviceCheckFunction || this.deviceCheckFunction())) {
+    this.cancelPeriodicCheck = everyMinute(() => {
+      if (this.performCheck()) {
         this.check();
       }
-    }, globals.slowTickerPeriod);
+    });
 
     return this;
   }

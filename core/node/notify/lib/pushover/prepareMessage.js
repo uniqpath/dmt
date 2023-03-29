@@ -4,15 +4,17 @@ import pushoverApi from './pushoverApi/index.js';
 
 import { dmtApp } from './dmtApp.js';
 
+const MAX_TITLE_CHARS = 100;
+
 const deviceId = deviceGeneralIdentifier();
 
-function getMessageTitle({ title, app, network, deviceName, omitDeviceName, isABC, originDevice }) {
+function getMessageTitle({ title, app, network, deviceName, omitDeviceName, omitAppName, isABC, originDevice }) {
   let messageTitle = title;
 
   if (!messageTitle) {
     messageTitle = '';
 
-    if (app != dmtApp) {
+    if (app != dmtApp && !omitAppName) {
       messageTitle = app;
     }
 
@@ -42,22 +44,36 @@ function getMessageTitle({ title, app, network, deviceName, omitDeviceName, isAB
   return messageTitle;
 }
 
-export default function prepareMessage({ message, recipient, title, app, omitDeviceName, network, highPriority, url, urlTitle, isABC, originDevice }) {
+export default function prepareMessage({
+  message,
+  recipient,
+  title,
+  app,
+  omitDeviceName,
+  omitAppName,
+  network,
+  highPriority,
+  url,
+  urlTitle,
+  isABC,
+  originDevice,
+  enableHtml
+}) {
   if (!message) {
     throw new Error(`did not supply message to send, title: ${title}`);
   }
 
   const deviceName = originDevice || deviceId;
 
-  const messageTitle = getMessageTitle({ title, app, network, deviceName, omitDeviceName, isABC, originDevice });
+  const messageTitle = getMessageTitle({ title, app, network, deviceName, omitDeviceName, omitAppName, isABC, originDevice });
   const priority = highPriority ? 'high' : 'low';
 
   return new pushoverApi.Message({
-    title: messageTitle,
+    title: messageTitle ? messageTitle.toString().substring(0, MAX_TITLE_CHARS) : null,
     url,
     urlTitle,
     message,
-    enableHtml: false,
+    enableHtml: enableHtml ? 1 : 0,
     user: recipient,
     priority: new pushoverApi.Priority(priority),
     sound: new pushoverApi.Sound('magic')

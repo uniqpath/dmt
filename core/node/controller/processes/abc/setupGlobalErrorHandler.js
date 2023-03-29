@@ -11,6 +11,8 @@ function exit() {
   process.exit();
 }
 
+const APP = 'dmt_errors';
+
 function crashNotify2(exitMsg, delay = 3000) {
   setTimeout(() => {
     setTimeout(() => {
@@ -40,6 +42,7 @@ function terminateProgram(err, reason) {
 
     try {
       push
+        .optionalApp(APP)
         .highPriority()
         .notify(exitMsg)
         .then(() => {

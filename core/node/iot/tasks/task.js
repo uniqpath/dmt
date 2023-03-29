@@ -10,9 +10,7 @@ class Task {
   }
 
   setup() {
-    if (this.program.isHub()) {
-      this.ifTimeOfDay = new IfTimeOfDay(this);
-    }
+    this.ifTimeOfDay = new IfTimeOfDay(this);
   }
 
   tick() {

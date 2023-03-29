@@ -14,7 +14,8 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
 }
 function send(msg, { reminder = false, highPriority = false } = {}) {
   pushHP({}, highPriority)
-    .title(reminder ? 'REMINDER' : undefined)
+    .app('reminders')
+    .title(reminder ? 'Reminder' : undefined)
     .notify(msg)
     .then(success => {
       if (success) {

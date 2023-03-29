@@ -39,6 +39,43 @@ function underVoltageReportSpacing(underVoltageReportsCount) {
   return 72 * ONE_HOUR;
 }
 
+function checkAndNotifyTemperature(cpuTemp, cpuUsage) {
+  if (cpuTemp >= 70.5) {
+    highTempIntervals += 1;
+    lowTempIntervals = 0;
+  } else {
+    lowTempIntervals += 1;
+    highTempIntervals = 0;
+  }
+
+  let comment = '';
+
+  if (cpuUsage <= 40) {
+    comment = "(doesn't explain high temperature, is device covered with something or is environment too hot?)";
+  }
+
+  if (cpuTemp >= 80 && highTempIntervals > 2 && (!reportedVeryHighCpuTempAt || Date.now() - reportedVeryHighCpuTempAt > 5 * ONE_HOUR)) {
+    const msg = `🥵 Very high cpu temperature: ${Math.round(cpuTemp)}°C, cpu usage: ${cpuUsage}% ${comment}`;
+    log.gray(msg);
+    push.notify(msg);
+
+    reportedVeryHighCpuTempAt = Date.now();
+  } else if (cpuTemp >= 70 && highTempIntervals > 2 && (!reportedHighCpuTempAt || Date.now() - reportedHighCpuTempAt > 5 * ONE_HOUR)) {
+    const msg = `🌡️ High cpu temperature: ${Math.round(cpuTemp)}°C, cpu usage: ${cpuUsage}% ${comment}`;
+    log.gray(msg);
+    push.notify(msg);
+
+    reportedHighCpuTempAt = Date.now();
+  } else if (cpuTemp < 70 && lowTempIntervals > 4 && (reportedHighCpuTempAt || reportedVeryHighCpuTempAt)) {
+    reportedHighCpuTempAt = undefined;
+    reportedVeryHighCpuTempAt = undefined;
+
+    const msg = `✓ cpu temperature dropped to ${Math.round(cpuTemp)}°C, cpu usage: ${cpuUsage}%`;
+    log.gray(msg);
+    push.notify(msg);
+  }
+}
+
 function init(program) {
   if (isRPi()) {
     let underVoltageReportsCount = 0;
@@ -54,7 +91,7 @@ function init(program) {
 
         log.red(msg);
         push.notify(msg);
-        program.nearbyNotification({ msg, color: '#D17357', ttl: 300, dev: true });
+        program.nearbyNotification({ msg, color: '#D17357', ttl: 180, dev: true });
 
         underVoltageReportsCount += 1;
         lastUnderVoltageReport = Date.now();
@@ -103,40 +140,8 @@ function init(program) {
 
         program.slot('device').update({ cpuTemp: Math.round(cpuTemp) }, { announce: false });
 
-        if (cpuTemp >= 70) {
-          highTempIntervals += 1;
-          lowTempIntervals = 0;
-        } else {
-          lowTempIntervals += 1;
-          highTempIntervals = 0;
-        }
+        checkAndNotifyTemperature(cpuTemp, cpuUsage.percentUsed);
 
-        let comment = '';
-
-        if (cpuUsage.percentUsed <= 40) {
-          comment = "(doesn't explain high temperature, is device covered with something or is environment too hot?)";
-        }
-
-        if (cpuTemp >= 80 && highTempIntervals > 2 && (!reportedVeryHighCpuTempAt || Date.now() - reportedVeryHighCpuTempAt > 5 * ONE_HOUR)) {
-          const msg = `🥵 Very high cpu temperature: ${Math.round(cpuTemp)}°C, cpu usage: ${cpuUsage.percentUsed}% ${comment}`;
-          log.gray(msg);
-          push.notify(msg);
-
-          reportedVeryHighCpuTempAt = Date.now();
-        } else if (cpuTemp >= 70 && highTempIntervals > 2 && (!reportedHighCpuTempAt || Date.now() - reportedHighCpuTempAt > 5 * ONE_HOUR)) {
-          const msg = `🌡️ High cpu temperature: ${Math.round(cpuTemp)}°C, cpu usage: ${cpuUsage.percentUsed}% ${comment}`;
-          log.gray(msg);
-          push.notify(msg);
-
-          reportedHighCpuTempAt = Date.now();
-        } else if (cpuTemp < 70 && lowTempIntervals > 4 && (reportedHighCpuTempAt || reportedVeryHighCpuTempAt)) {
-          reportedHighCpuTempAt = undefined;
-          reportedVeryHighCpuTempAt = undefined;
-
-          const msg = `✓ cpu temperature dropped to ${Math.round(cpuTemp)}°C, cpu usage: ${cpuUsage.percentUsed}%`;
-          log.gray(msg);
-          push.notify(msg);
-        }
         sysinfo.freeDiskSpace = prettyFileSize(diskSpace.free);
         sysinfo.totalDiskSpace = prettyFileSize(diskSpace.size);
 

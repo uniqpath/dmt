@@ -49,7 +49,7 @@ class MidLoader {
           const msg = `🪲 ⚠️  Problem loading ${colors.cyan(midPkg)} aspect — ${colors.red(e)}`;
           log.yellow(msg);
 
-          program.exceptionNotify(stripAnsi(msg));
+          program.exceptionNotify(msg);
 
           log.magenta(`↳ ${colors.cyan('dmt-proc')} will continue without this aspect`);
 

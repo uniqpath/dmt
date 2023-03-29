@@ -331,7 +331,6 @@ function dmt {
     "webscan"
     "weblinks"
     "apis"
-    "reach"
     "connections"
     "services"
     "next"
@@ -801,7 +800,7 @@ function dmt {
         # delete older than 7 days
         find isolate*.log -mtime +7 -exec rm {} \;
 
-        $DMT_NODEJS_EXEC --trace-warnings --prof "${DMT_NODE_CORE}/controller/processes/dmt-proc.js"  --fg --profile # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+        $DMT_NODEJS_EXEC --trace-warnings --prof "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg --profile # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
 
         echo
         printf "${GRAY}Now please open ${CYAN}https://nodejs.org/es/docs/guides/simple-profiling/ ${GRAY}for further instructions...${NC}\n"
@@ -820,7 +819,8 @@ function dmt {
         # we need FORCE_COLOR and TERM here only for when dmt will spawn abc-proc
         # if we don't do it then abc log will not have colors
         # rel && killall abc-proc && d run
-        FORCE_COLOR=true TERM=xterm-256color $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
+        FORCE_COLOR=true TERM=xterm-256color $DMT_NODEJS_EXEC --trace-warnings "${DMT_NODE_CORE}/controller/processes/dmt-proc.js" --fg
+        # --fg: only for informative purposes to signal that we ran it in foreground as opposed to daemonizing (dmt start)
       fi
 
       if [[ $? -eq 1 ]]; then
@@ -1347,7 +1347,7 @@ function gui_send_action_to_frontend {
 function dmt_gui {
   if [ -z "$1" ]; then
     printf "${YELLOW}Usage:${NC}\n"
-    printf "${GREEN}dmt gui test${NC} ${GRAY}display a test notification on the gui${NC}\n"
+    printf "${GREEN}dmt gui notify [msg]${NC} ${GRAY}display a notification on the gui${NC}\n"
     printf "${GREEN}dmt gui nearby${NC} ${GRAY}display a test notification on all nearby devices${NC}\n"
     printf "${GREEN}dmt gui dev_nearby${NC} ${GRAY}display a test notification on dev nearby devices and main device${NC}\n"
     #printf "${GREEN}dmt gui @deviceName test${NC} ${GRAY}display a test notification on remote gui${NC}\n"
@@ -1362,7 +1362,7 @@ function dmt_gui {
   else
     declare -a opts=(
       "reload"
-      "test"
+      "notify"
       "nearby"
       "dev_nearby"
       "force_reload"
@@ -1420,11 +1420,11 @@ function dmt_gui {
         fi
         ;;
 
-      test)
+      notify)
         if [ -n "$hosts" ]; then
-          $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" gui_test "$@"
+          $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" gui_notify "$@"
         else
-          $DMT_NODEJS_EXEC "$DMT_CLI" gui_test "$@"
+          $DMT_NODEJS_EXEC "$DMT_CLI" gui_notify "$@"
         fi
         ;;
 
@@ -1521,11 +1521,11 @@ function legacy_gui {
   local source_dir=~/Projects/dmt-system/packages/dmt-legacy-gui/frontend
 
   case "$option" in
-    test)
+    notify)
       if [ -n "$hosts" ]; then
-        $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" gui_test "$@"
+        $DMT_NODEJS_EXEC "$DMT_CLI" "${hosts}" gui_notify "$@"
       else
-        $DMT_NODEJS_EXEC "$DMT_CLI" gui_test "$@"
+        $DMT_NODEJS_EXEC "$DMT_CLI" gui_notify "$@"
       fi
       ;;
 
@@ -2833,7 +2833,13 @@ function dmt_snapshot {
   mkdir -p "$DIR" && cd "$_"
 
   # ⚠️ delete older than 90 days
-  find "$SNAPSHOTS_DIR" -mindepth 1 -mtime +90 -type d -exec rm -rf "{}" \;
+  # -depth is to avoid error messages like:
+  # find: ‘./14 Apr 2023 11:07:38 PM - connec2’: No such file or directory
+  # explanation:
+  # This behavior occurs because find doesn't immediately update its internal list of directories after executing the rm command. It tries to continue traversing the directory structure based on what it initially found, even though that structure has now changed.
+  # The good news is that, despite this error message, the command worked as intended. The directory was successfully deleted, which is why you can't see it anymore.
+  # To avoid this error message, you could use the -depth option with find. This option processes the contents of directories before the directories themselves, which would prevent this specific error.
+  find "$SNAPSHOTS_DIR" -depth -mindepth 1 -mtime +90 -type d -exec rm -rf "{}" \;
 
   dmt state --export "$DIR/in_process_state.json"
 

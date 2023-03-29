@@ -14,7 +14,7 @@ ipcClient({ apiName: 'controller', action, payload })
       for (const line of response) {
         console.log(line);
       }
-    } else if (response) {
+    } else if (response && JSON.stringify(response) != '{}') {
       console.log(response);
     }
 

@@ -1,5 +1,4 @@
-import WebSocket from 'ws';
-
+import { WebSocketServer } from 'ws';
 import { EventEmitter } from '../../utils/index.js';
 
 import getRemoteHost from '../channel/getRemoteHost.js';
@@ -18,9 +17,9 @@ class WsServer extends EventEmitter {
 
     process.nextTick(() => {
       if (server) {
-        this.webSocketServer = new WebSocket.Server({ server });
+        this.webSocketServer = new WebSocketServer({ server });
       } else {
-        this.webSocketServer = new WebSocket.Server({ port });
+        this.webSocketServer = new WebSocketServer({ port });
       }
 
       this.continueSetup({ log, verbose });
@@ -29,6 +28,12 @@ class WsServer extends EventEmitter {
 
   continueSetup({ log, verbose }) {
     this.webSocketServer.on('connection', (ws, req) => {
+      ws.on('error', e => {
+        const log2 = log.yellow || log;
+        log2('Handled Websocket issue (probably a malformed websocket connection):');
+        log2(e);
+      });
+
       const channel = new Channel(ws, { log, verbose });
 
       channel._remoteIp = getRemoteIp(req);

@@ -7,13 +7,14 @@ import updateDeviceInList from './state/updateDeviceInList.js';
 
 import Api from './api/nearbyApi.js';
 
+const broadcastInterval = globals.tickerPeriod;
+
 class Nearby {
   constructor({ program, lanbus }) {
     this.program = program;
 
     this.api = new Api(this);
 
-    this.broadcastInterval = globals.tickerPeriod;
     this.init(lanbus);
   }
 
@@ -46,7 +47,7 @@ class Nearby {
         setTimeout(() => {
           this.broadcastOurHelloMessage();
           broadcastLoop();
-        }, this.broadcastInterval);
+        }, broadcastInterval);
       };
 
       broadcastLoop();
@@ -75,7 +76,7 @@ class Nearby {
 
     const nearbyDevicesNew = detectStaleDevices({
       nearbyDevices,
-      broadcastInterval: this.broadcastInterval
+      broadcastInterval
     });
 
     nearbyDevicesNew.push({ ...this.ourMessage(), thisDevice: true, stale: false, staleDetectedAt: undefined });
@@ -127,10 +128,10 @@ class Nearby {
         updateDeviceInList({ device: deriveDeviceData(device), program, announce });
       } catch (e) {
         log.red(e);
-        this.program.exceptionNotify(e.message, 'LanBus error');
+        this.program.exceptionNotify(e.message, { origin: 'LanBus error' });
       }
     });
   }
 }
 
-export default Nearby;
+export { Nearby, broadcastInterval };

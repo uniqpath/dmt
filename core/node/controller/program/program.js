@@ -33,14 +33,14 @@ import loadMiddleware from './boot/loadMiddleware.js';
 import osUptime from './interval/osUptime.js';
 
 import generateKeypair from './generateKeypair.js';
-import exceptionNotify from './exceptionNotify.js';
+import exceptionNotify from './errors/exceptionNotify.js';
 import ipcServer from './ipcServer/ipcServer.js';
 import ipcServerLegacy from './ipcServer/ipcServerLegacy.js';
 
 import load from './load.js';
 
 class Program extends EventEmitter {
-  constructor({ mids }) {
+  constructor({ mids, fromABC }) {
     super();
 
     this.mqttHandlers = [];
@@ -58,6 +58,10 @@ class Program extends EventEmitter {
     this.log = dmt.log;
     this.device = getDeviceInfo();
 
+    this.fromABC = fromABC;
+
+    this.notifiers = [];
+
     this.network = new Network(this);
 
     this._programStore = createProgramStore(this);
@@ -68,6 +72,17 @@ class Program extends EventEmitter {
       if (!dmt.isMainDevice()) {
         this.nearbyNotification({ msg: 'dmt-proc started', ttl: 10, color: '#50887E', dev: true });
       }
+
+      if (fromABC) {
+        setTimeout(() => {
+          log.yellow(`🛑 ${colors.cyan('dmt-proc')} started by ABC after crash`);
+          push
+            .optionalApp('dmt_errors')
+            .omitAppName()
+            .notify('✅ dmt-proc resumed but the cause for crash still has to be fixed');
+        }, 2000);
+      }
+
       this.sendCachedNearbyNotifications();
       this.sendCachedMainDeviceNotifications();
     });
@@ -152,16 +167,20 @@ class Program extends EventEmitter {
     }
   }
 
+  wasSpawnedByABC() {
+    return this.fromABC;
+  }
+
   runningInTerminalForeground() {
     return log.isForeground();
   }
 
-  exceptionNotify(msg, origin) {
+  exceptionNotify(msg, { origin, delay, exitProcess = false } = {}) {
     if (origin) {
-      msg = `${origin}: ${msg} (check log for details, not restarting dmt-proc)`;
+      msg = `${origin} - check log for details, not restarting dmt-proc\n\n${msg}`;
     }
 
-    return exceptionNotify({ program: this, msg });
+    return exceptionNotify(msg, { delay, exitProcess, program: this });
   }
 
   api(name) {
@@ -249,8 +268,24 @@ class Program extends EventEmitter {
     return dmt.user().language || 'eng';
   }
 
-  loadDirectory(dir) {
-    load(this, dir);
+  loadDirectory(dir, filter) {
+    load(this, dir, filter);
+  }
+
+  loadDirectoryRecursive(dir, filter) {
+    load(this, dir, filter, true);
+  }
+
+  registerNotifier(notifier) {
+    this.notifiers.push(notifier);
+  }
+
+  decommissionNotifiers() {
+    for (const n of this.notifiers) {
+      n.decommission();
+    }
+
+    this.notifiers = [];
   }
 
   isHub() {
@@ -371,20 +406,21 @@ class Program extends EventEmitter {
   }
 
   clearNearbyNotification(group) {
-    this.nearbyNotification({ group });
+    this.nearbyNotification({ group, clearNotification: true });
   }
 
   showNotification(
     {
       title,
       msg,
+      tagline = null,
       ttl = 30,
       color = '#FFFFFF',
       group,
       omitDeviceName = false,
       omitDesktopNotification = false,
       omitTtl = false,
-      replaceTtl = null,
+      clearNotification = false,
       dev = false
     },
     { originDevice = undefined, onlyMain = undefined } = {}
@@ -409,27 +445,27 @@ class Program extends EventEmitter {
       recommendedTitle = this.device.id;
     }
 
-    const notification = {
-      __id: id,
-      title: onlyMain ? `${recommendedTitle} [MAIN]` : dev ? `${recommendedTitle} [DΞV]` : recommendedTitle,
-      msg,
-      bgColor,
-      color: colors2.invertColor(bgColor),
-      group,
-      omitTtl,
-      replaceTtl,
-      expireAt: Date.now() + ttl * 1000,
-      addedAt: Date.now()
-    };
-
     this.slot('notifications').removeArrayElements(
       n => {
         return group && n.group == group;
       },
-      { announce: !msg }
+      { announce: clearNotification }
     );
 
-    if (msg) {
+    if (!clearNotification) {
+      const notification = {
+        __id: id,
+        title: onlyMain ? `${recommendedTitle} [MAIN]` : dev ? `${recommendedTitle} [DΞV]` : recommendedTitle,
+        msg,
+        bgColor,
+        color: colors2.invertColor(bgColor),
+        group,
+        omitTtl,
+        tagline,
+        expireAt: Date.now() + ttl * 1000,
+        addedAt: Date.now()
+      };
+
       this.slot('notifications').push(notification);
 
       if (dmt.isDevUser() && this.isPrimaryLanServer()) {
@@ -447,7 +483,17 @@ class Program extends EventEmitter {
       }
 
       if (dmt.isPersonalComputer() && !omitDesktopNotification) {
-        desktop.notify(msg, `${recommendedTitle || this.network.name() || this.device.id} ${replaceTtl || ''}`.trim());
+        let _msg;
+
+        if (tagline && msg) {
+          _msg = `${tagline}\n\n${msg}`;
+        } else if (tagline) {
+          _msg = tagline;
+        } else {
+          _msg = msg || '';
+        }
+
+        desktop.notify(_msg || '[ missing message ]', `${recommendedTitle || this.network.name() || this.device.id}`.trim());
       }
     }
   }
@@ -555,8 +601,7 @@ class Program extends EventEmitter {
       }
 
       if (this.isPrimaryLanServer()) {
-        log.cyan('Primary lanServer — received proxy_push_notification:');
-        log.gray(obj);
+        log.white(`Received proxy_push_notification from ${colors.cyan(originDevice)}:`);
         push.notifyRaw({ ...obj, originDevice });
       }
     });
@@ -568,6 +613,5 @@ class Program extends EventEmitter {
 }
 
 export default (...args) => {
-  const p = new Program(...args);
-  return dmt.setProgram(p);
+  return dmt.setProgram(new Program(...args));
 };
