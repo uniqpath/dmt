@@ -20,7 +20,7 @@ function createStore(handle, initState, opts = {}) {
   const parts = handle.split('/');
   const dir = parts[0];
   const file = `${parts[1] || 'store'}.json`;
-  const stateFilePath = `${getStateDirectory(dir)}/${file}`;
+  const stateFilePath = opts.memoryStore ? null : `${getStateDirectory(dir)}/${file}`;
 
   const store = new SyncStore(initState, { ...opts, stateFilePath });
 

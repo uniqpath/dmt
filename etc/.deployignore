@@ -2,4 +2,3 @@
 .deploy
 .deployignore
 .git
-node_modules/eslint*

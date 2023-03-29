@@ -4,7 +4,7 @@ import { settings, detectMediaType } from 'dmt/search';
 
 import { prettyFileSize, timeutils, log } from 'dmt/common';
 
-const { prettyTimeAge } = timeutils;
+const { prettyTimeAgo } = timeutils;
 
 import pathModule from 'path';
 
@@ -59,7 +59,7 @@ function searchOnePath({ path, terms, page, maxResults, mediaType }) {
               fileSize,
               fileSizePretty: prettyFileSize(fileSize),
               fileUpdatedAt: mtime,
-              fileUpdatedAtRelativePretty: prettyTimeAge(mtime),
+              fileUpdatedAtRelativePretty: prettyTimeAgo(mtime),
               fileName,
               directory,
               mediaType,

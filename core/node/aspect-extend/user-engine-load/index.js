@@ -1,16 +1,42 @@
 import fs from 'fs';
 import path from 'path';
 
-import { colors, dmtUserDir } from 'dmt/common';
+import { colors, dmtUserDir, log } from 'dmt/common';
 import modifyPackageJson from './modifyPackageJson.js';
+
+import deviceLoader from './deviceLoader.js';
+
+const userEnginePath = path.join(dmtUserDir, 'engine');
+const userEngineEntryPoint = path.join(userEnginePath, 'index.js');
 
 async function init(program) {
   function userEngineReady(results) {
+    deviceLoader(program, userEnginePath);
+
+    program.loadDirectoryRecursive(path.join(userEnginePath, '_notifications'));
+
+    let notificationsReloadTimeout;
+    let notificationsReloadTimeout2;
+
+    program.on('gui:reload', () => {
+      clearTimeout(notificationsReloadTimeout);
+      clearTimeout(notificationsReloadTimeout2);
+
+      const now = new Date();
+      const delay = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds());
+
+      const DIFF = 30;
+
+      notificationsReloadTimeout = setTimeout(() => {
+        program.decommissionNotifiers();
+        notificationsReloadTimeout2 = setTimeout(() => {
+          program.loadDirectoryRecursive(path.join(userEnginePath, '_notifications'));
+        }, DIFF);
+      }, Math.max(delay - DIFF, 0));
+    });
+
     program.emit('user_engine_ready', results);
   }
-
-  const userEnginePath = path.join(dmtUserDir, 'engine');
-  const userEngineEntryPoint = path.join(userEnginePath, 'index.js');
 
   modifyPackageJson(userEnginePath);
 

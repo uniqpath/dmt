@@ -1,0 +1,11 @@
+{
+  "name": "DMT",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "appicon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

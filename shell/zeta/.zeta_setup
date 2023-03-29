@@ -2,7 +2,8 @@
 
 function build_essential {
   sudo apt-get update
-  sudo apt-get -y install build-essential tar unzip curl git screen ntp zip tree lsof colordiff rsync
+  #sudo apt-get -y install build-essential tar unzip curl git screen ntp zip tree lsof colordiff rsync
+  sudo apt-get -y install build-essential tar curl git screen zip unzip tree lsof colordiff rsync
 }
 
 function build_essential_full {
@@ -184,7 +185,7 @@ function zeta_setup {
   printf "${GREEN}Installing ${YELLOW}nodejs ...${NC}\n"
   dmt_animate_dots slow
   echo
-  local NODE_VERSION_TO_INSTALL="16.13.0" # could also be "latest"
+  local NODE_VERSION_TO_INSTALL="22.12.0" # could also be "latest"
   zeta_update nodejs "$NODE_VERSION_TO_INSTALL"
 
   echo

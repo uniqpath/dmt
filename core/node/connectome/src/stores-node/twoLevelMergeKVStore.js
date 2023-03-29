@@ -5,6 +5,10 @@ export default class KeyValueStore {
     this.state = {};
   }
 
+  set(state) {
+    this.state = state;
+  }
+
   update(patch) {
     this.state = mergeState(this.state, patch);
   }

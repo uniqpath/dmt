@@ -1,21 +1,75 @@
 [
   {
     "fromYear": 2021,
-    "data": {
-      "1.1": "Nova godina",
-      "6.1": "Sveta tri kralja",
-      "EASTER": "Uskrs",
-      "EASTER_MONDAY": "Uskrsni ponedjeljak",
-      "1.5": "Praznik rada",
-      "30.5": "Dan državnosti",
-      "3.6": "Tijelovo",
-      "22.6": "Dan antifašističke borbe",
-      "5.8": "Dan hrvatskih branitelja",
-      "15.8": "Velika Gospa",
-      "1.11": "Dan svih svetih",
-      "18.11": "Dan sjećanja na žrtve Domovinskog rata",
-      "25.12": "Božić",
-      "26.12": "Sveti Stjepan"
-    }
+    "symbol": "🇭🇷",
+    "data": [
+      {
+        "date": "1.1",
+        "holiday": "Nova godina",
+        "symbol": "🎆"
+      },
+      {
+        "date": "6.1",
+        "holiday": "Sveta tri kralja",
+        "symbol": "👑"
+      },
+      {
+        "date": "EASTER",
+        "holiday": "Uskrs",
+        "symbol": "🥚"
+      },
+      {
+        "date": "EASTER_MONDAY",
+        "holiday": "Uskrsni ponedjeljak",
+        "symbol": "🐰"
+      },
+      {
+        "date": "1.5",
+        "holiday": "Praznik rada",
+        "symbol": "🐜"
+      },
+      {
+        "date": "30.5",
+        "holiday": "Dan državnosti",
+        "symbol": "🇭🇷"
+      },
+      {
+        "date": "3.6",
+        "holiday": "Tijelovo"
+      },
+      {
+        "date": "22.6",
+        "holiday": "Dan antifašističke borbe",
+        "symbol": "🪖"
+      },
+      {
+        "date": "5.8",
+        "holiday": "Dan hrvatskih branitelja",
+        "symbol": "🛡️"
+      },
+      {
+        "date": "15.8",
+        "holiday": "Velika Gospa"
+      },
+      {
+        "date": "1.11",
+        "holiday": "Dan svih svetih",
+        "symbol": "🕯️"
+      },
+      {
+        "date": "18.11",
+        "holiday": "Dan sjećanja na žrtve Domovinskog rata",
+        "symbol": "⚔️"
+      },
+      {
+        "date": "25.12",
+        "holiday": "Božić",
+        "symbol": "🎅"
+      },
+      {
+        "date": "26.12",
+        "holiday": "Sveti Stjepan"
+      }
+    ]
   }
 ]

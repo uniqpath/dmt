@@ -1,4 +1,4 @@
-import dmtHelper from '../dmtHelper.js';
+import * as dmtHelper from '../dmtHelper.js';
 
 const { colors } = dmtHelper;
 
@@ -19,6 +19,7 @@ assert(approx(252580) == '252.6k');
 
 assert(approx(1000) == '1000');
 assert(approx(100000) == '100k');
+assert(approx(102000) == '102k');
 
 assert(approx(6546846546546654) == '6,547t');
 

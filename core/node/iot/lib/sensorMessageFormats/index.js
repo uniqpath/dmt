@@ -1,3 +1,5 @@
+import { log } from 'dmt/common';
+
 function extractIdentifier(topic) {
   const re = new RegExp('tele/([\\w_-]+)/SENSOR');
   const matches = re.exec(topic);
@@ -21,26 +23,33 @@ function parse({ topic, msg }) {
   const id = extractIdentifier(topic);
 
   if (id) {
-    const data = JSON.parse(msg.toString());
-    const type = determineType(data);
+    try {
+      const data = JSON.parse(msg.toString());
+      const type = determineType(data);
 
-    const obj = { id, type, lastUpdateAt: Date.now() };
+      const obj = { id, type, lastUpdateAt: Date.now() };
 
-    switch (type) {
-      case Type.ENERGY:
-        const { Current, Voltage, Power, ApparentPower, ReactivePower, Factor } = data.ENERGY;
-        return Object.assign(obj, { data: { Current, Voltage, Power, ApparentPower, ReactivePower, Factor } });
+      switch (type) {
+        case Type.ENERGY:
+          const { Current, Voltage, Power, ApparentPower, ReactivePower, Factor } = data.ENERGY;
+          return Object.assign(obj, { data: { Current, Voltage, Power, ApparentPower, ReactivePower, Factor } });
 
-      case Type.ENVIRONMENT:
-        const tempData = data.SI7021 || data.AM2301;
-        if (tempData.Temperature != null) {
-          return Object.assign(obj, { data: Object.assign(tempData, { TempUnit: data.TempUnit }) });
-        }
+        case Type.ENVIRONMENT:
+          const tempData = data.SI7021 || data.AM2301;
+          if (tempData.Temperature != null) {
+            return Object.assign(obj, { data: Object.assign(tempData, { TempUnit: data.TempUnit }) });
+          }
 
-        return Object.assign(obj, { error: true });
+          return Object.assign(obj, { error: true });
 
-      default:
-        return null;
+        default:
+          return null;
+      }
+    } catch (e) {
+      log.cyan('Raw message before JSON parse:');
+      log.cyan(msg);
+      log.green(msg.toString());
+      throw e;
     }
   }
 }

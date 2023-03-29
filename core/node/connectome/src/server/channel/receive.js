@@ -36,18 +36,24 @@ function handleMessage(channel, message) {
 function messageReceived({ message, channel }) {
   const { log } = channel;
 
+  const prefix = `Channel #${channel.ident} ${channel.remoteAddress() || ''} ${channel.remotePubkeyHex() ? `to ${channel.remotePubkeyHex()}` : ''}`;
+
   channel.lastMessageAt = Date.now();
 
   const nonce = new Uint8Array(integerToByteArray(2 * channel.receivedCount, 24));
 
   if (channel.verbose) {
-    logger.write(log, `Channel ${channel.remoteAddress()} → Received message #${channel.receivedCount} ↴`);
+    logger.yellow(log, `${prefix} → Received message #${channel.receivedCount} ↴`);
   }
 
   let decodedMessage;
 
   try {
     if (!channel.sharedSecret) {
+      if (channel.verbose) {
+        logger.write(log, `${prefix} handshake message: ${message}`);
+      }
+
       handleMessage(channel, message);
       return;
     }

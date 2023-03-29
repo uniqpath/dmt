@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { log, abcVersion, timeutils, abcSocket, isDevUser, isMainDevice, colors } from 'dmt/common';
 
-const { prettyTimeAge } = timeutils;
+const { prettyTimeAgo } = timeutils;
 
 import { push, desktop } from 'dmt/notify';
 
@@ -26,7 +26,7 @@ export default function abcTerminator(ser, startedAt) {
   }
 
   const checker = () => {
-    const uptime = prettyTimeAge(startedAt).replace(' ago', '');
+    const uptime = prettyTimeAgo(startedAt).replace(' ago', '');
 
     const _abcVersion = abcVersion({ allowCrash: false });
     if (initialAbcVersion != _abcVersion) {

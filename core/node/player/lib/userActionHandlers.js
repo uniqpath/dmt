@@ -20,6 +20,9 @@ function userActionHandlers({ program, player }) {
         case 'pause':
           player.pause().catch(log.red);
           break;
+        case 'continue':
+          player.continue().catch(log.red);
+          break;
         case 'volume_up':
           player.volume('up').catch(log.red);
           break;

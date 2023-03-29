@@ -284,6 +284,8 @@ function dep {
   if [ -f ./truffle.js ]; then
     truffle deploy --reset
     # deploy target (manual from cli or from ./.deploy file)
+  elif [ -f ./deploy ]; then
+    ./deploy
   else
     dep_rsync "$@"
   fi
@@ -367,7 +369,8 @@ function report_dirsync_error {
 
   local msg="⚠️ dirsync to ${target} FAILED (code ${exitStatus})"
 
-  push_notify_high_priority_bg "$msg"
+  #local_notify "$msg"
+  dmt gui notify "$msg"
 
   echo
   printf "${RED}${msg}${NC}\n"
@@ -380,7 +383,7 @@ function dirsync {
     printf "${YELLOW}Usage:${NC}\n\n"
     printf "${GREEN}dirsync dir1 dir2${NC}\n"
     printf "${GREEN}dirsync --dry dir1 dir2${NC} ${GRAY}(simulate)${NC}\n"
-    printf "${GREEN}dirsync --total${NC} ${GRAY}(ignoring every .deployignore file and copying everything)${NC}\n"
+    printf "${GREEN}dirsync --total${NC} ${GRAY}(ignore every .deployignore file and copy everything)${NC}\n"
     printf "${GREEN}dirsync --exclude dir1 --exclude dir2${NC} ${GRAY}(exclude some dirs)${NC}\n"
     printf "${GREEN}dirsync --compress dir1 dir2${NC} ${GRAY}(compress - use over internet, but not LAN, see https://unix.stackexchange.com/questions/188737/does-compression-option-z-with-rsync-speed-up-backup)${NC}\n"
     printf "${GREEN}dirsync --checksum dir1 dir2${NC} ${GRAY}(use when timestamps on target are different but contents is likely same... This will sync & equalize timestamps, it's slow though but still probably faster than copying files over for no reason)${NC}\n"
@@ -523,6 +526,18 @@ function dirsync {
       return
     fi
 
+    if dmt_macos; then
+      # these nasty files even if "--excluded" can prevent directory deletions on target
+      # exclusion means the files are not copied over but if they already exist they are not deleted
+      # (unless --delete-excluded option is used which we cannot do because that will delete everything that we are excluding!)
+      if [ -d "$TARGET" ]; then
+        local cwd="`pwd`"
+        cd "$TARGET"
+        remove_ds_store "silent"
+        cd "$cwd"
+      fi
+    fi
+
     printf "${GREEN}Syncing... ${GRAY}${SOURCE} ${CYAN}→ ${GRAY}${TARGET}${NC}\n"
 
     local e_params="ssh"
@@ -577,6 +592,11 @@ function dirsync {
     if [ -f "$SOURCE/.deployignore" ] && ! $no_ignore; then
       params="${params} --exclude-from $SOURCE/.deployignore"
     fi
+
+    # echo $params
+    # echo $e_params
+    # echo $excludes
+    # return
 
     rsync $params $excludes -e "$e_params" "$SOURCE"/ "$TARGET"/ 2>&1 | grep -v "$grep_ignore"
 

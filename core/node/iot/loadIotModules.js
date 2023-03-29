@@ -7,8 +7,13 @@ import mqttClient from './createMqttClient.js';
 const iotMessageHandlers = [];
 const tickHandlers = [];
 
+const IGNORED = ['--unused', '--disabled', '--ignore', '--ignored'];
+
 function loadIotModules({ program, modulesPath }) {
-  const modules = scan.dir(modulesPath, { onlyFiles: true }).filter(file => path.extname(file) == '.js');
+  const modules = scan
+    .dir(modulesPath, { onlyFiles: true })
+    .filter(file => path.extname(file) == '.js')
+    .filter(m => !IGNORED.some(keyword => m.match(new RegExp(`${keyword}(?!\\w)`))));
 
   if (!program.iotModulesHandlerAttached) {
     program.iotModulesHandlerAttached = true;

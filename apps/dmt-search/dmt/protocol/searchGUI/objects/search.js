@@ -4,7 +4,7 @@ import { push } from 'dmt/notify';
 import { parseSearchQuery, serializeContentRefs } from 'dmt/search';
 //import getContentProviders from '../getContentProviders';
 
-import { fiberHandle } from 'dmt/connectome-next';
+import { fiberHandle } from 'connectome-next';
 
 const RESULTS_LIMIT = 20;
 

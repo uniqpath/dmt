@@ -2,7 +2,5 @@
   "./common": "./_dmt_deps/common/index.js",
   "./notify": "./_dmt_deps/notify/index.js",
   "./iot": "./_dmt_deps/iot/index.js",
-  "./connectome": "./_dmt_deps/connectome/index.js",
-  "./connectome-server": "./_dmt_deps/connectome-server/index.js",
-  "./connectome-stores": "./_dmt_deps/connectome-stores/index.js"
+  "./internal": "./_internal/index.js"
 }

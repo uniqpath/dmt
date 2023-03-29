@@ -13,6 +13,12 @@ class MessageSender {
     return this;
   }
 
+  optionalApp(optionalApp) {
+    this._app = optionalApp;
+    this._optionalApp = true;
+    return this;
+  }
+
   group(group) {
     this._group = group;
     return this;
@@ -20,6 +26,16 @@ class MessageSender {
 
   userKey(userKey) {
     this._userKey = userKey;
+    return this;
+  }
+
+  user(user) {
+    this._user = user;
+    return this;
+  }
+
+  users(user) {
+    this._user = user;
     return this;
   }
 
@@ -43,8 +59,23 @@ class MessageSender {
     return this;
   }
 
+  omitAppName() {
+    this._omitAppName = true;
+    return this;
+  }
+
+  bigMessage() {
+    this._bigMessage = true;
+    return this;
+  }
+
   highPriority(high = true) {
     this._highPriority = high;
+    return this;
+  }
+
+  enableHtml(enable = true) {
+    this._enableHtml = enable;
     return this;
   }
 
@@ -53,15 +84,20 @@ class MessageSender {
 
     return notify({
       app: this._app,
+      optionalApp: this._optionalApp,
       group: this._group,
       message,
       title: this._title,
       network,
       omitDeviceName: this._omitDeviceName,
+      omitAppName: this._omitAppName,
+      bigMessage: this._bigMessage,
       url: this._url,
       urlTitle: this._urlTitle,
+      user: this._user,
       userKey: this._userKey,
       highPriority: this._highPriority,
+      enableHtml: this._enableHtml,
       isABC: this.isABC
     });
   }
@@ -71,14 +107,19 @@ class MessageSender {
 
     return notifyAll({
       app: this._app,
+      optionalApp: this._optionalApp,
       message,
       title: this._title,
       network,
       omitDeviceName: this._omitDeviceName,
+      omitAppName: this._omitAppName,
+      bigMessage: this._bigMessage,
       url: this._url,
       urlTitle: this._urlTitle,
+      user: this._user,
       userKey: this._userKey,
       highPriority: this._highPriority,
+      enableHtml: this._enableHtml,
       isABC: this.isABC
     });
   }

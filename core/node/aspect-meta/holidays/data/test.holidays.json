@@ -1,0 +1,18 @@
+[
+  {
+    "fromYear": 2017,
+    "symbol": "🇺🇸",
+    "data": [
+      {
+        "date": "29.12.",
+        "holiday": "Novo leto",
+        "symbol": "🎆"
+      },
+      {
+        "date": "30.12",
+        "holiday": "Novo leto",
+        "symbol": "✨"
+      }
+    ]
+  }
+]

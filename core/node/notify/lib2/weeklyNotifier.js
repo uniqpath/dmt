@@ -1,9 +1,13 @@
-import { dateFns, colors, holidayDataExists, isHoliday } from 'dmt/common';
+import { dateFns, program, colors, holidayDataExists, isHoliday, timeutils, log } from 'dmt/common';
 
-const { isSameMinute, subMinutes, isToday, addDays } = dateFns;
+const { formatFutureDistance } = timeutils;
+
+const { isSameMinute, subMinutes, isToday, addDays, differenceInWeeks, startOfWeek, differenceInMinutes, isBefore, addMinutes, format } = dateFns;
 
 import ScopedNotifier from './base/scopedNotifier.js';
 
+import { isReloadableNotifications } from './lib/isReloadableNotifications.js';
+import priorityArray from './lib/priorityArray.js';
 import parseTimeToday from './lib/parseTimeToday.js';
 import parseTimeTomorrow from './lib/parseTimeTomorrow.js';
 import convertTimeTo24hFormat from './lib/convertTimeTo24hFormat.js';
@@ -12,31 +16,82 @@ import describeNearTime from './lib/describeNearTime.js';
 import localize from './lib/localize.js';
 
 const LAST_EVENT_SYMBOL = '✅';
-const TOMORROW_SYMBOL = '◆';
+const NOW_SYMBOL = '🫵';
+const CLOCK_SYMBOL = '🕛';
+const FINISH_SYMBOL = '🏁';
+const TOMORROW_SYMBOL = '⏳';
+const EXCLAMATION_SYMBOL = '❗';
 
-const ONE_MINUTE = 60 * 1000;
+const NOTIFIER_DEFAULT_TIME = '10:00';
+
+function isNthWeek(date, n, referenceDate = null) {
+  const reference = referenceDate || new Date('2024-01-01');
+  const weeksSinceReference = differenceInWeeks(startOfWeek(date), startOfWeek(reference));
+  const diff = Math.abs(weeksSinceReference);
+  if (n == 1) {
+    return diff % 2 != 0;
+  }
+  return diff % n === 0;
+}
 
 class WeeklyNotifier extends ScopedNotifier {
-  constructor(notifications, { program, symbol = '🔔', notifyDayBeforeAt, notifyMinutesBefore = 0, color, ttl, highPriority, skipOnHolidays }) {
-    super(symbol);
-
-    this.program = program;
+  constructor(
+    notifications,
+    {
+      symbol = '🔔',
+      notifyDayBeforeAt,
+      notifySameDayAt,
+      omitAtEventTime,
+      notifyMinutesBefore,
+      duration,
+      title,
+      color,
+      app,
+      ttl,
+      highPriority,
+      skipOnHolidays,
+      excludedRanges,
+      user,
+      users
+    } = {},
+    decommissionable = false
+  ) {
+    super(symbol, decommissionable);
 
     this.notifications = Array(notifications).flat(Infinity);
 
+    this.title = title;
     this.symbol = symbol;
     this.color = color;
     this.ttl = ttl;
     this.highPriority = !!highPriority;
+    this.app = app;
 
-    this.notifyDayBeforeAt = Array(notifyDayBeforeAt || []).flat();
+    this.notifyDayBeforeAt = notifyDayBeforeAt;
+    this.notifySameDayAt = notifySameDayAt;
     this.notifyMinutesBefore = notifyMinutesBefore;
+    this.omitAtEventTime = omitAtEventTime;
+    this.duration = duration;
+
     this.skipOnHolidays = skipOnHolidays;
+    this.excludedRanges = excludedRanges;
+
+    this.user = user || users;
   }
 
-  shouldSkip(date, skipOnHolidays) {
-    if (this.skipOnHolidays || skipOnHolidays) {
-      const country = this.program.country();
+  shouldSkip(date, entry, excludedRanges) {
+    const sh = this.skipOnHolidays || entry.skipOnHolidays;
+
+    if (excludedRanges) {
+      for (const range of excludedRanges) {
+        if (evaluateTimespan({ date, from: range.from, until: range.until }).isWithin) {
+          return true;
+        }
+      }
+    }
+
+    if (sh) {
+      const country = typeof sh === 'string' ? sh : program.country();
       return holidayDataExists(country) && isHoliday(date, { country });
     }
   }
@@ -44,9 +99,18 @@ class WeeklyNotifier extends ScopedNotifier {
   parse(_t) {
     const DOW = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
-    const [_dow, _time] = _t.replace(' at ', ' ').split(' ');
+    const [__dow, _time] = _t.replace(' at ', ' ').split(' ');
 
-    const time = convertTimeTo24hFormat(_time);
+    const time = convertTimeTo24hFormat(_time || NOTIFIER_DEFAULT_TIME);
+
+    let _dow = __dow;
+    let week;
+
+    if (__dow.includes('/')) {
+      const [dayPart, weekPart] = __dow.split('/');
+      _dow = dayPart;
+      week = parseInt(weekPart);
+    }
 
     const dow = DOW.indexOf(_dow.toLowerCase());
 
@@ -56,100 +120,202 @@ class WeeklyNotifier extends ScopedNotifier {
       );
     }
 
-    return { time, dow };
+    return { time, dow, week };
   }
 
   checkNotificationTimes(entry) {
     const now = new Date();
 
-    const { title, symbol, when, color, id, ttl, from, until, highPriority: _highPriority } = entry;
+    const {
+      msg: msgStrOrArray,
+      symbol: _symbol,
+      when,
+      color,
+      id,
+      ttl,
+      from,
+      until,
+      duration: _duration,
+      notifyMinutesBefore: _notifyMinutesBefore,
+      notifySameDayAt: _notifySameDayAt,
+      omitAtEventTime: _omitAtEventTime,
+      highPriority: _highPriority,
+      notifyDayBeforeAt: _notifyDayBeforeAt,
+      url,
+      excludedRanges: _excludedRanges
+    } = entry;
+
+    const msg = Array.isArray(msgStrOrArray) ? this.randomElement(msgStrOrArray) : msgStrOrArray;
+    const titleStrOrArray = entry.title || this.title || '';
+    const _title = Array.isArray(titleStrOrArray) ? this.randomElement(titleStrOrArray) : titleStrOrArray;
+
+    const excludedRanges = _excludedRanges || this.excludedRanges;
+    const duration = _duration || this.duration;
+
+    const omitAtEventTime = _omitAtEventTime == undefined ? this.omitAtEventTime : _omitAtEventTime;
+
+    const notifyMinutesBefore = priorityArray(_notifyMinutesBefore, this.notifyMinutesBefore);
+    if (notifyMinutesBefore.length == 0 && !omitAtEventTime) {
+      notifyMinutesBefore.push(0);
+    }
+
+    const uniqueArray = arr => [...new Set(arr)];
+
+    const notifySameDayAt = uniqueArray(priorityArray(_notifySameDayAt, this.notifySameDayAt));
+
     const highPriority = _highPriority == undefined ? this.highPriority : _highPriority;
 
-    const notifyMinutesBefore = entry.notifyMinutesBefore || this.notifyMinutesBefore;
+    const notifyDayBeforeAt = uniqueArray(priorityArray(_notifyDayBeforeAt, this.notifyDayBeforeAt));
+
+    const entryUser = entry.user || entry.users;
+    const user = entryUser == undefined ? this.user : entryUser;
 
     for (const _t of Array(when).flat()) {
-      const { time, dow: eventWeekDay } = this.parse(_t);
+      const { time, dow: eventWeekDay, week } = this.parse(_t);
 
-      const { tomorrowStr, atStr } = localize(this.program);
+      const { strTomorrow, strAt } = localize(program);
+
+      const symbolStrOrArray = _symbol || this.symbol;
+      const symbol = Array.isArray(symbolStrOrArray) ? this.randomElement(symbolStrOrArray) : symbolStrOrArray;
 
       const o = {
-        symbol: symbol || this.symbol,
-        title: title || '',
+        symbol,
+        _msg: msg,
         highPriority: false,
         color: color || this.color,
         ttl: ttl || this.ttl,
-        id
+        user,
+        id,
+        url,
+        app: this.app,
+        data: entry.data || {}
       };
 
-      if (now.getDay() == eventWeekDay) {
-        const eventTime = parseTimeToday(time, title);
+      if (now.getDay() == eventWeekDay && (!week || isNthWeek(now, week))) {
+        const eventTime = parseTimeToday(time, _title);
 
-        const { isValid, isLastDay: _isLastDay } = evaluateTimespan({ date: eventTime, from, until });
+        o.eventTime = eventTime;
 
-        if (isValid && !this.shouldSkip(eventTime, entry.skipOnHolidays)) {
-          const notificationTime = subMinutes(eventTime, notifyMinutesBefore);
+        const { isWithin, isLastDay: _isLastDay } = evaluateTimespan({ date: eventTime, from, until });
 
-          if (isSameMinute(now, notificationTime)) {
-            const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry);
+        if (isWithin && !this.shouldSkip(eventTime, entry, excludedRanges)) {
+          const _minutesBefore = [...notifyMinutesBefore];
 
-            const { datetime, inTime: tagline } = describeNearTime(this.program, parseTimeToday(time, title));
-
-            const __symbol = this.getLastEventSymbol({ isLastDay, time, when, eventWeekDay });
-
-            const pushTitle = `${o.symbol}${__symbol} ${title} ${tagline ? `— ${tagline}` : ''}`.trim();
-
-            this.callback({
-              ...o,
-              highPriority,
-              pushTitle,
-              msg: datetime,
-              tagline
-            });
-
-            entry.sentAt = Date.now();
+          for (const t of notifySameDayAt) {
+            const notifyTime = parseTimeToday(t);
+            if (isBefore(notifyTime, eventTime)) {
+              const diffInMinutes = differenceInMinutes(eventTime, notifyTime);
+              _minutesBefore.push(diffInMinutes);
+            }
           }
+
+          const minutesBefore = uniqueArray(_minutesBefore);
+
+          minutesBefore
+            .sort((a, b) => b - a)
+            .forEach((minBefore, index) => {
+              const notificationTime = subMinutes(eventTime, minBefore);
+
+              if (isSameMinute(now, notificationTime)) {
+                const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry, excludedRanges);
+
+                const { datetime, inTime, isNow } = describeNearTime(parseTimeToday(time, _title));
+
+                const isLastEvent = this.isLastEvent({ isLastDay, time, when, eventWeekDay });
+                const lastTag = this.lastEventTag(isLastEvent);
+
+                const { capitalizeFirstLetter, strFrom, strUntil } = localize(program);
+
+                const brevityTagline = !isNow && minutesBefore.length >= 2 && minBefore <= 30 && minutesBefore.length - 1 == index;
+
+                let tagline =
+                  isNow && msg
+                    ? undefined
+                    : `${isNow ? NOW_SYMBOL : CLOCK_SYMBOL}${brevityTagline ? '' : ` ${datetime}`}${
+                        inTime ? ` ${brevityTagline ? capitalizeFirstLetter(inTime) : `[ ${inTime} ]`}` : ''
+                      }${!isNow && minBefore <= 30 ? EXCLAMATION_SYMBOL : ''}`;
+
+                if (duration && minutesBefore.length - 1 == index) {
+                  const endTime = addMinutes(eventTime, duration);
+                  const startTimeStr = format(eventTime, 'HH:mm');
+                  const endTimeStr = format(endTime, 'HH:mm');
+                  tagline = `${tagline || ''}${tagline ? '\n' : ''}${FINISH_SYMBOL} `;
+                  if (brevityTagline) {
+                    tagline += `${capitalizeFirstLetter(strFrom)} ${startTimeStr} ${strUntil} ${endTimeStr}`;
+                  } else {
+                    tagline += `${capitalizeFirstLetter(strUntil)} ${endTimeStr}`;
+                  }
+                }
+
+                const title = `${_title}${lastTag}`;
+                const pushTitle = `${o.symbol} ${title}`.trim();
+                const pushMsg = msg ? `${tagline ? `${tagline}\n\n` : ''}${msg}` : tagline;
+
+                const isLastNotification = index === minutesBefore.length - 1;
+
+                this.callback({
+                  ...o,
+                  _title: title,
+                  highPriority: isLastNotification ? highPriority : false,
+                  title: pushTitle,
+                  msg: pushMsg,
+                  tagline
+                });
+              }
+            });
         }
       }
 
-      const eventTime = parseTimeTomorrow(time, title);
+      const eventTime = parseTimeTomorrow(time, _title);
 
-      const { isValid, isLastDay: _isLastDay } = evaluateTimespan({ date: eventTime, from, until });
+      const { isWithin, isLastDay: _isLastDay } = evaluateTimespan({ date: eventTime, from, until });
 
-      if (isValid && !this.shouldSkip(eventTime, entry.skipOnHolidays)) {
-        if ((now.getDay() + 1) % 7 == eventWeekDay) {
-          const notificationTime = subMinutes(eventTime, notifyMinutesBefore);
+      const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry, excludedRanges);
 
-          if (isSameMinute(now, notificationTime) && isToday(notificationTime)) {
-            const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry);
+      const isLastEvent = this.isLastEvent({ isLastDay, time, when, eventWeekDay });
+      const lastTag = this.lastEventTag(isLastEvent);
 
-            const { datetime, inTime: tagline } = describeNearTime(this.program, parseTimeTomorrow(time, title));
+      const title = `${_title}${lastTag}`;
 
-            const __symbol = this.getLastEventSymbol({ isLastDay, time, when, eventWeekDay });
+      if (isWithin && !this.shouldSkip(eventTime, entry, excludedRanges)) {
+        if ((now.getDay() + 1) % 7 == eventWeekDay && (!week || isNthWeek(eventTime, week))) {
+          for (const minBefore of notifyMinutesBefore) {
+            const notificationTime = subMinutes(eventTime, minBefore);
 
-            const pushTitle = `${o.symbol}${__symbol} ${title} ${tagline ? `— ${tagline}` : ''}`.trim();
+            if (isSameMinute(now, notificationTime) && isToday(notificationTime)) {
+              const { datetime, inTime } = describeNearTime(parseTimeTomorrow(time, title));
 
-            this.callback({
-              ...o,
-              highPriority,
-              pushTitle,
-              msg: datetime,
-              tagline
-            });
+              const pushTitle = `${o.symbol} ${title}`.trim();
 
-            entry.sentAt = Date.now();
+              const tagline = `${CLOCK_SYMBOL}${datetime}${inTime ? ` [ ${inTime} ]` : ''}`;
+
+              const pushMsg = msg ? `${tagline}\n\n${msg}` : tagline;
+
+              this.callback({
+                ...o,
+                _title: title,
+                highPriority,
+                title: pushTitle,
+                msg: pushMsg,
+                isToday: true,
+                tagline
+              });
+            }
           }
         }
 
-        if (this.notifyDayBeforeAt.length > 0 && (now.getDay() + 1) % 7 == eventWeekDay) {
-          for (const t of this.notifyDayBeforeAt) {
+        if (notifyDayBeforeAt.length > 0 && (now.getDay() + 1) % 7 == eventWeekDay && (!week || isNthWeek(eventTime, week))) {
+          for (const t of notifyDayBeforeAt) {
             const notificationTime = parseTimeToday(t, title);
 
             if (isSameMinute(now, notificationTime)) {
               const pushTitle = `${o.symbol} ${title}`;
 
-              this.callback({ ...o, pushTitle, msg: `${TOMORROW_SYMBOL} ${tomorrowStr} ${atStr} ${time}`, isDayBefore: true });
+              const tagline = `${TOMORROW_SYMBOL} ${strTomorrow} ${strAt} ${time}`;
 
-              entry.sentAt = Date.now();
+              const pushMsg = msg ? `${tagline}\n\n${msg}` : tagline;
+
+              this.callback({ ...o, _title: title, title: pushTitle, msg: pushMsg, tagline, isDayBefore: true });
             }
           }
         }
@@ -157,8 +323,8 @@ class WeeklyNotifier extends ScopedNotifier {
     }
   }
 
-  isLastDaySpecificCheckForWeeklyNotifier(_eventTime, entry) {
-    const { when, from, until, skipOnHolidays } = entry;
+  isLastDaySpecificCheckForWeeklyNotifier(_eventTime, entry, excludedRanges) {
+    const { when, from, until } = entry;
 
     for (let i = 1; i <= 30; i++) {
       const eventTime = addDays(_eventTime, i);
@@ -166,11 +332,11 @@ class WeeklyNotifier extends ScopedNotifier {
       for (const _t of Array(when).flat()) {
         const { dow } = this.parse(_t);
 
-        if (!evaluateTimespan({ date: eventTime, from, until }).isValid) {
+        if (!evaluateTimespan({ date: eventTime, from, until }).isWithin) {
           return true;
         }
 
-        if (eventTime.getDay() == dow && !this.shouldSkip(eventTime, skipOnHolidays)) {
+        if (eventTime.getDay() == dow && !this.shouldSkip(eventTime, entry, excludedRanges)) {
           return false;
         }
       }
@@ -194,29 +360,28 @@ class WeeklyNotifier extends ScopedNotifier {
       })[0];
   }
 
-  getLastEventSymbol({ isLastDay, when, time, eventWeekDay }) {
-    if (isLastDay && this.latestTime(this.findAllTimesForDOW(eventWeekDay, when)) == time) {
-      return LAST_EVENT_SYMBOL;
-    }
+  isLastEvent({ isLastDay, when, time, eventWeekDay }) {
+    return isLastDay && this.latestTime(this.findAllTimesForDOW(eventWeekDay, when)) == time;
+  }
 
-    return '';
+  lastEventTag(isLastEvent) {
+    const { strLastTime } = localize(program);
+    return isLastEvent ? ` [ ${LAST_EVENT_SYMBOL} ${strLastTime} ]` : '';
   }
 
   check() {
     for (const entry of this.notifications) {
-      const { sentAt } = entry;
-
       if (entry.to) {
         throw new Error(`${this.ident} Please use 'until' instead of 'to'`);
       }
 
-      if (!sentAt || (sentAt && Date.now() - sentAt > ONE_MINUTE)) {
-        this.checkNotificationTimes(entry);
-      }
+      this.checkNotificationTimes(entry);
     }
   }
 }
 
-export default function weeklyNotifier(...args) {
-  return new WeeklyNotifier(...args);
+export default function weeklyNotifier(notifications, options = {}) {
+  const decommissionable = isReloadableNotifications(new Error(), import.meta.url);
+
+  return new WeeklyNotifier(notifications, options, decommissionable);
 }

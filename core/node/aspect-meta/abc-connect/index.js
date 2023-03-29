@@ -123,6 +123,10 @@ function init(program) {
     program.sendABC({ message: program.network.name(), context: 'set_network' });
   });
 
+  program.on('gui:reload', () => {
+    program.sendABC({ message: 'gui_reload' });
+  });
+
   program.on('ready', () => {
     startAndConnectToABC(program);
   });

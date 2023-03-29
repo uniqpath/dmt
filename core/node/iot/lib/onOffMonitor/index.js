@@ -3,12 +3,24 @@ import { push } from 'dmt/notify';
 
 import { PowerMonitor, powerLog } from '../powerline/index.js';
 
-function notify({ msg, program, onlyAdmin }) {
+function notify({ msg, program, onlyAdmin, pushoverApp, pushoverUser, pushoverUsers }) {
+  let users;
+  if (pushoverUser || pushoverUsers) {
+    users = (pushoverUser || pushoverUsers).split(',').map(u => u.trim());
+  }
   if (program.isHub()) {
     if (onlyAdmin) {
-      push.omitDeviceName().notify(msg);
+      push
+        .optionalApp(pushoverApp)
+        .user(users)
+        .omitDeviceName()
+        .notify(msg);
     } else {
-      push.omitDeviceName().notifyAll(msg);
+      push
+        .optionalApp(pushoverApp)
+        .user(users)
+        .omitDeviceName()
+        .notifyAll(msg);
     }
   }
 }
@@ -19,7 +31,7 @@ function notificationGroup(iotDeviceTitle, suffix) {
 
 class OnOffMonitor {
   constructor(program, taskDef) {
-    const { onlyAdmin } = taskDef;
+    const { onlyAdmin, pushoverApp, pushoverUser, pushoverUsers } = taskDef;
 
     this.program = program;
     this.pm = new PowerMonitor(program, taskDef);
@@ -27,7 +39,7 @@ class OnOffMonitor {
     this.pm.on('start', e => {
       const status = 'Is ON …';
       const msg = `${e.device} ${status}`;
-      notify({ program, onlyAdmin, msg });
+      notify({ program, onlyAdmin, pushoverApp, pushoverUser, pushoverUsers, msg });
       const group = notificationGroup(e.device, 'on');
       program.nearbyNotification({ title: e.device, msg: status, group, ttl: 5 * 60, color: '#77DA9C', omitDeviceName: true });
 
@@ -37,7 +49,7 @@ class OnOffMonitor {
     this.pm.on('finish', e => {
       const status = 'DONE✓';
       const msg = `${e.device} ${status}`;
-      notify({ program, onlyAdmin, msg });
+      notify({ program, onlyAdmin, pushoverApp, pushoverUser, pushoverUsers, msg });
       const group = notificationGroup(e.device, 'off');
       program.nearbyNotification({ title: e.device, msg: status, group, ttl: 15 * 60, color: '#6163D1', omitDeviceName: true });
 

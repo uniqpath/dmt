@@ -1,7 +1,7 @@
 import { timeutils, accessPointIP, deviceNetworkId } from 'dmt/common';
 import os from 'os';
 
-const { prettyTimeAge } = timeutils;
+const { prettyTime } = timeutils;
 
 import deriveDeviceData from './deriveDeviceData.js';
 
@@ -34,10 +34,7 @@ export default function constructOurMessage({ program, msg }) {
   if (Date.now() - dmtStartedAt < 60000) {
     msg.uptime = `${Math.round((Date.now() - dmtStartedAt) / 1000)} seconds`;
   } else {
-    msg.uptime = prettyTimeAge(dmtStartedAt)
-      .replace(' ago', '')
-      .replace('about', '')
-      .trim();
+    msg.uptime = prettyTime(dmtStartedAt);
   }
 
   msg.connectivityFailures12h = program.slot('connectivityReport').get('count12h');

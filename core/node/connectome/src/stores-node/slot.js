@@ -1,3 +1,5 @@
+import clone from './lib/clone.js';
+
 export default class Slot {
   constructor({ name, parent }) {
     this.name = name;

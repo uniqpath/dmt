@@ -13,7 +13,8 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
 }
 function send(msg, { highPriority = false } = {}) {
   pushHP({}, highPriority)
-    .title('REMINDER')
+    .app('andreja')
+    .title('Reminder')
     .notifyAll(msg)
     .then(() => {
       console.log(colors.green('Push message sent to all'));
@@ -28,7 +29,7 @@ function send(msg, { highPriority = false } = {}) {
 const args = process.argv.slice(2);
 
 if (args.length) {
-  const highPriority = args[0] == 'highPriority';
+  const highPriority = args[0] == '--highPriority';
   send((highPriority ? args.slice(1) : args).join(' '), { highPriority });
 } else {
   help();

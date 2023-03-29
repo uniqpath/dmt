@@ -21,7 +21,7 @@ function emitError({ error, socket, program }) {
   log.red('IPC server error:');
   log.red(error || errorMsg);
 
-  program.exceptionNotify(errorMsg, 'IPC server error');
+  program.exceptionNotify(errorMsg, { origin: 'IPC server error' });
 
   ipc.server.emit(socket, 'ack', { error: errorMsg });
 }

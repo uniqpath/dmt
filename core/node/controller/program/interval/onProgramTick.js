@@ -1,4 +1,4 @@
-import { log, isDevMachine, isDevUser, isDevPanel, apMode, colors } from 'dmt/common';
+import { log, isDevMachine, isDevUser, isDevPanel, apMode, colors, keypair } from 'dmt/common';
 
 import util from 'util';
 
@@ -6,7 +6,7 @@ import { connect } from 'dmt/connectome';
 
 import determineIP from './determineIP.js';
 
-import determineWifiAP from './determineWifiAP.js';
+import connectomeLogging from '../connectomeLogging.js';
 
 let lanConnector;
 
@@ -52,7 +52,8 @@ export default function onTick(program) {
     }
 
     if (!lanConnector) {
-      lanConnector = connect({ host: primaryLanServer.ip, port, protocol: 'dmt', verbose: false, log: logger });
+      const { verbose } = connectomeLogging().client;
+      lanConnector = connect({ host: primaryLanServer.ip, port, protocol: 'dmt', keypair: keypair(), log: logger, verbose });
 
       lanConnector.on('inactive_connection', () => {
         log.cyan(`${statusTxt} Inactive connection ${lanConnector.remoteAddress()}`);

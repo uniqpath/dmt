@@ -10,9 +10,9 @@ function zeta_update {
     "go"
     "rust"
     # "geth"
-    "swarm"
-    "swarm-docs"
-    "lighttpd"
+    #"swarm"
+    #"swarm-docs"
+    # "lighttpd"
     # "youtube-dl"
     "yt-dlp"
     "certbot"
@@ -46,23 +46,23 @@ function zeta_update {
       update_nodejs "$@"
       ;;
 
-    geth)
-      update_geth "$@"
-      ;;
+    # geth)
+    #   update_geth "$@"
+    #   ;;
 
     shairport)
       update_shairport "$@"
       ;;
 
-    lighttpd)
-      local script="$DMT_SCRIPTS/lighttpd/install_lighttpd"
+    # lighttpd)
+    #   local script="$DMT_SCRIPTS/lighttpd/install_lighttpd"
 
-      if [ -f "$script" ]; then
-        sudo "$script" "$@"
-      else
-        printf "${RED}missing ${script}${NC}\n"
-      fi
-      ;;
+    #   if [ -f "$script" ]; then
+    #     sudo "$script" "$@"
+    #   else
+    #     printf "${RED}missing ${script}${NC}\n"
+    #   fi
+    #   ;;
 
     # youtube-dl)
     #   if [ "$EUID" -ne 0 ]; then
@@ -99,129 +99,6 @@ function install_n {
 }
 
 # ----------------------------- APPLICATIONS -----------------------------
-
-# function update_swarm_bee {
-#   create_install_directory
-
-#   local dir=~/Install/swarm-bee
-
-#   if [ -d $dir ]; then
-#     # todo: check for linux-arm and linux-x64 here instead of !macos
-#     # use: get_machine_os function
-#     if ! dmt_macos; then
-#       update_go
-#     fi
-
-#     local swarm_binary="${dir}/dist/bee"
-
-#     if [ -f "$swarm_binary" ]; then
-#       printf "⚠️ ${YELLOW}Swarm 🐝${NC} already exists here → ${GRAY}${swarm_binary}${NC}\n"
-#       "$swarm_binary" version
-#     fi
-
-#     local cwd="`pwd`"
-#     cd $dir
-
-#     git pull
-#     make binary
-
-#     echo
-
-#     if [ -f "$swarm_binary" ]; then
-#       printf "${MAGENTA}Installed ${YELLOW}Swarm 🐝${NC} ${MAGENTA}version:${NC}\n"
-#       "$swarm_binary" version
-
-#       echo
-
-#       printf "\n${GREEN}New compiled executable is here: ${GRAY}${swarm_binary}${NC}\n"
-
-#       copy_swarm_binary_to_dmt "$swarm_binary"
-#     else
-#       printf "${RED}✖ Failed to produce ${swarm_binary}${NC}\n"
-#     fi
-
-#     cd "$cwd"
-#   else
-#     printf "${YELLOW}Missing directory: ${dir} ${NC}\n"
-#     printf "${GREEN}Creating ${GRAY}${dir}${NC} directory and installing ${YELLOW}Swarm 🐝${NC} into it ...${NC}\n"
-#     mkdir -p "$dir"
-
-#     local cwd="`pwd`"
-#     cd "$dir"
-#     git clone https://github.com/ethersphere/bee .
-#     cd "$cwd"
-
-#     update_swarm_bee
-#   fi
-# }
-
-# function update_swarm_bee_docs {
-#   dmt_ensure_nodejs_npm
-#   if [ ! $? -eq 0 ]; then
-#     return
-#   fi
-
-#   create_install_directory
-
-#   local dir=~/Install/swarm-docs
-
-#   if [ -d $dir ]; then
-
-#     cd $dir
-
-#     git pull
-
-#     echo
-#     printf "${GREEN}Installing node.js dependencies ...${NC}\n"
-
-#     npm install
-
-#     if [ ! -d "node_modules" ]; then
-#       printf "⚠️  ${RED}failed to install nodejs deps (node_modules)${NC}\n"
-#       return
-#     fi
-
-#     echo
-
-#     printf "${GREEN}Done 🐝${NC}\n"
-
-#     echo
-#     printf "💡 1) ${YELLOW}Now please enter:${NC}\n"
-#     echo
-#     printf "${GREEN}npm run start${NC} here in this directory ${GRAY}(${dir})${NC}\n"
-#     echo
-#     printf "💡 2) ${YELLOW}Open this url in browser${NC} ${GRAY}(if it doesn't open automatically):${NC}\n"
-#     echo
-#     printf "${CYAN}http://localhost:3000${NC}\n"
-#     echo
-#   else
-#     printf "${YELLOW}Missing directory: ${dir} ${NC}\n"
-#     printf "${GREEN}Creating ${GRAY}${dir}${NC} directory and installing ${YELLOW}🐝 swarm-docs${NC} in it ...${NC}\n"
-#     echo
-#     mkdir -p "$dir"
-
-#     cd "$dir"
-#     git clone https://github.com/ethersphere/docs.github.io.git .
-
-#     update_swarm_bee_docs
-#   fi
-# }
-
-# function copy_swarm_binary_to_dmt() {
-#   local swarm_binary="$@"
-
-#   # local os=''
-#   # get_machine_os os
-#   #local target="$DMT_PATH/user/bin/${os}"
-
-#   local target="$DMT_HERE_PLATFORM_BIN"
-
-#   printf "${GREEN}Copying ${YELLOW}Swarm 🐝${NC} to ${GRAY}${target}${NC}\n"
-
-#   mkdir -p "$target"
-
-#   cp "$swarm_binary" "$target"
-# }
 
 function update_nodejs {
   local version="latest"

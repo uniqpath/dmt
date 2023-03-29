@@ -2,7 +2,6 @@ import os from 'os';
 import fs from 'fs';
 import path from 'path';
 import express from 'express';
-import xstate from 'xstate';
 import quantum from 'quantum-generator';
 import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
@@ -14,6 +13,8 @@ import scan from './lib/scan.js';
 import sets from './lib/sets.js';
 import tags from './lib/tags.js';
 import * as quantile from './lib/quantile.js';
+import setupProtocolConnectionsCounter from './lib/protocolHelpers/setupConnectionsCounter.js';
+
 import * as formatNumber from './lib/formatNumber/formatNumber.js';
 
 import stopwatch from './lib/timeutils/stopwatch.js';
@@ -22,6 +23,7 @@ import stopwatchAdv from './lib/timeutils/stopwatchAdv.js';
 import * as timeutils from './lib/timeutils/index.js';
 import * as suntime from './lib/timeutils/suntime/index.js';
 
+import stripAnsi from 'strip-ansi';
 import meetup from './lib/meetup/index.js';
 
 import FsState from './lib/fsState.js';
@@ -63,6 +65,27 @@ if (!fs.existsSync(helper.dmtPath)) {
     )}`
   );
   process.exit();
+}
+
+class SeededRandom {
+  constructor(seed) {
+    this.modulus = 2 ** 31 - 1;
+    this.multiplier = 48271;
+    this.increment = 0;
+    this.seed = this.mix(seed);
+  }
+
+  mix(seed) {
+    let mixed = seed ^ (seed << 13);
+    mixed ^= mixed >> 17;
+    mixed ^= mixed << 5;
+    return mixed & this.modulus;
+  }
+
+  next() {
+    this.seed = (this.multiplier * this.seed + this.increment) % this.modulus;
+    return this.seed / this.modulus;
+  }
 }
 
 function promiseTimeout(ms, promise) {
@@ -202,7 +225,7 @@ const {
   prettyFileSize
 } = helper;
 
-const { periodicRepeat: loop, listify } = util;
+const { periodicRepeat: loop, runAtNextMinute, everyMinute, everyHour, executeAt, listify } = util;
 
 const fsState = new FsState(dmtStateDir);
 
@@ -364,7 +387,6 @@ export {
   tags,
   quantile,
   nacl,
-  xstate,
   quantum,
   colors,
   colors2,
@@ -392,6 +414,10 @@ export {
   disconnectedIPAddress,
   meetup,
   loop,
+  everyMinute,
+  everyHour,
+  runAtNextMinute,
+  executeAt,
   listify,
   guiViews,
   isInstalled,
@@ -441,6 +467,8 @@ export {
   debugMode,
   debugCategory,
   fsState,
+  stripAnsi,
+  setupProtocolConnectionsCounter,
   dmtStateDir,
   dmtPath,
   dmtHereEnsure,
@@ -451,5 +479,6 @@ export {
   assetsDir,
   accessTokensDir,
   globals,
-  promiseTimeout
+  promiseTimeout,
+  SeededRandom
 };

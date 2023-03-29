@@ -8,10 +8,7 @@ let firstRun = true;
 
 export default function osUptime(program) {
   const uptime = os.uptime();
-  const age = convertSeconds(uptime)
-    .replace('about', '')
-    .replace('less than a minute', 'a few seconds')
-    .trim();
+  const age = convertSeconds(uptime);
   program.slot('device').update({ osUptime: uptime < 60 ? `${Math.round(uptime)} seconds` : age }, { announce: false });
 
   if (firstRun) {
