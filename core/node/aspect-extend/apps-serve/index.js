@@ -21,7 +21,7 @@ function mountApps(appDefinitions, server) {
   return app => {
     const ssrApps = [];
 
-    for (const [appName, { expressAppSetup, ssrHandler }] of Object.entries(appDefinitions)) {
+    for (const { appName, expressAppSetup, ssrHandler } of appDefinitions) {
       if (ssrHandler) {
         server.useDynamicSSR(appName, ssrHandler);
         ssrApps.push(appName);

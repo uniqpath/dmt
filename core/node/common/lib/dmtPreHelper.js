@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+
 import def from './parsers/def/parser.js';
 import colors from './colors/colors.js';
+
 import colors2 from './colors/colors2.js';
 import scan from './scan.js';
 

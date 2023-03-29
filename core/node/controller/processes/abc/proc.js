@@ -19,6 +19,10 @@ const STATS_INTERVAL = 700;
 
 const ONE_MINUTE = 60 * 1000;
 
+const CRASH_LOOP_WINDOW_SECONDS = 60;
+const MAX_CRASHES = 3;
+const crashTimestamps = [];
+
 let startedAt = Date.now();
 
 function correctAbcBootTime() {
@@ -38,16 +42,16 @@ setTimeout(() => {
 
 const abcVersion = _abcVersion();
 
+let guiReloadAt;
+
 let dmtProcConnectedAt;
+let dmtProcStartedAt;
 let dmtProcCrashLoopedAt;
 let dmtProcNextWarningAfterCrashLoopAt;
 
 let dmtProcCrashedInForegroundAt;
 
 let dmtForeground;
-
-const MAX_CRASHES = 3;
-const crashTimestamps = [];
 
 function collectStat() {
   return new Promise((success, reject) => {
@@ -70,11 +74,11 @@ function isCrashLoop(MAX_CRASHES) {
     crashTimestamps.shift();
   }
 
-  return crashTimestamps.length == MAX_CRASHES && Date.now() - crashTimestamps[0] < 60 * 1000;
+  return crashTimestamps.length == MAX_CRASHES && Date.now() - crashTimestamps[0] < CRASH_LOOP_WINDOW_SECONDS * 1000;
 }
 
 function isSecondCrash() {
-  return crashTimestamps.length > 1 && Date.now() - crashTimestamps[crashTimestamps.length - 2] < 60 * 1000;
+  return crashTimestamps.length > 1 && Date.now() - crashTimestamps[crashTimestamps.length - 2] < CRASH_LOOP_WINDOW_SECONDS * 1000;
 }
 
 function crashNotify(crashMsg, msg, { highPriority = true } = {}) {
@@ -127,7 +131,7 @@ export default function init() {
       if (dmtProcCrashedInForegroundAt && dmtProcCrashedInForegroundAt < Date.now() - 3 * 60 * 1000) {
         if (!isMainDevice()) {
           const msg = `✨ Spawning a new dmt-proc after crash ${prettyTimeAge(dmtProcCrashedInForegroundAt)} while running in terminal foreground …`;
-          log.cyan(msg);
+          log.magenta(msg);
           push.notify(msg);
 
           startDMT();
@@ -155,14 +159,16 @@ export default function init() {
     }
   });
 
-  ser.on('init', ({ pid, networkId, foreground }, socket) => {
+  ser.on('init', ({ pid, networkId, foreground, dmtStartedAt, wasSpawnedByABC }, socket) => {
     socket.dmtProcPID = pid;
     log.white(`🌀 dmt-proc ${pid} connected ${foreground ? colors.gray('(running in terminal foreground)') : ''}`);
 
     dmtForeground = foreground;
 
     socket.dmt = true;
+    socket.dmtProcWasSpawnedByABC = wasSpawnedByABC;
 
+    dmtProcStartedAt = dmtStartedAt;
     dmtProcConnectedAt = Date.now();
     dmtProcCrashLoopedAt = null;
     dmtProcNextWarningAfterCrashLoopAt = null;
@@ -184,6 +190,10 @@ export default function init() {
       log.cyan(`DMT MESSAGE: ${message}`);
       if (message == 'stopping') {
         socket.reportedStopping = true;
+      }
+
+      if (message == 'gui_reload') {
+        guiReloadAt = Date.now();
       }
     }
   });
@@ -222,12 +232,20 @@ export default function init() {
 
           dmtProcCrashedInForegroundAt = Date.now();
         } else {
-          crashTimestamps.push(Date.now());
+          const MAX_TIME = 90000;
+          const instantCrash1 = !socket.dmtProcWasSpawnedByABC && dmtProcStartedAt && Date.now() - dmtProcStartedAt < MAX_TIME;
+          const instantCrash2 = guiReloadAt && Date.now() - guiReloadAt < MAX_TIME;
+
+          const instantCrash = instantCrash1 || instantCrash2;
+
+          if (!instantCrash) {
+            crashTimestamps.push(Date.now());
+          }
 
           if (isCrashLoop(MAX_CRASHES)) {
-            crashMsg = '⚠️😵‍💫💀 dmt-proc crash loop';
+            crashMsg = `❌ dmt-proc crash loop (${MAX_CRASHES} crashes in ${CRASH_LOOP_WINDOW_SECONDS}s)`;
             log.red(crashMsg);
-            const msg = '🤷‍♂️ Giving up on restarting dmt-proc, needs a bugfix and manual restart.';
+            const msg = '😵‍💫 Giving up on restarting dmt-proc, needs a bugfix and a manual restart.';
             log.cyan(msg);
 
             dmtProcCrashLoopedAt = Date.now();
@@ -235,17 +253,24 @@ export default function init() {
 
             crashNotify(crashMsg, msg, { highPriority: false });
           } else {
-            if (isSecondCrash()) {
+            const msg = instantCrash ? '❗👨‍💻 NOT spawning a new dmt-proc because crash happened just after manual update.' : '✨ Spawning a new dmt-proc …';
+
+            if (instantCrash) {
+              crashMsg = crashMsg.replace('🛑', '🔷');
+            }
+
+            if (!instantCrash && isSecondCrash()) {
               crashMsg = '🛑 dmt-proc crashed again';
             }
+
             log.red(crashMsg);
+            log.magenta(msg);
 
-            const msg = '✨ Spawning a new dmt-proc …';
-            log.cyan(msg);
-
-            setTimeout(() => {
-              startDMT();
-            }, 1000);
+            if (!instantCrash) {
+              setTimeout(() => {
+                startDMT();
+              }, 1000);
+            }
 
             crashNotify(crashMsg, msg, { highPriority: !isSecondCrash() });
           }

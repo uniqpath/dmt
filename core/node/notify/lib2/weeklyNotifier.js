@@ -1,4 +1,4 @@
-import { dateFns, colors, holidayDataExists, isHoliday } from 'dmt/common';
+import { dateFns, program, colors, holidayDataExists, isHoliday } from 'dmt/common';
 
 const { isSameMinute, subMinutes, isToday, addDays } = dateFns;
 
@@ -12,31 +12,34 @@ import describeNearTime from './lib/describeNearTime.js';
 import localize from './lib/localize.js';
 
 const LAST_EVENT_SYMBOL = '✅';
-const TOMORROW_SYMBOL = '◆';
-
-const ONE_MINUTE = 60 * 1000;
+const NOW_SYMBOL = '🫵';
+const CLOCK_SYMBOL = '🕛';
+const TOMORROW_SYMBOL = '⏳';
 
 class WeeklyNotifier extends ScopedNotifier {
-  constructor(notifications, { program, symbol = '🔔', notifyDayBeforeAt, notifyMinutesBefore = 0, color, ttl, highPriority, skipOnHolidays }) {
+  constructor(notifications, { symbol = '🔔', notifyDayBeforeAt, notifyMinutesBefore = 0, title, color, ttl, highPriority, skipOnHolidays, user } = {}) {
     super(symbol);
-
-    this.program = program;
 
     this.notifications = Array(notifications).flat(Infinity);
 
+    this.title = title;
     this.symbol = symbol;
     this.color = color;
     this.ttl = ttl;
     this.highPriority = !!highPriority;
 
-    this.notifyDayBeforeAt = Array(notifyDayBeforeAt || []).flat();
+    this.notifyDayBeforeAt = notifyDayBeforeAt;
     this.notifyMinutesBefore = notifyMinutesBefore;
     this.skipOnHolidays = skipOnHolidays;
+
+    this.user = user;
   }
 
-  shouldSkip(date, skipOnHolidays) {
-    if (this.skipOnHolidays || skipOnHolidays) {
-      const country = this.program.country();
+  shouldSkip(date, entry) {
+    const sh = this.skipOnHolidays || entry.skipOnHolidays;
+
+    if (sh) {
+      const country = typeof sh === 'string' ? sh : program.country();
       return holidayDataExists(country) && isHoliday(date, { country });
     }
   }
@@ -62,94 +65,130 @@ class WeeklyNotifier extends ScopedNotifier {
   checkNotificationTimes(entry) {
     const now = new Date();
 
-    const { title, symbol, when, color, id, ttl, from, until, highPriority: _highPriority } = entry;
-    const highPriority = _highPriority == undefined ? this.highPriority : _highPriority;
+    const {
+      msg: msgStrOrArray,
+      symbol: _symbol,
+      when,
+      color,
+      id,
+      ttl,
+      from,
+      until,
+      notifyMinutesBefore: _notifyMinutesBefore,
+      highPriority: _highPriority,
+      notifyDayBeforeAt: _notifyDayBeforeAt,
+      user: _user
+    } = entry;
 
-    const notifyMinutesBefore = entry.notifyMinutesBefore || this.notifyMinutesBefore;
+    const msg = Array.isArray(msgStrOrArray) ? this.randomElement(msgStrOrArray) : msgStrOrArray;
+    const titleStrOrArray = entry.title || this.title || '';
+    const _title = Array.isArray(titleStrOrArray) ? this.randomElement(titleStrOrArray) : titleStrOrArray;
+
+    const notifyMinutesBefore = _notifyMinutesBefore == undefined ? this.notifyMinutesBefore : _notifyMinutesBefore || 0;
+    const highPriority = _highPriority == undefined ? this.highPriority : _highPriority;
+    const notifyDayBeforeAt = Array((_notifyDayBeforeAt == undefined ? this.notifyDayBeforeAt : _notifyDayBeforeAt || []) || []).flat();
+    const user = _user == undefined ? this.user : _user;
 
     for (const _t of Array(when).flat()) {
       const { time, dow: eventWeekDay } = this.parse(_t);
 
-      const { tomorrowStr, atStr } = localize(this.program);
+      const { strTomorrow, strAt } = localize(program);
+
+      const symbolStrOrArray = _symbol || this.symbol;
+      const symbol = Array.isArray(symbolStrOrArray) ? this.randomElement(symbolStrOrArray) : symbolStrOrArray;
 
       const o = {
-        symbol: symbol || this.symbol,
-        title: title || '',
+        symbol,
+        _msg: msg,
         highPriority: false,
         color: color || this.color,
         ttl: ttl || this.ttl,
-        id
+        user,
+        id,
+        data: entry.data || {}
       };
 
       if (now.getDay() == eventWeekDay) {
-        const eventTime = parseTimeToday(time, title);
+        const eventTime = parseTimeToday(time, _title);
 
         const { isValid, isLastDay: _isLastDay } = evaluateTimespan({ date: eventTime, from, until });
 
-        if (isValid && !this.shouldSkip(eventTime, entry.skipOnHolidays)) {
+        if (isValid && !this.shouldSkip(eventTime, entry)) {
           const notificationTime = subMinutes(eventTime, notifyMinutesBefore);
 
           if (isSameMinute(now, notificationTime)) {
             const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry);
 
-            const { datetime, inTime: tagline } = describeNearTime(this.program, parseTimeToday(time, title));
+            const { datetime, inTime, isNow } = describeNearTime(program, parseTimeToday(time, _title));
 
-            const __symbol = this.getLastEventSymbol({ isLastDay, time, when, eventWeekDay });
+            const tagline = isNow && msg ? undefined : `${isNow ? NOW_SYMBOL : CLOCK_SYMBOL} ${datetime}${inTime ? ` [ ${inTime} ]` : ''}`;
 
-            const pushTitle = `${o.symbol}${__symbol} ${title} ${tagline ? `— ${tagline}` : ''}`.trim();
+            const isLastEvent = this.isLastEvent({ isLastDay, time, when, eventWeekDay });
+            const lastTag = this.lastEventTag(isLastEvent);
+
+            const title = `${_title}${lastTag}`;
+            const pushTitle = `${o.symbol} ${title}`.trim();
+            const pushMsg = msg ? `${tagline ? `${tagline}\n\n` : ''}${msg}` : tagline;
 
             this.callback({
               ...o,
+              _title: title,
               highPriority,
-              pushTitle,
-              msg: datetime,
+              title: pushTitle,
+              msg: pushMsg,
               tagline
             });
-
-            entry.sentAt = Date.now();
           }
         }
       }
 
-      const eventTime = parseTimeTomorrow(time, title);
+      const eventTime = parseTimeTomorrow(time, _title);
 
       const { isValid, isLastDay: _isLastDay } = evaluateTimespan({ date: eventTime, from, until });
 
-      if (isValid && !this.shouldSkip(eventTime, entry.skipOnHolidays)) {
+      const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry);
+
+      const isLastEvent = this.isLastEvent({ isLastDay, time, when, eventWeekDay });
+      const lastTag = this.lastEventTag(isLastEvent);
+
+      const title = `${_title}${lastTag}`;
+
+      if (isValid && !this.shouldSkip(eventTime, entry)) {
         if ((now.getDay() + 1) % 7 == eventWeekDay) {
           const notificationTime = subMinutes(eventTime, notifyMinutesBefore);
 
           if (isSameMinute(now, notificationTime) && isToday(notificationTime)) {
-            const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry);
+            const { datetime, inTime } = describeNearTime(program, parseTimeTomorrow(time, title));
 
-            const { datetime, inTime: tagline } = describeNearTime(this.program, parseTimeTomorrow(time, title));
+            const pushTitle = `${o.symbol} ${title}`.trim();
 
-            const __symbol = this.getLastEventSymbol({ isLastDay, time, when, eventWeekDay });
+            const tagline = `${CLOCK_SYMBOL} ${datetime}${inTime ? ` [ ${inTime} ]` : ''}`;
 
-            const pushTitle = `${o.symbol}${__symbol} ${title} ${tagline ? `— ${tagline}` : ''}`.trim();
+            const pushMsg = msg ? `${tagline}\n\n${msg}` : tagline;
 
             this.callback({
               ...o,
+              _title: title,
               highPriority,
-              pushTitle,
-              msg: datetime,
+              title: pushTitle,
+              msg: pushMsg,
               tagline
             });
-
-            entry.sentAt = Date.now();
           }
         }
 
-        if (this.notifyDayBeforeAt.length > 0 && (now.getDay() + 1) % 7 == eventWeekDay) {
-          for (const t of this.notifyDayBeforeAt) {
+        if (notifyDayBeforeAt.length > 0 && (now.getDay() + 1) % 7 == eventWeekDay) {
+          for (const t of notifyDayBeforeAt) {
             const notificationTime = parseTimeToday(t, title);
 
             if (isSameMinute(now, notificationTime)) {
               const pushTitle = `${o.symbol} ${title}`;
 
-              this.callback({ ...o, pushTitle, msg: `${TOMORROW_SYMBOL} ${tomorrowStr} ${atStr} ${time}`, isDayBefore: true });
+              const tagline = `${TOMORROW_SYMBOL} ${strTomorrow} ${strAt} ${time}`;
 
-              entry.sentAt = Date.now();
+              const pushMsg = msg ? `${tagline}\n\n${msg}` : tagline;
+
+              this.callback({ ...o, _title: title, title: pushTitle, msg: pushMsg, tagline, isDayBefore: true });
             }
           }
         }
@@ -158,7 +197,7 @@ class WeeklyNotifier extends ScopedNotifier {
   }
 
   isLastDaySpecificCheckForWeeklyNotifier(_eventTime, entry) {
-    const { when, from, until, skipOnHolidays } = entry;
+    const { when, from, until } = entry;
 
     for (let i = 1; i <= 30; i++) {
       const eventTime = addDays(_eventTime, i);
@@ -170,7 +209,7 @@ class WeeklyNotifier extends ScopedNotifier {
           return true;
         }
 
-        if (eventTime.getDay() == dow && !this.shouldSkip(eventTime, skipOnHolidays)) {
+        if (eventTime.getDay() == dow && !this.shouldSkip(eventTime, entry)) {
           return false;
         }
       }
@@ -194,25 +233,22 @@ class WeeklyNotifier extends ScopedNotifier {
       })[0];
   }
 
-  getLastEventSymbol({ isLastDay, when, time, eventWeekDay }) {
-    if (isLastDay && this.latestTime(this.findAllTimesForDOW(eventWeekDay, when)) == time) {
-      return LAST_EVENT_SYMBOL;
-    }
+  isLastEvent({ isLastDay, when, time, eventWeekDay }) {
+    return isLastDay && this.latestTime(this.findAllTimesForDOW(eventWeekDay, when)) == time;
+  }
 
-    return '';
+  lastEventTag(isLastEvent) {
+    const { strLastTime } = localize(program);
+    return isLastEvent ? ` [ ${LAST_EVENT_SYMBOL} ${strLastTime} ]` : '';
   }
 
   check() {
     for (const entry of this.notifications) {
-      const { sentAt } = entry;
-
       if (entry.to) {
         throw new Error(`${this.ident} Please use 'until' instead of 'to'`);
       }
 
-      if (!sentAt || (sentAt && Date.now() - sentAt > ONE_MINUTE)) {
-        this.checkNotificationTimes(entry);
-      }
+      this.checkNotificationTimes(entry);
     }
   }
 }

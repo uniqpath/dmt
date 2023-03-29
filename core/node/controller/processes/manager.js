@@ -25,6 +25,11 @@ if (args.length < 2) {
 const proc = args[1];
 const procName = proc.replace(new RegExp(/\.js$/, ''), '');
 
+let argsForDmtProc;
+if (args.length > 2 && args[2] == '--from_abc') {
+  argsForDmtProc = args[2];
+}
+
 if (!fs.existsSync(`${proc}`)) {
   console.log(`Missing ${proc} file`);
   usage();
@@ -44,6 +49,7 @@ const daemon = daemonize({
   main: `${proc}`,
   name: `${procName}`,
   pidfile: pidFilePath,
+  argv: [argsForDmtProc],
   nodeFlags
 });
 

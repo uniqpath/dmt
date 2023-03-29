@@ -1,6 +1,6 @@
 {
   "name": "dmt-gui-kit",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "devDependencies": {
     "@playwright/test": "^1.28.1",
     "@sveltejs/adapter-auto": "^1.0.0",
@@ -31,6 +31,7 @@
     "./components/Loading.svelte": "./components/Loading.svelte",
     "./components/LogView.svelte": "./components/LogView.svelte",
     "./components/Logo.svelte": "./components/Logo.svelte",
+    "./components/Noise.svelte": "./components/Noise.svelte",
     "./components/SnackBar.svelte": "./components/SnackBar.svelte",
     "./environment": "./environment.js",
     "./icons/XIcon.svelte": "./icons/XIcon.svelte",

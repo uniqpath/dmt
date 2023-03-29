@@ -28,7 +28,7 @@ function send(msg, { highPriority = false } = {}) {
 const args = process.argv.slice(2);
 
 if (args.length) {
-  const highPriority = args[0] == 'highPriority';
+  const highPriority = args[0] == '--highPriority';
   send((highPriority ? args.slice(1) : args).join(' '), { highPriority });
 } else {
   help();

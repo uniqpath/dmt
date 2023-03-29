@@ -144,6 +144,11 @@ class Playlist {
     this.playlist = [];
   }
 
+  savePausedAt(pausedAt) {
+    this.currentSong().pausedAt = pausedAt;
+    this.broadcastPlaylistState({ skipDiffing: true });
+  }
+
   prepareNumbering() {
     this.currentIndex = 0;
   }

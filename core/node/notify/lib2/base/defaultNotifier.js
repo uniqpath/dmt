@@ -1,4 +1,4 @@
-import { isMainServer, log } from 'dmt/common';
+import { isMainServer, program, log } from 'dmt/common';
 
 import { push } from 'dmt/notify';
 
@@ -7,26 +7,24 @@ const GLOBAL_DEFAULT_COLOR = '#3091AB';
 
 export default class DefaultNotifier {
   defaults() {
-    const { program } = this;
-
-    this.scopeDevice(() => isMainServer() || program.isHub()).handleNotification(({ msg, title, symbol, color, ttl, tagline, highPriority }) => {
+    this.scope(() => isMainServer() || program.isHub()).handle(({ title, msg, _title, _msg, symbol, color, ttl, tagline, highPriority, user }) => {
       if (isMainServer()) {
-        const pm = push.highPriority(highPriority).title(`${symbol} ${title} ${tagline || ''}`);
+        const pm = push.highPriority(highPriority).title(title);
 
         if (this._all) {
-          pm.notifyAll(msg);
+          pm.user(user).notifyAll(msg);
         } else {
-          pm.notify(msg);
+          pm.user(user).notify(msg);
         }
-      } else {
+      } else if (!user) {
         program.nearbyNotification({
-          msg,
-          title,
+          msg: _msg,
+          title: _title,
           omitDeviceName: true,
           color: color || GLOBAL_DEFAULT_COLOR,
           ttl: ttl || GLOBAL_DEFAULT_TTL,
           omitTtl: true,
-          replaceTtl: tagline,
+          tagline,
           dev: this._dev
         });
       }

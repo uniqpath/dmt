@@ -260,6 +260,24 @@ class MpvEngine extends EventEmitter {
     });
   }
 
+  timeposition() {
+    return this.playerEngineState.timeposition;
+  }
+
+  continue(pausedAt) {
+    return new Promise((success, reject) => {
+      this.prepareEngine()
+        .then(() => {
+          this.play().then(() => {
+            this.seek({ seconds: pausedAt })
+              .then(success)
+              .catch(reject);
+          });
+        })
+        .catch(reject);
+    });
+  }
+
   stop() {
     log.yellow('mpv engine stop current');
     return new Promise((success, reject) => {

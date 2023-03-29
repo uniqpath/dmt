@@ -14,6 +14,8 @@ class Channel extends EventEmitter {
     super();
     this.ws = ws;
 
+    this.ident = Math.round(10 ** 5 * Math.random()).toString();
+
     this.log = log;
     this.verbose = verbose;
 
