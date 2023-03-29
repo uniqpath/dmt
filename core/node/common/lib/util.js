@@ -22,6 +22,36 @@ function periodicRepeat(callback, timeMs) {
   update();
 }
 
+function everyMinute(callback) {
+  let firstRun = true;
+
+  const update = () => {
+    if (firstRun) {
+      callback();
+      setTimeout(update, (60 - new Date().getSeconds()) * 1000);
+      firstRun = false;
+    } else {
+      callback();
+      setTimeout(update, 60 * 1000);
+    }
+  };
+
+  update();
+}
+
+function executeAt(time, callback) {
+  const parts = time.split(':');
+  const hours = parseInt(parts[0]);
+  const min = parseInt(parts[1]);
+
+  everyMinute(() => {
+    const d = new Date();
+    if (d.getMinutes() == min && d.getHours() == hours) {
+      callback();
+    }
+  });
+}
+
 function autoDetectEOLMarker(content = '') {
   const EOL = content.match(/\r\n/gm) ? '\r\n' : '\n';
   return EOL;
@@ -128,6 +158,8 @@ export default {
   limitString,
   snakeCaseKeys,
   periodicRepeat,
+  everyMinute,
+  executeAt,
   autoDetectEOLMarker,
   normalizeMac,
   clone,

@@ -4,6 +4,8 @@ import pushoverApi from './pushoverApi/index.js';
 
 import { dmtApp } from './dmtApp.js';
 
+const MAX_TITLE_CHARS = 100;
+
 const deviceId = deviceGeneralIdentifier();
 
 function getMessageTitle({ title, app, network, deviceName, omitDeviceName, isABC, originDevice }) {
@@ -53,7 +55,7 @@ export default function prepareMessage({ message, recipient, title, app, omitDev
   const priority = highPriority ? 'high' : 'low';
 
   return new pushoverApi.Message({
-    title: messageTitle,
+    title: messageTitle ? messageTitle.substring(0, MAX_TITLE_CHARS) : null,
     url,
     urlTitle,
     message,

@@ -79,6 +79,11 @@ export default class SyncStore extends EventEmitter {
     return this.kvStore.state;
   }
 
+  set(state) {
+    this.kvStore.set(state);
+    this.announceStateChange();
+  }
+
   get(key) {
     return key ? this.state()[key] : this.state();
   }

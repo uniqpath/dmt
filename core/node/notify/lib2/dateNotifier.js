@@ -12,8 +12,6 @@ import localize from './lib/localize.js';
 
 import dateTemplate from './lib/dateTemplate.js';
 
-const ONE_MINUTE = 60 * 1000;
-
 const TOMORROW_SYMBOL = '◆';
 const LAST_EVENT_OF_YEAR = '❗';
 
@@ -79,8 +77,6 @@ class DateNotifier extends ScopedNotifier {
           msg: isUnspecifiedTime ? todayStr : datetime,
           tagline: isUnspecifiedTime ? undefined : tagline
         });
-
-        entry.sentAt = Date.now();
       }
 
       if (isTomorrow(timepoint)) {
@@ -92,8 +88,6 @@ class DateNotifier extends ScopedNotifier {
 
             const msg = `${TOMORROW_SYMBOL} ${tomorrowStr} ${isUnspecifiedTime ? '' : `${atStr} ${time}`}`;
             this.callback({ ...o, pushTitle, msg, isDayBefore: true });
-
-            entry.sentAt = Date.now();
           }
         }
       }
@@ -123,15 +117,11 @@ class DateNotifier extends ScopedNotifier {
 
   check() {
     for (const entry of this.notifications) {
-      const { sentAt } = entry;
-
       if (entry.from || entry.until) {
         throw new Error(`${this.ident} does not support 'from' and 'until'`);
       }
 
-      if (!sentAt || (sentAt && Date.now() - sentAt > ONE_MINUTE)) {
-        this.checkNotificationTimes(entry);
-      }
+      this.checkNotificationTimes(entry);
     }
   }
 }

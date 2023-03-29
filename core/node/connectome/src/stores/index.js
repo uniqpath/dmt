@@ -1,3 +1,7 @@
 import MultiConnectedStore from './lib/multiConnectedStore/multiConnectedStore.js';
 
-export { MultiConnectedStore };
+function isEmptyObject(obj) {
+  return typeof obj === 'object' && Object.keys(obj).length === 0;
+}
+
+export { MultiConnectedStore, isEmptyObject };

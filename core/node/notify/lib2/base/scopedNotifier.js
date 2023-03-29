@@ -1,4 +1,4 @@
-import { log, colors, loop, globals } from 'dmt/common';
+import { log, colors, everyMinute } from 'dmt/common';
 
 import DefaultNotifier from './defaultNotifier.js';
 
@@ -37,11 +37,11 @@ export default class ScopedNotifier extends DefaultNotifier {
       log.gray(`${colors.red('↑ All your devices will handle these notifications ↑')} [ Do you really want this? ]`);
     }
 
-    loop(() => {
+    everyMinute(() => {
       if ((!this.deviceIds || this.deviceIds.includes(this.program.device.id)) && (!this.deviceCheckFunction || this.deviceCheckFunction())) {
         this.check();
       }
-    }, globals.slowTickerPeriod);
+    });
 
     return this;
   }

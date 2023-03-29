@@ -198,7 +198,10 @@ function __notify(obj) {
       const pushoverMsgObj = prepareMessage({ message, title, app, omitDeviceName, network, url, urlTitle, recipient, highPriority, isABC, originDevice });
 
       trySend({ client, pushoverMsgObj, message, app, group, program })
-        .then(() => success(true))
+        .then(() => {
+          success(true);
+          log.cyan(`${app} remaining limit: ${client.appRemaining}`);
+        })
         .catch(() => success(false));
     } else {
       success(true);

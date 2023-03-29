@@ -40,7 +40,7 @@ import ipcServerLegacy from './ipcServer/ipcServerLegacy.js';
 import load from './load.js';
 
 class Program extends EventEmitter {
-  constructor({ mids }) {
+  constructor({ mids, fromABC }) {
     super();
 
     this.mqttHandlers = [];
@@ -68,6 +68,14 @@ class Program extends EventEmitter {
       if (!dmt.isMainDevice()) {
         this.nearbyNotification({ msg: 'dmt-proc started', ttl: 10, color: '#50887E', dev: true });
       }
+
+      if (fromABC) {
+        setTimeout(() => {
+          log.yellow(`🛑 ${colors.cyan('dmt-proc')} started by ABC after crash`);
+          push.notify('✅ dmt-proc resumed but the cause for crash still has to be fixed');
+        }, 2000);
+      }
+
       this.sendCachedNearbyNotifications();
       this.sendCachedMainDeviceNotifications();
     });
@@ -249,8 +257,8 @@ class Program extends EventEmitter {
     return dmt.user().language || 'eng';
   }
 
-  loadDirectory(dir) {
-    load(this, dir);
+  loadDirectory(dir, filter) {
+    load(this, dir, filter);
   }
 
   isHub() {

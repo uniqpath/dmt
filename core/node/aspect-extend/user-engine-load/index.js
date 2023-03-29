@@ -4,13 +4,19 @@ import path from 'path';
 import { colors, dmtUserDir } from 'dmt/common';
 import modifyPackageJson from './modifyPackageJson.js';
 
+import deviceLoader from './deviceLoader.js';
+
+const userEnginePath = path.join(dmtUserDir, 'engine');
+const userEngineEntryPoint = path.join(userEnginePath, 'index.js');
+
 async function init(program) {
   function userEngineReady(results) {
+    deviceLoader(program, userEnginePath);
+
+    program.loadDirectory(path.join(userEnginePath, '_notifications'));
+
     program.emit('user_engine_ready', results);
   }
-
-  const userEnginePath = path.join(dmtUserDir, 'engine');
-  const userEngineEntryPoint = path.join(userEnginePath, 'index.js');
 
   modifyPackageJson(userEnginePath);
 

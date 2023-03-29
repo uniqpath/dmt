@@ -4,11 +4,12 @@ import { log, scan, colors } from 'dmt/common';
 
 const IGNORED = ['--unused.js', '--disabled.js'];
 
-export default function load(program, dir) {
+export default function load(program, dir, filter = () => true) {
   const modules = scan.dir(dir, { onlyFiles: true }).filter(file => path.extname(file) == '.js');
 
   modules
     .filter(m => !IGNORED.find(suffix => m.endsWith(suffix)))
+    .filter(m => filter(m))
     .forEach(m =>
       import(m).then(mod => {
         if (mod.default) {

@@ -14,8 +14,6 @@ import localize from './lib/localize.js';
 const LAST_EVENT_SYMBOL = '✅';
 const TOMORROW_SYMBOL = '◆';
 
-const ONE_MINUTE = 60 * 1000;
-
 class WeeklyNotifier extends ScopedNotifier {
   constructor(notifications, { program, symbol = '🔔', notifyDayBeforeAt, notifyMinutesBefore = 0, color, ttl, highPriority, skipOnHolidays }) {
     super(symbol);
@@ -105,8 +103,6 @@ class WeeklyNotifier extends ScopedNotifier {
               msg: datetime,
               tagline
             });
-
-            entry.sentAt = Date.now();
           }
         }
       }
@@ -135,8 +131,6 @@ class WeeklyNotifier extends ScopedNotifier {
               msg: datetime,
               tagline
             });
-
-            entry.sentAt = Date.now();
           }
         }
 
@@ -148,8 +142,6 @@ class WeeklyNotifier extends ScopedNotifier {
               const pushTitle = `${o.symbol} ${title}`;
 
               this.callback({ ...o, pushTitle, msg: `${TOMORROW_SYMBOL} ${tomorrowStr} ${atStr} ${time}`, isDayBefore: true });
-
-              entry.sentAt = Date.now();
             }
           }
         }
@@ -204,15 +196,11 @@ class WeeklyNotifier extends ScopedNotifier {
 
   check() {
     for (const entry of this.notifications) {
-      const { sentAt } = entry;
-
       if (entry.to) {
         throw new Error(`${this.ident} Please use 'until' instead of 'to'`);
       }
 
-      if (!sentAt || (sentAt && Date.now() - sentAt > ONE_MINUTE)) {
-        this.checkNotificationTimes(entry);
-      }
+      this.checkNotificationTimes(entry);
     }
   }
 }

@@ -8,8 +8,6 @@ import parseTimeYesterday from './lib/parseTimeYesterday.js';
 import parseTimeToday from './lib/parseTimeToday.js';
 import { evaluateTimespan, parseFrom, parseUntil } from './lib/evaluateTimespan.js';
 
-const ONE_MINUTE = 60 * 1000;
-
 const FINISH_SYMBOL = '✅';
 const WARN_SYMBOL = '❗';
 
@@ -118,15 +116,13 @@ class DailyNotifier extends ScopedNotifier {
           let ending = '';
 
           if (isLastDay && lastEvent) {
-            ending = `${FINISH_SYMBOL} ${tagline}`;
+            ending = `[ ${FINISH_SYMBOL} ${tagline} ]`;
           } else if (tagline) {
-            ending = `— ${tagline}`;
+            ending = `[ ${tagline} ]`;
           }
 
           const pushTitle = `${o.symbol} ${o.title} ${ending}`.trim();
           this.callback({ ...o, highPriority, pushTitle, tagline });
-
-          entry.sentAt = Date.now();
         } else if (warnAfter) {
           const warningNotificationTime = addMinutes(notificationTime, warnAfter);
 
@@ -142,8 +138,6 @@ class DailyNotifier extends ScopedNotifier {
 
             const pushTitle = `${symbol} ${o.title} ${ending}`.trim();
             this.callback({ ...o, msg: `${WARN_SYMBOL} ${msg}`, pushTitle, tagline: strReminder, isWarn: true });
-
-            entry.sentAt = Date.now();
           }
         }
       }
@@ -165,7 +159,6 @@ class DailyNotifier extends ScopedNotifier {
 
           const pushTitle = `${symbol} ${o.title} ${ending}`.trim();
           this.callback({ ...o, msg: `${WARN_SYMBOL} ${msg}`, pushTitle, symbol, tagline: strReminder, isWarn: true });
-          entry.sentAt = Date.now();
         }
       }
     }
@@ -213,15 +206,11 @@ class DailyNotifier extends ScopedNotifier {
 
   check() {
     for (const entry of this.notifications) {
-      const { sentAt } = entry;
-
       if (entry.to) {
         throw new Error(`${this.ident} Please use 'until' instead of 'to'`);
       }
 
-      if (!sentAt || (sentAt && Date.now() - sentAt > ONE_MINUTE)) {
-        this.checkNotificationTimes(entry);
-      }
+      this.checkNotificationTimes(entry);
     }
   }
 }

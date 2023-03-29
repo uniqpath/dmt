@@ -1,8 +1,8 @@
 dmt stop
 
-cp dmt-proc.plist /Library/LaunchDaemons
+cp dmt-proc.plist /Library/LaunchAgents
 
-cd /Library/LaunchDaemons
+cd /Library/LaunchAgents
 
 sudo chown root:wheel dmt-proc.plist
 
@@ -16,7 +16,7 @@ test:
 
 sudo bash -l
 
-root@computer:~$ launchctl load /Library/LaunchDaemons/dmt-proc.plist
+root@computer:~$ launchctl load /Library/LaunchAgents/dmt-proc.plist
 
 dmt
 
@@ -35,3 +35,9 @@ https://superuser.com/a/130819/220321
 /Library/LaunchDaemons         System wide daemons provided by the administrator.
 /System/Library/LaunchAgents   Mac OS X Per-user agents.
 /System/Library/LaunchDaemons  Mac OS X System wide daemons.
+
+Remark: /Library/LaunchDaemons might seem like a better idea because dmt-proc starts even if after computer reboot another user logs in first ... but a few things will break:
+- desktop notifications
+- putting computer to sleep won't work until admin user logs in at least once
+
+If /Library/LaunchAgents is used then dmt-proc only runs after that user (main admin) logs in at least once ... and then everything works.

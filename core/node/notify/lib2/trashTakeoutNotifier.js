@@ -8,8 +8,6 @@ import parseTimeToday from './lib/parseTimeToday.js';
 
 import dateTemplate from './lib/dateTemplate.js';
 
-const ONE_MINUTE = 60 * 1000;
-
 class TrashTakeoutNotifier extends ScopedNotifier {
   constructor(records, { program, year, color, ttl, notifyDayBeforeAt, highPriority, symbol = '🗑️', title }) {
     super(`${symbol} ${title || ''}`);
@@ -28,27 +26,23 @@ class TrashTakeoutNotifier extends ScopedNotifier {
   }
 
   check() {
-    if (!this.sentAt || (this.sentAt && Date.now() - this.sentAt > ONE_MINUTE)) {
-      const date = new Date();
+    const date = new Date();
 
-      if (this.notifyDayBeforeAt.find(t => isSameMinute(date, parseTimeToday(t)))) {
-        const list = [];
+    if (this.notifyDayBeforeAt.find(t => isSameMinute(date, parseTimeToday(t)))) {
+      const list = [];
 
-        for (const { tag, when } of this.records) {
-          if (
-            Array(when)
-              .flat()
-              .find(dayAndMonth => isTomorrow(parse(convertDateToEUFormat(dayAndMonth, this.year), dateTemplate, date)))
-          ) {
-            list.push(tag);
-          }
+      for (const { tag, when } of this.records) {
+        if (
+          Array(when)
+            .flat()
+            .find(dayAndMonth => isTomorrow(parse(convertDateToEUFormat(dayAndMonth, this.year), dateTemplate, date)))
+        ) {
+          list.push(tag);
         }
+      }
 
-        if (list.length > 0) {
-          this.callback({ msg: list.join(', '), title: this.title, symbol: this.symbol, color: this.color, ttl: this.ttl, highPriority: this.highPriority });
-
-          this.sentAt = Date.now();
-        }
+      if (list.length > 0) {
+        this.callback({ msg: list.join(', '), title: this.title, symbol: this.symbol, color: this.color, ttl: this.ttl, highPriority: this.highPriority });
       }
     }
   }

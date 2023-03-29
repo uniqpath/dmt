@@ -19,6 +19,10 @@ const STATS_INTERVAL = 700;
 
 const ONE_MINUTE = 60 * 1000;
 
+const CRASH_LOOP_WINDOW_SECONDS = 60;
+const MAX_CRASHES = 3;
+const crashTimestamps = [];
+
 let startedAt = Date.now();
 
 function correctAbcBootTime() {
@@ -46,9 +50,6 @@ let dmtProcCrashedInForegroundAt;
 
 let dmtForeground;
 
-const MAX_CRASHES = 3;
-const crashTimestamps = [];
-
 function collectStat() {
   return new Promise((success, reject) => {
     getStats().then(stats => {
@@ -70,11 +71,11 @@ function isCrashLoop(MAX_CRASHES) {
     crashTimestamps.shift();
   }
 
-  return crashTimestamps.length == MAX_CRASHES && Date.now() - crashTimestamps[0] < 60 * 1000;
+  return crashTimestamps.length == MAX_CRASHES && Date.now() - crashTimestamps[0] < CRASH_LOOP_WINDOW_SECONDS * 1000;
 }
 
 function isSecondCrash() {
-  return crashTimestamps.length > 1 && Date.now() - crashTimestamps[crashTimestamps.length - 2] < 60 * 1000;
+  return crashTimestamps.length > 1 && Date.now() - crashTimestamps[crashTimestamps.length - 2] < CRASH_LOOP_WINDOW_SECONDS * 1000;
 }
 
 function crashNotify(crashMsg, msg, { highPriority = true } = {}) {
@@ -127,7 +128,7 @@ export default function init() {
       if (dmtProcCrashedInForegroundAt && dmtProcCrashedInForegroundAt < Date.now() - 3 * 60 * 1000) {
         if (!isMainDevice()) {
           const msg = `✨ Spawning a new dmt-proc after crash ${prettyTimeAge(dmtProcCrashedInForegroundAt)} while running in terminal foreground …`;
-          log.cyan(msg);
+          log.magenta(msg);
           push.notify(msg);
 
           startDMT();
@@ -225,7 +226,7 @@ export default function init() {
           crashTimestamps.push(Date.now());
 
           if (isCrashLoop(MAX_CRASHES)) {
-            crashMsg = '⚠️😵‍💫💀 dmt-proc crash loop';
+            crashMsg = `⚠️💀 dmt-proc Crash Loop 😵‍💫 (${MAX_CRASHES} crashes in ${CRASH_LOOP_WINDOW_SECONDS}s)`;
             log.red(crashMsg);
             const msg = '🤷‍♂️ Giving up on restarting dmt-proc, needs a bugfix and manual restart.';
             log.cyan(msg);
@@ -241,7 +242,7 @@ export default function init() {
             log.red(crashMsg);
 
             const msg = '✨ Spawning a new dmt-proc …';
-            log.cyan(msg);
+            log.magenta(msg);
 
             setTimeout(() => {
               startDMT();

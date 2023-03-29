@@ -1,6 +1,8 @@
 import { Connectome } from 'dmt/connectome-server';
 
-import { log, colors, keypair, isDevMachine, isDevUser } from 'dmt/common';
+import { log, colors, keypair, isDevMachine } from 'dmt/common';
+
+import connectomeLogging from './connectomeLogging.js';
 
 class ProgramConnectionsAcceptor {
   constructor(program) {
@@ -13,10 +15,13 @@ class ProgramConnectionsAcceptor {
     if (this.keypair) {
       log.write(`Initializing ProgramConnectionsAcceptor with public key ${colors.gray(this.keypair.publicKeyHex)}`);
 
+      const { verbose } = connectomeLogging().server;
+
       this.connectome = new Connectome({
         port,
         keypair: this.keypair,
-        log
+        log,
+        verbose
       });
 
       this.connectome.subscribe(({ connectionList }) => {

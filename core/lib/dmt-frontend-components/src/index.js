@@ -9,5 +9,5 @@ export { default as List } from './components/List.svelte';
 export { default as ListItem } from './components/ListItem.svelte';
 export { default as SearchableList } from './components/SearchableList.svelte';
 export { default as Slider } from './components/Slider.svelte';
-export { default as Meetup } from './components/Meetup.svelte';
+export { default as MeetupKriptosola } from './components/Meetup--brisi-after-kriptosola-rewrite.svelte';
 export { default as GuiErrors } from './components/GuiErrors.svelte';
