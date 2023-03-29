@@ -21,7 +21,7 @@ if (fs.existsSync(log.logfilePath)) {
   if (currentLog.length > 0) {
     const lastLine = currentLog[currentLog.length - 1];
     if (lastLine.includes('EXITING ABC, bye')) {
-      push.notify('⚠️☠️ ABC process crashed on previous run');
+      push.notify('ℹ️ ABC process crashed on previous run');
     }
   }
 }

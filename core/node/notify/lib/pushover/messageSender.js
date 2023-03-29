@@ -23,6 +23,11 @@ class MessageSender {
     return this;
   }
 
+  user(user) {
+    this._user = user;
+    return this;
+  }
+
   title(title) {
     this._title = title;
     return this;
@@ -48,6 +53,11 @@ class MessageSender {
     return this;
   }
 
+  enableHtml(enable = true) {
+    this._enableHtml = enable;
+    return this;
+  }
+
   notify(message) {
     const network = this.networkName || program?.network.name();
 
@@ -60,8 +70,10 @@ class MessageSender {
       omitDeviceName: this._omitDeviceName,
       url: this._url,
       urlTitle: this._urlTitle,
+      user: this._user,
       userKey: this._userKey,
       highPriority: this._highPriority,
+      enableHtml: this._enableHtml,
       isABC: this.isABC
     });
   }
@@ -77,8 +89,10 @@ class MessageSender {
       omitDeviceName: this._omitDeviceName,
       url: this._url,
       urlTitle: this._urlTitle,
+      user: this._user,
       userKey: this._userKey,
       highPriority: this._highPriority,
+      enableHtml: this._enableHtml,
       isABC: this.isABC
     });
   }

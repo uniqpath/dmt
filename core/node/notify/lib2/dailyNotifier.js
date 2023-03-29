@@ -1,23 +1,24 @@
-import { dateFns } from 'dmt/common';
+import { dateFns, program } from 'dmt/common';
 
 const { isSameMinute, addMinutes, isAfter, addDays, isSameDay } = dateFns;
 
+import { isReloadableNotifications } from './lib/isReloadableNotifications.js';
+
 import ScopedNotifier from './base/scopedNotifier.js';
 
+import localize from './lib/localize.js';
 import parseTimeYesterday from './lib/parseTimeYesterday.js';
 import parseTimeToday from './lib/parseTimeToday.js';
 import { evaluateTimespan, parseFrom, parseUntil } from './lib/evaluateTimespan.js';
 
-const ONE_MINUTE = 60 * 1000;
-
 const FINISH_SYMBOL = '✅';
+const INFO_SYMBOL = 'ℹ️';
+const NOW_SYMBOL = '🫵';
 const WARN_SYMBOL = '❗';
 
 class DailyNotifier extends ScopedNotifier {
-  constructor(notifications, { program, symbol = '🔔', color, ttl, highPriority, title, warnAfter }) {
-    super(`${symbol} ${title || ''}`);
-
-    this.program = program;
+  constructor(notifications, { symbol = '🔔', color, ttl, highPriority, title, warnAfter, user } = {}, decommissionable = false) {
+    super(`${symbol} ${title || ''}`, decommissionable);
 
     this.notifications = Array(notifications).flat(Infinity);
 
@@ -27,145 +28,174 @@ class DailyNotifier extends ScopedNotifier {
     this.highPriority = !!highPriority;
     this.title = title;
     this.warnAfter = warnAfter;
+    this.user = user;
+  }
+
+  joinWithCommaAnd(array, strAnd) {
+    return array.reduce((acc, item, index, arr) => {
+      if (index === 0) {
+        return item;
+      }
+
+      if (index === arr.length - 1) {
+        return `${acc} ${strAnd} ${item}`;
+      }
+
+      return `${acc}, ${item}`;
+    }, '');
   }
 
   checkNotificationTimes(entry) {
     const date = new Date();
 
-    const strReminder = this.program.lang() == 'sl' ? 'opomnik' : 'reminder';
+    const { strReminder, strNewRegimeFromTomorrow, strAt, strAnd, strNow, capitalizeFirstLetter } = localize(program);
 
-    const { msg, warnAfter: _warnAfter, symbol: _symbol, title, when, id, color, ttl, from, until, highPriority: _highPriority } = entry;
+    const {
+      msg: msgStrOrArray,
+      warnAfter: _warnAfter,
+      symbol: _symbol,
+      when,
+      id,
+      color,
+      ttl,
+      from,
+      until,
+      highPriority: _highPriority,
+      url,
+      user: _user
+    } = entry;
+
+    const titleStrOrArray = entry.title || this.title || '';
+    const title = Array.isArray(titleStrOrArray) ? this.randomElement(titleStrOrArray) : titleStrOrArray;
+
+    const msg = Array.isArray(msgStrOrArray) ? this.randomElement(msgStrOrArray) : msgStrOrArray;
 
     const warnAfter = _warnAfter == undefined ? this.warnAfter : _warnAfter;
     const highPriority = _highPriority == undefined ? this.highPriority : _highPriority;
+    const user = _user == undefined ? this.user : _user;
 
-    const symbol = _symbol || this.symbol;
+    const symbolStrOrArray = _symbol || this.symbol;
+    const symbol = Array.isArray(symbolStrOrArray) ? this.randomElement(symbolStrOrArray) : symbolStrOrArray;
 
     const o = {
-      msg,
-      title: title || this.title || '',
+      _msg: msg,
+      _title: title,
       symbol,
       highPriority: false,
       ttl: ttl || this.ttl,
       color: color || this.color,
-      id
+      user,
+      id,
+      url,
+      data: entry.data || {}
     };
 
     const { extendedUntil, adjacentEntry } = this.determineExtendedUntil(entry);
 
     for (const t of Array(when).flat()) {
-      const notificationTime = parseTimeToday(t, msg);
+      let _msg = msg;
 
-      const { isValid } = evaluateTimespan({ date: notificationTime, from, until });
+      if (!msg) {
+        _msg = `${NOW_SYMBOL} [ ${strNow} ]`;
+      }
 
-      if (isValid) {
+      const notificationTime = parseTimeToday(t, _msg);
+
+      const { isWithin } = evaluateTimespan({ date: notificationTime, from, until });
+
+      if (isWithin) {
         if (isSameMinute(date, notificationTime)) {
           const { isLastDay, diffDays } = evaluateTimespan({ date: notificationTime, from, until: extendedUntil });
 
+          let regimeChangeMsg;
+
           if (this.isChangeOfRegime(notificationTime, entry, adjacentEntry)) {
-            const REGIME_CHANGE_DELAY = 2000;
+            const sortTimes = when =>
+              when
+                .flat()
+                .map(time => {
+                  const [h, m] = time.split(':');
+                  return { time, min: h * 60 + m };
+                })
+                .sort((a, b) => a.min - b.min)
+                .map(el => el.time);
 
-            const symbol = _symbol || this.symbol;
-            const title = this.program.lang() == 'sl' ? 'Nov spored od jutri' : 'New regime from tomorrow';
-            const pushTitle = `${symbol} ${title}`;
-
-            const sortedTimes = Array(adjacentEntry.when)
-              .flat()
-              .map(time => {
-                const [h, m] = time.split(':');
-                return { time, min: h * 60 + m };
-              })
-              .sort((a, b) => a.min - b.min)
-              .map(el => el.time);
-
-            setTimeout(() => {
-              this.callback({
-                title,
-                msg: `⚠️ ${msg} — ${sortedTimes.join(', ')}`,
-                pushTitle,
-                color: color || this.color,
-                symbol
-              });
-            }, REGIME_CHANGE_DELAY);
+            regimeChangeMsg = `${INFO_SYMBOL} ${strNewRegimeFromTomorrow} [ ${strAt} ${this.joinWithCommaAnd(
+              sortTimes(adjacentEntry.when),
+              strAnd
+            )} ] namesto [ ${this.joinWithCommaAnd(sortTimes(entry.when), strAnd)} ]`;
           }
 
           let tagline;
 
-          const lastEvent = this.isLastEvent({ when, notificationTime, msg });
+          const lastEvent = this.isLastEvent({ when, notificationTime, msg: _msg });
+
+          const { strLastTime, strLastDay, strOneMoreDay } = localize(program);
 
           if (lastEvent) {
             if (isLastDay) {
-              if (this.program.lang() == 'sl') {
-                tagline = lastEvent ? 'zadnjič' : 'zadnji dan';
-              } else {
-                tagline = lastEvent ? 'last time' : 'last day';
-              }
+              tagline = lastEvent ? strLastTime : strLastDay;
             } else if (diffDays && [2, 5, 10, 20, 30].includes(diffDays)) {
-              if (this.program.lang() == 'sl') {
-                tagline = `še ${diffDays} dni`;
-              } else {
-                tagline = `${diffDays} more days`;
-              }
+              tagline = program.lang() == 'sl' ? `še ${diffDays} dni` : `${diffDays} more days`;
             } else if (diffDays == 1) {
-              if (this.program.lang() == 'sl') {
-                tagline = 'še samo jutri';
-              } else {
-                tagline = 'one more day';
-              }
+              tagline = strOneMoreDay;
             }
           }
 
           let ending = '';
 
           if (isLastDay && lastEvent) {
-            ending = `${FINISH_SYMBOL} ${tagline}`;
+            ending = `[ ${FINISH_SYMBOL} ${tagline} ]`;
           } else if (tagline) {
-            ending = `— ${tagline}`;
+            ending = `[ ${tagline} ]`;
           }
 
-          const pushTitle = `${o.symbol} ${o.title} ${ending}`.trim();
-          this.callback({ ...o, highPriority, pushTitle, tagline });
+          if (regimeChangeMsg) {
+            _msg = `${_msg ? `${_msg}\n\n` : ''}${regimeChangeMsg}`;
+          }
 
-          entry.sentAt = Date.now();
+          const pushTitle = `${symbol} ${title} ${ending}`.trim();
+          this.callback({ ...o, highPriority, title: pushTitle, msg: _msg, tagline });
         } else if (warnAfter) {
           const warningNotificationTime = addMinutes(notificationTime, warnAfter);
 
           if (isSameMinute(date, warningNotificationTime)) {
-            const lastEvent = this.isLastEvent({ when, notificationTime, msg });
+            const lastEvent = this.isLastEvent({ when, notificationTime, msg: _msg });
             const { isLastDay } = evaluateTimespan({ date: notificationTime, from, until: extendedUntil });
 
-            let ending = `— ${strReminder}`;
+            let ending = `[ ${strReminder} ]`;
 
             if (isLastDay && lastEvent) {
-              ending = `${FINISH_SYMBOL} ${strReminder}`;
+              ending = `[ ${FINISH_SYMBOL} ${strReminder} ]`;
             }
 
-            const pushTitle = `${symbol} ${o.title} ${ending}`.trim();
-            this.callback({ ...o, msg: `${WARN_SYMBOL} ${msg}`, pushTitle, tagline: strReminder, isWarn: true });
+            const pushTitle = `${symbol} ${title} ${msg ? ending : ''}`.trim();
+            const pushMsg = `${WARN_SYMBOL} ${msg || ending}`;
 
-            entry.sentAt = Date.now();
+            this.callback({ ...o, msg: pushMsg, title: pushTitle, tagline: capitalizeFirstLetter(strReminder), isWarn: true });
           }
         }
       }
 
-      const notificationTimeYesterday = parseTimeYesterday(t, msg);
+      const notificationTimeYesterday = parseTimeYesterday(t, _msg);
 
-      if (warnAfter && evaluateTimespan({ date: notificationTimeYesterday, from, until }).isValid) {
+      if (warnAfter && evaluateTimespan({ date: notificationTimeYesterday, from, until }).isWithin) {
         const _warningNotificationTime = addMinutes(notificationTimeYesterday, warnAfter);
 
         if (isSameMinute(date, _warningNotificationTime)) {
-          const lastEvent = this.isLastEvent({ when, notificationTime: notificationTimeYesterday, msg });
+          const lastEvent = this.isLastEvent({ when, notificationTime: notificationTimeYesterday, msg: _msg });
           const { isLastDay } = evaluateTimespan({ date: notificationTimeYesterday, from, until: extendedUntil });
 
-          let ending = `— ${strReminder}`;
+          let ending = `[ ${strReminder} ]`;
 
           if (isLastDay && lastEvent) {
-            ending = `${FINISH_SYMBOL} (${strReminder})`;
+            ending = `[ ${FINISH_SYMBOL} ${strReminder} ]`;
           }
 
-          const pushTitle = `${symbol} ${o.title} ${ending}`.trim();
-          this.callback({ ...o, msg: `${WARN_SYMBOL} ${msg}`, pushTitle, symbol, tagline: strReminder, isWarn: true });
-          entry.sentAt = Date.now();
+          const pushTitle = `${symbol} ${title} ${msg ? ending : ''}`.trim();
+          const pushMsg = `${WARN_SYMBOL} ${msg || ending}`;
+
+          this.callback({ ...o, title: pushTitle, msg: pushMsg, symbol, tagline: capitalizeFirstLetter(strReminder), isWarn: true });
         }
       }
     }
@@ -213,19 +243,17 @@ class DailyNotifier extends ScopedNotifier {
 
   check() {
     for (const entry of this.notifications) {
-      const { sentAt } = entry;
-
       if (entry.to) {
         throw new Error(`${this.ident} Please use 'until' instead of 'to'`);
       }
 
-      if (!sentAt || (sentAt && Date.now() - sentAt > ONE_MINUTE)) {
-        this.checkNotificationTimes(entry);
-      }
+      this.checkNotificationTimes(entry);
     }
   }
 }
 
-export default function dailyNotifier(...args) {
-  return new DailyNotifier(...args);
+export default function dailyNotifier(notifications, options = {}) {
+  const decommissionable = isReloadableNotifications(new Error(), import.meta.url);
+
+  return new DailyNotifier(notifications, options, decommissionable);
 }

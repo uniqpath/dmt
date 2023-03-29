@@ -65,6 +65,10 @@ function d {
   dmt "$@"
 }
 
+function din {
+  dmt integrate
+}
+
 function u {
   if [ -n "$2" ]; then
     dmt update --parallel "$@"

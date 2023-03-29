@@ -1,4 +1,4 @@
-import { dateFns } from 'dmt/common';
+import { log, dateFns } from 'dmt/common';
 
 const { parse, isTomorrow, isSameMinute } = dateFns;
 
@@ -8,15 +8,12 @@ import parseTimeToday from './lib/parseTimeToday.js';
 
 import dateTemplate from './lib/dateTemplate.js';
 
-const ONE_MINUTE = 60 * 1000;
-
 class TrashTakeoutNotifier extends ScopedNotifier {
-  constructor(records, { program, year, color, ttl, notifyDayBeforeAt, highPriority, symbol = '🗑️', title }) {
+  constructor(records, { year, color, ttl, notifyDayBeforeAt, highPriority, symbol = '🗑️', title, user } = {}) {
     super(`${symbol} ${title || ''}`);
 
     this.records = records;
 
-    this.program = program;
     this.year = year;
     this.notifyDayBeforeAt = notifyDayBeforeAt;
     this.symbol = symbol;
@@ -25,30 +22,41 @@ class TrashTakeoutNotifier extends ScopedNotifier {
 
     this.color = color;
     this.ttl = ttl;
+
+    this.user = user;
   }
 
   check() {
-    if (!this.sentAt || (this.sentAt && Date.now() - this.sentAt > ONE_MINUTE)) {
-      const date = new Date();
+    const date = new Date();
 
-      if (this.notifyDayBeforeAt.find(t => isSameMinute(date, parseTimeToday(t)))) {
-        const list = [];
+    if (this.notifyDayBeforeAt.find(t => isSameMinute(date, parseTimeToday(t)))) {
+      const list = [];
 
-        for (const { tag, when } of this.records) {
-          if (
-            Array(when)
-              .flat()
-              .find(dayAndMonth => isTomorrow(parse(convertDateToEUFormat(dayAndMonth, this.year), dateTemplate, date)))
-          ) {
-            list.push(tag);
-          }
+      for (const { tag, title, when } of this.records) {
+        if (
+          Array(when)
+            .flat()
+            .find(dayAndMonth => isTomorrow(parse(convertDateToEUFormat(dayAndMonth, this.year), dateTemplate, date)))
+        ) {
+          list.push(title || tag);
         }
+      }
 
-        if (list.length > 0) {
-          this.callback({ msg: list.join(', '), title: this.title, symbol: this.symbol, color: this.color, ttl: this.ttl, highPriority: this.highPriority });
+      if (list.length > 0) {
+        const msg = list.join(', ');
+        const title = `${this.symbol} ${this.title}`;
 
-          this.sentAt = Date.now();
-        }
+        this.callback({
+          msg,
+          title,
+          _msg: msg,
+          _title: this.title,
+          symbol: this.symbol,
+          color: this.color,
+          ttl: this.ttl,
+          highPriority: this.highPriority,
+          user: this.user
+        });
       }
     }
   }

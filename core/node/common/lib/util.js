@@ -22,6 +22,80 @@ function periodicRepeat(callback, timeMs) {
   update();
 }
 
+function runAtNextMinute(callback) {
+  const now = new Date();
+  const delay = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 1;
+  setTimeout(callback, delay);
+}
+
+function everyMinute(callback) {
+  let cancelled;
+
+  let firstRun = true;
+
+  const update = () => {
+    if (!cancelled) {
+      if (firstRun) {
+        callback();
+        runAtNextMinute(update);
+        firstRun = false;
+      } else {
+        if (new Date().getSeconds() == 0) {
+          callback();
+        }
+        runAtNextMinute(update);
+      }
+    }
+  };
+
+  update();
+
+  return () => {
+    cancelled = true;
+  };
+}
+
+function parseDOWTime(_t) {
+  const DOW = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+  const [_dow, time] = _t.replace(' at ', ' ').split(' ');
+
+  const dow = DOW.indexOf(_dow.toLowerCase());
+
+  if (dow == -1) {
+    throw new Error(`Day of week error: ${_dow} - in ${_t} - allowed: ${DOW.join(', ')}`);
+  }
+
+  return { time, dow };
+}
+
+function executeAt(times, callback) {
+  return everyMinute(() => {
+    const d = new Date();
+
+    const list = Array.isArray(times) ? times : times.split(',');
+
+    for (const _time of list) {
+      let time = _time.trim();
+      let dow;
+
+      if (time.indexOf(' ') != -1) {
+        const result = parseDOWTime(time);
+        dow = result.dow;
+        time = result.time;
+      }
+
+      const parts = time.split(':');
+      const hours = parseInt(parts[0]);
+      const min = parseInt(parts[1]);
+
+      if (d.getMinutes() == min && d.getHours() == hours && (dow == null || (dow != null && d.getDay() == dow))) {
+        callback();
+      }
+    }
+  });
+}
+
 function autoDetectEOLMarker(content = '') {
   const EOL = content.match(/\r\n/gm) ? '\r\n' : '\n';
   return EOL;
@@ -128,6 +202,8 @@ export default {
   limitString,
   snakeCaseKeys,
   periodicRepeat,
+  everyMinute,
+  executeAt,
   autoDetectEOLMarker,
   normalizeMac,
   clone,

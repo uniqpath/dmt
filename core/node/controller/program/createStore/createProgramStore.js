@@ -11,7 +11,7 @@ function correctDmtBootTime(program) {
   const { dmtStartedAt } = program.slot('device').get();
 
   if (Date.now() - dmtStartedAt >= 5 * 60 * 1000) {
-    log.yellow('Correcting dmt-proc start time because accurate NTP time became available');
+    log.magenta('Correcting dmt-proc start time because accurate NTP time became available');
     program.slot('device').update({ dmtStartedAt: Date.now() }, { announce: false });
   }
 }

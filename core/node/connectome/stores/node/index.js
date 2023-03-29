@@ -286,9 +286,9 @@ class KeyValueStore {
   }
 
   // dangerous :)
-  // set(state) {
-  //   this.state = state;
-  // }
+  set(state) {
+    this.state = state;
+  }
 
   update(patch) {
     this.state = mergeState(this.state, patch);
@@ -1978,6 +1978,8 @@ function compare$2(a, b) {
 //import { stopwatchAdv } from '../utils/index.js';
 
 function dropState({ strState, stateFilePath, noRecovery }) {
+  //console.log('Drop state');
+
   if (!noRecovery && strState?.trim() != '') {
     const extname = path__default['default'].extname(stateFilePath);
 
@@ -2101,6 +2103,8 @@ class SyncStore extends Eev {
     this.kvStore = new KeyValueStore();
 
     if (this.stateFilePath) {
+      //⚠️ if our schema and persisted schema are different, we drop the state
+      // and store starts empty
       const persistedState = loadState({ schemaVersion, stateFilePath, schemaMigrations, noRecovery });
 
       if (persistedState) {
@@ -2143,9 +2147,10 @@ class SyncStore extends Eev {
 
   // dangerous :)
   // we replace the entire state across all slots
-  // set(state) {
-  //   this.kvStore.set(state);
-  // }
+  set(state) {
+    this.kvStore.set(state);
+    this.announceStateChange();
+  }
 
   get(key) {
     return key ? this.state()[key] : this.state();
@@ -5384,7 +5389,7 @@ function send({ data, connector }) {
           log,
           `Connector ${connector.endpoint} → Sending message #${connector.sentCount} ↴`
         );
-        logger.gray(log, data);
+        logger.cyan(log, data);
       }
 
       connector.connection.websocket.send(data);
@@ -5450,12 +5455,48 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
     // 💡 encryptedJson data!!
     if (connector.verbose == 'extra') {
       logger.magenta(log, `Connector ${connector.endpoint} received bytes ↴`);
-      logger.gray(log, encryptedData);
-      logger.magenta(
+      logger.cyan(log, encryptedData);
+      logger.green(log, JSON.stringify(encryptedData));
+      logger.gray(
         log,
         `Connector ${connector.endpoint} decrypting with shared secret ${connector.sharedSecret}...`
       );
+      //logger.cyan(log, JSON.stringify(connector.sharedSecret));
     }
+
+    if (!connector.sharedSecret) {
+      // we had this problem before -- zurich wifi -- when terminating inactive websocket
+      // it didn't actually close in time .. we set connector to disconnected and deleted sharedSecret
+      // but then a stray message json rpc return from hadshake arrived after that and couldn't be decrypted
+      // because it shouldn't have arrived in the first place after websocket was supposedly closed
+      // solution: __closed flag on all websockets.. it is set to true at the same time as calling close()
+      // and then any messages still coming over the wire on such closed websockets are dropped
+      // we hope websocket is eventually closed though (?)
+      // see messageCallback in establishAndMaintainConnection, this was fixed there
+      logger.red(log, `Connector ${connector.endpoint} missing sharedSecret - should not happen...`);
+    }
+
+    // if (connector.sharedSecret && connector.endpoint.includes('192.168.0.10')) {
+    //   //console.log(connector);
+    //   console.log('------------------');
+    //   console.log(connector.sharedSecret);
+    //   const num = 1;
+    //   const nonce2 = new Uint8Array(integerToByteArray(2 * num + 1, 24));
+    //   const aa = Buffer.from({
+    //     type: 'Buffer',
+    //     data: [
+    //       16, 229, 22, 147, 56, 217, 159, 222, 158, 176, 194, 48, 115, 239, 12, 39, 35, 145, 98, 241, 225, 41,
+    //       2, 250, 13, 134, 150, 110, 6, 94, 63, 85, 170, 118, 161, 0, 163, 205, 187, 62, 248, 161, 246, 183,
+    //       107, 126, 167, 65, 40, 94, 130, 9, 184, 196, 142, 55, 251, 28, 218, 212, 243, 72, 8, 188, 183, 180
+    //     ]
+    //   });
+    //   const bb = nacl.secretbox.open(aa, nonce2, connector.sharedSecret);
+    //   console.log(bb);
+    //   const cc = bb.subarray(1);
+    //   const dd = nacl.util.encodeUTF8(cc);
+    //   console.log(dd);
+    //   console.log('------------------');
+    // }
 
     const _decryptedMessage = naclFast.secretbox.open(encryptedData, nonce, connector.sharedSecret);
 
@@ -5466,7 +5507,7 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
       const decodedMessage = naclFast.util.encodeUTF8(decryptedMessage);
 
       if (connector.verbose) {
-        logger.write(log, `Received message: ${decodedMessage}`);
+        logger.yellow(log, `Connector ${connector.endpoint} received message: ${decodedMessage}`);
       }
 
       try {
@@ -5512,6 +5553,10 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
         throw e;
       }
     } else {
+      if (connector.verbose) {
+        logger.yellow(log, `Connector ${connector.endpoint} received binary data`);
+      }
+
       //const binaryData = decryptedMessage;
       // const sessionId = Buffer.from(binaryData.buffer, binaryData.byteOffset, 64).toString();
       // const binaryPayload = Buffer.from(binaryData.buffer, binaryData.byteOffset + 64);
@@ -5523,20 +5568,17 @@ function wireReceive({ jsonData, encryptedData, rawMessage, wasEncrypted, connec
 
 naclFast.util = naclUtil;
 
+const wsOPEN = 1;
+
 function diffieHellman({ connector, afterFirstStep = () => {} }) {
-  const {
-    clientPrivateKey,
-    clientPublicKey,
-    clientPublicKeyHex,
-    protocol,
-    tag,
-    endpoint,
-    verbose
-  } = connector;
+  const { clientPrivateKey, clientPublicKey, clientPublicKeyHex, protocol, tag, endpoint, verbose } =
+    connector;
 
   return new Promise((success, reject) => {
-    connector.remoteObject('Auth')
+    connector
+      .remoteObject('Auth')
       .call('exchangePubkeys', { pubkey: clientPublicKeyHex })
+      //.call('exchangePubkeys', { pubkey: clientPublicKeyHex, clientWsId: connector.connection.websocket.__id })
       .then(remotePubkeyHex => {
         const sharedSecret = naclFast.box.before(hexToBuffer(remotePubkeyHex), clientPrivateKey);
 
@@ -5549,33 +5591,50 @@ function diffieHellman({ connector, afterFirstStep = () => {} }) {
           );
         }
 
-        connector.remoteObject('Auth')
-          .call('finalizeHandshake', { protocol })
-          .then(res => {
-            // finalizeHandshake rpc endpoint on server can cleanly retorn {error} as a result
-            // in case the protocol we are trying to connect to is not registered (does not exist at the endpoint)
-            if (res && res.error) {
-              console.log(res.error);
-              // this connection will keep hangling and no reconnect tries will be made
-              // since we keep websocket open just that nothing is happening
+        // if connection has closed at this point we don't try to send into closed
+        // connection, it would still work but error would be logged
+        if (connector.connection.websocket.readyState == wsOPEN) {
+          connector
+            .remoteObject('Auth')
+            .call('finalizeHandshake', { protocol })
+            .then(res => {
+              // finalizeHandshake rpc endpoint on server can cleanly return {error} as a result
+              // in case the protocol we are trying to connect to is not registered (does not exist at the endpoint)
+              if (res && res.error) {
+                console.log(res.error);
+                // this connection will keep hangling and no reconnect tries will be made
+                // since we keep websocket open just that nothing is happening
 
-              // when we enable the protocol on the endpoint we have to restart the process
-              // frontend connector will get disconnected at this point, websocket will close
-              // and from then on it tries reconnecting again so when ws first connects
-              // and protocol is present , it will be a success
+                // when we enable the protocol on the endpoint we have to restart the process
+                // frontend connector will get disconnected at this point, websocket will close
+                // and from then on it tries reconnecting again so when ws first connects
+                // and protocol is present , it will be a success
 
-              // DONT'T REJECT here! reject(res.error); -- we need to keep this websocket hanging
-            } else {
-              success();
+                // DONT'T REJECT here! reject(res.error); -- we need to keep this websocket hanging
+              } else {
+                success();
 
-              const _tag = tag ? ` (${tag})` : '';
-              logger.cyan(
-                connector.log,
-                `${endpoint}${_tag} ✓ Connection [ ${protocol || '"no-name"'} ] ready`
-              );
-            }
-          })
-          .catch(reject); // for example Timeout ... delayed! we have to be careful with closing any connections because new websocket might have already be created, we should not close that one
+                const _tag = tag ? ` (${tag})` : '';
+                logger.cyan(
+                  connector.log,
+                  `☑️  ${endpoint}${_tag} ✓ Connection #${connector.connection.websocket.__id} [ ${
+                    protocol || '"no-name"'
+                  } ] ready`
+                );
+              }
+            })
+            .catch(reject); // for example Timeout ... delayed! we have to be careful with closing any connections because new websocket might have already be created, we should not close that one
+        } else {
+          const _tag = tag ? ` (${tag})` : '';
+          logger.yellow(
+            connector.log,
+            `${endpoint}${_tag} ✖ Connection [ ${
+              protocol || '"no-name"'
+            } ] closed just before finalizeHandshake step`
+          );
+          // don't reject here -- because it will show some wring log message in connector
+          // on:ready error "will not try to reconnect" .. which is not the case here
+        }
       })
       .catch(reject);
   });
@@ -6239,7 +6298,7 @@ const DECOMMISSION_INACTIVITY = 60000; // 1min
 //const DECOMMISSION_INACTIVITY = 120000; // 2min
 //const DECOMMISSION_INACTIVITY = 10000; // 2min
 
-const wsOPEN = 1;
+const wsOPEN$1 = 1;
 
 class Connector extends Eev {
   constructor({
@@ -6395,7 +6454,7 @@ class Connector extends Eev {
       this.successfulConnectsCount += 1;
 
       if (this.verbose) {
-        logger.green(this.log, `✓ Connector ${this.endpoint} connected #${this.successfulConnectsCount}`);
+        logger.white(this.log, `✓ Connector ${this.endpoint} connected (${this.successfulConnectsCount} total reconnects)`);
       }
 
       const websocketId = this.connection.websocket.__id;
@@ -6427,7 +6486,7 @@ class Connector extends Eev {
           // but sometimes we also get an open websocket after rpc timeout (not sure but this code handles it anyway, should be no problem, only better for all cases)
           if (
             this.connection.websocket.__id == websocketId &&
-            this.connection.websocket.readyState == wsOPEN
+            this.connection.websocket.readyState == wsOPEN$1
           ) {
             //⚠️ we only show if it seems still relevant, special case
             // previously we had this first log output above this if statement
@@ -6611,7 +6670,7 @@ function determineEndpoint({ endpoint, host, port }) {
 const browser$1 = typeof window !== 'undefined';
 
 const wsCONNECTING = 0;
-const wsOPEN$1 = 1;
+const wsOPEN$2 = 1;
 //const wsCLOSING = 2;
 //const wsCLOSED = 3;
 
@@ -6624,6 +6683,22 @@ const CONN_IDLE_TICKS = 3;
 
 // how long to wait for a new websocket to connect... after this we cancel it
 const WAIT_FOR_NEW_CONN_TICKS = 5; // 5000 ms ( = (5) * CONN_CHECK_INTERVAL )
+
+function addListener(event, callback, ws) {
+  if (browser$1) {
+    ws.addEventListener(event, callback);
+  } else {
+    ws.on(event, callback);
+  }
+}
+
+function removeListener(event, callback, ws) {
+  if (browser$1) {
+    ws.removeEventListener(event, callback);
+  } else {
+    ws.off(event, callback);
+  }
+}
 
 //todo: remove 'dummy' argument once legacyLib with old MCS is history
 function establishAndMaintainConnection(
@@ -6664,12 +6739,17 @@ function establishAndMaintainConnection(
   connector.connection = {
     terminate() {
       this.websocket._removeAllCallbacks();
-      this.websocket.close();
+      this.websocket.__closed = true;
+      this.websocket.close(); // might take some time to actually close, we can get stray messages through that websocket
       //connector.connectStatus(undefined);
       connector.connectStatus(false);
       reconnect();
       //for multiconnected store ↴ so that not everything tries to reconnect at once.. oh well didn't have much influence it seems, we can do everything at once! :)
       //setTimeout(reconnect, MAX_RECONNECT_DELAY_AFTER_WS_CLOSE * Math.random());
+    },
+    isOpen() {
+      // we check manually for __closed
+      return this.websocket.readyState == wsOPEN$2 && !this.websocket.__closed;
     },
     endpoint,
     checkTicker: 0
@@ -6698,14 +6778,14 @@ function checkConnection({ connector, reconnect, log }) {
       // decommissioned
       logger.yellow(
         log,
-        `${connector.endpoint} Connection decommisioned, closing websocket ${conn.websocket.__id}, will not retry again `
+        `${connector.endpoint} Connection decommisioned, closing websocket #${conn.websocket.__id}, will not retry again `
       );
 
       decommission(connector);
     } else {
       // idle connection
       connector.emit('inactive_connection');
-      logger.yellow(log, `${connector.endpoint} ✖ Terminated inactive connection`);
+      logger.yellow(log, `${connector.endpoint} ✖ Terminated inactive connection #${conn.websocket.__id}`);
     }
 
     conn.terminate();
@@ -6747,6 +6827,8 @@ function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verb
     return;
   }
 
+  const wsId = Math.round(10 ** 5 * Math.random()).toString();
+
   //logger.write(log, `${endpoint} CONN_TICK`);
   //logger.write(log, `${endpoint} wsReadyState ${conn.currentlyTryingWS?.readyState}`);
 
@@ -6762,9 +6844,10 @@ function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verb
     }
 
     conn.currentlyTryingWS._removeAllCallbacks();
+    conn.currentlyTryingWS.__closed = true;
     conn.currentlyTryingWS.close();
   } else if (verbose || browser$1) {
-    logger.write(log, `${endpoint} Created new websocket`);
+    logger.write(log, `${endpoint} Created new websocket #${wsId}`);
   }
 
   // so in case when device is online but websocket server is not running we usually
@@ -6775,7 +6858,7 @@ function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verb
   // (see above)... and we try with a new websocket every 4800ms again instead on every tick (800ms)
 
   const ws = new WebSocket(endpoint);
-  ws.__id = Math.random();
+  ws.__id = wsId;
 
   conn.currentlyTryingWS = ws;
   conn.currentlyTryingWS._waitForConnectCounter = 0;
@@ -6795,7 +6878,7 @@ function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verb
     }
 
     if (verbose || browser$1) {
-      logger.write(log, `${endpoint} Websocket open`);
+      logger.write(log, `${endpoint} Websocket #${wsId} open`);
     }
 
     conn.currentlyTryingWS = null;
@@ -6808,14 +6891,14 @@ function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verb
   };
 
   ws._removeAllCallbacks = () => {
-    ws.removeEventListener('open', openCallback);
+    // logger.red(
+    //   log,
+    //   `${connector.endpoint} removing 1 callback (open) on ws #${ws.__id} [ ${connector.protocol} ]`
+    // );
+    removeListener('open', openCallback, ws);
   };
 
-  if (browser$1) {
-    ws.addEventListener('open', openCallback);
-  } else {
-    ws.on('open', openCallback);
-  }
+  addListener('open', openCallback, ws);
 }
 
 function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, verbose }) {
@@ -6832,7 +6915,16 @@ function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, v
   };
 
   const closeCallback = () => {
-    logger.write(log, `${connector.endpoint} ✖ Connection closed`);
+    //❗❗❗❗ -- can get stray messages even here!! after close callback ws implementation lets a few (one) messages through!!
+    // this only happened on LAN ...
+    // [run] turbine 82106 4/17/2023, 11:27:25 AM (+167ms) ∞ lanServerConn — 'ws://192.168.0.10:7780 ✖ Connection #28485 [ dmt ] closed'
+    // [run] turbine 82106 4/17/2023, 11:27:25 AM (+01ms) ∞ lanServerConn — 'ws://192.168.0.10:7780 Created new websocket #17068'
+    // [run] turbine 82106 4/17/2023, 11:27:26 AM (+338ms) ∞ 1.0.0.1 consecutiveUnresolvedTimeout after 2x unresolved promise
+    // [run] turbine 82106 4/17/2023, 11:27:26 AM (+43ms) ∞ lanServerConn — "ws://192.168.0.10:7780 connection #28485 [ dmt ] received msg '��\x19X���9�߈�V^L�#�b��)\x02�\r��n\x06^?U�v�\x00�ͻ>����k~�A(^�\t�İP�=���X*���'"
+    // maybe not needed anymore after listeners issue was fixed .....
+    ws.__closed = true;
+
+    logger.blue(log, `${connector.endpoint} ✖ Connection #${ws.__id} [ ${connector.protocol} ] closed`);
 
     if (connector.decommissioned) {
       connector.connectStatus(false);
@@ -6845,6 +6937,7 @@ function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, v
     // flip side is that there is such small delay between when we stop some process and when red x appears... but it's quite ok!
     // we do however disable all commands immediately ... so: show red X when connect status is FALSE excusively and disable all gui actions when it's NOT TRUE (false or undefined)
     connector.connectStatus(undefined);
+
     reconnect();
     //setTimeout(reconnect, MAX_RECONNECT_DELAY_AFTER_WS_CLOSE * Math.random()); // turns out we don't really need to do these delays, works fine without
   };
@@ -6858,10 +6951,25 @@ function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, v
 
     const msg = browser$1 ? _msg.data : _msg;
 
+    if (ws.__closed) {
+      // if (msg != 'pong') {
+      //   logger.red(
+      //     log,
+      //     `${connector.endpoint} Already closed connection #${ws.__id} [ ${connector.protocol} ] received msg '${msg}'`
+      //   );
+      // }
+      return;
+    }
+
     if (msg == 'pong') {
       connector.emit('pong');
       return;
     }
+
+    // logger.red(
+    //   log,
+    //   `${connector.endpoint} connection #${ws.__id} [ ${connector.protocol} ] received msg '${msg}'`
+    // );
 
     let jsonData;
 
@@ -6878,22 +6986,16 @@ function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, v
   };
 
   ws._removeAllCallbacks = () => {
-    ws.removeEventListener('error', errorCallback);
-    ws.removeEventListener('close', closeCallback);
-    ws.removeEventListener('message', messageCallback);
-
-    ws.removeEventListener('open', openCallback);
+    // logger.red(log, `${connector.endpoint} removing 4 callbacks on ws #${ws.__id} [ ${connector.protocol} ]`);
+    removeListener('error', errorCallback, ws);
+    removeListener('close', closeCallback, ws);
+    removeListener('message', messageCallback, ws);
+    removeListener('open', openCallback, ws);
   };
 
-  if (browser$1) {
-    ws.addEventListener('error', errorCallback);
-    ws.addEventListener('close', closeCallback);
-    ws.addEventListener('message', messageCallback);
-  } else {
-    ws.on('error', errorCallback);
-    ws.on('close', closeCallback);
-    ws.on('message', messageCallback);
-  }
+  addListener('error', errorCallback, ws);
+  addListener('close', closeCallback, ws);
+  addListener('message', messageCallback, ws);
 }
 
 function decommission(connector) {
@@ -6901,21 +7003,23 @@ function decommission(connector) {
 
   if (conn.currentlyTryingWS) {
     conn.currentlyTryingWS._removeAllCallbacks();
+    conn.currentlyTryingWS.__closed = true;
     conn.currentlyTryingWS.close();
     conn.currentlyTryingWS = null;
   }
 
-  if (conn.ws) {
-    conn.ws._removeAllCallbacks();
-    conn.ws.close();
-    conn.ws = null;
+  if (conn.websocket) {
+    conn.websocket._removeAllCallbacks();
+    conn.websocket.__closed = true;
+    conn.websocket.close();
+    conn.websocket = null;
   }
 
   connector.connectStatus(false);
 }
 
 function socketConnected(conn) {
-  return conn.websocket && conn.websocket.readyState == wsOPEN$1;
+  return conn.websocket && conn.websocket.readyState == wsOPEN$2 && !conn.websocket.__closed; // when terminating connection, might be useful -- check
 }
 
 function connectionIdle(conn) {
@@ -7324,5 +7428,10 @@ class MultiConnectedStore extends MergeStore {
   }
 }
 
+function isEmptyObject(obj) {
+  return typeof obj === 'object' && Object.keys(obj).length === 0;
+}
+
 exports.MultiConnectedStore = MultiConnectedStore;
 exports.SyncStore = SyncStore;
+exports.isEmptyObject = isEmptyObject;

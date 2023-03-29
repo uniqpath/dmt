@@ -2,7 +2,7 @@ import { def, userDef } from 'dmt/common';
 
 const config = userDef('pushover')?.pushover;
 
-function getUserToken() {
+function getMainUserToken() {
   return config?.user;
 }
 
@@ -23,4 +23,10 @@ function getAppGroupToken({ app, group }) {
   return groups.find(({ id }) => id == group)?.token;
 }
 
-export { getUserToken, getFamilyGroupToken, getAppToken, getAppGroupToken };
+function getUserToken(user) {
+  if (config?.users) {
+    return config?.users[user.toLowerCase()];
+  }
+}
+
+export { getMainUserToken, getFamilyGroupToken, getAppToken, getAppGroupToken, getUserToken };

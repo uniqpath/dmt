@@ -16,6 +16,10 @@ function group(constructorOptions, groupName) {
   return new MessageSender(constructorOptions).group(groupName);
 }
 
+function user(constructorOptions, user) {
+  return new MessageSender(constructorOptions).user(user);
+}
+
 function userKey(constructorOptions, userKey) {
   return new MessageSender(constructorOptions).userKey(userKey);
 }
@@ -44,4 +48,8 @@ function highPriority(constructorOptions, high) {
   return new MessageSender(constructorOptions).highPriority(high);
 }
 
-export { notify, notifyAll, app, group, title, userKey, omitDeviceName, highPriority, network, url, urlTitle };
+function enableHtml(constructorOptions, enable) {
+  return new MessageSender(constructorOptions).enableHtml(enable);
+}
+
+export { notify, notifyAll, app, group, title, user, userKey, omitDeviceName, highPriority, enableHtml, network, url, urlTitle };

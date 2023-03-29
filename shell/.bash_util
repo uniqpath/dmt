@@ -46,6 +46,13 @@ function dmt_macos {
   return 1 # false
 }
 
+function remove_ds_store {
+  find . -name ".DS_Store" -depth -exec rm {} \;
+  if [ "$1" != 'silent' ]; then
+    printf "${GREEN}✓ Done.${NC}\n"
+  fi
+}
+
 function dmt_is_linux {
   if [[ $OSTYPE == linux* ]]; then
     return 0 # true

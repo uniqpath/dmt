@@ -67,4 +67,8 @@ export default function setupGlobalErrorHandler(program) {
 
     process.exit(0);
   });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    log.red('⚠️  (2/2) Unhandled Rejection in:', promise, 'reason:', reason);
+  });
 }

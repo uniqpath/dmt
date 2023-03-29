@@ -13,6 +13,22 @@ import determineEndpoint from './determineEndpoint.js';
 
 import logger from '../../utils/logger/logger.js';
 
+function addListener(event, callback, ws) {
+  if (browser) {
+    ws.addEventListener(event, callback);
+  } else {
+    ws.on(event, callback);
+  }
+}
+
+function removeListener(event, callback, ws) {
+  if (browser) {
+    ws.removeEventListener(event, callback);
+  } else {
+    ws.off(event, callback);
+  }
+}
+
 function establishAndMaintainConnection(
   { endpoint, host, port, protocol, keypair, remotePubkey, rpcRequestTimeout, autoDecommission, log, verbose, tag, dummy },
   { WebSocket }
@@ -38,9 +54,13 @@ function establishAndMaintainConnection(
   connector.connection = {
     terminate() {
       this.websocket._removeAllCallbacks();
+      this.websocket.__closed = true;
       this.websocket.close();
       connector.connectStatus(false);
       reconnect();
+    },
+    isOpen() {
+      return this.websocket.readyState == wsOPEN && !this.websocket.__closed;
     },
     endpoint,
     checkTicker: 0
@@ -65,12 +85,12 @@ function checkConnection({ connector, reconnect, log }) {
 
   if (connectionIdle(conn) || connector.decommissioned) {
     if (connector.decommissioned) {
-      logger.yellow(log, `${connector.endpoint} Connection decommisioned, closing websocket ${conn.websocket.__id}, will not retry again `);
+      logger.yellow(log, `${connector.endpoint} Connection decommisioned, closing websocket #${conn.websocket.__id}, will not retry again `);
 
       decommission(connector);
     } else {
       connector.emit('inactive_connection');
-      logger.yellow(log, `${connector.endpoint} ✖ Terminated inactive connection`);
+      logger.yellow(log, `${connector.endpoint} ✖ Terminated inactive connection #${conn.websocket.__id}`);
     }
 
     conn.terminate();
@@ -103,6 +123,8 @@ function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verb
     return;
   }
 
+  const wsId = Math.round(10 ** 5 * Math.random()).toString();
+
   if (conn.currentlyTryingWS && conn.currentlyTryingWS.readyState == wsCONNECTING) {
     if (conn.currentlyTryingWS._waitForConnectCounter < WAIT_FOR_NEW_CONN_TICKS) {
       conn.currentlyTryingWS._waitForConnectCounter += 1;
@@ -114,13 +136,14 @@ function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verb
     }
 
     conn.currentlyTryingWS._removeAllCallbacks();
+    conn.currentlyTryingWS.__closed = true;
     conn.currentlyTryingWS.close();
   } else if (verbose || browser) {
-    logger.write(log, `${endpoint} Created new websocket`);
+    logger.write(log, `${endpoint} Created new websocket #${wsId}`);
   }
 
   const ws = new WebSocket(endpoint);
-  ws.__id = Math.random();
+  ws.__id = wsId;
 
   conn.currentlyTryingWS = ws;
   conn.currentlyTryingWS._waitForConnectCounter = 0;
@@ -139,7 +162,7 @@ function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verb
     }
 
     if (verbose || browser) {
-      logger.write(log, `${endpoint} Websocket open`);
+      logger.write(log, `${endpoint} Websocket #${wsId} open`);
     }
 
     conn.currentlyTryingWS = null;
@@ -152,14 +175,10 @@ function tryReconnect({ connector, endpoint }, { WebSocket, reconnect, log, verb
   };
 
   ws._removeAllCallbacks = () => {
-    ws.removeEventListener('open', openCallback);
+    removeListener('open', openCallback, ws);
   };
 
-  if (browser) {
-    ws.addEventListener('open', openCallback);
-  } else {
-    ws.on('open', openCallback);
-  }
+  addListener('open', openCallback, ws);
 }
 
 function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, verbose }) {
@@ -172,7 +191,9 @@ function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, v
   };
 
   const closeCallback = () => {
-    logger.write(log, `${connector.endpoint} ✖ Connection closed`);
+    ws.__closed = true;
+
+    logger.blue(log, `${connector.endpoint} ✖ Connection #${ws.__id} [ ${connector.protocol} ] closed`);
 
     if (connector.decommissioned) {
       connector.connectStatus(false);
@@ -180,6 +201,7 @@ function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, v
     }
 
     connector.connectStatus(undefined);
+
     reconnect();
   };
 
@@ -191,6 +213,10 @@ function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, v
     conn.checkTicker = 0;
 
     const msg = browser ? _msg.data : _msg;
+
+    if (ws.__closed) {
+      return;
+    }
 
     if (msg == 'pong') {
       connector.emit('pong');
@@ -212,22 +238,15 @@ function addSocketListeners({ ws, connector, openCallback, reconnect }, { log, v
   };
 
   ws._removeAllCallbacks = () => {
-    ws.removeEventListener('error', errorCallback);
-    ws.removeEventListener('close', closeCallback);
-    ws.removeEventListener('message', messageCallback);
-
-    ws.removeEventListener('open', openCallback);
+    removeListener('error', errorCallback, ws);
+    removeListener('close', closeCallback, ws);
+    removeListener('message', messageCallback, ws);
+    removeListener('open', openCallback, ws);
   };
 
-  if (browser) {
-    ws.addEventListener('error', errorCallback);
-    ws.addEventListener('close', closeCallback);
-    ws.addEventListener('message', messageCallback);
-  } else {
-    ws.on('error', errorCallback);
-    ws.on('close', closeCallback);
-    ws.on('message', messageCallback);
-  }
+  addListener('error', errorCallback, ws);
+  addListener('close', closeCallback, ws);
+  addListener('message', messageCallback, ws);
 }
 
 function decommission(connector) {
@@ -235,21 +254,23 @@ function decommission(connector) {
 
   if (conn.currentlyTryingWS) {
     conn.currentlyTryingWS._removeAllCallbacks();
+    conn.currentlyTryingWS.__closed = true;
     conn.currentlyTryingWS.close();
     conn.currentlyTryingWS = null;
   }
 
-  if (conn.ws) {
-    conn.ws._removeAllCallbacks();
-    conn.ws.close();
-    conn.ws = null;
+  if (conn.websocket) {
+    conn.websocket._removeAllCallbacks();
+    conn.websocket.__closed = true;
+    conn.websocket.close();
+    conn.websocket = null;
   }
 
   connector.connectStatus(false);
 }
 
 function socketConnected(conn) {
-  return conn.websocket && conn.websocket.readyState == wsOPEN;
+  return conn.websocket && conn.websocket.readyState == wsOPEN && !conn.websocket.__closed;
 }
 
 function connectionIdle(conn) {

@@ -41,7 +41,7 @@ export function evaluateTimespan({ date, from, until }) {
     return isAfter(date, fromDate) || isSameDay(date, fromDate);
   };
 
-  const isValid = { isValid: true };
+  const isWithin = { isWithin: true };
 
   if (until) {
     const untilDate = parseUntil(until);
@@ -54,20 +54,20 @@ export function evaluateTimespan({ date, from, until }) {
       const fromDate = parseFrom(from);
       if (isBefore(fromDate, untilDate) || isSameDay(fromDate, untilDate)) {
         if (afterStart(from) && beforeEnd(until)) {
-          return { ...isValid, isLastDay, diffDays };
+          return { ...isWithin, isLastDay, diffDays };
         }
       } else if (afterStart(from) || beforeEnd(until)) {
-        return { ...isValid, isLastDay, diffDays };
+        return { ...isWithin, isLastDay, diffDays };
       }
     } else if (beforeEnd(until)) {
-      return { ...isValid, isLastDay, diffDays };
+      return { ...isWithin, isLastDay, diffDays };
     }
   } else if (from) {
     if (afterStart(from)) {
-      return isValid;
+      return isWithin;
     }
   } else {
-    return isValid;
+    return isWithin;
   }
 
   return {};

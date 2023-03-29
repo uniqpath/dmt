@@ -1,3 +1,5 @@
+import { log } from 'dmt/common';
+
 import { globals } from 'dmt/common';
 
 import { getCurrentYearMonthDay } from './helpers.js';
