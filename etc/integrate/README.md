@@ -2,7 +2,7 @@
 
 Run `dmt integrate` inside an _installable DMT app directory_.
 
-This will install or **integrate the app into DMT ENGINE**. It is not called simply "dmt install" because this would mean installing the DMT ENGINE somewhere, to avoid confusion and be even more descriptive we call installing apps into the engine "to integrate".
+This will **integrate (install) the app into DMT ENGINE**. It is not called simply "dmt install" because this could mean installing the DMT ENGINE somewhere, to avoid confusion and be even more descriptive we call installing apps into the engine "integration".
 
 See [svelte-demo](https://github.com/dmtsys/svelte-demo) for a nice example of a simple DMT-installable app.
 
@@ -26,7 +26,7 @@ target: user
 - `build` — directory with frontend result which is synced into `~/.dmt/user/apps` (user) or `~/.dmt-here/apps` (device)
 - `target` — `device` or `user`
 
-### DMT hook
+### DMT ENGINE SubPrograms
 
 If installable app has a `dmt` directory then this is synced to `~/.dmt/user/apps/[app_name]/dmt`. This directory contains `index.js` which is integrated into DMT ENGINE. This directory is called DMT hook and should be used for backend logic, not to serve the frontend or things like that (for that use SSR handler).
 
@@ -48,6 +48,21 @@ This works with SvelteKit and other apps that use express-compatible server midd
 ### Serving static frontends
 
 If app has `index.html` then directory is served statically without SSR.
+
+### SvelteKit app preparation
+
+In `svelte.config.js` you have to add `base` key [like this](https://github.com/dmtsys/svelte-demo/blob/main/svelte.config.js#L7-L9):
+
+```js
+kit: {
+    paths: {
+      base: process.env.BASE ? `/${process.env.BASE}` : ''
+    },
+    ...
+  }
+```
+
+`dmt integrate` will set the BASE environment variable correctly based on value in `settings.def`.
 
 ### Special options
 

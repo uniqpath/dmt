@@ -456,8 +456,24 @@ class LocalPlayer extends EventEmitter {
     return new Promise((success, reject) => {
       this.engine
         .pause()
-        .then(success)
+        .then(() => {
+          this.playlist.savePausedAt(this.engine.timeposition());
+        })
         .catch(reject);
+    });
+  }
+
+  continue() {
+    return new Promise((success, reject) => {
+      const currentSong = this.playlist.currentSong();
+      if (!currentSong?.pausedAt) {
+        success();
+      } else {
+        this.engine
+          .continue(currentSong.pausedAt)
+          .then(success)
+          .catch(reject);
+      }
     });
   }
 

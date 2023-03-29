@@ -14,6 +14,8 @@ import scan from './lib/scan.js';
 import sets from './lib/sets.js';
 import tags from './lib/tags.js';
 import * as quantile from './lib/quantile.js';
+import setupProtocolConnectionsCounter from './lib/protocolHelpers/setupConnectionsCounter.js';
+
 import * as formatNumber from './lib/formatNumber/formatNumber.js';
 
 import stopwatch from './lib/timeutils/stopwatch.js';
@@ -22,6 +24,7 @@ import stopwatchAdv from './lib/timeutils/stopwatchAdv.js';
 import * as timeutils from './lib/timeutils/index.js';
 import * as suntime from './lib/timeutils/suntime/index.js';
 
+import stripAnsi from 'strip-ansi';
 import meetup from './lib/meetup/index.js';
 
 import FsState from './lib/fsState.js';
@@ -441,6 +444,8 @@ export {
   debugMode,
   debugCategory,
   fsState,
+  stripAnsi,
+  setupProtocolConnectionsCounter,
   dmtStateDir,
   dmtPath,
   dmtHereEnsure,

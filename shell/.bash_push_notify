@@ -13,9 +13,9 @@ if [ -f "$DIR/.bash_dmt_vars" ]; then
   . "$DIR/.bash_dmt_vars"
 fi
 
-# function o {
-#   dmt "o" "$@"
-# }
+function o {
+  open "$@"
+}
 
 # can also do:
 # [some long process_with_text_result] | push_notify --> not anymore! check code in lib/apn.js and maybe put it back

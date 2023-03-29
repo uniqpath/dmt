@@ -3,7 +3,7 @@ import { log, colors, determineGUIPort } from 'dmt/common';
 import express from 'express';
 import fs from 'fs';
 
-import loadApps from '../../apps-load/loadApps.js';
+import { reloadSSRHandler, reloadAllSSRHandlers } from '../../apps-load/index.js';
 
 import ssrProxy from './ssrProxy.js';
 
@@ -13,6 +13,14 @@ class Server {
     this.program = program;
 
     this.app = express();
+
+    program.on('gui:reload', () => {
+      log.yellow('Gui reload event received — reloading all ssr handlers');
+      reloadAllSSRHandlers({ server: this }).catch(e => {
+        log.red('Error reloading some ssr handlers, should have received individual notifications and log entries');
+        log.red(e);
+      });
+    });
   }
 
   setupRoutes(expressAppSetup) {
@@ -24,16 +32,16 @@ class Server {
     const hasMiddleware = !!ssrMiddlewares.get(appName);
     ssrMiddlewares.set(appName, callback);
 
-    if (reload & !hasMiddleware) {
-      log.green('dmt new ssr app: ' + appName);
+    if (reload && !hasMiddleware) {
+      log.green(`💡 New SSR handler loaded: ${colors.magenta(appName)}`);
     } else if (reload) {
-      log.green('dmt ssr app reload: ' + appName);
+      log.cyan(`🔄 SSR handler reload — ${colors.magenta(appName)}`);
     }
 
     if (hasMiddleware) return;
 
     this.app
-      .use(`/_${appName}`, function(req, res, next) {
+      .use(`/_${appName}`, (req, res, next) => {
         const callback = ssrMiddlewares.get(appName);
         if (callback) {
           return callback(req, res, next);
@@ -53,23 +61,17 @@ class Server {
     this.app
       .get('/__dmt__reload', (req, res) => {
         const appDir = req.query.app;
+
         if (fs.existsSync(appDir)) {
-          loadApps([{ appDir }])
-            .then(appDefinations => {
-              for (const appName in appDefinations) {
-                const ssrHandler = appDefinations[appName]?.ssrHandler;
-                if (ssrHandler) {
-                  this.useDynamicSSR(appName, ssrHandler, true);
-                }
-              }
+          reloadSSRHandler({ server: this, appDir })
+            .then(() => {
               res.end('success');
             })
-            .catch(err => {
-              log.red(err.message || err);
+            .catch(() => {
               res.end('rejected');
             });
         } else {
-          log.red('__dmt__reload appdir do not exist: ' + appDir);
+          log.red(`__dmt__reload appdir do not exist: ${appDir}`);
           res.end('rejected');
         }
       })

@@ -54,7 +54,7 @@ function init(program) {
 
         log.red(msg);
         push.notify(msg);
-        program.nearbyNotification({ msg, color: '#D17357', ttl: 300, dev: true });
+        program.nearbyNotification({ msg, color: '#D17357', ttl: 180, dev: true });
 
         underVoltageReportsCount += 1;
         lastUnderVoltageReport = Date.now();

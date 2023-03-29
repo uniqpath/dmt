@@ -56,13 +56,11 @@ class ChannelList extends EventEmitter {
 
   reportStatus() {
     const connList = this.channels.map(channel => {
-      const result = {
+      return {
         ip: channel.remoteIp(),
         address: channel.remoteAddress(),
         remotePubkeyHex: channel.remotePubkeyHex()
       };
-
-      return result;
     });
 
     this.emit('status', { connList });

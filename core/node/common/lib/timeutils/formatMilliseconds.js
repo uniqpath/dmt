@@ -9,7 +9,7 @@ function getMinutesAndSeconds(timeMs) {
   return { minutes, seconds };
 }
 
-function formatMinutesAndSeconds(timeMs) {
+function formatMinutesAndSeconds(timeMs, { omitSeconds = false } = {}) {
   const { minutes, seconds } = getMinutesAndSeconds(timeMs);
 
   let result = '';
@@ -18,7 +18,7 @@ function formatMinutesAndSeconds(timeMs) {
     result += `${minutes} min`;
   }
 
-  if (seconds != 0) {
+  if (seconds != 0 && !omitSeconds) {
     result += ` ${round(seconds, 0)}${minutes == 0 ? '' : ' '}s`;
   }
 
@@ -37,11 +37,31 @@ export default function formatMilliseconds(timeMs) {
   }
 
   if (_seconds < 60 * 60) {
-    return formatMinutesAndSeconds(timeMs);
+    return formatMinutesAndSeconds(timeMs, { omitSeconds: _seconds >= 30 * 60 });
   }
 
-  const hours = Math.floor(_seconds / 3600);
+  const _hours = Math.floor(_seconds / 3600);
   const seconds = _seconds % 3600;
 
-  return `${hours} h ${formatMinutesAndSeconds(seconds * 1000)}`.trim();
+  const _days = Math.floor(_hours / 24);
+  const hours = _hours % 24;
+
+  const weeks = Math.floor(_days / 7);
+  const days = _days % 7;
+
+  const prepend = [];
+
+  if (weeks) {
+    prepend.push(`${weeks} w`);
+  }
+
+  if (days) {
+    prepend.push(`${days} d`);
+  }
+
+  if (hours) {
+    prepend.push(`${hours} h`);
+  }
+
+  return `${prepend.join(' ')} ${formatMinutesAndSeconds(seconds * 1000, { omitSeconds: true })}`.trim();
 }

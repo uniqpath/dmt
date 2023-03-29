@@ -29,6 +29,7 @@ function dmt_media {
     "forward"
     "backward"
     "goto"
+    "continue"
 
     "shuffle"
     "limit"
