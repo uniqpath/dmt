@@ -1,4 +1,8 @@
 import { colors } from 'dmt/common';
+import { timeutils } from 'dmt/common';
+
+const { ONE_DAY } = timeutils;
+
 //we go directly here so that we load the absolute minimum amount of code (entire lib2 (dmt notifiers) is bypasses)
 import { highPriority as pushHP } from '../lib/pushover/index.js';
 
@@ -15,6 +19,7 @@ function send(msg, { highPriority = false } = {}) {
   pushHP({}, highPriority)
     .app('detail')
     .title('Reminder')
+    .ttl(3 * ONE_DAY)
     .user(['david', 'ziga'])
     .notify(msg)
     .then(() => {

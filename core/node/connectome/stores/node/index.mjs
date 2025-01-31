@@ -364,15 +364,9 @@ class Slot {
 
   get(key) {
     const slotState = this.parent.get(this.name) || {};
-    const val = key ? slotState[key] : slotState;
-
-    // if (typeof val == 'object') {
-    //   console.log(val);
-    //   //log.cyan(val);
-    // }
-
-    return typeof val == 'object' ? clone(val) : val;
-    //return key ? slotState[key] : slotState;
+    //const val = key ? slotState[key] : slotState;
+    //return typeof val == 'object' ? clone(val) : val;
+    return key ? slotState[key] : slotState;
   }
 
   set(state, { announce = true } = {}) {

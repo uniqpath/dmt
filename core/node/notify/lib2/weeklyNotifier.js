@@ -1,6 +1,4 @@
-import { dateFns, program, colors, holidayDataExists, isHoliday, timeutils, log } from 'dmt/common';
-
-const { formatFutureDistance } = timeutils;
+import { dateFns, program, colors, holidayDataExists, isHoliday, log } from 'dmt/common';
 
 const { isSameMinute, subMinutes, isToday, addDays, differenceInWeeks, startOfWeek, differenceInMinutes, isBefore, addMinutes, format } = dateFns;
 
@@ -13,6 +11,8 @@ import parseTimeTomorrow from './lib/parseTimeTomorrow.js';
 import convertTimeTo24hFormat from './lib/convertTimeTo24hFormat.js';
 import { evaluateTimespan } from './lib/evaluateTimespan.js';
 import describeNearTime from './lib/describeNearTime.js';
+import prepareAndPrehashObj from './lib/prepareAndPrehashObj.js';
+import getDedupKey from '../lib/pushover/getDedupKey.js';
 import localize from './lib/localize.js';
 
 const LAST_EVENT_SYMBOL = '✅';
@@ -48,6 +48,7 @@ class WeeklyNotifier extends ScopedNotifier {
       color,
       app,
       ttl,
+      ttlGui,
       highPriority,
       skipOnHolidays,
       excludedRanges,
@@ -64,6 +65,7 @@ class WeeklyNotifier extends ScopedNotifier {
     this.symbol = symbol;
     this.color = color;
     this.ttl = ttl;
+    this.ttlGui = ttlGui;
     this.highPriority = !!highPriority;
     this.app = app;
 
@@ -123,8 +125,8 @@ class WeeklyNotifier extends ScopedNotifier {
     return { time, dow, week };
   }
 
-  checkNotificationTimes(entry) {
-    const now = new Date();
+  checkNotificationTimes(entry, retrogradeDatetime) {
+    const now = retrogradeDatetime || new Date();
 
     const {
       msg: msgStrOrArray,
@@ -133,6 +135,7 @@ class WeeklyNotifier extends ScopedNotifier {
       color,
       id,
       ttl,
+      ttlGui,
       from,
       until,
       duration: _duration,
@@ -184,6 +187,7 @@ class WeeklyNotifier extends ScopedNotifier {
         highPriority: false,
         color: color || this.color,
         ttl: ttl || this.ttl,
+        ttlGui: ttlGui || this.ttlGui,
         user,
         id,
         url,
@@ -220,7 +224,6 @@ class WeeklyNotifier extends ScopedNotifier {
                 const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry, excludedRanges);
 
                 const { datetime, inTime, isNow } = describeNearTime(parseTimeToday(time, _title));
-
                 const isLastEvent = this.isLastEvent({ isLastDay, time, when, eventWeekDay });
                 const lastTag = this.lastEventTag(isLastEvent);
 
@@ -253,14 +256,17 @@ class WeeklyNotifier extends ScopedNotifier {
 
                 const isLastNotification = index === minutesBefore.length - 1;
 
-                this.callback({
+                const obj = {
                   ...o,
                   _title: title,
                   highPriority: isLastNotification ? highPriority : false,
                   title: pushTitle,
                   msg: pushMsg,
-                  tagline
-                });
+                  tagline,
+                  dedupKey: getDedupKey(now)
+                };
+
+                this.handleMessage(prepareAndPrehashObj(obj, msg));
               }
             });
         }
@@ -284,22 +290,24 @@ class WeeklyNotifier extends ScopedNotifier {
 
             if (isSameMinute(now, notificationTime) && isToday(notificationTime)) {
               const { datetime, inTime } = describeNearTime(parseTimeTomorrow(time, title));
-
               const pushTitle = `${o.symbol} ${title}`.trim();
 
               const tagline = `${CLOCK_SYMBOL}${datetime}${inTime ? ` [ ${inTime} ]` : ''}`;
 
               const pushMsg = msg ? `${tagline}\n\n${msg}` : tagline;
 
-              this.callback({
+              const obj = {
                 ...o,
                 _title: title,
                 highPriority,
                 title: pushTitle,
                 msg: pushMsg,
                 isToday: true,
-                tagline
-              });
+                tagline,
+                dedupKey: getDedupKey(now)
+              };
+
+              this.handleMessage(prepareAndPrehashObj(obj, msg));
             }
           }
         }
@@ -315,7 +323,17 @@ class WeeklyNotifier extends ScopedNotifier {
 
               const pushMsg = msg ? `${tagline}\n\n${msg}` : tagline;
 
-              this.callback({ ...o, _title: title, title: pushTitle, msg: pushMsg, tagline, isDayBefore: true });
+              const obj = {
+                ...o,
+                _title: title,
+                title: pushTitle,
+                isDayBefore: true,
+                msg: pushMsg,
+                tagline,
+                dedupKey: getDedupKey(now)
+              };
+
+              this.handleMessage(prepareAndPrehashObj(obj, msg));
             }
           }
         }
@@ -369,19 +387,21 @@ class WeeklyNotifier extends ScopedNotifier {
     return isLastEvent ? ` [ ${LAST_EVENT_SYMBOL} ${strLastTime} ]` : '';
   }
 
-  check() {
+  check(retrogradeDatetime) {
     for (const entry of this.notifications) {
       if (entry.to) {
         throw new Error(`${this.ident} Please use 'until' instead of 'to'`);
       }
 
-      this.checkNotificationTimes(entry);
+      this.checkNotificationTimes(entry, retrogradeDatetime);
     }
   }
 }
 
-export default function weeklyNotifier(notifications, options = {}) {
+export default function weeklyNotifier(notifications, options = {}, nestedNotifier = false) {
   const decommissionable = isReloadableNotifications(new Error(), import.meta.url);
 
-  return new WeeklyNotifier(notifications, options, decommissionable);
+  const notifier = new WeeklyNotifier(notifications, options, decommissionable);
+
+  return nestedNotifier ? notifier : program.registerNotifier(notifier);
 }

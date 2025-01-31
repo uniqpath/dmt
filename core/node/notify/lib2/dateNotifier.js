@@ -12,6 +12,8 @@ import convertDateToEUFormat from './lib/convertDateToEUFormat.js';
 import convertTimeTo24hFormat from './lib/convertTimeTo24hFormat.js';
 import describeNearTime from './lib/describeNearTime.js';
 import describeNearFuture from './lib/describeNearFuture.js';
+import prepareAndPrehashObj from './lib/prepareAndPrehashObj.js';
+import getDedupKey from '../lib/pushover/getDedupKey.js';
 import localize from './lib/localize.js';
 import { evaluateTimespan } from './lib/evaluateTimespan.js';
 
@@ -25,7 +27,6 @@ const TOMORROW_SYMBOL = '⏳';
 const FINISH_SYMBOL = '🏁';
 const CALENDAR_SYMBOL = '🗓️';
 const SCROLL_SYMBOL = '📜';
-const BELL_SYMBOL = '🔔';
 const EXCLAMATION_SYMBOL = '❗';
 
 const NOTIFIER_DEFAULT_TIME = '10:00';
@@ -65,6 +66,7 @@ class DateNotifier extends ScopedNotifier {
       title,
       color,
       ttl,
+      ttlGui,
       highPriority,
       notifySameDayAt,
       omitAtEventTime,
@@ -79,7 +81,10 @@ class DateNotifier extends ScopedNotifier {
       repeatDaysAfter,
       everyNthYear,
       user,
-      users
+      users,
+      url,
+      urlTitle,
+      enableHtml
     } = {},
     decommissionable = false
   ) {
@@ -87,6 +92,10 @@ class DateNotifier extends ScopedNotifier {
 
     this.notifications = Array(notifications).flat(Infinity);
     this.app = app;
+
+    this.url = url;
+    this.urlTitle = urlTitle;
+    this.enableHtml = enableHtml;
 
     for (const n of this.notifications) {
       n.hasRandomPeriodicEvents = Array(n.when)
@@ -104,6 +113,7 @@ class DateNotifier extends ScopedNotifier {
     this.symbol = symbol;
     this.color = color;
     this.ttl = ttl;
+    this.ttlGui = ttlGui;
     this.highPriority = !!highPriority;
 
     this.notifySameDayAt = notifySameDayAt;
@@ -198,8 +208,8 @@ class DateNotifier extends ScopedNotifier {
     return whenStr;
   }
 
-  checkNotificationTimes(entry) {
-    const now = new Date();
+  checkNotificationTimes(entry, retrogradeDatetime) {
+    const now = retrogradeDatetime || new Date();
 
     const {
       when,
@@ -217,10 +227,13 @@ class DateNotifier extends ScopedNotifier {
       repeatDaysAfter: _repeatDaysAfter,
       color,
       ttl,
+      ttlGui,
       from,
       until,
       highPriority: _highPriority,
-      url,
+      url: _url,
+      urlTitle: _urlTitle,
+      enableHtml: _enableHtml,
       id
     } = entry;
 
@@ -286,6 +299,10 @@ class DateNotifier extends ScopedNotifier {
     }
 
     const highPriority = _highPriority == undefined ? this.highPriority : _highPriority;
+    const enableHtml = _enableHtml == undefined ? this.enableHtml : _enableHtml;
+
+    const url = _url == undefined ? this.url : _url;
+    const urlTitle = _urlTitle == undefined ? this.urlTitle : _urlTitle;
 
     const notifySameDayAt = uniqueArray(priorityArray(_notifySameDayAt, this.notifySameDayAt));
 
@@ -328,7 +345,7 @@ class DateNotifier extends ScopedNotifier {
         }
       }
 
-      const diffDays = differenceInCalendarDays(new Date(), timepoint);
+      const diffDays = differenceInCalendarDays(now, timepoint);
 
       msg = `${SCROLL_SYMBOL} ${format(timepoint, 'd.M.yyyy')} { ${monthsAgo(diffDays)} }${msg ? `\n\n${msg}` : ''}`;
     }
@@ -345,9 +362,12 @@ class DateNotifier extends ScopedNotifier {
         _msg: msg,
         color: color || this.color,
         ttl: ttl || this.ttl,
+        ttlGui: ttlGui || this.ttlGui,
         user,
         id,
         url,
+        urlTitle,
+        enableHtml,
         eventTime: timepoint,
         data: entry.data || {}
       };
@@ -378,18 +398,18 @@ class DateNotifier extends ScopedNotifier {
             const notificationTime = subMinutes(timepoint, min);
 
             if (isSameMinute(now, notificationTime)) {
-              const { datetime, inTime, isNow } = describeNearTime(timepoint);
+              const { datetime, inTime, isNow, isPast } = describeNearTime(timepoint);
 
               const isLastNotification = index === minutesBefore.length - 1;
 
-              const brevityTagline = minutesBefore.length >= 2 && min <= 30 && isLastNotification;
+              const brevityTagline = minutesBefore.length >= 2 && min <= 30 && isLastNotification && !isPast;
 
               let _tagline =
                 isNow && msg
                   ? undefined
                   : `${isNow ? NOW_SYMBOL : CLOCK_SYMBOL}${brevityTagline ? '' : ` ${datetime}`}${
                       inTime ? ` ${brevityTagline ? capitalizeFirstLetter(inTime) : `[ ${inTime} ]`}` : ''
-                    }${!isNow && min <= 30 ? EXCLAMATION_SYMBOL : ''}`;
+                    }${(!isNow && min <= 30) || isPast ? EXCLAMATION_SYMBOL : ''}`;
 
               if (duration && minutesBefore.length - 1 == index) {
                 const endTime = addMinutes(timepoint, duration);
@@ -419,7 +439,7 @@ class DateNotifier extends ScopedNotifier {
               const pushTitle = `${symbol} ${title}`.trim();
               const pushMsg = msg ? `${tagline ? `${tagline}\n\n` : ''}${msg}` : tagline;
 
-              this.callback({
+              const obj = {
                 ...o,
                 title: pushTitle,
                 msg: pushMsg,
@@ -427,8 +447,11 @@ class DateNotifier extends ScopedNotifier {
                 tagline,
                 app: this.app,
                 isToday: true,
-                highPriority: isLastNotification ? highPriority : false
-              });
+                highPriority: isLastNotification ? highPriority : false,
+                dedupKey: getDedupKey(now)
+              };
+
+              this.handleMessage(prepareAndPrehashObj({ obj, msg }));
             }
           });
         }
@@ -464,15 +487,26 @@ class DateNotifier extends ScopedNotifier {
                       const sequenceDigits = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
                       const remainingCount = notifyDaysBefore.length - index - (omitOnDayOfEvent ? 1 : 0);
                       const digitIcon = remainingCount > 10 ? `${sequenceDigits[10]}➕` : sequenceDigits[remainingCount];
-                      tagline =
-                        remainingCount == 0
-                          ? `${tagline}\n\n[ No more reminders❗]`
-                          : `${tagline}\n\n[ Will send ${digitIcon} more ${remainingCount == 1 ? 'reminder' : 'reminders'} ]`;
+                      if (remainingCount > 1) {
+                        tagline = `${tagline}\n\n[ Will send ${digitIcon} more ${remainingCount == 1 ? 'reminder' : 'reminders'} ]`;
+                      }
                     }
 
                     const pushMsg = msg ? `${tagline ? `${tagline}\n\n` : ''}${msg}` : tagline;
 
-                    this.callback({ ...o, title: pushTitle, msg: pushMsg, app: this.app, tagline, isDayBefore, inDays, symbol });
+                    const obj = {
+                      ...o,
+                      title: pushTitle,
+                      msg: pushMsg,
+                      app: this.app,
+                      tagline,
+                      isDayBefore,
+                      inDays,
+                      symbol,
+                      dedupKey: getDedupKey(now)
+                    };
+
+                    this.handleMessage(prepareAndPrehashObj({ obj, msg }));
                   }
                 }
               }
@@ -503,15 +537,17 @@ class DateNotifier extends ScopedNotifier {
     }
   }
 
-  check() {
+  check(retrogradeDatetime) {
     for (const entry of this.notifications) {
-      this.checkNotificationTimes(entry);
+      this.checkNotificationTimes(entry, retrogradeDatetime);
     }
   }
 }
 
-export default function dateNotifier(notifications, options = {}) {
+export default function dateNotifier(notifications, options = {}, nestedNotifier = false) {
   const decommissionable = isReloadableNotifications(new Error(), import.meta.url);
 
-  return new DateNotifier(notifications, options, decommissionable);
+  const notifier = new DateNotifier(notifications, options, decommissionable);
+
+  return nestedNotifier ? notifier : program.registerNotifier(notifier);
 }

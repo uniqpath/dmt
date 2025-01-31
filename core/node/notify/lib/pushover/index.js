@@ -1,4 +1,6 @@
 import MessageSender from './messageSender.js';
+import verifyUser from './verifyUser.js';
+import { store } from './dedupStore.js';
 
 function notify(constructorOptions, ...options) {
   return new MessageSender(constructorOptions).notify(...options);
@@ -52,6 +54,10 @@ function omitAppName(constructorOptions) {
   return new MessageSender(constructorOptions).omitAppName();
 }
 
+function ttl(constructorOptions) {
+  return new MessageSender(constructorOptions).ttl();
+}
+
 function bigMessage(constructorOptions) {
   return new MessageSender(constructorOptions).bigMessage();
 }
@@ -62,6 +68,10 @@ function highPriority(constructorOptions, high) {
 
 function enableHtml(constructorOptions, enable) {
   return new MessageSender(constructorOptions).enableHtml(enable);
+}
+
+function dedup(constructorOptions, key) {
+  return new MessageSender(constructorOptions).dedup(key);
 }
 
 export {
@@ -78,7 +88,11 @@ export {
   highPriority,
   enableHtml,
   bigMessage,
+  ttl,
   network,
   url,
-  urlTitle
+  urlTitle,
+  verifyUser,
+  dedup,
+  store
 };

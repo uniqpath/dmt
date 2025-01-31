@@ -1,5 +1,7 @@
 import * as dmt from 'dmt/common';
-const { log, isMainDevice } = dmt;
+const { log, isMainDevice, timeutils } = dmt;
+
+const { ONE_DAY } = timeutils;
 
 import stripAnsi from 'strip-ansi';
 
@@ -44,6 +46,7 @@ export default function exceptionNotify(msg, { delay = DEFAULT_DELAY, exitProces
         push
           .optionalApp(APP)
           .omitAppName()
+          .ttl(3 * ONE_DAY)
           .highPriority()
           .notify(msg)
           .then(done);
@@ -55,6 +58,7 @@ export default function exceptionNotify(msg, { delay = DEFAULT_DELAY, exitProces
     push
       .optionalApp(APP)
       .omitAppName()
+      .ttl(3 * ONE_DAY)
       .highPriority(!log.isForeground())
       .notify(msg)
       .then(done);

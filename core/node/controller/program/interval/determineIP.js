@@ -8,6 +8,8 @@ import { push } from 'dmt/notify';
 
 import { log, accessPointIP, apMode, colors, timeutils } from 'dmt/common';
 
+const { ONE_DAY } = timeutils;
+
 import checkForLocalOnlyIpAndRebootDevice from './checkForLocalOnlyIpAndRebootDevice.js';
 
 const BOOT_LIMIT_SECONDS = 60;
@@ -50,7 +52,7 @@ export default function determineIP(program) {
             const msg = `📟 BOOTED ${ip}${ago}${connectedWifiAP ? ` ${connectedWifiAP}` : ''}${isEmpty(reason) ? '' : ` (${reason})`}`;
 
             log.green(msg);
-            push.notify(msg);
+            push.ttl(2 * ONE_DAY).notify(msg);
 
             if (isEmpty(reason)) {
               program.nearbyNotification({ msg, ttl: 20, color: '#009D65' });

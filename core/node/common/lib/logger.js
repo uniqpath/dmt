@@ -200,7 +200,6 @@ class Logger {
       if (this.buffer.length > 0) {
         const prev = this.buffer[this.buffer.length - 1];
         const diff = meta.timestamp - prev.meta.timestamp;
-
         diffStr = ` (+${formatMilliseconds(diff)})`;
 
         if (diff > 1000) {

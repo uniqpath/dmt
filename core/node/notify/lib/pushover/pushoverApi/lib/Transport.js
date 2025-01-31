@@ -12,7 +12,7 @@ class Transport {
 
     this.instance = axios.create({
       baseURL: `${client.options.host}/${client.options.version}`,
-      timeout: 10000
+      timeout: 8000
     });
   }
 

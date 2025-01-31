@@ -1,6 +1,6 @@
-import { log, program, dateFns, timeutils } from 'dmt/common';
+import { program, dateFns, timeutils } from 'dmt/common';
 
-const { parse, isTomorrow, isSameMinute, isAfter, addDays, subDays, isSameDay } = dateFns;
+const { parse, isSameMinute, isAfter, addDays, isSameDay } = dateFns;
 
 const { formatFutureDistance } = timeutils;
 
@@ -12,9 +12,10 @@ import convertDateToEUFormat from './lib/convertDateToEUFormat.js';
 import parseTimeToday from './lib/parseTimeToday.js';
 import describeNearDate from './lib/describeNearDate.js';
 import dateTemplate from './lib/dateTemplate.js';
+import getObjHash from '../lib/pushover/getObjHash.js';
+import getDedupKey from '../lib/pushover/getDedupKey.js';
 
 const NOTIFIER_DEFAULT_TIME = '10:00';
-
 const TOMORROW_SYMBOL = '⏳';
 const CALENDAR_SYMBOL = '🗓️';
 const LAST_EVENT = '❗';
@@ -44,8 +45,8 @@ class TrashTakeoutNotifier extends ScopedNotifier {
     this.user = user || users;
   }
 
-  check() {
-    const date = new Date();
+  check(retrogradeDatetime) {
+    const now = retrogradeDatetime || new Date();
 
     const notifyDayBeforeAt = Array.isArray(this.notifyDayBeforeAt) ? this.notifyDayBeforeAt : [this.notifyDaysBefore];
 
@@ -61,18 +62,18 @@ class TrashTakeoutNotifier extends ScopedNotifier {
       const isDayBefore = daysBefore == 1;
 
       const times = isDayBefore ? notifyDayBeforeAt : [NOTIFIER_DEFAULT_TIME];
-      if (times.find(t => isSameMinute(date, parseTimeToday(t)))) {
+      if (times.find(t => isSameMinute(now, parseTimeToday(t)))) {
         const list = [];
         const matchingDates = [];
 
         for (const { tag, title, when } of this.records) {
           const matchingDate = Array(when)
             .flat()
-            .find(dayAndMonth => isSameDay(parse(convertDateToEUFormat(dayAndMonth, this.year), dateTemplate, date), addDays(date, daysBefore)));
+            .find(dayAndMonth => isSameDay(parse(convertDateToEUFormat(dayAndMonth, this.year), dateTemplate, now), addDays(now, daysBefore)));
 
           if (matchingDate) {
             list.push(title || tag);
-            matchingDates.push(parse(convertDateToEUFormat(matchingDate, this.year), dateTemplate, date));
+            matchingDates.push(parse(convertDateToEUFormat(matchingDate, this.year), dateTemplate, now));
           }
         }
 
@@ -81,7 +82,7 @@ class TrashTakeoutNotifier extends ScopedNotifier {
             Array(when)
               .flat()
               .some(dayAndMonth => {
-                const eventDate = parse(convertDateToEUFormat(dayAndMonth, this.year), dateTemplate, date);
+                const eventDate = parse(convertDateToEUFormat(dayAndMonth, this.year), dateTemplate, now);
                 return isAfter(eventDate, Math.max(...matchingDates));
               })
           );
@@ -91,13 +92,13 @@ class TrashTakeoutNotifier extends ScopedNotifier {
           const msg = list.join('\n');
           const title = `${symbol} ${this.title}`;
 
-          const inDays = `${capitalizeFirstLetter(strIn)} ${formatFutureDistance(addDays(date, daysBefore), { referenceDate: date, lang: program.lang() })}`;
+          const inDays = `${capitalizeFirstLetter(strIn)} ${formatFutureDistance(addDays(now, daysBefore), { lang: program.lang() })}`;
 
-          const describeFuture = () => describeNearDate({ daysBefore, date, inDays });
+          const describeFuture = () => describeNearDate({ daysBefore, date: addDays(now, daysBefore), inDays });
 
           const tagline = `${isDayBefore ? TOMORROW_SYMBOL : CALENDAR_SYMBOL} ${describeFuture()}`.trim();
 
-          this.callback({
+          const obj = {
             msg,
             title,
             _msg: msg,
@@ -107,8 +108,12 @@ class TrashTakeoutNotifier extends ScopedNotifier {
             ttl: this.ttl,
             highPriority: this.highPriority && isLastNotification,
             user: this.user,
-            tagline
-          });
+            dedupKey: getDedupKey(now)
+          };
+
+          const preHash = getObjHash(obj);
+
+          this.handleMessage({ ...obj, tagline, preHash });
         }
       }
     }
@@ -118,5 +123,5 @@ class TrashTakeoutNotifier extends ScopedNotifier {
 export default function trashTakeoutNotifier(notifications, options = {}) {
   const decommissionable = isReloadableNotifications(new Error(), import.meta.url);
 
-  return new TrashTakeoutNotifier(notifications, options, decommissionable);
+  return program.registerNotifier(new TrashTakeoutNotifier(notifications, options, decommissionable));
 }
