@@ -21,7 +21,8 @@ export default function localize(program) {
         strOneMoreDay: 'še samo jutri',
         strReminder: 'opomnik',
         strNewRegimeFromTomorrow: 'Od jutri nov razpored',
-        arrDaysOfWeek: ['NED', 'PON', 'TOR', 'SRE', 'ČET', 'PET', 'SOB']
+        arrDaysOfWeek: ['NED', 'PON', 'TOR', 'SRE', 'ČET', 'PET', 'SOB'],
+        insteadOf: 'namesto'
       };
     default:
       return {
@@ -39,7 +40,8 @@ export default function localize(program) {
         strOneMoreDay: 'one more day',
         strReminder: 'reminder',
         strNewRegimeFromTomorrow: 'New schedule starting tomorrow',
-        arrDaysOfWeek: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+        arrDaysOfWeek: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+        insteadOf: 'instead of'
       };
   }
 }

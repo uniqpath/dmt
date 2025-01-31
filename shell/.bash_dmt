@@ -219,7 +219,7 @@ function dmt {
 
     echo
 
-    declare -a expressions=('Digital Mastery Techniques' 'Digital Multi Tool' 'Dynamic Modular Technologies' 'Dare Mighty Things' 'Does Many Things' 'Delivering Many Tricks' 'Dreamy Memorable Transmissions')
+    declare -a expressions=('Digital Mastery Techniques' 'Digital Multi Tool' 'Dynamic Modular Technologies' 'Dare Mighty Things' 'Does Many Things' 'Delivering Many Tricks' 'Decentralized Meta Intelligence' 'Deliver Maximum Transformation' 'Delightful Mutual Progress' 'Deep Machine Thinking')
     local index=$[$RANDOM % ${#expressions[@]}]
     local selected_expression=${expressions[index]}
 

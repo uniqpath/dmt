@@ -6,6 +6,7 @@ import ScopedNotifier from './base/scopedNotifier.js';
 
 import { isReloadableNotifications } from './lib/isReloadableNotifications.js';
 import describeNearFuture from './lib/describeNearFuture.js';
+import getDedupKey from '../lib/pushover/getDedupKey.js';
 import priorityArray from './lib/priorityArray.js';
 import localize from './lib/localize.js';
 
@@ -15,10 +16,12 @@ const NOTIFIER_DEFAULT_TIME = '8:00';
 
 const DEFAULT_APP = 'holidays';
 
+const DEFAULT_DAYS_BEFORE = [5, 1, 0];
+
 class HolidayNotifier extends ScopedNotifier {
   constructor(
     country,
-    { symbol, title, color, ttl, highPriority, notifyAt = NOTIFIER_DEFAULT_TIME, app = DEFAULT_APP, notifyDaysBefore = 1, user, users } = {},
+    { symbol, title, color, ttl, highPriority, notifyAt = NOTIFIER_DEFAULT_TIME, app = DEFAULT_APP, notifyDaysBefore = DEFAULT_DAYS_BEFORE, user, users } = {},
     decommissionable = false
   ) {
     super(symbol, decommissionable);
@@ -40,13 +43,21 @@ class HolidayNotifier extends ScopedNotifier {
       this.notifyDaysBefore.push(1);
     }
 
+    if (!this.notifyDaysBefore.find(day => day == -1)) {
+      this.notifyDaysBefore.push(0);
+    }
+
+    const uniqueArray = arr => [...new Set(arr)];
+
+    this.notifyDaysBefore = uniqueArray(this.notifyDaysBefore.filter(day => day != -1));
+
     this.user = user || users;
   }
 
-  check() {
+  check(fakeNow) {
     const { strToday, strTomorrow, capitalizeFirstLetter } = localize(program);
 
-    const now = new Date();
+    const now = fakeNow || new Date();
 
     const [notifyHour, notifyMinute] = this.notifyAt.split(':').map(n => parseInt(n));
 
@@ -85,7 +96,7 @@ class HolidayNotifier extends ScopedNotifier {
 
               const pushMsg = msg;
 
-              this.callback({ title: pushTitle, msg: pushMsg, app: this.app, symbol: countryFlag, user: this.user });
+              this.handleMessage({ title: pushTitle, msg: pushMsg, app: this.app, symbol: countryFlag, user: this.user, dedupKey: getDedupKey(now) });
             }
           }
         }
@@ -97,5 +108,5 @@ class HolidayNotifier extends ScopedNotifier {
 export default function holidayNotifier(country, options = {}) {
   const decommissionable = isReloadableNotifications(new Error(), import.meta.url);
 
-  return new HolidayNotifier(country, options, decommissionable);
+  return program.registerNotifier(new HolidayNotifier(country, options, decommissionable));
 }

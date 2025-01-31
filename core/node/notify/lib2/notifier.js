@@ -1,4 +1,4 @@
-import { everyMinute, isMainServer } from 'dmt/common';
+import { program } from 'dmt/common';
 
 import { isReloadableNotifications } from './lib/isReloadableNotifications.js';
 
@@ -24,7 +24,7 @@ class Notifier extends ScopedNotifier {
   constructor(notifications, options = {}, decommissionable = false) {
     const { symbol, title } = options;
 
-    super(`${symbol} ${title || ''}`, decommissionable);
+    super(`${symbol || ''} ${title || ''}`.trim(), decommissionable);
 
     const dailyList = [];
     const weeklyList = [];
@@ -61,15 +61,23 @@ class Notifier extends ScopedNotifier {
     }
 
     if (dailyList.length > 0) {
-      this.dailyNotifier = dailyNotifier(dailyList, options);
+      this.dailyNotifier = dailyNotifier(dailyList, options, true);
     }
 
     if (weeklyList.length > 0) {
-      this.weeklyNotifier = weeklyNotifier(weeklyList, options);
+      this.weeklyNotifier = weeklyNotifier(weeklyList, options, true);
     }
 
     if (dateList.length > 0) {
-      this.dateNotifier = dateNotifier(dateList, options);
+      this.dateNotifier = dateNotifier(dateList, options, true);
+    }
+  }
+
+  simulateTimepoint(timepoint) {
+    if (!this.isDecommissioned() && this.performCheck()) {
+      this.dailyNotifier?.simulateTimepoint(timepoint);
+      this.weeklyNotifier?.simulateTimepoint(timepoint);
+      this.dateNotifier?.simulateTimepoint(timepoint);
     }
   }
 
@@ -85,26 +93,18 @@ class Notifier extends ScopedNotifier {
     this.dateNotifier?.decommission();
   }
 
-  handle(callback) {
-    this.callback = callback;
-    if (!this.scopeHasBeenSet) {
-      this.deviceCheckFunction = isMainServer;
-      this.scopeHasBeenSet = true;
-    }
-
-    this.dailyNotifier?.setCallback(callback);
-    this.weeklyNotifier?.setCallback(callback);
-    this.dateNotifier?.setCallback(callback);
+  initializeHandler(callback) {
+    this.dailyNotifier?.setMessageHandler(callback);
+    this.weeklyNotifier?.setMessageHandler(callback);
+    this.dateNotifier?.setMessageHandler(callback);
 
     const check = () => {
-      if (this.performCheck()) {
-        this.dailyNotifier?.check();
-        this.weeklyNotifier?.check();
-        this.dateNotifier?.check();
-      }
+      this.dailyNotifier?.check();
+      this.weeklyNotifier?.check();
+      this.dateNotifier?.check();
     };
 
-    this.cancelPeriodicCheck = everyMinute(check);
+    super.initializeHandler(callback, check);
 
     return this;
   }
@@ -113,5 +113,7 @@ class Notifier extends ScopedNotifier {
 export default function notifier(notifications, options = {}) {
   const decommissionable = isReloadableNotifications(new Error(), import.meta.url);
 
-  return new Notifier(notifications, options, decommissionable);
+  const notifier = new Notifier(notifications, options, decommissionable);
+
+  return program.registerNotifier(notifier);
 }

@@ -1,8 +1,8 @@
 import { deviceGeneralIdentifier } from 'dmt/common';
 
-import pushoverApi from './pushoverApi/index.js';
+import pushoverApi from '../pushoverApi/index.js';
 
-import { dmtApp } from './dmtApp.js';
+import { dmtApp } from '../dmtApp.js';
 
 const MAX_TITLE_CHARS = 100;
 
@@ -55,6 +55,7 @@ export default function prepareMessage({
   highPriority,
   url,
   urlTitle,
+  ttl,
   isABC,
   originDevice,
   enableHtml
@@ -75,6 +76,7 @@ export default function prepareMessage({
     message,
     enableHtml: enableHtml ? 1 : 0,
     user: recipient,
+    ttl: ttl ? Math.round(ttl / 1000) : undefined,
     priority: new pushoverApi.Priority(priority),
     sound: new pushoverApi.Sound('magic')
   });

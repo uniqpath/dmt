@@ -36,8 +36,8 @@ class User {
 }
 
 function validateId(value) {
-  if (!value.match(/^[a-z0-9]{30}$/i)) {
-    throw new Error('User id must be 30 characters long and alphanumeric');
+  if (!value.match(/^([a-z0-9]{30})(,[a-z0-9]{30})*$/i)) {
+    throw new Error('User id must be a 30 character alphanumeric string or a comma-separated list of such ids');
   }
 }
 

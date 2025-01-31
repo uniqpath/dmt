@@ -1,6 +1,4 @@
-import { dateFns, program, colors, holidayDataExists, isHoliday, timeutils, log } from 'dmt/common';
-
-const { formatFutureDistance } = timeutils;
+import { dateFns, program, colors, holidayDataExists, isHoliday } from 'dmt/common';
 
 const { isSameMinute, subMinutes, isToday, addDays, differenceInWeeks, startOfWeek, differenceInMinutes, isBefore, addMinutes, format } = dateFns;
 
@@ -13,6 +11,8 @@ import parseTimeTomorrow from './lib/parseTimeTomorrow.js';
 import convertTimeTo24hFormat from './lib/convertTimeTo24hFormat.js';
 import { evaluateTimespan } from './lib/evaluateTimespan.js';
 import describeNearTime from './lib/describeNearTime.js';
+import prepareAndPrehashObj from './lib/prepareAndPrehashObj.js';
+import getDedupKey from '../lib/pushover/getDedupKey.js';
 import localize from './lib/localize.js';
 
 const LAST_EVENT_SYMBOL = '✅';
@@ -48,6 +48,7 @@ class WeeklyNotifier extends ScopedNotifier {
       color,
       app,
       ttl,
+      ttlGui,
       highPriority,
       skipOnHolidays,
       excludedRanges,
@@ -64,6 +65,7 @@ class WeeklyNotifier extends ScopedNotifier {
     this.symbol = symbol;
     this.color = color;
     this.ttl = ttl;
+    this.ttlGui = ttlGui;
     this.highPriority = !!highPriority;
     this.app = app;
 
@@ -123,8 +125,8 @@ class WeeklyNotifier extends ScopedNotifier {
     return { time, dow, week };
   }
 
-  checkNotificationTimes(entry) {
-    const now = new Date();
+  checkNotificationTimes(entry, fakeNow) {
+    const now = fakeNow || new Date();
 
     const {
       msg: msgStrOrArray,
@@ -133,6 +135,7 @@ class WeeklyNotifier extends ScopedNotifier {
       color,
       id,
       ttl,
+      ttlGui,
       from,
       until,
       duration: _duration,
@@ -184,6 +187,7 @@ class WeeklyNotifier extends ScopedNotifier {
         highPriority: false,
         color: color || this.color,
         ttl: ttl || this.ttl,
+        ttlGui: ttlGui || this.ttlGui,
         user,
         id,
         url,
@@ -192,7 +196,7 @@ class WeeklyNotifier extends ScopedNotifier {
       };
 
       if (now.getDay() == eventWeekDay && (!week || isNthWeek(now, week))) {
-        const eventTime = parseTimeToday(time, _title);
+        const eventTime = parseTimeToday({ time, tag: _title, now });
 
         o.eventTime = eventTime;
 
@@ -202,7 +206,7 @@ class WeeklyNotifier extends ScopedNotifier {
           const _minutesBefore = [...notifyMinutesBefore];
 
           for (const t of notifySameDayAt) {
-            const notifyTime = parseTimeToday(t);
+            const notifyTime = parseTimeToday({ time: t, now });
             if (isBefore(notifyTime, eventTime)) {
               const diffInMinutes = differenceInMinutes(eventTime, notifyTime);
               _minutesBefore.push(diffInMinutes);
@@ -219,8 +223,7 @@ class WeeklyNotifier extends ScopedNotifier {
               if (isSameMinute(now, notificationTime)) {
                 const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry, excludedRanges);
 
-                const { datetime, inTime, isNow } = describeNearTime(parseTimeToday(time, _title));
-
+                const { datetime, inTime, isNow } = describeNearTime(parseTimeToday({ time, tag: _title, now }));
                 const isLastEvent = this.isLastEvent({ isLastDay, time, when, eventWeekDay });
                 const lastTag = this.lastEventTag(isLastEvent);
 
@@ -253,20 +256,23 @@ class WeeklyNotifier extends ScopedNotifier {
 
                 const isLastNotification = index === minutesBefore.length - 1;
 
-                this.callback({
+                const obj = {
                   ...o,
                   _title: title,
                   highPriority: isLastNotification ? highPriority : false,
                   title: pushTitle,
                   msg: pushMsg,
-                  tagline
-                });
+                  tagline,
+                  dedupKey: getDedupKey(now)
+                };
+
+                this.handleMessage(prepareAndPrehashObj({ obj, msg, now }));
               }
             });
         }
       }
 
-      const eventTime = parseTimeTomorrow(time, _title);
+      const eventTime = parseTimeTomorrow({ time, tag: _title, now });
 
       const { isWithin, isLastDay: _isLastDay } = evaluateTimespan({ date: eventTime, from, until });
 
@@ -283,7 +289,7 @@ class WeeklyNotifier extends ScopedNotifier {
             const notificationTime = subMinutes(eventTime, minBefore);
 
             if (isSameMinute(now, notificationTime) && isToday(notificationTime)) {
-              const { datetime, inTime } = describeNearTime(parseTimeTomorrow(time, title));
+              const { datetime, inTime } = describeNearTime(parseTimeTomorrow({ time, tag: title, now }));
 
               const pushTitle = `${o.symbol} ${title}`.trim();
 
@@ -291,22 +297,25 @@ class WeeklyNotifier extends ScopedNotifier {
 
               const pushMsg = msg ? `${tagline}\n\n${msg}` : tagline;
 
-              this.callback({
+              const obj = {
                 ...o,
                 _title: title,
                 highPriority,
                 title: pushTitle,
                 msg: pushMsg,
                 isToday: true,
-                tagline
-              });
+                tagline,
+                dedupKey: getDedupKey(now)
+              };
+
+              this.handleMessage(prepareAndPrehashObj({ obj, msg, now }));
             }
           }
         }
 
         if (notifyDayBeforeAt.length > 0 && (now.getDay() + 1) % 7 == eventWeekDay && (!week || isNthWeek(eventTime, week))) {
           for (const t of notifyDayBeforeAt) {
-            const notificationTime = parseTimeToday(t, title);
+            const notificationTime = parseTimeToday({ time: t, tag: title, now });
 
             if (isSameMinute(now, notificationTime)) {
               const pushTitle = `${o.symbol} ${title}`;
@@ -315,7 +324,17 @@ class WeeklyNotifier extends ScopedNotifier {
 
               const pushMsg = msg ? `${tagline}\n\n${msg}` : tagline;
 
-              this.callback({ ...o, _title: title, title: pushTitle, msg: pushMsg, tagline, isDayBefore: true });
+              const obj = {
+                ...o,
+                _title: title,
+                title: pushTitle,
+                isDayBefore: true,
+                msg: pushMsg,
+                tagline,
+                dedupKey: getDedupKey(now)
+              };
+
+              this.handleMessage(prepareAndPrehashObj({ obj, msg, now, delayWarning: false }));
             }
           }
         }
@@ -369,19 +388,21 @@ class WeeklyNotifier extends ScopedNotifier {
     return isLastEvent ? ` [ ${LAST_EVENT_SYMBOL} ${strLastTime} ]` : '';
   }
 
-  check() {
+  check(fakeNow) {
     for (const entry of this.notifications) {
       if (entry.to) {
         throw new Error(`${this.ident} Please use 'until' instead of 'to'`);
       }
 
-      this.checkNotificationTimes(entry);
+      this.checkNotificationTimes(entry, fakeNow);
     }
   }
 }
 
-export default function weeklyNotifier(notifications, options = {}) {
+export default function weeklyNotifier(notifications, options = {}, nestedNotifier = false) {
   const decommissionable = isReloadableNotifications(new Error(), import.meta.url);
 
-  return new WeeklyNotifier(notifications, options, decommissionable);
+  const notifier = new WeeklyNotifier(notifications, options, decommissionable);
+
+  return nestedNotifier ? notifier : program.registerNotifier(notifier);
 }

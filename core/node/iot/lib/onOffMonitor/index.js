@@ -1,5 +1,7 @@
-import { log } from 'dmt/common';
+import { log, timeutils } from 'dmt/common';
 import { push } from 'dmt/notify';
+
+const { ONE_DAY } = timeutils;
 
 import { PowerMonitor, powerLog } from '../powerline/index.js';
 
@@ -8,16 +10,18 @@ function notify({ msg, program, onlyAdmin, pushoverApp, pushoverUser, pushoverUs
   if (pushoverUser || pushoverUsers) {
     users = (pushoverUser || pushoverUsers).split(',').map(u => u.trim());
   }
+
   if (program.isHub()) {
     if (onlyAdmin) {
       push
         .optionalApp(pushoverApp)
-        .user(users)
+        .ttl(3 * ONE_DAY)
         .omitDeviceName()
         .notify(msg);
     } else {
       push
         .optionalApp(pushoverApp)
+        .ttl(3 * ONE_DAY)
         .user(users)
         .omitDeviceName()
         .notifyAll(msg);

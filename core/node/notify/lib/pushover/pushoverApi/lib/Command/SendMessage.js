@@ -35,7 +35,8 @@ class SendMessage extends Command {
       title: this.message.title,
       url: this.message.url,
       url_title: this.message.urlTitle,
-      timestamp: this.message.timestamp
+      timestamp: this.message.timestamp,
+      ttl: this.message.ttl
     });
 
     if (this.message.priority) {

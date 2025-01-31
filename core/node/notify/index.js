@@ -1,3 +1,6 @@
+import { log, isMainServer, everyHour, timeutils } from 'dmt/common';
+const { ONE_MINUTE, ONE_DAY } = timeutils;
+
 import {
   app,
   optionalApp,
@@ -12,8 +15,11 @@ import {
   user,
   userKey,
   bigMessage,
+  ttl,
   notify,
-  notifyAll
+  notifyAll,
+  verifyUser,
+  store
 } from './lib/pushover/index.js';
 import * as apn from './lib/apn.js';
 import * as desktop from './lib/desktop.js';
@@ -37,10 +43,10 @@ function initABC(networkId) {
 const _push = {
   app: appName => app({ isABC, abcNetworkID }, appName),
   optionalApp: appName => optionalApp({ isABC, abcNetworkID }, appName),
-  group: groupName => group({ isABC, abcNetworkID }, groupName),
-  user: _user => user({ isABC, abcNetworkID }, _user),
-  users: _user => user({ isABC, abcNetworkID }, _user),
-  userKey: _userKey => userKey({ isABC, abcNetworkID }, _userKey),
+  group: (...groups) => group({ isABC, abcNetworkID }, groups.length === 1 ? groups[0] : groups),
+  user: (...users) => user({ isABC, abcNetworkID }, users.length === 1 ? users[0] : users),
+  users: (...users) => user({ isABC, abcNetworkID }, users.length === 1 ? users[0] : users),
+  userKey: (...keys) => userKey({ isABC, abcNetworkID }, keys.length === 1 ? keys[0] : keys),
   title: _title => title({ isABC, abcNetworkID }, _title),
   omitAppName: () => omitAppName(),
   omitDeviceName: () => omitDeviceName({ isABC, abcNetworkID }),
@@ -49,10 +55,27 @@ const _push = {
   highPriority: (high = true) => highPriority({ isABC, abcNetworkID }, high),
   enableHtml: (enable = true) => enableHtml({ isABC, abcNetworkID }, enable),
   bigMessage: () => bigMessage({ isABC, abcNetworkID }),
+  ttl: _ttl => ttl({ isABC, abcNetworkID }, _ttl),
   notify: (...options) => notify({ isABC, abcNetworkID }, ...options),
   notifyAll: (...options) => notifyAll({ isABC, abcNetworkID }, ...options),
   notifyRaw,
   initABC
 };
 
-export { _push as push, apn, desktop, notifier, dailyNotifier, weeklyNotifier, dateNotifier, holidayNotifier, trashTakeoutNotifier };
+function init(program) {
+  if (isMainServer()) {
+    const slot = store.slot('pushMessages');
+    log.cyan('✉️  Deduplicating push messages on main server');
+
+    setTimeout(
+      () =>
+        everyHour(() => {
+          const now = Date.now();
+          slot.removeArrayElements(({ timestamp }) => now - timestamp >= ONE_DAY);
+        }),
+      10 * ONE_MINUTE
+    );
+  }
+}
+
+export { init, _push as push, verifyUser, apn, desktop, notifier, dailyNotifier, weeklyNotifier, dateNotifier, holidayNotifier, trashTakeoutNotifier };

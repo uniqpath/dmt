@@ -1,9 +1,7 @@
 import EventEmitter from 'events';
 
 import * as dmt from 'dmt/common';
-const { log, colors, colors2, dateFns } = dmt;
-
-const { format, addMinutes, isBefore } = dateFns;
+const { log, colors, colors2 } = dmt;
 
 import { desktop, apn, push } from 'dmt/notify';
 
@@ -32,6 +30,7 @@ import { createStore, getStore } from './createStore/createStore.js';
 
 import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler.js';
 import loadMiddleware from './boot/loadMiddleware.js';
+import retrogradePushMessagesRecovery from './boot/retrogradePushMessagesRecovery.js';
 import osUptime from './interval/osUptime.js';
 
 import generateKeypair from './generateKeypair.js';
@@ -82,7 +81,7 @@ class Program extends EventEmitter {
             .optionalApp('dmt_errors')
             .omitAppName()
             .notify('✅ dmt-proc resumed but the cause for crash still has to be fixed');
-        }, 2000);
+        }, 5000);
       }
 
       this.sendCachedNearbyNotifications();
@@ -198,6 +197,10 @@ class Program extends EventEmitter {
     return this.actors.registeredActors();
   }
 
+  __pushNotify(msg) {
+    push.notify(msg);
+  }
+
   peerlist() {
     const peerlist = this.slot('peerlist').get();
 
@@ -228,6 +231,8 @@ class Program extends EventEmitter {
 
     this.on('ready', () => {
       log.green(`✓ ${colors.cyan('dmt-proc')} ${colors.bold().white(`v${dmt.dmtVersion()}`)} ${colors.cyan('ready')}`);
+
+      retrogradePushMessagesRecovery(this);
 
       startTicker(this);
 
@@ -280,6 +285,13 @@ class Program extends EventEmitter {
 
   registerNotifier(notifier) {
     this.notifiers.push(notifier);
+    return notifier;
+  }
+
+  simulateNotifiersTimepoint(timepoint, minutesLate) {
+    for (const n of this.notifiers) {
+      n.simulateTimepoint?.(timepoint, minutesLate);
+    }
   }
 
   decommissionNotifiers() {
@@ -288,6 +300,18 @@ class Program extends EventEmitter {
     }
 
     this.notifiers = [];
+  }
+
+  stopping({ notifyABC = false } = {}) {
+    this._stopping = true;
+
+    if (notifyABC) {
+      this.sendABC({ message: 'stopping' });
+    }
+  }
+
+  isStopping() {
+    return this._stopping;
   }
 
   isHub() {

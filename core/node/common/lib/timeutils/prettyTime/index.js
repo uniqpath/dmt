@@ -1,23 +1,24 @@
 import { dateFns } from '../../dmtHelper.js';
 
-const { formatDistanceToNow } = dateFns;
-
-export function prettyTimeAgo(referenceDate, { detailed = false } = {}) {
-  const diff = Math.round((Date.now() - referenceDate) / 1000);
+const { formatDistance } = dateFns;
+export function prettyTimeAgo(referenceDate, { now = Date.now(), detailed = false, lang = undefined } = {}) {
+  const diff = Math.round((now - referenceDate) / 1000);
 
   if (detailed && diff < 60) {
     return `${diff}s ago`;
   }
 
-  return formatDistanceToNow(referenceDate, { addSuffix: true })
+  const str = formatDistance(referenceDate, now, { addSuffix: true })
     .replace('about ', '')
     .replace('less than a minute ', 'a few seconds ')
     .replace(/^1 day ago$/, 'yesterday')
     .trim();
+
+  return str;
 }
 
-export function prettyTime(ms) {
-  return prettyTimeAgo(ms)
+export function prettyTime(ms, { now = Date.now() } = {}) {
+  return prettyTimeAgo(ms, { now })
     .replace(' ago', '')
     .replace('yesterday', '1 day');
 }

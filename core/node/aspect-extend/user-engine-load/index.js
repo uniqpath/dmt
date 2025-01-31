@@ -13,7 +13,12 @@ async function init(program) {
   function userEngineReady(results) {
     deviceLoader(program, userEnginePath);
 
-    program.loadDirectoryRecursive(path.join(userEnginePath, '_notifications'));
+    const notificationsDir = path.join(userEnginePath, '_notifications');
+
+    if (fs.existsSync(notificationsDir)) {
+      log.green(`Loading dmt notifications from ${colors.cyan(notificationsDir)}`);
+    }
+    program.loadDirectoryRecursive(notificationsDir);
 
     let notificationsReloadTimeout;
     let notificationsReloadTimeout2;
@@ -30,7 +35,7 @@ async function init(program) {
       notificationsReloadTimeout = setTimeout(() => {
         program.decommissionNotifiers();
         notificationsReloadTimeout2 = setTimeout(() => {
-          program.loadDirectoryRecursive(path.join(userEnginePath, '_notifications'));
+          program.loadDirectoryRecursive(notificationsDir);
         }, DIFF);
       }, Math.max(delay - DIFF, 0));
     });

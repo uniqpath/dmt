@@ -39,6 +39,7 @@ mids.push({ gui: { condition: deviceDef => deviceDef.try('service[gui].disable')
 mids.push('nearby/lanbus');
 mids.push('nearby/nearby');
 mids.push('iot');
+mids.push('notify');
 
 mids.push('content/samba');
 

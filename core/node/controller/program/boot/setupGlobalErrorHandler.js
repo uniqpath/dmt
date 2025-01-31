@@ -11,6 +11,8 @@ function terminateProgram(err, reason, program) {
   log.red(err);
   const msg = `${reason}: ${err.stack || err}`;
 
+  program.stopping();
+
   if (!terminationInProgress) {
     terminationInProgress = true;
 
@@ -34,23 +36,22 @@ function terminateProgram(err, reason, program) {
   }
 }
 
-function reportStopping(program) {
-  program.sendABC({ message: 'stopping' });
-}
-
 export default function setupGlobalErrorHandler(program) {
   process.on('uncaughtException', (err, origin) => terminateProgram(err, origin, program));
 
   process.on('SIGTERM', signal => {
-    reportStopping(program);
+    program.stopping({ notifyABC: true });
     log.yellow(`Process received a ${signal} signal (usually because of normal stop/restart)`);
 
     process.exit(0);
   });
 
   process.on('SIGINT', signal => {
-    reportStopping(program);
+    program.stopping({ notifyABC: true });
     log.yellow(`Process has been interrupted: ${signal}`);
+    setTimeout(() => {
+      log.gray('If exiting is taking a while, it is possibly because of connectivity issues and we are waiting for dmt connections to close');
+    }, 1000);
 
     if (log.isProfiling()) {
       log.green('Memory usage:');

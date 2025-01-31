@@ -1,4 +1,6 @@
-import { dateFns, program } from 'dmt/common';
+import { dateFns, program, log, timeutils } from 'dmt/common';
+
+const { ONE_MINUTE, ONE_HOUR } = timeutils;
 
 const { isSameMinute, addMinutes, isAfter, addDays, isSameDay } = dateFns;
 
@@ -9,6 +11,9 @@ import ScopedNotifier from './base/scopedNotifier.js';
 import localize from './lib/localize.js';
 import parseTimeYesterday from './lib/parseTimeYesterday.js';
 import parseTimeToday from './lib/parseTimeToday.js';
+import delayWarning from './lib/delayWarning.js';
+import getDedupKey from '../lib/pushover/getDedupKey.js';
+import getObjHash from '../lib/pushover/getObjHash.js';
 import { evaluateTimespan, parseFrom, parseUntil } from './lib/evaluateTimespan.js';
 
 const FINISH_SYMBOL = '✅';
@@ -17,7 +22,7 @@ const NOW_SYMBOL = '🫵';
 const WARN_SYMBOL = '❗';
 
 class DailyNotifier extends ScopedNotifier {
-  constructor(notifications, { symbol = '🔔', color, ttl, app, highPriority, title, warnAfter, user, users } = {}, decommissionable = false) {
+  constructor(notifications, { symbol = '🔔', color, ttl, ttlGui, app, highPriority, title, warnAfter, user, users } = {}, decommissionable = false) {
     super(`${symbol} ${title || ''}`, decommissionable);
 
     this.notifications = Array(notifications).flat(Infinity);
@@ -26,6 +31,7 @@ class DailyNotifier extends ScopedNotifier {
     this.symbol = symbol;
     this.color = color;
     this.ttl = ttl;
+    this.ttlGui = ttlGui;
     this.highPriority = !!highPriority;
     this.title = title;
     this.warnAfter = warnAfter;
@@ -46,12 +52,20 @@ class DailyNotifier extends ScopedNotifier {
     }, '');
   }
 
-  checkNotificationTimes(entry) {
-    const date = new Date();
+  prepareAndPrehashObj({ obj, now }) {
+    const preHash = getObjHash(obj);
 
-    const { strReminder, strNewRegimeFromTomorrow, strAt, strAnd, strNow, capitalizeFirstLetter } = localize(program);
+    obj.msg = delayWarning(obj.msg, now, ONE_HOUR);
 
-    const { msg: msgStrOrArray, warnAfter: _warnAfter, symbol: _symbol, when, id, color, ttl, from, until, highPriority: _highPriority, url } = entry;
+    return { ...obj, preHash };
+  }
+
+  checkNotificationTimes(entry, fakeNow) {
+    const now = fakeNow || new Date();
+
+    const { strReminder, strNewRegimeFromTomorrow, strAt, strAnd, strNow, capitalizeFirstLetter, insteadOf } = localize(program);
+
+    const { msg: msgStrOrArray, warnAfter: _warnAfter, symbol: _symbol, when, id, color, ttl, ttlGui, from, until, highPriority: _highPriority, url } = entry;
 
     const titleStrOrArray = entry.title || this.title || '';
     const title = Array.isArray(titleStrOrArray) ? this.randomElement(titleStrOrArray) : titleStrOrArray;
@@ -73,6 +87,7 @@ class DailyNotifier extends ScopedNotifier {
       symbol,
       highPriority: false,
       ttl: ttl || this.ttl,
+      ttlGui: ttlGui || this.ttlGui,
       color: color || this.color,
       user,
       id,
@@ -90,19 +105,19 @@ class DailyNotifier extends ScopedNotifier {
         _msg = `${NOW_SYMBOL} [ ${strNow} ]`;
       }
 
-      const notificationTime = parseTimeToday(t, _msg);
+      const notificationTime = parseTimeToday({ time: t, tag: _msg, now });
 
       o.eventTime = notificationTime;
 
       const { isWithin } = evaluateTimespan({ date: notificationTime, from, until });
 
       if (isWithin) {
-        if (isSameMinute(date, notificationTime)) {
+        if (isSameMinute(now, notificationTime)) {
           const { isLastDay, diffDays } = evaluateTimespan({ date: notificationTime, from, until: extendedUntil });
 
           let regimeChangeMsg;
 
-          if (this.isChangeOfRegime(notificationTime, entry, adjacentEntry)) {
+          if (this.isChangeOfRegime(notificationTime, entry, adjacentEntry, now)) {
             const sortTimes = when =>
               when
                 .flat()
@@ -116,12 +131,12 @@ class DailyNotifier extends ScopedNotifier {
             regimeChangeMsg = `${INFO_SYMBOL} ${strNewRegimeFromTomorrow} [ ${strAt} ${this.joinWithCommaAnd(
               sortTimes(adjacentEntry.when),
               strAnd
-            )} ] namesto [ ${this.joinWithCommaAnd(sortTimes(entry.when), strAnd)} ]`;
+            )} ] ${insteadOf} [ ${this.joinWithCommaAnd(sortTimes(entry.when), strAnd)} ]`;
           }
 
           let tagline;
 
-          const lastEvent = this.isLastEvent({ when, notificationTime, msg: _msg });
+          const lastEvent = this.isLastEvent({ when, notificationTime, msg: _msg, now });
 
           const { strLastTime, strLastDay, strOneMoreDay } = localize(program);
 
@@ -148,12 +163,15 @@ class DailyNotifier extends ScopedNotifier {
           }
 
           const pushTitle = `${symbol} ${title} ${ending}`.trim();
-          this.callback({ ...o, highPriority, title: pushTitle, msg: _msg, tagline });
+
+          const obj = { ...o, highPriority, title: pushTitle, msg: _msg, tagline, dedupKey: getDedupKey(now) };
+
+          this.handleMessage(this.prepareAndPrehashObj({ obj, now }));
         } else if (warnAfter) {
           const warningNotificationTime = addMinutes(notificationTime, warnAfter);
 
-          if (isSameMinute(date, warningNotificationTime)) {
-            const lastEvent = this.isLastEvent({ when, notificationTime, msg: _msg });
+          if (isSameMinute(now, warningNotificationTime)) {
+            const lastEvent = this.isLastEvent({ when, notificationTime, msg: _msg, now });
             const { isLastDay } = evaluateTimespan({ date: notificationTime, from, until: extendedUntil });
 
             let ending = `[ ${strReminder} ]`;
@@ -165,18 +183,27 @@ class DailyNotifier extends ScopedNotifier {
             const pushTitle = `${symbol} ${title} ${msg ? ending : ''}`.trim();
             const pushMsg = `${WARN_SYMBOL} ${msg || ending}`;
 
-            this.callback({ ...o, msg: pushMsg, title: pushTitle, tagline: capitalizeFirstLetter(strReminder), isWarn: true });
+            const obj = {
+              ...o,
+              msg: pushMsg,
+              title: pushTitle,
+              tagline: capitalizeFirstLetter(strReminder),
+              isWarn: true,
+              dedupKey: getDedupKey(now)
+            };
+
+            this.handleMessage(this.prepareAndPrehashObj({ obj, now }));
           }
         }
       }
 
-      const notificationTimeYesterday = parseTimeYesterday(t, _msg);
+      const notificationTimeYesterday = parseTimeYesterday({ time: t, tag: _msg, now });
 
       if (warnAfter && evaluateTimespan({ date: notificationTimeYesterday, from, until }).isWithin) {
         const _warningNotificationTime = addMinutes(notificationTimeYesterday, warnAfter);
 
-        if (isSameMinute(date, _warningNotificationTime)) {
-          const lastEvent = this.isLastEvent({ when, notificationTime: notificationTimeYesterday, msg: _msg });
+        if (isSameMinute(now, _warningNotificationTime)) {
+          const lastEvent = this.isLastEvent({ when, notificationTime: notificationTimeYesterday, msg: _msg, now });
           const { isLastDay } = evaluateTimespan({ date: notificationTimeYesterday, from, until: extendedUntil });
 
           let ending = `[ ${strReminder} ]`;
@@ -188,16 +215,26 @@ class DailyNotifier extends ScopedNotifier {
           const pushTitle = `${symbol} ${title} ${msg ? ending : ''}`.trim();
           const pushMsg = `${WARN_SYMBOL} ${msg || ending}`;
 
-          this.callback({ ...o, title: pushTitle, msg: pushMsg, symbol, tagline: capitalizeFirstLetter(strReminder), isWarn: true });
+          const obj = {
+            ...o,
+            title: pushTitle,
+            msg: pushMsg,
+            symbol,
+            tagline: capitalizeFirstLetter(strReminder),
+            isWarn: true,
+            dedupKey: getDedupKey(now)
+          };
+
+          this.handleMessage(this.prepareAndPrehashObj({ obj, now }));
         }
       }
     }
   }
 
-  isLastEvent({ when, notificationTime, msg }) {
+  isLastEvent({ when, notificationTime, msg, now }) {
     return !Array(when)
       .flat()
-      .find(t => isAfter(parseTimeToday(t, msg), notificationTime));
+      .find(t => isAfter(parseTimeToday({ time: t, tag: msg, now }), notificationTime));
   }
 
   determineExtendedUntil(entry, list = this.notifications, adjacentEntry = null) {
@@ -220,13 +257,13 @@ class DailyNotifier extends ScopedNotifier {
     return { extendedUntil: null, adjacentEntry: null };
   }
 
-  isChangeOfRegime(notificationTime, entry, adjacentEntry) {
+  isChangeOfRegime(notificationTime, entry, adjacentEntry, now) {
     if (adjacentEntry) {
       const { when, msg, from, until } = entry;
 
       const { isLastDay } = evaluateTimespan({ date: notificationTime, from, until });
 
-      const lastEvent = this.isLastEvent({ when, notificationTime, msg });
+      const lastEvent = this.isLastEvent({ when, notificationTime, msg, now });
 
       if (isLastDay && lastEvent) {
         return true;
@@ -234,19 +271,21 @@ class DailyNotifier extends ScopedNotifier {
     }
   }
 
-  check() {
+  check(fakeNow) {
     for (const entry of this.notifications) {
       if (entry.to) {
         throw new Error(`${this.ident} Please use 'until' instead of 'to'`);
       }
 
-      this.checkNotificationTimes(entry);
+      this.checkNotificationTimes(entry, fakeNow);
     }
   }
 }
 
-export default function dailyNotifier(notifications, options = {}) {
+export default function dailyNotifier(notifications, options = {}, nestedNotifier = false) {
   const decommissionable = isReloadableNotifications(new Error(), import.meta.url);
 
-  return new DailyNotifier(notifications, options, decommissionable);
+  const notifier = new DailyNotifier(notifications, options, decommissionable);
+
+  return nestedNotifier ? notifier : program.registerNotifier(notifier);
 }

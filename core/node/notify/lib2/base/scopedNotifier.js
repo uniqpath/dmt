@@ -1,8 +1,8 @@
-import { program, colors, everyMinute, isMainServer, isMainDevice } from 'dmt/common';
+import { program, colors, everyMinute, isMainServer, isMainDevice, log } from 'dmt/common';
 
 import { push } from 'dmt/notify';
 
-const GLOBAL_DEFAULT_TTL = 180;
+const GLOBAL_DEFAULT_GUI_TTL = 180;
 const GLOBAL_DEFAULT_COLOR = '#3091AB';
 
 const APP = 'dmt_calendar';
@@ -11,12 +11,10 @@ export default class ScopedNotifier {
   constructor(ident, decommissionable) {
     this.decommissionable = decommissionable;
 
-    this.ident = `${this.constructor.name} ${colors.cyan(ident) || ''}`.trim();
+    this.ident = `${this.constructor.name} ${ident || ''}`.trim();
 
     process.nextTick(() => {
-      program.registerNotifier(this);
-
-      if (!this.callback) {
+      if (!this.handleMessage) {
         this.defaults();
       }
     });
@@ -24,6 +22,11 @@ export default class ScopedNotifier {
 
   scope(deviceIdsOrFunction) {
     this.scopeHasBeenSet = true;
+
+    if (typeof deviceIdsOrFunction == 'function') {
+      this.deviceCheckFunction = deviceIdsOrFunction;
+      return this;
+    }
 
     if (deviceIdsOrFunction === true) {
       this.deviceCheckFunction = () => true;
@@ -35,26 +38,27 @@ export default class ScopedNotifier {
       return this;
     }
 
-    if (typeof deviceIdsOrFunction == 'function') {
-      this.deviceCheckFunction = deviceIdsOrFunction;
-      return this;
-    }
-
     this.deviceIds = Array(deviceIdsOrFunction).flat();
 
     return this;
   }
 
+  simulateTimepoint(timepoint) {
+    if (!this.isDecommissioned() && this.performCheck()) {
+      this.check(new Date(timepoint));
+    }
+  }
+
   performCheck() {
-    if (!this.isDecommissioned()) {
+    if (!this.isDecommissioned() && !program.isStopping()) {
       if ((!this.deviceIds || this.deviceIds.includes(program.device.id)) && (!this.deviceCheckFunction || this.deviceCheckFunction())) {
         return true;
       }
     }
   }
 
-  setCallback(callback) {
-    this.callback = callback;
+  setMessageHandler(callback) {
+    this.handleMessage = callback;
   }
 
   decommission() {
@@ -76,7 +80,15 @@ export default class ScopedNotifier {
   }
 
   handle(callback) {
-    this.setCallback(callback);
+    return this.initializeHandler(callback);
+  }
+
+  then(callback) {
+    return this.initializeHandler(callback);
+  }
+
+  initializeHandler(callback, check) {
+    this.setMessageHandler(callback);
 
     if (!this.scopeHasBeenSet) {
       this.deviceCheckFunction = isMainServer;
@@ -85,7 +97,11 @@ export default class ScopedNotifier {
 
     this.cancelPeriodicCheck = everyMinute(() => {
       if (this.performCheck()) {
-        this.check();
+        if (check) {
+          check();
+        } else {
+          this.check();
+        }
       }
     });
 
@@ -95,32 +111,39 @@ export default class ScopedNotifier {
   defaults() {
     const chain = this.scopeHasBeenSet ? this : this.scope(() => isMainServer() || program.isHub());
 
-    chain.handle(({ title, msg, _title, _msg, color, ttl, tagline, highPriority, url, user, app }) => {
-      if (isMainServer() || isMainDevice()) {
-        const pm = push
-          .optionalApp(app || APP)
-          .highPriority(highPriority)
-          .url(url)
-          .title(title);
+    chain.initializeHandler(
+      ({ title, msg, _title, _msg, color, ttl, ttlGui, tagline, highPriority, url, urlTitle, enableHtml, user, app, dedupKey, preHash }) => {
+        if (isMainServer() || isMainDevice()) {
+          const pm = push
+            .optionalApp(app || APP)
+            .dedup(dedupKey, preHash)
+            .user(user)
+            .highPriority(highPriority)
+            .enableHtml(enableHtml)
+            .ttl(ttl)
+            .url(url)
+            .urlTitle(urlTitle)
+            .title(title);
 
-        if (this._all) {
-          pm.user(user).notifyAll(msg);
-        } else {
-          pm.user(user).notify(msg);
+          if (this._all) {
+            pm.notifyAll(msg);
+          } else {
+            pm.notify(msg);
+          }
+        } else if (program.isHub() && !user && (this._all || this._dev)) {
+          program.nearbyNotification({
+            msg: _msg,
+            title: _title,
+            omitDeviceName: true,
+            color: color || GLOBAL_DEFAULT_COLOR,
+            ttl: ttlGui || GLOBAL_DEFAULT_GUI_TTL,
+            omitTtl: true,
+            tagline,
+            dev: this._dev
+          });
         }
-      } else if (program.isHub() && !user) {
-        program.nearbyNotification({
-          msg: _msg,
-          title: _title,
-          omitDeviceName: true,
-          color: color || GLOBAL_DEFAULT_COLOR,
-          ttl: ttl || GLOBAL_DEFAULT_TTL,
-          omitTtl: true,
-          tagline,
-          dev: this._dev
-        });
       }
-    });
+    );
   }
 
   all() {
