@@ -1,8 +1,10 @@
-import { log } from 'dmt/common';
+import { log, timeutils, isDevUser } from 'dmt/common';
 
-import { push, apn } from 'dmt/notify';
+import { push, apn, SOUND } from 'dmt/notify';
 
 import stripAnsi from 'strip-ansi';
+
+const { ONE_WEEK } = timeutils;
 
 let terminationInProgress;
 
@@ -45,6 +47,7 @@ function terminateProgram(err, reason) {
         .ttl(ONE_WEEK)
         .optionalApp(APP)
         .highPriority()
+        .sound(SOUND.falling)
         .notify(exitMsg)
         .then(() => {
           exit();
@@ -59,7 +62,17 @@ function terminateProgram(err, reason) {
 }
 
 export default function setupGlobalErrorHandler() {
-  process.on('uncaughtException', (err, origin) => terminateProgram(err, origin));
+  process.on('uncaughtException', (err, origin) => {
+    if (err.message.includes('read ECONNRESET')) {
+      if (isDevUser()) {
+        const msg = 'abc-proc read ECONNRESET (harmless):';
+        log.gray(msg);
+        log.gray(err);
+      }
+    } else {
+      terminateProgram(err, origin);
+    }
+  });
 
   process.on('SIGTERM', signal => {
     log.yellow(`ABC Process received a ${signal} signal`);

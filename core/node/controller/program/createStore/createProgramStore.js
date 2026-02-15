@@ -1,5 +1,5 @@
 import * as dmt from 'dmt/common';
-const { def, programStateFile: stateFilePath, isDevUser, apMode, apInfo, log } = dmt;
+const { def, programStateFile: stateFilePath, isDevUser, apMode, apInfo, log, isMainServer } = dmt;
 
 import { reduceSizeOfStateForGUI as omitStateFn } from 'dmt/gui';
 
@@ -28,7 +28,7 @@ export default function createProgramStore(program) {
       // server mode:
       // - time comes from browser
       // - disable "dangerous options" -- "Have you tried"
-      serverMode: def.isTruthy(device.serverMode),
+      serverMode: def.isTruthy(device.serverMode) || isMainServer(),
       subnet: device.subnet,
       lanServer: dmt.isLanServer(),
       devMachine: dmt.isDevMachine(),
@@ -108,7 +108,7 @@ export default function createProgramStore(program) {
       'nearbySensors',
       'environment',
       // connectivity
-      'peerlist',
+      'deviceConnections',
       'connectionsIn',
       'connectionsOut',
       // dubious

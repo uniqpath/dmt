@@ -196,6 +196,10 @@ function q {
     printf "${GREEN}q${NC} ${GRAY}exit current session${NC}\n"
   fi
 
+  # if [ "$1" == "router" ]; then
+  #   ssh -o HostKeyAlgorithms=+ssh-rsa root@192.168.0.1
+  # fi
+
   # --- ap start ---
 
   local AP_IP="192.168.0.20"

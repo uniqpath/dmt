@@ -36,6 +36,12 @@ function easterMonday(y) {
   return easterMonday;
 }
 
+function tijelovoDate(y) {
+  const date = easter(y);
+  date.setDate(date.getDate() + 60);
+  return date;
+}
+
 function getCurrentYearMonthDay() {
   const currentTime = new Date();
 
@@ -48,4 +54,4 @@ function getCurrentYearMonthDay() {
   return { year, month, day };
 }
 
-export { getDataForCorrectYear, easter, easterMonday, getCurrentYearMonthDay };
+export { getDataForCorrectYear, easter, easterMonday, tijelovoDate, getCurrentYearMonthDay };

@@ -17,8 +17,8 @@ class ConnectorPool extends ReadableStore {
   getConnector({ endpoint, host, port, tag }) {
     const hostWithPort = endpoint || `${host}:${port}`;
 
-    if (!host || !port) {
-      throw new Error(`Must provide both host and port: ${hostWithPort}`);
+    if (!endpoint && (!host || !port)) {
+      throw new Error(`Must provide both host and port: ${hostWithPort} if no endpoint is provided canonically`);
     }
 
     return new Promise((success, reject) => {

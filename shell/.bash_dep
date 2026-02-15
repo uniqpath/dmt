@@ -49,8 +49,8 @@
 #
 # pre_local: npm run build
 #
-# post_local: remote -h pi@hpanel.local "kiosk_reload"
-# post_local: remote -h pi@lpanel.local "kiosk_reload"
+# post_local: dmt_ssh_execute -h pi@hpanel.local "kiosk_reload"
+# post_local: dmt_ssh_execute -h pi@lpanel.local "kiosk_reload"
 #
 # Explanation:
 # source: [dir]
@@ -250,7 +250,7 @@ function dep_rsync {
         local prefix="post_remote: "
         grep -i "^${prefix}" "$deploy_file" | while read -r line ; do
           local cmd="${line#$prefix}"
-          remote --silent -h "$server" "$cmd"
+          dmt_ssh_execute --silent -h "$server" "$cmd"
           #eval "ssh $server 'bash -ic \"$cmd\"' < /dev/null > /dev/null"
         done
       fi
@@ -286,6 +286,8 @@ function dep {
     # deploy target (manual from cli or from ./.deploy file)
   elif [ -f ./deploy ]; then
     ./deploy
+  elif [ -f ./deploy.sh ]; then
+    ./deploy.sh
   else
     dep_rsync "$@"
   fi

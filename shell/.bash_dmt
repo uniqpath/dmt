@@ -363,6 +363,8 @@ function dmt {
     "reload"
     "execute"
     "integrate"
+    "get"
+    "config"
   )
 
   if dev_machine; then
@@ -715,6 +717,10 @@ function dmt {
         echo
       fi
 
+      # we use count because on new mac stop_dmt_in_foreground does not immediately cause process to
+      # to go away ... we loop twice before detecing dmt-proc is gone
+      local count=0;
+
       while [ -n "$dmt_proc_pid" ]; do
 
         if [[ $dmt_fg_bg == 'fg' ]]; then
@@ -725,10 +731,15 @@ function dmt {
           #   return
           # fi
 
-          printf "⚠️  ${MAGENTA}dmt process already running${NC}\n"
+          if [ "$count" == "0" ]; then
+            printf "⚠️  ${MAGENTA}dmt process already running${NC}\n"
+          fi
 
-          stop_dmt_in_foreground "$dmt_proc_pid"
-          echo
+          stop_dmt_in_foreground "$dmt_proc_pid" "$count"
+
+          # if [ "$count" == "0" ]; then
+          #   echo
+          # fi
         elif [[ $dmt_fg_bg == 'bg' ]]; then
           stop_dmt_if_running_in_bg
           echo
@@ -761,11 +772,16 @@ function dmt {
 
         ## for race conditions (detecting already running dmt processes)
         ##⚠️ one disadvantege: we do this even if later we determine that we cannot actually run the process (for example it's already running in another terminal tab)
-        prepare_dmt_engine
+        if [ "$count" == "0" ]; then
+          prepare_dmt_engine
+          echo
+        fi
         if [[ $? -eq 1 ]]; then
           return
         fi
-        echo
+
+        # 2. Increment the counter so the message doesn't print again
+        ((count++))
 
         local dmt_proc_pid=''
         local dmt_fg_bg=''
@@ -998,6 +1014,14 @@ function dmt {
 
     integrate)
       dmt_integrate "$@"
+      ;;
+
+    config)
+      dmt_config "$@"
+      ;;
+
+    get)
+      dmt_get "$@"
       ;;
 
   esac
@@ -1741,7 +1765,10 @@ function stop_dmt_if_running_in_bg {
 
 function stop_dmt_in_foreground {
   local PID="$1"
-  printf "🔴 Stopping ${CYAN}dmt-proc ${YELLOW}in another terminal window ${GRAY}(PID ${PID})${NC}\n"
+  local COUNT="$2"
+  if [[ -z "$COUNT" || "$COUNT" == "0" ]]; then
+    printf "🔴 Stopping ${CYAN}dmt-proc ${YELLOW}in another terminal window ${GRAY}(PID ${PID})${NC}\n"
+  fi
   kill "$PID"
 }
 
@@ -2392,14 +2419,23 @@ function prepare_dmt_engine {
   # this is a prerequisite for apps to work
   local dir="$DMT_PATH/etc/scripts/prepare_apps_and_user_engine"
 
+  cd "$dir"
+  ./prepare_user_engine
+
+  # FOR NOW To sPEED IT uP!!
+  # 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+  # 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+  # 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+  return
+  # 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+  # 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+
+
   # we do this in './install' as well (at least dmt-here apps)
   # because dmt-here/apps have to be corrected also with "dmt update" on remote machine
   # we cannot prepare these apps locally before syncing...
   cd "$dir"
   ./prepare_apps
-
-  cd "$dir"
-  ./prepare_user_engine
 
   cd "$cwd"
 
@@ -2697,19 +2733,19 @@ function dmt_autoupdate {
     printf "${GRAY}./setup_root ${USER}${NC}\n"
   fi
 
-  local CERT_UPDATE_LOG=~/.dmt-here/https/zetaseek.com/cert_auto_update_report.txt
+  # local CERT_UPDATE_LOG=~/.dmt-here/https/zetaseek.com/cert_auto_update_report.txt
 
-  if [ -f $CERT_UPDATE_LOG ]; then
-    local file_age=''
-    dmt_get_file_age file_age $CERT_UPDATE_LOG
-    #local file_age=$(( `date +%s` - `stat -L --format %Y $CERT_UPDATE_LOG` ))
+  # if [ -f $CERT_UPDATE_LOG ]; then
+  #   local file_age=''
+  #   dmt_get_file_age file_age $CERT_UPDATE_LOG
+  #   #local file_age=$(( `date +%s` - `stat -L --format %Y $CERT_UPDATE_LOG` ))
 
-    if [ $file_age -le $((60*60+5)) ]; then # 1h plus 5s
-      printf "— 3.) ${CYAN}Extra:${NC}\n"
-      echo
-      printf "${GREEN}✓ ${MAGENTA}ZetaSeek ${GREEN}https certificate auto-update is set up correctly${NC}\n"
-    fi
-  fi
+  #   if [ $file_age -le $((60*60+5)) ]; then # 1h plus 5s
+  #     printf "— 3.) ${CYAN}Extra:${NC}\n"
+  #     echo
+  #     printf "${GREEN}✓ ${MAGENTA}ZetaSeek ${GREEN}https certificate auto-update is set up correctly${NC}\n"
+  #   fi
+  # fi
 }
 
 function dmt_cd {

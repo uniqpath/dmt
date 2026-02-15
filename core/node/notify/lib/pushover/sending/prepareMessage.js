@@ -1,6 +1,6 @@
 import { deviceGeneralIdentifier } from 'dmt/common';
 
-import pushoverApi from '../pushoverApi/index.js';
+import { Message, PRIORITY, SOUND } from '../pushoverApi/index.js';
 
 import { dmtApp } from '../dmtApp.js';
 
@@ -51,6 +51,8 @@ export default function prepareMessage({
   omitAppName,
   network,
   highPriority,
+  lowPriority,
+  sound,
   url,
   urlTitle,
   ttl,
@@ -65,17 +67,15 @@ export default function prepareMessage({
   const deviceName = originDevice || deviceId;
 
   const messageTitle = getMessageTitle({ title, app, network, deviceName, omitDeviceName, omitAppName, isABC, originDevice });
-  const priority = highPriority ? 'high' : 'low';
-
-  return new pushoverApi.Message({
+  return new Message({
     title: messageTitle ? messageTitle.toString().substring(0, MAX_TITLE_CHARS) : null,
     url,
     urlTitle,
-    message,
+    message: message instanceof Error ? message.toString() : message,
     enableHtml: enableHtml ? 1 : 0,
     user: recipient,
     ttl: ttl ? Math.round(ttl / 1000) : undefined,
-    priority: new pushoverApi.Priority(priority),
-    sound: new pushoverApi.Sound('magic')
+    priority: highPriority ? PRIORITY.high : lowPriority ? PRIORITY.low : PRIORITY.normal,
+    sound: sound || (highPriority ? SOUND.magic : SOUND.none)
   });
 }

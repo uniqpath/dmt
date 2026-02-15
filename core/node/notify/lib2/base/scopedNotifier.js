@@ -45,6 +45,11 @@ export default class ScopedNotifier {
     return this;
   }
 
+  permit(permitFunction) {
+    this.permitFunction = permitFunction;
+    return this;
+  }
+
   simulateTimepoint(timepoint) {
     if (!this.isDecommissioned() && this.performCheck()) {
       this.check(new Date(timepoint));
@@ -53,7 +58,11 @@ export default class ScopedNotifier {
 
   performCheck() {
     if (!this.isDecommissioned() && !program.isStopping()) {
-      if ((!this.deviceIds || this.deviceIds.includes(program.device.id)) && (!this.deviceCheckFunction || this.deviceCheckFunction())) {
+      if (
+        (!this.deviceIds || this.deviceIds.includes(program.device.id)) &&
+        (!this.deviceCheckFunction || this.deviceCheckFunction()) &&
+        (!this.permitFunction || this.permitFunction())
+      ) {
         return true;
       }
     }
@@ -114,13 +123,14 @@ export default class ScopedNotifier {
     const chain = this.scopeHasBeenSet ? this : this.scope(() => isMainServer() || program.isHub());
 
     chain.initializeHandler(
-      ({ title, msg, _title, _msg, color, ttl, ttlGui, tagline, highPriority, url, urlTitle, enableHtml, user, app, dedupKey, preHash }) => {
+      ({ title, msg, _title, _msg, color, ttl, ttlGui, tagline, highPriority, lowPriority, url, urlTitle, enableHtml, user, app, dedupKey, preHash }) => {
         if (isMainServer() || isMainDevice()) {
           const pm = push
             .optionalApp(app || APP)
             .dedup({ dedupKey, preHash })
             .user(user)
             .highPriority(highPriority)
+            .lowPriority(lowPriority)
             .enableHtml(enableHtml)
             .ttl(ttl)
             .url(url)

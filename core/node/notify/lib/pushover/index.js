@@ -2,6 +2,8 @@ import MessageSender from './messageSender.js';
 import verifyUser from './verifyUser.js';
 import { store } from './dedupStore.js';
 
+export { SOUND } from './pushoverApi/index.js';
+
 function notify(constructorOptions, ...options) {
   return new MessageSender(constructorOptions).notify(...options);
 }
@@ -24,6 +26,10 @@ function group(constructorOptions, groupName) {
 
 function groups(constructorOptions, groupName) {
   return new MessageSender(constructorOptions).group(groupName);
+}
+
+function sound(constructorOptions, soundName) {
+  return new MessageSender(constructorOptions).sound(soundName);
 }
 
 function user(constructorOptions, user) {
@@ -78,6 +84,10 @@ function highPriority(constructorOptions, high) {
   return new MessageSender(constructorOptions).highPriority(high);
 }
 
+function lowPriority(constructorOptions, low) {
+  return new MessageSender(constructorOptions).lowPriority(low);
+}
+
 function enableHtml(constructorOptions, enable) {
   return new MessageSender(constructorOptions).enableHtml(enable);
 }
@@ -94,6 +104,7 @@ export {
   group,
   groups,
   title,
+  sound,
   user,
   users,
   userKey,
@@ -101,6 +112,7 @@ export {
   omitDeviceName,
   omitAppName,
   highPriority,
+  lowPriority,
   enableHtml,
   bigMessage,
   ttl,

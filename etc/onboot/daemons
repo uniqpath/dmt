@@ -16,13 +16,12 @@ DMT_NODE_CORE="$HOME/.dmt/core/node"
 
 # there are some other places that should be updated if nodejs flags change! find and replace ...
 DMT_NODEJS_EXEC="node --unhandled-rejections=strict"
-
-# use bun if available
-if command -v bun >/dev/null 2>&1; then
-  printf "✅ Using ${GREEN}bun${NC}\n"
-  echo
-  DMT_NODEJS_EXEC="bun --unhandled-rejections=strict"
-fi
+# if command -v bun >/dev/null 2>&1; then
+#   printf "✅ Using ${GREEN}bun${NC}\n"
+#   DMT_NODEJS_EXEC="node --unhandled-rejections=strict"
+# else
+#   DMT_NODEJS_EXEC="node --unhandled-rejections=strict"
+# fi
 
 # # dup but ok...
 function nearby_notify {

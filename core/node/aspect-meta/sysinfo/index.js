@@ -2,7 +2,7 @@ import { push } from 'dmt/notify';
 
 import RpiThrottled from 'rpi-throttled';
 
-import { log, isRPi, isDevUser, prettyFileSize, colors, device } from 'dmt/common';
+import { log, isRPi, isDevUser, prettyFileSize, colors, device, timeutils } from 'dmt/common';
 
 import { getCPUInfo, getCPUTemperature } from './lib/piInfo.js';
 
@@ -20,8 +20,7 @@ let lowTempIntervals = 0;
 
 let reportedLowSpaceAt;
 
-const ONE_MINUTE = 60 * 1000;
-const ONE_HOUR = 60 * ONE_MINUTE;
+const { ONE_HOUR } = timeutils;
 
 function underVoltageReportSpacing(underVoltageReportsCount) {
   if (underVoltageReportsCount == 1) {
@@ -119,7 +118,7 @@ function init(program) {
             if (!reportedHighSwap) {
               const msg = `🏗️⚠️  High swap usage: ${usedSwapPerc}%`;
               log.gray(msg);
-              push.notify(msg);
+              push.ttl(8 * ONE_HOUR).notify(msg);
               reportedHighSwap = true;
             }
           } else if (usedSwapPerc >= 50 && usedSwapPerc < 70) {
@@ -148,7 +147,7 @@ function init(program) {
         if (diskSpace.free < 100000000 && (!reportedLowSpaceAt || Date.now() - reportedLowSpaceAt > ONE_HOUR)) {
           const msg = `⚠️  Low space: ${sysinfo.freeDiskSpace}`;
           log.gray(msg);
-          push.notify(msg);
+          push.ttl(36 * ONE_HOUR).notify(msg);
 
           reportedLowSpaceAt = Date.now();
         }

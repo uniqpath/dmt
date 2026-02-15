@@ -1011,7 +1011,7 @@ function t {
       fi
     elif [ -n "$2" ]; then
       run_on_file "$matching_file" cat '*' force | grep "$2" --color -in
-    elif [[ "$(head -1 "$matching_file")" =~ \#\!\/bin\/(bash|sh) ]]; then
+    elif [[ "$(head -1 "$matching_file")" =~ \#\!\/bin\/(bash|sh) ]] || [[ "$matching_file" == *".sh" ]]; then
       run_on_file "$matching_file" "highlight -O xterm256 -s darkbone --syntax bash" '*' 'silent'
     else
       if [[ "$matching_file" == "Makefile" ]] || [[ "$matching_file" == *".js" ]] || [[ "$matching_file" == *".rb" ]] || [[ "$matching_file" == *".py" ]] ||
@@ -1105,7 +1105,7 @@ function i {
       esac
 
     else
-      sudo apt-get install -y "$@"
+      sudo apt install -y "$@"
     fi
   fi
 }

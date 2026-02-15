@@ -2,7 +2,7 @@ import { program, log, isDevUser, isMainDevice, isMainServer, util } from 'dmt/c
 
 import { dmtApp } from '../dmtApp.js';
 
-import pushoverApi from '../pushoverApi/index.js';
+import { User, Group } from '../pushoverApi/index.js';
 import prepareMessage from './prepareMessage.js';
 import getPushoverClient from '../getPushoverClient.js';
 import checkRemainingLimits from '../remainingLimits.js';
@@ -15,14 +15,14 @@ import { getMainUserToken, getFamilyGroupToken } from '../pushoverDef.js';
 function getPushoverUserApi() {
   const userToken = getMainUserToken();
   if (userToken) {
-    return new pushoverApi.User(userToken);
+    return new User(userToken);
   }
 }
 
 function getPushoverFamilyGroupApi() {
   const groupToken = getFamilyGroupToken();
   if (groupToken) {
-    return new pushoverApi.Group(groupToken);
+    return new Group(groupToken);
   }
 }
 
@@ -36,6 +36,9 @@ function reportError(obj) {
 
 export default function notifyHelper(obj, sendingId) {
   return new Promise((success, reject) => {
+    if (!getMainUserToken()) {
+      success(true);
+    }
     obj.app = obj.app || dmtApp;
 
     const {
@@ -46,6 +49,7 @@ export default function notifyHelper(obj, sendingId) {
       userKeys,
       groupKey,
       group,
+      sound,
       omitDeviceName,
       omitAppName,
       network,
@@ -53,6 +57,7 @@ export default function notifyHelper(obj, sendingId) {
       urlTitle,
       ttl,
       highPriority,
+      lowPriority,
       enableHtml,
       isABC,
       notifyAll,
@@ -66,13 +71,19 @@ export default function notifyHelper(obj, sendingId) {
         throw new Error(`Too many users for pushover service (${userKeys.length}), maximum is 50!`);
       }
 
-      recipient = new pushoverApi.User(userKeys.join(','));
+      recipient = new User(userKeys.join(','));
     } else if (groupKey) {
-      recipient = new pushoverApi.Group(groupKey);
+      recipient = new Group(groupKey);
     } else if (notifyAll) {
       recipient = getPushoverFamilyGroupApi() || getPushoverUserApi();
     } else {
       recipient = getPushoverUserApi();
+    }
+
+    if (!recipient) {
+      log.red('No pushover recipient defined');
+      success(true);
+      return;
     }
 
     let client = getPushoverClient(app);
@@ -93,7 +104,9 @@ export default function notifyHelper(obj, sendingId) {
         urlTitle,
         ttl,
         recipient,
+        sound,
         highPriority,
+        lowPriority,
         enableHtml,
         isABC,
         originDevice

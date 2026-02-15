@@ -1,17 +1,12 @@
-import Group from './Group.js';
-import Priority from './Priority.js';
-import Sound from './Sound.js';
-import User from './User.js';
-
 const DEFAULT_PROPERTIES = {
   message: null,
   enableHtml: 0,
   user: null,
   url: null,
   urlTitle: null,
-  priority: null,
+  priority: 0,
   timestamp: null,
-  sound: null
+  sound: 'none'
 };
 
 class Message {
@@ -23,10 +18,6 @@ class Message {
         this[i] = options[i];
       }
     }
-  }
-
-  static validateMessage(message) {
-    validateMessage(message);
   }
 
   get message() {
@@ -50,8 +41,6 @@ class Message {
   }
 
   set user(value) {
-    validateUserOrGroup(value);
-
     this.properties.user = value;
   }
 
@@ -92,8 +81,6 @@ class Message {
   }
 
   set priority(value) {
-    Priority.validatePriority(value);
-
     this.properties.priority = value;
   }
 
@@ -110,28 +97,8 @@ class Message {
   }
 
   set sound(value) {
-    Sound.validateSound(value);
-
     this.properties.sound = value;
   }
-}
-
-function validateMessage(value) {
-  if (!(value instanceof Message)) {
-    throw new Error('Expecting type Message');
-  }
-}
-
-function validateUserOrGroup(user) {
-  if (user instanceof User) {
-    return;
-  }
-
-  if (user instanceof Group) {
-    return;
-  }
-
-  throw new Error('Expecting type user or group');
 }
 
 function validateTitle(value) {

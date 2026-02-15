@@ -1,6 +1,6 @@
 import { timeutils, dateFns, program } from 'dmt/common';
 
-const { isToday, isTomorrow, format, differenceInMinutes, isSameMinute } = dateFns;
+const { isToday: _isToday, isTomorrow, format, differenceInMinutes, isSameMinute } = dateFns;
 
 const { formatFutureDistance, prettyTimeAgo } = timeutils;
 
@@ -22,13 +22,19 @@ export default function describeNearTime(_date, { now = new Date() } = {}) {
   now.setSeconds(0);
   now.setMilliseconds(0);
 
+  const diff = differenceInMinutes(date, now);
+
+  const isSoon = diff <= 180 && diff > 0;
+
   if (isSameMinute(date, now)) {
     return { datetime: `${capitalizeFirstLetter(strAt)} ${time}`, inTime: strNow, isNow: true };
   }
 
+  const isToday = _isToday(date);
+
   const timeDescription = () => {
-    if (isToday(date)) {
-      return `${strToday} ${strAt} ${time}`;
+    if (isToday) {
+      return isSoon ? time : `${strToday} ${strAt} ${time}`;
     }
 
     if (isTomorrow(date)) {
@@ -40,15 +46,13 @@ export default function describeNearTime(_date, { now = new Date() } = {}) {
     return `${d} ${strAt} ${t}`;
   };
 
-  const diff = differenceInMinutes(date, now);
-
-  if (diff <= 180 && diff > 0) {
-    return { datetime: timeDescription(), inTime: `${strIn} ${formatFutureDistance(date, { referenceDate: now, lang: program.lang() })}` };
+  if (isSoon) {
+    return { datetime: timeDescription(), isToday, inTime: `${strIn} ${formatFutureDistance(date, { referenceDate: now, lang: program.lang() })}` };
   }
 
   if (diff < 0) {
-    return { datetime: timeDescription(), isPast: true, inTime: `${prettyTimeAgo(date, { now })}` };
+    return { datetime: timeDescription(), isToday, isPast: true, inTime: `${prettyTimeAgo(date, { now })}` };
   }
 
-  return { datetime: timeDescription() };
+  return { datetime: timeDescription(), isToday };
 }

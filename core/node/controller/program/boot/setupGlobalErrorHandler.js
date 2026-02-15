@@ -65,15 +65,21 @@ function terminateProgram(err, reason, program) {
 export default function setupGlobalErrorHandler(program) {
   process.on('uncaughtException', (err, origin) => terminateProgram(err, origin, program));
 
-  process.on('SIGTERM', signal => {
+  process.once('SIGTERM', signal => {
     program.stopping({ notifyABC: true });
-    log.yellow(`Process received a ${signal} signal (usually because of normal stop/restart)`);
+    log.yellow(`🏁 Process stop / restart`);
 
-    process.exit(0);
+    program.emit('SIGTERM');
+
+    setTimeout(() => {
+      process.exit(0);
+    }, 300);
   });
 
-  process.on('SIGINT', signal => {
+  process.once('SIGINT', signal => {
+    program.emit('SIGINT');
     program.stopping({ notifyABC: true });
+
     log.yellow(`Process has been interrupted: ${signal}`);
     setTimeout(() => {
       log.gray('If exiting is taking a while, it is possibly because of connectivity issues and we are waiting for dmt connections to close');
@@ -87,7 +93,9 @@ export default function setupGlobalErrorHandler(program) {
       }
     }
 
-    process.exit(0);
+    setTimeout(() => {
+      process.exit(0);
+    }, 300);
   });
 
   process.on('unhandledRejection', (reason, promise) => {

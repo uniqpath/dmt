@@ -46,6 +46,7 @@ function parse({ topic, msg }) {
           return null;
       }
     } catch (e) {
+      log.red('Error while parsing JSON message...');
       log.cyan('Raw message before JSON parse:');
       log.cyan(msg);
       log.green(msg.toString());

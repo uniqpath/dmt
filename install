@@ -38,13 +38,21 @@ function compile {
   cd "$cwd"
 }
 
-function check_node_js_version {
-  # use bun if available
-  if command -v bun >/dev/null 2>&1; then
-    printf "✅ Using ${GREEN}bun${NC}\n"
-    return
-  fi
+# function check_bun {
+#   # use bun if available
+#   if command -v bun >/dev/null 2>&1; then
+#     printf "✅ Using ${GREEN}bun${NC}\n"
+#   else
+#     printf "⚠️  ${GREEN}Bun ${RED}is not installed${GRAY}, please install with: ${YELLOW}curl -fsSL https://bun.sh/install | bash${NC}\n"
+#     # which node > /dev/null 2>&1
 
+#     # if [ ! $? -eq 0 ]; then # node command does not exist either
+#     #   printf "⚠️  ${GREEN}Bun ${RED}is not installed${GRAY}, please install with: ${YELLOW}curl -fsSL https://bun.sh/install | bash${NC}\n"
+#     # fi
+#   fi
+# }
+
+function check_node_js_version {
   which node > /dev/null 2>&1
 
   if [ $? -eq 0 ]; then # node command exists
@@ -405,15 +413,15 @@ else
 
     # general deploy hooks -- all devices
     # was called after_copy b efore
-    on_install_hook="$HOME/.dmt/etc/deploy_hooks/oninstall"
-    if [ -f "$on_install_hook" ]; then
-      "$on_install_hook" #> /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
+    on_update="$HOME/.dmt/etc/deploy_hooks/on_update"
+    if [ -f "$on_update" ]; then
+      "$on_update" #> /dev/null 2>&1 # redirected to /dev/null because we get ws exception if dmt-proc is not running when trying to restart gui by sending a websocket message
     fi
 
     # (possibly defined) for each particular device
-    on_install_hook="$HOME/.dmt/user/devices/this/oninstall"
-    if [ -f "$on_install_hook" ]; then
-      "$on_install_hook"
+    on_update="$HOME/.dmt/user/devices/this/on_update"
+    if [ -f "$on_update" ]; then
+      "$on_update"
     fi
 
     echo
@@ -428,6 +436,7 @@ else
     printf "⚠️  If ${GREEN}dmt${NC} command is not working please ${MAGENTA}open new terminal${GRAY} or ${GREEN}${UNDERLINE}source ~/.dmt/shell/.loader${RESET}${NC}\n"
 
     check_node_js_version
+
     echo
 
 fi

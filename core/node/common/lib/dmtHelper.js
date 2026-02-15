@@ -25,6 +25,7 @@ import {
   isDevUser,
   isMainDevice,
   isMainServer,
+  mainServer,
   isPersonalComputer,
   isLanServer,
   isDevPanel,
@@ -307,12 +308,6 @@ export function deviceDir(deviceName = device().id) {
   return path.join(devicesDir, deviceName);
 }
 
-export function peerConnections() {
-  const filePath = deviceDefFile('this', 'connect');
-  const connections = readConnectDef({ filePath });
-  return connections.empty ? [] : connections;
-}
-
 export function checkIfIdAlreadyPresentInList(prop, list, _id) {
   if (list.map(el => def.id(el)).includes(_id)) {
     throw new Error(`an element of key=${prop} with id=${_id} already exists, please make sure all ids for key=${prop} are unique`);
@@ -401,6 +396,7 @@ export {
   isPersonalComputer,
   isLanServer,
   isDevPanel,
+  mainServer,
   debugMode,
   debugCategory,
   dateFns,

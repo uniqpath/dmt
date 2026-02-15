@@ -5,20 +5,33 @@
     <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
     <link rel='icon' type='image/png' href='./favicon.png'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="DMT" />
+    <link rel="apple-touch-icon" href="./appicon.png" />
 
-    <!-- served from ~/.dmt/core/node/gui/gui-frontend-core/common_assets/img ! for now ... reconsider soon -->
-    <!-- <link rel="apple-touch-icon" href="/img/icons/iphone.png"> -->
-    <!-- is this needed anymore since we have manifest? -->
-    <!-- <link rel="apple-touch-icon" href="/appicon.png"> -->
+    <!-- eliminates black flash before JS loads -->
+    <style>html, body { background-color: #291B34; }</style>
+
+    <!-- iOS PWA splash screens - prevents black screen on launch -->
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash/iphone-se.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash/iphone-xr.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/iphone-12-13-mini.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/iphone-12-13-14.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/iphone-14-plus.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/iphone-14-pro.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash/iphone-14-pro-max.png" />
 
     <link rel="manifest" href="./manifest.json" />
 
     <title>DMT</title>
-    <script type="module" crossorigin src="./assets/index-dc4becd0.js"></script>
-    <link rel="stylesheet" href="./assets/index-0934030a.css">
-  </head>
+    <script type="module" crossorigin src="./assets/index-5ceedc9b.js"></script>
+    <link rel="stylesheet" href="./assets/index-73277fac.css">
+  <script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
   <body>
     <div id="app"></div>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script> -->
     
   </body>
 </html>

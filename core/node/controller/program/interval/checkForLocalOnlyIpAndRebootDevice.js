@@ -35,10 +35,10 @@ export default function checkForLocalOnlyIpAndRebootDevice({ program, ip, prevIp
       tickCounter = 0;
 
       if (prevIp != ip && disconnectedIPAddress(prevIp)) {
-        const msg = `✓ Device received a valid IP address [ ${colors.gray(prevIp)} → ${ip} ] again.`;
+        const msg = `✅ Device received a valid IP address [ ${colors.gray(prevIp)} → ${ip} ].`;
         log.green(msg);
 
-        if (program.isHub() && isDevUser()) {
+        if (program.isHub()) {
           setTimeout(() => {
             push.notify(stripAnsi(msg));
           }, 500);

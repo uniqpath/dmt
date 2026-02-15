@@ -18,9 +18,17 @@ function getAppToken(app) {
   return getApp(app)?.token;
 }
 
-function getAppGroupToken({ app, group }) {
+function getAppGroup({ app, group }) {
   const groups = def.listify(getApp(app)?.group);
-  return groups.find(({ id }) => id == group)?.token;
+  return groups.find(({ id }) => id == group);
+}
+
+function getAppGroupToken({ app, group }) {
+  return getAppGroup({ app, group })?.token;
+}
+
+function getAppGroupUsers({ app, group }) {
+  return getAppGroup({ app, group })?.users;
 }
 
 function getUserToken(user) {
@@ -29,4 +37,4 @@ function getUserToken(user) {
   }
 }
 
-export { getMainUserToken, getFamilyGroupToken, getAppToken, getAppGroupToken, getUserToken };
+export { getMainUserToken, getFamilyGroupToken, getAppToken, getAppGroupToken, getAppGroupUsers, getUserToken };
