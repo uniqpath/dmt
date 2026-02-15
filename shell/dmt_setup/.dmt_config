@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function zeta_config {
+function dmt_config {
 
   if [ -z "$1" ]; then
     printf "${YELLOW}Usage:${NC}\n"
@@ -10,6 +10,7 @@ function zeta_config {
     printf "${GREEN}wifi:${NC} /etc/wpa_supplicant/wpa_supplicant.conf\n"
     printf "${GREEN}net:${NC} /etc/network/interfaces\n"
     printf "${GREEN}sshd:${NC} /etc/ssh/sshd_config\n"
+    printf "${GREEN}caddy:${NC} /etc/caddy/Caddyfile\n"
     printf "${GREEN}lighttpd:${NC} /etc/lighttpd/lighttpd.conf\n"
     printf "${GREEN}haproxy:${NC} /etc/haproxy/haproxy.cfg\n"
     printf "${GREEN}dnsmasq:${NC} /etc/dnsmasq.conf\n"
@@ -29,6 +30,7 @@ function zeta_config {
   fi
 
   declare -a opts=(
+    "caddy"
     "lighttpd"
     "sshd"
     "pi"
@@ -59,7 +61,6 @@ function zeta_config {
   shift
 
   case "$matching_opt" in
-
     pi)
       sudo raspi-config
       ;;
@@ -76,6 +77,18 @@ function zeta_config {
         sudo nano "${conf}"
       else
         printf "${RED}no networking config file found${NC}\n"
+        return
+      fi
+      ;;
+
+    caddy)
+      local conf="/etc/caddy/Caddyfile"
+
+      if [ -f "${conf}" ]; then
+        printf "${CYAN}Editing ${YELLOW}${conf}${NC}\n"
+        sudo nano "${conf}"
+      else
+        printf "${RED}no Caddy config file found${NC}\n"
         return
       fi
       ;;
@@ -300,4 +313,78 @@ function zeta_config {
       ;;
 
   esac
+}
+
+
+# SETUP THIS FIRST SO THERE IS ENOUGH PERMISSION
+#
+# sudo visudo (! change [your_user])
+#
+# ⚠️ add below %sudo   ALL=(ALL:ALL) ALL ↴
+# david ALL=(ALL) NOPASSWD: /usr/bin/cp /home/[your_user]/.dmt/user/devices/this/conf/* /etc/caddy/
+# david ALL=(ALL) NOPASSWD: /usr/bin/cp /home/[your_user]/.dmt/etc/conf/caddy/* /etc/caddy/
+# david ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload caddy
+# david ALL=(ALL) NOPASSWD: /usr/bin/caddy validate --config /etc/caddy
+# david ALL=(ALL) NOPASSWD: /usr/bin/caddy validate --config /home/[your_user]/.dmt/user/devices/this/conf/Caddyfile
+#
+# can check rule priority with: sudo -l
+#
+# put this in on_update script on each device: [device]/on_update
+#
+# Caddyfyle has to be here: [device]/conf/Caddyfile
+#
+function update_caddy_configuration {
+  local USER="$1"
+  local HOST="$2"
+
+  local DEVICE_CONF_DIR="/home/${USER}/.dmt/user/devices/this/conf"
+  local SOURCE_CADDY_FILE="${DEVICE_CONF_DIR}/Caddyfile"
+  local WARNING_FILE="/home/${USER}/.dmt/etc/conf/caddy/DMT_WARNING.txt"
+  local DEST="/etc/caddy/Caddyfile"
+  local DEST_DIR="/etc/caddy/"
+
+  # 1. Check if hostname is correct
+  if [ "$(hostname)" = "${HOST}" ]; then
+
+      # 2. Check if source file exist and caddy is present
+      if [ -f "$SOURCE_CADDY_FILE" ] && [ -d "$DEST_DIR" ]; then
+
+          # 3. Compare the files (-s flag makes cmp silent)
+          if cmp -s "$SOURCE_CADDY_FILE" "$DEST"; then
+              echo "Caddyfile is already up to date. No reload needed."
+          else
+              echo "Changes detected. Updating and reloading Caddy..."
+
+              # 4. Validate and capture only the error line
+              # 2>&1 merges stderr into stdout so we can 'grep' it
+              ERROR_MSG=$(sudo /usr/bin/caddy validate --config "$SOURCE_CADDY_FILE" 2>&1 | grep "Error:")
+
+              # 4. Validate before reloading to prevent downtime
+              #if sudo caddy validate --config "$SOURCE_CADDY_FILE" >/dev/null 2>&1; then
+              if [ -z "$ERROR_MSG" ]; then
+                  sudo cp "$SOURCE_CADDY_FILE" "$DEST_DIR"
+                  sudo systemctl reload caddy
+                  echo "Caddy reloaded successfully."
+              else
+                  ERR="Error: New Caddyfile is invalid! ${ERROR_MSG}"
+                  echo "${ERR}"
+                  push_notify_high_priority "${ERR}"
+                  exit 1
+              fi
+
+              echo "$WARNING_FILE" > /tmp/ok.txt
+
+              if [ -f "$WARNING_FILE" ]; then
+                sudo cp "$WARNING_FILE" "$DEST_DIR"
+              fi
+          fi
+
+      else
+          echo "Error: Source or Destination file missing."
+          exit 1
+      fi
+
+  else
+      echo "Skipping: Wrong host."
+  fi
 }

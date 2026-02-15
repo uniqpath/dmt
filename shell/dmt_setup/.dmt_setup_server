@@ -1,15 +1,19 @@
 #!/bin/bash
 
 function build_essential {
-  sudo apt-get update
+  sudo apt update
   #sudo apt-get -y install build-essential tar unzip curl git screen ntp zip tree lsof colordiff rsync
-  sudo apt-get -y install build-essential tar curl git screen zip unzip tree lsof colordiff rsync
+  sudo apt install -y build-essential tar curl git screen zip unzip tree lsof colordiff rsync
+  # missing on Debian nowadays
+  if ! dmt_is_rpi; then
+    sudo apt install -y cron fail2ban
+  fi
 }
 
 function build_essential_full {
-  sudo apt-get update
-  sudo apt-get -y install build-essential zlib1g-dev libpcre3 libpcre3-dev libbz2-dev libssl-dev libreadline-dev tar unzip curl git screen dh-autoreconf make pkg-config cmake lsof ntp highlight net-tools zip tree lsof colordiff rsync
-  # autoconf too? --- to compile lighttpd on ubuntu -- test... we're not compiling anymore
+  sudo apt update
+  sudo apt -y install build-essential zlib1g-dev libpcre3 libpcre3-dev libbz2-dev libssl-dev libreadline-dev tar unzip curl git screen dh-autoreconf make pkg-config cmake lsof ntp highlight net-tools zip tree lsof colordiff rsync
+
 }
 
 function prerequisites_ok {
@@ -38,20 +42,28 @@ function prerequisites_ok {
 
   # CHECK FOR CRONTAB
 
-  dmt_check_binary_exists crontab
+  # dmt_check_binary_exists crontab
 
-  if [ ! $? -eq 0 ]; then
-    printf "${RED}✖ crontab command is missing ${WHITE}(for some reason?!)${NC}\n"
-    return 1
-  fi
+  # if [ ! $? -eq 0 ]; then
+  #   printf "${RED}✖ crontab command is missing ${WHITE}(for some reason?!)${NC}\n"
+  #   return 1
+  # fi
 }
 
-function deps_status {
+function dmt_deps_status {
   # CHECK OS REQUIREMENT
 
   printf "${CYAN}DEPENDENCIES:${NC}\n"
   printf "${CYAN}.............${NC}\n"
   echo
+
+  # dmt_check_binary_exists bun
+  # if [ $? -eq 0 ]; then
+  #   local bunVersion=$(bun --version)
+  #   printf "${GREEN}✓${NC} ${WHITE}bun${NC} ${YELLOW}(${bunVersion})${NC} installed at ${GRAY}$(which bun)${NC} \n"
+  # else
+  #   printf "${RED}✖${NC} bunjs not installed ${GREEN}(will install)${NC}\n"
+  # fi
 
   dmt_check_binary_exists node
   if [ $? -eq 0 ]; then
@@ -61,35 +73,14 @@ function deps_status {
     printf "${RED}✖${NC} nodejs not installed ${GREEN}(will install)${NC}\n"
   fi
 
-  if [ -f /usr/sbin/lighttpd ]; then
-    local lighttpdVersion=$(/usr/sbin/lighttpd -v)
-    printf "${GREEN}✓${NC} ${WHITE}lighttpd${NC} installed at ${GRAY}/usr/sbin/lighttpd${NC} ${YELLOW}(${lighttpdVersion})${NC}\n"
-  else
-    printf "${RED}✖${NC} ${WHITE}lighttpd${NC} not installed ${GREEN}(will install)${NC}\n"
-  fi
+  # echo
+  # printf "${CYAN}● Extra${NC}\n"
+  # echo
 
-  echo
-  printf "${CYAN}● Extra${NC}\n"
-  echo
-
-  dmt_check_binary_exists bee
-  if [ $? -eq 0 ]; then
-    local swarmBeeVersion=$(bee version)
-    printf "${GREEN}✓${NC} ${WHITE}Swarm 🐝${NC} installed at ${GRAY}$(which bee)${NC} ${YELLOW}(${swarmBeeVersion})${NC}\n"
-  else
-    printf "${RED}✖${NC} ${WHITE}Swarm 🐝${NC} not installed (installs as part of ${GREEN}zeta_setup extra${NC})${NC}\n"
-  fi
-
-  # local swarmBeeVersion
-  # if [ -f "$DMT_HERE_PLATFORM_BIN/bee" ]; then
-  #   swarmBeeVersion=$($DMT_HERE_PLATFORM_BIN/bee version)
-  # fi
-
-  # local lighttpdVersion=$(/usr/local/sbin/lighttpd -v)
   # local goVersion=$(go version)
 }
 
-function zeta_setup {
+function dmt_setup_server {
   # GREETINGS
 
   local pro_setup
@@ -100,16 +91,11 @@ function zeta_setup {
 
   echo
   printf "${CYAN}·······································································${NC}\n"
-  printf " 💡 ${MAGENTA}Welcome to Zeta${NC} ${CYAN}·${WHITE} a versatile ${CYAN}Search & Discovery ${WHITE}technology stack.\n"
+  printf "                       💡 ${MAGENTA}Welcome to DMT server${NC} ${CYAN}\n"
   printf "${CYAN}·······································································${NC}\n"
   echo
-  printf "${YELLOW}This is the${NC} ${MAGENTA}Zeta Peer (public node)${NC} ${YELLOW}setup script${NC} [ a part of ${CYAN}DMT-SYSTEM${NC} ].\n"
+  printf "${YELLOW}This is the${NC} ${YELLOW}setup script.${NC}\n"
   echo
-
-  if [ "$1" == "extra" ]; then
-    zeta_setup_extra
-    return
-  fi
 
   # CHECK PREREQUISITES
 
@@ -122,7 +108,7 @@ function zeta_setup {
   # PRINT ALREADY INSTALLED DEPS STATUS
 
   if [ "$pro_setup" == "true" ]; then
-    deps_status
+    dmt_deps_status
 
     echo
     dmt_animate_dots
@@ -170,7 +156,7 @@ function zeta_setup {
   # setup crons for zeta peer auto update from github and
   # for running dmt-proc on machine reboot
   echo
-  printf "${GREEN}Setting up ${MAGENTA}Zeta cron entries${NC}\n"
+  printf "${GREEN}Setting up ${MAGENTA}cron entries${NC}\n"
   dmt_animate_dots
   ~/.dmt/etc/cron/setup_cron
   sudo ~/.dmt/etc/cron/root/setup_cron $USER
@@ -178,18 +164,9 @@ function zeta_setup {
   echo
 
   # set up nano syntax highlighting
-  sudo ln -s ~/.dmt/etc/syntax/nano/def.nanorc /usr/share/nano/def.nanorc
-
-  # NODE.JS
-
-  printf "${GREEN}Installing ${YELLOW}nodejs ...${NC}\n"
-  dmt_animate_dots slow
-  echo
-
-  # local NODE_VERSION_TO_INSTALL="22.12.0" # could also be "latest"
-  # zeta_update nodejs "$NODE_VERSION_TO_INSTALL"
-  zeta_update bun
-
+  if [ ! -L "/usr/share/nano/def.nanorc" ]; then
+    sudo ln -s ~/.dmt/etc/syntax/nano/def.nanorc /usr/share/nano/def.nanorc
+  fi
 
   # echo
   # printf "${GREEN}Installing ${YELLOW}lighttpd${NC}\n"
@@ -200,7 +177,7 @@ function zeta_setup {
   #   printf "${GREEN}lighttpd is already installed${NC}\n"
   #   printf "${YELLOW}$(/usr/sbin/lighttpd -v)${NC}\n"
   # else
-  #   #zeta_update lighttpd # todo -- does it run on reboot?
+  #   #dmt_setup lighttpd # todo -- does it run on reboot?
   #   sudo apt-get install -y lighttpd
   #   sudo systemctl start lighttpd
   #   sudo systemctl enable lighttpd
@@ -218,6 +195,15 @@ function zeta_setup {
     sed -i 's/#shell: full/shell: full/' ~/.dmt/user/def/user.def # uncomment this line in user.def (#shell: full ==> shell: full)
   fi
 
+  # NODE.JS
+
+  printf "${GREEN}Installing ${YELLOW}nodejs ...${NC}\n"
+  dmt_animate_dots slow
+  echo
+
+  local NODE_VERSION_TO_INSTALL="v24.13.1" # current lts
+  dmt_get nodejs "$NODE_VERSION_TO_INSTALL"
+
   # start dmt process
   echo
 
@@ -230,9 +216,7 @@ function zeta_setup {
 
   printf "${MAGENTA}Finishing instructions:${NC}\n"
   echo
-  printf "● Create a folder ${GREEN}mkdir ~/Files${NC} and put some files in it.\n"
-  echo
-  printf "● Open ${CYAN}http://server_ip:7777/apps/search${NC} in browser and search for the files inside ${YELLOW}~/Files${NC} directory.\n"
+  printf "● Open ${CYAN}http://server_ip:7777/${NC} in browser to check if everything works so far...\n"
 
   echo
   #printf "To setup a subdomain on ${MAGENTA}*.zetaseek.com${NC} please configure your ${YELLOW}lighttpd${NC} server according to the ${CYAN}docs${NC} or ${CYAN}admin instructions${NC}.\n"
@@ -244,10 +228,3 @@ function zeta_setup {
   # printf "● Please run ${GREEN}zeta_setup extra${NC} to install additional useful dependencies like ${YELLOW}Swarm 🐝${NC}\n"
 }
 
-function zeta_setup_extra {
-  echo
-  printf "${GREEN}Installing ${YELLOW}Swarm 🐝${NC}\n"
-  dmt_animate_dots slow
-  echo
-  zeta_update swarm # todo: setup systemd scripts and make sure proc runs on reboot
-}

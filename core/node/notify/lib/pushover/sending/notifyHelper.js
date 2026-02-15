@@ -36,6 +36,9 @@ function reportError(obj) {
 
 export default function notifyHelper(obj, sendingId) {
   return new Promise((success, reject) => {
+    if (!getMainUserToken()) {
+      success(true);
+    }
     obj.app = obj.app || dmtApp;
 
     const {
@@ -73,6 +76,12 @@ export default function notifyHelper(obj, sendingId) {
       recipient = getPushoverFamilyGroupApi() || getPushoverUserApi();
     } else {
       recipient = getPushoverUserApi();
+    }
+
+    if (!recipient) {
+      log.red('No pushover recipient defined');
+      success(true);
+      return;
     }
 
     let client = getPushoverClient(app);

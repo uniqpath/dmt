@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 
 import * as dmt from 'dmt/common';
-const { log, colors, colors2 } = dmt;
+const { log, colors, colors2, userDef } = dmt;
 
 import { desktop, apn, push } from 'dmt/notify';
 
@@ -145,6 +145,10 @@ class Program extends EventEmitter {
       this.slot('device').update({ isRPi: true }, { announce: false });
     } else {
       this.slot('device').removeKey('isRPi', { announce: false });
+    }
+
+    if (!userDef('pushover')?.pushover?.user) {
+      log.yellow('⚠️ pushover.def does not exist or is missing user token... you will not receive push messages...');
     }
 
     if (mids.includes('apps')) {

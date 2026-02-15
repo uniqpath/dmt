@@ -1,19 +1,22 @@
-## node.js requirement
+## Node.js
 
 **Linux** (Debian, Raspbian etc.) / **macOS** / **Windows 10 Ubuntu shell**:
 
-`node.js >= v16.13.0`
+You can install [node.js](https://bun.com/):
 
-You can install `node.js` via [n](https://github.com/tj/n) which makes upgrading node.js easier. Install `n`:
+1.
 
 ```
-curl -L https://git.io/n-install | bash
+curl -fsSL https://fnm.vercel.app/install | bash
 ```
 
-Then use command:
+2. Restart your terminal (or run `source ~/.bashrc`).
 
-```bash
-n
+3.
+```
+fnm install --lts
 ```
 
-to manage `node.js` versions.
+4. Verify: `node -v`
+
+`v25.6.1` etc.

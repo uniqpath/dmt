@@ -1105,7 +1105,7 @@ function i {
       esac
 
     else
-      sudo apt-get install -y "$@"
+      sudo apt install -y "$@"
     fi
   fi
 }

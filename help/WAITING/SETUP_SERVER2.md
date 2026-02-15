@@ -18,7 +18,7 @@ Installation takes around ⏱️**10 min** in optimal scenario and a few minutes
 
 ### Prerequisites
 
-**Get a fresh** Debian/Ubuntu linux server (from [DigitalOcean](https://www.digitalocean.com/)?) and ⚙️ [SET IT UP](./SETUP_SERVER.md) (⏱️ **5 min**)
+**Get a fresh** Debian/Ubuntu linux server (from [DigitalOcean](https://www.digitalocean.com/)?) and ⚙️ [SET IT UP](./SERVER_SETUP.md) (⏱️ **5 min**)
 
 ---
 
@@ -58,7 +58,7 @@ source ~/.bashrc
 ⏱️ **3 min**
 
 ```bash
-dmt_setup_server
+setup_dmt_server
 ```
 
 Remember to logout and login if you get this error: `setup_dmt_server: command not found`.
@@ -75,58 +75,31 @@ The correct **welcome screen** indicating that the script is ready to run looks 
 
 You should now be able to open `http://server_ip:7777/dmt-search`.
 
-### Configure timezone on the server
-
-Set it to the same zone as your local computer.
-
-
-See available timezones:
-```bash
-timedatectl list-timezones | grep Europe
-```
-
-Set the timezone:
-```bash
-sudo timedatectl set-timezone Europe/Paris
-```
-
-Check that it worked:
+There will be nothing in your search engine though so try this next:
 
 ```bash
-timedatectl
+ssh username@ip
+
+mkdir Files && cd $_
+
+echo "something" > my_test_file.txt
 ```
 
-You should see "Time zone: Europe/Paris (CET, +0100)".
+And then try entering **test file** search query into the box on your new DMT SEARCH ENGINE.
 
-## Install and setup Caddy server
+You will see the test result like this:
 
-[Caddy server](https://caddyserver.com/) servers your dmt and other apps and manages https certificates automatically.
+<p><img src="./img/test_search_result.png" width="600px"></p>
 
-```bash
-dmt get caddy
-```
+## What is search engine without links?
 
-```bash
-cd /etc/caddy
-sudo cp Caddyfile Caddyfile2
-sudo cp ~/.dmt/etc/conf/caddy/Caddyfile .
-```
+Nothing! [FOLLOW THIS GUIDE](./TRY_DMT_SEARCH.md) to set up a **DMT ENGINE** on your personal computer. 
 
-Edit Caddyfile with:
+Links are added and scanned from your main (personal machine) and then fully or partially synced to your public DMT ("Zeta") node.
 
-```bash
-dmt config caddy
-```
+They need to be scanned from residential IP address because big web properties like Amazon and sites behind Cloudflare block scanning from Digital Ocean and other public IPs.
 
-Replace `yourdomain.com` with your domain. Don't forget to point your domain to your server IP address in your DNS.
-
-```
-srv caddy reload
-```
-
-(srv is convenient shortcut for systemctl services management)
-
-Check if visiting yourdomain opens dmt search app on the server.
+As you will see our search architecture makes for the most private, resillient and useful system for collecting and managing links (and files!).
 
 # Support info
 

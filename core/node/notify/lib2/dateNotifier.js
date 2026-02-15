@@ -398,9 +398,11 @@ class DateNotifier extends ScopedNotifier {
 
       let _isWithin = true;
       for (const _from of Array(from).flat()) {
-        const { isWithin } = evaluateTimespan({ date: timepoint, from: _from, until });
-        if (!isWithin) {
-          _isWithin = false;
+        for (const _until of Array(until).flat()) {
+          const { isWithin } = evaluateTimespan({ date: timepoint, from: _from, until: _until });
+          if (!isWithin) {
+            _isWithin = false;
+          }
         }
       }
 
@@ -430,25 +432,17 @@ class DateNotifier extends ScopedNotifier {
 
               const isLastNotification = index === minutesBefore.length - 1;
 
-              const brevityTagline = minutesBefore.length >= 2 && min <= 30 && isLastNotification && !isPast;
-
               let _tagline =
                 isNow && msg
                   ? undefined
-                  : `${isNow ? NOW_SYMBOL : CLOCK_SYMBOL}${brevityTagline ? '' : ` ${datetime}`}${
-                      inTime ? ` ${brevityTagline ? capitalizeFirstLetter(inTime) : `[ ${inTime} ]`}` : ''
-                    }${(!isNow && min <= 30) || isPast ? EXCLAMATION_SYMBOL : ''}`;
+                  : `${isNow ? NOW_SYMBOL : CLOCK_SYMBOL} ${datetime} ${inTime ? `[ ${inTime} ]` : ''}${
+                      (!isNow && min <= 30) || isPast ? EXCLAMATION_SYMBOL : ''
+                    }`;
 
-              if (duration && minutesBefore.length - 1 == index) {
+              if (duration) {
                 const endTime = addMinutes(timepoint, duration);
-                const startTimeStr = format(timepoint, 'HH:mm');
                 const endTimeStr = format(endTime, 'HH:mm');
-                _tagline = `${_tagline || ''}${_tagline ? '\n' : ''}${FINISH_SYMBOL} `;
-                if (brevityTagline) {
-                  _tagline += `${capitalizeFirstLetter(strFrom)} ${startTimeStr} ${strUntil} ${endTimeStr}`;
-                } else {
-                  _tagline += `${capitalizeFirstLetter(strUntil)} ${endTimeStr}`;
-                }
+                _tagline = `${_tagline || ''}${_tagline ? '\n' : ''}${FINISH_SYMBOL} ${capitalizeFirstLetter(strUntil)} ${endTimeStr}`;
               }
 
               const __tagline = isUnspecifiedTime ? undefined : _tagline;

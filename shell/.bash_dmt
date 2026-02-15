@@ -363,6 +363,8 @@ function dmt {
     "reload"
     "execute"
     "integrate"
+    "get"
+    "config"
   )
 
   if dev_machine; then
@@ -998,6 +1000,14 @@ function dmt {
 
     integrate)
       dmt_integrate "$@"
+      ;;
+
+    config)
+      dmt_config "$@"
+      ;;
+
+    get)
+      dmt_get "$@"
       ;;
 
   esac
@@ -2365,6 +2375,10 @@ function dmt_update {
 }
 
 function prepare_dmt_engine {
+  # FOR NOW To sPEED IT uP!!
+  return
+
+
   printf "${MAGENTA}Preparing DMT ENGINE ...${NC}\n"
   #echo # will cause extra blank line on devices (mostly non-main) that don't have anything to do here... everything has been prepared on main
   # hard to remove this extra line, if we don't do it, then we have squashed output when there is actually something to prepare... ok, better to do that
@@ -2697,19 +2711,19 @@ function dmt_autoupdate {
     printf "${GRAY}./setup_root ${USER}${NC}\n"
   fi
 
-  local CERT_UPDATE_LOG=~/.dmt-here/https/zetaseek.com/cert_auto_update_report.txt
+  # local CERT_UPDATE_LOG=~/.dmt-here/https/zetaseek.com/cert_auto_update_report.txt
 
-  if [ -f $CERT_UPDATE_LOG ]; then
-    local file_age=''
-    dmt_get_file_age file_age $CERT_UPDATE_LOG
-    #local file_age=$(( `date +%s` - `stat -L --format %Y $CERT_UPDATE_LOG` ))
+  # if [ -f $CERT_UPDATE_LOG ]; then
+  #   local file_age=''
+  #   dmt_get_file_age file_age $CERT_UPDATE_LOG
+  #   #local file_age=$(( `date +%s` - `stat -L --format %Y $CERT_UPDATE_LOG` ))
 
-    if [ $file_age -le $((60*60+5)) ]; then # 1h plus 5s
-      printf "— 3.) ${CYAN}Extra:${NC}\n"
-      echo
-      printf "${GREEN}✓ ${MAGENTA}ZetaSeek ${GREEN}https certificate auto-update is set up correctly${NC}\n"
-    fi
-  fi
+  #   if [ $file_age -le $((60*60+5)) ]; then # 1h plus 5s
+  #     printf "— 3.) ${CYAN}Extra:${NC}\n"
+  #     echo
+  #     printf "${GREEN}✓ ${MAGENTA}ZetaSeek ${GREEN}https certificate auto-update is set up correctly${NC}\n"
+  #   fi
+  # fi
 }
 
 function dmt_cd {
