@@ -111,9 +111,11 @@ class DailyNotifier extends ScopedNotifier {
 
       let _isWithin = true;
       for (const _from of Array(from).flat()) {
-        const { isWithin } = evaluateTimespan({ date: notificationTime, from: _from, until });
-        if (!isWithin) {
-          _isWithin = false;
+        for (const _until of Array(until).flat()) {
+          const { isWithin } = evaluateTimespan({ date: notificationTime, from: _from, until: _until });
+          if (!isWithin) {
+            _isWithin = false;
+          }
         }
       }
 

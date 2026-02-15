@@ -7,10 +7,12 @@ if [ -d "$DMT_NODE_CORE" ]; then
   DMT_NODEJS_EXEC="node --unhandled-rejections=strict"
 
   # use bun if available
-  if command -v bun >/dev/null 2>&1; then
-    #printf "✅ Using ${GREEN}bun${NC}\n"
-    DMT_NODEJS_EXEC="bun --unhandled-rejections=strict"
-  fi
+  # if command -v bun >/dev/null 2>&1; then
+  #   #printf "✅ Using ${GREEN}bun${NC}\n"
+  #   DMT_NODEJS_EXEC="node --unhandled-rejections=strict"
+  # else
+  #   DMT_NODEJS_EXEC="node --unhandled-rejections=strict"
+  # fi
 
   $DMT_NODEJS_EXEC "${DMT_NODE_CORE}/gui/cli/gui.js" reload
 fi

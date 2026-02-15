@@ -204,11 +204,13 @@ class WeeklyNotifier extends ScopedNotifier {
         let _isWithin = true;
         let _isLastDay;
         for (const _from of Array(from).flat()) {
-          const { isWithin, isLastDay } = evaluateTimespan({ date: eventTime, from: _from, until });
-          if (!isWithin) {
-            _isWithin = false;
+          for (const _until of Array(until).flat()) {
+            const { isWithin, isLastDay } = evaluateTimespan({ date: eventTime, from: _from, until: _until });
+            if (!isWithin) {
+              _isWithin = false;
+            }
+            _isLastDay = isLastDay;
           }
-          _isLastDay = isLastDay;
         }
 
         if (_isWithin && !this.shouldSkip(eventTime, entry, excludedRanges)) {
@@ -238,25 +240,15 @@ class WeeklyNotifier extends ScopedNotifier {
 
                 const { capitalizeFirstLetter, strFrom, strUntil } = localize(program);
 
-                const brevityTagline = !isNow && minutesBefore.length >= 2 && minBefore <= 30 && minutesBefore.length - 1 == index;
-
                 let tagline =
                   isNow && msg
                     ? undefined
-                    : `${isNow ? NOW_SYMBOL : CLOCK_SYMBOL}${brevityTagline ? '' : ` ${datetime}`}${
-                        inTime ? ` ${brevityTagline ? capitalizeFirstLetter(inTime) : `[ ${inTime} ]`}` : ''
-                      }${!isNow && minBefore <= 30 ? EXCLAMATION_SYMBOL : ''}`;
+                    : `${isNow ? NOW_SYMBOL : CLOCK_SYMBOL} ${datetime} ${inTime ? `[ ${inTime} ]` : ''}${!isNow && minBefore <= 30 ? EXCLAMATION_SYMBOL : ''}`;
 
-                if (duration && minutesBefore.length - 1 == index) {
+                if (duration) {
                   const endTime = addMinutes(eventTime, duration);
-                  const startTimeStr = format(eventTime, 'HH:mm');
                   const endTimeStr = format(endTime, 'HH:mm');
-                  tagline = `${tagline || ''}${tagline ? '\n' : ''}${FINISH_SYMBOL} `;
-                  if (brevityTagline) {
-                    tagline += `${capitalizeFirstLetter(strFrom)} ${startTimeStr} ${strUntil} ${endTimeStr}`;
-                  } else {
-                    tagline += `${capitalizeFirstLetter(strUntil)} ${endTimeStr}`;
-                  }
+                  tagline = `${tagline || ''}${tagline ? '\n' : ''}${FINISH_SYMBOL} ${capitalizeFirstLetter(strUntil)} ${endTimeStr}`;
                 }
 
                 const title = `${_title}${lastTag}`;
@@ -286,11 +278,13 @@ class WeeklyNotifier extends ScopedNotifier {
       let _isWithin = true;
       let _isLastDay;
       for (const _from of Array(from).flat()) {
-        const { isWithin, isLastDay } = evaluateTimespan({ date: eventTime, from: _from, until });
-        if (!isWithin) {
-          _isWithin = false;
+        for (const _until of Array(until).flat()) {
+          const { isWithin, isLastDay } = evaluateTimespan({ date: eventTime, from: _from, until: _until });
+          if (!isWithin) {
+            _isWithin = false;
+          }
+          _isLastDay = isLastDay;
         }
-        _isLastDay = isLastDay;
       }
 
       const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry, excludedRanges);
@@ -360,12 +354,17 @@ class WeeklyNotifier extends ScopedNotifier {
   }
 
   isLastDaySpecificCheckForWeeklyNotifier(_eventTime, entry, excludedRanges) {
-    const { when, from: _from, until } = entry;
+    const { when, from: _from, until: _until } = entry;
 
     let from = _from;
+    let until = _until;
 
     if (Array.isArray(from)) {
       from = from[0];
+    }
+
+    if (Array.isArray(until)) {
+      until = until[0];
     }
 
     for (let i = 1; i <= 30; i++) {

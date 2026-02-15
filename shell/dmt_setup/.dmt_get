@@ -1,15 +1,12 @@
 #!/bin/bash
 
-function create_install_directory {
-  mkdir -p ~/Install
-}
-
-function zeta_update {
+function dmt_get {
   declare -a opts=(
-    #"nodejs"
+    "nodejs"
     "bun"
     "go"
     "rust"
+    "caddy"
     # "geth"
     #"swarm"
     #"swarm-docs"
@@ -39,17 +36,21 @@ function zeta_update {
       update_rust "$@"
       ;;
 
+    caddy)
+      update_caddy "$@"
+      ;;
+
     bun)
-      curl -fsSL https://bun.com/install | bash
+      update_bun "$@"
       ;;
 
     go)
       update_go "$@"
       ;;
 
-    # nodejs)
-    #   update_nodejs "$@"
-    #   ;;
+    nodejs)
+      update_nodejs "$@"
+      ;;
 
     # geth)
     #   update_geth "$@"
@@ -104,6 +105,46 @@ function zeta_update {
 # }
 
 # ----------------------------- APPLICATIONS -----------------------------
+
+function update_bun {
+  if ! command -v bun >/dev/null 2>&1; then
+    echo "bun is not installed. Installing now..."
+    curl -fsSL https://bun.com/install | bash
+    source "$HOME/.bashrc"
+    bun --version
+  else
+    echo "Bun version $(bun --version) is installed. Upgrading..."
+    bun upgrade
+  fi
+}
+
+# installs lts version by default
+#
+function update_nodejs {
+  if ! command -v fnm >/dev/null 2>&1; then
+    echo "fnm is not installed. Installing now..."
+    curl -fsSL https://fnm.vercel.app/install | bash
+    source "$HOME/.bashrc"
+  fi
+
+  local version="--lts"
+
+  if [ -n "$1" ]; then
+    version="$1"
+  fi
+
+  fnm install $version
+}
+
+function update_caddy {
+  sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+  curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+  chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  chmod o+r /etc/apt/sources.list.d/caddy-stable.list
+  sudo apt update
+  sudo apt install caddy
+}
 
 # function update_nodejs {
 #   local version="latest"

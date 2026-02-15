@@ -5,7 +5,7 @@ const { ONE_SECOND, ONE_MINUTE, ONE_HOUR, ONE_DAY } = timeutils;
 const { format } = dateFns;
 const MAIN_DEVICE_TESTING = false;
 
-const TESTING_LOOKBACK_MINUTES = 30;
+const TESTING_LOOKBACK_MINUTES = 10;
 
 const INITIAL_DELAY = MAIN_DEVICE_TESTING ? 500 : 3000;
 
