@@ -1,0 +1,332 @@
+#!/bin/bash
+
+# DEFINE COLORS
+
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;94m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+# INTERACTIVE MENU SELECTOR
+
+UP=$'\033[A'
+DOWN=$'\033[B'
+
+#
+# Log <type> <msg>
+#
+
+log() {
+  printf "  \033[36m%10s\033[0m : \033[90m%s\033[0m\n" $1 $2
+}
+
+#
+# Exit with the given <msg ...>
+#
+
+abort() {
+  printf "\n  \033[31mError: $@\033[0m\n\n" && exit 1
+}
+
+#
+# Functions used when showing versions installed
+#
+
+enter_fullscreen() {
+  tput smcup
+  stty -echo
+}
+
+leave_fullscreen() {
+  tput rmcup
+  stty echo
+}
+
+handle_sigint() {
+  #show_cursor
+  leave_fullscreen
+  exit $?
+}
+
+handle_sigtstp() {
+  #show_cursor
+  leave_fullscreen
+  kill -s SIGSTOP $$
+}
+
+#
+# Display sorted versions directories paths.
+#
+
+NONE_OPTION="_NONE_"
+CREATE_NEW_OPTION="_NEW_"
+QUIT_OPTION="*(Q)UIT*"
+
+versions_paths() {
+  echo "$NONE_OPTION"
+  echo "$CREATE_NEW_OPTION"
+  echo "$QUIT_OPTION"
+  local BASE_PATH="$DMT_PATH/user/devices"
+  find "$BASE_PATH" -maxdepth 1 -type d \
+    | sed 's|'$BASE_PATH'/||g' \
+    | grep -v "$BASE_PATH" \
+    | grep -v "^@" \
+    | sort
+    # ^@ is because we use these directories sometimes to symlink suff for each device from
+}
+
+#
+# List installed versions.
+#
+
+list_versions_installed() {
+  for version in $(versions_paths); do
+    echo $version
+  done
+}
+
+#
+# Display installed versions with <selected>
+#
+
+display_versions_with_selected() {
+  selected=$1
+  echo
+  for version in $(versions_paths); do
+    if test "$version" = "$selected"; then
+      printf "  \033[36mο\033[0m $version\033[0m\n"
+    else
+      printf "    \033[90m$version\033[0m\n"
+    fi
+  done
+  echo
+}
+
+#
+# Hide cursor.
+#
+
+hide_cursor() {
+  printf "\e[?25l"
+}
+
+#
+# Show cursor.
+#
+
+show_cursor() {
+  printf "\e[?25h"
+}
+
+#
+# Output version after selected.
+#
+
+next_version_installed() {
+  list_versions_installed | grep -w "${selected}" -A 1 | tail -n 1
+}
+
+#
+# Output version before selected.
+#
+
+prev_version_installed() {
+  list_versions_installed | grep -w "${selected}" -B 1 | head -n 1
+}
+
+#
+# Check for installed version, and populate $active
+#
+
+check_current_version() {
+  local device_name=''
+  get_current_device device_name
+
+  if [ -n "$device_name" ]; then
+    active=$device_name
+  else
+    active=$NONE_OPTION
+  fi
+}
+
+#
+# Activate <version>
+#
+
+quit() {
+  clear
+  leave_fullscreen
+  exit
+}
+
+activate() {
+  local selected="$1"
+  check_current_version
+
+  if test "$selected" != "$active"; then
+    local cwd="`pwd`"
+    cd "$DMT_PATH/user/devices"
+
+    case $selected in
+
+      $NONE_OPTION)
+        if [ -L "this" ]; then
+          rm this
+        fi
+
+        printf "${RED}✖ ${GRAY}Current device is now ${CYAN}undefined${NC}\n"
+        ;;
+
+      $CREATE_NEW_OPTION)
+        create_new_device
+        ;;
+
+      $QUIT_OPTION)
+        quit
+        ;;
+
+      *)
+        if [ -L "this" ]; then
+          rm this
+        fi
+        ln -s "$selected" this
+
+        printf "${GREEN}✓ ${GRAY}Current device is now defined by files in ~/.dmt/user/devices/${MAGENTA}${selected}${GRAY} ${NC}\n"
+        printf "  ${GRAY}Please restart the ${MAGENTA}dmt process${GRAY} with ${GREEN}dmt restart ${GRAY}command${NC}\n"
+        # echo
+        # printf "${GRAY}Please ${CYAN}reload the shell ${GRAY}by closing and reopening the terminal tab or entering: ${GREEN}rel${NC}\n"
+        ;;
+    esac
+
+    cd "$cwd"
+  else
+    printf "Device ${CYAN}${selected}${NC} was already selected ...\n"
+  fi
+}
+
+create_new_device() {
+  printf "${CYAN}Device name (id): ${NC}\n"
+  read -r -p "" response
+
+  local deviceName="$response"
+
+  if [ -z "$deviceName" ]; then
+    printf "${YELLOW}Must provide a new deviceName, not empty string${NC}\n"
+    printf "${RED}Aborting new device creation${NC}\n"
+    return
+  fi
+
+  local BASE_PATH="$DMT_PATH/user/devices"
+  local device_path="$BASE_PATH/${deviceName}"
+
+  if [ -d "$device_path" ]; then
+    printf "${RED}This deviceName already exists: ${deviceName}...${NC}\n"
+  else
+    local def_path="$device_path/def"
+    mkdir -p "$def_path"
+
+    cat > "$def_path/device.def" <<EOF
+device: ${deviceName}
+
+  tagline: controller, search, play, all the best service in my control
+EOF
+
+    # create symlink
+    local cwd="`pwd`"
+    cd "$BASE_PATH"
+
+    if [ -L "this" ]; then
+      rm this
+    fi
+    ln -s "$deviceName" this
+    cd "$cwd"
+
+    printf "${GREEN}✓ ${GRAY}Created and activated new device with name ${MAGENTA}${deviceName}${NC} ...\n"
+  fi
+}
+
+#
+# Move up a line and erase.
+#
+
+# erase_line() {
+#   printf "\033[1A\033[2K"
+# }
+
+#
+# Display current node --version and others installed.
+#
+
+device_selector() {
+  if [ -n "$1" ]; then # non interactive (= pseudio gui) mode... pure cli
+    local deviceName="$1"
+    if [ -d "$HOME/.dmt/user/devices/${deviceName}" ]; then
+      #printf "Device ${CYAN}${deviceName}${NC} exists, activating...\n"
+      activate "$deviceName"
+    else
+      printf "${RED}Unknown device name:${NC} ${YELLOW}${deviceName}${NC}\n"
+    fi
+    return
+  fi
+
+  enter_fullscreen
+  check_current_version
+  clear
+  display_versions_with_selected $active
+
+  trap handle_sigint INT
+  trap handle_sigtstp SIGTSTP
+
+  ESCAPE_SEQ=$'\033'
+  UP=$'A'
+  DOWN=$'B'
+
+  while true; do
+    read -rsn 1 key
+    case "$key" in
+      $ESCAPE_SEQ)
+        # Handle ESC sequences followed by other characters, i.e. arrow keys
+        read -rsn 1 -t 1 tmp
+        if  [[ "$tmp" == "[" ]]; then
+          read -rsn 1 -t 1 arrow
+          case "$arrow" in
+            $UP)
+              clear
+              display_versions_with_selected $(prev_version_installed)
+              ;;
+            $DOWN)
+              clear
+              display_versions_with_selected $(next_version_installed)
+              ;;
+          esac
+        fi
+        ;;
+      # "k")
+      #   clear
+      #   display_versions_with_selected $(prev_version_installed)
+      #   ;;
+      # "j")
+      #   clear
+      #   display_versions_with_selected $(next_version_installed)
+      #   ;;
+      "q")
+        quit
+        ;;
+      "")
+        # enter key returns empty string
+
+        # the following two can be switched vice-versa but only in this order, we can do further action that is visible to the user
+        # for example: showing a message, a next interactive screen or text entry etc.
+        leave_fullscreen
+        activate $selected
+        #echo $selected
+        exit
+        ;;
+    esac
+  done
+}

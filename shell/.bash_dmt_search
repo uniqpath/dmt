@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# SEARCH THIS MACHINE OR SOME OTHER MACHINE (LIST)
+#
+# search @this terms (shorter: search terms) → searches this device ("general" share which needs to be defined)
+# search @this/books terms → searches this device ("books" share which needs to be defined)
+
+# search @device1 terms → searches device1 ("general" share)
+# search @device1/books terms → searches books on device1
+
+# search @device1 @device2 @device3 terms → searches device1, device2 and device3 ("general" share on each device) and returns aggregate results
+
+function dmt_search {
+  local searchCmd="$DMT_NODE_CORE/search/cli/search.js"
+
+  $DMT_NODEJS_EXEC "$searchCmd" "$@"
+}

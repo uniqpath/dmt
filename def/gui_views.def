@@ -1,0 +1,148 @@
+view: home
+  #wallpaper: /wallpapers/geometry/purple_diagonal.jpg
+  wallpaper: /wallpapers/default/wave.jpg
+    theme: dmt_default
+
+  wallpaper: /wallpapers/space/space_surfer.jpg
+    theme: dmt_space
+
+  wallpaper: /wallpapers/mountains/lake-night-stars-trees-mountains-landscape.jpg
+    theme: dmt_mountains
+
+  wallpaper: /wallpapers/landscape/mist.jpg
+    theme: dmt_mist
+
+  wallpaper: /wallpapers/geometry/vertical_lines.jpg
+    theme: dmt_code
+
+  deviceSelector: false
+
+---
+
+view: player
+  #wallpaper: /wallpapers/at_home/headphones.jpg
+  wallpaper: /wallpapers/default/grid.jpg
+    theme: dmt_default
+
+  wallpaper: /wallpapers/fantasy/mr_robot.jpg
+    theme: dmt_code
+
+  wallpaper: /wallpapers/space/earth.jpg
+    theme: dmt_space
+
+  wallpaper: /wallpapers/mountains/himalayas.jpg
+    theme: dmt_mountains
+
+  wallpaper: /wallpapers/landscape/dark-forest.jpg
+    theme: dmt_mist
+
+  sidebar: true
+  dimBackground: true
+
+---
+
+view: clock
+  wallpaper: /wallpapers/default/wave.jpg
+  #wallpaper: /wallpapers/geometry/black_triangles.jpg
+    theme: dmt_default
+
+  wallpaper: /wallpapers/geometry/dark_shiny.jpg
+    theme: dmt_code
+
+  wallpaper: /wallpapers/space/dmt_planet.jpg
+    theme: dmt_space
+
+  wallpaper: /wallpapers/mountains/bridge.jpg
+    theme: dmt_mountains
+
+  wallpaper: /wallpapers/landscape/foggy_forest.jpg
+    theme: dmt_mist
+
+  sidebar: top-only-transparent
+  deviceSelector: false
+
+---
+
+view: apps
+  wallpaper: /wallpapers/default/wave.jpg
+  #wallpaper: /wallpapers/green/zeta_landscape.jpg
+    theme: dmt_default
+
+  sidebar: top-only-transparent
+  deviceSelector: false
+
+---
+
+view: device
+  #wallpaper: /wallpapers/fantasy/mr_robot3.jpg
+  wallpaper: /wallpapers/default/grid.jpg
+    theme: dmt_default
+
+  wallpaper: /wallpapers/abstract/connecting.jpg
+    theme: dmt_code
+
+  wallpaper: /wallpapers/space/nasa-space-shuttle-clouds.jpg
+    theme: dmt_space
+
+  wallpaper: /wallpapers/mountains/sunny_mountains.jpg
+    theme: dmt_mountains
+
+  wallpaper: /wallpapers/landscape/tracks.jpg
+    theme: dmt_mist
+
+  sidebar: true
+  dimBackground: true
+
+---
+
+view: help
+  wallpaper: /wallpapers/green/leaves.jpg
+    theme: dmt_default
+
+  sidebar: true
+  deviceSelector: false
+  dimBackground: true
+
+---
+
+view: ambience
+  wallpaper: /wallpapers/abstract/sunscape.jpg
+    theme: dmt_default
+
+  wallpaper: /wallpapers/geometry/black_blue_cubes.jpg
+    theme: dmt_code
+
+  wallpaper: /wallpapers/space/spacex_roadster_in_space.jpg
+    theme: dmt_space
+
+  wallpaper: /wallpapers/mountains/dark_moon.jpg
+    theme: dmt_mountains
+
+  wallpaper: /wallpapers/landscape/fog_wave.jpg
+    theme: dmt_mist
+
+  sidebar: true
+  deviceSelector: false
+  dimBackground: true
+
+---
+
+view: calendar
+  wallpaper: /wallpapers/abstract/stroll.jpg
+    theme: dmt_default
+
+  wallpaper: /wallpapers/abstract/matrix_letters.jpg
+    theme: dmt_code
+
+  wallpaper: /wallpapers/space/spacex_bfr.jpg
+    theme: dmt_space
+
+  wallpaper: /wallpapers/mountains/sharp.jpg
+    theme: dmt_mountains
+
+  wallpaper: /wallpapers/landscape/forest_fog.jpg
+    theme: dmt_mist
+
+  sidebar: true
+  deviceSelector: false
+  dimBackground: true

@@ -1,0 +1,9 @@
+💡 we don't ignoring .gitignore in .deployignore because
+it can hang around inside various node_modules (that have been deleted)
+and then we get things like:
+Syncing...
+sending incremental file list
+cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules/optimist
+cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules/optimist
+cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules
+cannot delete non-empty directory: core/node/.common-deps/node_modules/event-stream/node_modules

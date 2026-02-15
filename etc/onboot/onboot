@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# SETUP:
+
+# linux:
+# crontab -e
+# @reboot bash -ic ~/.dmt/etc/onboot/onboot
+
+# macOS:
+# cp ~/.dmt/etc/onboot/macos-launchagent-script/dmt-proc.plist ~/Library/LaunchAgents
+
+# fix: "This profile appears to be in use by another Chromium process (543)...""
+# maybe this will help if it gets executed before Chromium is started ...
+# to be determined if helpful -- update: seems to have worked!!
+if [ -d /home/pi/.config/chromium ]; then
+  rm /home/pi/.config/chromium/Singleton*
+fi;
+
+source ~/.dmt/shell/.bash_custom
+
+~/.dmt/etc/onboot/daemons start #_or_restart
+
+if [ -f ~/.dmt/user/devices/this/onboot ]; then
+  ~/.dmt/user/devices/this/onboot
+fi

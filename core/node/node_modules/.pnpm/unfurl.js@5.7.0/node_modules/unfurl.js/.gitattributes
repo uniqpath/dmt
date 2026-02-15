@@ -1,0 +1,3 @@
+test/* linguist-vendored
+dist/* linguist-vendored
+jest.config.js linguist-vendored

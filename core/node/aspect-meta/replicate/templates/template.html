@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <!-- <meta name="viewport" content="width=560px"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <meta property="og:title" content="dmt-system.com" />
+  <meta property="og:image" content="https://dmt-system.com/img/dmt_title_release.png" />
+
+  <meta name="google" content="notranslate">
+
+  <title>get-dmt</title>
+
+  <style>
+    body {
+      background-color: #222;
+      color: #00ffbd;
+      color: #aaa;
+
+      padding-top: 10px;
+      padding-left: 20px;
+      background-image: url('/wallpaper.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    span.install, span.green {
+      color: #59FDA2;
+    }
+
+    span.install {
+      background-color: #3D439C;
+      margin-left: 10px;
+      padding: 10px;
+      padding-right: 20px;
+      border-radius: 10px;
+    }
+
+    span.comment {
+      color: #3EC3DA;
+    }
+
+    span.line_number {
+      color: #FEFFFB;
+      border-right: 1px solid gray;
+      padding-right: 10px;
+    }
+
+    span.shebang {
+      color: #8BDED8;
+    }
+
+    span.violet {
+      color: #DAAED6;
+    }
+
+    span.keyword {
+      color: #98B8FD;
+    }
+
+    span.name {
+      color: #FBD37E;
+    }
+
+    span.command {
+      color: #D6FEF3;
+    }
+
+    img.logo {
+      width: 40%;
+      min-width: 300px;
+      max-width: 400px;
+    }
+
+    a .logo:hover {
+      opacity: 0.8;
+    }
+
+    img {
+      padding: 0;
+      margin: 0;
+    }
+
+    /* mobile */
+    @media only screen and (max-width: 768px) {
+      body {
+        background-image: none;
+      }
+
+      #content {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="content">
+
+<a href="{{demoPath}}"><img class="logo" src="/logo.png"></a>
+
+<pre>
+{{content}}
+</pre>
+</div>
+
+</body>
+</html>

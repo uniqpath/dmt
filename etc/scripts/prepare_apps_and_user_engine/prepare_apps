@@ -1,0 +1,48 @@
+#!/bin/bash
+
+DMT_APPS="$HOME/.dmt/apps"
+DMT_USER_APPS="$HOME/.dmt/user/apps"
+DMT_DEVICE_APPS="$HOME/.dmt-here/apps"
+
+function install_node_modules {
+  local cwd="`pwd`"
+  cd "$1"
+  local LOCK_FILE="package-lock.json"
+  if [ -f $LOCK_FILE ]; then
+    rm $LOCK_FILE
+  fi
+  npm install
+  cd "$cwd"
+}
+
+function prepare {
+  local DIR="$1"
+
+  mkdir -p "$DIR"
+
+  if [ -f "$DIR/package.json" ]; then
+    if ! diff ./dmt_apps/package.json "$DIR/package.json" > /dev/null
+    then
+      cp ./dmt_apps/package.json "$DIR"
+      install_node_modules "$DIR"
+    fi
+    # if someone deleted node_modules ...
+    if [ ! -d "$DIR/node_modules" ]; then
+      install_node_modules "$DIR"
+    fi
+  else
+    cp ./dmt_apps/package.json "$DIR"
+    install_node_modules "$DIR"
+  fi
+}
+
+# a) create _dmt_deps with symlinks to dmt node_modules
+
+./create_symlinks_apps
+
+# b) copy related package.json into system, user and device apps
+
+prepare "$DMT_APPS"
+prepare "$DMT_USER_APPS"
+prepare "$DMT_DEVICE_APPS"
+

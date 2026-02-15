@@ -1,0 +1,78 @@
+[
+  {
+    "fromYear": 2017,
+    "symbol": "🇸🇮",
+    "data": [
+      {
+        "date": "1.1",
+        "holiday": "Novo leto",
+        "symbol": "🎆"
+      },
+      {
+        "date": "2.1",
+        "holiday": "Novo leto",
+        "symbol": "✨"
+      },
+      {
+        "date": "8.2",
+        "holiday": "Prešernov dan",
+        "symbol": "✍️"
+      },
+      {
+        "date": "27.4",
+        "holiday": "Dan upora proti okupatorju",
+        "symbol": "⚔️"
+      },
+      {
+        "date": "EASTER",
+        "holiday": "Velikonočna nedelja",
+        "symbol": "🥚"
+      },
+      {
+        "date": "EASTER_MONDAY",
+        "holiday": "Velikonočni ponedeljek",
+        "symbol": "🐰"
+      },
+      {
+        "date": "1.5",
+        "holiday": "Praznik dela",
+        "symbol": "🐜"
+      },
+      {
+        "date": "2.5",
+        "holiday": "Praznik dela",
+        "symbol": "🦥"
+      },
+      {
+        "date": "25.6",
+        "holiday": "Dan državnosti",
+        "symbol": "🗺️"
+      },
+      {
+        "date": "15.8",
+        "holiday": "Marijino vnebovzetje",
+        "symbol": "🎈"
+      },
+      {
+        "date": "31.10",
+        "holiday": "Dan reformacije",
+        "symbol": "⛪"
+      },
+      {
+        "date": "1.11",
+        "holiday": "Dan spomina na mrtve",
+        "symbol": "🕯️"
+      },
+      {
+        "date": "25.12",
+        "holiday": "Božič",
+        "symbol": "🎅"
+      },
+      {
+        "date": "26.12",
+        "holiday": "Dan samostojnosti in enotnosti",
+        "symbol": "🫂"
+      }
+    ]
+  }
+]

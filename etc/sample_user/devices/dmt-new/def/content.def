@@ -1,0 +1,9 @@
+content:
+  path: ~/Files
+  # put your default content paths here, like:
+  # path: ~/Desktop
+  # path: ~/Downloads
+  # etc... remember, exactly 2-spaces indentation for each level, see content: music below as an example
+
+content: music
+  path: ~/Music

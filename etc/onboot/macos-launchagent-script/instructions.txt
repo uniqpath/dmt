@@ -1,0 +1,43 @@
+dmt stop
+
+cp dmt-proc.plist /Library/LaunchAgents
+
+cd /Library/LaunchAgents
+
+sudo chown root:wheel dmt-proc.plist
+
+sudo nano dmt-proc.plist
+
+replace my_user with your main user account on the machine under which dmt-proc should run
+
+(check what permissions other files have)
+
+test:
+
+sudo bash -l
+
+root@computer:~$ launchctl load /Library/LaunchAgents/dmt-proc.plist
+
+dmt
+
+it should report that dmt is running
+
+now reboot computer and process should run before any user is logged in
+
+---
+
+Some background info:
+
+https://superuser.com/a/130819/220321
+
+~/Library/LaunchAgents         Per-user agents provided by the user.
+/Library/LaunchAgents          Per-user agents provided by the administrator.
+/Library/LaunchDaemons         System wide daemons provided by the administrator.
+/System/Library/LaunchAgents   Mac OS X Per-user agents.
+/System/Library/LaunchDaemons  Mac OS X System wide daemons.
+
+Remark: /Library/LaunchDaemons might seem like a better idea because dmt-proc starts even if after computer reboot another user logs in first ... but a few things will break:
+- desktop notifications
+- putting computer to sleep won't work until admin user logs in at least once
+
+If /Library/LaunchAgents is used then dmt-proc only runs after that user (main admin) logs in at least once ... and then everything works.

@@ -1,0 +1,334 @@
+<svelte:head>
+  <title>{selectedDeviceName ? `${selectedDeviceName} - ${$view}` : 'DMT'}</title>
+</svelte:head>
+
+<div id="app" class:preventPointerEvents="preventPointerEvents">
+
+  <ActionBar on:select="select(event.view)"/>
+
+  <NearbyDevices />
+
+  <Sidebar>
+    <div slot="sidebar_menu">
+      <SidebarMenus />
+    </div>
+    <div slot="sidebar_bottom">
+      <SidebarBottoms />
+    </div>
+  </Sidebar>
+
+  {#if errors && errors.length > 0}
+    <div class="errors">
+      {#each errors.slice(0, 3) as error}
+        <div class="error" class:cors_problem="error.corsProblem">
+          <div class="title">
+            Error at <span class="time">{error.time}</span>
+            <span class="msg">{error.msg}</span>
+          </div>
+
+          {#if error.stacktrace}
+            {error.stacktrace}
+          {/if}
+        </div>
+      {/each}
+    </div>
+  {/if}
+
+  {#if $view == 'home'}
+
+    {#if $device}
+      <Home on:select="select(event.view)"/>
+    {/if}
+
+  {:else}
+
+    <div class="content_component" class:dim_background="viewDef && viewDef.dimBackground" class:has_full_sidebar="viewDef && viewDef.sidebar == 'true'">
+      {#if $view == 'player'}
+        <Player on:select="select(event.view)"/>
+      {:elseif $view == 'clock'}
+        <Clock on:select="select(event.view)"/>
+      {:elseif $view == 'apps'}
+        <Apps />
+      {:elseif $view == 'ambience'}
+        <Ambience on:select="select(event.view)"/>
+      {:elseif $view == 'help'}
+        <Help on:select="select(event.view)"/>
+      {:elseif $view == 'device'}
+        <Device on:select="select(event.view)" />
+      {/if}
+    </div>
+
+  {/if}
+
+  {#if $thisDeviceState && $thisDeviceState.device && $thisDeviceState.device.showFrontendLog}
+    <InfoBar />
+  {/if}
+
+  <!-- wallpapers preload -->
+  {#if wallpapers}
+    {#each wallpapers as wallpaper}
+      {#if wallpaper}
+        <ImagePreload path="{wallpaper}"/>
+      {/if}
+    {/each}
+  {/if}
+
+</div>
+
+<script>
+
+import ActionBar from '../../navigation/src/ActionBar.html';
+import Sidebar from '../../navigation/src/Sidebar.html';
+import SidebarMenus from '../../navigation/src/SidebarMenus.html';
+import SidebarBottoms from '../../navigation/src/SidebarBottoms.html';
+
+import NearbyDevices from '../../dynamics/src/NearbyDevices.html';
+
+import Home from '../../home/src/Home.html';
+import Player from '../../player/src/Player.html';
+import Clock from '../../clock/src/Clock.html';
+import Apps from '../../apps/src/AppList.html';
+import Ambience from '../../ambience/src/Ambience.html';
+import Help from '../../help/src/Help.html';
+import Device from '../../device/src/Device.html';
+
+import ImagePreload from './ImagePreload.html';
+
+import InfoBar from './InfoBar.html';
+
+import { util, css, ConnectedStore } from '../../+legacyLib';
+
+export default {
+  oncreate() {
+
+    this.scope = 'home'
+
+    this.store.entangle(this); // was added later because of ImagePreload ($wallpapers)
+
+    // https://stackoverflow.com/a/3375140
+    // DISABLE ANNOYING SELECTIONS ON TOUCH SCREENS
+    // todo: see if this css-solution also works: https://stackoverflow.com/a/13068082
+    const checkRPi = () => {
+      if(this.get().loaded) {
+        if(this.get().atRPi) {
+          // window.onload = function() {
+            document.onselectstart = function() {return false;} // ie
+            document.onmousedown = function() {return false;} // mozilla
+          // }
+        }
+      } else {
+        setTimeout(checkRPi, 1000);
+      }
+    }
+
+    setTimeout(checkRPi, 500);
+
+    ////// ***************
+    //////// optimization option (maybe)... entangle only once at the  ?!
+    ////// ***************
+
+    document.addEventListener('click', (e) => {
+      // report any user action for purpose of detecting "user idle" -- for example we jump to homescreen
+      // if user is idle for long enough (if we enabled this option in .def file)
+      this.store.guiEngaged();
+    });
+
+    this.set({ errors: [] })
+    //this.set({ errors: [], showDetails: localStorage.getItem('hidePlayerInfoPanel') != 'true' })
+
+    window.onerror = (msg, file, line, col, error) => {
+
+      const { errors } = this.get();
+
+      const d = new Date();
+      const time = `${d.getHours()}:${('0' + d.getMinutes()).slice(-2)}`;
+
+      if (error && error.stack) {
+        errors.push({ msg, stacktrace: error.stack, time });
+
+        setTimeout(() => {
+          //console.log(this.store.get().localBrowserTime);
+          // console.log(error.stack);
+
+          this.store.signal('action', { action: 'errors', scope: 'gui', payload: error.stack });
+        }, 300) // we wait for the store to connect! we could still miss some messages by sending to currently unconnected store though
+      } else {
+        errors.push({ msg: `"${msg}" (No more info because of CORS, fix: 1) check for the same error on device where gui runs on :80... 2) if more possible errors from this source, then rethrow - see example in dmt-connect/browser/connect around JSON.parse(msg))`, corsProblem: true, time });
+      }
+
+      this.set({ errors });
+
+      // COPIED FROM SOMEWHERE ELSE FOR REFERENCE, MAYBE REMOVE IN THE FUTURE...
+      // if we don't do this and we get GUI from different port than 80 (7777) for example, then window.onerror will only get:
+      // "Script error." message without the error object
+      // read more here: https://blog.sentry.io/2016/05/17/what-is-script-error
+      // } else {
+      //   log.error(errMsg);
+      //   log.write(e);
+      // }
+
+      //return true; // means we caught the error and console won't show it anymore ....
+    };
+
+    // setTimeout(() => {
+    //   throw new Error("BOOM!")
+    // }, 3000)
+    // throw new Error("BOOM!");
+
+    window.onpopstate = (event) => {
+      this.saveGetParams();
+      if(!event.state) { // not sure why the first popstate doesn't include anything...
+        this.switchView(this.scope);
+        return;
+      }
+      this.switchView(event.state.view);
+    };
+
+    const path = window.location.pathname.replace(/\//g, '') // "/home/"" => "home"
+
+    // used in multi-connected store reload, to keep connection to correct store!
+    const urlParams = new URLSearchParams(window.location.search);
+    const deviceKey = urlParams.get('deviceKey');
+    const initialIp = urlParams.get('ip');
+    const port = urlParams.get('port');
+    if(initialIp) {
+      setTimeout(() => {
+        const deviceName = urlParams.get('deviceName');
+        this.store.switch({ deviceKey, ip: initialIp, port, deviceName })
+        //this.store.switch({ ip: '192.168.0.80' })
+      }, 100);
+    }
+
+    this.saveGetParams();
+    this.switchView(path || this.scope);
+
+    // showDetails attribute is connected to the "alien panel" --
+    // if the panel is open, then more song information is visible
+    // (for example: duration)
+    // this.store.bus.on('showPlayerDetails', (showDetails) => {
+    //   this.set({ showDetails });
+    // });
+  },
+  components: {
+    Home,
+    Player,
+    Device,
+    Clock,
+    Apps,
+    Ambience,
+    Help,
+    ActionBar,
+    Sidebar,
+    SidebarMenus,
+    SidebarBottoms,
+    NearbyDevices,
+    ImagePreload,
+    InfoBar
+  },
+  methods: {
+    saveGetParams() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const getParams = {
+        subview: urlParams.get('subview'),
+        q: urlParams.get('q')
+      }
+      this.store.set({ getParams });
+    },
+    switchView(view) {
+      this.store.switchView(view);
+    },
+    select(view) {
+      this.switchView(view);
+    }
+  }
+};
+
+</script>
+
+<style>
+
+:root {
+  --warning: #E34042;
+  --dmt-red: #E34042;
+  --dmt-warning-pink: #EFCAF8;
+  --dmt-orange: #E5AE34;
+
+  --dmt-navy: #41468F;
+  /*--dmt-navy: #199EFF;
+  --dmt-navy: #199EFF;*/
+  --dmt-navy2: #292C5A;
+  --dmt-cyan: #29B3BF;
+  /*--dmt-bright-cyan-prev: #3EFFE5;*/
+  --dmt-bright-cyan: #3DFFEC;
+  --dmt-violet: #873BBF;
+  --dmt-violet-dark: #2E1740;
+
+  --dmt-lighter-magenta: #CAD2FF;
+
+  --dmt-vibrant-green: #5FE02A;
+  --dmt-cool-green: #5DF699;
+  --dmt-cool-cyan: #51F5C8;
+  --dmt-cool-cyan2: #58E288;
+
+  --zeta-green: #31E5C1;
+  --zeta-green-highlight: #34FED7;
+  --zeta-green_check: #32E6BE;
+
+  --search-input-width: 330px;
+}
+
+#app.preventPointerEvents {
+  pointer-events: none;
+}
+
+.errors {
+  width: 700px;
+  margin: 0 auto;
+}
+
+.errors .error {
+  padding: 20px;
+  margin-top: 10px;
+  background-color: #983128;
+  color: white;
+  border-radius: 10px;
+  color: #bbb;
+  word-break: break-word;
+}
+
+.errors .error.cors_problem {
+  background-color: #424DE6;
+}
+
+.error .title {
+  color: #1E0B01;
+  margin-bottom: 5px;
+}
+
+.error .title .msg {
+  color: white;
+}
+
+.error .title .time {
+  background-color: #444;
+  padding: 2px 4px;
+  color: white;
+}
+
+.content_component {
+  position: fixed;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.content_component.dim_background {
+  background-color: #222;
+  opacity: 0.9;
+}
+
+.content_component.has_full_sidebar {
+  left: 300px;
+}
+
+</style>

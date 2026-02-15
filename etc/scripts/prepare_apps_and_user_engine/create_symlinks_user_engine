@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source ./dmt_user_engine/dmt_deps_list
+source ./helpers/make_symlinks
+
+mkdir -p ~/.dmt/user/engine/_dmt_deps; cd $_
+make_symlinks "../../../" "${List[@]}"

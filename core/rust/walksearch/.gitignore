@@ -1,0 +1,8 @@
+/.deploy
+/deploy
+/todo.txt
+/build
+/run
+/etc
+/target
+**/*.rs.bk

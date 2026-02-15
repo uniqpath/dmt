@@ -1,0 +1,57 @@
+{
+  "name": "node-wifi",
+  "version": "2.0.16",
+  "description": "NodeJS tool to manage wifi",
+  "keywords": [
+    "wifi",
+    "multiplatform",
+    "node"
+  ],
+  "author": "Thibault Friedrich",
+  "contributors": [
+    "Thibault Friedrich <thibault.friedrich@gmail.com> (https://thibaultfriedrich.io)"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/friedrith/node-wifi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/friedrith/node-wifi/issues"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bin": {
+    "wifi": "bin/wifi.js"
+  },
+  "main": "src/wifi.js",
+  "directories": {
+    "test": "test"
+  },
+  "type": "commonjs",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "dependencies": {
+    "command-line-args": "^5.2.0",
+    "command-line-usage": "^6.1.1"
+  },
+  "devDependencies": {
+    "dotenv": "^10.0.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-jest": "^24.4.0",
+    "eslint-plugin-node": "^11.1.0",
+    "jest": "^27.0.6",
+    "prettier": "^2.3.2",
+    "standard-version": "^9.3.1"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint {src,bin}/**/*.js",
+    "format": "prettier --check '{src,bin}/**/*.js'",
+    "format:fix": "prettier --write '{src,bin}/**/*.js'",
+    "release": "standard-version"
+  }
+}

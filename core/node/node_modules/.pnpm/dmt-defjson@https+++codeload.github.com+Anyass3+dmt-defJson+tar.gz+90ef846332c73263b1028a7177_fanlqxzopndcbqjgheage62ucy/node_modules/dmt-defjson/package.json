@@ -1,0 +1,20 @@
+{
+  "name": "dmt-defjson",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anyass3/dmt-defJson.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Anyass3/dmt-defJson/issues"
+  },
+  "homepage": "https://github.com/Anyass3/dmt-defJson#readme"
+}

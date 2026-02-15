@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# DO NOT RUN MANUALLY, THIS IS EXECUTED VIA dmt-bash
+
+if [ ! -f ~/.dmt/.prevent_dmt_next ]; then
+
+  . ~/.dmt/etc/.bash_aliases_bundle
+
+  se "dmt next"
+
+fi

@@ -1,0 +1,34 @@
+[package]
+name = "walkdir"
+version = "2.2.7"  #:version
+authors = ["Andrew Gallant <jamslam@gmail.com>"]
+description = "Recursively walk a directory."
+documentation = "https://docs.rs/walkdir/"
+homepage = "https://github.com/BurntSushi/walkdir"
+repository = "https://github.com/BurntSushi/walkdir"
+readme = "README.md"
+keywords = ["directory", "recursive", "walk", "iterator"]
+categories = ["filesystem"]
+license = "Unlicense/MIT"
+exclude = ["/ci/*", "/.travis.yml", "/Makefile", "/appveyor.yml", "/ctags.rust", "/session.vim"]
+
+[badges]
+travis-ci = { repository = "BurntSushi/walkdir" }
+appveyor = { repository = "BurntSushi/walkdir" }
+
+[dependencies]
+same-file = "1.0.1"
+
+[target.'cfg(windows)'.dependencies.winapi]
+version = "0.3"
+features = ["std", "winnt"]
+
+[target.'cfg(windows)'.dependencies.winapi-util]
+version = "0.1.1"
+
+[dev-dependencies]
+docopt = "1.0.1"
+quickcheck = { version = "0.7", default-features = false }
+rand = "0.5"
+serde = "1"
+serde_derive = "1"

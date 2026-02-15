@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# relative to current file
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+. "$DIR/.bash_util"
+. "$DIR/.bash_dmt_vars"
+. "$DIR/.bash_dmt_search"
+. "$DIR/.bash_dmt_media"
+. "$DIR/.bash_dmt"
+
+. "$DIR/zeta/.zeta_update"
+. "$DIR/zeta/.zeta_start"
+. "$DIR/zeta/.zeta_config"
+. "$DIR/zeta/.zeta_check"
+. "$DIR/zeta/.zeta_restart"
+. "$DIR/zeta/.zeta_setup"

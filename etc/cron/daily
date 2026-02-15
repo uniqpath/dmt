@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# any updates to cronlist get updated from here!
+
+~/.dmt/etc/cron/setup_cron

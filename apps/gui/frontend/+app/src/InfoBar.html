@@ -1,0 +1,57 @@
+<div id="info_bar" on:click="close()">
+  <h3>{$thisDeviceState && $thisDeviceState.device ? $thisDeviceState.device.deviceName : ""} <span>— frontend debug log</span></h3>
+
+  {#if frontendLog}
+    {#each frontendLog as line}
+      <div class="line">
+        {line}
+      </div>
+    {/each}
+  {/if}
+</div>
+
+<script>
+export default {
+  oncreate() {
+    this.store.entangle(this);
+  },
+
+  methods: {
+    close() {
+      this.store.signalLocalDevice('action', { action: 'close_frontend_log', scope: 'gui' });
+    }
+  },
+
+  helpers: {
+    //
+  },
+
+  components: {
+    //
+  }
+};
+</script>
+
+<style>
+
+h3 span {
+  color: #444;
+}
+
+#info_bar {
+  z-index: 50000;
+  position: absolute;
+  bottom: 0;
+
+  color: black;
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 550px;
+  background-color: #40B18D;
+  font-size: 0.9em;
+  opacity: 0.9;
+  overflow: hidden;
+}
+
+</style>

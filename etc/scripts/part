@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\e[0;36m'
+MAGENTA='\033[0;35m'
+GRAY='\e[1;30m'
+NC='\033[0m' # No Color
+
+if [ "$EUID" -ne 0 ]
+  then printf "${RED}Must be root${NC}\n"
+  exit
+fi
+
+if [ "$1" == "--main" ]; then
+
+  printf "${GREEN}Please wait a minute or two for process to finish...${NC}\n\n"
+
+  parted -s /dev/mmcblk0 rm 2
+  parted -s /dev/mmcblk0 mkpart primary 98304s 31116287s
+  # 20000768 divisible by 4096 -> optimal alignment
+
+  parted /dev/mmcblk0 unit s print
+
+  printf "${GREEN}Please reboot and enter:${NC}\n"
+  printf "${MAGENTA}resize2fs /dev/mmcblk0p2${NC}\n"
+
+elif [ "$1" == "--create" ]; then
+
+  if [ -d /root/LocalMedia ]; then
+    printf "${RED}target mount directory /root/Media already exists${NC}\n"
+    exit
+  fi
+
+  printf "${GREEN}Please wait a minute or two for process to finish...${NC}\n\n"
+
+  parted -s /dev/mmcblk0 mkpart primary 31117312s 100%
+  # 20000768 divisible by 4096 -> optimal alignment
+
+  mkfs.ext4 -L media /dev/mmcblk0p3
+
+  parted /dev/mmcblk0 unit s print
+
+  mkdir /root/LocalMedia
+  mount /dev/mmcblk0p3 /root/LocalMedia
+  # chown -R pi:pi /root/LocalMedia
+
+  if grep -Fxq "LABEL=media" /etc/fstab
+  then
+    printf "${YELLOW}Did not add automount because LABEL=media already exists in /etc/fstab${NC}\n"
+    printf "${RED}Verify the contents of /etc/fstab, it should contain:{NC}\n"
+    printf "${WHITE}LABEL=media /root/LocalMedia ext4 defaults 0 2${NC}\n"
+  else
+    echo >> /etc/fstab
+    echo "LABEL=media /root/LocalMedia ext4 defaults 0 2" >> /etc/fstab
+  fi
+
+else
+
+  printf "${YELLOW}Usage:${NC}\n"
+  printf "${GREEN}part --create ${GRAY}creates Media partition after 16GB to the end of sd card${NC}\n"
+
+  echo
+
+  printf "${YELLOW}Current partitions on ${CYAN}/dev/mmcblk0:${NC}\n"
+  parted /dev/mmcblk0 unit s print
+
+fi

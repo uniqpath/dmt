@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# DEFINE COLORS
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+GRAY='\e[1;30m'
+WHITE='\e[33;97m'
+NC='\033[0m' # No Color
+
+guest_name="$1"
+
+if [ "$EUID" -ne 0 ]
+  then printf "${RED}Must be root${NC}\n"
+  exit
+fi
+
+if [ -z "$guest_name" ]; then
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}setup_guest_dmt${NC} [user]${GRAY}${NC}\n"
+    exit
+  fi
+fi
+
+init_file="/home/${guest_name}/.bashrc"
+
+if [ ! -f "$init_file" ]; then
+  printf "⚠️ ${RED}Missing ${init_file}${NC}\n"
+fi
+
+line="if [ -f /home/zeta/.dmt/shell/.loader ]; then . /home/zeta/.dmt/shell/.loader; fi # dmt-system"
+
+printf '\n%s\n' "$line" >>"$init_file" || { echo "$errMsg" >&2; return 1; }
+
+printf "Added ${GREEN}${line}${NC} to ${GRAY}${init_file}${NC}\n"

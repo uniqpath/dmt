@@ -1,0 +1,9 @@
+#!/bin/bash
+
+user="$1"
+
+# any updates to cronlist get updated from here!
+
+if [ -n "$user" ]; then
+  "/home/${user}/.dmt/etc/cron/root/setup_cron" "$user"
+fi

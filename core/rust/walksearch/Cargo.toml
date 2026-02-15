@@ -1,0 +1,10 @@
+[package]
+name = "walksearch"
+version = "0.1.0"
+authors = ["David Krmpotic <david.krmpotic@gmail.com>"]
+
+[dependencies]
+regex = "1"
+colored = "1.6"
+# unidecode = "0.3.0"
+walkdir = { path = "../walkdir" }

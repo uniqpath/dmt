@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# DEFINE COLORS
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+cwd="`pwd`"
+
+if [ -d "compileBundle" ]; then
+
+  cd compileBundle
+
+  if [ ! -d node_modules ]; then
+    npm install
+  fi
+
+  npm run build
+
+  bundle="./output/dateFnsCompactedBundle.js"
+
+  if [ -f "$bundle" ]; then
+    mv "$bundle" ../index.js
+
+    printf "${GREEN}Bundle built and saved into ../index.js${NC}\n"
+  else
+    printf "⚠️  Error: ${RED}Bundle was not created${NC}\n"
+  fi
+
+  rm -rf output
+  rm -rf node_modules
+
+  cd "$cwd"
+
+else
+  printf "⚠️  Error: ${RED}compileBundle directory is missing${NC}\n"
+fi

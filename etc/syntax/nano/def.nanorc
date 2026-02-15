@@ -1,0 +1,20 @@
+syntax "def" "\.def$"
+
+# Values
+color white "(:|^|\s)+\S+"
+
+# Root value
+color brightblue "^\S+\s*:.*"
+
+# [from] operator
+color brightblue ".*?\[from\].*?"
+color magenta "\[from\]"
+
+# Keys
+color magenta "(^|\s+).*+\s*:(\s|$)"
+
+# Comments
+color brightblack "(^|[[:space:]])#.*$"
+
+# Visual delimiter: ---
+color brightblack "^\s*\-+\s*$"

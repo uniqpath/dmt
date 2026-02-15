@@ -1,0 +1,75 @@
+[
+  {
+    "fromYear": 2021,
+    "symbol": "🇭🇷",
+    "data": [
+      {
+        "date": "1.1",
+        "holiday": "Nova godina",
+        "symbol": "🎆"
+      },
+      {
+        "date": "6.1",
+        "holiday": "Sveta tri kralja",
+        "symbol": "👑"
+      },
+      {
+        "date": "EASTER",
+        "holiday": "Uskrs",
+        "symbol": "🥚"
+      },
+      {
+        "date": "EASTER_MONDAY",
+        "holiday": "Uskrsni ponedjeljak",
+        "symbol": "🐰"
+      },
+      {
+        "date": "1.5",
+        "holiday": "Praznik rada",
+        "symbol": "🐜"
+      },
+      {
+        "date": "30.5",
+        "holiday": "Dan državnosti",
+        "symbol": "🇭🇷"
+      },
+      {
+        "date": "19.6",
+        "holiday": "Tijelovo"
+      },
+      {
+        "date": "22.6",
+        "holiday": "Dan antifašističke borbe",
+        "symbol": "🪖"
+      },
+      {
+        "date": "5.8",
+        "holiday": "Dan hrvatskih branitelja",
+        "symbol": "🛡️"
+      },
+      {
+        "date": "15.8",
+        "holiday": "Velika Gospa"
+      },
+      {
+        "date": "1.11",
+        "holiday": "Dan svih svetih",
+        "symbol": "🕯️"
+      },
+      {
+        "date": "18.11",
+        "holiday": "Dan sjećanja na žrtve Domovinskog rata",
+        "symbol": "⚔️"
+      },
+      {
+        "date": "25.12",
+        "holiday": "Božić",
+        "symbol": "🎅"
+      },
+      {
+        "date": "26.12",
+        "holiday": "Sveti Stjepan"
+      }
+    ]
+  }
+]

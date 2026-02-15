@@ -1,0 +1,79 @@
+{
+    "name": "invert-color",
+    "version": "2.0.0",
+    "description": "Generates inverted (opposite) version of the given color.",
+    "repository": "onury/invert-color",
+    "author": "Onur Yildirim <onur@cutepilot.com>",
+    "license": "MIT",
+    "main": "lib/invert.js",
+    "browser": "lib/invert.min.js",
+    "module": "lib/esm/invert.js",
+    "jsnext:main": "lib/esm/invert.js",
+    "types": "./lib/invert.d.ts",
+    "files": [
+        "lib",
+        "LICENSE"
+    ],
+    "scripts": {
+        "clean": "rimraf ./lib",
+        "lint": "tslint ./src/**/*.ts",
+        "build:esm": "tsc --module es2015 --target es2015 --outDir lib/esm",
+        "build:cjs": "tsc --module commonjs --target es5 --outDir lib/cjs",
+        "build:es-for-umd": "tsc --module es2015 --target es5 --outDir lib",
+        "build:umd": "rollup lib/invert.js --format umd --name invert --exports default --sourcemap --banner '/*! @license https://github.com/onury/invert-color */' --file lib/invert.js",
+        "build:umd:min": "cd lib && uglifyjs --compress --mangle --source-map --comments -o invert.min.js -- invert.js",
+        "build": "npm run clean && npm run lint && npm run build:esm && npm run build:cjs && npm run build:es-for-umd && npm run build:umd && npm run build:umd:min",
+        "test": "jest --verbose --no-cache",
+        "cover": "jest --coverage --verbose --no-cache",
+        "coveralls": "cat test/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js -v"
+    },
+    "jest": {
+        "testEnvironment": "node",
+        "preset": "ts-jest",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js",
+            "jsx",
+            "json",
+            "node"
+        ],
+        "roots": [
+            "<rootDir>/lib",
+            "<rootDir>/test"
+        ],
+        "testPathIgnorePatterns": [
+            "/node_modules/",
+            "/backup/",
+            "/test/coverage/",
+            "/anim/"
+        ],
+        "collectCoverageFrom": [
+            "src/invert.ts"
+        ],
+        "coverageDirectory": "./test/coverage"
+    },
+    "keywords": [
+        "color",
+        "invert",
+        "convert",
+        "generate",
+        "opposite",
+        "hex",
+        "rgb"
+    ],
+    "devDependencies": {
+        "@types/jest": "^23.3.9",
+        "@types/node": "^10.12.3",
+        "coveralls": "^3.0.2",
+        "fork-ts-checker-webpack-plugin": "^0.4.15",
+        "jest": "^23.6.0",
+        "jest-cli": "^23.6.0",
+        "rimraf": "^2.6.2",
+        "rollup": "^0.67.0",
+        "ts-jest": "^23.10.4",
+        "tslint": "^5.11.0",
+        "typescript": "^3.1.6",
+        "uglifyjs": "^2.4.11"
+    }
+}

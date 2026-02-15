@@ -1,0 +1,232 @@
+#!/bin/bash
+
+############### Ports and Processes
+
+# what is listening on port
+function port {
+
+  if [ "$1" == "-h" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}port${NC} ${GRAY}list all open ports${NC}\n"
+    printf "${GREEN}port [num]${NC} ${GRAY}show the process that uses port [num]${NC}\n"
+    printf "${GREEN}port [proc]${NC} ${GRAY}list all open ports held by specified process grep string${NC}\n"
+    return
+  fi
+
+  if [[ "$1" =~ ^[0-9]+$ ]]; then
+    lsof -i :$1
+  elif [ -n "$1" ]; then
+    if dmt_macos; then
+      sudo lsof -i | grep "$1"
+    else
+      netstat -l -p | grep "$1"
+    fi
+  else
+    if dmt_macos; then
+      sudo lsof -i
+    else
+      netstat -l -p
+    fi
+  fi
+}
+
+function killport {
+  port $1 | awk '{print $2}' | xargs kill -9
+}
+
+function proc {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}proc [process]${NC} ${GRAY}search all processes that match the term${NC}\n"
+    return
+  fi
+
+  ps aux | grep -v "command -v openssl >/dev/null" | grep -v " grep " | grep -i --color=auto "$@"
+  # grep -v "command -v openssl >/dev/null" ==> get rid of really big output when using over ssh, this process output includes big public key which often matches our grepping stuff
+}
+
+function killall {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}killall [term]${NC} ${GRAY}kills *all processes* matching the search term${NC}\n"
+    return
+  fi
+
+  ps -ef | grep "${1}" | grep -v "command -v openssl >/dev/null" | grep -v grep
+
+  local proc=$(ps -ef | grep "${1}" | grep -v "command -v openssl >/dev/null" | grep -v grep | awk '{print $2}')
+
+  if [ -n "$proc" ]; then
+    echo "$proc" | xargs kill -9
+    printf "${CYAN}Killed process ${proc}${NC}\n"
+  else
+    printf "${GRAY}No such process: ${1}${NC}\n"
+  fi
+  # grep -v "command -v openssl >/dev/null" ==> get rid of really big output when using over ssh, this process output includes big public key which often matches our grepping stuff
+}
+
+function port2 {
+  lsof -n -i4UDP:$1
+}
+
+function srv {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+
+    printf "${GREEN}srv [service]${NC} ${GRAY}show status${NC}\n"
+    printf "${GREEN}srv [service] [command]${NC} ${GRAY}run command, ex.: start|stop|reload|restart|enable|disable${NC}\n"
+    printf "${GREEN}srv [service] cat${NC} ${GRAY}show service specification${NC}\n"
+    printf "${GREEN}srv [service] edit${NC} ${GRAY}edit service specification${NC}\n"
+    printf "${GREEN}srv [service] log${NC} ${GRAY}see service log${NC}\n"
+    echo
+    printf "${GREEN}srv ls${NC} ${GRAY}show services in /etc/systemd/system${NC}\n"
+    printf "${GREEN}srv cd${NC} ${GRAY}move to /etc/systemd/system${NC}\n"
+    printf "${GREEN}srv cd2${NC} ${GRAY}move to /lib/systemd/system${NC}\n"
+
+    #printf "${GREEN}${NC} ${GRAY}${NC}\n"
+
+    echo
+
+    printf "Dir: ${MAGENTA}/etc/systemd/system${NC}\n"
+    printf "Dir (system): ${MAGENTA}/lib/systemd/system${NC}\n"
+
+    return
+  fi
+
+  if [ -z "$2" ]; then
+    if [ "$1" == "ls" ]; then
+      ls -la /etc/systemd/system/*.service
+    elif [ "$1" == "cd" ]; then
+      cd /etc/systemd/system
+    elif [ "$1" == "cd2" ]; then
+      cd /lib/systemd/system
+    else
+      sudo systemctl status "$1"
+    fi
+  elif [ "$2" == "cat" ]; then
+    local loc1="/etc/systemd/system/${1}.service"
+    local loc2="/lib/systemd/system/${1}.service"
+
+    if [ -f "$loc1" ]; then
+      printf "${YELLOW}Found${NC} ${GREEN}$loc1${NC}\n\n"
+      cat "$loc1"
+    elif [ -f "$loc2" ]; then
+      printf "${YELLOW}Found${NC} ${GREEN}$loc2${NC}\n\n"
+      cat "$loc2"
+    else
+      printf "${RED}unknown service $1${NC}\n"
+    fi
+  elif [ "$2" == "edit" ]; then
+    local loc1="/etc/systemd/system/${1}.service"
+    local loc2="/lib/systemd/system/${1}.service"
+
+    if [ -f "$loc1" ]; then
+      printf "${YELLOW}Found${NC} ${GREEN}$loc1${NC}\n\n"
+      sudo nano "$loc1"
+      sudo systemctl daemon-reload
+    elif [ -f "$loc2" ]; then
+      printf "${YELLOW}Found${NC} ${GREEN}$loc2${NC}\n\n"
+      sudo nano "$loc2"
+      sudo systemctl daemon-reload
+    else
+      printf "${RED}unknown service $1${NC}\n"
+    fi
+  elif [ "$2" == "log" ]; then
+    journalctl -u "${1}.service"
+  else
+    sudo systemctl "$2" "$1"
+  fi
+}
+
+# list all the executable files in folder
+function exe {
+  if dmt_macos; then
+    find . -type f -perm +111 -print
+  else
+    find . -type f -executable -print
+  fi
+}
+
+function sr {
+  if [ -z "$1" ]; then
+    screen -r
+  else
+    screen -D "$1" > /dev/null 2>&1
+    screen -r "$1"
+  fi
+}
+
+function ss {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+    printf "${GREEN}ss [screen]${NC}\n"
+  else
+    screen -S "$1"
+  fi
+}
+
+# se - "Screen execute"
+# executes commands (separated by comma) in background screen
+function se {
+  if [ -z "$1" ]; then
+    printf "${YELLOW}Usage:${NC}\n"
+      printf "${GREEN}se [cmd]${NC} ${GRAY}executes command in background screen which exits when command finishes${NC}\n"
+      printf "${GREEN}se [cmd1], [cmd2], [cmd3]${NC} ${GRAY}executes multiple commands in background screen - must use comma and not semicolon!${NC}\n"
+      printf "${GREEN}se -n [screen_name] [cmd]${NC} ${GRAY}executes command in a named screen which *doesn't* exit when command finishes${NC}\n"
+      printf "${GREEN}se [cmd], p${NC} ${GRAY}sends push notification to mobile phone when command finishes${NC}\n"
+      printf "${GREEN}se -n [screen_name] [cmd], p${NC} ${GRAY}same as above only in named screen which remains when command(s) finish${NC}\n"
+  else
+    if [ "$1" == '-n' ]; then
+      local name="$2"
+      local msg="$(hostname): <$name> finished."
+      shift
+      shift
+    fi
+
+    if [[ "$1" =~ ^[0-9]+ ]] ; then
+      local delay="$1"
+      shift
+    fi
+
+    #local cmd=$(echo "$@" | sed 's/,/;/g')
+    local cmd="$@"
+
+    #local original_cmd="$cmd"
+
+    if [ -n "$delay" ]; then
+      cmd="timer $delay; $cmd"
+    fi
+
+    cmd=$(echo "$cmd" | sed 's/; p$/;p/')
+
+    if [[ "$cmd" =~ ";p"$ ]]; then
+      cmd=$(echo "$cmd" | sed 's/;p$//')
+      if [ -z "$msg" ]; then
+        local msg="$(hostname): <${cmd}> finished."
+      fi
+      cmd="${cmd}; push_notify \"${msg}\""
+    fi
+
+    if [ -n "$name" ]; then
+      cmd="${cmd}; exec bash"
+    fi
+
+    printf "${CYAN}Execute in background: ${GRAY}${cmd}${NC}\n"
+
+    cmd="if [ -f ~/.dmt/etc/.bash_aliases_bundle ]; then . ~/.dmt/etc/.bash_aliases_bundle; fi; ${cmd}"
+
+    if [ -z "$name" ]; then
+      local name="dmt_task"
+    fi
+
+    screen -S "$name" -dm bash -c "$cmd"
+  fi
+}
+
+function killport {
+  port $1 | awk '{ print $2 }' | xargs kill -9
+}
+
+
+
+#

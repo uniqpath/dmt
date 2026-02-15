@@ -1,0 +1,8 @@
+{
+  "name": "dmt-frontend-helpers",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "main": "src/index.js",
+  "module": "src/index.js"
+}

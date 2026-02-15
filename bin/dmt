@@ -1,0 +1,5 @@
+#!/bin/bash
+
+. ~/.dmt/shell/.shell_basic
+
+dmt "$@"

@@ -1,0 +1,29 @@
+{
+  "name": "gextend",
+  "version": "0.1.6",
+  "description": "Simple extend helper module",
+  "homepage": "https://github.com/goliatone/gextend",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/goliatone/gextend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/goliatone/gextend/issues"
+  },
+  "author": {
+    "name": "goliatone",
+    "email": "hello@goliatone.com",
+    "url": "http://goliatone.com"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/goliatone/gextend/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "~1.9.1",
+    "requirejs": "~2.1.4"
+  },
+  "devDependencies": {}
+}

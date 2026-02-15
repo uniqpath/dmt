@@ -1,0 +1,19 @@
+{
+  "name": "wmic",
+  "version": "0.1.0",
+  "description": "Wrapper around the WMIC Windows command interface.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "async": "",
+    "iconv-lite": "^0.4.13"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^2.2.4",
+    "should": "^6.0.1"
+  }
+}
