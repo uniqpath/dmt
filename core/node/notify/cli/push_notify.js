@@ -5,7 +5,7 @@ import { timeutils } from 'dmt/common';
 const { ONE_DAY } = timeutils;
 
 //we go directly here so that we load the absolute minimum amount of code (entire lib2 (dmt notifiers) is bypasses)
-import { highPriority as pushHP } from '../lib/pushover/index.js';
+import { highPriority as pushHP, SOUND } from '../lib/pushover/index.js';
 
 function help() {
   console.log(colors.green('Send push message to mobile devices via pushover.net service'));
@@ -19,8 +19,9 @@ if (process.argv.length > 2 && process.argv[2] == '-h') {
 function send(msg, { reminder = false, highPriority = false } = {}) {
   pushHP({}, highPriority)
     .app('reminders')
+    .sound(SOUND.spacealarm)
     .title(reminder ? 'Reminder' : undefined)
-    .ttl(5 * ONE_DAY)
+    .ttl(10 * ONE_DAY)
     .notify(msg)
     .then(() => {
       console.log(colors.green('Push message sent'));

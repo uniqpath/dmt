@@ -59,7 +59,7 @@ function sleep({ args, program }) {
           }, 50000);
         }, 2000);
 
-      const pm = push.ttl(3 * ONE_HOUR);
+      const pm = push.ttl(36 * ONE_HOUR);
 
       if (device().id == 'turbine') {
         pm.notify(msg).then(sleepAction);

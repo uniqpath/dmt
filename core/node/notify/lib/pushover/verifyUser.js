@@ -1,4 +1,4 @@
-import pushoverApi from './pushoverApi/index.js';
+import { User } from './pushoverApi/index.js';
 import getPushoverClient from './getPushoverClient.js';
 import { getUserToken } from './pushoverDef.js';
 
@@ -14,13 +14,13 @@ export default function verifyUser(u) {
   return new Promise((success, reject) => {
     const client = getPushoverClient();
     client
-      .verifyUser(new pushoverApi.User(userKey))
+      .verifyUser(new User(userKey))
       .then(() => {
         success({ success: true, msg: 'user is valid and is receiving messages' });
       })
       .catch(error => {
         const errorData = JSON.parse(error.message);
-        success({ success: false, msg: errorData.data.errors.join(',') });
+        success({ success: false, msg: JSON.stringify(errorData.data.errors, null, 2) });
       });
   });
 }

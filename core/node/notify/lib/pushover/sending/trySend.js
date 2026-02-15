@@ -57,7 +57,7 @@ export default function trySend({ program, client, pushoverMsgObj, sendingId, me
         if (retries != MAX_RETRIES - 1) {
           const msg2 = `⚠️ Push message #${sendingId} was successful in retry #${MAX_RETRIES - retries}`;
           log.green(msg2);
-          log.gray(pushoverMsgObj);
+          log.gray(client.sendMessageOptions(pushoverMsgObj));
 
           apn
             .notify(msg2)
@@ -89,7 +89,7 @@ export default function trySend({ program, client, pushoverMsgObj, sendingId, me
           }
 
           log.red(msg);
-          log.gray(pushoverMsgObj);
+          log.gray(client.sendMessageOptions(pushoverMsgObj));
 
           if (isDevUser()) {
             log.red(e.toString());

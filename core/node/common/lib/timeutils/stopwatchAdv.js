@@ -1,5 +1,5 @@
 import prettyMicroDuration from './prettyMicroDuration/index.js';
-import formatMilliseconds from './formatMilliseconds.js';
+import { formatMilliseconds } from './formatMilliseconds.js';
 
 function start() {
   return process.hrtime.bigint();

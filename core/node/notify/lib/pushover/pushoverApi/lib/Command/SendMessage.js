@@ -1,59 +1,42 @@
-import Command from './Command.js';
-import Message from '../Message.js';
-
 function removeEmpty(obj) {
   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
 }
 
-class SendMessage extends Command {
-  constructor(message) {
-    super();
+export function sendMessageOptions({ message, client }) {
+  const options = {
+    method: 'post',
+    url: '/messages.json',
+    query: {
+      token: client.apiToken
+    }
+  };
 
-    Message.validateMessage(message);
-
-    this.message = message;
+  if (message.user) {
+    options.query.user = message.user.id;
+    options.query.device = message.user.device;
   }
 
-  invoke(client) {
-    const options = {
-      method: 'post',
-      url: '/messages.json',
-      query: {
-        token: client.apiToken
-      }
-    };
+  options.query = removeEmpty({
+    ...options.query,
+    message: message.message,
+    html: message.enableHtml,
+    title: message.title,
+    url: message.url,
+    url_title: message.urlTitle,
+    timestamp: message.timestamp,
+    ttl: message.ttl,
+    priority: message.priority,
+    sound: message.sound
+  });
 
-    if (this.message.user) {
-      options.query.user = this.message.user.id;
-      options.query.device = this.message.user.device;
-    }
-
-    options.query = removeEmpty({
-      ...options.query,
-      message: this.message.message,
-      html: this.message.enableHtml,
-      title: this.message.title,
-      url: this.message.url,
-      url_title: this.message.urlTitle,
-      timestamp: this.message.timestamp,
-      ttl: this.message.ttl
-    });
-
-    if (this.message.priority) {
-      options.query = { ...options.query, ...this.message.priority.properties };
-    }
-
-    if (this.message.sound) {
-      options.query.sound = this.message.sound.name;
-    }
-
-    return client
-      .getTransport()
-      .sendRequest(options)
-      .then(result => {
-        return result.receipt;
-      });
-  }
+  return options;
 }
 
-export default SendMessage;
+export function sendMessage({ message, client }) {
+  return client
+    .getTransport()
+    .sendRequest(sendMessageOptions({ message, client }))
+    .then(result => {
+      return result.receipt;
+    });
+}

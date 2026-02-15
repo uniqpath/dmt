@@ -5226,6 +5226,32 @@ class Connector extends Eev {
 
 const browser = typeof window !== 'undefined';
 
+// ⚠️
+// you have to add this to local router:
+// ... see below ...
+const MAPPING_SERVICE = 'nip.io';
+
+function useDomainInsteadOfLocalIp(host) {
+  // APPLE iOS bugfix!
+  // not only bug fix but way forward because of security policies probably... "bare IPs are suspitious" !
+  // ❗❗❗❗❗❗❗❗❗❗❗
+  // https://www.reddit.com/r/webdev/comments/1pzmhvf/websocket_broken_on_safariios_26/
+  //
+  // If you can ping the IP directly but cannot resolve the nip.io domain, it means your current DNS server (likely your router, 192.168.0.1) is failing to resolve external wildcard DNS domains, or it's blocking them because of "DNS Rebind Protection."
+  //
+  // Fix:
+  // uci add_list dhcp.@dnsmasq[0].rebind_domain='nip.io'
+  // uci commit dhcp
+  // /etc/init.d/dnsmasq restart
+  //
+  // ❗ make this configurable ... pass some argument into this ...
+  if (host.startsWith('192.168') || host.startsWith('10.') || host.startsWith('172.')) {
+    return `${host}.${MAPPING_SERVICE}`;
+  }
+
+  return host;
+}
+
 function determineEndpoint({ endpoint, host, port }) {
   // if endpoint is specified with "/something", it is rewritten as ws[s]://origin/something
   if (browser && endpoint && endpoint.startsWith('/')) {
@@ -5237,7 +5263,7 @@ function determineEndpoint({ endpoint, host, port }) {
   // in nodejs host and port have to be provided
   if (!endpoint) {
     if (browser) {
-      host = host || window.location.hostname;
+      host = useDomainInsteadOfLocalIp(host || window.location.hostname);
       const wsProtocol = window.location.protocol.includes('s') ? 'wss' : 'ws';
 
       endpoint = `${wsProtocol}://${host}`;
@@ -5265,6 +5291,8 @@ function determineEndpoint({ endpoint, host, port }) {
   // if endpoint is provided directly and it didn't start with '/', then use this verbatim
   return endpoint;
 }
+
+//console.log(determineEndpoint({ endpoint: 'wss://david.zetaseek.com/ws' }));
 
 const browser$1 = typeof window !== 'undefined';
 
@@ -5345,10 +5373,6 @@ function establishAndMaintainConnection(
       reconnect();
       //for multiconnected store ↴ so that not everything tries to reconnect at once.. oh well didn't have much influence it seems, we can do everything at once! :)
       //setTimeout(reconnect, MAX_RECONNECT_DELAY_AFTER_WS_CLOSE * Math.random());
-    },
-    isOpen() {
-      // we check manually for __closed
-      return this.websocket.readyState == wsOPEN$2 && !this.websocket.__closed;
     },
     endpoint,
     checkTicker: 0
@@ -5699,8 +5723,8 @@ class ConnectorPool extends ReadableStore {
   getConnector({ endpoint, host, port, tag }) {
     const hostWithPort = endpoint || `${host}:${port}`;
 
-    if (!host || !port) {
-      throw new Error(`Must provide both host and port: ${hostWithPort}`);
+    if (!endpoint && (!host || !port)) {
+      throw new Error(`Must provide both host and port: ${hostWithPort} if no endpoint is provided canonically`);
     }
 
     return new Promise((success, reject) => {

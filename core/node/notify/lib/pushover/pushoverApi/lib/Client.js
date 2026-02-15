@@ -1,19 +1,11 @@
-import SendMessage from './Command/SendMessage.js';
-import VerifyUser from './Command/VerifyUser.js';
-import GetReceipt from './Command/GetReceipt.js';
-import CancelEmergency from './Command/CancelEmergency.js';
-import GetGroupDetails from './Command/GetGroupDetails.js';
-import AddUserToGroup from './Command/AddUserToGroup.js';
-import RemoveUserFromGroup from './Command/RemoveUserFromGroup.js';
-import EnableGroupUser from './Command/EnableGroupUser.js';
-import DisableGroupUser from './Command/DisableGroupUser.js';
-import RenameGroup from './Command/RenameGroup.js';
+import { sendMessage, sendMessageOptions } from './Command/SendMessage.js';
+import { verifyUser } from './Command/VerifyUser.js';
 import Transport from './Transport.js';
 
 const PUSHOVER_HOST = 'https://api.pushover.net';
 const PUSHOVER_VERSION = '1';
 
-class Client {
+export default class Client {
   constructor(apiToken) {
     this.options = {
       host: PUSHOVER_HOST,
@@ -39,44 +31,16 @@ class Client {
     this.options.apiToken = value;
   }
 
+  sendMessageOptions(message) {
+    return sendMessageOptions({ message, client: this });
+  }
+
   sendMessage(message) {
-    return this.invokeCommand(new SendMessage(message));
+    return sendMessage({ message, client: this });
   }
 
   verifyUser(user) {
-    return this.invokeCommand(new VerifyUser(user));
-  }
-
-  getReceipt(receipt) {
-    return this.invokeCommand(new GetReceipt(receipt));
-  }
-
-  cancelEmergency(receipt) {
-    return this.invokeCommand(new CancelEmergency(receipt));
-  }
-
-  getGroupDetails(group) {
-    return this.invokeCommand(new GetGroupDetails(group));
-  }
-
-  addUserToGroup(user, group) {
-    return this.invokeCommand(new AddUserToGroup(user, group));
-  }
-
-  removeUserFromGroup(user, group) {
-    return this.invokeCommand(new RemoveUserFromGroup(user, group));
-  }
-
-  enableGroupUser(user, group) {
-    return this.invokeCommand(new EnableGroupUser(user, group));
-  }
-
-  disableGroupUser(user, group) {
-    return this.invokeCommand(new DisableGroupUser(user, group));
-  }
-
-  renameGroup(group, name) {
-    return this.invokeCommand(new RenameGroup(group, name));
+    return verifyUser({ user, client: this });
   }
 
   getTransport() {
@@ -85,10 +49,6 @@ class Client {
     }
 
     return this.transport;
-  }
-
-  invokeCommand(command) {
-    return command.invoke(this);
   }
 
   get appLimit() {
@@ -109,5 +69,3 @@ function validateApiToken(value) {
     throw new Error('API token must be 30 characters long and alphanumeric');
   }
 }
-
-export default Client;

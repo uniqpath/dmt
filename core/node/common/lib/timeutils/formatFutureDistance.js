@@ -1,6 +1,6 @@
 import { differenceInSeconds, differenceInMilliseconds, isBefore, formatDistanceToNowStrict, localeSL } from './dateFnsCompacted/index.js';
 
-import formatMilliseconds from './formatMilliseconds.js';
+import { formatMilliseconds } from './formatMilliseconds.js';
 
 const ONE_SECOND = 1000;
 const ONE_MINUTE = 60 * ONE_SECOND;

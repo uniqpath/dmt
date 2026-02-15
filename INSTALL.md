@@ -46,11 +46,12 @@ You will see:
           ~ Try dmt start ~
 ```
 
-💡 If you don't have `node.js` framework installed, please [read this](./help/NODEJS.md) to learn how to install it in the most maintainable way. 
+💡 If you don't have `node.js` installed, please [follow this](./help/NODEJS.md).
 
-Node.js is one of the greatest iterative (some would say revolutionary) inventions of recent years, DMT SYSTEM depends on it to function. We further depend on many great libraries that come bundled through DMT install itself. Open source is awesome and powerful. The real global proliferation of great fast software and ubiquitous computing has just barely begun.
+DMT SYSTEM depends on it to function. Bun is a faster and more modern alternative to the legendary **node.js** (still here).
+We further depend on many great libraries that come bundled through DMT install. Open source is awesome and powerful.
 
-💡 The entire DMT SYSTEM installation is contained inside one directory — `~/.dmt` and there is sometimes `~/.dmt-here` as well for strictly local information saved only on one device. That's it: two directories, never leaving artefacts around your file system.
+💡 The entire DMT SYSTEM installation is contained inside one directory — `~/.dmt` and there is also `~/.dmt-here` as well for strictly local information saved only on one device. That's it: two directories, never leaving artefacts around your file system.
 
 ## Start the engine
 
@@ -153,7 +154,6 @@ dmt run
 [run] eclipse 16036 7/2/2022, 1:32:27 PM (+13ms) ∞ dmt-proc is starting in terminal foreground …
 [run] eclipse 16036 7/2/2022, 1:32:27 PM (+01ms) ∞ OS uptime: 9 days
 [run] eclipse 16036 7/2/2022, 1:32:27 PM (+02ms) ∞ Starting content server ...
-[run] eclipse 16036 7/2/2022, 1:32:27 PM (+05ms) ∞ Initializing ProgramConnectionsAcceptor with public key b26b1fbae57661ee706107262a60e165d58e6efdb3d4f00785939a364270f860
 [run] eclipse 16036 7/2/2022, 1:32:27 PM (+02ms) ∞ 💡 Connectome protocol dmt ready.
 [run] eclipse 16036 7/2/2022, 1:32:27 PM (+00ms) ∞ Starting to load dmt-proc modules ...
 [run] eclipse 16036 7/2/2022, 1:32:27 PM (+00ms) ∞ Loading player aspect
@@ -176,13 +176,11 @@ This allows you to test the new code faster — things you may have added throug
 
 Open DMT GUI at `http://localhost:7777`
 
-This GUI helped us iterate quickly and get us to where we are. Now it is being reworked for the next major version, planned for EOY 2022.
+This GUI helped us iterate quickly and get us to where we are. Now it is being reworked for the next major version.
 
 ## DMT SYSTEM features
 
-DMT SYSTEM has many great features but you can very easily try one of them by disconnecting your wifi. You should get _Internet unreachable_ warning. This is an example of WAN connectivity monitoring feature of DMT SYSTEM. 
-
-For more features, especially when going multi-device please read the [documentation](./DOCS.md) or visit one of our [meetups](https://dmt-system.com/). A lot of functionality is not documented until we test and consolidate it properly as a community and this is the main reason for our regular bi-yearly meetups.
+For more features, especially when going multi-device please read the [documentation](./DOCS.md) or visit one of our [meetups](https://dmt-system.com/). A lot of functionality is not documented until we test and consolidate it properly.
 
 ## Keep up to date
 
@@ -199,8 +197,6 @@ dmt update user@ip
 ```
 
 With this DMT SYSTEM core idea you replicate the global DMT ENGINE that you got from source through install to one or more devices that you own or manage.  Along with core DMT ENGINE you also pass the replica of your private user directory (`~/.dmt/user`) so that your devices can execute your own customized version of the engine reliably and independently.
-
-Read the documentation for more info on this very powerful aspect.
 
 You can also update all nearby devices with:
 

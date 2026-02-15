@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { easter, easterMonday, getDataForCorrectYear } from './helpers.js';
+import { easter, easterMonday, tijelovoDate, getDataForCorrectYear } from './helpers.js';
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -30,6 +30,8 @@ function holidaysForYear(year, { country }) {
       holiday.date = easter(year);
     } else if (holiday.date == 'EASTER_MONDAY') {
       holiday.date = easterMonday(year);
+    } else if (holiday.date == 'TIJELOVO') {
+      holiday.date = tijelovoDate(year);
     } else {
       const [day, month] = holiday.date.split('.');
       holiday.date = new Date(year, parseInt(month) - 1, parseInt(day));
@@ -47,7 +49,7 @@ function holidayName(y, m, d, { country }) {
   }
 }
 
-function isHoliday(date, { country }) {
+function isHoliday(date, { country = 'si' }) {
   const y = date.getFullYear();
 
   const { holidays } = holidaysForYear(y, { country });

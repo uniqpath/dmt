@@ -1,0 +1,3 @@
+Caddyfile is synced from dmt device. Any manual changes you make will be lost on next dmt update.
+
+Edit locally (on your PC/mainDevice) at ~/.dmt/devices/[serverDevice]/device/conf/Caddyfile ...

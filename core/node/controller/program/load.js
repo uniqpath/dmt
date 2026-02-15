@@ -7,11 +7,7 @@ const IGNORED = ['--unused', '--disabled', '--ignore', '--ignored'];
 const NOT_LOADABLE_DIRS = ['lib', 'helpers', '_lib', '_helpers'];
 
 function isNonLoadablePath(filePath) {
-  const dirName = path.dirname(filePath);
-
-  const basedir = dirName.split(path.sep).pop();
-
-  return NOT_LOADABLE_DIRS.includes(basedir);
+  return filePath.split(path.sep).some(part => NOT_LOADABLE_DIRS.includes(part));
 }
 
 export default function load(program, dir, filter = () => true, recursive = false, debug = false) {

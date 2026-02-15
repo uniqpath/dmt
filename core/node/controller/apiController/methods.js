@@ -19,6 +19,12 @@ function getMethods() {
   methods.push({ name: 'apis', handler: listApisHandler });
   methods.push({ name: 'reach', handler: reachHandler });
 
+  methods.push({ name: 'open_door', handler: doorHandler });
+  methods.push({ name: 'open_door_zatoglav', handler: zatoglavDoorHandler });
+  methods.push({ name: 'move_fence', handler: fenceHandler });
+  methods.push({ name: 'sleep_andreja', handler: sleepaHandler });
+  methods.push({ name: 'sleep_david', handler: sleepdHandler });
+
   return methods;
 }
 
@@ -146,6 +152,118 @@ function listApisHandler({ args, program }) {
 function reachHandler({ args, program }) {
   return new Promise((success, reject) => {
     success('device actor :: reach method => [todo, missing implementation]');
+  });
+}
+
+function doorHandler({ args, program }) {
+  return new Promise((success, reject) => {
+    log.green('door open called');
+
+    const obj = program.downstream('83cecb26a216d373098498e841b8c274b6f49c1c408ca90f3b5a72b8ebffcd14');
+
+    if (!obj) {
+      const e = 'no downstream channel';
+      log.red(e);
+      success(e);
+      return;
+    }
+
+    obj
+      .call('open_door')
+      .then(success)
+      .catch(e => {
+        log.red(e);
+        success();
+      });
+  });
+}
+
+function zatoglavDoorHandler({ args, program }) {
+  return new Promise((success, reject) => {
+    log.green('door open called');
+
+    const obj = program.downstream('9bb395c81bbcbc561b2e8ae368d957a2169fa72791a189cfbffd0cddbf37f90e');
+
+    if (!obj) {
+      const e = 'no downstream channel';
+      log.red(e);
+      success(e);
+      return;
+    }
+
+    obj
+      .call('open_door')
+      .then(success)
+      .catch(e => {
+        log.red(e);
+        success();
+      });
+  });
+}
+
+function fenceHandler({ args, program }) {
+  return new Promise((success, reject) => {
+    log.green('fence move called');
+
+    const obj = program.downstream('83cecb26a216d373098498e841b8c274b6f49c1c408ca90f3b5a72b8ebffcd14');
+
+    if (!obj) {
+      const e = 'no downstream channel';
+      log.red(e);
+      success(e);
+      return;
+    }
+
+    obj
+      .call('open_fence')
+      .then(success)
+      .catch(e => {
+        log.red(e);
+        success();
+      });
+  });
+}
+
+function sleepaHandler({ args, program }) {
+  const { deviceName } = args;
+  return new Promise((success, reject) => {
+    const obj = program.downstream('1318d33fc8daf2bb4ccfed533b84c27d0dcb9a788d7de75bb1279b27fa52fe46');
+
+    if (!obj) {
+      const e = 'no downstream channel';
+      log.red(e);
+      success(e);
+      return;
+    }
+
+    obj
+      .call('sleep')
+      .then(success)
+      .catch(e => {
+        log.red(e);
+        success();
+      });
+  });
+}
+
+function sleepdHandler({ args, program }) {
+  const { deviceName } = args;
+  return new Promise((success, reject) => {
+    const obj = program.downstream('b26b1fbae57661ee706107262a60e165d58e6efdb3d4f00785939a364270f860');
+    if (!obj) {
+      const e = 'no downstream channel';
+      log.red(e);
+      success(e);
+      return;
+    }
+
+    obj
+      .call('sleep')
+      .then(success)
+      .catch(e => {
+        log.red(e);
+        success();
+      });
   });
 }
 

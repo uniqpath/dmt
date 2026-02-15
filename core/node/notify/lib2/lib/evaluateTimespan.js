@@ -30,6 +30,8 @@ export function parseUntil(date) {
   return parseEUDate(date);
 }
 
+const hasExplicitYear = dateStr => /\d{4}/.test(dateStr);
+
 export function evaluateTimespan({ date, from, until }) {
   const beforeEnd = until => {
     const untilDate = parseUntil(until);
@@ -45,21 +47,32 @@ export function evaluateTimespan({ date, from, until }) {
 
   if (until) {
     const untilDate = parseUntil(until);
-
     const isLastDay = isSameDay(date, untilDate);
-
-    const diffDays = differenceInCalendarDays(untilDate, date);
 
     if (from) {
       const fromDate = parseFrom(from);
       if (isBefore(fromDate, untilDate) || isSameDay(fromDate, untilDate)) {
         if (afterStart(from) && beforeEnd(until)) {
+          const diffDays = differenceInCalendarDays(untilDate, date);
           return { ...isWithin, isLastDay, diffDays };
         }
-      } else if (afterStart(from) || beforeEnd(until)) {
-        return { ...isWithin, isLastDay, diffDays };
+      } else {
+        if (hasExplicitYear(from) || hasExplicitYear(until)) {
+          return {};
+        }
+
+        if (afterStart(from) || beforeEnd(until)) {
+          let effectiveUntilDate = untilDate;
+          if (isAfter(date, untilDate)) {
+            effectiveUntilDate = new Date(untilDate);
+            effectiveUntilDate.setFullYear(effectiveUntilDate.getFullYear() + 1);
+          }
+          const diffDays = differenceInCalendarDays(effectiveUntilDate, date);
+          return { ...isWithin, isLastDay, diffDays };
+        }
       }
     } else if (beforeEnd(until)) {
+      const diffDays = differenceInCalendarDays(untilDate, date);
       return { ...isWithin, isLastDay, diffDays };
     }
   } else if (from) {

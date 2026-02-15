@@ -31,6 +31,13 @@ class Channel extends EventEmitter {
       Object.values(this.stateFieldsSubscriptions).forEach(unsubscribe => unsubscribe());
       this.emit('disconnect');
     });
+
+    this.attachObject('remoteInfo', {
+      set: remoteInfo => {
+        this._remoteInfo = remoteInfo;
+        this.emit('remoteInfoReceived');
+      }
+    });
   }
 
   state(name, _state) {
@@ -77,6 +84,10 @@ class Channel extends EventEmitter {
 
   remoteAddress() {
     return this._remoteAddress;
+  }
+
+  remoteInfo() {
+    return this._remoteInfo;
   }
 
   remoteIp() {

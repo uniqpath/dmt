@@ -25,5 +25,3 @@ fi
 (crontab -l ; echo "0 * * * * bash -ic ~/.dmt/etc/cron/hourly") | sort - | uniq - | crontab -
 (crontab -l ; echo "0 0 * * * bash -ic ~/.dmt/etc/cron/daily") | sort - | uniq - | crontab -
 
-echo
-echo "ok"

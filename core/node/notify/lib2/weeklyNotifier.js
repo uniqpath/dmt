@@ -50,6 +50,9 @@ class WeeklyNotifier extends ScopedNotifier {
       ttl,
       ttlGui,
       highPriority,
+      lowPriority,
+      sound,
+      clockSymbol = CLOCK_SYMBOL,
       skipOnHolidays,
       excludedRanges,
       user,
@@ -67,7 +70,11 @@ class WeeklyNotifier extends ScopedNotifier {
     this.ttl = ttl;
     this.ttlGui = ttlGui;
     this.highPriority = !!highPriority;
+    this.lowPriority = !!lowPriority;
+    this.sound = sound;
     this.app = app;
+
+    this.clockSymbol = clockSymbol;
 
     this.notifyDayBeforeAt = notifyDayBeforeAt;
     this.notifySameDayAt = notifySameDayAt;
@@ -137,6 +144,7 @@ class WeeklyNotifier extends ScopedNotifier {
       id,
       ttl,
       ttlGui,
+      sound,
       from,
       until,
       duration: _duration,
@@ -144,9 +152,12 @@ class WeeklyNotifier extends ScopedNotifier {
       notifySameDayAt: _notifySameDayAt,
       omitAtEventTime: _omitAtEventTime,
       highPriority: _highPriority,
+      lowPriority: _lowPriority,
+      app: _app,
       notifyDayBeforeAt: _notifyDayBeforeAt,
       url,
-      excludedRanges: _excludedRanges
+      excludedRanges: _excludedRanges,
+      clockSymbol: _clockSymbol
     } = entry;
 
     const msg = Array.isArray(msgStrOrArray) ? this.randomElement(msgStrOrArray) : msgStrOrArray;
@@ -168,8 +179,12 @@ class WeeklyNotifier extends ScopedNotifier {
     const notifySameDayAt = uniqueArray(priorityArray(_notifySameDayAt, this.notifySameDayAt));
 
     const highPriority = _highPriority == undefined ? this.highPriority : _highPriority;
+    const lowPriority = _lowPriority == undefined ? this.lowPriority : _lowPriority;
+    const app = _app == undefined ? this.app : _app;
 
     const notifyDayBeforeAt = uniqueArray(priorityArray(_notifyDayBeforeAt, this.notifyDayBeforeAt));
+
+    const clockSymbol = _clockSymbol || this.clockSymbol;
 
     const entryUser = entry.user || entry.users;
     const user = entryUser == undefined ? this.user : entryUser;
@@ -186,13 +201,15 @@ class WeeklyNotifier extends ScopedNotifier {
         symbol,
         _msg: msg,
         highPriority: false,
+        lowPriority: false,
         color: color || this.color,
         ttl: ttl || this.ttl,
         ttlGui: ttlGui || this.ttlGui,
+        sound: sound || this.sound,
         user,
         id,
         url,
-        app: this.app,
+        app,
         data: entry.data || {}
       };
 
@@ -204,11 +221,13 @@ class WeeklyNotifier extends ScopedNotifier {
         let _isWithin = true;
         let _isLastDay;
         for (const _from of Array(from).flat()) {
-          const { isWithin, isLastDay } = evaluateTimespan({ date: eventTime, from: _from, until });
-          if (!isWithin) {
-            _isWithin = false;
+          for (const _until of Array(until).flat()) {
+            const { isWithin, isLastDay } = evaluateTimespan({ date: eventTime, from: _from, until: _until });
+            if (!isWithin) {
+              _isWithin = false;
+            }
+            _isLastDay = isLastDay;
           }
-          _isLastDay = isLastDay;
         }
 
         if (_isWithin && !this.shouldSkip(eventTime, entry, excludedRanges)) {
@@ -238,25 +257,15 @@ class WeeklyNotifier extends ScopedNotifier {
 
                 const { capitalizeFirstLetter, strFrom, strUntil } = localize(program);
 
-                const brevityTagline = !isNow && minutesBefore.length >= 2 && minBefore <= 30 && minutesBefore.length - 1 == index;
-
                 let tagline =
                   isNow && msg
                     ? undefined
-                    : `${isNow ? NOW_SYMBOL : CLOCK_SYMBOL}${brevityTagline ? '' : ` ${datetime}`}${
-                        inTime ? ` ${brevityTagline ? capitalizeFirstLetter(inTime) : `[ ${inTime} ]`}` : ''
-                      }${!isNow && minBefore <= 30 ? EXCLAMATION_SYMBOL : ''}`;
+                    : `${isNow ? NOW_SYMBOL : clockSymbol} ${datetime} ${inTime ? `[ ${inTime} ]` : ''}${!isNow && minBefore <= 30 ? EXCLAMATION_SYMBOL : ''}`;
 
-                if (duration && minutesBefore.length - 1 == index) {
+                if (duration) {
                   const endTime = addMinutes(eventTime, duration);
-                  const startTimeStr = format(eventTime, 'HH:mm');
                   const endTimeStr = format(endTime, 'HH:mm');
-                  tagline = `${tagline || ''}${tagline ? '\n' : ''}${FINISH_SYMBOL} `;
-                  if (brevityTagline) {
-                    tagline += `${capitalizeFirstLetter(strFrom)} ${startTimeStr} ${strUntil} ${endTimeStr}`;
-                  } else {
-                    tagline += `${capitalizeFirstLetter(strUntil)} ${endTimeStr}`;
-                  }
+                  tagline = `${tagline || ''}${tagline ? '\n' : ''}${FINISH_SYMBOL} ${strUntil} ${endTimeStr}`;
                 }
 
                 const title = `${_title}${lastTag}`;
@@ -269,6 +278,7 @@ class WeeklyNotifier extends ScopedNotifier {
                   ...o,
                   _title: title,
                   highPriority: isLastNotification ? highPriority : false,
+                  lowPriority: isLastNotification ? lowPriority : false,
                   title: pushTitle,
                   msg: pushMsg,
                   tagline,
@@ -286,11 +296,13 @@ class WeeklyNotifier extends ScopedNotifier {
       let _isWithin = true;
       let _isLastDay;
       for (const _from of Array(from).flat()) {
-        const { isWithin, isLastDay } = evaluateTimespan({ date: eventTime, from: _from, until });
-        if (!isWithin) {
-          _isWithin = false;
+        for (const _until of Array(until).flat()) {
+          const { isWithin, isLastDay } = evaluateTimespan({ date: eventTime, from: _from, until: _until });
+          if (!isWithin) {
+            _isWithin = false;
+          }
+          _isLastDay = isLastDay;
         }
-        _isLastDay = isLastDay;
       }
 
       const isLastDay = _isLastDay || this.isLastDaySpecificCheckForWeeklyNotifier(eventTime, entry, excludedRanges);
@@ -310,7 +322,7 @@ class WeeklyNotifier extends ScopedNotifier {
 
               const pushTitle = `${o.symbol} ${title}`.trim();
 
-              const tagline = `${CLOCK_SYMBOL}${datetime}${inTime ? ` [ ${inTime} ]` : ''}`;
+              const tagline = `${clockSymbol}${datetime}${inTime ? ` [ ${inTime} ]` : ''}`;
 
               const pushMsg = msg ? `${tagline}\n\n${msg}` : tagline;
 
@@ -318,6 +330,7 @@ class WeeklyNotifier extends ScopedNotifier {
                 ...o,
                 _title: title,
                 highPriority,
+                lowPriority,
                 title: pushTitle,
                 msg: pushMsg,
                 isToday: true,
@@ -360,12 +373,17 @@ class WeeklyNotifier extends ScopedNotifier {
   }
 
   isLastDaySpecificCheckForWeeklyNotifier(_eventTime, entry, excludedRanges) {
-    const { when, from: _from, until } = entry;
+    const { when, from: _from, until: _until } = entry;
 
     let from = _from;
+    let until = _until;
 
     if (Array.isArray(from)) {
       from = from[0];
+    }
+
+    if (Array.isArray(until)) {
+      until = until[0];
     }
 
     for (let i = 1; i <= 30; i++) {

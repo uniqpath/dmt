@@ -14,6 +14,7 @@ declare -a List=(
   "core/node/common"
   "core/node/notify"
   "core/node/iot"
+  "core/node/aspect-meta/cli-framework"
   "core/node/connectome/src/client connectome"
   "core/node/connectome/src/server connectome-server"
   "core/node/connectome/src/stores-node connectome-stores"

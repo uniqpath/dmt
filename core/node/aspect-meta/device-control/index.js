@@ -3,5 +3,6 @@ import bashShutdown from './lib/shutdown.js';
 import bashReboot from './lib/reboot.js';
 import bashSetAccessPoint from './lib/setAccessPoint.js';
 import sleepMacOS from './lib/sleepMacOS.js';
+import isMacLidUp from './lib/isMacLidUp.js';
 
-export { wifiAccessPointMAC, bashShutdown, bashReboot, bashSetAccessPoint, sleepMacOS };
+export { wifiAccessPointMAC, bashShutdown, bashReboot, bashSetAccessPoint, sleepMacOS, isMacLidUp };

@@ -23,6 +23,10 @@ export default class DynamicNotifier {
     this.notifier = new Notifier(this.makeNotifierEvents(), this.options, this.decommissionable);
   }
 
+  simulateTimepoint(timepoint) {
+    this.notifier?.simulateTimepoint(timepoint);
+  }
+
   setupSchedule() {
     if (this.cancelDailyRefresh) return;
 

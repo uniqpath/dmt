@@ -1,0 +1,230 @@
+#!/bin/bash
+
+function build_essential {
+  sudo apt update
+  #sudo apt-get -y install build-essential tar unzip curl git screen ntp zip tree lsof colordiff rsync
+  sudo apt install -y build-essential tar curl git screen zip unzip tree lsof colordiff rsync
+  # missing on Debian nowadays
+  if ! dmt_is_rpi; then
+    sudo apt install -y cron fail2ban
+  fi
+}
+
+function build_essential_full {
+  sudo apt update
+  sudo apt -y install build-essential zlib1g-dev libpcre3 libpcre3-dev libbz2-dev libssl-dev libreadline-dev tar unzip curl git screen dh-autoreconf make pkg-config cmake lsof ntp highlight net-tools zip tree lsof colordiff rsync
+
+}
+
+function prerequisites_ok {
+  # CHECK OS REQUIREMENT
+
+  printf "⚠️  ${WHITE}It is recommended that you run the script on a ${GREEN}fresh${NC} ${CYAN}debian-based${WHITE} ${GREEN}linux machine ${WHITE}on a ${YELLOW}public IP address.${NC}\n"
+
+  if ! dmt_is_linux; then
+    local our_os=''
+    get_machine_os our_os
+
+    printf "⚠️  ${RED}Your operating system is ${YELLOW}${our_os}${NC}\n"
+    return 1
+  fi
+
+  echo
+
+  # CHECK FOR GIT
+
+  dmt_check_binary_exists git
+
+  if [ ! $? -eq 0 ]; then # rustc command exists
+    printf "${RED}✖ git command is missing ${GREEN}(sudo apt-get install -y git)${NC}\n"
+    return 1
+  fi
+
+  # CHECK FOR CRONTAB
+
+  # dmt_check_binary_exists crontab
+
+  # if [ ! $? -eq 0 ]; then
+  #   printf "${RED}✖ crontab command is missing ${WHITE}(for some reason?!)${NC}\n"
+  #   return 1
+  # fi
+}
+
+function dmt_deps_status {
+  # CHECK OS REQUIREMENT
+
+  printf "${CYAN}DEPENDENCIES:${NC}\n"
+  printf "${CYAN}.............${NC}\n"
+  echo
+
+  # dmt_check_binary_exists bun
+  # if [ $? -eq 0 ]; then
+  #   local bunVersion=$(bun --version)
+  #   printf "${GREEN}✓${NC} ${WHITE}bun${NC} ${YELLOW}(${bunVersion})${NC} installed at ${GRAY}$(which bun)${NC} \n"
+  # else
+  #   printf "${RED}✖${NC} bunjs not installed ${GREEN}(will install)${NC}\n"
+  # fi
+
+  dmt_check_binary_exists node
+  if [ $? -eq 0 ]; then
+    local nodeVersion=$(node --version)
+    printf "${GREEN}✓${NC} ${WHITE}nodejs${NC} ${YELLOW}(${nodeVersion})${NC} installed at ${GRAY}$(which node)${NC} \n"
+  else
+    printf "${RED}✖${NC} nodejs not installed ${GREEN}(will install)${NC}\n"
+  fi
+
+  # echo
+  # printf "${CYAN}● Extra${NC}\n"
+  # echo
+
+  # local goVersion=$(go version)
+}
+
+function dmt_setup_server {
+  # GREETINGS
+
+  local pro_setup
+  if [ "$1" == "--pro" ]; then
+    shift
+    pro_setup=true
+  fi
+
+  echo
+  printf "${CYAN}·······································································${NC}\n"
+  printf "                       💡 ${MAGENTA}Welcome to DMT server${NC} ${CYAN}\n"
+  printf "${CYAN}·······································································${NC}\n"
+  echo
+  printf "${YELLOW}This is the${NC} ${YELLOW}setup script.${NC}\n"
+  echo
+
+  # CHECK PREREQUISITES
+
+  if ! prerequisites_ok; then
+    echo
+    printf "${RED}✖✖✖ aborting setup.${NC}\n"
+    return
+  fi
+
+  # PRINT ALREADY INSTALLED DEPS STATUS
+
+  if [ "$pro_setup" == "true" ]; then
+    dmt_deps_status
+
+    echo
+    dmt_animate_dots
+    echo
+
+    printf "${WHITE}Setup checks and performs some other tasks as well:\n  ${GREEN}· installing system deps ${YELLOW}rsync, curl etc.${GREEN} \n  · setting cron tasks (used to keep ${MAGENTA}Zeta Explorer Node ${GREEN}up to date) \n  · starting the ${CYAN}dmt-proc${NC}${NC}\n"
+
+    echo
+  fi
+
+  # INITIAL PROCEED CHOICE
+
+  printf "🕵  ${CYAN}Would you like to proceed?${NC} [ ${GREEN}Y${NC} or ${GREEN}ENTER${NC} / ${GRAY}n${NC} ]${NC}"
+  read -r -p " " response
+  if [[ $response =~ ^([nN])$ ]]
+  then
+    echo
+    printf "${MAGENTA}Perhaps next time then ... ${CYAN}BYE 👋👽🚀${NC}\n"
+    return
+  fi
+
+  echo
+
+  printf "${YELLOW}This script ${WHITE}always uses the recommended and minimal way of installing related software.${NC}\n"
+  echo
+  printf "It will sometimes require ${MAGENTA}sudo password${NC} because it is installing system software like ${YELLOW}rsync, zip, etc.${NC} on your server.\n"
+
+  # printf "🕵  ${CYAN}Would you like to update the official linux packages list?${NC}\n"
+  # printf "💡 ${GRAY}This is usually needed only if it hasn't been done for a long time.${NC}\n"
+  # echo
+  # printf "   [ ${GREEN}Y${NC} or ${GREEN}ENTER${NC} / ${GRAY}n${NC} ] ${GRAY}(if not sure answer ${GREEN}Y${GRAY})${NC}\n"
+  # echo
+  # read -r -p "sudo apt-get update [Y/n] ? " response
+  # if [[ ! $response =~ ^([nN])$ ]]
+  # then
+  #   sudo apt-get update
+  # fi
+
+  echo
+  printf "${GREEN}We will now install system-level dependencies like ${YELLOW}rsync, curl, zip and others ...${NC}\n"
+  dmt_animate_dots slow
+  echo
+  build_essential
+
+  # setup crons for zeta peer auto update from github and
+  # for running dmt-proc on machine reboot
+  echo
+  printf "${GREEN}Setting up ${MAGENTA}cron entries${NC}\n"
+  dmt_animate_dots
+  ~/.dmt/etc/cron/setup_cron
+  sudo ~/.dmt/etc/cron/root/setup_cron $USER
+  printf "${GREEN}✓ Done${NC}\n"
+  echo
+
+  # set up nano syntax highlighting
+  if [ ! -L "/usr/share/nano/def.nanorc" ]; then
+    sudo ln -s ~/.dmt/etc/syntax/nano/def.nanorc /usr/share/nano/def.nanorc
+  fi
+
+  # echo
+  # printf "${GREEN}Installing ${YELLOW}lighttpd${NC}\n"
+  # dmt_animate_dots slow
+  # echo
+
+  # if [ -f /usr/sbin/lighttpd ]; then
+  #   printf "${GREEN}lighttpd is already installed${NC}\n"
+  #   printf "${YELLOW}$(/usr/sbin/lighttpd -v)${NC}\n"
+  # else
+  #   #dmt_setup lighttpd # todo -- does it run on reboot?
+  #   sudo apt-get install -y lighttpd
+  #   sudo systemctl start lighttpd
+  #   sudo systemctl enable lighttpd
+  # fi
+
+  # save previous version to use when auto-updating and checking if versions differ
+  mkdir -p ~/.dmt-here/tmp
+  if [ -f ~/.dmt/.version ]; then
+    cp ~/.dmt/.version ~/.dmt-here/tmp/.prev_version # to help decide if process restart is needed after git pull
+  fi
+
+  # set full shell
+
+  if [ -f ~/.dmt/user/def/user.def ]; then # should exist for sure -- except if user forgot to do ./install (when sample_user gets copied over) after cloning the dmt repo
+    sed -i 's/#shell: full/shell: full/' ~/.dmt/user/def/user.def # uncomment this line in user.def (#shell: full ==> shell: full)
+  fi
+
+  # NODE.JS
+
+  printf "${GREEN}Installing ${YELLOW}nodejs ...${NC}\n"
+  dmt_animate_dots slow
+  echo
+
+  local NODE_VERSION_TO_INSTALL="v24.13.1" # current lts
+  dmt_get nodejs "$NODE_VERSION_TO_INSTALL"
+
+  # start dmt process
+  echo
+
+  . ~/.dmt/etc/.bash_aliases_bundle
+  dmt start
+  dmt_animate_dots slow
+  echo
+
+  # zeta_setup extra
+
+  printf "${MAGENTA}Finishing instructions:${NC}\n"
+  echo
+  printf "● Open ${CYAN}http://server_ip:7777/${NC} in browser to check if everything works so far...\n"
+
+  echo
+  #printf "To setup a subdomain on ${MAGENTA}*.zetaseek.com${NC} please configure your ${YELLOW}lighttpd${NC} server according to the ${CYAN}docs${NC} or ${CYAN}admin instructions${NC}.\n"
+
+  # echo
+  # dmt_animate_dots
+  # echo
+
+  # printf "● Please run ${GREEN}zeta_setup extra${NC} to install additional useful dependencies like ${YELLOW}Swarm 🐝${NC}\n"
+}
+
