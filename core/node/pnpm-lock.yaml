@@ -63,8 +63,8 @@ importers:
         specifier: ^4.2.6
         version: 4.3.8
       network:
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.7.0
+        version: 0.7.0
       node-ipc:
         specifier: ^9.1.1
         version: 9.2.1
@@ -616,6 +616,14 @@ packages:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
     engines: {node: '>=0.10.0'}
 
+  iconv-lite@0.5.2:
+    resolution: {integrity: sha512-kERHXvpSaB4aU3eANwidg79K8FlrN77m8G9V+0vOR3HYaRifrlwMEpT7ZBJqLSEIHnEgJTHcWK82wwLwwKwtag==}
+    engines: {node: '>=0.10.0'}
+
+  iconv-lite@0.6.3:
+    resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
+    engines: {node: '>=0.10.0'}
+
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
@@ -803,9 +811,9 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  needle@1.1.2:
-    resolution: {integrity: sha512-MldJ0Wrh5cXJgH7wZj9nf56K4DFK5uJIAz1qZ5QORcxEVYxdK7gj8vvNsq1nrsWcVwJC7i6DxWb1avfZi1p2Fw==}
-    engines: {node: '>= 0.10.x'}
+  needle@3.3.1:
+    resolution: {integrity: sha512-6k0YULvhpw+RoLNiQCRKOl09Rv1dPLr8hHnVjHqdolKwDrdNyk+Hmrthi4lIGPPz3r39dLx0hsF5s40sZ3Us4Q==}
+    engines: {node: '>= 4.4.x'}
     hasBin: true
 
   negotiator@0.6.3:
@@ -815,8 +823,8 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  network@0.5.0:
-    resolution: {integrity: sha512-pH4/Qg6/z0itY09yqVAZcHO64yvkqvGn6Qo8dKdg8mkx6eYZnVE1Qlzk8Bl2lb5wtJLVDKQJr5eU2b6i5M35Gw==}
+  network@0.7.0:
+    resolution: {integrity: sha512-AquYHEZFrPi1WPaMg+21iTKN7aMERP70frgK41lbTt/9tTQcwgaOtlqHRmVbxJjWYWJy033jUbA8xXhFArXodw==}
     hasBin: true
 
   node-fetch@2.7.0:
@@ -975,6 +983,10 @@ packages:
 
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
+
+  sax@1.4.4:
+    resolution: {integrity: sha512-1n3r/tGXO6b6VXMdFT54SHzT9ytu9yr7TaELowdYpMqY/Ao7EnlQGmAQ1+RatX7Tkkdm6hONI2owqNx2aZj5Sw==}
+    engines: {node: '>=11.0.0'}
 
   send@0.19.2:
     resolution: {integrity: sha512-VMbMxbDeehAxpOtWJXlcUS5E8iXh6QmN+BkRX1GARS3wRaXEEgzCcB10gTQazO42tpNIya8xIyNx8fll1OFPrg==}
@@ -1169,8 +1181,8 @@ packages:
   whatwg-url@5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
-  wmic@0.1.0:
-    resolution: {integrity: sha512-fSIOzCT2oSGN9v8d+outSdjcoA7WUGbsPBWZq5o4zF7jZOLaUO84rDuYIO3OsvIOYxUgjrBbADbH7sdT80nZ8w==}
+  wmic@1.1.1:
+    resolution: {integrity: sha512-6lbonssALks49dX9bJTE8i54OTjbbLfd3IraFfG1ZR1ZrEbEynCt471IX5SfslZaFwISJKdUFHjOWHk0Brs5eg==}
 
   wordwrap@1.0.0:
     resolution: {integrity: sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==}
@@ -1811,6 +1823,14 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
+  iconv-lite@0.5.2:
+    dependencies:
+      safer-buffer: 2.1.2
+
+  iconv-lite@0.6.3:
+    dependencies:
+      safer-buffer: 2.1.2
+
   ieee754@1.2.1: {}
 
   imurmurhash@0.1.4: {}
@@ -1970,25 +1990,21 @@ snapshots:
 
   ms@2.1.3: {}
 
-  needle@1.1.2:
+  needle@3.3.1:
     dependencies:
-      debug: 2.6.9
-      iconv-lite: 0.4.24
-    transitivePeerDependencies:
-      - supports-color
+      iconv-lite: 0.6.3
+      sax: 1.4.4
 
   negotiator@0.6.3: {}
 
   neo-async@2.6.2: {}
 
-  network@0.5.0:
+  network@0.7.0:
     dependencies:
       async: 1.5.2
       commander: 2.9.0
-      needle: 1.1.2
-      wmic: 0.1.0
-    transitivePeerDependencies:
-      - supports-color
+      needle: 3.3.1
+      wmic: 1.1.1
 
   node-fetch@2.7.0:
     dependencies:
@@ -2135,6 +2151,8 @@ snapshots:
   safe-buffer@5.2.1: {}
 
   safer-buffer@2.1.2: {}
+
+  sax@1.4.4: {}
 
   send@0.19.2:
     dependencies:
@@ -2353,10 +2371,10 @@ snapshots:
       tr46: 0.0.3
       webidl-conversions: 3.0.1
 
-  wmic@0.1.0:
+  wmic@1.1.1:
     dependencies:
       async: 3.2.6
-      iconv-lite: 0.4.24
+      iconv-lite: 0.5.2
 
   wordwrap@1.0.0: {}
 
