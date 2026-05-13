@@ -88,7 +88,7 @@ importers:
         version: 0.2.2
       systeminformation:
         specifier: ^5.25.1
-        version: 5.31.0
+        version: 5.31.6
       tweetnacl:
         specifier: ^1.0.3
         version: 1.0.3
@@ -1055,8 +1055,8 @@ packages:
   suspawn@0.2.2:
     resolution: {integrity: sha512-hcZUV4MplWwNbG9SA14xShYn2aUXNFHZ6t8RHhyXVB4Y5JCzSawuw7NHE3t2A97pawEXUNL4HPvYkMgAB2KwCA==}
 
-  systeminformation@5.31.0:
-    resolution: {integrity: sha512-z5pjzvC8UnQJ/iu34z+mo3lAeMzTGdArjPQoG5uPyV5XY4BY+M6ZcRTl4XnZqudz6sP713LhWMKv6e0kGFGCgQ==}
+  systeminformation@5.31.6:
+    resolution: {integrity: sha512-Uv2b2uGGM6ns+26czgW2cYRabYdnswM0ddSOOlryHOaelzsmDSet1iM/NT7VOYxW8x/BW+HkY+b1Ve2pLTSGSA==}
     engines: {node: '>=8.0.0'}
     os: [darwin, linux, win32, freebsd, openbsd, netbsd, sunos, android]
     hasBin: true
@@ -2242,7 +2242,7 @@ snapshots:
 
   suspawn@0.2.2: {}
 
-  systeminformation@5.31.0: {}
+  systeminformation@5.31.6: {}
 
   table-layout@1.0.2:
     dependencies:
