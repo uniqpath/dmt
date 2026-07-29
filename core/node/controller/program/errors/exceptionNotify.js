@@ -5,7 +5,7 @@ const { ONE_WEEK } = timeutils;
 
 import stripAnsi from 'strip-ansi';
 
-import { push, apn, desktop } from 'dmt/notify';
+import { push, apn, desktop, SOUND } from 'dmt/notify';
 
 import exit from './exit.js';
 
@@ -13,7 +13,7 @@ const DEFAULT_DELAY = 3000;
 
 const APP = 'dmt_errors';
 
-export default function exceptionNotify(msg, { delay = DEFAULT_DELAY, exitProcess = false, program } = {}) {
+export default function exceptionNotify(msg, { delay = DEFAULT_DELAY, exitProcess = false, program = undefined } = {}) {
   if (msg instanceof Error) {
     msg = msg.stack || msg;
   }
@@ -48,18 +48,20 @@ export default function exceptionNotify(msg, { delay = DEFAULT_DELAY, exitProces
           .omitAppName()
           .ttl(ONE_WEEK)
           .highPriority()
+          .sound(SOUND.falling)
           .notify(msg)
           .then(done);
       });
     }
   } else {
-    program.notifyMainDevice({ msg, color: '#e34042' });
+    program?.notifyMainDevice({ msg, color: '#e34042' });
 
     push
       .optionalApp(APP)
       .omitAppName()
       .ttl(ONE_WEEK)
       .highPriority(!log.isForeground())
+      .sound(SOUND.falling)
       .notify(msg)
       .then(done);
   }

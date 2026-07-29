@@ -1,0 +1,25 @@
+# Default site
+:80 {
+    root * /usr/share/caddy
+    file_server
+}
+
+# HTTPS configuration for zetaseek.com
+yourdomain.com {
+    # Match WebSockets
+    @websockets {
+        header Connection *Upgrade*
+        header Upgrade websocket
+        path /ws*
+    }
+
+    # Route WebSockets to 7780, everything else to 7777
+    reverse_proxy @websockets 127.0.0.1:7780
+
+    reverse_proxy 127.0.0.1:7777
+
+    # Log to the system journal instead of a file to avoid permission issues
+    log {
+        output stderr
+    }
+}

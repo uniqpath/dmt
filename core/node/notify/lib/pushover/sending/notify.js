@@ -8,7 +8,7 @@ import splitTextIntoChunks from '../splitTextIntoChunks.js';
 import getObjHash from '../getObjHash.js';
 import getDedupKey from '../getDedupKey.js';
 import { store } from '../dedupStore.js';
-import { getAppGroupToken, getUserToken } from '../pushoverDef.js';
+import { getAppGroupToken, getAppGroupUsers, getUserToken } from '../pushoverDef.js';
 
 const slot = store.slot('pushMessages');
 
@@ -93,6 +93,7 @@ export default function notify(obj) {
     }
 
     let groupKey;
+    let groupUsers;
 
     const pushoverKeyPattern = /^[a-z0-9]{30}$/i;
 
@@ -102,16 +103,33 @@ export default function notify(obj) {
       obj.group = group;
 
       groupKey = pushoverKeyPattern.test(group) ? group : getAppGroupToken({ app, group });
+      groupUsers = obj.dmtGroupUsersAlreadyHandled ? null : getAppGroupUsers({ app, group });
 
-      if (!groupKey) {
+      if (!groupKey && (!groupUsers || groupUsers?.length == 0)) {
         const _message = `Invalid pushover.def app/group combination <b>${app}/${group}</b>, message <b>${
           title ? `${title} / ` : ''
         }${message}</b> was not delivered to intended recipients.`;
         log.red(_message);
         log.gray(`Undelivered message: ${JSON.stringify(Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== undefined)))}`);
         const { originDevice, network, isABC } = obj;
-        notify({ title: '❗ Error', message: _message, highPriority: true, enableHtml: true, ttl: 3600000, originDevice, network, isABC }).then(reject);
+        notify({ title: '❗ Error', message: _message, highPriority: true, enableHtml: true, ttl: 3600000, originDevice, network, isABC });
 
+        return;
+      }
+
+      const promises = [];
+
+      if (groupKey && !obj.dmtGroupUsersAlreadyHandled) {
+        promises.push(notify({ ...obj, group: [group], dmtGroupUsersAlreadyHandled: true }));
+      }
+      if (groupUsers) {
+        promises.push(notify({ ...obj, group: null, user: groupUsers.replaceAll(' ', '').split(',') }));
+      }
+
+      if (promises.length > 0) {
+        Promise.all(promises)
+          .then(success)
+          .catch(reject);
         return;
       }
     }
@@ -161,7 +179,7 @@ export default function notify(obj) {
 
       hash = obj.preHash ? `${obj.preHash}${obj.notifyAll ? 'all' : ''}` : getMessageHash(obj, dedupKey);
 
-      if (slot.get().some(msg => msg.hash === hash)) {
+      if (slot.get().some(msg => msg.hash === hash && msg.pid != process.pid)) {
         if (isDevUser()) {
           log.yellow(`✉️  Skipping duplicate message hash=${hash.slice(0, 8)}`);
           if (isDevUser()) {
@@ -198,6 +216,7 @@ export default function notify(obj) {
           if (_result && isMainServer()) {
             slot.push({
               hash,
+              pid: process.pid,
               sendingId,
               dedupKey,
               timestamp: Date.now()

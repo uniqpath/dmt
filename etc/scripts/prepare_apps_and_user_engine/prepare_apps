@@ -11,7 +11,15 @@ function install_node_modules {
   if [ -f $LOCK_FILE ]; then
     rm $LOCK_FILE
   fi
+
   npm install
+
+  # we don't do it if bun is not yet installed
+  # but when it is then next dmt proc re/start will do this correctly
+  # if command -v bun >/dev/null 2>&1; then
+  #   bun install
+  # fi
+
   cd "$cwd"
 }
 

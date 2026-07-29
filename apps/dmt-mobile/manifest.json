@@ -1,6 +1,11 @@
 {
   "name": "DMT",
+  "short_name": "DMT",
   "display": "standalone",
+  "start_url": "/dmt-mobile/",
+  "scope": "/dmt-mobile/",
+  "background_color": "#291B34",
+  "theme_color": "#291B34",
   "icons": [
     {
       "src": "appicon.png",

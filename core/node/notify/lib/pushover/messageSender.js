@@ -51,6 +51,11 @@ export default class MessageSender {
     return this;
   }
 
+  sound(sound) {
+    this._sound = sound;
+    return this;
+  }
+
   url(url) {
     this._url = url;
     return this;
@@ -86,6 +91,11 @@ export default class MessageSender {
     return this;
   }
 
+  lowPriority(low = true) {
+    this._lowPriority = low;
+    return this;
+  }
+
   enableHtml(enable = true) {
     this._enableHtml = enable;
     return this;
@@ -112,7 +122,9 @@ export default class MessageSender {
       ttl: this._ttl,
       user: this._user,
       userKey: this._userKey,
+      sound: this._sound,
       highPriority: this._highPriority,
+      lowPriority: this._lowPriority,
       enableHtml: this._enableHtml,
       dedupKey: this._dedupKey,
       preHash: this._preHash,

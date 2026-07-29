@@ -25,7 +25,7 @@ function formatMinutesAndSeconds(timeMs, { omitSeconds = false } = {}) {
   return result.trim();
 }
 
-export default function formatMilliseconds(timeMs) {
+export function formatMilliseconds(timeMs) {
   if (timeMs < 1000) {
     return `${util.pad(round(timeMs, 1), 2)}ms`;
   }

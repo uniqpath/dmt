@@ -95,6 +95,9 @@ export default class Connectome extends ReadableStore {
 
         const scope = scope => {
           return {
+            triggerAction(action, payload = {}) {
+              userAction({ dmtID, protocol: _protocol, scope, action, payload, channel: null });
+            },
             onUserAction: (action, handler) => {
               if (!handler) {
                 handler = action;
@@ -137,6 +140,10 @@ export default class Connectome extends ReadableStore {
 
     this.wsServer.on('connection', channel => {
       initializeConnection({ server: this, channel });
+    });
+
+    this.wsServer.on('remoteInfoReceived', () => {
+      this.publishState();
     });
 
     this.on('connection', () => {

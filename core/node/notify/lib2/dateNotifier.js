@@ -65,6 +65,8 @@ class DateNotifier extends ScopedNotifier {
       ttl,
       ttlGui,
       highPriority,
+      lowPriority,
+      sound,
       notifySameDayAt,
       omitAtEventTime,
       notifyDayBeforeAt,
@@ -79,6 +81,7 @@ class DateNotifier extends ScopedNotifier {
       everyNthYear,
       defaultYear,
       firstYear,
+      clockSymbol = CLOCK_SYMBOL,
       user,
       users,
       url,
@@ -115,6 +118,9 @@ class DateNotifier extends ScopedNotifier {
     this.ttl = ttl;
     this.ttlGui = ttlGui;
     this.highPriority = !!highPriority;
+    this.lowPriority = !!lowPriority;
+    this.sound = sound;
+    this.clockSymbol = clockSymbol;
 
     this.notifySameDayAt = notifySameDayAt;
     this.omitAtEventTime = omitAtEventTime;
@@ -230,12 +236,16 @@ class DateNotifier extends ScopedNotifier {
       defaultYear: _defaultYear,
       notifyDays: _notifyDays,
       repeatDays: _repeatDays,
+      clockSymbol: _clockSymbol,
+      app: _app,
       color,
       ttl,
       ttlGui,
+      sound,
       from,
       until,
       highPriority: _highPriority,
+      lowPriority: _lowPriority,
       url: _url,
       urlTitle: _urlTitle,
       enableHtml: _enableHtml,
@@ -312,7 +322,9 @@ class DateNotifier extends ScopedNotifier {
       notifyMinutesBefore.push(0);
     }
 
+    const app = _app == undefined ? this.app : _app;
     const highPriority = _highPriority == undefined ? this.highPriority : _highPriority;
+    const lowPriority = _lowPriority == undefined ? this.lowPriority : _lowPriority;
     const enableHtml = _enableHtml == undefined ? this.enableHtml : _enableHtml;
 
     const url = _url == undefined ? this.url : _url;
@@ -334,6 +346,8 @@ class DateNotifier extends ScopedNotifier {
     if (Array.isArray(defaultTime) && defaultTime.length == 1) {
       defaultTime = defaultTime[0];
     }
+
+    const clockSymbol = _clockSymbol || this.clockSymbol;
 
     const defaultYear = _defaultYear || this.defaultYear || new Date().getFullYear();
 
@@ -380,11 +394,13 @@ class DateNotifier extends ScopedNotifier {
       const o = {
         deviceId: program.device.id,
         highPriority: false,
+        lowPriority: false,
         _title: title,
         _msg: msg,
         color: color || this.color,
         ttl: __ttl || ttl || this.ttl,
         ttlGui: ttlGui || this.ttlGui,
+        sound: sound || this.sound,
         user,
         id,
         url,
@@ -398,9 +414,11 @@ class DateNotifier extends ScopedNotifier {
 
       let _isWithin = true;
       for (const _from of Array(from).flat()) {
-        const { isWithin } = evaluateTimespan({ date: timepoint, from: _from, until });
-        if (!isWithin) {
-          _isWithin = false;
+        for (const _until of Array(until).flat()) {
+          const { isWithin } = evaluateTimespan({ date: timepoint, from: _from, until: _until });
+          if (!isWithin) {
+            _isWithin = false;
+          }
         }
       }
 
@@ -430,25 +448,17 @@ class DateNotifier extends ScopedNotifier {
 
               const isLastNotification = index === minutesBefore.length - 1;
 
-              const brevityTagline = minutesBefore.length >= 2 && min <= 30 && isLastNotification && !isPast;
-
               let _tagline =
                 isNow && msg
                   ? undefined
-                  : `${isNow ? NOW_SYMBOL : CLOCK_SYMBOL}${brevityTagline ? '' : ` ${datetime}`}${
-                      inTime ? ` ${brevityTagline ? capitalizeFirstLetter(inTime) : `[ ${inTime} ]`}` : ''
-                    }${(!isNow && min <= 30) || isPast ? EXCLAMATION_SYMBOL : ''}`;
+                  : `${isNow ? NOW_SYMBOL : clockSymbol} ${datetime} ${inTime ? `[ ${inTime} ]` : ''}${
+                      (!isNow && min <= 30) || isPast ? EXCLAMATION_SYMBOL : ''
+                    }`;
 
-              if (duration && minutesBefore.length - 1 == index) {
+              if (duration) {
                 const endTime = addMinutes(timepoint, duration);
-                const startTimeStr = format(timepoint, 'HH:mm');
                 const endTimeStr = format(endTime, 'HH:mm');
-                _tagline = `${_tagline || ''}${_tagline ? '\n' : ''}${FINISH_SYMBOL} `;
-                if (brevityTagline) {
-                  _tagline += `${capitalizeFirstLetter(strFrom)} ${startTimeStr} ${strUntil} ${endTimeStr}`;
-                } else {
-                  _tagline += `${capitalizeFirstLetter(strUntil)} ${endTimeStr}`;
-                }
+                _tagline = `${_tagline || ''}${_tagline ? '\n' : ''}${FINISH_SYMBOL} ${strUntil} ${endTimeStr}`;
               }
 
               const __tagline = isUnspecifiedTime ? undefined : _tagline;
@@ -473,7 +483,7 @@ class DateNotifier extends ScopedNotifier {
                 msg: pushMsg,
                 symbol,
                 tagline,
-                app: this.app,
+                app,
                 isToday: true,
                 highPriority: isLastNotification ? highPriority : false,
                 dedupKey: getDedupKey(now)
@@ -534,7 +544,7 @@ class DateNotifier extends ScopedNotifier {
                       ...o,
                       title: pushTitle,
                       msg: pushMsg,
-                      app: this.app,
+                      app,
                       tagline,
                       isDayBefore,
                       inDays,

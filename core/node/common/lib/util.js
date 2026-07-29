@@ -28,49 +28,118 @@ function runAtNextMinute(callback) {
   setTimeout(callback, delay);
 }
 
+const _minuteSubscribers = new Set();
+let _dispatcherStarted = false;
+
+function _ensureDispatcher() {
+  if (_dispatcherStarted) return;
+  _dispatcherStarted = true;
+  function tick() {
+    for (const fn of [..._minuteSubscribers]) {
+      try {
+        fn();
+      } catch {}
+    }
+    runAtNextMinute(tick);
+  }
+  runAtNextMinute(tick);
+}
+
 function everyMinute(list, callback) {
   if (!callback) {
     callback = list;
     list = undefined;
   }
 
-  let cancelled;
   let lastExecutedMinute = -1;
-
-  let firstRun = true;
 
   const shouldRun = () => {
     const d = new Date();
     return !list || (Array.isArray(list) && list.includes(d.getMinutes())) || d.getMinutes() % list == 0;
   };
 
-  const update = () => {
-    if (!cancelled) {
-      if (firstRun) {
-        if (shouldRun()) {
-          callback();
-        }
-        runAtNextMinute(update);
-        firstRun = false;
-      } else {
-        const now = new Date();
-        const currentMinute = now.getHours() * 60 + now.getMinutes();
-        const seconds = now.getSeconds();
+  {
+    const now = new Date();
+    const currentMinute = now.getHours() * 60 + now.getMinutes();
+    if (shouldRun()) {
+      lastExecutedMinute = currentMinute;
+      if (now.getSeconds() < 30) {
+        callback();
+      }
+    }
+  }
 
-        if (seconds < 3 && currentMinute !== lastExecutedMinute && shouldRun()) {
-          lastExecutedMinute = currentMinute;
-          callback();
+  const subscriber = () => {
+    const now = new Date();
+    const currentMinute = now.getHours() * 60 + now.getMinutes();
+    const seconds = now.getSeconds();
+    if (seconds < 5 && currentMinute !== lastExecutedMinute && shouldRun()) {
+      lastExecutedMinute = currentMinute;
+      callback();
+    }
+  };
+
+  _minuteSubscribers.add(subscriber);
+  _ensureDispatcher();
+
+  return () => _minuteSubscribers.delete(subscriber);
+}
+
+function executeAt(times, callback) {
+  const check = () => {
+    const d = new Date();
+
+    const list = Array.isArray(times) ? times : times.split(',');
+
+    for (const _time of list) {
+      let time = _time.trim();
+      let dow;
+      let dateSpec = null;
+
+      if (time.indexOf(' ') != -1) {
+        const parts = time.split(' ');
+        const firstPart = parts[0];
+
+        if (firstPart.indexOf('.') != -1) {
+          dateSpec = parseDateFormat(firstPart);
+          if (dateSpec) {
+            time = parts[parts.length - 1];
+          }
+        } else {
+          const result = parseDOWTime(time);
+          dow = result.dow;
+          time = result.time;
         }
-        runAtNextMinute(update);
+      }
+
+      const parts = time.split(':');
+      const hours = parseInt(parts[0]);
+      const min = parseInt(parts[1]);
+
+      const timeMatch = d.getMinutes() == min && d.getHours() == hours;
+
+      let conditionMatch = true;
+
+      if (dateSpec) {
+        conditionMatch = d.getDate() == dateSpec.day && d.getMonth() == dateSpec.month;
+        if (dateSpec.year !== null) {
+          conditionMatch = conditionMatch && d.getFullYear() == dateSpec.year;
+        }
+      } else if (dow != null) {
+        conditionMatch = d.getDay() == dow;
+      }
+
+      if (timeMatch && conditionMatch) {
+        callback();
       }
     }
   };
 
-  update();
+  if (new Date().getSeconds() >= 30) {
+    check();
+  }
 
-  return () => {
-    cancelled = true;
-  };
+  return everyMinute(check);
 }
 
 function everyHour(callback) {
@@ -111,56 +180,6 @@ function parseDateFormat(dateStr) {
   }
 
   return { day, month, year };
-}
-
-function executeAt(times, callback) {
-  return everyMinute(() => {
-    const d = new Date();
-
-    const list = Array.isArray(times) ? times : times.split(',');
-
-    for (const _time of list) {
-      let time = _time.trim();
-      let dow;
-      let dateSpec = null;
-
-      if (time.indexOf(' ') != -1) {
-        const [firstPart, timePart] = time.split(' ');
-
-        if (firstPart.indexOf('.') != -1) {
-          dateSpec = parseDateFormat(firstPart);
-          if (dateSpec) {
-            time = timePart;
-          }
-        } else {
-          const result = parseDOWTime(time);
-          dow = result.dow;
-          time = result.time;
-        }
-      }
-
-      const parts = time.split(':');
-      const hours = parseInt(parts[0]);
-      const min = parseInt(parts[1]);
-
-      const timeMatch = d.getMinutes() == min && d.getHours() == hours;
-
-      let conditionMatch = true;
-
-      if (dateSpec) {
-        conditionMatch = d.getDate() == dateSpec.day && d.getMonth() == dateSpec.month;
-        if (dateSpec.year !== null) {
-          conditionMatch = conditionMatch && d.getFullYear() == dateSpec.year;
-        }
-      } else if (dow != null) {
-        conditionMatch = d.getDay() == dow;
-      }
-
-      if (timeMatch && conditionMatch) {
-        callback();
-      }
-    }
-  });
 }
 
 function autoDetectEOLMarker(content = '') {

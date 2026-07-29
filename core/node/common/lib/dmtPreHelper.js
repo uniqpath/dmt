@@ -75,6 +75,10 @@ function isMainServer() {
   return device({ onlyBasicParsing: true }).mainServer == 'true';
 }
 
+function mainServer() {
+  return devices({ onlyBasicParsing: false }).find(({ mainServer }) => mainServer == 'true');
+}
+
 function isPersonalComputer() {
   return isMainDevice() || device({ onlyBasicParsing: true }).pc == 'true';
 }
@@ -245,6 +249,7 @@ export {
   isDevMachine,
   isDevUser,
   isDevPanel,
+  mainServer,
   debugMode,
   debugCategory,
   prettyFileSize

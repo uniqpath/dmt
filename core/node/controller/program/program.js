@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 
 import * as dmt from 'dmt/common';
-const { log, colors, colors2 } = dmt;
+const { log, colors, colors2, userDef } = dmt;
 
 import { desktop, apn, push } from 'dmt/notify';
 
@@ -14,11 +14,13 @@ import { setupTimeUpdater } from './interval/timeUpdater.js';
 import onProgramTick from './interval/onProgramTick.js';
 import onProgramSlowTick from './interval/onProgramSlowTick.js';
 
-import createFiberPool from './peerlist/createFiberPool.js';
-import syncPeersToProgramState from './peerlist/syncPeersToProgramState.js';
+import createFiberPool from './deviceConnections/createFiberPool.js';
+import initClientConnectionPinger from './deviceConnections/clientConnectionPinger.js';
+import initOutboundConnectivityChecker from './deviceConnections/outboundConnectivityChecker.js';
+import initServerInitiatedActions from './deviceConnections/serverInitiatedActions.js';
 
 import Network from '../network/index.js';
-import ProgramConnectionsAcceptor from './connectionsAcceptor.js';
+import ProgramConnectionsAcceptor from './deviceConnections/connectionsAcceptor.js';
 
 import ensureDirectories from './boot/ensureDirectories.js';
 import preventMultipleMainDevices from './boot/preventMultipleMainDevices.js';
@@ -30,6 +32,8 @@ import { createStore, getStore } from './createStore/createStore.js';
 
 import setupGlobalErrorHandler from './boot/setupGlobalErrorHandler.js';
 import loadMiddleware from './boot/loadMiddleware.js';
+
+import checkPushoverGroups from './boot/checkPushoverGroups.js';
 import retrogradePushMessagesRecovery from './boot/retrogradePushMessagesRecovery.js';
 import osUptime from './interval/osUptime.js';
 
@@ -109,14 +113,6 @@ class Program extends EventEmitter {
 
     this.fiberPool = createFiberPool({ port, protocol });
 
-    if (dmt.isDevUser() && !dmt.isMainDevice()) {
-      this.fiberPool.on('inactive_connection', connector => {
-        const msg = `⚠️  Inactive_connection to ${connector.endpoint}, check log`;
-        this.nearbyNotification({ msg, ttl: 30, dev: true, color: '#EDDE29', omitDesktopNotification: true });
-        apn.notify(msg);
-      });
-    }
-
     this.fiberPool.subscribe(({ connectionList }) => {
       this.slot('connectionsOut').set(connectionList);
     });
@@ -126,7 +122,9 @@ class Program extends EventEmitter {
     emitter.on('file_request', data => {
       this.emit('file_request', data);
     });
-    syncPeersToProgramState({ program: this, connectorPool: this.fiberPool, port });
+    initClientConnectionPinger({ program: this, connectorPool: this.fiberPool, port });
+    initOutboundConnectivityChecker({ program: this, connectorPool: this.fiberPool, port });
+    initServerInitiatedActions({ program: this, connectorPool: this.fiberPool });
 
     this.actors = new ActorManagement(this);
     this.acceptor = new ProgramConnectionsAcceptor(this);
@@ -145,6 +143,10 @@ class Program extends EventEmitter {
       this.slot('device').update({ isRPi: true }, { announce: false });
     } else {
       this.slot('device').removeKey('isRPi', { announce: false });
+    }
+
+    if (!userDef('pushover')?.pushover?.user) {
+      log.yellow('⚠️ pushover.def does not exist or is missing user token... you will not receive push messages...');
     }
 
     if (mids.includes('apps')) {
@@ -214,11 +216,11 @@ class Program extends EventEmitter {
     push.notify(msg);
   }
 
-  peerlist() {
-    const peerlist = this.slot('peerlist').get();
+  deviceConnections() {
+    const deviceConnections = this.slot('deviceConnections').get();
 
-    if (peerlist) {
-      return Object.entries(peerlist).map(([deviceName, values]) => {
+    if (deviceConnections) {
+      return Object.entries(deviceConnections).map(([deviceName, values]) => {
         return { deviceName, ...values };
       });
     }
@@ -243,6 +245,7 @@ class Program extends EventEmitter {
     log.green('Started IPC server');
 
     this.on('ready', () => {
+      checkPushoverGroups();
       log.green(`✓ ${colors.cyan('dmt-proc')} ${colors.bold().white(`v${dmt.dmtVersion()}`)} ${colors.cyan('ready')}`);
 
       retrogradePushMessagesRecovery(this);
@@ -457,7 +460,8 @@ class Program extends EventEmitter {
       title,
       msg,
       tagline = null,
-      ttl = 30,
+      ttl = undefined,
+      ttlMs = undefined,
       color = '#FFFFFF',
       group,
       omitDeviceName = false,
@@ -470,6 +474,16 @@ class Program extends EventEmitter {
   ) {
     if (dev && !this.showDevNotifications()) {
       return;
+    }
+
+    if (ttl && ttlMs) {
+      throw new Error(`Can't provide both ttl and ttlMs in showNotification: ${title} / ${msg}`);
+    }
+
+    const DEFAULT_TTL = 30;
+
+    if (!ttl) {
+      ttl = ttlMs ? ttlMs / 1000 : DEFAULT_TTL;
     }
 
     const bgColor = color;
@@ -551,7 +565,7 @@ class Program extends EventEmitter {
 
     if (this._nearby) {
       if (!dev || (dev && this.showDevNotifications())) {
-        if (_devices.length == 0 || _devices.includes(this.device.id)) {
+        if (_devices.length == 0 || _devices.includes(this.device.deviceName)) {
           this.showNotification(obj);
         }
       }
@@ -610,7 +624,7 @@ class Program extends EventEmitter {
 
       const { device, devices } = obj;
       const _devices = Array(device || devices || []).flat();
-      if (_devices.length == 0 || _devices.includes(this.device.id)) {
+      if (_devices.length == 0 || _devices.includes(this.device.deviceName)) {
         this.showNotification(obj, { originDevice });
       }
     });

@@ -5,7 +5,7 @@ const { ONE_SECOND, ONE_MINUTE, ONE_HOUR, ONE_DAY } = timeutils;
 const { format } = dateFns;
 const MAIN_DEVICE_TESTING = false;
 
-const TESTING_LOOKBACK_MINUTES = 30;
+const TESTING_LOOKBACK_MINUTES = 10;
 
 const INITIAL_DELAY = MAIN_DEVICE_TESTING ? 500 : 3000;
 
@@ -45,31 +45,41 @@ export default function init(program) {
 
         let checking;
 
-        while (timepoint < now) {
-          checking = true;
+        (async () => {
+          let iterationCount = 0;
+          const YIELD_EVERY = 10;
 
-          if (isDevUser()) {
-            const isBeginning = timepoint - firstHourTimepoint < 15 * ONE_MINUTE;
-            const isEnd = now - timepoint <= 15 * ONE_MINUTE;
+          while (timepoint < now) {
+            checking = true;
 
-            if (isBeginning || isEnd) {
-              log.magenta(`🕖 Checking delayed messages at ${colors.white(format(timepoint, 'H:mm:ss'))} …`);
-            } else {
-              const hour = new Date(timepoint).getHours();
-              if (!hourList.includes(hour)) {
-                log.yellow(`🕛 Checking all delayed messages around ${colors.white(`${hour}h`)} …`);
-                hourList.push(hour);
+            if (isDevUser()) {
+              const isBeginning = timepoint - firstHourTimepoint < 15 * ONE_MINUTE;
+              const isEnd = now - timepoint <= 15 * ONE_MINUTE;
+
+              if (isBeginning || isEnd) {
+                log.magenta(`🕖 Checking for delayed messages at ${colors.white(format(timepoint, 'H:mm:ss'))} …`);
+              } else {
+                const hour = new Date(timepoint).getHours();
+                if (!hourList.includes(hour)) {
+                  log.yellow(`🕛 Checking for all delayed messages around ${colors.white(`${hour}h`)} …`);
+                  hourList.push(hour);
+                }
               }
+            }
+
+            program.simulateNotifiersTimepoint(timepoint);
+            timepoint += ONE_MINUTE;
+            iterationCount++;
+
+            if (iterationCount % YIELD_EVERY === 0) {
+              await new Promise(resolve => setImmediate(resolve));
             }
           }
 
-          program.simulateNotifiersTimepoint(timepoint);
-          timepoint += ONE_MINUTE;
-        }
-
-        if (checking && isDevUser()) {
-          log.yellow('✅ Finished checking for delayed messages.');
-        }
+          if (checking && isDevUser()) {
+            log.yellow('✅ Finished checking for delayed messages.');
+          }
+        })();
       }
       setTimeout(() => {
         loop(() => {

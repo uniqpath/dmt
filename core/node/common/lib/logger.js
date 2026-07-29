@@ -11,7 +11,7 @@ import scan from './scan.js';
 import colorJSON from './colorJSON.js';
 import ScreenOutput from './loggerScreenOutput.js';
 
-import formatMilliseconds from './timeutils/formatMilliseconds.js';
+import { formatMilliseconds } from './timeutils/formatMilliseconds.js';
 
 const LIMIT = 15000;
 

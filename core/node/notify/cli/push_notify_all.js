@@ -1,11 +1,9 @@
-import { colors } from 'dmt/common';
-
-import { timeutils } from 'dmt/common';
+import { colors, timeutils } from 'dmt/common';
 
 const { ONE_DAY } = timeutils;
 
 //we go directly here so that we load the absolute minimum amount of code (entire lib2 (dmt notifiers) is bypasses)
-import { highPriority as pushHP } from '../lib/pushover/index.js';
+import { highPriority as pushHP, SOUND } from '../lib/pushover/index.js';
 
 function help() {
   console.log(colors.green('Send push message to mobile devices via pushover.net service'));
@@ -21,6 +19,7 @@ function send(msg, { highPriority = false } = {}) {
     .app('andreja')
     .ttl(5 * ONE_DAY)
     .title('Reminder')
+    .sound(SOUND.bugle)
     .notifyAll(msg)
     .then(() => {
       console.log(colors.green('Push message sent to all'));

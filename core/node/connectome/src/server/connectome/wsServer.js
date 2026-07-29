@@ -47,6 +47,10 @@ class WsServer extends EventEmitter {
         this.emit('connection_closed', channel);
       });
 
+      channel.on('remoteInfoReceived', () => {
+        this.emit('remoteInfoReceived');
+      });
+
       this.emit('connection', channel);
 
       ws.isAlive = true;
@@ -84,6 +88,7 @@ class WsServer extends EventEmitter {
     this.webSocketServer.clients.forEach(ws => {
       list.push({
         address: ws._connectomeChannel.remoteAddress() || ws._connectomeChannel.remoteIp(),
+        remoteInfo: ws._connectomeChannel.remoteInfo(),
         protocol: ws._connectomeChannel.protocol,
         remotePubkeyHex: ws._connectomeChannel.remotePubkeyHex(),
         ready: ws._connectomeChannel.isReady({ warn: false }), // connected and agreed on shared key .. so far only used in informative cli `dmt connections` list, otherwise we never have to check for this in our distributed systems logic

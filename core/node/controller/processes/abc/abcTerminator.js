@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { log, abcVersion, timeutils, abcSocket, isDevUser, isMainDevice, colors } from 'dmt/common';
 
-const { prettyTimeAgo, ONE_DAY } = timeutils;
+const { prettyTimeAgo, ONE_MINUTE, ONE_DAY } = timeutils;
 
 import { push, desktop } from 'dmt/notify';
 
@@ -21,13 +21,6 @@ export default function abcTerminator(ser, startedAt) {
     }, 200);
   }
 
-  function notifyAndRestart(msg) {
-    push
-      .ttl(ONE_DAY)
-      .notify(msg)
-      .then(restartABC);
-  }
-
   const checker = () => {
     const uptime = prettyTimeAgo(startedAt).replace(' ago', '');
 
@@ -36,13 +29,15 @@ export default function abcTerminator(ser, startedAt) {
       const msg = `abc-proc is restarting because of version change: v${initialAbcVersion} → v${_abcVersion} (uptime was ${uptime})`;
       log.magenta(msg);
 
+      restartABC();
+
       if (isDevUser()) {
         if (isMainDevice()) {
           desktop.notify(msg).then(() => {
             restartABC();
           });
         } else {
-          notifyAndRestart(msg);
+          restartABC();
         }
       } else {
         restartABC();

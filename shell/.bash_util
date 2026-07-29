@@ -77,6 +77,14 @@ function dev_machine {
   return 1 # false
 }
 
+function dmt_is_local_network {
+  if [ `hostname` == 'hub' ] || dev_machine; then
+    return 0 # true
+  else
+    return 1
+  fi
+}
+
 function dmt_desktop_notification {
   if [ -f /usr/bin/osascript ]; then
     local MSG="$1"

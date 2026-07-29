@@ -12,6 +12,7 @@ import {
   title,
   omitDeviceName,
   omitAppName,
+  SOUND,
   url,
   urlTitle,
   highPriority,
@@ -35,6 +36,7 @@ import weeklyNotifier from './lib2/weeklyNotifier.js';
 import dateNotifier from './lib2/dateNotifier.js';
 import holidayNotifier from './lib2/holidayNotifier.js';
 import trashTakeoutNotifier from './lib2/trashTakeoutNotifier.js';
+import scheduleNotifier from './lib2/scheduleNotifier.js';
 
 import { notify as notifyRaw } from './lib/pushover/notifier.js';
 
@@ -92,6 +94,7 @@ function init() {
 export {
   init,
   _push as push,
+  SOUND,
   verifyUser,
   apn,
   desktop,
@@ -101,6 +104,7 @@ export {
   dateNotifier,
   holidayNotifier,
   trashTakeoutNotifier,
+  scheduleNotifier,
   describeNearTime,
   getTimepoint
 };

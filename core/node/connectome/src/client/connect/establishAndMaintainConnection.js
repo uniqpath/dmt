@@ -59,9 +59,6 @@ function establishAndMaintainConnection(
       connector.connectStatus(false);
       reconnect();
     },
-    isOpen() {
-      return this.websocket.readyState == wsOPEN && !this.websocket.__closed;
-    },
     endpoint,
     checkTicker: 0
   };

@@ -32,7 +32,10 @@ export {
   differenceInWeeks,
   formatDistance,
   formatDistanceToNow,
-  formatDistanceToNowStrict
+  formatDistanceToNowStrict,
+  isWithinInterval,
+  endOfDay,
+  startOfDay
 } from 'date-fns';
 
 export { sl as localeSL } from 'date-fns/locale';

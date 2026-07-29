@@ -8716,6 +8716,13 @@ class Channel$1 extends Eev {
       Object.values(this.stateFieldsSubscriptions).forEach(unsubscribe => unsubscribe());
       this.emit('disconnect');
     });
+
+    this.attachObject('remoteInfo', {
+      set: remoteInfo => {
+        this._remoteInfo = remoteInfo;
+        this.emit('remoteInfoReceived');
+      }
+    });
   }
 
   // Usage:
@@ -8770,9 +8777,7 @@ class Channel$1 extends Eev {
 
   isReady({ warn = true } = {}) {
     if (warn) {
-      console.log(
-        "LIB USAGE WARNING ⚠️  we normally don't have to check if channel is ready because we already get it prepared"
-      );
+      console.log("LIB USAGE WARNING ⚠️  we normally don't have to check if channel is ready because we already get it prepared");
       console.log('If you really need to do this, call isReady like this: isReady({ warn: false })');
     }
     return !!this.sharedSecret;
@@ -8780,6 +8785,10 @@ class Channel$1 extends Eev {
 
   remoteAddress() {
     return this._remoteAddress;
+  }
+
+  remoteInfo() {
+    return this._remoteInfo;
   }
 
   remoteIp() {
@@ -8912,6 +8921,10 @@ class WsServer extends Eev {
         this.emit('connection_closed', channel);
       });
 
+      channel.on('remoteInfoReceived', () => {
+        this.emit('remoteInfoReceived');
+      });
+
       this.emit('connection', channel);
 
       ws.isAlive = true;
@@ -8949,6 +8962,7 @@ class WsServer extends Eev {
     this.webSocketServer.clients.forEach(ws => {
       list.push({
         address: ws._connectomeChannel.remoteAddress() || ws._connectomeChannel.remoteIp(),
+        remoteInfo: ws._connectomeChannel.remoteInfo(),
         //protocol: ws.protocol,
         protocol: ws._connectomeChannel.protocol,
         remotePubkeyHex: ws._connectomeChannel.remotePubkeyHex(),
@@ -9349,6 +9363,9 @@ class Connectome extends ReadableStore {
 
         const scope = scope => {
           return {
+            triggerAction(action, payload = {}) {
+              userAction({ dmtID, protocol: _protocol, scope, action, payload, channel: null });
+            },
             onUserAction: (action, handler) => {
               if (!handler) {
                 handler = action;
@@ -9393,6 +9410,10 @@ class Connectome extends ReadableStore {
       initializeConnection({ server: this, channel });
     });
 
+    this.wsServer.on('remoteInfoReceived', () => {
+      this.publishState();
+    });
+
     // initializeConnection above will emit 'connection' on this object after Diffie-Hellman handshake!
     this.on('connection', () => {
       this.publishState();
@@ -9428,9 +9449,7 @@ class Connectome extends ReadableStore {
     return Object.keys(this.protocols);
   }
 
-  channelList() {
-
-  }
+  channelList() {}
 
   connectionList() {
     if (!this.wsServer) return []; // not yet started

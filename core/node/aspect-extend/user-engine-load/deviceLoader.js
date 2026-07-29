@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 
 import { isMainDevice, isMainServer, scan, log, program, devices, dmtUserDir, colors } from 'dmt/common';
@@ -104,5 +105,7 @@ function load(dir, currentNamespace = null) {
 }
 
 export default function init(program, userEnginePath) {
-  load(DEVICES_DIR);
+  if (fs.existsSync(DEVICES_DIR)) {
+    load(DEVICES_DIR);
+  }
 }

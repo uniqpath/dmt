@@ -210,6 +210,7 @@ const {
   isPersonalComputer,
   isLanServer,
   isDevPanel,
+  mainServer,
   isValidIPv4Address,
   debugMode,
   debugCategory,
@@ -286,24 +287,6 @@ function device(options) {
 
 function devices(options) {
   return helper.devices(options);
-}
-
-function peerConnections() {
-  const connections = helper.peerConnections();
-
-  return connections
-    .map(({ id, deviceTag, syncState }) => {
-      if (id.includes('.')) {
-        const address = id;
-        return { address, deviceTag: deviceTag || address, syncState };
-      }
-
-      const deviceName = id;
-      const globalIp = helper.getIp({ deviceName });
-      return { deviceName, address: globalIp, deviceTag: deviceName, syncState };
-    })
-    .filter(({ address }) => !address.error)
-    .sort(util.orderBy('deviceTag'));
 }
 
 function keypair() {
@@ -435,7 +418,7 @@ export {
   services,
   device,
   devices,
-  peerConnections,
+  mainServer,
   keypair,
   keys,
   defaultKey,

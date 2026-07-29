@@ -22,7 +22,11 @@ const NOW_SYMBOL = '🫵';
 const WARN_SYMBOL = '❗';
 
 class DailyNotifier extends ScopedNotifier {
-  constructor(notifications, { symbol = '🔔', color, ttl, ttlGui, app, highPriority, title, warnAfter, user, users } = {}, decommissionable = false) {
+  constructor(
+    notifications,
+    { symbol = '🔔', color, ttl, ttlGui, app, highPriority, lowPriority, sound, title, warnAfter, user, users } = {},
+    decommissionable = false
+  ) {
     super(`${symbol} ${title || ''}`, decommissionable);
 
     this.notifications = Array(notifications).flat(Infinity);
@@ -33,6 +37,8 @@ class DailyNotifier extends ScopedNotifier {
     this.ttl = ttl;
     this.ttlGui = ttlGui;
     this.highPriority = !!highPriority;
+    this.lowPriority = !!lowPriority;
+    this.sound = sound;
     this.title = title;
     this.warnAfter = warnAfter;
     this.user = user || users;
@@ -65,7 +71,23 @@ class DailyNotifier extends ScopedNotifier {
 
     const { strReminder, strNewRegimeFromTomorrow, strAt, strAnd, strNow, capitalizeFirstLetter, insteadOf } = localize(program);
 
-    const { msg: msgStrOrArray, warnAfter: _warnAfter, symbol: _symbol, when, id, color, ttl, ttlGui, from, until, highPriority: _highPriority, url } = entry;
+    const {
+      msg: msgStrOrArray,
+      warnAfter: _warnAfter,
+      symbol: _symbol,
+      when,
+      id,
+      color,
+      ttl,
+      ttlGui,
+      sound,
+      from,
+      until,
+      highPriority: _highPriority,
+      lowPriority: _lowPriority,
+      app: _app,
+      url
+    } = entry;
 
     const titleStrOrArray = entry.title || this.title || '';
     const title = Array.isArray(titleStrOrArray) ? this.randomElement(titleStrOrArray) : titleStrOrArray;
@@ -74,6 +96,9 @@ class DailyNotifier extends ScopedNotifier {
 
     const warnAfter = _warnAfter == undefined ? this.warnAfter : _warnAfter;
     const highPriority = _highPriority == undefined ? this.highPriority : _highPriority;
+    const lowPriority = _lowPriority == undefined ? this.lowPriority : _lowPriority;
+
+    const app = _app == undefined ? this.app : _app;
 
     const entryUser = entry.user || entry.users;
     const user = entryUser == undefined ? this.user : entryUser;
@@ -86,13 +111,15 @@ class DailyNotifier extends ScopedNotifier {
       _title: title,
       symbol,
       highPriority: false,
+      lowPriority: false,
       ttl: ttl || this.ttl,
       ttlGui: ttlGui || this.ttlGui,
+      sound: sound || this.sound,
       color: color || this.color,
       user,
       id,
       url,
-      app: this.app,
+      app,
       data: entry.data || {}
     };
 
@@ -111,9 +138,11 @@ class DailyNotifier extends ScopedNotifier {
 
       let _isWithin = true;
       for (const _from of Array(from).flat()) {
-        const { isWithin } = evaluateTimespan({ date: notificationTime, from: _from, until });
-        if (!isWithin) {
-          _isWithin = false;
+        for (const _until of Array(until).flat()) {
+          const { isWithin } = evaluateTimespan({ date: notificationTime, from: _from, until: _until });
+          if (!isWithin) {
+            _isWithin = false;
+          }
         }
       }
 
@@ -170,7 +199,7 @@ class DailyNotifier extends ScopedNotifier {
 
           const pushTitle = `${symbol} ${title} ${ending}`.trim();
 
-          const obj = { ...o, highPriority, title: pushTitle, msg: _msg, tagline, dedupKey: getDedupKey(now) };
+          const obj = { ...o, highPriority, lowPriority, title: pushTitle, msg: _msg, tagline, dedupKey: getDedupKey(now) };
 
           this.handleMessage(this.prepareAndPrehashObj({ obj, now }));
         } else if (warnAfter) {

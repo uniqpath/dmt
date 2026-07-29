@@ -45,10 +45,6 @@ mids.push('content/samba');
 
 mids.push('meta/abc-connect');
 
-if (isDevUser()) {
-  mids.push('meta/connectivity-report');
-}
-
 mids.push('meta/replicate');
 mids.push('meta/sysinfo');
 mids.push('meta/holidays');
